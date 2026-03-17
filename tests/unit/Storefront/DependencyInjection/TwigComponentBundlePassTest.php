@@ -112,6 +112,18 @@ class TwigComponentBundlePassTest extends TestCase
 
         static::assertSame([], $container->getParameter('ux.twig_component.component_defaults'));
     }
+
+    public function testProcessSkipsClassThatThrowsReflectionExceptionOnInstantiation(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('ux.twig_component.component_defaults', []);
+        // \Closure is an internal PHP class — newInstanceWithoutConstructor() throws ReflectionException
+        $container->setParameter('kernel.bundles', ['Closure' => \Closure::class]);
+
+        (new TwigComponentBundlePass())->process($container);
+
+        static::assertSame([], $container->getParameter('ux.twig_component.component_defaults'));
+    }
 }
 
 /**

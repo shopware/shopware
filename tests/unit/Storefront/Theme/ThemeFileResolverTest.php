@@ -12,6 +12,7 @@ use Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\ThemeFileResolver;
@@ -736,5 +737,107 @@ class ThemeFileResolverTest extends TestCase
         $resolvedPath = $result->first()?->getFilepath();
         static::assertStringContainsString('/MyPlugin/Resources/views/components/Custom/Test/index.scss', (string) $resolvedPath);
         static::assertStringNotContainsString('/Storefront/Resources/views/components/', (string) $resolvedPath);
+    }
+
+    public function testResolveScriptFilesWithComponentsPlaceholder(): void
+    {
+        $config = new StorefrontPluginConfiguration('TestTheme');
+        $config->setScriptFiles(FileCollection::createFromArray(['@Components']));
+        $config->setStyleFiles(new FileCollection());
+
+        $configCollection = new StorefrontPluginConfigurationCollection([$config]);
+
+        $component = new class('Sw:Button', '/base/Storefront/Resources/views/components/Sw/Button.html.twig', 'Storefront') extends TwigComponent {
+            public function getScriptPath(): string
+            {
+                return '/base/Storefront/Resources/views/components/Sw/Button/index.js';
+            }
+        };
+
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $twigComponentHelper->method('getComponents')
+            ->willReturn(new TwigComponentCollection([$component]));
+
+        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+
+        $result = $resolver->resolveScriptFiles($config, $configCollection, false);
+
+        static::assertCount(1, $result);
+        static::assertStringContainsString('Sw/Button/index.js', (string) $result->first()?->getFilepath());
+    }
+
+    public function testComponentsPlaceholderSkipsComponentsWithNullScriptPath(): void
+    {
+        $config = new StorefrontPluginConfiguration('TestTheme');
+        $config->setScriptFiles(FileCollection::createFromArray(['@Components']));
+        $config->setStyleFiles(new FileCollection());
+
+        $configCollection = new StorefrontPluginConfigurationCollection([$config]);
+
+        // Component with no .js file alongside its template — getScriptPath() returns null
+        $component = new TwigComponent('Sw:Badge', '/base/Storefront/Resources/views/components/Sw/Badge/index.html.twig', 'Storefront');
+
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $twigComponentHelper->method('getComponents')
+            ->willReturn(new TwigComponentCollection([$component]));
+
+        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+
+        $result = $resolver->resolveScriptFiles($config, $configCollection, false);
+
+        static::assertCount(0, $result);
+    }
+
+    public function testResolveComponentSingleFileThrowsWhenNoComponentMatches(): void
+    {
+        $config = new StorefrontPluginConfiguration('TestTheme');
+        $config->setStyleFiles(FileCollection::createFromArray(['@Components/Sw/NonExistent.scss']));
+        $config->setScriptFiles(new FileCollection());
+
+        $configCollection = new StorefrontPluginConfigurationCollection([$config]);
+
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $twigComponentHelper->method('getComponents')
+            ->willReturn(new TwigComponentCollection());
+
+        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+
+        $this->expectException(\Shopware\Storefront\Theme\Exception\ThemeCompileException::class);
+
+        $resolver->resolveStyleFiles($config, $configCollection, false);
+    }
+
+    public function testResolveComponentSingleFileForScriptFilesType(): void
+    {
+        // The reference @Components:MyPlugin/Custom/Test.js resolves to a component
+        // whose getScriptPath() ends with "MyPlugin/Resources/views/components/Custom/Test.js"
+        $config = new StorefrontPluginConfiguration('TestTheme');
+        $config->setScriptFiles(FileCollection::createFromArray(['@Components:MyPlugin/Custom/Test.js']));
+        $config->setStyleFiles(new FileCollection());
+
+        $configCollection = new StorefrontPluginConfigurationCollection([$config]);
+
+        $component = new class('Custom:Test', '/plugin/MyPlugin/Resources/views/components/Custom/Test.html.twig', 'MyPlugin') extends TwigComponent {
+            public function getScriptPath(): string
+            {
+                // Must end with "MyPlugin/Resources/views/components/Custom/Test.js" for the path matching
+                return '/plugin/MyPlugin/Resources/views/components/Custom/Test.js';
+            }
+        };
+
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $twigComponentHelper->method('getComponents')
+            ->willReturn(new TwigComponentCollection([$component]));
+
+        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+
+        $result = $resolver->resolveScriptFiles($config, $configCollection, false);
+
+        static::assertCount(1, $result);
+        static::assertStringContainsString('Custom/Test.js', (string) $result->first()?->getFilepath());
     }
 }

@@ -540,6 +540,81 @@ class TwigComponentHelperTest extends TestCase
         static::assertFalse($components->has('Storefront:Button'));
     }
 
+    public function testGetComponentsSkipsAppWhenFilesystemThrows(): void
+    {
+        // A valid bundle dir is required so Finder->in() has at least one directory
+        $bundleDir = $this->tempDir . '/BundleForAppTest/Resources/views/storefront/components';
+        mkdir($bundleDir, 0777, true);
+
+        $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
+        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn([
+            'BundleForAppTest' => [],
+        ]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['namespace' => 'BrokenApp'],
+        ]);
+
+        $sourceResolver = $this->createMock(SourceResolver::class);
+        $sourceResolver->method('filesystemForAppName')
+            ->with('BrokenApp')
+            ->willThrowException(new \RuntimeException('Filesystem unavailable'));
+
+        $helper = new TwigComponentHelper(
+            'Resources/views/storefront/components',
+            ['BundleForAppTest' => ['path' => $this->tempDir . '/BundleForAppTest']],
+            $namespaceHierarchyBuilder,
+            $this->createComponentFactory(),
+            $connection,
+            $sourceResolver
+        );
+
+        // Exception from filesystemForAppName must be caught and the app skipped
+        $components = $helper->getComponents();
+
+        static::assertCount(0, $components);
+    }
+
+    public function testGetComponentsSkipsAppWhenComponentDirDoesNotExist(): void
+    {
+        // A valid bundle dir is required so Finder->in() has at least one directory
+        $bundleDir = $this->tempDir . '/BundleForAppTest2/Resources/views/storefront/components';
+        mkdir($bundleDir, 0777, true);
+
+        $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
+        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn([
+            'BundleForAppTest2' => [],
+        ]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['namespace' => 'AppWithNoComponents'],
+        ]);
+
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->method('path')
+            ->willReturn(sys_get_temp_dir() . '/non-existent-components-' . uniqid());
+
+        $sourceResolver = $this->createMock(SourceResolver::class);
+        $sourceResolver->method('filesystemForAppName')
+            ->with('AppWithNoComponents')
+            ->willReturn($filesystem);
+
+        $helper = new TwigComponentHelper(
+            'Resources/views/storefront/components',
+            ['BundleForAppTest2' => ['path' => $this->tempDir . '/BundleForAppTest2']],
+            $namespaceHierarchyBuilder,
+            $this->createComponentFactory(),
+            $connection,
+            $sourceResolver
+        );
+
+        $components = $helper->getComponents();
+
+        static::assertCount(0, $components);
+    }
+
     private function createComponentFactory(?ComponentMetadata $metadata = null): ComponentFactory
     {
         // ComponentFactory is final, so we use reflection to create a stub instance

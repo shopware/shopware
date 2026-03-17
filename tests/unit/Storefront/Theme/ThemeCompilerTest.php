@@ -701,6 +701,80 @@ class ThemeCompilerTest extends TestCase
         static::assertEquals($originalCollection, $collection);
     }
 
+    public function testCopyComponentScriptFilesIncludesComponentsWithScriptPath(): void
+    {
+        $this->setupBasicFileResolution();
+
+        // TwigComponent::getScriptPath() checks is_file() on disk, so we need a real file
+        $tempDir = sys_get_temp_dir() . '/test-component-' . uniqid();
+        mkdir($tempDir . '/Sw', 0777, true);
+        file_put_contents($tempDir . '/Sw/Button.js', 'console.log("hello");');
+
+        try {
+            $component = new \Shopware\Storefront\Framework\Twig\Components\TwigComponent(
+                'Sw:Button',
+                $tempDir . '/Sw/Button.html.twig',
+                'Storefront'
+            );
+
+            // Re-create the mock so the getComponents() configuration is not overridden by setUp
+            $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+            $this->twigComponentHelper->method('getComponents')
+                ->willReturn(new TwigComponentCollection([$component]));
+
+            $compiler = $this->createThemeCompiler();
+
+            $compiler->compileTheme(
+                TestDefaults::SALES_CHANNEL,
+                'theme-id',
+                $this->createThemeConfig('TestTheme'),
+                new StorefrontPluginConfigurationCollection(),
+                false,
+                Context::createDefaultContext()
+            );
+
+            $themePrefix = $this->pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-id');
+            $expectedPath = 'theme/' . $themePrefix . '/js/components/Sw/Button.js';
+
+            static::assertTrue($this->filesystem->has($expectedPath));
+        } finally {
+            unlink($tempDir . '/Sw/Button.js');
+            rmdir($tempDir . '/Sw');
+            rmdir($tempDir);
+        }
+    }
+
+    public function testCopyComponentScriptFilesSkipsComponentsWithNullScriptPath(): void
+    {
+        $this->setupBasicFileResolution();
+
+        // Component where no .js file exists beside the template → getScriptPath() returns null
+        $component = new \Shopware\Storefront\Framework\Twig\Components\TwigComponent(
+            'Sw:Badge',
+            sys_get_temp_dir() . '/Sw/Badge.html.twig',
+            'Storefront'
+        );
+
+        $this->twigComponentHelper->method('getComponents')
+            ->willReturn(new TwigComponentCollection([$component]));
+
+        $compiler = $this->createThemeCompiler();
+
+        // Should not throw — null path component is simply skipped
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $this->createThemeConfig('TestTheme'),
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
+
+        $themePrefix = $this->pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-id');
+        $componentDir = 'theme/' . $themePrefix . '/js/components/';
+        static::assertFalse($this->filesystem->has($componentDir));
+    }
+
     // ===================================
     // Deployment Safety Tests
     // ===================================

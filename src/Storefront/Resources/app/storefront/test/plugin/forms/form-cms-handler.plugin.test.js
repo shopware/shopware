@@ -58,25 +58,17 @@ describe('Form CMS Handler tests', () => {
     });
 
     test('form cms handler disables submit button while request is pending', () => {
-        global.fetch = jest.fn(() => new Promise(() => {}));
+        formCmsHandlerPlugin._client = { post: jest.fn() };
 
         formElement.dispatchEvent(new Event('submit'));
 
         expect(submitButtonElement.disabled).toBe(true);
     });
 
-    test('form cms handler re-enables submit button after error response', async () => {
-        global.fetch = jest.fn(() =>
-            Promise.resolve({
-                text: () => Promise.resolve('[{"type":"danger","alert":""}]'),
-            })
-        );
+    test('form cms handler re-enables submit button after error response', () => {
+        setupMockHttpClient('[{"type":"danger","alert":""}]');
 
         formElement.dispatchEvent(new Event('submit'));
-
-        expect(submitButtonElement.disabled).toBe(true);
-
-        await new Promise(process.nextTick);
 
         expect(submitButtonElement.disabled).toBe(false);
     });

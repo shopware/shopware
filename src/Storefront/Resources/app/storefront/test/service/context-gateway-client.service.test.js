@@ -121,7 +121,7 @@ describe('Context gateway client service', () => {
             current: 'https://platform.dev.localhost/checkout/register',
             redirect: undefined,
             customTarget: null,
-            expectedHref: null,
+            expectedHref: 'https://platform.dev.localhost/checkout/register',
             shouldReload: true,
         },
         {
@@ -129,7 +129,7 @@ describe('Context gateway client service', () => {
             current: 'https://platform.dev.localhost/checkout/register',
             redirect: null,
             customTarget: null,
-            expectedHref: null,
+            expectedHref: 'https://platform.dev.localhost/checkout/register',
             shouldReload: true,
         },
         {
@@ -185,7 +185,7 @@ describe('Context gateway client service', () => {
             current: 'https://platform.dev.localhost/foo',
             redirect: '',
             customTarget: '',
-            expectedHref: null,
+            expectedHref: 'https://platform.dev.localhost/foo',
             shouldReload: true,
         },
         {

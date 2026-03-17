@@ -5,7 +5,6 @@
 import axios from 'axios';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
-import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
 
 Shopware.Application.view.deleteReactive = () => {};
 
@@ -448,16 +447,14 @@ describe('core/factory/http.factory.js', () => {
         beforeEach(() => {
             loginService = {
                 refreshToken: jest.fn().mockResolvedValue('new-token'),
+                subscribeToTokenRefresh: jest.fn((successCb) => {
+                    // Simulate immediate token refresh callback
+                    successCb('new-token');
+                }),
                 logout: jest.fn(),
             };
 
             Shopware.Service = jest.fn(() => loginService);
-
-            // Reset the refresh token helper state
-            const tokenHandler = getRefreshTokenHelper();
-            tokenHandler.isRefreshing = false;
-            tokenHandler._subscribers = [];
-            tokenHandler._errorSubscribers = [];
         });
 
         it('should not retry 401 responses with SSO_LOGIN__TOKEN_NOT_FOUND error code', async () => {
@@ -491,13 +488,7 @@ describe('core/factory/http.factory.js', () => {
 
         it('should not retry a 401 request more than once after token refresh', async () => {
             // Always respond with 401 (non-SSO error, e.g. genuinely expired token that refresh cannot fix)
-            mock.onGet('/api/some-endpoint').reply(401, {
-                errors: [
-                    {
-                        code: 'FRAMEWORK__UNAUTHORIZED',
-                    },
-                ],
-            });
+            mock.onGet('/api/some-endpoint').reply(401, {});
 
             const getError = async () => {
                 try {

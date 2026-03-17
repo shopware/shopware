@@ -443,8 +443,11 @@ describe('core/factory/http.factory.js', () => {
 
     describe('refreshTokenInterceptor', () => {
         let loginService;
+        let originalShopwareService;
 
         beforeEach(() => {
+            originalShopwareService = Shopware.Service;
+
             loginService = {
                 refreshToken: jest.fn().mockResolvedValue('new-token'),
                 subscribeToTokenRefresh: jest.fn((successCb) => {
@@ -454,6 +457,10 @@ describe('core/factory/http.factory.js', () => {
             };
 
             Shopware.Service = jest.fn(() => loginService);
+        });
+
+        afterEach(() => {
+            Shopware.Service = originalShopwareService;
         });
 
         it('should not retry 401 responses with SSO_LOGIN__TOKEN_NOT_FOUND error code', async () => {
@@ -497,8 +504,9 @@ describe('core/factory/http.factory.js', () => {
 
             const error = await getError();
             expect(error.response.status).toBe(401);
-
-            expect(mock.history.get.length).toBeLessThanOrEqual(2);
+            expect(mock.history.get).toHaveLength(2);
+            expect(loginService.refreshToken).toHaveBeenCalledTimes(1);
+            expect(loginService.subscribeToTokenRefresh).toHaveBeenCalledTimes(1);
         });
     });
 });

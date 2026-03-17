@@ -90,7 +90,8 @@ function wrapJsonBeaconPayload(targetUrl: string): (() => void) | null {
         restored = true;
         wrappedBeaconCallbacks -= 1;
 
-        if (wrappedBeaconCallbacks === 0 && originalSendBeacon !== null) {
+        if (wrappedBeaconCallbacks <= 0 && originalSendBeacon !== null) {
+            wrappedBeaconCallbacks = 0;
             navigator.sendBeacon = originalSendBeacon;
             originalSendBeacon = null;
         }

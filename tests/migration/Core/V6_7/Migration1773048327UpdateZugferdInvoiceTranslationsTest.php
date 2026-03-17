@@ -65,7 +65,7 @@ class Migration1773048327UpdateZugferdInvoiceTranslationsTest extends TestCase
         );
 
         $translations = \array_column($translations, 'name');
-        \sort($translations);
+        sort($translations);
 
         static::assertSame(
             [

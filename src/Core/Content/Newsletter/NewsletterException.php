@@ -34,14 +34,4 @@ class NewsletterException extends HttpException
             ['identifier' => $identifier, 'value' => $value]
         );
     }
-
-    public static function newsletterThrottled(int $waitTime): NewsletterException
-    {
-        return new self(
-            Response::HTTP_TOO_MANY_REQUESTS,
-            self::NEWSLETTER_RECIPIENT_THROTTLED,
-            'Too many requests, try again in {{ seconds }} seconds.',
-            ['seconds' => $waitTime],
-        );
-    }
 }

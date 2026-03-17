@@ -316,7 +316,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
         );
 
-        static::expectException(NewsletterException::class);
+        static::expectException(RateLimitExceededException::class);
 
         $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
     }

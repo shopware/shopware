@@ -78,13 +78,7 @@ export default {
             ];
         },
         currentIndex() {
-            const foundIndex = this.options.findIndex((item) => item.value === this.value);
-
-            if (foundIndex < 0) {
-                console.warn(`Given value "${this.value}" does not exist in given options`);
-            }
-
-            return foundIndex;
+            return this.options.findIndex((item) => item.value === this.value);
         },
     },
 

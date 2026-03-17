@@ -159,7 +159,7 @@ export default class FilterRatingSelectPlugin extends FilterMultiSelectPlugin {
 
         this.mainFilterButton.setAttribute(
             'aria-label',
-            `${this.options.snippets.ariaLabel} (${this.options.snippets.ariaLabelCount.replace('%stars%', this.currentRating)})`
+            `${this.options.snippets.ariaLabel} (${this.options.snippets.ariaLabelCount.replace('%stars%', this.currentRating)})`,
         );
     }
 }

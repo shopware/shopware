@@ -209,7 +209,7 @@ class AssetServiceTest extends TestCase
 
         $adapter = $this->createMock(FilesystemAdapter::class);
         $adapter->method('writeStream')
-            ->willReturnCallback(function (string $path, $stream) {
+            ->willReturnCallback(static function (string $path, $stream) {
                 static::assertIsResource($stream);
                 // Some flysystem adapters automatically close the stream e.g. google adapter
                 fclose($stream);
@@ -365,7 +365,7 @@ class AssetServiceTest extends TestCase
         $filesystem
             ->expects($this->exactly(\count($expectedWrites)))
             ->method('writeStream')
-            ->willReturnCallback(function (string $path, $stream) use ($expectedWrites) {
+            ->willReturnCallback(static function (string $path, $stream) use ($expectedWrites) {
                 static::assertIsResource($stream);
                 $meta = stream_get_meta_data($stream);
 
@@ -380,7 +380,7 @@ class AssetServiceTest extends TestCase
         $filesystem
             ->expects($this->exactly(\count($expectedDeletes)))
             ->method('delete')
-            ->with(static::callback(function (string $path) use ($expectedDeletes) {
+            ->with(static::callback(static function (string $path) use ($expectedDeletes) {
                 return $path === array_pop($expectedDeletes);
             }));
 
@@ -459,7 +459,7 @@ class AssetServiceTest extends TestCase
         $filesystem
             ->expects($this->exactly(\count($expectedWrites)))
             ->method('writeStream')
-            ->willReturnCallback(function (string $path, $stream) use ($expectedWrites) {
+            ->willReturnCallback(static function (string $path, $stream) use ($expectedWrites) {
                 static::assertIsResource($stream);
                 $meta = stream_get_meta_data($stream);
 

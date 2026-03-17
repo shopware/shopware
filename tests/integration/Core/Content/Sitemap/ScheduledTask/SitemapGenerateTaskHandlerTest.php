@@ -70,7 +70,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test-sitemap-task-handler');
 
-        $nonDefaults = array_values(array_filter(array_map(function (string $id): ?array {
+        $nonDefaults = array_values(array_filter(array_map(static function (string $id): ?array {
             if ($id === TestDefaults::SALES_CHANNEL) {
                 return null;
             }
@@ -116,7 +116,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
     {
         $salesChannelIds = $this->salesChannelRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
 
-        $nonDefaults = array_values(array_filter(array_map(function (string $id): ?array {
+        $nonDefaults = array_values(array_filter(array_map(static function (string $id): ?array {
             if ($id === TestDefaults::SALES_CHANNEL) {
                 return null;
             }

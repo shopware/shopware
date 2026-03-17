@@ -25,6 +25,15 @@ export default {
 
     computed: {
         selectedForm() {
+            if (this.element.config.type.value === 'contact') {
+                return 'sw-cms-el-form-template-contact';
+            }
+            if (this.element.config.type.value === 'newsletter') {
+                return 'sw-cms-el-form-template-newsletter';
+            }
+            if (this.element.config.type.value === 'revocationRequest') {
+                return 'sw-cms-el-form-template-revocation-request';
+            }
             return this.element.config.type.value;
         },
     },

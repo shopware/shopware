@@ -475,6 +475,7 @@
             "type": "Form type",
             "typeContact": "Contact",
             "typeNewsletter": "Newsletter",
+            "typeRevocationRequest": "Revocation",
             "confirmationText": "Confirmation text"
           },
           "placeholder": {
@@ -495,7 +496,9 @@
             "salutationUndisclosed": "Prefer not to disclose",
             "send": "Send",
             "subject": "Subject line*",
-            "subscribeToNewsletter": "Subscribe to newsletter"
+            "subscribeToNewsletter": "Subscribe to newsletter",
+            "contractNumber": "Contract number (order number, subscription number, ...)*",
+            "comment": "Comment"
           },
           "placeholder": {
             "firstName": "John",
@@ -503,7 +506,9 @@
             "email": "john{'@'}doe.com",
             "phone": "+4920 3920173",
             "subject": "Lorem ipsum dolor sit amet.",
-            "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
+            "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.",
+            "contractNumber": "SW123456789",
+            "comment": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
           },
           "helpText": {
             "privacy": "I have read the data protection information.",
@@ -783,6 +788,7 @@
           "404Page": "404 pages",
           "maintenancePage": "Maintenance pages",
           "contactPage": "Contact forms",
+          "revocationRequestPage": "Revocation request form",
           "newsletterPage": "Newsletter pages"
         },
         "products": {

@@ -225,4 +225,12 @@ describe('src/module/sw-order/component/sw-order-document-settings-modal', () =>
         expect(wrapper.emitted()['preview-show'][0][1]).toBe('html');
         expect(wrapper.emitted()['preview-show'][0][0].fileTypes).toEqual(['html']);
     });
+
+    it('should show download label on the download button', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const downloadButton = wrapper.find('.sw-order-document-settings-modal__download-button');
+        expect(downloadButton.text()).toBe('sw-order.documentModal.labelCreateDownload');
+    });
 });

@@ -25,6 +25,13 @@ export default {
             }
             return '';
         },
+
+        requireConfigTab() {
+            return [
+                'contact',
+                'revocationRequest',
+            ].includes(this.element.config.type.value);
+        },
     },
 
     created() {

@@ -65,30 +65,17 @@ return [
         'Class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity became final',
         'Parameter hydratorClass was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity',
 
-        'Parameter a11yMediaId was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentIdStruct',
+        // False positive, added parameters have default values or are optional
+        preg_quote('ADDED: Parameter documentType was added to Method withGeneralOrderData() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument', '/'),
+        preg_quote('ADDED: Parameter documentType was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),
+        preg_quote('ADDED: Parameter invoiceReference was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),
 
-        // Changing from Exception to Throwable|null is widening and no problem
-        'The parameter \\$previous of Shopware\\\\Core\\\\Framework\\\\Migration\\\\Exception\\\\MigrateException\\#__construct\(\) changed',
+        // False positive, added parameters have default values or are optional
+        preg_quote('ADDED: Parameter documentType was added to Method withGeneralOrderData() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument', '/'),
+        preg_quote('ADDED: Parameter documentType was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),
+        preg_quote('ADDED: Parameter invoiceReference was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),
 
-        // changing constructor in a safe way as long as you don't extend the hook
-        'Parameter salesChannelId was added to Method __construct\(\) of class Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Event\\\\SystemConfigChangedHook',
-
-        // revert deprecated return value
-        'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException::customerNotLoggedIn\(\) changed from self|Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\GuestNotAuthenticatedException to Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\GuestNotAuthenticatedException',
-        'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException::guestNotAuthenticated\(\) changed from self|Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\GuestNotAuthenticatedException to Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\GuestNotAuthenticatedException',
-        'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException::wrongGuestCredentials\(\) changed from self|Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\WrongGuestCredentialsException to Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\WrongGuestCredentialsException',
-
-        // Fix to make promotions work with order recalculation
-        'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',
-
-        'ADDED: Parameter visibility was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Plugin\\\\CopyBatchInput',
-
-        // Added runtime parameter to Field attribute
-        'ADDED: Parameter runtime was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Field',
-
-        // The "parts" arrays of these events could contain values that are not correctly represented in the getter and add methods. Those are necessary fixes, otherwise type errors will occur.
-        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent#get() changed from string', '/'),
-        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent#get() changed from string|null', '/'),
-        preg_quote('CHANGED: The parameter $value of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent#add() changed from string', '/'),
+        // False positive, constructor is internal
+        preg_quote('REMOVED: Property Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer#$shopwareVersion was removed', '/'),
     ],
 ];

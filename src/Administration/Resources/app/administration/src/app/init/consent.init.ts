@@ -25,6 +25,10 @@ export default async function initConsentStore(): Promise<void> {
     }
 
     setInterval(() => {
+        if (!Shopware.Service('loginService').isLoggedIn()) {
+            return;
+        }
+
         void consentStore.update();
     }, 300000); // every 5 minutes
 

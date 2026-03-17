@@ -21,12 +21,7 @@ class NumberRangeException extends HttpException
     public static function incrementStorageNotFound(string $storage, array $availableStorages): self|IncrementStorageNotFoundException
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            return new IncrementStorageNotFoundException(
-                Response::HTTP_INTERNAL_SERVER_ERROR,
-                self::INCREMENT_STORAGE_NOT_FOUND,
-                'The number range increment storage "{{ storage }}" is not available. Available storages are: "{{ availableStorages }}".',
-                ['storage' => $storage, 'availableStorages' => implode('", "', $availableStorages)]
-            );
+            return new IncrementStorageNotFoundException($storage, $availableStorages);
         }
 
         return new self(

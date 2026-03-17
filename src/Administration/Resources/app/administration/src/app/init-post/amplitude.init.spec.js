@@ -607,6 +607,8 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             Shopware.Utils.EventBus.emit('telemetry', resetEvent);
 
             expect(amplitude.track).toHaveBeenCalledWith('logout');
+            expect(amplitude.flush).not.toHaveBeenCalled();
+            expect(amplitude.reset).not.toHaveBeenCalled();
         });
 
         it('should flush telemetry amplitude on logout listener execution', async () => {

@@ -15,10 +15,12 @@ const AMPLITUDE_LOG_LEVEL_NONE = 0;
  */
 export function registerTelemetryLogoutListener(amplitude: AmplitudeModule): void {
     Shopware.Service('loginService').addOnLogoutListener(() => {
+        const restoreSendBeacon = wrapJsonBeaconPayload();
         amplitude.setTransport('beacon');
         setTimeout(() => {
             amplitude.flush();
             amplitude.reset();
+            setTimeout(() => restoreSendBeacon?.(), 0);
         }, 0);
     });
 }
@@ -55,6 +57,26 @@ export function createPrivacyAmplitudeClient(
  */
 export function getAmplitudeBrowserApiKeyPrefix(): string {
     return AMPLITUDE_BROWSER_API_KEY.substring(0, 10);
+}
+
+function wrapJsonBeaconPayload(): (() => void) | null {
+    if (typeof navigator === 'undefined' || typeof navigator.sendBeacon !== 'function' || typeof Blob === 'undefined') {
+        return null;
+    }
+
+    const originalSendBeacon = navigator.sendBeacon.bind(navigator);
+
+    navigator.sendBeacon = ((url: string | URL, data?: BodyInit | null): boolean => {
+        if (typeof data === 'string') {
+            return originalSendBeacon(url, new Blob([data], { type: 'application/json' }));
+        }
+
+        return originalSendBeacon(url, data);
+    }) as typeof navigator.sendBeacon;
+
+    return () => {
+        navigator.sendBeacon = originalSendBeacon;
+    };
 }
 
 function createAmplitudeInitOptions(serverUrl: string) {

@@ -7,14 +7,13 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
-use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
  * @internal
@@ -22,33 +21,35 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 #[CoversClass(ContentSystemDataLoaderTypeResolver::class)]
 class ContentSystemDataLoaderTypeResolverTest extends TestCase
 {
-    #[TestDox('passes non-wildcard entries through as-is')]
-    public function testNonWildcardPassthrough(): void
+    #[TestDox('passes compiled entries through with all descriptor fields preserved')]
+    public function testCompiledPassthrough(): void
     {
-        $registry = static::createStub(DefinitionInstanceRegistry::class);
-
-        $resolver = new ContentSystemDataLoaderTypeResolver($registry, [
-            'navigation' => [['className' => Tree::class, 'genericParameters' => []]],
-        ]);
+        $resolver = new ContentSystemDataLoaderTypeResolver(
+            new ServiceLocator([]),
+            ['product_review' => [['className' => EntitySearchResult::class, 'genericParameters' => [ProductReviewCollection::class]]]],
+        );
 
         $map = $resolver->resolve();
 
-        static::assertCount(1, $map->sourceToTypes['navigation']);
-        static::assertSame(Tree::class, $map->sourceToTypes['navigation'][0]->className);
+        static::assertCount(1, $map->sourceToTypes['product_review']);
+        static::assertSame(EntitySearchResult::class, $map->sourceToTypes['product_review'][0]->className);
+        static::assertSame([ProductReviewCollection::class], $map->sourceToTypes['product_review'][0]->genericParameters);
     }
 
-    #[TestDox('expands Entity wildcard using definitions')]
-    public function testEntityWildcardExpansion(): void
+    #[TestDox('replaces compiled entries with overridden types')]
+    public function testOverriddenTypesReplaceCompiledEntries(): void
     {
-        $definition = static::createStub(ProductDefinition::class);
-        $definition->method('getEntityClass')->willReturn(ProductEntity::class);
-
-        $registry = static::createStub(DefinitionInstanceRegistry::class);
-        $registry->method('getDefinitions')->willReturn([$definition]);
-
-        $resolver = new ContentSystemDataLoaderTypeResolver($registry, [
-            'entity' => [['className' => Entity::class, 'genericParameters' => []]],
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('overrideProvidedTypes')->willReturn([
+            new ContentSystemDataLoaderTypeDescriptor(ProductEntity::class),
         ]);
+
+        $locator = new ServiceLocator(['entity' => static fn () => $loader]);
+
+        $resolver = new ContentSystemDataLoaderTypeResolver(
+            $locator,
+            ['entity' => [['className' => Entity::class, 'genericParameters' => []]]],
+        );
 
         $map = $resolver->resolve();
 
@@ -56,36 +57,22 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
         static::assertSame(ProductEntity::class, $map->sourceToTypes['entity'][0]->className);
     }
 
-    #[TestDox('expands EntityCollection wildcard using definitions')]
-    public function testEntityCollectionWildcardExpansion(): void
+    #[TestDox('keeps compiled entries when override returns empty')]
+    public function testKeepsCompiledEntriesWhenOverrideEmpty(): void
     {
-        $definition = static::createStub(ProductDefinition::class);
-        $definition->method('getCollectionClass')->willReturn(ProductCollection::class);
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('overrideProvidedTypes')->willReturn([]);
 
-        $registry = static::createStub(DefinitionInstanceRegistry::class);
-        $registry->method('getDefinitions')->willReturn([$definition]);
+        $locator = new ServiceLocator(['navigation' => static fn () => $loader]);
 
-        $resolver = new ContentSystemDataLoaderTypeResolver($registry, [
-            'entity_collection' => [['className' => EntityCollection::class, 'genericParameters' => []]],
-        ]);
+        $resolver = new ContentSystemDataLoaderTypeResolver(
+            $locator,
+            ['navigation' => [['className' => Tree::class, 'genericParameters' => []]]],
+        );
 
         $map = $resolver->resolve();
 
-        static::assertCount(1, $map->sourceToTypes['entity_collection']);
-        static::assertSame(ProductCollection::class, $map->sourceToTypes['entity_collection'][0]->className);
-    }
-
-    #[TestDox('preserves genericParameters')]
-    public function testGenericParametersPreserved(): void
-    {
-        $registry = static::createStub(DefinitionInstanceRegistry::class);
-
-        $resolver = new ContentSystemDataLoaderTypeResolver($registry, [
-            'product_review' => [['className' => EntitySearchResult::class, 'genericParameters' => [ProductReviewCollection::class]]],
-        ]);
-
-        $map = $resolver->resolve();
-
-        static::assertSame([ProductReviewCollection::class], $map->sourceToTypes['product_review'][0]->genericParameters);
+        static::assertCount(1, $map->sourceToTypes['navigation']);
+        static::assertSame(Tree::class, $map->sourceToTypes['navigation'][0]->className);
     }
 }

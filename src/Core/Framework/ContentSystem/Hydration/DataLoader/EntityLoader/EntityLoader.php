@@ -5,12 +5,14 @@ namespace Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoade
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -41,6 +43,25 @@ class EntityLoader extends AbstractContentDataLoader
     public static function getRequirementType(): string
     {
         return self::SOURCE;
+    }
+
+    /**
+     * @return list<ContentSystemDataLoaderTypeDescriptor>
+     */
+    public function overrideProvidedTypes(): array
+    {
+        $types = [];
+        foreach ($this->definitionRegistry->getDefinitions() as $definition) {
+            $entityClass = $definition->getEntityClass();
+
+            if ($entityClass === ArrayEntity::class) {
+                continue;
+            }
+
+            $types[] = new ContentSystemDataLoaderTypeDescriptor($entityClass);
+        }
+
+        return $types;
     }
 
     public function load(

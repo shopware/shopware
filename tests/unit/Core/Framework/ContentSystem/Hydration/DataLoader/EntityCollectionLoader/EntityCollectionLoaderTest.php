@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -34,6 +35,45 @@ class EntityCollectionLoaderTest extends TestCase
     public function testGetRequirementTypeReturnsEntityCollection(): void
     {
         static::assertSame('entity_collection', EntityCollectionLoader::getRequirementType());
+    }
+
+    #[TestDox('overrides provided types with all registered entity collection classes')]
+    public function testOverrideProvidedTypesReturnsAllCollections(): void
+    {
+        $productDef = static::createStub(EntityDefinition::class);
+        $productDef->method('getCollectionClass')->willReturn(ProductCollection::class);
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getDefinitions')->willReturn([$productDef]);
+
+        $loader = new EntityCollectionLoader(
+            static::createStub(SalesChannelDefinitionInstanceRegistry::class),
+            $registry,
+            static::createStub(EntityCacheTagResolver::class),
+        );
+
+        $types = $loader->overrideProvidedTypes();
+
+        static::assertCount(1, $types);
+        static::assertSame(ProductCollection::class, $types[0]->className);
+    }
+
+    #[TestDox('excludes bare EntityCollection from overridden types')]
+    public function testOverrideProvidedTypesExcludesBareEntityCollection(): void
+    {
+        $def = static::createStub(EntityDefinition::class);
+        $def->method('getCollectionClass')->willReturn(EntityCollection::class);
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getDefinitions')->willReturn([$def]);
+
+        $loader = new EntityCollectionLoader(
+            static::createStub(SalesChannelDefinitionInstanceRegistry::class),
+            $registry,
+            static::createStub(EntityCacheTagResolver::class),
+        );
+
+        static::assertSame([], $loader->overrideProvidedTypes());
     }
 
     #[TestDox('returns cached collection with resolved tags when entities are loaded via sales channel repository')]

@@ -4,7 +4,7 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 
 ## Key Classes
 
-- `AbstractContentDataLoader` - Loader base class with `load()`, `getRequirementType()`, and `getProvidedData()`
+- `AbstractContentDataLoader` - Loader base class with `load()`, `getRequirementType()`, `getProvidedData()`, and `overrideProvidedTypes()`
 - `ContentDataLoaderResult` - Result with data and cache info: `notFound()`, `cached()`, `cachedExternally()`, `uncacheable()`
 - `ContentSystemDataLoaderTypeDescriptor` - DTO describing a loader's provided data type (`className` + `genericParameters`)
 - `DataLoaderProvider` - Service locator dispatcher (throws if source not found)
@@ -32,3 +32,5 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 5. Return `ContentDataLoaderResult` with appropriate cache info — never throw exceptions
 
 Override `getProvidedData()` only for special cases (e.g., wildcard entity loaders). The default implementation extracts the type from `@extends`.
+
+Override `overrideProvidedTypes()` for wildcard loaders that serve multiple concrete types (e.g., generic entity loaders). The method is called at runtime by the resolver, not at build time. Default returns `[]` (no expansion).

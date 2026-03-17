@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -36,13 +38,43 @@ class EntityLoaderTest extends TestCase
         static::assertSame('entity', EntityLoader::getRequirementType());
     }
 
-    #[TestDox('returns Entity wildcard as provided data type')]
-    public function testGetProvidedDataReturnsEntityWildcard(): void
+    #[TestDox('overrides provided types with all registered entity classes')]
+    public function testOverrideProvidedTypesReturnsAllEntities(): void
     {
-        $descriptor = EntityLoader::getProvidedData();
+        $productDef = static::createStub(EntityDefinition::class);
+        $productDef->method('getEntityClass')->willReturn(ProductEntity::class);
 
-        static::assertSame(Entity::class, $descriptor->className);
-        static::assertSame([], $descriptor->genericParameters);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getDefinitions')->willReturn([$productDef]);
+
+        $loader = new EntityLoader(
+            static::createStub(SalesChannelDefinitionInstanceRegistry::class),
+            $registry,
+            static::createStub(EntityCacheTagResolver::class),
+        );
+
+        $types = $loader->overrideProvidedTypes();
+
+        static::assertCount(1, $types);
+        static::assertSame(ProductEntity::class, $types[0]->className);
+    }
+
+    #[TestDox('excludes ArrayEntity from overridden types')]
+    public function testOverrideProvidedTypesExcludesArrayEntity(): void
+    {
+        $arrayDef = static::createStub(EntityDefinition::class);
+        $arrayDef->method('getEntityClass')->willReturn(ArrayEntity::class);
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getDefinitions')->willReturn([$arrayDef]);
+
+        $loader = new EntityLoader(
+            static::createStub(SalesChannelDefinitionInstanceRegistry::class),
+            $registry,
+            static::createStub(EntityCacheTagResolver::class),
+        );
+
+        static::assertSame([], $loader->overrideProvidedTypes());
     }
 
     #[TestDox('returns cached result with cache tag when entity is loaded via sales channel repository')]

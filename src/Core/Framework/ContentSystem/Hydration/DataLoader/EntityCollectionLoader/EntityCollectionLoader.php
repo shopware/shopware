@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityColle
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -42,6 +44,26 @@ class EntityCollectionLoader extends AbstractContentDataLoader
     public static function getRequirementType(): string
     {
         return self::SOURCE;
+    }
+
+    /**
+     * @return list<ContentSystemDataLoaderTypeDescriptor>
+     */
+    public function overrideProvidedTypes(): array
+    {
+        $types = [];
+        foreach ($this->definitionRegistry->getDefinitions() as $definition) {
+            $collectionClass = $definition->getCollectionClass();
+
+            if ($collectionClass === EntityCollection::class) {
+                continue;
+            }
+
+            /** @var class-string<Struct> $collectionClass */
+            $types[] = new ContentSystemDataLoaderTypeDescriptor($collectionClass);
+        }
+
+        return $types;
     }
 
     public function load(

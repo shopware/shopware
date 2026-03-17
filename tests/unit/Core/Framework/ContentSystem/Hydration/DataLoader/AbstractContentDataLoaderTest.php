@@ -44,6 +44,14 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(AbstractContentDataLoader::class)]
 class AbstractContentDataLoaderTest extends TestCase
 {
+    #[TestDox('returns empty override list by default')]
+    public function testOverrideProvidedTypesReturnsEmptyByDefault(): void
+    {
+        $loader = new SimpleStubLoader();
+
+        static::assertSame([], $loader->overrideProvidedTypes());
+    }
+
     #[TestDox('resolves return type from simple class declaration')]
     public function testSimpleExtendsAnnotation(): void
     {

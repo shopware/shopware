@@ -72,6 +72,7 @@ abstract class AbstractContentDataLoader
         }
 
         $typeNode = $extendsValues[0]->type;
+        \assert($typeNode->genericTypes !== [], 'ExtendsTagValueNode guarantees a GenericTypeNode with at least one type parameter');
         $dataTypeNode = $typeNode->genericTypes[0];
 
         $contextFactory = new TypeContextFactory();

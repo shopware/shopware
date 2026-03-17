@@ -20,8 +20,7 @@ class FormCmsElementResolver extends AbstractCmsElementResolver
     public function __construct(
         private readonly AbstractSalutationRoute $salutationRoute,
         private readonly AbstractSalutationsSorter $salutationsSorter
-    )
-    {
+    ) {
     }
 
     public function getType(): string

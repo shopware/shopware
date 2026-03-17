@@ -13,7 +13,7 @@ use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
@@ -24,7 +24,7 @@ use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 #[Package('after-sales')]
 class MailDataProviderTest extends TestCase
 {
-    use KernelTestBehaviour;
+    use IntegrationTestBehaviour;
     use SnapshotTesting;
 
     private readonly MailDataProvider $mailDataProvider;

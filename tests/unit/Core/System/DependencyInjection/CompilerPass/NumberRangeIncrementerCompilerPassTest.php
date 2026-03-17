@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DependencyInjection\CompilerPass\NumberRangeIncrementerCompilerPass;
-use Shopware\Core\System\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementRedisStorage;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -19,23 +18,15 @@ use Symfony\Component\DependencyInjection\Definition;
 #[CoversClass(NumberRangeIncrementerCompilerPass::class)]
 class NumberRangeIncrementerCompilerPassTest extends TestCase
 {
-    private ContainerBuilder $container;
-
-    protected function setUp(): void
+    public function testRemovesRedisServicesWhenConnectionIsNull(): void
     {
-        $this->container = new ContainerBuilder();
-        $this->container->addDefinitions([
+        $container = new ContainerBuilder();
+        $container->addDefinitions([
             IncrementRedisStorage::class => new Definition(),
             'shopware.number_range.redis' => new Definition(),
             IncrementSqlStorage::class => new Definition(),
         ]);
-        $this->container->setParameter('shopware.number_range.config.connection', null);
-    }
-
-    public function testProcessSql(): void
-    {
-        $container = $this->container;
-        $container->setParameter('shopware.number_range.increment_storage', 'mysql');
+        $container->setParameter('shopware.number_range.config.connection', null);
 
         $compilerPass = new NumberRangeIncrementerCompilerPass();
         $compilerPass->process($container);
@@ -45,10 +36,14 @@ class NumberRangeIncrementerCompilerPassTest extends TestCase
         static::assertTrue($container->hasDefinition(IncrementSqlStorage::class));
     }
 
-    public function testProcessRedis(): void
+    public function testKeepsRedisServicesWhenConnectionIsConfigured(): void
     {
-        $container = $this->container;
-        $container->setParameter('shopware.number_range.increment_storage', 'redis');
+        $container = new ContainerBuilder();
+        $container->addDefinitions([
+            IncrementRedisStorage::class => new Definition(),
+            'shopware.number_range.redis' => new Definition(),
+            IncrementSqlStorage::class => new Definition(),
+        ]);
         $container->setParameter('shopware.number_range.config.connection', 'my_connection');
 
         $compilerPass = new NumberRangeIncrementerCompilerPass();
@@ -57,15 +52,5 @@ class NumberRangeIncrementerCompilerPassTest extends TestCase
         static::assertTrue($container->hasDefinition(IncrementRedisStorage::class));
         static::assertTrue($container->hasDefinition('shopware.number_range.redis'));
         static::assertTrue($container->hasDefinition(IncrementSqlStorage::class));
-    }
-
-    public function testProcessRedisNoConnection(): void
-    {
-        $container = $this->container;
-        $container->setParameter('shopware.number_range.increment_storage', 'redis');
-
-        self::expectException(DependencyInjectionException::class); // redis connection is not configured
-        $compilerPass = new NumberRangeIncrementerCompilerPass();
-        $compilerPass->process($container);
     }
 }

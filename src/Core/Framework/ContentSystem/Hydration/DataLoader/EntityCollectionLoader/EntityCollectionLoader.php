@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityColle
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -43,11 +42,6 @@ class EntityCollectionLoader extends AbstractContentDataLoader
     public static function getRequirementType(): string
     {
         return self::SOURCE;
-    }
-
-    public static function getProvidedData(): ContentSystemDataLoaderTypeDescriptor
-    {
-        return new ContentSystemDataLoaderTypeDescriptor(EntityCollection::class);
     }
 
     public function load(

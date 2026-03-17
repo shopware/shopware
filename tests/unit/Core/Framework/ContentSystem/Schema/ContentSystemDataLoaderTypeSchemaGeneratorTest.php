@@ -8,8 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
+use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderTypeResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeMap;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
@@ -26,7 +26,7 @@ class ContentSystemDataLoaderTypeSchemaGeneratorTest extends TestCase
             'navigation' => [new ContentSystemDataLoaderTypeDescriptor(Tree::class)],
         ]);
 
-        $resolver = static::createStub(ContentSystemDataLoaderTypeResolver::class);
+        $resolver = static::createStub(AbstractContentSystemDataLoaderTypeResolver::class);
         $resolver->method('resolve')->willReturn($map);
 
         $generator = new ContentSystemDataLoaderTypeSchemaGenerator($resolver);
@@ -44,7 +44,7 @@ class ContentSystemDataLoaderTypeSchemaGeneratorTest extends TestCase
             'product_review' => [new ContentSystemDataLoaderTypeDescriptor(EntitySearchResult::class, [ProductReviewCollection::class])],
         ]);
 
-        $resolver = static::createStub(ContentSystemDataLoaderTypeResolver::class);
+        $resolver = static::createStub(AbstractContentSystemDataLoaderTypeResolver::class);
         $resolver->method('resolve')->willReturn($map);
 
         $generator = new ContentSystemDataLoaderTypeSchemaGenerator($resolver);

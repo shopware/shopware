@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Struct\Struct;
  * @final
  */
 #[Package('framework')]
-class ContentSystemDataLoaderTypeResolver
+class ContentSystemDataLoaderTypeResolver extends AbstractContentSystemDataLoaderTypeResolver
 {
     /**
      * @param array<string, list<array{className: class-string<Struct>, genericParameters: list<class-string<Struct>>}>> $compiledSourceToTypes

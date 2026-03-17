@@ -10,10 +10,10 @@ use Shopware\Core\Framework\Log\Package;
  * @final
  */
 #[Package('framework')]
-class ContentSystemDataLoaderTypeSchemaGenerator extends AbstractContentSystemDataLoaderTypeSchemaGenerator
+class ContentSystemDataLoaderTypeSchemaGenerator
 {
     public function __construct(
-        private readonly ContentSystemDataLoaderTypeResolver $resolver,
+        private readonly AbstractContentSystemDataLoaderTypeResolver $resolver,
     ) {
     }
 

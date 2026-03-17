@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Api\Route\RouteInfo;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderTypeSchemaGenerator;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Feature;
@@ -73,7 +73,7 @@ class InfoController extends AbstractController
         private readonly ShopIdProvider $shopIdProvider,
         private readonly StatsService $messageStatsService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly AbstractContentSystemDataLoaderTypeSchemaGenerator $availableDataSchemaGenerator,
+        private readonly ContentSystemDataLoaderTypeSchemaGenerator $dataLoaderTypeSchemaGenerator,
     ) {
     }
 
@@ -157,7 +157,7 @@ class InfoController extends AbstractController
     #[Route(path: '/api/_info/content-system-data-loader-type-schema.json', name: 'api.info.content-system-data-loader-type-schema', methods: ['GET'])]
     public function contentSystemDataLoaderTypeSchema(): JsonResponse
     {
-        return new JsonResponse($this->availableDataSchemaGenerator->getSchema());
+        return new JsonResponse($this->dataLoaderTypeSchemaGenerator->getSchema());
     }
 
     #[Route(path: '/api/_info/events.json', name: 'api.info.business-events', methods: ['GET'])]

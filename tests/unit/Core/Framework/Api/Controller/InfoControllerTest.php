@@ -16,7 +16,7 @@ use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderTypeSchemaGenerator;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
@@ -246,10 +246,10 @@ class InfoControllerTest extends TestCase
             ],
         ];
 
-        $schemaGenerator = $this->createMock(AbstractContentSystemDataLoaderTypeSchemaGenerator::class);
+        $schemaGenerator = $this->createMock(ContentSystemDataLoaderTypeSchemaGenerator::class);
         $schemaGenerator->method('getSchema')->willReturn($expected);
 
-        $controller = $this->createController(availableDataSchemaGenerator: $schemaGenerator);
+        $controller = $this->createController(dataLoaderTypeSchemaGenerator: $schemaGenerator);
 
         $response = $controller->contentSystemDataLoaderTypeSchema();
 
@@ -259,7 +259,7 @@ class InfoControllerTest extends TestCase
         static::assertSame($expected, json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
     }
 
-    private function createController(?AbstractContentSystemDataLoaderTypeSchemaGenerator $availableDataSchemaGenerator = null): InfoController
+    private function createController(?ContentSystemDataLoaderTypeSchemaGenerator $dataLoaderTypeSchemaGenerator = null): InfoController
     {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
@@ -312,7 +312,7 @@ class InfoControllerTest extends TestCase
             $this->shopIdProvider,
             $this->statsService,
             $this->eventDispatcher,
-            $availableDataSchemaGenerator ?? $this->createMock(AbstractContentSystemDataLoaderTypeSchemaGenerator::class),
+            $dataLoaderTypeSchemaGenerator ?? $this->createMock(ContentSystemDataLoaderTypeSchemaGenerator::class),
         );
     }
 }

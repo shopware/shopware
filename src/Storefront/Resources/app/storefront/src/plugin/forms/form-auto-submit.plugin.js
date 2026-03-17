@@ -1,3 +1,4 @@
+import { getLocationSearch } from 'src/helper/navigation.helper';
 import Plugin from 'src/plugin-system/plugin.class';
 import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
@@ -260,7 +261,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
     }
 
     _updateRedirectParameters() {
-        const params = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+        const params = Object.fromEntries(new URLSearchParams(getLocationSearch()).entries());
         const formData = FormSerializeUtil.serialize(this._form);
 
         Object.keys(params)

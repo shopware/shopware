@@ -1,3 +1,4 @@
+import { getLocationSearch } from 'src/helper/navigation.helper';
 import Plugin from 'src/plugin-system/plugin.class';
 import { loadDIVE } from './utils/spatial-dive-load-util';
 import type NativeEventEmitter from 'src/helper/emitter.helper';
@@ -144,7 +145,7 @@ export default class SpatialArViewerPlugin extends Plugin {
 
     private onReady(): void {
         this.el.classList.add('spatial-ar-ready');
-        const qrParams = new URLSearchParams(window.location.search);
+        const qrParams = new URLSearchParams(getLocationSearch());
 
         if (!qrParams.has('autostartAr') || !this.spatialArId || qrParams.get('autostartAr') !== this.spatialArId) {
             return;
@@ -256,7 +257,7 @@ export default class SpatialArViewerPlugin extends Plugin {
         let qrModalTemplate;
         if (spatialArId) {
             qrModalTemplate = document.querySelector(
-                `.ar-qr-modal [data-ar-model-id='${spatialArId}']`
+                `.ar-qr-modal [data-ar-model-id='${spatialArId}']`,
             )?.closest('.ar-qr-modal') as HTMLElement | null;
         } else {
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -273,7 +274,7 @@ export default class SpatialArViewerPlugin extends Plugin {
         }
 
         const autostartArModalButton = autostartArModal.querySelector(
-            `[data-modal-open-ar-session-autostart='${spatialArId}']`
+            `[data-modal-open-ar-session-autostart='${spatialArId}']`,
         );
 
         if (!autostartArModalButton) {

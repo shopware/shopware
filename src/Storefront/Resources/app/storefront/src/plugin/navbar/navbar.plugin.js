@@ -1,4 +1,5 @@
 import DeviceDetection from 'src/helper/device-detection.helper';
+import { navigateTo } from 'src/helper/navigation.helper';
 import Plugin from 'src/plugin-system/plugin.class';
 
 export default class NavbarPlugin extends Plugin {
@@ -110,7 +111,7 @@ export default class NavbarPlugin extends Plugin {
             }
 
             if (topLevelLink.parentNode.classList.contains('dropdown')) {
-                window.location.href = topLevelLink.href;
+                navigateTo(topLevelLink.href);
             }
         }
     }

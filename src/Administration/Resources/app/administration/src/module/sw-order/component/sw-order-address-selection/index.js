@@ -152,9 +152,7 @@ export default {
 
         onEditAddress(id) {
             if (id === this.address.id) {
-                // clone, to prevent side effects when closing the modal
-                this.currentAddress = cloneDeep(this.address);
-
+                this.currentAddress = this.address;
                 return;
             }
 
@@ -189,7 +187,6 @@ export default {
 
             // edit order address
             if (this.currentAddress.id === this.address.id) {
-                this.address = cloneDeep(this.address);
                 return this.orderRepository
                     .save(this.order, this.versionContext)
                     .then(() => {

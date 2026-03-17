@@ -1,16 +1,26 @@
 /**
  * @sw-package framework
  */
+import Criteria from 'src/core/data/criteria.data';
 import template from './sw-bulk-edit-save-modal-process.html.twig';
 import './sw-bulk-edit-save-modal-process.scss';
 
 const { chunk: chunkArray } = Shopware.Utils.array;
 
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['orderDocumentApiService'],
+    inject: [
+        'orderDocumentApiService',
+        'repositoryFactory',
+        'syncService',
+    ],
+
+    mixins: [
+        Shopware.Mixin.getByName('notification'),
+    ],
 
     emits: [
         'changes-apply',
@@ -35,6 +45,7 @@ export default {
                     isReached: 0,
                 },
             },
+            maxDependentDocumentsToShow: 10,
         };
     },
 
@@ -45,6 +56,13 @@ export default {
 
         documentTypes() {
             return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download?.value;
+        },
+
+        deleteDocumentTypes(){
+            return Shopware.Store.get('swBulkEdit')
+                ?.orderDocuments?.delete?.value
+                ?.filter((documentType) => documentType.selected)
+                ?? [];
         },
 
         documentTypeConfigs() {
@@ -87,6 +105,10 @@ export default {
 
             return payload;
         },
+
+        documentRepository() {
+            return this.repositoryFactory.create('document');
+        },
     },
 
     created() {
@@ -98,6 +120,7 @@ export default {
             this.updateButtons();
             this.setTitle();
             await this.createDocuments();
+            await this.deleteDocuments();
             this.$emit('changes-apply');
         },
 
@@ -174,6 +197,64 @@ export default {
             ).then(() => {
                 this.document[documentType].isReached = 100;
             });
+        },
+
+        async deleteDocuments() {
+            if(this.deleteDocumentTypes.length === 0) {
+                return;
+            }
+
+
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equalsAny('orderId', this.selectedIds));
+            criteria.addFilter(Criteria.equalsAny(
+                'documentType.technicalName',
+                this.deleteDocumentTypes.map((documentType) => documentType.technicalName),
+            ));
+
+            const documents = await this.documentRepository.searchIds(criteria);
+
+            if(documents.total === 0) {
+                return;
+            }
+
+            const syncPayload = {
+              'delete-order_document': {
+                  action: 'delete',
+                  entity: 'document',
+                  payload: documents.data.map((id) => ({id})),
+              },
+            };
+
+            try {
+                await this.syncService.sync(
+                    syncPayload,
+                    {},
+                    {
+                        'single-operation': 1,
+                        'sw-language-id': Shopware.Context.api.languageId,
+                    },
+                );
+            } catch (error) {
+                const detailedErrorMessage = error.response?.data?.errors?.[0]?.detail;
+                this.createNotificationError({
+                    message: detailedErrorMessage ? this.truncateErrorMessage(detailedErrorMessage) : error.message,
+                });
+            }
+
+        },
+
+        truncateErrorMessage(detailedErrorMessage) {
+            const dependentDocuments = detailedErrorMessage.split(', ');
+
+            if(dependentDocuments.length <= this.maxDependentDocumentsToShow) {
+                return detailedErrorMessage;
+            }
+
+            const remainingDependentDocuments = dependentDocuments.length - this.maxDependentDocumentsToShow;
+
+            return `${dependentDocuments.slice(0, this.maxDependentDocumentsToShow)  }
+                ... (and ${remainingDependentDocuments} more)`;
         },
     },
 };

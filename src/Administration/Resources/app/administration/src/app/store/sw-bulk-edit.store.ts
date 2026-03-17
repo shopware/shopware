@@ -21,6 +21,12 @@ interface OrderDownloadDocument {
     value: any[];
 }
 
+interface OrderDeleteDocument {
+    isChanged: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    value: any[];
+}
+
 interface SwBulkState {
     isFlowTriggered: boolean;
     orderDocuments: {
@@ -29,6 +35,7 @@ interface SwBulkState {
         delivery_note: OrderDocument;
         credit_note: OrderDocument;
         download: OrderDownloadDocument;
+        delete: OrderDeleteDocument;
     };
     selectedIds: string[];
 }
@@ -80,6 +87,10 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
                     isChanged: false,
                     value: [],
                 },
+                delete: {
+                    isChanged: false,
+                    value: [],
+                },
             },
             selectedIds: [],
         } as SwBulkState;
@@ -97,10 +108,11 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
             value,
         }:
             | {
-                  type: Exclude<keyof SwBulkState['orderDocuments'], 'download'>;
+                  type: Exclude<keyof SwBulkState['orderDocuments'], 'download' | 'delete'>;
                   value: OrderDocument['value'];
               }
-            | { type: 'download'; value: OrderDownloadDocument['value'] }) {
+            | { type: 'download'; value: OrderDownloadDocument['value'] }
+            | { type: 'delete'; value: OrderDeleteDocument['value'] }) {
             this.orderDocuments[type].value = value;
         },
         resetOrderDocumentsIsChanged() {
@@ -120,7 +132,7 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
                     ([
                         key,
                         value,
-                    ]) => key !== 'download' && value.isChanged === true,
+                    ]) => key !== 'download' && key !== 'delete' && value.isChanged === true,
                 )
                 .map(
                     ([

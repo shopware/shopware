@@ -1,7 +1,7 @@
 /**
- * @sw-package checkout
+ * @sw-package after-sales
  */
-import template from './sw-bulk-edit-order-documents-download-documents.html.twig';
+import template from './sw-bulk-edit-order-documents-delete-documents.html.twig';
 
 const { Criteria } = Shopware.Data;
 
@@ -29,11 +29,11 @@ export default {
 
         documentTypes: {
             get() {
-                return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download?.value;
+                return Shopware.Store.get('swBulkEdit')?.orderDocuments?.delete?.value;
             },
             set(documentTypes) {
                 Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
-                    type: 'download',
+                    type: 'delete',
                     value: documentTypes,
                 });
             },
@@ -65,4 +65,4 @@ export default {
             return this.documentTypeRepository.search(this.documentTypeCriteria);
         },
     },
-};
+}

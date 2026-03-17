@@ -1,5 +1,4 @@
 import ContextGatewayClient from '../../src/service/context-gateway-client.service';
-import * as NavigationHelper from '../../src/helper/navigation.helper';
 
 /**
  * @package framework
@@ -10,9 +9,9 @@ describe('Context gateway client service', () => {
     let getLocationHrefSpy;
 
     beforeEach(() => {
-        navigateToSpy = jest.spyOn(NavigationHelper, 'navigateTo').mockImplementation(() => {});
-        reloadPageSpy = jest.spyOn(NavigationHelper, 'reloadPage').mockImplementation(() => {});
-        getLocationHrefSpy = jest.spyOn(NavigationHelper, 'getLocationHref').mockReturnValue('http://localhost/');
+        navigateToSpy = jest.spyOn(ContextGatewayClient.prototype, '_navigateTo').mockImplementation(() => {});
+        reloadPageSpy = jest.spyOn(ContextGatewayClient.prototype, '_reloadPage').mockImplementation(() => {});
+        getLocationHrefSpy = jest.spyOn(ContextGatewayClient.prototype, '_getLocationHref').mockReturnValue('http://localhost/');
         window['router']['frontend.gateway.context'] = 'https://example.com/gateway/context';
     });
 
@@ -29,7 +28,7 @@ describe('Context gateway client service', () => {
                     token: '12345678',
                     redirectUrl: 'https://example.com/redirect',
                 }),
-            })
+            }),
         );
 
         const contextGatewayClient = new ContextGatewayClient('test');
@@ -60,7 +59,7 @@ describe('Context gateway client service', () => {
                 status: 400,
                 statusText: 'Bad Request',
                 text: () => Promise.resolve('Error'),
-            })
+            }),
         );
 
         const contextGatewayClient = new ContextGatewayClient('test');
@@ -208,7 +207,7 @@ describe('Context gateway client service', () => {
                     token: '12345678',
                     redirectUrl: redirect,
                 }),
-            })
+            }),
         );
 
         const client = new ContextGatewayClient('test');

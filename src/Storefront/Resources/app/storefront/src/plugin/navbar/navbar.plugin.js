@@ -1,5 +1,4 @@
 import DeviceDetection from 'src/helper/device-detection.helper';
-import { navigateTo } from 'src/helper/navigation.helper';
 import Plugin from 'src/plugin-system/plugin.class';
 
 export default class NavbarPlugin extends Plugin {
@@ -111,7 +110,7 @@ export default class NavbarPlugin extends Plugin {
             }
 
             if (topLevelLink.parentNode.classList.contains('dropdown')) {
-                navigateTo(topLevelLink.href);
+                this._navigateTo(topLevelLink.href);
             }
         }
     }
@@ -166,6 +165,14 @@ export default class NavbarPlugin extends Plugin {
                 activeNavItem.classList.add(this.options.activeClass);
             }
         });
+    }
+
+    /**
+     * Thin wrapper so tests can spy on navigation without mocking window.location
+     * (non-configurable in JSDOM v26).
+     */
+    _navigateTo(url) {
+        window.location.href = url;
     }
 
     /**

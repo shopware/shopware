@@ -1,4 +1,3 @@
-import { assignLocation } from 'src/helper/navigation.helper';
 import Plugin from 'src/plugin-system/plugin.class';
 
 export default class AccountGuestAbortButtonPlugin extends Plugin {
@@ -13,11 +12,19 @@ export default class AccountGuestAbortButtonPlugin extends Plugin {
         this.el.addEventListener('click', this._onButtonClicked.bind(this));
     }
 
+    /**
+     * Thin wrapper so tests can spy on navigation without mocking window.location
+     * (non-configurable in JSDOM v26).
+     */
+    _assignLocation(url) {
+        window.location.assign(url);
+    }
+
     _onButtonClicked(e) {
         e.preventDefault();
 
         this.$emitter.publish('guest-logout');
 
-        assignLocation(this.el.getAttribute('href'));
+        this._assignLocation(this.el.getAttribute('href'));
     }
 }

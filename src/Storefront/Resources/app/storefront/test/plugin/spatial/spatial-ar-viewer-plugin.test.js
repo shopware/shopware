@@ -1,5 +1,4 @@
 import SpatialArViewerPlugin from 'src/plugin/spatial/spatial-ar-viewer-plugin';
-import * as NavigationHelper from 'src/helper/navigation.helper';
 
 jest.mock('src/plugin/spatial/utils/spatial-dive-load-util');
 
@@ -115,7 +114,7 @@ describe('SpatialArViewerPlugin', () => {
 
         window.autostartingARView = undefined;
 
-        jest.spyOn(NavigationHelper, 'getLocationSearch').mockReturnValue('');
+        jest.spyOn(SpatialArViewerPlugin.prototype, '_getLocationSearch').mockReturnValue('');
 
         SpatialArViewerPluginObject = new SpatialArViewerPlugin(document.querySelector('[data-spatial-ar-viewer]'), {
             spatialArId: "1",
@@ -556,7 +555,7 @@ describe('SpatialArViewerPlugin', () => {
 
     describe('autostartAr', () => {
         function mockLocationSearch(val) {
-            jest.spyOn(NavigationHelper, 'getLocationSearch').mockReturnValue(val);
+            jest.spyOn(SpatialArViewerPlugin.prototype, '_getLocationSearch').mockReturnValue(val);
         }
 
         beforeEach(() => {

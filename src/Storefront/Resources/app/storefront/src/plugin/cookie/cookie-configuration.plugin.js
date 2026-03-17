@@ -35,7 +35,6 @@
 /* global PluginManager */
 
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
-import { navigateTo } from 'src/helper/navigation.helper';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas, { OffCanvasInstance } from 'src/plugin/offcanvas/offcanvas.plugin';
 import Plugin from 'src/plugin-system/plugin.class';
@@ -1024,9 +1023,17 @@ export default class CookieConfiguration extends Plugin {
     /**
      * @private
      */
+    /**
+     * Thin wrapper so tests can spy on navigation without mocking window.location
+     * (non-configurable in JSDOM v26).
+     */
+    _navigateTo(url) {
+        window.location.href = url;
+    }
+
     _onLogin() {
         AjaxOffCanvas.close();
-        navigateTo(window.router['frontend.account.login.page']);
+        this._navigateTo(window.router['frontend.account.login.page']);
     }
 
     /**

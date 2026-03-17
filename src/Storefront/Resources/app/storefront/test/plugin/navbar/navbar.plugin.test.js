@@ -1,6 +1,5 @@
 import DeviceDetection from 'src/helper/device-detection.helper';
 import FocusHandler from 'src/helper/focus-handler.helper';
-import * as NavigationHelper from 'src/helper/navigation.helper';
 import NavbarPlugin from 'src/plugin/navbar/navbar.plugin';
 
 describe('NavbarPlugin', () => {
@@ -81,7 +80,7 @@ describe('NavbarPlugin', () => {
     });
 
     test('_navigateToLinkOnClick should set window.location.href if not target _blank', () => {
-        const navigateToSpy = jest.spyOn(NavigationHelper, 'navigateTo').mockImplementation(() => {});
+        const navigateToSpy = jest.spyOn(NavbarPlugin.prototype, '_navigateTo').mockImplementation(() => {});
 
         const mockEventClick = { type: 'click', pageX: 99 };
         const mockLink = {

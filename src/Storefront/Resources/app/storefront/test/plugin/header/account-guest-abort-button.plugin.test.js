@@ -1,5 +1,4 @@
 import AccountGuestAbortButtonPlugin from 'src/plugin/header/account-guest-abort-button.plugin';
-import * as NavigationHelper from 'src/helper/navigation.helper';
 
 describe('AccountGuestAbortButtonPlugin tests', () => {
     let accountGuestAbortButton = undefined;
@@ -27,14 +26,12 @@ describe('AccountGuestAbortButtonPlugin tests', () => {
     });
 
     test('AccountGuestAbortButtonPlugin should emitter guest-logout event when clicked', () => {
-        accountGuestAbortButton._onButtonClicked = jest.fn();
+        const assignSpy = jest.spyOn(AccountGuestAbortButtonPlugin.prototype, '_assignLocation').mockImplementation(() => {});
 
         let logoutEventPublished = false;
         accountGuestAbortButton.$emitter.subscribe('guest-logout', () => {
             logoutEventPublished = true;
         });
-
-        const assignSpy = jest.spyOn(NavigationHelper, 'assignLocation').mockImplementation(() => {});
 
         accountGuestAbortButton.el.click();
 

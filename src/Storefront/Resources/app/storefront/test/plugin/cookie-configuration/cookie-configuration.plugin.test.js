@@ -1,5 +1,4 @@
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
-import * as NavigationHelper from 'src/helper/navigation.helper';
 import CookieConfiguration, { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
@@ -458,7 +457,7 @@ describe('CookieConfiguration plugin tests', () => {
     });
 
     test('_onLogin closes the offcanvas and redirects', () => {
-        const navigateToSpy = jest.spyOn(NavigationHelper, 'navigateTo').mockImplementation(() => {});
+        const navigateToSpy = jest.spyOn(CookieConfiguration.prototype, '_navigateTo').mockImplementation(() => {});
         window.router['frontend.account.login.page'] = 'https://shop.example.com/login';
         plugin._onLogin();
         expect(AjaxOffCanvas.close).toHaveBeenCalled();

@@ -1,4 +1,3 @@
-import { getLocationSearch } from 'src/helper/navigation.helper';
 import Plugin from 'src/plugin-system/plugin.class';
 import { loadDIVE } from './utils/spatial-dive-load-util';
 import type NativeEventEmitter from 'src/helper/emitter.helper';
@@ -143,9 +142,17 @@ export default class SpatialArViewerPlugin extends Plugin {
         }
     }
 
+    /**
+     * Thin wrapper so tests can spy on location access without mocking window.location
+     * (non-configurable in JSDOM v26).
+     */
+    _getLocationSearch(): string {
+        return window.location.search;
+    }
+
     private onReady(): void {
         this.el.classList.add('spatial-ar-ready');
-        const qrParams = new URLSearchParams(getLocationSearch());
+        const qrParams = new URLSearchParams(this._getLocationSearch());
 
         if (!qrParams.has('autostartAr') || !this.spatialArId || qrParams.get('autostartAr') !== this.spatialArId) {
             return;

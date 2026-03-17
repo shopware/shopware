@@ -11,14 +11,14 @@ describe('src/core/consent/handlers.ts', () => {
 
         pushConsentEventToAmplitude(
             new ConsentEvent('consent_modal_viewed', {
-                consents_shown: ['user_tracking'],
+                consents_shown: ['product_analytics'],
             }),
         );
 
         expect(anonymousAmplitude.track).toHaveBeenCalledWith(
             'consent_modal_viewed',
             {
-                consents_shown: ['user_tracking'],
+                consents_shown: ['product_analytics'],
             },
             expect.any(Number),
         );
@@ -134,7 +134,7 @@ describe('src/core/consent/handlers.ts', () => {
         pushConsentEventToAmplitude({
             eventName: 'haha I am a fake event',
             payload: {
-                option: 'user_tracking',
+                option: 'product_analytics',
                 decision: 'accepted',
                 time_spent_on_modal: '4',
                 evil: 'payload',

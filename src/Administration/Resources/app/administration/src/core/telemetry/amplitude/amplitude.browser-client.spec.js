@@ -77,6 +77,48 @@ describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
         navigator.sendBeacon = originalSendBeacon;
     });
 
+    it('restores the native sendBeacon after overlapping logout callbacks', async () => {
+        const sendBeacon = jest.fn(() => true);
+        const flush = jest.fn(() => {
+            navigator.sendBeacon('https://gateway.example/event', JSON.stringify({ events: [{ event_type: 'logout' }] }));
+        });
+        const addOnLogoutListener = jest.fn();
+
+        Shopware.Service = jest.fn(() => ({
+            addOnLogoutListener,
+        }));
+
+        const originalSendBeacon = navigator.sendBeacon;
+        navigator.sendBeacon = sendBeacon;
+
+        registerTelemetryLogoutListener({
+            flush,
+            reset: jest.fn(),
+            setTransport: jest.fn(),
+        });
+
+        jest.useFakeTimers();
+        const logoutListener = addOnLogoutListener.mock.calls[0][0];
+
+        logoutListener();
+        logoutListener();
+        jest.runAllTimers();
+
+        expect(sendBeacon).toHaveBeenCalledTimes(2);
+        await expect(sendBeacon.mock.calls[0][1].text()).resolves.toBe(
+            JSON.stringify({ events: [{ event_type: 'logout' }] }),
+        );
+        await expect(sendBeacon.mock.calls[1][1].text()).resolves.toBe(
+            JSON.stringify({ events: [{ event_type: 'logout' }] }),
+        );
+
+        navigator.sendBeacon('https://gateway.example/event', 'plain-string');
+
+        expect(sendBeacon).toHaveBeenLastCalledWith('https://gateway.example/event', 'plain-string');
+
+        navigator.sendBeacon = originalSendBeacon;
+    });
+
     it('initializes telemetry amplitude against the gateway event endpoint', () => {
         const init = jest.fn();
 

@@ -9,6 +9,8 @@ type PrivacyAmplitudeClient = ReturnType<AmplitudeModule['createInstance']>;
 const AMPLITUDE_BROWSER_API_KEY = 'placeholder-apikey';
 const AMPLITUDE_MAX_RETRIES = 2;
 const AMPLITUDE_LOG_LEVEL_NONE = 0;
+let originalSendBeacon: typeof navigator.sendBeacon | null = null;
+let wrappedBeaconCallbacks = 0;
 
 /**
  * @private
@@ -64,18 +66,34 @@ function wrapJsonBeaconPayload(): (() => void) | null {
         return null;
     }
 
-    const originalSendBeacon = navigator.sendBeacon.bind(navigator);
+    if (originalSendBeacon === null) {
+        originalSendBeacon = navigator.sendBeacon.bind(navigator);
+        const nativeSendBeacon = originalSendBeacon;
 
-    navigator.sendBeacon = ((url: string | URL, data?: BodyInit | null): boolean => {
-        if (typeof data === 'string') {
-            return originalSendBeacon(url, new Blob([data], { type: 'application/json' }));
-        }
+        navigator.sendBeacon = ((url: string | URL, data?: BodyInit | null): boolean => {
+            if (typeof data === 'string') {
+                return nativeSendBeacon(url, new Blob([data], { type: 'application/json' }));
+            }
 
-        return originalSendBeacon(url, data);
-    }) as typeof navigator.sendBeacon;
+            return nativeSendBeacon(url, data);
+        }) as typeof navigator.sendBeacon;
+    }
+
+    wrappedBeaconCallbacks += 1;
+    let restored = false;
 
     return () => {
-        navigator.sendBeacon = originalSendBeacon;
+        if (restored) {
+            return;
+        }
+
+        restored = true;
+        wrappedBeaconCallbacks -= 1;
+
+        if (wrappedBeaconCallbacks === 0 && originalSendBeacon !== null) {
+            navigator.sendBeacon = originalSendBeacon;
+            originalSendBeacon = null;
+        }
     };
 }
 

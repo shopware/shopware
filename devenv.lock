@@ -23,6 +23,7 @@
         "owner": "NixOS",
         "repo": "flake-compat",
         "rev": "5edf11c44bc78a0d334f6334cdaf7d60d732daab",
+        "treeHash": "3dae685f40919e3166e54a90401caf90005f8b80",
         "type": "github"
       },
       "original": {
@@ -31,31 +32,10 @@
         "type": "github"
       }
     },
-    "git-hooks": {
-      "inputs": {
-        "flake-compat": "flake-compat",
-        "gitignore": "gitignore",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1767281941,
-        "owner": "cachix",
-        "repo": "git-hooks.nix",
-        "rev": "f0927703b7b1c8d97511c4116eb9b4ec6645a0fa",
-        "type": "github"
-      },
-      "original": {
-        "owner": "cachix",
-        "repo": "git-hooks.nix",
-        "type": "github"
-      }
-    },
     "gitignore": {
       "inputs": {
         "nixpkgs": [
-          "git-hooks",
+          "pre-commit-hooks",
           "nixpkgs"
         ]
       },
@@ -64,6 +44,7 @@
         "owner": "hercules-ci",
         "repo": "gitignore.nix",
         "rev": "cb5e3fdca1de58ccbc3ef53de65bd372b48f567c",
+        "treeHash": "6e7c3e38f45571139b6094f67596c1223c4426b7",
         "type": "github"
       },
       "original": {
@@ -87,14 +68,33 @@
         "type": "github"
       }
     },
+    "pre-commit-hooks": {
+      "inputs": {
+        "flake-compat": "flake-compat",
+        "gitignore": "gitignore",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1772893680,
+        "owner": "cachix",
+        "repo": "pre-commit-hooks.nix",
+        "rev": "8baab586afc9c9b57645a734c820e4ac0a604af9",
+        "treeHash": "9a7b552f5b7ee126b83c7a201362ef325e2aedae",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cachix",
+        "repo": "pre-commit-hooks.nix",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "devenv": "devenv",
-        "git-hooks": "git-hooks",
         "nixpkgs": "nixpkgs",
-        "pre-commit-hooks": [
-          "git-hooks"
-        ]
+        "pre-commit-hooks": "pre-commit-hooks"
       }
     }
   },

@@ -33,4 +33,4 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 
 Override `getProvidedData()` only for special cases (e.g., wildcard entity loaders). The default implementation extracts the type from `@extends`.
 
-Override `overrideProvidedTypes()` for wildcard loaders that serve multiple concrete types (e.g., generic entity loaders). The method is called at runtime by the resolver, not at build time. Default returns `[]` (no expansion).
+Override `overrideProvidedTypes(array &$types)` for wildcard loaders that serve multiple concrete types (e.g., generic entity loaders). The resolver pre-populates `$types` from the compile-time annotation; modify in-place to replace, extend, or filter. Default: no-op (keeps compile-time types).

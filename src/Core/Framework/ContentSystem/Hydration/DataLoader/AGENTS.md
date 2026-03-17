@@ -9,4 +9,4 @@
 - Use `$context->getContext()` for entity repository queries
 - Built-in sources: `entity`, `entity_collection`, `product_listing`, `navigation`, `service_menu`, `cross_selling`, `product_review`, `product_search`, `product_suggest`, `breadcrumb`, `language`, `currency`, `payment_method`, `shipping_method`
 - `@extends AbstractContentDataLoader<T>` PHPDoc annotation required — `ContentSystemDataLoaderTypeCompilerPass` calls `getProvidedData()` at container build time; missing annotation fails the build
-- `overrideProvidedTypes()` instance method for runtime type expansion — override in wildcard loaders, default returns `[]`
+- `overrideProvidedTypes(array &$types)` mutates pre-populated type list at runtime — override in wildcard loaders, default is no-op

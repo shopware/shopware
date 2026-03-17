@@ -98,6 +98,7 @@ readonly class ProductExportProvisioner
         return $this->salesChannelRepository->search($criteria, $context)->getEntities()->first();
     }
 
+    // only default - we need to provide a storefront sales channel and domain to create a valid product export configuration.
     private function getDefaultStorefrontSalesChannel(Context $context): ?SalesChannelEntity
     {
         $criteria = new Criteria();

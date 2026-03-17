@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\Subscriber;
 
 use Shopware\Core\Content\ProductExport\Service\ProductExportProvisioner;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -15,10 +16,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
  */
 #[Package('discovery')]
-class AgenticAiSalesChannelSubscriber implements EventSubscriberInterface
+readonly class AgenticAiSalesChannelSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly ProductExportProvisioner $productExportProvisioner)
-    {
+    public function __construct(
+        private ProductExportProvisioner $productExportProvisioner
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -31,7 +33,9 @@ class AgenticAiSalesChannelSubscriber implements EventSubscriberInterface
     public function provisionProductExport(EntityWrittenEvent $event): void
     {
         foreach ($event->getWriteResults() as $writeResult) {
-            if ($writeResult->getOperation() !== EntityWriteResult::OPERATION_INSERT) {
+            $typeId = $writeResult->getPayload()['typeId'] ?? null;
+
+            if ($typeId !== Defaults::SALES_CHANNEL_TYPE_AGENTIC_AI || $writeResult->getOperation() !== EntityWriteResult::OPERATION_INSERT) {
                 continue;
             }
 

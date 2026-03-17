@@ -10,12 +10,12 @@ use Shopware\Core\Framework\Log\Package;
  * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
  */
 #[Package('discovery')]
-class ProductExportProviderRegistry
+readonly class ProductExportProviderRegistry
 {
     /**
      * @param iterable<AbstractProductExportProvider> $providers
      */
-    public function __construct(private readonly iterable $providers)
+    public function __construct(private iterable $providers)
     {
     }
 

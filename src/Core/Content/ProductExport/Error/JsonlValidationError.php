@@ -29,7 +29,7 @@ class JsonlValidationError extends Error
         ]);
 
         $this->errorMessages = [$message];
-        $this->message = 'The export did not generate a valid JSON file';
+        $this->message = 'The export did not generate a valid JSONL file';
 
         parent::__construct($this->message);
     }
@@ -41,7 +41,7 @@ class JsonlValidationError extends Error
 
     public function getMessageKey(): string
     {
-        return 'json-validation-failed';
+        return 'jsonl-validation-failed';
     }
 
     /**

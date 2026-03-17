@@ -28,7 +28,9 @@ class OrderStorerTest extends TestCase
 {
     private OrderStorer $storer;
 
-    /** @var MockObject&EntityRepository<OrderCollection> */
+    /**
+     * @var MockObject&EntityRepository<OrderCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private MockObject&EventDispatcherInterface $dispatcher;

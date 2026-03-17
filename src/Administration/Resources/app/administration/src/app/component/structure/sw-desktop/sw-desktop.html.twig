@@ -28,7 +28,9 @@
         @modal-close="closeModal"
     />
     <sw-settings-services-grant-permissions-modal />
-    <sw-settings-usage-data-consent-modal-data-provider v-if="feature.isActive('PRODUCT_ANALYTICS')" />
+    <sw-settings-usage-data-consent-modal-data-provider
+        v-if="feature.isActive('PRODUCT_ANALYTICS') && showUsageDataConsentModalDataProvider"
+    />
     {% endblock %}
 
     <sw-sidebar-renderer />

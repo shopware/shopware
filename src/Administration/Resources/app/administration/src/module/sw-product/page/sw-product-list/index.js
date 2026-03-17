@@ -6,7 +6,7 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import template from './sw-product-list.html.twig';
 import './sw-product-list.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 
@@ -34,7 +34,7 @@ export default {
             currencies: [],
             sortBy: 'createdAt',
             sortDirection: 'DESC',
-            naturalSorting: false,
+            naturalSorting: true,
             isLoading: false,
             isBulkLoading: false,
             total: 0,
@@ -159,7 +159,7 @@ export default {
                     placeholder: this.$tc('sw-product.filters.productNumberFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    criteriaFilterType: 'equals',
+                    criteriaFilterType: this.adminEsEnable ? 'equals' : 'contains',
                 },
                 'active-filter': {
                     property: 'active',
@@ -288,6 +288,14 @@ export default {
         stockColorVariantFilter() {
             return Shopware.Filter.getByName('stockColorVariant');
         },
+
+        adminEsEnable() {
+            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
+        },
     },
 
     beforeRouteLeave(to, from, next) {
@@ -320,7 +328,11 @@ export default {
                 this.productCriteria,
             );
 
-            criteria = await this.addQueryScores(this.term, criteria);
+            if (this.adminEsEnable) {
+                criteria.setTerm(this.term);
+            } else {
+                criteria = await this.addQueryScores(this.term, criteria);
+            }
 
             // Clone product query to its variant
             const variantCriteria = cloneDeep(criteria);
@@ -443,7 +455,7 @@ export default {
                 },
                 {
                     property: 'productNumber',
-                    naturalSorting: true,
+                    naturalSorting: this.naturalSorting,
                     label: this.$tc('sw-product.list.columnProductNumber'),
                     align: 'right',
                     allowResize: true,

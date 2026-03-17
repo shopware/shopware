@@ -14,6 +14,7 @@ use Shopware\Core\Framework\App\InAppPurchases\Payload\InAppPurchasesPayload;
 use Shopware\Core\Framework\App\InAppPurchases\Payload\InAppPurchasesPayloadService;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\AppPayloadStruct;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -37,10 +38,11 @@ class InAppPurchasesPayloadServiceTest extends TestCase
 
     public function testRequest(): void
     {
+        $shopId = ShopId::v2($this->ids->get('shop-id'));
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
-            ->willReturn($this->ids->get('shop-id'));
+            ->willReturn($shopId);
 
         $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
         $appPayloadServiceHelper->expects($this->once())
@@ -98,10 +100,11 @@ class InAppPurchasesPayloadServiceTest extends TestCase
 
     public function testRequestReceiveFilteredResponse(): void
     {
+        $shopId = ShopId::v2($this->ids->get('shop-id'));
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
-            ->willReturn($this->ids->get('shop-id'));
+            ->willReturn($shopId);
 
         $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
         $appPayloadServiceHelper->expects($this->once())
@@ -157,12 +160,13 @@ class InAppPurchasesPayloadServiceTest extends TestCase
 
     public function testAppSecretMissing(): void
     {
+        $shopId = ShopId::v2($this->ids->get('shop-id'));
         $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
 
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
-            ->willReturn($this->ids->get('shop-id'));
+            ->willReturn($shopId);
 
         $appPayloadServiceHelper = new AppPayloadServiceHelper(
             $definitionInstanceRegistry,

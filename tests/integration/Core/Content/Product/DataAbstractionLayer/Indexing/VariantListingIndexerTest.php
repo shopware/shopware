@@ -347,7 +347,7 @@ class VariantListingIndexerTest extends TestCase
         );
 
         /** @var array<array<string>> $optionIds */
-        $optionIds = array_map(fn ($item) => json_decode((string) $item['option_ids'], true, 512, \JSON_THROW_ON_ERROR), $listing);
+        $optionIds = array_map(static fn ($item) => json_decode((string) $item['option_ids'], true, 512, \JSON_THROW_ON_ERROR), $listing);
 
         if (!empty($optionIds)) {
             $optionIds = array_merge(...$optionIds);

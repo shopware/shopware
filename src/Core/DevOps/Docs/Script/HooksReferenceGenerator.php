@@ -26,8 +26,6 @@ use Twig\Loader\ArrayLoader;
  * @internal
  *
  * @phpstan-type ServiceList list<array{name: string, returnType: class-string<object>, link: string, deprecated: ?string}>
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class HooksReferenceGenerator implements ScriptReferenceGenerator
@@ -191,6 +189,10 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
             $propertyType = $property->getType();
 
             if (!$propertyType instanceof \ReflectionNamedType) {
+                if (!$property->getDocComment()) {
+                    throw DocsException::untypedPropertyInHookClass($property->getName(), $reflection->getName());
+                }
+
                 $varDoc = array_first($this->docFactory->create($property)->getTagsByName('var'));
                 if (!$varDoc instanceof Var_) {
                     throw DocsException::untypedPropertyInHookClass($property->getName(), $reflection->getName());

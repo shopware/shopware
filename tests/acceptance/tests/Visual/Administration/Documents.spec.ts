@@ -32,7 +32,8 @@ test(
                 'credit_note',
                 'delivery_note',
                 'cancellation_invoice',
-                'embedded_zugferd_e_invoice',
+                'zugferd_embedded_invoice',
+                'zugferd_embedded_cancellation_invoice',
             ];
 
             for (const type of documents) {

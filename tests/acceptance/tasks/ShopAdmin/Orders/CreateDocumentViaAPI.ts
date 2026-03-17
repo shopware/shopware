@@ -10,7 +10,8 @@ const documentEndpoints: Record<DocumentTypes, string> = {
     credit_note: '_action/order/document/credit_note/create',
     delivery_note: '_action/order/document/delivery_note/create',
     cancellation_invoice: '_action/order/document/storno/create',
-    embedded_zugferd_e_invoice: '_action/order/document/invoice/create',
+    zugferd_embedded_invoice: '_action/order/document/zugferd_embedded_invoice/create',
+    zugferd_embedded_cancellation_invoice: '_action/order/document/zugferd_embedded_cancellation_invoice/create',
 };
 
 const typesRequiringInvoice: DocumentTypes[] = ['credit_note', 'cancellation_invoice'];

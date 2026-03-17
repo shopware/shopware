@@ -80,17 +80,17 @@ The system is designed for easy extension:
 ## Consequences
 
 **Positive Consequences:**
-- **Improved Reliability**: Apps will fail fast with clear error messages rather than failing silently at runtime
+- **Improved Reliability**: Apps will fail fast before attempting to register with app backends, with clear error messages rather than failing silently at runtime
 - **Better Developer Experience**: Clear requirement declarations and actionable error messages help developers understand environment needs
 - **Enhanced Security**: Validation prevents apps from being installed in inappropriate environments (e.g., apps requiring public access being installed on localhost)
 - **Easier Troubleshooting**: Standardized requirement validation provides consistent error reporting
-- **Extensible Architecture**: New requirement types can be easily added without modifying core logic
 
 **Potential Challenges:**
 - **Additional Complexity**: Developers must understand and declare their app requirements
 - **Validation Overhead**: Network checks (like public accessibility) add latency to installation process
 - **False Positives**: Overly strict validation might prevent legitimate installations in edge cases
 - **Backward Compatibility**: Existing apps without requirement declarations continue to work unchanged
+- **Custom Requirements**: Shopware update is required to add new requirement types.
 
 **Migration Strategy:**
 - The feature is opt-in through manifest declarations

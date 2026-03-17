@@ -54,7 +54,17 @@ class PublicAccess extends AbstractRequirement implements ResetInterface
             ));
         }
 
-        return $this->checkHealthEndpoint($manifest, rtrim($appUrl, '/') . '/api/_info/health-check');
+        $result = $this->checkHealthEndpoint($manifest, rtrim($appUrl, '/') . '/api/_info/health-check');
+
+        return $result ?? $this->succeed();
+    }
+
+    private function succeed(): null
+    {
+        $this->isMet = true;
+        $this->failureReason = '';
+
+        return null;
     }
 
     public function reset(): void
@@ -77,17 +87,14 @@ class PublicAccess extends AbstractRequirement implements ResetInterface
                 RequestOptions::ALLOW_REDIRECTS => false,
             ]);
 
-            if ($response->getStatusCode() === Response::HTTP_OK) {
-                $this->isMet = true;
-
-                return null;
+            if ($response->getStatusCode() !== Response::HTTP_OK) {
+                return $this->fail($manifest, \sprintf(
+                    'Health check at "%s" returned HTTP %d. Ensure the Shopware instance is running and publicly reachable.',
+                    $healthCheckUrl,
+                    $response->getStatusCode()
+                ));
             }
 
-            return $this->fail($manifest, \sprintf(
-                'Health check at "%s" returned HTTP %d. Ensure the Shopware instance is running and publicly reachable.',
-                $healthCheckUrl,
-                $response->getStatusCode()
-            ));
         } catch (RequestException $e) {
             $response = $e->getResponse();
             if ($response !== null) {
@@ -108,6 +115,9 @@ class PublicAccess extends AbstractRequirement implements ResetInterface
                 $healthCheckUrl
             ));
         }
+
+
+        return null;
     }
 
     private function fail(Manifest $manifest, string $reason): UnmetRequirement

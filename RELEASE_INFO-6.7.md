@@ -150,7 +150,7 @@ The first built-in requirement is `<public-access/>`, which verifies that the co
 </requirements>
 ```
 
-Custom requirement validators can be registered via the `app.requirements_validator` service tag, which allows private app setups to introduce additional requirements. If a manifest declares a requirement for which no validator is registered, Shopware logs a warning and ignores that requirement.
+If a manifest declares a requirement for which no validator is registered, Shopware logs a warning and ignores that requirement.
 
 ## Hosting & Configuration
 

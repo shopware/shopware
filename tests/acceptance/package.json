@@ -33,6 +33,8 @@
   },
   "overrides": {
     "axios": "^1.13.5",
-    "minimatch": "10.2.3"
+    "minimatch": "10.2.4",
+    "basic-ftp": "5.2.0",
+    "flatted": "3.4.1"
   }
 }

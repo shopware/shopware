@@ -32,6 +32,6 @@ describe('HtmlOffcanvas tests', () => {
     it('should error when element cannot be found by selector', () => {
         expect(() => {
             HtmlOffcanvas.open('.not-exist', 'start');
-        }).toThrowError('Parent element does not exist!');
+        }).toThrow('Parent element does not exist!');
     });
 });

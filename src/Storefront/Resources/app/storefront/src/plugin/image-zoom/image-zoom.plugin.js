@@ -248,7 +248,7 @@ export default class ImageZoomPlugin extends Plugin {
             this._transform = new Vector3(
                 this._transform.x,
                 this._transform.y,
-                z
+                z,
             );
 
             this._setTransition();
@@ -284,7 +284,7 @@ export default class ImageZoomPlugin extends Plugin {
             this._transform = new Vector3(
                 this._transform.x,
                 this._transform.y,
-                1
+                1,
             );
 
             this._setTransition();

@@ -480,14 +480,11 @@ describe('core/factory/http.factory.js', () => {
             expect(error.response.status).toBe(401);
             expect(error.response.data.errors[0].code).toBe('SSO_LOGIN__TOKEN_NOT_FOUND');
 
-            // Should only have made 1 request (no retry)
             expect(mock.history.get).toHaveLength(1);
-            // Should not have attempted to refresh the token
             expect(loginService.refreshToken).not.toHaveBeenCalled();
         });
 
         it('should not retry a 401 request more than once after token refresh', async () => {
-            // Always respond with 401 (non-SSO error, e.g. genuinely expired token that refresh cannot fix)
             mock.onGet('/api/some-endpoint').reply(401, {});
 
             const getError = async () => {
@@ -502,7 +499,6 @@ describe('core/factory/http.factory.js', () => {
             const error = await getError();
             expect(error.response.status).toBe(401);
 
-            // Should have made at most 2 requests (original + 1 retry after token refresh)
             expect(mock.history.get.length).toBeLessThanOrEqual(2);
         });
     });

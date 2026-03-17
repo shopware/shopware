@@ -59,14 +59,6 @@ class PublicAccess extends AbstractRequirement implements ResetInterface
         return $result ?? $this->succeed();
     }
 
-    private function succeed(): null
-    {
-        $this->isMet = true;
-        $this->failureReason = '';
-
-        return null;
-    }
-
     public function reset(): void
     {
         $this->isMet = null;
@@ -76,6 +68,14 @@ class PublicAccess extends AbstractRequirement implements ResetInterface
     public static function name(): string
     {
         return 'public-access';
+    }
+
+    private function succeed(): null
+    {
+        $this->isMet = true;
+        $this->failureReason = '';
+
+        return null;
     }
 
     private function checkHealthEndpoint(Manifest $manifest, string $healthCheckUrl): ?UnmetRequirement
@@ -94,7 +94,6 @@ class PublicAccess extends AbstractRequirement implements ResetInterface
                     $response->getStatusCode()
                 ));
             }
-
         } catch (RequestException $e) {
             $response = $e->getResponse();
             if ($response !== null) {
@@ -115,7 +114,6 @@ class PublicAccess extends AbstractRequirement implements ResetInterface
                 $healthCheckUrl
             ));
         }
-
 
         return null;
     }

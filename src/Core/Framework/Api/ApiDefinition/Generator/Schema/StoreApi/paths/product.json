@@ -625,33 +625,39 @@
                 ]
             }
         },
-        "/product/{productId}/quantity-limits": {
+        "/product-quantity-limits": {
             "get": {
                 "tags": [
                     "Product"
                 ],
-                "summary": "Fetch current quantity limits for a product",
-                "description": "Returns the current min/max/step purchase constraints for a product, reflecting live stock. Intended for use on PDP to show actual values on pdp pages.",
+                "summary": "Fetch current quantity limits for products",
+                "description": "Returns the current min/max/step purchase constraints for the given products, reflecting live stock. Intended for use on PDP to show actual values on product pages.",
                 "operationId": "readProductQuantityLimits",
                 "parameters": [
                     {
-                        "name": "productId",
-                        "in": "path",
-                        "description": "Product ID",
+                        "name": "ids[]",
+                        "in": "query",
+                        "description": "List of product IDs to fetch quantity limits for.",
                         "required": true,
                         "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            }
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Current quantity limits for the product",
+                        "description": "Current quantity limits for the requested products",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ProductQuantityLimitsResult"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ProductQuantityLimitsResult"
+                                    }
                                 }
                             }
                         }

@@ -10,12 +10,12 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FoundCombination;
 use Shopware\Core\Content\Product\SalesChannel\QuantityLimits\AbstractProductQuantityLimitsRoute;
 use Shopware\Core\Content\Product\SalesChannel\QuantityLimits\ProductQuantityLimitsResult;
+use Shopware\Core\Content\Product\SalesChannel\QuantityLimits\ProductQuantityLimitsResultCollection;
 use Shopware\Core\Content\Product\SalesChannel\QuantityLimits\ProductQuantityLimitsRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader;
@@ -327,16 +327,18 @@ class ProductControllerTest extends TestCase
     public function testQuantityLimitsReturns(): void
     {
         $productId = Uuid::randomHex();
-        $routeResponse = new ProductQuantityLimitsRouteResponse(new ProductQuantityLimitsResult(
-            productId: $productId,
-            minPurchase: 1,
-            maxPurchase: 10,
-            purchaseSteps: 1
-        ));
+        $collection = new ProductQuantityLimitsResultCollection([
+            new ProductQuantityLimitsResult(
+                productId: $productId,
+                minPurchase: 1,
+                purchaseSteps: 1,
+                maxPurchase: 10,
+            ),
+        ]);
 
         $this->productQuantityLimitsRouteMock
             ->method('load')
-            ->willReturn($routeResponse);
+            ->willReturn(new ProductQuantityLimitsRouteResponse($collection));
 
         $response = $this->controller->quantityLimits(
             $productId,
@@ -360,7 +362,7 @@ class ProductControllerTest extends TestCase
     {
         $this->productQuantityLimitsRouteMock
             ->method('load')
-            ->willThrowException(ProductException::productNotFound(Uuid::randomHex()));
+            ->willReturn(new ProductQuantityLimitsRouteResponse(new ProductQuantityLimitsResultCollection()));
 
         $response = $this->controller->quantityLimits(
             Uuid::randomHex(),

@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
-use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\QuantityLimits\ProductQuantityLimitsRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -45,29 +44,49 @@ class ProductQuantityLimitsRouteTest extends TestCase
         );
     }
 
-    public function testLoadReturnsQuantityLimits(): void
+    public function testLoadReturnsMultipleProductLimits(): void
     {
         $context = Generator::generateSalesChannelContext();
-        $productId = Uuid::randomHex();
+        $productIdA = Uuid::randomHex();
+        $productIdB = Uuid::randomHex();
 
-        $product = (new PartialEntity())->assign([
-            'id' => $productId,
-            'minPurchase' => 2,
-            'purchaseSteps' => 2,
+        $productA = (new PartialEntity())->assign([
+            'id' => $productIdA,
+            'minPurchase' => 1,
+            'purchaseSteps' => 1,
+        ]);
+
+        $productB = (new PartialEntity())->assign([
+            'id' => $productIdB,
+            'minPurchase' => 5,
+            'purchaseSteps' => 5,
         ]);
 
         $this->productRepository->method('search')->willReturn(
-            new EntitySearchResult('product', 1, new EntityCollection([$product]), null, new Criteria(), $context->getContext())
+            new EntitySearchResult('product', 2, new EntityCollection([$productA, $productB]), null, new Criteria(), $context->getContext())
         );
 
-        $this->maxPurchaseCalculator->method('calculate')->with($product, $context)->willReturn(10);
+        $this->maxPurchaseCalculator->method('calculate')->willReturnMap([
+            [$productA, $context, 20],
+            [$productB, $context, 50],
+        ]);
 
-        $result = $this->route->load($productId, new Request(), $context)->getResult();
+        $request = new Request(['ids' => [$productIdA, $productIdB]]);
+        $results = $this->route->load($request, $context)->getResult();
 
-        static::assertSame($productId, $result->getProductId());
-        static::assertSame(2, $result->getMinPurchase());
-        static::assertSame(2, $result->getPurchaseSteps());
-        static::assertSame(10, $result->getMaxPurchase());
+        static::assertCount(2, $results);
+
+        $items = array_values($results->getElements());
+
+        static::assertSame($productIdA, $items[0]->getProductId());
+        static::assertSame(1, $items[0]->getMinPurchase());
+        static::assertSame(1, $items[0]->getPurchaseSteps());
+        static::assertSame(20, $items[0]->getMaxPurchase());
+
+        static::assertSame($productIdB, $items[1]->getProductId());
+        static::assertSame(5, $items[1]->getMinPurchase());
+        static::assertSame(5, $items[1]->getPurchaseSteps());
+        static::assertSame(50, $items[1]->getMaxPurchase());
     }
 
     public function testLoadDefaults(): void
@@ -85,13 +104,15 @@ class ProductQuantityLimitsRouteTest extends TestCase
 
         $this->maxPurchaseCalculator->method('calculate')->willReturn(5);
 
-        $result = $this->route->load($productId, new Request(), $context)->getResult();
+        $request = new Request(['ids' => [$productId]]);
+        $result = $this->route->load($request, $context)->getResult()->first();
 
+        static::assertNotNull($result);
         static::assertSame(1, $result->getMinPurchase());
         static::assertSame(1, $result->getPurchaseSteps());
     }
 
-    public function testLoadThrowsWhenProductNotFound(): void
+    public function testLoadReturnsEmptyCollectionForUnknownIds(): void
     {
         $context = Generator::generateSalesChannelContext();
         $productId = Uuid::randomHex();
@@ -100,9 +121,21 @@ class ProductQuantityLimitsRouteTest extends TestCase
             new EntitySearchResult('product', 0, new EntityCollection(), null, new Criteria(), $context->getContext())
         );
 
-        $this->expectExceptionObject(ProductException::productNotFound($productId));
+        $request = new Request(['ids' => [$productId]]);
+        $results = $this->route->load($request, $context)->getResult();
 
-        $this->route->load($productId, new Request(), $context);
+        static::assertCount(0, $results);
+    }
+
+    public function testLoadReturnsEmptyCollectionForEmptyIds(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $this->productRepository->expects($this->never())->method('search');
+
+        $results = $this->route->load(new Request(), $context)->getResult();
+
+        static::assertCount(0, $results);
     }
 
     public function testGetDecoratedThrows(): void

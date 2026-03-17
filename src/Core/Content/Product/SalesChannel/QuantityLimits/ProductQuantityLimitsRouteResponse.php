@@ -8,12 +8,12 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 /**
  * @codeCoverageIgnore
  *
- * @extends StoreApiResponse<ProductQuantityLimitsResult>
+ * @extends StoreApiResponse<ProductQuantityLimitsResultCollection>
  */
 #[Package('inventory')]
 class ProductQuantityLimitsRouteResponse extends StoreApiResponse
 {
-    public function getResult(): ProductQuantityLimitsResult
+    public function getResult(): ProductQuantityLimitsResultCollection
     {
         return $this->object;
     }

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\SalesChannel\QuantityLimits;
 
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
-use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -15,9 +14,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * @codeCoverageIgnore Simple DTO with no logic
- */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('inventory')]
 class ProductQuantityLimitsRoute extends AbstractProductQuantityLimitsRoute
@@ -39,13 +35,20 @@ class ProductQuantityLimitsRoute extends AbstractProductQuantityLimitsRoute
     }
 
     #[Route(
-        path: '/store-api/product/{productId}/quantity-limits',
-        name: 'store-api.product.quantity-limits',
+        path: '/store-api/product-quantity-limits',
+        name: 'store-api.product-quantity-limits',
         methods: [Request::METHOD_GET],
     )]
-    public function load(string $productId, Request $request, SalesChannelContext $context): ProductQuantityLimitsRouteResponse
+    public function load(Request $request, SalesChannelContext $context): ProductQuantityLimitsRouteResponse
     {
-        $criteria = new Criteria([$productId]);
+        /** @var array<string> $ids */
+        $ids = $request->query->all('ids');
+
+        if (empty($ids)) {
+            return new ProductQuantityLimitsRouteResponse(new ProductQuantityLimitsResultCollection());
+        }
+
+        $criteria = new Criteria($ids);
         $criteria->setTitle('product-quantity-limits-route');
 
         $criteria->addFields([
@@ -56,23 +59,23 @@ class ProductQuantityLimitsRoute extends AbstractProductQuantityLimitsRoute
             'stock',
         ]);
 
-        $product = $this->productRepository->search($criteria, $context)->first();
+        $products = $this->productRepository->search($criteria, $context);
 
-        if ($product === null) {
-            throw ProductException::productNotFound($productId);
-        }
+        $results = new ProductQuantityLimitsResultCollection();
 
-        $maxPurchase = $this->maxPurchaseCalculator->calculate($product, $context);
-        $minPurchase = $product->get('minPurchase') ?? 1;
-        $purchaseSteps = $product->get('purchaseSteps') ?? 1;
+        foreach ($products as $product) {
+            $maxPurchase = $this->maxPurchaseCalculator->calculate($product, $context);
+            $minPurchase = $product->get('minPurchase') ?? 1;
+            $purchaseSteps = $product->get('purchaseSteps') ?? 1;
 
-        return new ProductQuantityLimitsRouteResponse(
-            new ProductQuantityLimitsResult(
+            $results->add(new ProductQuantityLimitsResult(
                 $product->getId(),
                 $minPurchase,
                 $purchaseSteps,
                 $maxPurchase,
-            )
-        );
+            ));
+        }
+
+        return new ProductQuantityLimitsRouteResponse($results);
     }
 }

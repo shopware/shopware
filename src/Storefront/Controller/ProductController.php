@@ -238,9 +238,11 @@ class ProductController extends StorefrontController
     )]
     public function quantityLimits(string $productId, Request $request, SalesChannelContext $context): JsonResponse
     {
-        try {
-            $result = $this->productQuantityLimitsRoute->load($productId, $request, $context)->getResult();
-        } catch (ProductNotFoundException) {
+        $quantityLimitsRequest = $request->duplicate(['ids' => $productId]);
+
+        $result = $this->productQuantityLimitsRoute->load($quantityLimitsRequest, $context)->getResult()->first();
+
+        if ($result === null) {
             return new JsonResponse(null, Response::HTTP_NOT_FOUND);
         }
 

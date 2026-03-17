@@ -11,5 +11,5 @@ abstract class AbstractProductQuantityLimitsRoute
 {
     abstract public function getDecorated(): AbstractProductQuantityLimitsRoute;
 
-    abstract public function load(string $productId, Request $request, SalesChannelContext $context): ProductQuantityLimitsRouteResponse;
+    abstract public function load(Request $request, SalesChannelContext $context): ProductQuantityLimitsRouteResponse;
 }

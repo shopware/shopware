@@ -245,7 +245,7 @@ export default class QuantitySelectorPlugin extends Plugin {
         if (steppedValue !== currentValue) {
             this._input.value = steppedValue;
             this._triggerChange();
-            this._showStockAdjustedAlert();
+            this._showStockAdjustedAlert(steppedValue);
         }
     }
 
@@ -253,9 +253,10 @@ export default class QuantitySelectorPlugin extends Plugin {
      * Show a warning alert below the quantity selector when the value was adjusted to available stock.
      * Removes any previously shown alert first.
      *
+     * @param {number} quantity
      * @private
      */
-    _showStockAdjustedAlert() {
+    _showStockAdjustedAlert(quantity) {
         const template = this.el.closest('form')?.querySelector(this.options.stockAdjustedTemplateSelector);
 
         if (!template) {
@@ -269,6 +270,11 @@ export default class QuantitySelectorPlugin extends Plugin {
 
         const alert = template.content.firstElementChild.cloneNode(true);
         alert.classList.add(this.options.stockAdjustedAlertClass);
+
+        const textEl = alert.querySelector('.js-stock-adjusted-text');
+        if (textEl) {
+            textEl.textContent = template.dataset.stockAdjustedText.replace('%quantity%', quantity);
+        }
 
         template.insertAdjacentElement('afterend', alert);
     }

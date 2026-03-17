@@ -848,7 +848,7 @@
         "increaseOfProduct": "Erhöhe die Anzahl von %product%",
         "decrease": "Anzahl verringern",
         "decreaseOfProduct": "Verringere die Anzahl %product%",
-        "stockAdjusted": "Die Menge wurde an den maximal verfügbaren Lagerbestand angepasst."
+        "stockAdjusted": "Ihre Menge wurde auf %quantity% aktualisiert."
       },
       "configurator": {
         "legend": "%group_name%<span class=\"%hidden_cls%\">&nbsp;auswählen</span>"

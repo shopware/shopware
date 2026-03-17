@@ -19,8 +19,11 @@ function createLivePlugin({ url = '/product/pid/quantity-limits', withAlertTempl
                 <button type="button" class="js-btn-plus">+</button>
             </div>
             ${withAlertTemplate ? `
-            <template class="js-quantity-stock-adjusted-template">
-                <div class="alert alert-warning">Stock adjusted</div>
+            <template class="js-quantity-stock-adjusted-template"
+                      data-stock-adjusted-text="Your quantity has been updated to %quantity%.">
+                <div class="alert alert-warning">
+                    <div class="js-stock-adjusted-text"></div>
+                </div>
             </template>` : ''}
         </form>
     `;
@@ -244,6 +247,7 @@ describe('QuantitySelectorPlugin tests', () => {
 
         expect(document.querySelector('.js-quantity-selector').value).toBe('3');
         expect(document.querySelector('.quantity-stock-adjusted-alert')).not.toBeNull();
+        expect(document.querySelector('.js-stock-adjusted-text').textContent).toBe('Your quantity has been updated to 3.');
     });
 
     test('does not show alert when value is within new limits', async () => {

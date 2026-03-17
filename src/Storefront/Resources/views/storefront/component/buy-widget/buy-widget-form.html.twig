@@ -139,14 +139,13 @@
 
                 {% if product.isCloseout %}
                     {% block buy_widget_buy_quantity_stock_adjusted_template %}
-                        <template class="js-quantity-stock-adjusted-template">
+                        <template class="js-quantity-stock-adjusted-template"
+                                  data-stock-adjusted-text="{{ 'component.product.quantitySelect.stockAdjusted'|trans|striptags|e('html_attr') }}">
                             <div class="alert alert-warning d-flex align-items-center mt-2"
                                  role="alert"
                                  aria-live="polite">
                                 {% sw_icon 'warning' %}
-                                <div class="alert-content-container">
-                                    {{ 'component.product.quantitySelect.stockAdjusted'|trans|striptags }}
-                                </div>
+                                <div class="alert-content-container js-stock-adjusted-text"></div>
                             </div>
                         </template>
                     {% endblock %}

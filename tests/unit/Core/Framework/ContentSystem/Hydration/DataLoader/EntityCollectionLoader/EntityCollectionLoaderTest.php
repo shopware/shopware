@@ -79,42 +79,15 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertSame([], $types);
     }
 
-    #[TestDox('returns cached collection with resolved tags when entities are loaded via sales channel repository')]
-    public function testLoadReturnsCachedCollectionWithTagsViaSalesChannelRepository(): void
+    #[TestDox('returns cached collection with resolved tags for all loaded entities')]
+    public function testLoadReturnsCachedCollectionWithResolvedTagsForAllEntities(): void
     {
-        $productId = Uuid::randomHex();
-        $entity = $this->createEntityWithId($productId);
-
-        $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
-        $cacheTagResolver->method('resolve')->willReturn('product-' . $productId);
-
-        $loader = $this->createLoaderWithSalesChannelRepo(
-            'product',
-            new EntityCollection([$entity]),
-            $cacheTagResolver,
-        );
-
-        $result = $loader->load(
-            ContentElementBuilder::create('product-grid')->withProperty('productIds', [$productId])->build(),
-            new DataRequirement('products', 'entity_collection', new EntityLoaderConfig('product', 'productIds', [])),
-            Generator::generateSalesChannelContext(),
-            new Request(),
-        );
-
-        static::assertTrue($result->isCacheAware());
-        static::assertSame(['product-' . $productId], $result->getCacheTags());
-        static::assertInstanceOf(EntityCollection::class, $result->data);
-    }
-
-    #[TestDox('returns cached collection with multiple tags for multiple entities')]
-    public function testLoadReturnsCachedCollectionWithMultipleTagsForMultipleEntities(): void
-    {
-        $id1 = Uuid::randomHex();
-        $id2 = Uuid::randomHex();
+        $id1 = 'product-one';
+        $id2 = 'product-two';
 
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')
-            ->willReturnCallback(static fn (EntityDefinition $def, string $id) => 'product-' . $id);
+            ->willReturnCallback(static fn (EntityDefinition $def, string $id) => 'tag-' . $id);
 
         $loader = $this->createLoaderWithSalesChannelRepo(
             'product',
@@ -130,15 +103,16 @@ class EntityCollectionLoaderTest extends TestCase
         );
 
         static::assertTrue($result->isCacheAware());
-        static::assertContains('product-' . $id1, $result->getCacheTags());
-        static::assertContains('product-' . $id2, $result->getCacheTags());
+        static::assertInstanceOf(EntityCollection::class, $result->data);
+        static::assertContains('tag-' . $id1, $result->getCacheTags());
+        static::assertContains('tag-' . $id2, $result->getCacheTags());
         static::assertCount(2, $result->getCacheTags());
     }
 
     #[TestDox('returns uncacheable result when cache tag resolver returns null for an entity')]
     public function testLoadReturnsUncacheableWhenCacheTagResolverReturnsNull(): void
     {
-        $productId = Uuid::randomHex();
+        $productId = 'uncacheable-product';
 
         $cacheTagResolver = static::createStub(EntityCacheTagResolver::class);
         $cacheTagResolver->method('resolve')->willReturn(null);
@@ -163,7 +137,7 @@ class EntityCollectionLoaderTest extends TestCase
     #[TestDox('falls back to plain repository when sales channel repository is not found')]
     public function testLoadFallsBackToPlainRepositoryWhenSalesChannelRepoNotFound(): void
     {
-        $categoryId = Uuid::randomHex();
+        $categoryId = 'category-id';
         $entity = $this->createEntityWithId($categoryId);
         $collection = new EntityCollection([$entity]);
 
@@ -244,7 +218,9 @@ class EntityCollectionLoaderTest extends TestCase
         );
 
         static::assertInstanceOf(Criteria::class, $capturedCriteria);
-        static::assertNotEmpty($capturedCriteria->getAssociations());
+        static::assertArrayHasKey('manufacturer', $capturedCriteria->getAssociations());
+        static::assertArrayHasKey('cover', $capturedCriteria->getAssociations());
+        static::assertCount(2, $capturedCriteria->getAssociations());
     }
 
     #[TestDox('returns cached empty collection when property is null on element')]
@@ -285,8 +261,8 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns notFound result when config is not EntityLoaderConfig')]
-    public function testLoadReturnsNotFoundWhenConfigIsWrongType(): void
+    #[TestDox('returns null data when config is not EntityLoaderConfig')]
+    public function testLoadReturnsNullDataWhenConfigIsWrongType(): void
     {
         $requirement = new DataRequirement('products', 'entity_collection', new StubLoaderConfig());
         $element = ContentElementBuilder::create('product-grid')->build();
@@ -300,8 +276,8 @@ class EntityCollectionLoaderTest extends TestCase
         static::assertSame([], $result->getCacheTags());
     }
 
-    #[TestDox('returns notFound result when property value is not an array')]
-    public function testLoadReturnsNotFoundWhenPropertyIsNotArray(): void
+    #[TestDox('returns null data when property value is not an array')]
+    public function testLoadReturnsNullDataWhenPropertyIsNotArray(): void
     {
         $config = new EntityLoaderConfig('product', 'productIds', []);
         $requirement = new DataRequirement('products', 'entity_collection', $config);

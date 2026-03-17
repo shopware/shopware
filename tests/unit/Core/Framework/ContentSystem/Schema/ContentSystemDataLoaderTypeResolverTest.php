@@ -26,8 +26,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ContentSystemDataLoaderTypeResolver::class)]
 class ContentSystemDataLoaderTypeResolverTest extends TestCase
 {
-    #[TestDox('passes compiled entries through with all descriptor fields preserved')]
-    public function testCompiledPassthrough(): void
+    #[TestDox('preserves all descriptor fields when no loader is registered')]
+    public function testPreservesDescriptorFieldsWithNoRegisteredLoader(): void
     {
         $resolver = new ContentSystemDataLoaderTypeResolver(
             new ServiceLocator([]),
@@ -41,7 +41,7 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
         static::assertSame([ProductReviewCollection::class], $map->sourceToTypes['product_review'][0]->genericParameters);
     }
 
-    #[TestDox('replaces compiled entries with overridden types')]
+    #[TestDox('uses loader-provided types instead of compiled entries')]
     public function testOverriddenTypesReplaceCompiledEntries(): void
     {
         $loader = new ReplacingStubLoader();

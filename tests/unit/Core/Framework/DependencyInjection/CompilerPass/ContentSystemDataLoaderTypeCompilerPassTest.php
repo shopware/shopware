@@ -40,6 +40,46 @@ class ContentSystemDataLoaderTypeCompilerPassTest extends TestCase
         static::assertSame([], $argument['navigation'][0]['genericParameters']);
     }
 
+    #[TestDox('skips tagged service when its class is null')]
+    public function testProcessSkipsLoaderWithNullClass(): void
+    {
+        $container = new ContainerBuilder();
+
+        $resolverDefinition = new Definition(ContentSystemDataLoaderTypeResolver::class);
+        $container->setDefinition(ContentSystemDataLoaderTypeResolver::class, $resolverDefinition);
+
+        $loaderDefinition = new Definition();
+        $loaderDefinition->addTag('content_system.data_loader');
+        $container->setDefinition('app.null_class_loader', $loaderDefinition);
+
+        $pass = new ContentSystemDataLoaderTypeCompilerPass();
+        $pass->process($container);
+
+        $argument = $resolverDefinition->getArgument('$compiledSourceToTypes');
+        static::assertIsArray($argument);
+        static::assertSame([], $argument);
+    }
+
+    #[TestDox('skips tagged service that does not extend AbstractContentDataLoader')]
+    public function testProcessSkipsNonContentDataLoaderSubclass(): void
+    {
+        $container = new ContainerBuilder();
+
+        $resolverDefinition = new Definition(ContentSystemDataLoaderTypeResolver::class);
+        $container->setDefinition(ContentSystemDataLoaderTypeResolver::class, $resolverDefinition);
+
+        $loaderDefinition = new Definition(\stdClass::class);
+        $loaderDefinition->addTag('content_system.data_loader');
+        $container->setDefinition('app.wrong_class_loader', $loaderDefinition);
+
+        $pass = new ContentSystemDataLoaderTypeCompilerPass();
+        $pass->process($container);
+
+        $argument = $resolverDefinition->getArgument('$compiledSourceToTypes');
+        static::assertIsArray($argument);
+        static::assertSame([], $argument);
+    }
+
     #[TestDox('returns early when resolver definition is missing')]
     public function testProcessReturnsEarlyWithoutResolver(): void
     {

@@ -39,7 +39,7 @@ class ContentElementHydratorTest extends TestCase
         $this->cacheContext = new RenderingCacheContext();
     }
 
-    #[TestDox('loads data for elements with requirements and sets property')]
+    #[TestDox('loads data for elements with requirements and propagates cache tags')]
     public function testHydrateLoadsDataForElementsWithRequirements(): void
     {
         $element = ContentElementBuilder::create('product-card')
@@ -48,7 +48,7 @@ class ContentElementHydratorTest extends TestCase
 
         $struct = new StubStruct();
         $loader = static::createStub(AbstractContentDataLoader::class);
-        $loader->method('load')->willReturn(ContentDataLoaderResult::cached($struct, 'product-abc'));
+        $loader->method('load')->willReturn(ContentDataLoaderResult::cached($struct, 'product-abc', 'product-def'));
 
         $hydrator = $this->createHydrator(['entity' => $loader]);
 
@@ -56,6 +56,7 @@ class ContentElementHydratorTest extends TestCase
 
         static::assertCount(1, $result);
         static::assertSame($struct, $element->getProperty('product'));
+        static::assertSame(['product-abc', 'product-def'], $this->cacheContext->getTags());
     }
 
     #[TestDox('skips elements without data requirements')]
@@ -124,23 +125,6 @@ class ContentElementHydratorTest extends TestCase
         static::assertTrue($this->cacheContext->isDisabled());
     }
 
-    #[TestDox('adds cache tags from loader result to cache context')]
-    public function testHydrateAddsCacheTagsFromResult(): void
-    {
-        $element = ContentElementBuilder::create('product-card')
-            ->withDataRequirement('product', 'entity', new StubLoaderConfig())
-            ->build();
-
-        $loader = static::createStub(AbstractContentDataLoader::class);
-        $loader->method('load')->willReturn(ContentDataLoaderResult::cached(new StubStruct(), 'product-abc', 'product-def'));
-
-        $hydrator = $this->createHydrator(['entity' => $loader]);
-
-        iterator_to_array($hydrator->hydrate([$element], $this->context, new Request(), $this->cacheContext), false);
-
-        static::assertSame(['product-abc', 'product-def'], $this->cacheContext->getTags());
-    }
-
     #[TestDox('recurses into slot children for hydration')]
     public function testHydrateRecursesIntoSlotChildren(): void
     {
@@ -161,6 +145,16 @@ class ContentElementHydratorTest extends TestCase
         iterator_to_array($hydrator->hydrate([$parent], $this->context, new Request(), $this->cacheContext), false);
 
         static::assertSame($childStruct, $child->getProperty('item'));
+    }
+
+    #[TestDox('yields nothing when element list is empty')]
+    public function testHydrateYieldsNothingForEmptyElementList(): void
+    {
+        $hydrator = $this->createHydrator();
+
+        $result = iterator_to_array($hydrator->hydrate([], $this->context, new Request(), $this->cacheContext), false);
+
+        static::assertSame([], $result);
     }
 
     /**

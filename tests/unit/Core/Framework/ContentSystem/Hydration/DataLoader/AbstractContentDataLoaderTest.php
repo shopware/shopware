@@ -45,37 +45,16 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(AbstractContentDataLoader::class)]
 class AbstractContentDataLoaderTest extends TestCase
 {
-    #[TestDox('resolves return type from simple class declaration')]
-    public function testSimpleExtendsAnnotation(): void
-    {
-        $descriptor = SimpleStubLoader::getProvidedData();
-
-        static::assertSame(Tree::class, $descriptor->className);
-        static::assertSame([], $descriptor->genericParameters);
-    }
-
-    #[TestDox('resolves return type from generic class declaration')]
-    public function testNestedGenericExtendsAnnotation(): void
-    {
-        $descriptor = GenericStubLoader::getProvidedData();
-
-        static::assertSame(EntitySearchResult::class, $descriptor->className);
-        static::assertSame([ProductReviewCollection::class], $descriptor->genericParameters);
-    }
-
     /**
-     * @param class-string $loaderClass
+     * @param class-string<AbstractContentDataLoader<\Shopware\Core\Framework\Struct\Struct>> $loaderClass
      * @param list<class-string> $expectedGenericParams
      */
-    #[DataProvider('domainLoaderAnnotationProvider')]
+    #[DataProvider('resolvesProvidedDataProvider')]
     #[TestDox('resolves return type for $loaderClass')]
-    public function testDomainLoaderAnnotation(string $loaderClass, string $expectedClassName, array $expectedGenericParams = []): void
+    public function testResolvesProvidedData(string $loaderClass, string $expectedClassName, array $expectedGenericParams = []): void
     {
-        static::assertTrue(
-            is_subclass_of($loaderClass, AbstractContentDataLoader::class),
-            $loaderClass . ' is not a subclass of AbstractContentDataLoader'
-        );
         $descriptor = $loaderClass::getProvidedData();
+
         static::assertSame($expectedClassName, $descriptor->className);
         static::assertSame($expectedGenericParams, $descriptor->genericParameters);
     }
@@ -92,9 +71,9 @@ class AbstractContentDataLoaderTest extends TestCase
         static::assertSame(Tree::class, $types[0]->className);
     }
 
-    #[DataProvider('invalidAnnotationProvider')]
-    #[TestDox('throws for invalid annotation: $description')]
-    public function testThrowsForInvalidAnnotation(string $loaderClass, \Exception $expectedException, string $description): void
+    #[DataProvider('throwsForInvalidLoaderDeclarationProvider')]
+    #[TestDox('throws for invalid loader declaration: $_dataName')]
+    public function testThrowsForInvalidLoaderDeclaration(string $loaderClass, \Exception $expectedException): void
     {
         $this->expectExceptionObject($expectedException);
 
@@ -104,33 +83,38 @@ class AbstractContentDataLoaderTest extends TestCase
     /**
      * @return \Generator<string, array{class-string, class-string, list<class-string>}>
      */
-    public static function domainLoaderAnnotationProvider(): \Generator
+    public static function resolvesProvidedDataProvider(): \Generator
     {
-        yield NavigationDataLoader::class => [NavigationDataLoader::class, Tree::class, []];
-        yield ServiceMenuDataLoader::class => [ServiceMenuDataLoader::class, CategoryCollection::class, []];
-        yield ProductListingDataLoader::class => [ProductListingDataLoader::class, ProductListingResult::class, []];
-        yield ProductReviewDataLoader::class => [ProductReviewDataLoader::class, EntitySearchResult::class, [ProductReviewCollection::class]];
-        yield ProductSearchDataLoader::class => [ProductSearchDataLoader::class, ProductListingResult::class, []];
-        yield ProductSuggestDataLoader::class => [ProductSuggestDataLoader::class, ProductListingResult::class, []];
-        yield CrossSellingDataLoader::class => [CrossSellingDataLoader::class, CrossSellingElementCollection::class, []];
-        yield BreadcrumbDataLoader::class => [BreadcrumbDataLoader::class, BreadcrumbCollection::class, []];
-        yield PaymentMethodDataLoader::class => [PaymentMethodDataLoader::class, PaymentMethodCollection::class, []];
-        yield ShippingMethodDataLoader::class => [ShippingMethodDataLoader::class, ShippingMethodCollection::class, []];
-        yield LanguageDataLoader::class => [LanguageDataLoader::class, LanguageCollection::class, []];
-        yield CurrencyDataLoader::class => [CurrencyDataLoader::class, CurrencyCollection::class, []];
+        // Stub loaders cover the two code paths in getProvidedData(): IdentifierTypeNode and GenericTypeNode
+        yield 'identifier type resolves to Tree' => [SimpleStubLoader::class, Tree::class, []];
+        yield 'generic type resolves outer class and captures param' => [GenericStubLoader::class, EntitySearchResult::class, [ProductReviewCollection::class]];
+
+        // Production loaders verify their @extends annotations remain parseable (annotation contract tests)
+        yield 'annotation contract: NavigationDataLoader' => [NavigationDataLoader::class, Tree::class, []];
+        yield 'annotation contract: ServiceMenuDataLoader' => [ServiceMenuDataLoader::class, CategoryCollection::class, []];
+        yield 'annotation contract: ProductListingDataLoader' => [ProductListingDataLoader::class, ProductListingResult::class, []];
+        yield 'annotation contract: ProductReviewDataLoader' => [ProductReviewDataLoader::class, EntitySearchResult::class, [ProductReviewCollection::class]];
+        yield 'annotation contract: ProductSearchDataLoader' => [ProductSearchDataLoader::class, ProductListingResult::class, []];
+        yield 'annotation contract: ProductSuggestDataLoader' => [ProductSuggestDataLoader::class, ProductListingResult::class, []];
+        yield 'annotation contract: CrossSellingDataLoader' => [CrossSellingDataLoader::class, CrossSellingElementCollection::class, []];
+        yield 'annotation contract: BreadcrumbDataLoader' => [BreadcrumbDataLoader::class, BreadcrumbCollection::class, []];
+        yield 'annotation contract: PaymentMethodDataLoader' => [PaymentMethodDataLoader::class, PaymentMethodCollection::class, []];
+        yield 'annotation contract: ShippingMethodDataLoader' => [ShippingMethodDataLoader::class, ShippingMethodCollection::class, []];
+        yield 'annotation contract: LanguageDataLoader' => [LanguageDataLoader::class, LanguageCollection::class, []];
+        yield 'annotation contract: CurrencyDataLoader' => [CurrencyDataLoader::class, CurrencyCollection::class, []];
     }
 
     /**
-     * @return \Generator<string, array{class-string, \Exception, string}>
+     * @return \Generator<string, array{class-string, \Exception}>
      */
-    public static function invalidAnnotationProvider(): \Generator
+    public static function throwsForInvalidLoaderDeclarationProvider(): \Generator
     {
-        yield 'missing docblock entirely' => [NoDocblockStubLoader::class, ContentSystemException::missingExtendsAnnotation(NoDocblockStubLoader::class), 'missing docblock entirely'];
-        yield 'docblock without @extends tag' => [MissingAnnotationStubLoader::class, ContentSystemException::missingExtendsAnnotation(MissingAnnotationStubLoader::class), 'docblock without @extends tag'];
-        yield 'identifier type not a Struct subclass' => [NonStructTypeStubLoader::class, ContentSystemException::unresolvableTypeClass(\stdClass::class, NonStructTypeStubLoader::class), 'identifier type not a Struct subclass'];
-        yield 'generic outer type not a Struct subclass' => [GenericNonStructOuterStubLoader::class, ContentSystemException::unresolvableTypeClass(\ArrayObject::class, GenericNonStructOuterStubLoader::class), 'generic outer type not a Struct subclass'];
-        yield 'generic parameter not a Struct subclass' => [GenericNonStructParamStubLoader::class, ContentSystemException::unresolvableTypeClass(\stdClass::class, GenericNonStructParamStubLoader::class), 'generic parameter not a Struct subclass'];
-        yield 'type node neither identifier nor generic' => [UnsupportedTypeNodeStubLoader::class, ContentSystemException::unsupportedTypeNode(UnionTypeNode::class), 'type node neither identifier nor generic'];
+        yield 'missing docblock entirely' => [NoDocblockStubLoader::class, ContentSystemException::missingExtendsAnnotation(NoDocblockStubLoader::class)];
+        yield 'docblock without @extends tag' => [MissingAnnotationStubLoader::class, ContentSystemException::missingExtendsAnnotation(MissingAnnotationStubLoader::class)];
+        yield 'identifier type not a Struct subclass' => [NonStructTypeStubLoader::class, ContentSystemException::unresolvableTypeClass(\stdClass::class, NonStructTypeStubLoader::class)];
+        yield 'generic outer type not a Struct subclass' => [GenericNonStructOuterStubLoader::class, ContentSystemException::unresolvableTypeClass(\ArrayObject::class, GenericNonStructOuterStubLoader::class)];
+        yield 'generic parameter not a Struct subclass' => [GenericNonStructParamStubLoader::class, ContentSystemException::unresolvableTypeClass(\stdClass::class, GenericNonStructParamStubLoader::class)];
+        yield 'type node neither identifier nor generic' => [UnsupportedTypeNodeStubLoader::class, ContentSystemException::unsupportedTypeNode(UnionTypeNode::class)];
     }
 }
 

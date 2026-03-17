@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Schema;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Tree\Tree;
@@ -19,12 +20,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 #[CoversClass(ContentSystemDataLoaderTypeSchemaGenerator::class)]
 class ContentSystemDataLoaderTypeSchemaGeneratorTest extends TestCase
 {
-    #[TestDox('returns structured JSON schema with sources and types')]
-    public function testGetSchemaReturnsStructuredJson(): void
+    /**
+     * @param list<array{className: string, genericParameters: list<string>}> $expectedTypes
+     */
+    #[DataProvider('buildsSchemaEntryProvider')]
+    #[TestDox('builds schema entry for $_dataName')]
+    public function testGetSchemaBuildSourceEntry(string $source, ContentSystemDataLoaderTypeDescriptor $descriptor, array $expectedTypes): void
     {
-        $map = new ContentSystemDataLoaderTypeMap([
-            'navigation' => [new ContentSystemDataLoaderTypeDescriptor(Tree::class)],
-        ]);
+        $map = new ContentSystemDataLoaderTypeMap([$source => [$descriptor]]);
 
         $resolver = static::createStub(AbstractContentSystemDataLoaderTypeResolver::class);
         $resolver->method('resolve')->willReturn($map);
@@ -33,25 +36,24 @@ class ContentSystemDataLoaderTypeSchemaGeneratorTest extends TestCase
         $schema = $generator->getSchema();
 
         static::assertArrayHasKey('sources', $schema);
-        static::assertArrayHasKey('navigation', $schema['sources']);
-        static::assertSame([['className' => Tree::class, 'genericParameters' => []]], $schema['sources']['navigation']['types']);
+        static::assertSame($expectedTypes, $schema['sources'][$source]['types']);
     }
 
-    #[TestDox('includes genericParameters in schema')]
-    public function testGetSchemaIncludesGenericParameters(): void
+    /**
+     * @return iterable<string, array{string, ContentSystemDataLoaderTypeDescriptor, list<array{className: string, genericParameters: list<string>}>}>
+     */
+    public static function buildsSchemaEntryProvider(): iterable
     {
-        $map = new ContentSystemDataLoaderTypeMap([
-            'product_review' => [new ContentSystemDataLoaderTypeDescriptor(EntitySearchResult::class, [ProductReviewCollection::class])],
-        ]);
+        yield 'simple type without generic parameters' => [
+            'navigation',
+            new ContentSystemDataLoaderTypeDescriptor(Tree::class),
+            [['className' => Tree::class, 'genericParameters' => []]],
+        ];
 
-        $resolver = static::createStub(AbstractContentSystemDataLoaderTypeResolver::class);
-        $resolver->method('resolve')->willReturn($map);
-
-        $generator = new ContentSystemDataLoaderTypeSchemaGenerator($resolver);
-        $schema = $generator->getSchema();
-
-        $type = $schema['sources']['product_review']['types'][0];
-        static::assertSame(EntitySearchResult::class, $type['className']);
-        static::assertSame([ProductReviewCollection::class], $type['genericParameters']);
+        yield 'type with generic parameters' => [
+            'product_review',
+            new ContentSystemDataLoaderTypeDescriptor(EntitySearchResult::class, [ProductReviewCollection::class]),
+            [['className' => EntitySearchResult::class, 'genericParameters' => [ProductReviewCollection::class]]],
+        ];
     }
 }

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 interface SitemapHandleInterface
 {
     /**
-     * @param Url[] $urls
+     * @param list<Url> $urls
      */
     public function write(array $urls): void;
 

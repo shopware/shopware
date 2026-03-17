@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 class FlowIndexerEvent extends NestedEvent
 {
     /**
-     * @param array<int, string> $ids
+     * @param list<string> $ids
      */
     public function __construct(
         private readonly array $ids,
@@ -24,7 +24,7 @@ class FlowIndexerEvent extends NestedEvent
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function getIds(): array
     {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Renderer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -301,5 +302,66 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         $order->setAmountNet($price->getNetPrice());
 
         return $price;
+    }
+
+    /**
+     * @return list<string> IDs of already invoiced credit items
+     */
+    private function getCreditIdsOnInvoiceDocument(?string $referencedInvoiceId): array
+    {
+        if ($referencedInvoiceId === null) {
+            return [];
+        }
+
+        $sql = '
+            SELECT
+                oli.id AS id
+            FROM
+                document AS d
+                INNER JOIN order_line_item AS oli ON oli.order_id = d.order_id AND oli.order_version_id = d.order_version_id
+            WHERE
+                d.id = :referencedInvoiceId
+                AND oli.type = :creditType;
+        ';
+
+        $binaryIds = $this->connection->fetchFirstColumn($sql, [
+            'referencedInvoiceId' => Uuid::fromHexToBytes($referencedInvoiceId),
+            'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
+        ]);
+
+        return array_map(static fn ($id): string => Uuid::fromBytesToHex($id), $binaryIds);
+    }
+
+    /**
+     * @return list<string> IDs of already credited items on previous credit notes for the referenced invoice
+     */
+    private function getPreviouslyCreditedIdsForInvoice(?string $referencedInvoiceId): array
+    {
+        if ($referencedInvoiceId === null) {
+            return [];
+        }
+
+        $sql = '
+            SELECT
+                oli.id AS id
+            FROM
+                document AS d
+                INNER JOIN document_type AS dt ON dt.id = d.document_type_id
+                INNER JOIN order_line_item AS oli ON oli.order_id = d.order_id AND oli.order_version_id = d.order_version_id
+            WHERE
+                d.referenced_document_id = :referencedInvoiceId
+                AND dt.technical_name IN (:creditTechnicalName)
+                AND oli.type = :creditType;
+        ';
+
+        $binaryIds = $this->connection->fetchFirstColumn($sql, [
+            'referencedInvoiceId' => Uuid::fromHexToBytes($referencedInvoiceId),
+            'creditTechnicalName' => [self::TYPE, ZugferdCreditNoteRenderer::TYPE, ZugferdEmbeddedCreditNoteRenderer::TYPE],
+            'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
+        ], [
+            'creditTechnicalName' => ArrayParameterType::STRING,
+        ]);
+
+        return array_map(static fn ($id): string => Uuid::fromBytesToHex($id), $binaryIds);
     }
 }

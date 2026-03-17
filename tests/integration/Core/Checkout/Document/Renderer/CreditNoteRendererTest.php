@@ -661,4 +661,104 @@ class CreditNoteRendererTest extends TestCase
 
         return $id;
     }
+
+    private function generateInvoice(string $orderId, string $documentNumber = 'INVOICE-A'): DocumentIdStruct
+    {
+        $invoiceConfig = new DocumentConfiguration();
+        $invoiceConfig->setDocumentNumber($documentNumber);
+
+        $operationInvoiceA = new DocumentGenerateOperation(
+            $orderId,
+            FileTypes::PDF,
+            $invoiceConfig->jsonSerialize()
+        );
+
+        $invoice = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$orderId => $operationInvoiceA],
+            $this->context
+        )->getSuccess()->first();
+
+        static::assertNotNull($invoice);
+
+        return $invoice;
+    }
+
+    /**
+     * @param array<int, int> $creditPrices
+     */
+    private function addCreditItemsToOrderAfterInvoice(string $orderId, array $creditPrices): void
+    {
+        // create a new version for the order
+        $versionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        // add credit line items to order
+        for ($i = 0, $iMax = \count($creditPrices); $i < $iMax; ++$i) {
+            $creditLineItemId = Uuid::randomHex();
+
+            $creditLineItem = new LineItem(
+                $creditLineItemId,
+                LineItem::CREDIT_LINE_ITEM_TYPE,
+                null,
+                1
+            );
+
+            $creditLineItem->setLabel('credit' . $creditPrices[$i]);
+            $creditLineItem->setPriceDefinition(new AbsolutePriceDefinition($creditPrices[$i]));
+
+            $this->getContainer()->get(RecalculationService::class)->addCustomLineItem(
+                $orderId,
+                $creditLineItem,
+                $versionContext,
+            );
+        }
+
+        // merge the version changes back into LIVE-ORDER-VERSION
+        static::getContainer()
+            ->get(VersionManager::class)
+            ->merge($versionId, WriteContext::createFromContext($this->context));
+    }
+
+    private function generateCreditNote(string $orderId, string $invoiceId): DocumentGenerationResult
+    {
+        $operationCreditNote1 = new DocumentGenerateOperation(
+            $orderId,
+            HtmlRenderer::FILE_EXTENSION,
+            [
+                'displayLineItems' => true,
+                'itemsPerPage' => 10,
+                'fileTypes' => [],
+            ],
+            $invoiceId
+        );
+
+        return $this->documentGenerator->generate(
+            CreditNoteRenderer::TYPE,
+            [$orderId => $operationCreditNote1],
+            $this->context
+        );
+    }
+
+    private function renderCreditNote(string $orderId, string $invoiceId): RendererResult
+    {
+        $operationCreditNote2 = new DocumentGenerateOperation(
+            $orderId,
+            HtmlRenderer::FILE_EXTENSION,
+            [
+                'displayLineItems' => true,
+                'itemsPerPage' => 10,
+                'fileTypes' => [],
+            ],
+            $invoiceId
+        );
+
+        $result = $this->creditNoteRenderer->render(
+            [$orderId => $operationCreditNote2],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        return $result;
+    }
 }

@@ -960,13 +960,14 @@ class CreditNoteRendererTest extends TestCase
         // add credit line items to order
         for ($i = 0, $iMax = \count($creditPrices); $i < $iMax; ++$i) {
             $creditLineItemId = Uuid::randomHex();
+
             $creditLineItem = new LineItem(
                 $creditLineItemId,
                 LineItem::CREDIT_LINE_ITEM_TYPE,
                 null,
                 1
-            )
-            ;
+            );
+
             $creditLineItem->setLabel('credit' . $creditPrices[$i]);
             $creditLineItem->setPriceDefinition(new AbsolutePriceDefinition($creditPrices[$i]));
 

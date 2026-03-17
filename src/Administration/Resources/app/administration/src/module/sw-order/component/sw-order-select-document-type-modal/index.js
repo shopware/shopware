@@ -13,9 +13,20 @@ const { Criteria } = Shopware.Data;
  */
 export const REQUIRES_INVOICE = [
     DOCUMENT_TYPES.CREDIT_NOTE,
+    DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
+    DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE,
     DOCUMENT_TYPES.CANCELLATION_INVOICE,
     DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
     DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE,
+];
+
+/**
+ * @private
+ */
+export const REQUIRES_CREDIT_ITEMS = [
+    DOCUMENT_TYPES.CREDIT_NOTE,
+    DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
+    DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE,
 ];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -132,7 +143,7 @@ export default {
                         }
 
                         if (
-                            documentType.technicalName === DOCUMENT_TYPES.CREDIT_NOTE &&
+                            REQUIRES_CREDIT_ITEMS.includes(documentType.technicalName) &&
                             this.invoiceExists &&
                             this.creditItems.length === 0
                         ) {
@@ -163,7 +174,7 @@ export default {
                 return false;
             }
 
-            if (type === DOCUMENT_TYPES.CREDIT_NOTE) {
+            if (REQUIRES_CREDIT_ITEMS.includes(type)) {
                 return this.creditItems.length !== 0;
             }
 

@@ -20,6 +20,8 @@ export const ZUGFERD_COMPONENT_MAPPING = {
     [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE]: DOCUMENT_TYPES.INVOICE,
     [DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE]: DOCUMENT_TYPES.CANCELLATION_INVOICE,
     [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE]: DOCUMENT_TYPES.CANCELLATION_INVOICE,
+    [DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE]: DOCUMENT_TYPES.CREDIT_NOTE,
+    [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE]: DOCUMENT_TYPES.CREDIT_NOTE,
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -115,7 +117,10 @@ export default {
                 return `sw-order-document-settings-${subComponentName}-modal`;
             }
 
-            const zugferdSubComponentName = ZUGFERD_COMPONENT_MAPPING[this.currentDocumentType.technicalName];
+            const zugferdSubComponentName = ZUGFERD_COMPONENT_MAPPING[this.currentDocumentType.technicalName]?.replace(
+                /_/g,
+                '-',
+            );
 
             if (this.$.appContext.components[`sw-order-document-settings-${zugferdSubComponentName}-modal`]) {
                 return `sw-order-document-settings-${zugferdSubComponentName}-modal`;
@@ -250,6 +255,7 @@ export default {
             return [
                 DOCUMENT_TYPES.ZUGFERD_INVOICE,
                 DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
+                DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
             ].includes(this.currentDocumentType?.technicalName);
         },
     },

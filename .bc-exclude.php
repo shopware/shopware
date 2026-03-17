@@ -58,11 +58,6 @@ return [
         preg_quote('ADDED: Parameter documentType was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),
         preg_quote('ADDED: Parameter invoiceReference was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),
 
-        // False positive, added parameters have default values or are optional
-        preg_quote('ADDED: Parameter documentType was added to Method withGeneralOrderData() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument', '/'),
-        preg_quote('ADDED: Parameter documentType was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),
-        preg_quote('ADDED: Parameter invoiceReference was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),
-
         // False positive, constructor is internal
         preg_quote('REMOVED: Property Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer#$shopwareVersion was removed', '/'),
     ],

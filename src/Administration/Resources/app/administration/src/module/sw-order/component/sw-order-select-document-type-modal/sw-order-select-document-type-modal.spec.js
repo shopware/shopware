@@ -204,8 +204,8 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
 
         await wrapper.find('.sw-order-select-document-type-modal__type-switch input').setChecked(true);
 
-        expect(wrapper.findAll('sw-help-text-stub')).toHaveLength(2);
-        expect(wrapper.findAll('.is--disabled')).toHaveLength(2);
+        expect(wrapper.findAll('sw-help-text-stub')).toHaveLength(4);
+        expect(wrapper.findAll('.is--disabled')).toHaveLength(4);
     });
 
     it('should not add help text & disable if invoice is already created', async () => {
@@ -255,7 +255,9 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
 
         expect(zugferdOptions).toStrictEqual([
             DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
+            DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
             DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE,
+            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE,
             DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE,
             DOCUMENT_TYPES.ZUGFERD_INVOICE,
         ]);

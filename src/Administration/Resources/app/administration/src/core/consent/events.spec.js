@@ -3,6 +3,11 @@ import { ConsentEvent, dispatchConsentEvent } from './events';
 describe('src/core/consent/events.ts', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+        jest.useRealTimers();
     });
 
     it('creates a consent event with timestamp', () => {
@@ -15,6 +20,20 @@ describe('src/core/consent/events.ts', () => {
             option: ['user_tracking'],
         });
         expect(consentEvent.timestamp).toBeInstanceOf(Date);
+    });
+
+    it('creates consent events with strictly increasing timestamps', () => {
+        jest.setSystemTime(new Date('2026-01-01T10:00:00.000Z'));
+
+        const firstEvent = new ConsentEvent('consent_modal_viewed', {
+            option: ['user_tracking'],
+        });
+        const secondEvent = new ConsentEvent('consent_option_changed', {
+            option: 'user_tracking',
+            state: 'enabled',
+        });
+
+        expect(secondEvent.timestamp.getTime()).toBe(firstEvent.timestamp.getTime() + 1);
     });
 
     it('dispatches consent event when PRODUCT_ANALYTICS feature is active', () => {

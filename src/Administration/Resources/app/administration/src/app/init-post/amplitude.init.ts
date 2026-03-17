@@ -3,14 +3,27 @@
  */
 import createConsentEventHandler from 'src/core/consent/handlers';
 import useConsentStore from 'src/core/consent/consent.store';
+import {
+    createPrivacyAmplitudeClient,
+    initTelemetryAmplitude,
+    registerTelemetryLogoutListener,
+} from 'src/core/telemetry/amplitude/amplitude.browser-client';
+import clearAmplitudeCookies from 'src/core/telemetry/amplitude/amplitude.browser-storage';
+import createAnonymousGatewayClient from 'src/core/telemetry/amplitude/amplitude.gateway-client';
+import {
+    addDefaultShopwarePropertiesPlugin,
+    getDefaultLanguageName,
+} from 'src/core/telemetry/amplitude/amplitude.shopware-properties';
+import createTelemetryEventHandler from 'src/core/telemetry/amplitude/amplitude.telemetry-handlers';
 import type * as AmplitudeClient from '@amplitude/analytics-browser';
 import { computed, watch } from 'vue';
-import createTelemetryEventHandler from './amplitude.telemetry-handlers';
 
 type AmplitudeModule = typeof AmplitudeClient;
-type AnonymousAmplitudeClient = ReturnType<AmplitudeModule['createInstance']>;
 
 let stopTelemetryConsentWatch: (() => void) | null = null;
+let pendingTelemetryActivationTimeout: number | null = null;
+let amplitudeModulePromise: Promise<AmplitudeModule> | null = null;
+let telemetryStateChangeToken = 0;
 
 /**
  * @private
@@ -30,26 +43,54 @@ export default async function (): Promise<void> {
             return false;
         }
     });
-    const amplitude = await import('@amplitude/analytics-browser');
-    const anonymousAmplitude = amplitude.createInstance();
-    const pushTelemetryEventToAmplitude = createTelemetryEventHandler(amplitude);
+    const anonymousGatewayClient = createAnonymousGatewayClient(analyticsGatewayUrl);
+    const pushConsentEventToAmplitude = createConsentEventHandler(anonymousGatewayClient);
     let isTelemetryInitialized = false;
     let isTelemetryListenerRegistered = false;
+    let isTelemetryLogoutListenerRegistered = false;
+    let isDefaultShopwarePropertiesPluginRegistered = false;
+    let amplitude: AmplitudeModule | null = null;
+    let pushTelemetryEventToAmplitude: ReturnType<typeof createTelemetryEventHandler> | null = null;
 
-    registerAnonymousLogoutListener(anonymousAmplitude);
-    initAnonymousAmplitude(anonymousAmplitude, analyticsGatewayUrl);
+    const clearPendingTelemetryActivation = (): void => {
+        if (pendingTelemetryActivationTimeout === null) {
+            return;
+        }
 
-    const pushConsentEventToAmplitude = createConsentEventHandler(anonymousAmplitude);
+        window.clearTimeout(pendingTelemetryActivationTimeout);
+        pendingTelemetryActivationTimeout = null;
+    };
 
     // eslint-disable-next-line listeners/no-missing-remove-event-listener
     Shopware.Utils.EventBus.on('consent', pushConsentEventToAmplitude);
 
-    const ensureTelemetryInitialized = async (): Promise<void> => {
+    const ensureAmplitudeModuleLoaded = async (): Promise<AmplitudeModule> => {
+        if (amplitude !== null) {
+            return amplitude;
+        }
+
+        amplitudeModulePromise ??= import('@amplitude/analytics-browser').catch((error: unknown) => {
+            amplitudeModulePromise = null;
+
+            throw error;
+        });
+        amplitude = await amplitudeModulePromise;
+        pushTelemetryEventToAmplitude ??= createTelemetryEventHandler(amplitude);
+
+        if (!isTelemetryLogoutListenerRegistered) {
+            registerTelemetryLogoutListener(amplitude);
+            isTelemetryLogoutListenerRegistered = true;
+        }
+
+        return amplitude;
+    };
+
+    const ensureTelemetryInitialized = async (stateChangeToken: number): Promise<void> => {
         if (isTelemetryInitialized) {
             return;
         }
 
-        registerTelemetryLogoutListener(amplitude);
+        const loadedAmplitude = await ensureAmplitudeModuleLoaded();
 
         let defaultLanguageName = '';
 
@@ -59,20 +100,35 @@ export default async function (): Promise<void> {
             defaultLanguageName = 'N/A';
         }
 
-        addDefaultShopwarePropertiesPlugin(amplitude, defaultLanguageName);
-        initTelemetryAmplitude(amplitude, analyticsGatewayUrl);
+        if (stateChangeToken !== telemetryStateChangeToken || !isTelemetryConsentAccepted.value) {
+            return;
+        }
+
+        if (!isDefaultShopwarePropertiesPluginRegistered) {
+            addDefaultShopwarePropertiesPlugin(loadedAmplitude, defaultLanguageName);
+            isDefaultShopwarePropertiesPluginRegistered = true;
+        }
+
+        initTelemetryAmplitude(loadedAmplitude, analyticsGatewayUrl);
 
         isTelemetryInitialized = true;
     };
 
-    const enableTelemetryTracking = async (): Promise<void> => {
+    const enableTelemetryTracking = async (stateChangeToken: number): Promise<void> => {
         if (isTelemetryListenerRegistered) {
             return;
         }
 
-        await ensureTelemetryInitialized();
+        await ensureTelemetryInitialized(stateChangeToken);
 
-        if (isTelemetryListenerRegistered || !isTelemetryConsentAccepted.value) {
+        if (
+            stateChangeToken !== telemetryStateChangeToken ||
+            isTelemetryListenerRegistered ||
+            !isTelemetryConsentAccepted.value ||
+            !isTelemetryInitialized ||
+            amplitude === null ||
+            pushTelemetryEventToAmplitude === null
+        ) {
             return;
         }
 
@@ -81,120 +137,67 @@ export default async function (): Promise<void> {
         isTelemetryListenerRegistered = true;
     };
 
-    const disableTelemetryTracking = (): void => {
-        if (!isTelemetryInitialized) {
-            return;
-        }
-
-        if (isTelemetryListenerRegistered) {
+    const disableTelemetryTracking = async (shouldDeleteUserData: boolean): Promise<void> => {
+        if (isTelemetryListenerRegistered && pushTelemetryEventToAmplitude !== null) {
             Shopware.Utils.EventBus.off('telemetry', pushTelemetryEventToAmplitude);
             isTelemetryListenerRegistered = false;
         }
 
-        amplitude.setOptOut(true);
-        amplitude.flush();
-        amplitude.reset();
+        const shopId = Shopware.Store.get('context').app.config.shopId;
+        const userId = Shopware.Store.get('session').currentUser?.id;
+        let loadedAmplitude = amplitude;
+
+        if (shouldDeleteUserData && typeof userId === 'string') {
+            loadedAmplitude = await ensureAmplitudeModuleLoaded();
+            const privacyAmplitude = createPrivacyAmplitudeClient(loadedAmplitude, analyticsGatewayUrl);
+
+            privacyAmplitude.track('delete_user', {
+                shop_id: shopId,
+                user_id: userId,
+                amplitude_user_id: `${shopId}:${userId}`,
+            });
+            privacyAmplitude.flush();
+        }
+
+        if (isTelemetryInitialized && loadedAmplitude !== null) {
+            loadedAmplitude.setOptOut(true);
+            loadedAmplitude.flush();
+            loadedAmplitude.reset();
+        }
+
+        clearAmplitudeCookies();
     };
 
-    const syncTelemetryTracking = async (consentAccepted: boolean): Promise<void> => {
+    const syncTelemetryTracking = async (consentAccepted: boolean, shouldDeleteUserData = false): Promise<void> => {
+        clearPendingTelemetryActivation();
+        telemetryStateChangeToken += 1;
+        const stateChangeToken = telemetryStateChangeToken;
+
         if (consentAccepted) {
-            await enableTelemetryTracking();
+            await enableTelemetryTracking(stateChangeToken);
 
             return;
         }
 
-        disableTelemetryTracking();
+        await disableTelemetryTracking(shouldDeleteUserData);
     };
 
     await syncTelemetryTracking(isTelemetryConsentAccepted.value);
+    clearPendingTelemetryActivation();
     stopTelemetryConsentWatch?.();
-    stopTelemetryConsentWatch = watch(isTelemetryConsentAccepted, (consentAccepted) => {
-        void syncTelemetryTracking(consentAccepted);
-    });
-}
+    stopTelemetryConsentWatch = watch(isTelemetryConsentAccepted, (consentAccepted, previousConsentAccepted) => {
+        clearPendingTelemetryActivation();
 
-function registerAnonymousLogoutListener(anonymousAmplitude: AnonymousAmplitudeClient): void {
-    Shopware.Service('loginService').addOnLogoutListener(() => {
-        anonymousAmplitude.setTransport('beacon');
-        anonymousAmplitude.flush();
-        anonymousAmplitude.reset();
-    });
-}
+        if (!consentAccepted) {
+            void syncTelemetryTracking(false, previousConsentAccepted);
 
-function registerTelemetryLogoutListener(amplitude: AmplitudeModule): void {
-    Shopware.Service('loginService').addOnLogoutListener(() => {
-        amplitude.setTransport('beacon');
-        setTimeout(() => {
-            amplitude.flush();
-            amplitude.reset();
+            return;
+        }
+
+        // delay runtime activation so the consent interaction itself is only tracked anonymously
+        pendingTelemetryActivationTimeout = window.setTimeout(() => {
+            pendingTelemetryActivationTimeout = null;
+            void syncTelemetryTracking(true);
         }, 0);
     });
-}
-
-function initAnonymousAmplitude(anonymousAmplitude: AnonymousAmplitudeClient, analyticsGatewayUrl: string): void {
-    // The real key will be added by the gateway
-    anonymousAmplitude.init(
-        'placeholder-apikey',
-        undefined,
-        createAmplitudeInitOptions(`${analyticsGatewayUrl}/event/anonymous`),
-    );
-}
-
-function initTelemetryAmplitude(amplitude: AmplitudeModule, analyticsGatewayUrl: string): void {
-    // The real key will be added by the gateway
-    amplitude.init('placeholder-apikey', undefined, createAmplitudeInitOptions(`${analyticsGatewayUrl}/event`));
-}
-
-function createAmplitudeInitOptions(serverUrl: string) {
-    return {
-        autocapture: false,
-        serverZone: 'EU' as const,
-        appVersion: Shopware.Store.get('context').app.config.version as string,
-        trackingOptions: {
-            ipAddress: false,
-            language: false,
-            platform: false,
-        },
-        fetchRemoteConfig: false,
-        serverUrl,
-    };
-}
-
-function addDefaultShopwarePropertiesPlugin(amplitude: AmplitudeModule, defaultLanguageName: string): void {
-    amplitude.add({
-        name: 'DefaultShopwareProperties',
-        execute: (amplitudeEvent) => {
-            const route = Shopware.Application.view?.router?.currentRoute
-                ? {
-                      sw_page_name: Shopware.Application.view.router.currentRoute.value.name,
-                      sw_page_path: Shopware.Application.view.router.currentRoute.value.path,
-                      sw_page_full_path: Shopware.Application.view.router.currentRoute.value.fullPath,
-                  }
-                : {};
-
-            amplitudeEvent.event_properties = {
-                ...amplitudeEvent.event_properties,
-                sw_version: Shopware.Store.get('context').app.config.version,
-                sw_shop_id: Shopware.Store.get('context').app.config.shopId,
-                sw_app_url: Shopware.Store.get('context').app.config.appUrl,
-                sw_browser_url: window.location.origin,
-                sw_user_agent: window.navigator.userAgent,
-                sw_default_language: defaultLanguageName,
-                sw_default_currency: Shopware.Context.app.systemCurrencyISOCode,
-                sw_screen_width: window.screen.width,
-                sw_screen_height: window.screen.height,
-                sw_screen_orientation: window.screen.orientation.type.split('-')[0],
-                ...route,
-            };
-
-            return Promise.resolve(amplitudeEvent);
-        },
-    });
-}
-
-async function getDefaultLanguageName(): Promise<string> {
-    const languageRepository = Shopware.Service('repositoryFactory').create('language');
-    const defaultLanguage = await languageRepository.get(Shopware.Context.api.systemLanguageId!);
-
-    return defaultLanguage!.name;
 }

@@ -16,12 +16,12 @@ class CategoryTranslationCollection extends EntityCollection
      */
     public function getCategoryIds(): array
     {
-        return $this->fmap(fn (CategoryTranslationEntity $categoryTranslation) => $categoryTranslation->getCategoryId());
+        return $this->fmap(static fn (CategoryTranslationEntity $categoryTranslation) => $categoryTranslation->getCategoryId());
     }
 
     public function filterByCategoryId(string $id): self
     {
-        return $this->filter(fn (CategoryTranslationEntity $categoryTranslation) => $categoryTranslation->getCategoryId() === $id);
+        return $this->filter(static fn (CategoryTranslationEntity $categoryTranslation) => $categoryTranslation->getCategoryId() === $id);
     }
 
     /**
@@ -29,12 +29,12 @@ class CategoryTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (CategoryTranslationEntity $categoryTranslation) => $categoryTranslation->getLanguageId());
+        return $this->fmap(static fn (CategoryTranslationEntity $categoryTranslation) => $categoryTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (CategoryTranslationEntity $categoryTranslation) => $categoryTranslation->getLanguageId() === $id);
+        return $this->filter(static fn (CategoryTranslationEntity $categoryTranslation) => $categoryTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

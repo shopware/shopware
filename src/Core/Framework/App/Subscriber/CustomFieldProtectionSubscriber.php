@@ -73,7 +73,7 @@ class CustomFieldProtectionSubscriber implements EventSubscriberInterface
     private function getIntegrationId(Context $context): ?string
     {
         $source = $context->getSource();
-        if (!($source instanceof AdminApiSource)) {
+        if (!$source instanceof AdminApiSource) {
             return null;
         }
 

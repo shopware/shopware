@@ -159,7 +159,7 @@ class SwTwigFunctionTest extends TestCase
         $runtimeCallCount = 0;
 
         $escaperRuntime = new EscaperRuntime($env);
-        $env->method('getRuntime')->willReturnCallback(function () use ($escaperRuntime, &$runtimeCallCount) {
+        $env->method('getRuntime')->willReturnCallback(static function () use ($escaperRuntime, &$runtimeCallCount) {
             ++$runtimeCallCount;
 
             return $escaperRuntime;

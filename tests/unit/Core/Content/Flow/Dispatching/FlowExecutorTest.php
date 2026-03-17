@@ -881,7 +881,7 @@ class FlowExecutorTest extends TestCase
         $this->addOrderTagActionMock
             ->expects($this->exactly(3))
             ->method('handleFlow')
-            ->willReturnCallback(function (StorableFlow $flow) use (&$callCount, $idSequence): void {
+            ->willReturnCallback(static function (StorableFlow $flow) use (&$callCount, $idSequence): void {
                 static::assertSame(
                     $idSequence[$callCount],
                     $flow->getFlowState()->currentSequence->sequenceId

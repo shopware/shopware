@@ -1,3 +1,13 @@
+# 6.7.8.1
+
+## Digital product legacy states repair after update
+
+We fixed a bug in the indexer for the `product.states` field, which lead to issues where rules (and flows depending on those rules) with the `line item with product state` condition did not work as expected. This especially affected the flows to deliver digital download products after purchase.
+
+This release repairs digital products with missing legacy `states` via a one-time `UpdatePostFinishEvent` subscriber.
+
+The repair runs automatically once per installation and is marked as completed in `app_config`.
+
 # 6.7.6.0
 
 ## Deprecation of video blocks

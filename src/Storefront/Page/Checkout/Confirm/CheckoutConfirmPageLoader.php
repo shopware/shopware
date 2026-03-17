@@ -69,7 +69,7 @@ class CheckoutConfirmPageLoader
         $isPhysicalLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_PHYSICAL);
 
         if (!Feature::isActive('v6.8.0.0')) {
-            Feature::callSilentIfInactive('v6.8.0.0', function () use ($cart, &$isDownloadLineItem, &$isPhysicalLineItem): void {
+            Feature::callSilentIfInactive('v6.8.0.0', static function () use ($cart, &$isDownloadLineItem, &$isPhysicalLineItem): void {
                 $isDownloadLineItem = $isDownloadLineItem || $cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD);
                 $isPhysicalLineItem = $isPhysicalLineItem || $cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL);
             });

@@ -5,8 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Hydration\DataLoader\
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -14,8 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
@@ -53,7 +53,8 @@ class EntityLoaderTest extends TestCase
             static::createStub(EntityCacheTagResolver::class),
         );
 
-        $types = $loader->overrideProvidedTypes();
+        $types = [];
+        $loader->overrideProvidedTypes($types);
 
         static::assertCount(1, $types);
         static::assertSame(ProductEntity::class, $types[0]->className);
@@ -74,7 +75,9 @@ class EntityLoaderTest extends TestCase
             static::createStub(EntityCacheTagResolver::class),
         );
 
-        static::assertSame([], $loader->overrideProvidedTypes());
+        $types = [];
+        $loader->overrideProvidedTypes($types);
+        static::assertSame([], $types);
     }
 
     #[TestDox('returns cached result with cache tag when entity is loaded via sales channel repository')]

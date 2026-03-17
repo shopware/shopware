@@ -31,24 +31,19 @@ class ContentSystemDataLoaderTypeResolver extends AbstractContentSystemDataLoade
         $sourceToTypes = [];
 
         foreach ($this->compiledSourceToTypes as $source => $entries) {
-            $sourceToTypes[$source] = [];
-
-            if ($this->loaders->has($source)) {
-                $expanded = $this->loaders->get($source)->overrideProvidedTypes();
-
-                if ($expanded !== []) {
-                    array_push($sourceToTypes[$source], ...$expanded);
-
-                    continue;
-                }
-            }
-
+            $types = [];
             foreach ($entries as $entry) {
-                $sourceToTypes[$source][] = new ContentSystemDataLoaderTypeDescriptor(
+                $types[] = new ContentSystemDataLoaderTypeDescriptor(
                     $entry['className'],
                     $entry['genericParameters'],
                 );
             }
+
+            if ($this->loaders->has($source)) {
+                $this->loaders->get($source)->overrideProvidedTypes($types);
+            }
+
+            $sourceToTypes[$source] = $types;
         }
 
         return new ContentSystemDataLoaderTypeMap($sourceToTypes);

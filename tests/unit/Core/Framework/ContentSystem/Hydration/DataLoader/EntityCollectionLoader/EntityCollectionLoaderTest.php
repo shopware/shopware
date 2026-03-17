@@ -5,8 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Hydration\DataLoader\
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -52,7 +52,8 @@ class EntityCollectionLoaderTest extends TestCase
             static::createStub(EntityCacheTagResolver::class),
         );
 
-        $types = $loader->overrideProvidedTypes();
+        $types = [];
+        $loader->overrideProvidedTypes($types);
 
         static::assertCount(1, $types);
         static::assertSame(ProductCollection::class, $types[0]->className);
@@ -73,7 +74,9 @@ class EntityCollectionLoaderTest extends TestCase
             static::createStub(EntityCacheTagResolver::class),
         );
 
-        static::assertSame([], $loader->overrideProvidedTypes());
+        $types = [];
+        $loader->overrideProvidedTypes($types);
+        static::assertSame([], $types);
     }
 
     #[TestDox('returns cached collection with resolved tags when entities are loaded via sales channel repository')]

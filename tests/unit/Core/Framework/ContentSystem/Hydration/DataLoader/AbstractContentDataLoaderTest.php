@@ -28,6 +28,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -44,14 +45,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(AbstractContentDataLoader::class)]
 class AbstractContentDataLoaderTest extends TestCase
 {
-    #[TestDox('returns empty override list by default')]
-    public function testOverrideProvidedTypesReturnsEmptyByDefault(): void
-    {
-        $loader = new SimpleStubLoader();
-
-        static::assertSame([], $loader->overrideProvidedTypes());
-    }
-
     #[TestDox('resolves return type from simple class declaration')]
     public function testSimpleExtendsAnnotation(): void
     {
@@ -85,6 +78,18 @@ class AbstractContentDataLoaderTest extends TestCase
         $descriptor = $loaderClass::getProvidedData();
         static::assertSame($expectedClassName, $descriptor->className);
         static::assertSame($expectedGenericParams, $descriptor->genericParameters);
+    }
+
+    #[TestDox('leaves types unchanged by default')]
+    public function testOverrideProvidedTypesLeavesTypesUnchanged(): void
+    {
+        $loader = new SimpleStubLoader();
+        $types = [new ContentSystemDataLoaderTypeDescriptor(Tree::class)];
+
+        $loader->overrideProvidedTypes($types);
+
+        static::assertCount(1, $types);
+        static::assertSame(Tree::class, $types[0]->className);
     }
 
     #[DataProvider('invalidAnnotationProvider')]

@@ -9,11 +9,16 @@ use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\DependencyInjection\ServiceLocator;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -39,11 +44,7 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
     #[TestDox('replaces compiled entries with overridden types')]
     public function testOverriddenTypesReplaceCompiledEntries(): void
     {
-        $loader = static::createStub(AbstractContentDataLoader::class);
-        $loader->method('overrideProvidedTypes')->willReturn([
-            new ContentSystemDataLoaderTypeDescriptor(ProductEntity::class),
-        ]);
-
+        $loader = new ReplacingStubLoader();
         $locator = new ServiceLocator(['entity' => static fn () => $loader]);
 
         $resolver = new ContentSystemDataLoaderTypeResolver(
@@ -57,12 +58,10 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
         static::assertSame(ProductEntity::class, $map->sourceToTypes['entity'][0]->className);
     }
 
-    #[TestDox('keeps compiled entries when override returns empty')]
-    public function testKeepsCompiledEntriesWhenOverrideEmpty(): void
+    #[TestDox('keeps compiled entries when override is a no-op')]
+    public function testKeepsCompiledEntriesWhenOverrideIsNoOp(): void
     {
-        $loader = static::createStub(AbstractContentDataLoader::class);
-        $loader->method('overrideProvidedTypes')->willReturn([]);
-
+        $loader = new NoOpStubLoader();
         $locator = new ServiceLocator(['navigation' => static fn () => $loader]);
 
         $resolver = new ContentSystemDataLoaderTypeResolver(
@@ -74,5 +73,46 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
 
         static::assertCount(1, $map->sourceToTypes['navigation']);
         static::assertSame(Tree::class, $map->sourceToTypes['navigation'][0]->className);
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<ProductEntity>
+ */
+class ReplacingStubLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'entity';
+    }
+
+    public function overrideProvidedTypes(array &$types): void
+    {
+        $types = [new ContentSystemDataLoaderTypeDescriptor(ProductEntity::class)];
+    }
+
+    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<Tree>
+ */
+class NoOpStubLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'navigation';
+    }
+
+    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
     }
 }

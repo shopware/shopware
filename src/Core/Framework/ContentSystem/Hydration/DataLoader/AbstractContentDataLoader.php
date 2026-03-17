@@ -114,16 +114,16 @@ abstract class AbstractContentDataLoader
     /**
      * Overrides the compile-time type declaration with concrete types resolved at runtime.
      *
-     * Return non-empty to replace the types from getProvidedData().
-     * Return empty (default) to keep the compile-time types.
+     * The resolver populates $types from the compile-time @extends annotation,
+     * then passes the list here. Modify in-place to replace, extend, or filter.
+     * Default: no-op (keeps compile-time types).
      *
      * Called by the resolver at resolve time, not at container build time.
      *
-     * @return list<ContentSystemDataLoaderTypeDescriptor>
+     * @param list<ContentSystemDataLoaderTypeDescriptor> $types
      */
-    public function overrideProvidedTypes(): array
+    public function overrideProvidedTypes(array &$types): void
     {
-        return [];
     }
 
     abstract public function load(

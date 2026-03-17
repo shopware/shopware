@@ -137,7 +137,9 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                     'sw-order-document-settings-invoice-modal',
                     { sync: true },
                 ),
-                'sw-order-document-settings-credit-note-modal': true,
+                'sw-order-document-settings-credit-note-modal': await wrapTestComponent(
+                    'sw-order-document-settings-credit-note-modal',
+                ),
                 'sw-order-document-settings-storno-modal': await wrapTestComponent(
                     'sw-order-document-settings-storno-modal',
                 ),
@@ -632,6 +634,11 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             inputSelector: '.sw-order-document-settings-storno-modal__document-number input',
             invoice: true,
         },
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
+            inputSelector: '.sw-order-document-settings-credit-note-modal__document-number input',
+            invoice: true,
+        },
     ])(
         'should call downloadDocument with xml fileType for $technicalName',
         async ({ technicalName, inputSelector, invoice }) => {
@@ -957,7 +964,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             technicalName: DOCUMENT_TYPES.DELIVERY_NOTE,
             expectedSelector: 'sw-order-document-settings-delivery-note-modal-stub',
         },
-        { technicalName: DOCUMENT_TYPES.CREDIT_NOTE, expectedSelector: 'sw-order-document-settings-credit-note-modal-stub' },
+        {
+            technicalName: DOCUMENT_TYPES.CREDIT_NOTE,
+            expectedSelector: '.sw-order-document-settings-credit-note-modal__document-number',
+        },
         {
             technicalName: DOCUMENT_TYPES.CANCELLATION_INVOICE,
             expectedSelector: '.sw-order-document-settings-storno-modal__document-number',
@@ -973,6 +983,14 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         {
             technicalName: DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
             expectedSelector: '.sw-order-document-settings-storno-modal__document-number',
+        },
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
+            expectedSelector: '.sw-order-document-settings-credit-note-modal__document-number',
+        },
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE,
+            expectedSelector: '.sw-order-document-settings-credit-note-modal__document-number',
         },
     ])('should render correct modal type for $technicalName', async ({ technicalName, expectedSelector }) => {
         wrapper = await createWrapper();

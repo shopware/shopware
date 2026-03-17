@@ -84,7 +84,17 @@ export default {
             this.invoiceNumbers = [...new Set(invoiceNumbers)].sort();
         },
 
-        onCreateDocument(additionalAction = false) {
+        async reserveDocumentNumber(isPreview = false) {
+            const { number } = await this.numberRangeService.reserve(
+                `document_${DOCUMENT_TYPES.CREDIT_NOTE}`,
+                this.order.salesChannelId,
+                isPreview,
+            );
+
+            return number;
+        },
+
+        async onCreateDocument(additionalAction = false) {
             this.$emit('loading-document');
 
             const selectedInvoice = this.invoices.find((item) => {
@@ -92,22 +102,22 @@ export default {
             });
 
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
-                this.numberRangeService
-                    .reserve(`document_${this.currentDocumentType.technicalName}`, this.order.salesChannelId, false)
-                    .then((response) => {
-                        this.documentConfig.custom.creditNoteNumber = response.number;
-                        if (response.number !== this.documentConfig.documentNumber) {
-                            this.createNotificationInfo({
-                                message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
-                            });
-                        }
-                        this.documentConfig.documentNumber = response.number;
-                        this.callDocumentCreate(additionalAction, selectedInvoice?.id);
+                const number = await this.reserveDocumentNumber();
+
+                this.documentConfig.custom.creditNoteNumber = number;
+
+                if (number !== this.documentConfig.documentNumber) {
+                    this.createNotificationInfo({
+                        message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
                     });
+                }
+
+                this.documentConfig.documentNumber = number;
             } else {
                 this.documentConfig.custom.creditNoteNumber = this.documentConfig.documentNumber;
-                this.callDocumentCreate(additionalAction, selectedInvoice?.id);
             }
+
+            this.callDocumentCreate(additionalAction, selectedInvoice?.id);
         },
     },
 };

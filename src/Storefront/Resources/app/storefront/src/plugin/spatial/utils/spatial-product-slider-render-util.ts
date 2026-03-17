@@ -58,13 +58,11 @@ export default class SpatialProductSliderRenderUtil {
      */
     public initRender() {
         // Start rendering when slider is active
-         
         const sliderInfo = this.tnsSlider?.getInfo();
         const singleImageGallery = !!this.plugin.el?.closest(
             SpatialProductSliderRenderUtil.options.gallerySliderSelector,
         )?.querySelector(SpatialProductSliderRenderUtil.options.singleImageGallerySelector);
 
-         
         if (singleImageGallery || sliderInfo?.slideItems[sliderInfo.index] === this.sliderElement ) {
             this.plugin.startRendering();
         }
@@ -79,7 +77,6 @@ export default class SpatialProductSliderRenderUtil {
         this.sliderPlugin?.$emitter.unsubscribe('rebuild', this.rebuildEvent.bind(this));
 
         // listen to active slide changes
-         
         this.tnsSlider?.events.on('indexChanged', this.indexChangedEvent.bind(this));
 
         this.sliderPlugin?.$emitter.subscribe('rebuild', this.rebuildEvent.bind(this));
@@ -99,13 +96,10 @@ export default class SpatialProductSliderRenderUtil {
      */
     private rebuildEvent() {
         // @ts-ignore
-         
         window.PluginManager.initializePlugin('SpatialGallerySliderViewer', '[data-spatial-gallery-slider-viewer]');
         // @ts-ignore
-         
         window.PluginManager.initializePlugin('SpatialZoomGallerySliderViewer', '[data-spatial-zoom-gallery-slider-viewer]');
         // @ts-ignore
-         
         window.PluginManager.initializePlugin('SpatialArViewer', '[data-spatial-ar-viewer]');
     }
 
@@ -122,7 +116,6 @@ export default class SpatialProductSliderRenderUtil {
             // We should only start rendering after the slider has finished sliding
             setTimeout(() => {
                 // recheck if the slide is still active
-                 
                 if (this.plugin.sliderIndex == this.tnsSlider.getInfo().index) {
                     this.plugin.startRendering();
                 }
@@ -162,14 +155,12 @@ export default class SpatialProductSliderRenderUtil {
 
         // Get the slider plugin instance
         // @ts-ignore
-         
         const sliderPlugin = window.PluginManager.getPluginInstanceFromElement(sliderPluginElement, 'GallerySlider');
 
         if (sliderPlugin == null) {
             return null;
         }
 
-         
         return sliderPlugin;
     }
 }

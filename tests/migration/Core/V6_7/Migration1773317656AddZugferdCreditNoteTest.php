@@ -85,7 +85,7 @@ class Migration1773317656AddZugferdCreditNoteTest extends TestCase
                 'ZUGFeRD Credit Note',
                 'ZUGFeRD Credit Note (embedded)',
                 'ZUGFeRD Gutschrift',
-                'ZUGFeRD Gutschrift (embedded)',
+                'ZUGFeRD Gutschrift (eingebettet)',
             ],
             $translations
         );

@@ -33,7 +33,7 @@ class Migration1773317656AddZugferdCreditNote extends MigrationStep
                 'en' => ['name' => 'ZUGFeRD Credit Note'],
             ],
             ZugferdEmbeddedCreditNoteRenderer::TYPE => [
-                'de' => ['name' => 'ZUGFeRD Gutschrift (embedded)'],
+                'de' => ['name' => 'ZUGFeRD Gutschrift (eingebettet)'],
                 'en' => ['name' => 'ZUGFeRD Credit Note (embedded)'],
             ],
         ];

@@ -18,8 +18,6 @@ abstract class AbstractProductExportProvider
 
     abstract public function getTechnicalName(): string;
 
-    abstract public function getDefaultTemplate(ProductExportProvisioningContext $context): ProductExportTemplate;
-
     /**
      * @param array<string, mixed> $renderContext
      *

@@ -51,10 +51,10 @@ class AgenticAiProductExportFlowTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testAgenticAiSalesChannelProvisionsAndGeneratesOpenAiFeed(): void
+    public function testAgenticAiSalesChannelGeneratesOpenAiFeedFromExplicitProductExport(): void
     {
         $product = $this->createExportableProduct();
-        $this->createProductStreamForProduct($product['id']);
+        $productStreamId = $this->createProductStreamForProduct($product['id']);
 
         $agenticSalesChannel = $this->createSalesChannel([
             'id' => Uuid::randomHex(),
@@ -71,7 +71,7 @@ class AgenticAiProductExportFlowTest extends TestCase
             ],
         ]);
 
-        $productExport = $this->loadProvisionedProductExport($agenticSalesChannel['id']);
+        $productExport = $this->createProductExport($agenticSalesChannel['id'], $productStreamId);
 
         static::assertSame(ProductExportEntity::FILE_FORMAT_JSONL, $productExport->getFileFormat());
         static::assertSame('openai-products-' . substr($agenticSalesChannel['id'], 0, 8) . '.jsonl', $productExport->getFileName());
@@ -165,15 +165,16 @@ class AgenticAiProductExportFlowTest extends TestCase
         ];
     }
 
-    private function createProductStreamForProduct(string $productId): void
+    private function createProductStreamForProduct(string $productId): string
     {
         $connection = static::getContainer()->get(Connection::class);
+        $productStreamId = '137B079935714281BA80B40F83F8D7EB';
 
         $connection->executeStatement(
             <<<'SQL'
                 INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
                 VALUES (
-                    UNHEX('137B079935714281BA80B40F83F8D7EB'),
+                    UNHEX(:productStreamId),
                     :apiFilter,
                     0,
                     '2019-08-16 08:43:57.488',
@@ -181,6 +182,7 @@ class AgenticAiProductExportFlowTest extends TestCase
                 )
             SQL,
             [
+                'productStreamId' => $productStreamId,
                 'apiFilter' => \sprintf(
                     '[{"type":"multi","queries":[{"type":"multi","queries":[{"type":"equalsAny","field":"product.id","value":"%s"}],"operator":"AND"}],"operator":"OR"}]',
                     $productId
@@ -193,18 +195,51 @@ class AgenticAiProductExportFlowTest extends TestCase
                 INSERT INTO `product_stream_filter`
                     (`id`, `product_stream_id`, `parent_id`, `type`, `field`, `operator`, `value`, `parameters`, `position`, `custom_fields`, `created_at`, `updated_at`)
                 VALUES
-                    (UNHEX('DA6CD9776BC84463B25D5B6210DDB57B'), UNHEX('137B079935714281BA80B40F83F8D7EB'), NULL, 'multi', NULL, 'OR', NULL, NULL, 0, NULL, '2019-08-16 08:43:57.469', NULL),
-                    (UNHEX('0EE60B6A87774E9884A832D601BE6B8F'), UNHEX('137B079935714281BA80B40F83F8D7EB'), UNHEX('DA6CD9776BC84463B25D5B6210DDB57B'), 'multi', NULL, 'AND', NULL, NULL, 1, NULL, '2019-08-16 08:43:57.478', NULL),
-                    (UNHEX('80B2B90171454467B769A4C161E74B87'), UNHEX('137B079935714281BA80B40F83F8D7EB'), UNHEX('0EE60B6A87774E9884A832D601BE6B8F'), 'equalsAny', 'id', NULL, :productId, NULL, 1, NULL, '2019-08-16 08:43:57.480', NULL)
+                    (UNHEX('DA6CD9776BC84463B25D5B6210DDB57B'), UNHEX(:productStreamId), NULL, 'multi', NULL, 'OR', NULL, NULL, 0, NULL, '2019-08-16 08:43:57.469', NULL),
+                    (UNHEX('0EE60B6A87774E9884A832D601BE6B8F'), UNHEX(:productStreamId), UNHEX('DA6CD9776BC84463B25D5B6210DDB57B'), 'multi', NULL, 'AND', NULL, NULL, 1, NULL, '2019-08-16 08:43:57.478', NULL),
+                    (UNHEX('80B2B90171454467B769A4C161E74B87'), UNHEX(:productStreamId), UNHEX('0EE60B6A87774E9884A832D601BE6B8F'), 'equalsAny', 'id', NULL, :productId, NULL, 1, NULL, '2019-08-16 08:43:57.480', NULL)
             SQL,
-            ['productId' => $productId]
+            [
+                'productId' => $productId,
+                'productStreamId' => $productStreamId,
+            ]
         );
+
+        return strtolower($productStreamId);
     }
 
-    private function loadProvisionedProductExport(string $salesChannelId): ProductExportEntity
+    private function createProductExport(string $salesChannelId, string $productStreamId): ProductExportEntity
     {
+        $salesChannel = $this->loadSalesChannel($salesChannelId);
+        $domain = $salesChannel->getDomains()?->first();
+
+        static::assertNotNull($domain);
+
+        $productExportId = Uuid::randomHex();
+
+        $this->productExportRepository->create([
+            [
+                'id' => $productExportId,
+                'productStreamId' => $productStreamId,
+                'storefrontSalesChannelId' => $this->getDefaultStorefrontSalesChannelId(),
+                'salesChannelId' => $salesChannelId,
+                'salesChannelDomainId' => $domain->getId(),
+                'currencyId' => Defaults::CURRENCY,
+                'fileName' => 'openai-products-' . substr($salesChannelId, 0, 8) . '.jsonl',
+                'accessKey' => Uuid::randomHex(),
+                'encoding' => ProductExportEntity::ENCODING_UTF8,
+                'fileFormat' => ProductExportEntity::FILE_FORMAT_JSONL,
+                'includeVariants' => false,
+                'generateByCronjob' => false,
+                'interval' => 86400,
+                'headerTemplate' => '',
+                'bodyTemplate' => $this->getOpenAiBodyTemplate(),
+                'footerTemplate' => '',
+            ],
+        ], $this->context);
+
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
+        $criteria->setIds([$productExportId]);
         $criteria->addAssociations([
             'salesChannel',
             'storefrontSalesChannel',
@@ -213,9 +248,61 @@ class AgenticAiProductExportFlowTest extends TestCase
 
         $productExport = $this->productExportRepository->search($criteria, $this->context)->first();
 
-        static::assertInstanceOf(ProductExportEntity::class, $productExport, 'Creating an Agentic AI sales channel must provision one product export.');
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         return $productExport;
+    }
+
+    private function getOpenAiBodyTemplate(): string
+    {
+        return <<<'TWIG'
+{% set title = product.translated.name|default(product.name)|default('')|trim %}
+{% set description = product.translated.description|default(title)|default('')|striptags|trim %}
+{% set price = product.calculatedPrice %}
+{% if product.calculatedPrices.count > 0 %}
+    {% set price = product.calculatedPrices.last %}
+{% endif %}
+{% set imageUrl = '' %}
+{% if product.cover is defined and product.cover and product.cover.media is defined and product.cover.media %}
+    {% set imageUrl = product.cover.media.url %}
+{% endif %}
+{% if title and imageUrl and price %}
+{
+    "item_id": {{ (product.productNumber ? product.productNumber : product.id)|json_encode|raw }},
+    "title": {{ title|json_encode|raw }},
+    "description": {{ description|json_encode|raw }},
+    "url": {{ seoUrl('frontend.detail.page', {'productId': product.id})|json_encode|raw }},
+    "image_url": {{ imageUrl|json_encode|raw }},
+    "price": {{ ((price.unitPrice|number_format(context.currency.itemRounding.decimals, '.', '')) ~ ' ' ~ context.currency.isoCode)|json_encode|raw }},
+    "availability": {{ (product.available ? 'in_stock' : (product.restockTime ? 'backorder' : 'out_of_stock'))|json_encode|raw }},
+    "brand": {{ ((product.manufacturer is defined and product.manufacturer) ? product.manufacturer.translated.name : provider.sellerName)|json_encode|raw }},
+    "condition": "new",
+    "group_id": {{ (product.parentId ? product.parentId : product.id)|json_encode|raw }},
+    "listing_has_variations": {{ (product.parentId or product.childCount > 0) ? 'true' : 'false' }},
+    "store_country": {{ provider.storeCountry|json_encode|raw }},
+    "target_countries": {{ provider.targetCountries|json_encode|raw }},
+    "gtin": {{ product.ean|default('')|json_encode|raw }},
+    "mpn": {{ product.manufacturerNumber|default('')|json_encode|raw }},
+    "seller_name": {{ provider.sellerName|json_encode|raw }},
+    "seller_url": {{ provider.sellerUrl|json_encode|raw }}
+}
+{% endif %}
+TWIG;
+    }
+
+    private function loadSalesChannel(string $salesChannelId): SalesChannelEntity
+    {
+        /** @var EntityRepository<SalesChannelCollection> $repository */
+        $repository = static::getContainer()->get('sales_channel.repository');
+
+        $criteria = new Criteria([$salesChannelId]);
+        $criteria->addAssociation('domains');
+
+        $salesChannel = $repository->search($criteria, $this->context)->first();
+
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
+
+        return $salesChannel;
     }
 
     private function getDefaultStorefrontSalesChannelId(): string

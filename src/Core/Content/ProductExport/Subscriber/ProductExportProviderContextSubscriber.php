@@ -19,8 +19,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('discovery')]
 readonly class ProductExportProviderContextSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private ProductExportProviderRegistry $providerRegistry)
-    {
+    public function __construct(
+        private ProductExportProviderRegistry $providerRegistry,
+    ) {
     }
 
     public static function getSubscribedEvents(): array

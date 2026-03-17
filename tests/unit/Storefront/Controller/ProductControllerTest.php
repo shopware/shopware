@@ -324,7 +324,7 @@ class ProductControllerTest extends TestCase
         static::assertInstanceOf(ProductReviewsWidgetLoadedHook::class, $this->controller->calledHook);
     }
 
-    public function testQuantityLimitsReturns(): void
+    public function testQuantityLimits(): void
     {
         $productId = Uuid::randomHex();
         $collection = new ProductQuantityLimitsResultCollection([

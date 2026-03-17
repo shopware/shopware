@@ -45,7 +45,6 @@ class JsonlValidator implements ValidatorInterface
                 json_decode($line, true, 512, \JSON_THROW_ON_ERROR);
             } catch (\JsonException $exception) {
                 $currentNumber = $lineNumber + 1;
-
                 $errors->add(new JsonlValidationError($productExportEntity->getId(), $exception->getMessage(), $currentNumber));
 
                 return;

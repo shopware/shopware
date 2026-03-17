@@ -448,7 +448,6 @@ describe('core/factory/http.factory.js', () => {
             loginService = {
                 refreshToken: jest.fn().mockResolvedValue('new-token'),
                 subscribeToTokenRefresh: jest.fn((successCb) => {
-                    // Simulate immediate token refresh callback
                     successCb('new-token');
                 }),
                 logout: jest.fn(),

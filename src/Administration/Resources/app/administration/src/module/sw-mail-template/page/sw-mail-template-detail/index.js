@@ -155,7 +155,7 @@ export default {
         tooltipSave() {
             if (!this.allowSave) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
                     showOnDisabledElements: true,
                 };
@@ -261,7 +261,7 @@ export default {
                 if (!this.mailTemplate.mailTemplateType?.id) {
                     this.isLoading = false;
                     this.createNotificationError({
-                        message: this.$tc('sw-mail-template.general.missingMailTemplateTypeErrorMessage'),
+                        message: this.$t('sw-mail-template.general.missingMailTemplateTypeErrorMessage'),
                     });
                 } else {
                     this.onChangeType(this.mailTemplate.mailTemplateType.id);
@@ -372,12 +372,12 @@ export default {
 
                         if (error.response.data.errors.length > 0) {
                             const errorDetailMsg = error.response.data.errors[0].detail;
-                            errormsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
+                            errormsg = `<br/> ${this.$t('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
                         }
 
                         this.createNotificationError({
                             message:
-                                this.$tc('sw-mail-template.detail.messageSaveError', { subject: mailTemplateSubject }, 0) +
+                                this.$t('sw-mail-template.detail.messageSaveError', { subject: mailTemplateSubject }, 0) +
                                 errormsg,
                         });
                     }),
@@ -388,15 +388,15 @@ export default {
 
         onClickTestMailTemplate() {
             const notificationTestMailSuccess = {
-                message: this.$tc('sw-mail-template.general.notificationTestMailSuccessMessage'),
+                message: this.$t('sw-mail-template.general.notificationTestMailSuccessMessage'),
             };
 
             const notificationTestMailError = {
-                message: this.$tc('sw-mail-template.general.notificationTestMailErrorMessage'),
+                message: this.$t('sw-mail-template.general.notificationTestMailErrorMessage'),
             };
 
             const notificationTestMailErrorSalesChannel = {
-                message: this.$tc('sw-mail-template.general.notificationTestMailSalesChannelErrorMessage'),
+                message: this.$t('sw-mail-template.general.notificationTestMailSalesChannelErrorMessage'),
             };
 
             if (!this.testMailSalesChannelId) {
@@ -465,7 +465,7 @@ export default {
                     const isMailSent = response?.size !== 0;
                     if (!isMailSent) {
                         this.createNotificationError({
-                            message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
+                            message: this.$t('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
                         });
                         return;
                     }
@@ -542,11 +542,11 @@ export default {
                     this.mailPreview = null;
                     if (!error.response?.data?.errors?.[0]?.detail) {
                         this.createNotificationError({
-                            message: this.$tc('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
+                            message: this.$t('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
                         });
                     } else {
                         this.createNotificationError({
-                            message: this.$tc(
+                            message: this.$t(
                                 'sw-mail-template.general.notificationSyntaxValidationErrorMessage',
                                 {
                                     errorMsg: error.response?.data?.errors?.[0]?.detail,
@@ -627,7 +627,7 @@ export default {
                 let errormsg = '';
                 if (error.response.data.errors.length > 0) {
                     const errorDetailMsg = error.response.data.errors[0].detail;
-                    errormsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
+                    errormsg = `<br/> ${this.$t('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
                 }
 
                 this.createNotificationError({
@@ -652,7 +652,7 @@ export default {
                 let errormsg = e.message ?? '';
                 if (e.response?.data?.errors?.length > 0) {
                     const errorDetailMsg = e.response.data.errors[0].detail;
-                    errormsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
+                    errormsg = `<br/> ${this.$t('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
                 }
 
                 this.createNotificationError({
@@ -735,7 +735,7 @@ export default {
         onAddItemToAttachment(mediaItem) {
             if (this._checkIfMediaIsAlreadyUsed(mediaItem.id)) {
                 this.createNotificationInfo({
-                    message: this.$tc('sw-mail-template.list.errorMediaItemDuplicated'),
+                    message: this.$t('sw-mail-template.list.errorMediaItemDuplicated'),
                 });
                 return false;
             }

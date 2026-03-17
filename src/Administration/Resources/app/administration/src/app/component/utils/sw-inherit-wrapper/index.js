@@ -46,12 +46,10 @@ export default {
     ],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         inheritedValue: {
             required: true,
         },
@@ -83,7 +81,6 @@ export default {
         hasParent: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
 

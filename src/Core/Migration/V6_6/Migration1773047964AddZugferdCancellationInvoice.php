@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_7;
+namespace Shopware\Core\Migration\V6_6;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdCancellationInvoiceRenderer;

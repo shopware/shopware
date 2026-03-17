@@ -3,7 +3,6 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import { getCurrentInstance } from 'vue';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
-import EntityCollection from '../../../../core/data/entity-collection.data';
 import { DOCUMENT_TYPES } from '../../order.types';
 
 /**

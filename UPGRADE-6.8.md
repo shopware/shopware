@@ -147,13 +147,13 @@ You should rework you extensions to also work with enabled cache for logged in c
 To modify the default behaviour there are several extension points you can hook into, for a detailed explanation please take a look at the [caching docs](https://developer.shopware.com/docs/guides/plugins/plugins/framework/caching/#manipulating-the-cache-key).
 
 The following classes and constants were removed as they are no longer used:
-  * `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
-  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
-  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
-  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
-  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
-  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
-  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
+* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
+* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
 
 Additionally, the following configuration was removed:
 * `shopware.cache.invalidation.http_cache`
@@ -278,14 +278,14 @@ foreach ($entities as $entity) {
 The translation of the import/export profile label has been removed.
 Profiles are now identified and displayed only by their technical name.
 - The `$label` property and the following methods in `Shopware\Core\Content\ImportExport\ImportExportProfileEntity` have been removed:
-  - `getLabel()`
-  - `setLabel()`
-  - `getTranslations()`
-  - `setTranslations()`
+    - `getLabel()`
+    - `setLabel()`
+    - `getTranslations()`
+    - `setTranslations()`
 - The following classes have been removed:
-  - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection`
-  - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition`
-  - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationEntity`
+    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection`
+    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition`
+    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationEntity`
 - `createLog()` and `getConfig()` in `Shopware\Core\Content\ImportExport\Service\ImportExportService` now use `$technicalName` instead of `$label` when generating filenames.
 - `generateFilename()` in `Shopware\Core\Content\ImportExport\Service\FileService` now uses `$technicalName` instead of `$label` as profile name.
 
@@ -300,7 +300,7 @@ Profiles are now identified and displayed only by their technical name.
 The unused exceptions
 * `\Shopware\Core\Content\ImportExport\Exception\LogNotWritableException`
 * `\Shopware\Core\Content\ImportExport\Exception\MappingException`
-were removed.
+  were removed.
 
 ## Removed SystemConfig exceptions
 
@@ -308,8 +308,8 @@ The exceptions
 * `\Shopware\Core\System\SystemConfig\Exception\InvalidDomainException`,
 * `\Shopware\Core\System\SystemConfig\Exception\InvalidKeyException`, and
 * `\Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException`
-were removed.
-Use the respective factory methods in `\Shopware\Core\System\SystemConfig\SystemConfigException` instead.
+  were removed.
+  Use the respective factory methods in `\Shopware\Core\System\SystemConfig\SystemConfigException` instead.
 
 ## Deprecated SystemConfigService tracing methods
 
@@ -422,302 +422,6 @@ Instead of using the `link` property of the `manufacturer` entity directly, the 
 </details>
 
 # Administration
-
-<details>
-
-## Removal of `loadConfigSettingGroups()` in `sw-product-detail-variants`
-
-The method `loadConfigSettingGroups()` in the product detail variants view has been removed without replacement since `configSettingGroups` became a computed property.
-
-* If your code called `loadConfigSettingGroups()`, remove that call.
-* `configSettingGroups` is derived automatically from `productEntity.configuratorSettings` and `groups`.
-
-## Removal of `items` prop in `sw-entity-listing` component
-
-The `items` prop in the `sw-entity-listing` component has been removed.
-Please use the `dataSource` prop instead to align with the parent `sw-data-grid` component.
-
-**Before:**
-```html
-<sw-entity-listing
-    :items="entityList"
-    :repository="entityRepository"
-    :columns="columns"
-/>
-```
-
-**After:**
-```html
-<sw-entity-listing
-    :data-source="entityList"
-    :repository="entityRepository"
-    :columns="columns"
-/>
-```
-
-## Axios v1 is now the default HTTP client
-
-Starting with Shopware 6.8, axios 1.x is the default HTTP client for the Administration, replacing axios 0.30.2.
-This change addresses the security vulnerability CVE-2023-45857 present in older axios versions.
-
-### What changed
-
-**Shopware 6.7.x:**
-- Default: axios 0.30.2
-- Opt-in to v1: `useAxiosV1: true`
-
-**Shopware 6.8.0+ (with `V6_8_0_0` feature flag active):**
-- Default: axios 1.x
-- Opt-out to v0: `useAxiosV1: false`
-
-### Key differences between axios 0.30.2 and axios 1.x
-
-**Request Cancellation:**
-```javascript
-// Axios 0.30.2 (deprecated CancelToken)
-const { CancelToken } = Axios;
-const source = CancelToken.source();
-
-httpClient.get('/api/endpoint', {
-    cancelToken: source.token,
-});
-source.cancel('Operation cancelled');
-
-// Axios 1.x (modern AbortController)
-const controller = new AbortController();
-
-httpClient.get('/api/endpoint', {
-    signal: controller.signal,
-    useAxiosV1: true,
-});
-controller.abort();
-```
-
-**Error Detection:**
-```javascript
-// Works for both versions
-if (httpClient.isCancel(error)) {
-    // Handle cancellation
-}
-
-// Axios 1.x specific
-if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
-    // Handle cancellation
-}
-```
-
-**Version-Specific Interceptors and Defaults:**
-
-During the transition period, the HTTP client provides direct access to both axios versions' interceptors and defaults:
-
-```javascript
-// Access interceptors for specific version
-httpClient.interceptorsV0 // Always axios 0.30.2 interceptors
-httpClient.interceptorsV1 // Always axios 1.x interceptors
-httpClient.interceptors   // Current default version (v1 in 6.8+)
-
-// Access defaults for specific version
-httpClient.defaultsV0 // Always axios 0.30.2 defaults
-httpClient.defaultsV1 // Always axios 1.x defaults
-httpClient.defaults   // Current default version (v1 in 6.8+)
-
-// Example: Add interceptor to both versions during transition
-httpClient.interceptorsV0.request.use(myRequestHandler);
-httpClient.interceptorsV1.request.use(myRequestHandler);
-```
-
-This allows plugins to configure both axios versions simultaneously during the migration period.
-
-### Migration guide
-
-Most code will work without changes.
-However, if you use request cancellation or depend on specific axios behavior:
-
-1. **Update cancellation logic** to use `AbortController` instead of `CancelToken`
-2. **Test your plugin** with axios v1 before the 6.8 release
-3. **Review error handling** for version-specific error codes
-
-**If you need axios 0.30.2 temporarily:**
-```javascript
-// Explicitly opt-out to use axios 0.30.2
-httpClient.request({
-    method: 'get',
-    url: '/api/endpoint',
-    useAxiosV1: false, // Force axios 0.30.2
-});
-```
-
-### Future removal
-
-Axios 0.30.2 support will be completely removed in a future major release.
-The `useAxiosV1` flag will be deprecated once axios v1 becomes the sole version.
-Plan to migrate all code to axios v1 as soon as possible.
-
-For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
-
-## Removal of "sw-empty-state"
-
-The old `sw-empty-state` component will be removed in the next major version.
-Please use the new `mt-empty-state` component instead.
-
-Before:
-```html
-<sw-empty-state title="short title" subline="longer subline" />
-```
-After:
-```html
-<mt-empty-state title="short title" description="longer description"/>
-```
-
-## Removal of $tc function:
-
-* The `$tc` function will be completely removed
-* All translation calls should use `$t` instead
-
-## Removed translation of import/export profile label
-
-The translation of the import/export profile label has been removed.
-Profiles are now identified and displayed only by their technical name.
-
-- The following Twig blocks have been removed:
-  - `sw_import_export_edit_profile_general_container_name` (`sw-import-export-edit-profile-general.html.twig`)
-  - `sw_import_export_view_profile_profiles_listing_column_label` (`sw-import-export-view-profiles.html.twig`)
-  - `sw_import_export_language_switch` (`sw-import-export.html.twig`)
-
-## Removed admin notification entity + related classes
-
-You should update your code to reference the new classes:
-
-* `Shopware\Core\Framework\Notification\NotificationCollection`
-* `Shopware\Core\Framework\Notification\NotificationDefinition`
-* `Shopware\Core\Framework\Notification\NotificationEntity`
-
-The old classes are removed:
-
-* `Shopware\Administration\Notification\NotificationCollection`
-* `Shopware\Administration\Notification\NotificationDefinition`
-* `Shopware\Administration\Notification\NotificationEntity`
-
-## Removed notification controller
-
-`\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please refactor, it is now internal.
-The HTTP route is still the same. The old class has been removed.
-
-## Removal of snippets
-
-The following snippet keys have been removed:
-* `global.sw-condition.condition.cartTaxDisplay`
-* `global.sw-condition.condition.lineItemOfTypeRule`
-* `global.sw-condition.condition.promotionCodeOfTypeRule`
-* `global.sw-condition.condition.dayOfWeekRule`
-
-## The following template blocks of the newsletter recipient filter have been removed
-* `sw_newsletter_recipient_list_sidebar_filter_status_not_set`
-* `sw_newsletter_recipient_list_sidebar_filter_status_direct`
-* `sw_newsletter_recipient_list_sidebar_filter_status_opt_in`
-* `sw_newsletter_recipient_list_sidebar_filter_status_opt_out`
-
-Use the parent blocks instead
-
-## Removement of component sw-newsletter-recipient-filter-switch
-`administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` are removed without replacement
-
-## File accessibility changed from public to private
-`administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
-
-## Removed .png and .jpg images
-
-In favor of WebP the following images have been removed:
-
--   `administration/static/img/sw-login-background.png`
--   `administration/static/img/plugin-manager--login.png`
--   `administration/static/img/data-consent-background.png`
--   `administration/static/img/flowbuilder/ui-sample.png`
--   `administration/static/img/cms/preview_plant_small.jpg`
--   `administration/static/img/cms/preview_glasses_large.jpg`
--   `administration/static/img/cms/preview_page_default.png`
--   `administration/static/img/cms/preview_page_sidebar.png`
--   `administration/static/img/cms/preview_glasses_small.jpg`
--   `administration/static/img/cms/preview_youtube.jpg`
--   `administration/static/img/cms/preview_plant_large.jpg`
--   `administration/static/img/cms/preview_custom_entity_detail_default.png`
--   `administration/static/img/cms/preview_mountain_large.jpg`
--   `administration/static/img/cms/default_preview_product_detail.jpg`
--   `administration/static/img/cms/preview_custom_entity_detail_sidebar.png`
--   `administration/static/img/cms/preview_product_detail_sidebar.png`
--   `administration/static/img/cms/preview_product_detail_default.png`
--   `administration/static/img/cms/preview_product_list_default.png`
--   `administration/static/img/cms/preview_product_list_sidebar.png`
--   `administration/static/img/cms/preview_mountain_small.jpg`
--   `administration/static/img/cms/default_preview_product_list.jpg`
--   `administration/static/img/cms/preview_landingpage_sidebar.png`
--   `administration/static/img/cms/vimeo-icon.png`
--   `administration/static/img/cms/preview_landingpage_default.png`
--   `administration/static/img/cms/youtube-icon.png`
--   `administration/static/img/cms/preview_camera_small.jpg`
--   `administration/static/img/cms/preview_custom_entity_list_sidebar.png`
--   `administration/static/img/cms/preview_camera_large.jpg`
--   `administration/static/img/cms/preview_vimeo.jpg`
--   `administration/static/img/cms/preview_custom_entity_list_default.png`
--   `administration/static/img/theme/default_theme_preview.jpg`
--   `administration/static/fixtures/sw-login-background.png`
--   `administration/static/fixtures/sw-test-image.png`
--   `administration/static/fixtures/sw-login-background-2.png`
--   `administration/src/module/sw-login/page/index/assets/sw-login-background.png`
--   `administration/src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner/assets/data-consent-background.png`
-
-Update image references to their `.webp` equivalents.
-For example instead of `administration/static/img/sw-login-background.png` use `administration/static/img/sw-login-background.webp`
-
-## Mail template component changes
-
-The mail template index page now uses separate tabs for templates and headers/footers.
-
-Changes in `sw-mail-template-list` and `sw-mail-header-footer-list`:
-* `searchTerm` prop and watcher were removed
-* `getList()` method: `searchTerm` variable was replaced with `this.term`
-* `@page-change` handler now uses `onPageChange` directly
-
-Changes in `sw-mail-template-index`:
-* `listing` mixin was removed
-* `term` data property was removed
-* `onChangeLanguage` method now only calls `tabContent` ref
-
-## Removal of increment-based message queue notifications
-
-The indexing progress notifications in the Administration notification center have been removed without replacement.
-
-**Removed components:**
-
-- `WorkerNotificationListener` class and its exported constants `POLL_BACKGROUND_INTERVAL`, `POLL_FOREGROUND_INTERVAL` (`src/core/worker/worker-notification-listener.js`)
-- `enableQueueStatsWorker` property from `Shopware.Context.app.config.adminWorker`
-
-</details>
-
-## Document settings changes
-
-We've restructured the document settings to make them more intuitive and user-friendly.
-
-As part of this update, the following administration component parts have been deprecated:
-* `src/module/sw-settings-document/page/sw-settings-document-detail`:
-  * computed `expandButtonClass` was deprecated without replacement
-  * computed `collapseButtonClass` was deprecated without replacement
-  * property `sortBy` was deprecated without replacement
-
-* `src/module/sw-settings-document/page/sw-settings-document-list`
-  * computed `countryRepository` was deprecated without replacement
-  * computed `documentTypeRepository` was deprecated without replacement
-  * computed `documentBaseConfigSalesChannelRepository` was deprecated without replacement
-  * property `selectedType` was deprecated without replacement
-  * property `isSaveSuccessful` was deprecated without replacement
-  * property `isShowCountriesSelect` was deprecated without replacement
-  * method `loadAvailableSalesChannel()` was deprecated without replacement
-  * method `showOption()` was deprecated without replacement
-
-## Deprecated unused methods in `sw-order-document-card`
-
-- deprecated method `documentTypeAvailable()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
-- deprecated method `invoiceExists()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
 
 # Storefront
 

@@ -6,11 +6,11 @@
     class="sw-order-select-document-type-modal"
     @modal-close="$emit('modal-close', false)"
 >
-    <mt-switch
+    <sw-switch-field
         :model-value="showZugferd"
         class="sw-order-select-document-type-modal__type-switch"
         :label="$t('sw-order.components.selectDocumentTypeModal.showZugferd')"
-        @update:model-value="onChangeShowZugferd"
+        @update:value="onChangeShowZugferd"
     />
 
     <div class="sw-order-select-document-type-modal__divider"></div>
@@ -31,7 +31,7 @@
             @click="$emit('modal-close', false)"
         >
             {{ $t('global.default.cancel') }}
-        </mt-button>
+        </sw-button>
         {% endblock %}
 
         {% block sw_order_select_document_type_modal_footer_action_create %}
@@ -40,7 +40,7 @@
             @click="$emit('modal-close', true)"
         >
             {{ $t('sw-order.components.selectDocumentTypeModal.primaryAction') }}
-        </mt-button>
+        </sw-button>
         {% endblock %}
     </template>
 </sw-modal>

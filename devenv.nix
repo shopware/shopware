@@ -32,7 +32,7 @@ in {
 
   languages.php = {
     enable = lib.mkDefault true;
-    version = lib.mkDefault "8.2";
+    version = lib.mkDefault "8.4";
     extensions = [ "grpc" ];
 
     ini = ''

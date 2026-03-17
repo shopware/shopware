@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Monolog\Level;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportProductCriteriaEvent;
@@ -215,6 +216,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
     /**
      * @param array<string, mixed> $baseContext
+     * @param SalesChannelRepositoryIterator<SalesChannelProductCollection> $iterator
      */
     private function generateJsonlBody(
         SalesChannelRepositoryIterator $iterator,
@@ -227,6 +229,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         while ($productResult = $iterator->fetch()) {
             foreach ($productResult->getEntities() as $product) {
+                \assert($product instanceof SalesChannelProductEntity);
+
                 if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
                     continue; // Skip main product if variants are included
                 }

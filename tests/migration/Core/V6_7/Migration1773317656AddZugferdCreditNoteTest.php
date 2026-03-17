@@ -6,18 +6,18 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
-use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdCreditNoteRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedCreditNoteRenderer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_7\Migration1773048327UpdateZugferdInvoiceTranslations;
+use Shopware\Core\Migration\V6_7\Migration1773317656AddZugferdCreditNote;
 
 /**
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(Migration1773048327UpdateZugferdInvoiceTranslations::class)]
-class Migration1773048327UpdateZugferdInvoiceTranslationsTest extends TestCase
+#[CoversClass(Migration1773317656AddZugferdCreditNote::class)]
+class Migration1773317656AddZugferdCreditNoteTest extends TestCase
 {
     private Connection $connection;
 
@@ -26,11 +26,11 @@ class Migration1773048327UpdateZugferdInvoiceTranslationsTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
-    public function testUpdateZugferdInvoiceTranslations(): void
+    public function testAddZugferdCreditNote(): void
     {
         $technicalNames = [
-            ZugferdRenderer::TYPE,
-            ZugferdEmbeddedRenderer::TYPE,
+            ZugferdCreditNoteRenderer::TYPE,
+            ZugferdEmbeddedCreditNoteRenderer::TYPE,
         ];
 
         foreach ($technicalNames as $technicalName) {
@@ -47,11 +47,24 @@ class Migration1773048327UpdateZugferdInvoiceTranslationsTest extends TestCase
                 'DELETE FROM `document_type_translation` WHERE document_type_id = :documentTypeId',
                 ['documentTypeId' => $documentTypeId]
             );
+
+            $this->connection->executeStatement(
+                'DELETE FROM `document_type` WHERE technical_name = :technicalName',
+                ['technicalName' => $technicalName]
+            );
         }
 
-        $migration = new Migration1773048327UpdateZugferdInvoiceTranslations();
+        $migration = new Migration1773317656AddZugferdCreditNote();
         $migration->update($this->connection);
         $migration->update($this->connection);
+
+        $documentTypes = $this->connection->fetchAllAssociative(
+            'SELECT * FROM document_type WHERE technical_name IN (:technicalNames)',
+            ['technicalNames' => $technicalNames],
+            ['technicalNames' => ArrayParameterType::STRING]
+        );
+
+        static::assertCount(\count($technicalNames), $documentTypes);
 
         $translations = $this->connection->fetchAllAssociative(
             'SELECT name, language_id
@@ -64,17 +77,17 @@ class Migration1773048327UpdateZugferdInvoiceTranslationsTest extends TestCase
             ['technicalNames' => ArrayParameterType::STRING]
         );
 
-        $translations = \array_column($translations, 'name');
-        sort($translations);
+        $translations = array_column($translations, 'name');
+        \sort($translations);
 
         static::assertSame(
             [
-                'ZUGFeRD Invoice',
-                'ZUGFeRD Invoice (embedded)',
-                'ZUGFeRD Rechnung',
-                'ZUGFeRD Rechnung (eingebettet)',
+                'ZUGFeRD Credit Note',
+                'ZUGFeRD Credit Note (embedded)',
+                'ZUGFeRD Gutschrift',
+                'ZUGFeRD Gutschrift (eingebettet)',
             ],
-            $translations,
+            $translations
         );
     }
 }

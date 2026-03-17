@@ -62,14 +62,17 @@
             {% endblock %}
 
             {% block layout_head_meta_tags_schema_webpage %}
-                <meta itemprop="copyrightHolder"
-                      content="{% block layout_head_meta_tags_copyright_holder %}{{ basicConfig.shopName }}{% endblock %}">
-                <meta itemprop="copyrightYear"
-                      content="{% block layout_head_meta_tags_copyright_year %}{{ metaInformation.copyrightYear|striptags }}{% endblock %}">
-                <meta itemprop="isFamilyFriendly"
-                      content="{% block layout_head_meta_tags_family_friendly %}{% if basicConfig.familyFriendly %}true{% else %}false{% endif %}{% endblock %}">
-                <meta itemprop="image"
-                      content="{% block layout_head_meta_tags_image_meta %}{{ theme_config('sw-logo-desktop') }}{% endblock %}">
+                {# @deprecated tag:v6.8.0 - WebPage microdata meta tags replaced by JSON-LD. Will be removed. #}
+                {% if not feature('JSON_LD_DATA') %}
+                    <meta itemprop="copyrightHolder"
+                          content="{% block layout_head_meta_tags_copyright_holder %}{{ basicConfig.shopName }}{% endblock %}">
+                    <meta itemprop="copyrightYear"
+                          content="{% block layout_head_meta_tags_copyright_year %}{{ metaInformation.copyrightYear|striptags }}{% endblock %}">
+                    <meta itemprop="isFamilyFriendly"
+                          content="{% block layout_head_meta_tags_family_friendly %}{% if basicConfig.familyFriendly %}true{% else %}false{% endif %}{% endblock %}">
+                    <meta itemprop="image"
+                          content="{% block layout_head_meta_tags_image_meta %}{{ theme_config('sw-logo-desktop') }}{% endblock %}">
+                {% endif %}
             {% endblock %}
 
             {% block layout_head_meta_tags_theme %}
@@ -84,6 +87,22 @@
                     <link rel="alternate" hreflang="{{ link.locale }}" href="{{ link.url }}">
                 {% endfor %}
             {% endblock %}
+        {% endblock %}
+
+        {% block layout_head_json_ld_global %}
+            {% if feature('JSON_LD_DATA') %}
+                {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-website.html.twig' %}
+                {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-organization.html.twig' %}
+            {% endif %}
+        {% endblock %}
+
+        {% block layout_head_json_ld %}
+            {% if feature('JSON_LD_DATA') %}
+                {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-webpage.html.twig' %}
+                {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {
+                    categoryId: shopware.navigation.id
+                } only %}
+            {% endif %}
         {% endblock %}
 
         {% block layout_head_favicon %}
@@ -104,7 +123,8 @@
         {% endblock %}
 
         {% block layout_head_title %}
-            <title itemprop="name">
+            {# @deprecated tag:v6.8.0 - itemprop="name" on <title> replaced by JSON-LD. Will be removed. #}
+            <title {% if not feature('JSON_LD_DATA') %}itemprop="name"{% endif %}>
                 {% block layout_head_title_inner %}{{- metaTitle -}}{% endblock %}
             </title>
         {% endblock %}

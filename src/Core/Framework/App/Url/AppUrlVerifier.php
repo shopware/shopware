@@ -59,13 +59,13 @@ class AppUrlVerifier
     }
 
     /**
-     * Verify the shops APP_URL now, ignoring any previous verification attempts.
+     * Force verification of the shops APP_URL, ignoring any previous verification attempts.
      *
      * Note: for non-prod environments we skip the verification entirely
      *
      * @param bool $skipEnvCheck Normally verification should only run in production, use this to run in any environment
      */
-    public function verifyNow(ShopId $shopId, bool $skipEnvCheck = false): bool
+    public function forceVerify(ShopId $shopId, bool $skipEnvCheck = false): bool
     {
         if ($skipEnvCheck === false && $this->appEnv !== 'prod') {
             return true;
@@ -258,8 +258,11 @@ class AppUrlVerifier
             // 300-599
             $info = $this->extractInfo($e->getResponse());
 
-            if ($e->getResponse()->getStatusCode() >= Response::HTTP_INTERNAL_SERVER_ERROR) {
-                // Server errors are often transient, soft fail
+            if (
+                $e->getResponse()->getStatusCode() >= Response::HTTP_INTERNAL_SERVER_ERROR
+                || $e->getResponse()->getStatusCode() === Response::HTTP_TOO_MANY_REQUESTS
+            ) {
+                // Server errors and rate-limiting are often transient, soft fail
                 return [VerificationStatus::SOFT_FAIL, $info];
             }
 

@@ -34,7 +34,7 @@ class AppUrlVerifyCommandTest extends TestCase
 
         $verifier = $this->createMock(AppUrlVerifier::class);
         $verifier->expects($this->once())
-            ->method('verifyNow')
+            ->method('forceVerify')
             ->with($shopId);
 
         $verifier->method('getCurrentState')->willReturn(new VerificationState(
@@ -64,7 +64,7 @@ class AppUrlVerifyCommandTest extends TestCase
 
         $verifier = $this->createMock(AppUrlVerifier::class);
         $verifier->expects($this->once())
-            ->method('verifyNow')
+            ->method('forceVerify')
             ->with($shopId);
 
         $state = new VerificationState(

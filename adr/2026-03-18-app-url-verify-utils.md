@@ -59,8 +59,10 @@ For now, we don't act upon this result, we simply just record the result.
 
 We also introduce two new commands:
 
+```shell
 php bin/console app:url:verify //maunally verify the APP_URL
 php bin/console app:url:status //print the current stored result
+```
 
 NOTE: Integrating the check and result into live communications will be handled in a later ADR and PR. This ADR documents the problems and introduces the base infrastructure code which will be later used to at runtime.
 

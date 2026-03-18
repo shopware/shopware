@@ -27,7 +27,7 @@ class VerifyAppUrlListenerTest extends TestCase
         $event = new ShopIdChangedEvent($newShopId, $oldShopId);
 
         $verifier->expects($this->once())
-            ->method('verifyNow')
+            ->method('forceVerify')
             ->with($newShopId);
 
         $listener($event);
@@ -44,7 +44,7 @@ class VerifyAppUrlListenerTest extends TestCase
         $event = new ShopIdChangedEvent($newShopId, $oldShopId);
 
         $verifier->expects($this->never())
-            ->method('verifyNow');
+            ->method('forceVerify');
 
         $listener($event);
     }
@@ -59,7 +59,7 @@ class VerifyAppUrlListenerTest extends TestCase
         $event = new ShopIdChangedEvent($shopId, null);
 
         $verifier->expects($this->once())
-            ->method('verifyNow')
+            ->method('forceVerify')
             ->with($shopId);
 
         $listener($event);
@@ -76,7 +76,7 @@ class VerifyAppUrlListenerTest extends TestCase
         $event = new ShopIdChangedEvent($newShopId, $oldShopId);
 
         $verifier->expects($this->never())
-            ->method('verifyNow');
+            ->method('forceVerify');
 
         $listener($event);
     }

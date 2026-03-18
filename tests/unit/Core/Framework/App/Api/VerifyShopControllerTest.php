@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Api\DTO\VerifyShop;
 use Shopware\Core\Framework\App\Api\VerifyShopController;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -46,13 +47,13 @@ class VerifyShopControllerTest extends TestCase
             server: ['REMOTE_ADDR' => '127.0.0.1']
         );
 
-        $this->controller->verify($request);
+        $this->controller->verify(new VerifyShop('some-run-id', 'some-token'), $request);
     }
 
     #[DataProvider('requestProvider')]
-    public function testControllerErrorConditions(Request $request, int $expectedResponseCode): void
+    public function testControllerErrorConditions(VerifyShop $verifyShopRequest, Request $request, int $expectedResponseCode): void
     {
-        $response = $this->controller->verify($request);
+        $response = $this->controller->verify($verifyShopRequest, $request);
 
         static::assertSame($expectedResponseCode, $response->getStatusCode());
     }
@@ -60,31 +61,8 @@ class VerifyShopControllerTest extends TestCase
     public static function requestProvider(): \Generator
     {
         yield 'no-ip-present' => [
+            new VerifyShop('some-run-id', 'some-token'),
             new Request(),
-            Response::HTTP_BAD_REQUEST,
-        ];
-
-        yield 'no-run-id' => [
-            new Request(
-                query: ['token' => 'some-token'],
-                server: ['REMOTE_ADDR' => '127.0.0.1']
-            ),
-            Response::HTTP_BAD_REQUEST,
-        ];
-
-        yield 'no-token' => [
-            new Request(
-                query: ['runId' => 'some-run-id'],
-                server: ['REMOTE_ADDR' => '127.0.0.1']
-            ),
-            Response::HTTP_BAD_REQUEST,
-        ];
-
-        yield 'no-token-or-run-id' => [
-            new Request(
-                query: [],
-                server: ['REMOTE_ADDR' => '127.0.0.1']
-            ),
             Response::HTTP_BAD_REQUEST,
         ];
     }
@@ -101,7 +79,7 @@ class VerifyShopControllerTest extends TestCase
             server: ['REMOTE_ADDR' => '127.0.0.1']
         );
 
-        $response = $this->controller->verify($request);
+        $response = $this->controller->verify(new VerifyShop('some-run-id', 'some-token'), $request);
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
@@ -118,7 +96,7 @@ class VerifyShopControllerTest extends TestCase
             server: ['REMOTE_ADDR' => '127.0.0.1']
         );
 
-        $response = $this->controller->verify($request);
+        $response = $this->controller->verify(new VerifyShop('some-run-id', 'some-token'), $request);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }

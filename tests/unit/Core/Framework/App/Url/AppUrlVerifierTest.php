@@ -151,6 +151,14 @@ class AppUrlVerifierTest extends TestCase
             'boom',
         ];
 
+        yield '429 > SOFT_FAIL' => [
+            new MockResponse('too many requests', ['http_code' => 429]),
+            'https://example.com',
+            true,
+            VerificationStatus::SOFT_FAIL,
+            'Unexpected response from APP_URL verification endpoint: HTTP code: "429" body: "too many requests"',
+        ];
+
         yield '404 > HARD_FAIL' => [
             new MockResponse('not found', ['http_code' => 404]),
             'https://example.com',
@@ -407,7 +415,7 @@ class AppUrlVerifierTest extends TestCase
 
         $clock->sleep(2);
 
-        $result = $verifier->verifyNow($shop);
+        $result = $verifier->forceVerify($shop);
         $state = $verifier->getCurrentState();
         static::assertTrue($result);
         self::assertState(['status' => VerificationStatus::PASS, 'tries' => 1, 'at' => $clock->now()], $state);
@@ -423,7 +431,7 @@ class AppUrlVerifierTest extends TestCase
         $verifier = new AppUrlVerifier('dev', '6.7.1.0', $cache, $http, $locks, $this->createMock(LoggerInterface::class), $clock);
         $shop = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
 
-        static::assertTrue($verifier->verifyNow($shop));
+        static::assertTrue($verifier->forceVerify($shop));
         static::assertSame(0, $http->getRequestsCount());
     }
 
@@ -437,7 +445,7 @@ class AppUrlVerifierTest extends TestCase
         $verifier = new AppUrlVerifier('dev', '6.7.1.0', $cache, $http, $locks, $this->createMock(LoggerInterface::class), $clock);
         $shop = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
 
-        $result = $verifier->verifyNow($shop, true);
+        $result = $verifier->forceVerify($shop, true);
         $state = $verifier->getCurrentState();
         static::assertTrue($result);
         self::assertState(['status' => VerificationStatus::PASS, 'tries' => 1, 'at' => $clock->now()], $state);

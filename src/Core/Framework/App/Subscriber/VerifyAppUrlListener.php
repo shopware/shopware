@@ -25,7 +25,7 @@ class VerifyAppUrlListener
         $oldUrl = $event->oldShopId?->getFingerprint(AppUrl::IDENTIFIER);
 
         if ($newUrl && $newUrl !== $oldUrl) {
-            $this->appUrlVerifier->verifyNow($event->newShopId);
+            $this->appUrlVerifier->forceVerify($event->newShopId);
         }
     }
 }

@@ -38,7 +38,7 @@ class AppUrlVerifyCommand extends Command
         $io = new ShopwareStyle($input, $output);
 
         $shopId = $this->shopIdProvider->getShopId();
-        $this->appUrlVerifier->verifyNow($shopId, true);
+        $this->appUrlVerifier->forceVerify($shopId, true);
 
         $state = $this->appUrlVerifier->getCurrentState();
 

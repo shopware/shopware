@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\App\Api;
 
+use Shopware\Core\Framework\App\Api\DTO\VerifyShop;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -12,6 +13,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -33,7 +35,7 @@ class VerifyShopController
         defaults: ['auth_required' => false],
         methods: ['GET']
     )]
-    public function verify(Request $request): Response
+    public function verify(#[MapQueryString] VerifyShop $verifyShopRequest, Request $request): Response
     {
         $ip = $request->getClientIp();
         if ($ip === null) {
@@ -42,14 +44,7 @@ class VerifyShopController
 
         $this->rateLimiter->ensureAccepted(RateLimiter::APP_SHOP_VERIFY, $ip);
 
-        $runId = $request->query->get('runId');
-        $uToken = $request->query->get('token');
-
-        if ($runId === null || $uToken === null) {
-            return new JsonResponse([], Response::HTTP_BAD_REQUEST);
-        }
-
-        if ($this->appUrlVerifier->completeVerification($runId, $uToken)) {
+        if ($this->appUrlVerifier->completeVerification($verifyShopRequest->runId, $verifyShopRequest->token)) {
             return new JsonResponse([], Response::HTTP_NO_CONTENT);
         }
 

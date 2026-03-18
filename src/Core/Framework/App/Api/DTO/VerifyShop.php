@@ -14,7 +14,6 @@ class VerifyShop
     public function __construct(
         #[Assert\NotBlank]
         public string $runId,
-
         #[Assert\NotBlank]
         public string $token,
     ) {

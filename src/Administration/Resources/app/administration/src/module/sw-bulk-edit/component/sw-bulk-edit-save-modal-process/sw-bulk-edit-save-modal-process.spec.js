@@ -3,7 +3,63 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+const selectedOrderIds = [
+    'order-id-1',
+    'order-id-2',
+];
+const documentIds = [
+    'document-id-1',
+    'document-id-2',
+];
+
+const deleteDocumentTypesFixtures = [
+    {
+        id: 'invoice-id',
+        technicalName: 'invoice',
+        translated: { name: 'Invoice' },
+        selected: true,
+    },
+    {
+        id: 'credit-note-id',
+        technicalName: 'credit_note',
+        translated: { name: 'Credit note' },
+        selected: true,
+    },
+];
+
+const documentRepositoryMock = {
+    searchIds: jest.fn(() =>
+        Promise.resolve({
+            data: documentIds,
+            total: documentIds.length,
+        }),
+    ),
+};
+
+const repositoryFactoryMock = {
+    create: (entity) => {
+        if (entity === 'document') {
+            return documentRepositoryMock;
+        }
+        return null;
+    },
+};
+
+const syncServiceMock = {
+    sync: jest.fn(() => Promise.resolve()),
+};
+
+async function createWrapper(selectedDocumentTypes = deleteDocumentTypesFixtures) {
+    Shopware.Store.get('swBulkEdit').selectedIds = selectedOrderIds;
+    Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
+        type: 'delete',
+        value: [...selectedDocumentTypes],
+    });
+    Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
+        type: 'delete',
+        isChanged: true,
+    });
+
     return mount(
         await wrapTestComponent('sw-bulk-edit-save-modal-process', {
             sync: true,
@@ -21,7 +77,8 @@ async function createWrapper() {
                         },
                         generate: () => null,
                     },
-                    syncService: {},
+                    syncService: syncServiceMock,
+                    repositoryFactory: repositoryFactoryMock,
                 },
             },
         },
@@ -269,5 +326,72 @@ describe('sw-bulk-edit-save-modal-process', () => {
                 },
             },
         ]);
+    });
+
+    describe('delete documents', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+        });
+
+        it('should call deleteDocuments when component is created', async () => {
+            await createWrapper();
+            await flushPromises();
+
+            wrapper.vm.deleteDocuments = jest.fn();
+
+            await wrapper.vm.createdComponent();
+            await flushPromises();
+
+            expect(wrapper.vm.deleteDocuments).toHaveBeenCalled();
+
+            wrapper.vm.deleteDocuments.mockRestore();
+        });
+
+        it('should not call searchIds for document when no document type is selected', async () => {
+            await createWrapper([]);
+            await flushPromises();
+
+            expect(documentRepositoryMock.searchIds).not.toHaveBeenCalled();
+        });
+
+        it('should call searchIds for document with the selected order ids and selected document types', async () => {
+            await createWrapper();
+            await flushPromises();
+
+            expect(documentRepositoryMock.searchIds).toHaveBeenCalledTimes(1);
+
+            const criteria = documentRepositoryMock.searchIds.mock.calls[0][0];
+            const orderIdFilter = criteria.filters.find((filter) => filter.field === 'orderId');
+            const documentTypeFilter = criteria.filters.find((filter) => filter.field === 'documentType.technicalName');
+
+            expect(orderIdFilter).toBeDefined();
+            expect(orderIdFilter.value).toContain(selectedOrderIds[0]);
+            expect(orderIdFilter.value).toContain(selectedOrderIds[1]);
+            expect(documentTypeFilter).toBeDefined();
+            expect(documentTypeFilter.value).toContain(deleteDocumentTypesFixtures[0].technicalName);
+            expect(documentTypeFilter.value).toContain(deleteDocumentTypesFixtures[1].technicalName);
+        });
+
+        it('should not call sync when when search ids for documents returns no document ids', async () => {
+            documentRepositoryMock.searchIds.mockResolvedValueOnce({ data: [], total: 0 });
+            await createWrapper();
+            await flushPromises();
+
+            expect(syncServiceMock.sync).not.toHaveBeenCalled();
+        });
+
+        it('should pass all found document ids to sync', async () => {
+            await createWrapper();
+            await flushPromises();
+
+            const syncCall = syncServiceMock.sync;
+            expect(syncCall).toHaveBeenCalledTimes(1);
+
+            const syncPayload = syncCall.mock.calls[0][0];
+            const documentIdsInPayload = syncPayload['delete-order_document'].payload.map((item) => item.id);
+
+            expect(documentIdsInPayload).toContain(documentIds[0]);
+            expect(documentIdsInPayload).toContain(documentIds[1]);
+        });
     });
 });

@@ -97,7 +97,7 @@ class MailTemplateServiceTest extends TestCase
             $stringTemplateRenderer
         );
 
-        $rendered = $mailTemplateService->preview(['content' => 'foo'], ContactFormEvent::class, Context::createDefaultContext());
+        $rendered = $mailTemplateService->preview(['content' => 'foo'], Context::createDefaultContext(), false,ContactFormEvent::class);
 
         static::assertCount(1, $rendered);
         static::assertEquals(new MailTemplateRenderSuccess('bar'), $rendered->get('content'));
@@ -119,7 +119,7 @@ class MailTemplateServiceTest extends TestCase
             $stringTemplateRenderer
         );
 
-        $rendered = $mailTemplateService->preview(['content' => 'foo'], ContactFormEvent::class, Context::createDefaultContext());
+        $rendered = $mailTemplateService->preview(['content' => 'foo'], Context::createDefaultContext(), false, ContactFormEvent::class);
 
         static::assertCount(1, $rendered);
         static::assertEquals(new MailTemplateRenderError('Failed rendering string template using Twig: Some error message'), $rendered->get('content'));
@@ -153,7 +153,7 @@ class MailTemplateServiceTest extends TestCase
             $stringTemplateRenderer
         );
 
-        $email = $mailTemplateService->getTemplateDataAndSend([], ContactFormEvent::class, $context);
+        $email = $mailTemplateService->getTemplateDataAndSend([], $context, ContactFormEvent::class);
 
         static::assertNull($email);
     }
@@ -233,7 +233,7 @@ class MailTemplateServiceTest extends TestCase
             $stringTemplateRenderer
         );
 
-        $result = $mailTemplateService->availableVariables(ReviewFormEvent::class, $fieldPath, Context::createDefaultContext());
+        $result = $mailTemplateService->availableVariables($fieldPath, Context::createDefaultContext(), ReviewFormEvent::class);
 
         static::assertSame($expected, $result);
     }
@@ -347,7 +347,7 @@ class MailTemplateServiceTest extends TestCase
             $stringTemplateRenderer
         );
 
-        $result = $mailTemplateService->availableVariables(ReviewFormEvent::class, 'foobar.foo.bar', Context::createDefaultContext());
+        $result = $mailTemplateService->availableVariables('foobar.foo.bar', Context::createDefaultContext(), ReviewFormEvent::class);
 
         static::assertSame([], $result);
     }

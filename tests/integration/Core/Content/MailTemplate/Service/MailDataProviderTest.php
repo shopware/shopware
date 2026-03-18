@@ -46,7 +46,7 @@ class MailDataProviderTest extends TestCase
     {
         $templateData = \json_decode(
             \json_encode(
-                $this->mailDataProvider->getTemplateData($flowEventClass, Context::createDefaultContext(), [], 42),
+                $this->mailDataProvider->getTemplateData(Context::createDefaultContext(), $flowEventClass, [], [], 42),
                 \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES | \JSON_PRESERVE_ZERO_FRACTION
             ),
             true
@@ -109,13 +109,69 @@ class MailDataProviderTest extends TestCase
         \assert($customerGroupEntity instanceof CustomerGroupEntity);
 
         $templateData = $this->mailDataProvider->getTemplateData(
-            CheckoutOrderPlacedEvent::class,    // provides a customer group itself, so the generated entity should be replaced by the entity in the database
             Context::createDefaultContext(),
+            CheckoutOrderPlacedEvent::class,    // provides a customer group itself, so the generated entity should be replaced by the entity in the database
             ['customer_group' => $customerGroupEntity->getId()],
+            [],
             42
         );
 
         static::assertSame($customerGroupEntity->getId(), $templateData['customerGroupId']);
         static::assertEquals($customerGroupEntity, $templateData['customerGroup']);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testEventTemplateDataWithProvidedEntitiesAndInjectedTemplateData(): void
+    {
+        $customerGroupRepository = $this->getContainer()->get('customer_group.repository');
+        $customerGroupProvider = $this->getContainer()->get(CustomerGroupProvider::class);
+        \assert($customerGroupProvider instanceof CustomerGroupProvider);
+
+        $context = Context::createDefaultContext();
+
+        $customerGroupId = $customerGroupRepository->search(new Criteria(), $context)->first()?->getUniqueIdentifier();
+        \assert(\is_string($customerGroupId));
+
+        $customerGroupEntity = $customerGroupProvider->getData($customerGroupId, $context);
+        \assert($customerGroupEntity instanceof CustomerGroupEntity);
+
+        $templateData = $this->mailDataProvider->getTemplateData(
+            Context::createDefaultContext(),
+            CheckoutOrderPlacedEvent::class,    // provides a customer group itself, so the generated entity should be replaced by the entity in the database
+            ['customer_group' => $customerGroupEntity->getId()],
+            ['customer_group_injected' => 'foobar'],
+            42
+        );
+
+        static::assertSame($customerGroupEntity->getId(), $templateData['customerGroupId']);
+        static::assertEquals($customerGroupEntity, $templateData['customerGroup']);
+        static::assertEquals('foobar', $templateData['customer_group_injected']);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testEventTemplateDataWithProvidedEntitiesAndInjectedTemplateDataOverwrite(): void
+    {
+        $customerGroupRepository = $this->getContainer()->get('customer_group.repository');
+        $customerGroupProvider = $this->getContainer()->get(CustomerGroupProvider::class);
+        \assert($customerGroupProvider instanceof CustomerGroupProvider);
+
+        $context = Context::createDefaultContext();
+
+        $customerGroupId = $customerGroupRepository->search(new Criteria(), $context)->first()?->getUniqueIdentifier();
+        \assert(\is_string($customerGroupId));
+
+        $customerGroupEntity = $customerGroupProvider->getData($customerGroupId, $context);
+        \assert($customerGroupEntity instanceof CustomerGroupEntity);
+
+        $templateData = $this->mailDataProvider->getTemplateData(
+            Context::createDefaultContext(),
+            CheckoutOrderPlacedEvent::class,    // provides a customer group itself, so the generated entity should be replaced by the entity in the database
+            ['customer_group' => $customerGroupEntity->getId()],
+            ['customerGroup' => 'foobar'],
+            42
+        );
+
+        static::assertSame($customerGroupEntity->getId(), $templateData['customerGroupId']);
+        static::assertEquals('foobar', $templateData['customerGroup']);
     }
 }

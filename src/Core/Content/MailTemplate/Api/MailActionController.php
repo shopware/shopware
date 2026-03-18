@@ -6,6 +6,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -47,13 +48,24 @@ class MailActionController extends AbstractController
         $data = $post->all();
 
         if (Feature::isActive('v6.8.0.0')) {
-            $entities = $post->get('entities');
+            $flowEventClass = $post->get('flowEventClass');
+            \assert(new ($flowEventClass) instanceof FlowEventAware);
 
-            if (!$entities instanceof DataBag) {
-                $entities = new DataBag();
-            }
+            $entitiesDataBag = $post->get('entities', new DataBag());
+            \assert($entitiesDataBag instanceof DataBag);
+            $entities = $entitiesDataBag->all();
 
-            $message = $this->mailTemplateService->getTemplateDataAndSend($data, $data['flowEventClass'], $context, $entities->all());
+            $templateDataDataBag = $post->get('templateData', new DataBag());
+            \assert($templateDataDataBag instanceof DataBag);
+            $templateData = $templateDataDataBag->all();
+
+            $message = $this->mailTemplateService->getTemplateDataAndSend(
+                $data,
+                $context,
+                $flowEventClass,
+                $entities,
+                $templateData,
+            );
         } else {
             $message = $this->mailTemplateService->send($data, $context, $data['mailTemplateData'] ?? []);
         }
@@ -82,22 +94,33 @@ class MailActionController extends AbstractController
     )]
     public function build(RequestDataBag $post, Context $context): JsonResponse
     {
-        $data = $post->all();
-
         if (Feature::isActive('v6.8.0.0')) {
-            $mailTemplateContent = $data['mailTemplateContent'];
-            $flowEventClass = $data['flowEventClass'];
+            $mailTemplateContent = $post->get('mailTemplateContent');
 
-            $entities = $post->get('entities');
+            $flowEventClass = $post->get('flowEventClass');
+            \assert(new ($flowEventClass) instanceof FlowEventAware);
 
-            if (!$entities instanceof DataBag) {
-                $entities = new DataBag();
-            }
+            $entitiesDataBag = $post->get('entities', new DataBag());
+            \assert($entitiesDataBag instanceof DataBag);
+            $entities = $entitiesDataBag->all();
 
-            $renderedTemplate = $this->mailTemplateService->preview($mailTemplateContent, $flowEventClass, $context, true, $entities->all());
+            $templateDataDataBag = $post->get('templateData', new DataBag());
+            \assert($templateDataDataBag instanceof DataBag);
+            $templateData = $templateDataDataBag->all();
+
+            $renderedTemplate = $this->mailTemplateService->preview(
+                $mailTemplateContent,
+                $context,
+                true,
+                $flowEventClass,
+                $entities,
+                $templateData,
+            );
 
             return new JsonResponse($renderedTemplate);
         }
+
+        $data = $post->all();
 
         $templateData = $data['mailTemplateType']['templateData'] ?? [];
         $template = $data['mailTemplate']['contentHtml'] ?? null;
@@ -121,15 +144,8 @@ class MailActionController extends AbstractController
     public function preview(RequestDataBag $post, Context $context): JsonResponse
     {
         $templateId = $post->getString('mailTemplateId');
-        $flowEventClass = $post->get('flowEventClass');
 
         $mailTemplate = $this->mailTemplateService->loadTemplate($templateId, $context);
-
-        $entities = $post->get('entities');
-
-        if (!$entities instanceof DataBag) {
-            $entities = new DataBag();
-        }
 
         $templateContent = [
             'subject' => $mailTemplate->getSubject() ?? '',
@@ -138,7 +154,25 @@ class MailActionController extends AbstractController
             'contentPlain' => $mailTemplate->getContentPlain() ?? '',
         ];
 
-        $renderedTemplate = $this->mailTemplateService->preview($templateContent, $flowEventClass, $context, true, $entities->all());
+        $flowEventClass = $post->get('flowEventClass');
+        \assert(new ($flowEventClass) instanceof FlowEventAware);
+
+        $entitiesDataBag = $post->get('entities', new DataBag());
+        \assert($entitiesDataBag instanceof DataBag);
+        $entities = $entitiesDataBag->all();
+
+        $templateDataDataBag = $post->get('templateData', new DataBag());
+        \assert($templateDataDataBag instanceof DataBag);
+        $templateData = $templateDataDataBag->all();
+
+        $renderedTemplate = $this->mailTemplateService->preview(
+            $templateContent,
+            $context,
+            true,
+            $flowEventClass,
+            $entities,
+            $templateData
+        );
 
         return new JsonResponse($renderedTemplate);
     }
@@ -158,8 +192,7 @@ class MailActionController extends AbstractController
     {
         $data = $post->all();
 
-        $templateId = $data['mailTemplateId'];
-        $flowEventClass = $data['flowEventClass'];
+        $templateId = $post->get('mailTemplateId');
 
         $mailTemplate = $this->mailTemplateService->loadTemplate($templateId, $context);
 
@@ -168,13 +201,18 @@ class MailActionController extends AbstractController
         $data['subject'] ??= $mailTemplate->getSubject();
         $data['senderName'] ??= $mailTemplate->getSenderName();
 
-        $entities = $post->get('entities');
+        $flowEventClass = $post->get('flowEventClass');
+        \assert(new ($flowEventClass) instanceof FlowEventAware);
 
-        if (!$entities instanceof DataBag) {
-            $entities = new DataBag();
-        }
+        $entitiesDataBag = $post->get('entities', new DataBag());
+        \assert($entitiesDataBag instanceof DataBag);
+        $entities = $entitiesDataBag->all();
 
-        $message = $this->mailTemplateService->getTemplateDataAndSend($data, $flowEventClass, $context, $entities->all());
+        $templateDataDataBag = $post->get('templateData', new DataBag());
+        \assert($templateDataDataBag instanceof DataBag);
+        $templateData = $templateDataDataBag->all();
+
+        $message = $this->mailTemplateService->getTemplateDataAndSend($data, $context, $flowEventClass, $entities, $templateData);
 
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
     }
@@ -186,15 +224,20 @@ class MailActionController extends AbstractController
     )]
     public function availableVariables(RequestDataBag $post, Context $context): JsonResponse
     {
+        $fieldPath = $post->get('fieldPath', '');
+        \assert(\is_string($fieldPath));
+
         $flowEventClass = $post->get('flowEventClass');
-        $fieldPath = $post->get('fieldPath');
+        \assert(new ($flowEventClass) instanceof FlowEventAware);
 
-        $entities = $post->get('entities');
+        $entitiesDataBag = $post->get('entities', new DataBag());
+        \assert($entitiesDataBag instanceof DataBag);
+        $entities = $entitiesDataBag->all();
 
-        if (!$entities instanceof DataBag) {
-            $entities = new DataBag();
-        }
+        $templateDataDataBag = $post->get('templateData', new DataBag());
+        \assert($templateDataDataBag instanceof DataBag);
+        $templateData = $templateDataDataBag->all();
 
-        return new JsonResponse($this->mailTemplateService->availableVariables($flowEventClass, $fieldPath, $context, $entities->all()));
+        return new JsonResponse($this->mailTemplateService->availableVariables($fieldPath, $context, $flowEventClass, $entities, $templateData));
     }
 }

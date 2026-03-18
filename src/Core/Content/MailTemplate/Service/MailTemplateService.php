@@ -54,14 +54,15 @@ class MailTemplateService
 
     /**
      * @param array<int|string,string> $templateContent
-     * @param class-string<FlowEventAware> $flowEventClass
+     * @param class-string<FlowEventAware>|null $flowEventClass
      * @param array<string,string> $entityIds
+     * @param array<string,mixed> $injectedTemplateData
      */
-    public function preview(array $templateContent, string $flowEventClass, Context $context, bool $strict = false, array $entityIds = []): MailTemplateRenderResultCollection
+    public function preview(array $templateContent, Context $context, bool $strict = false, ?string $flowEventClass = null, array $entityIds = [], array $injectedTemplateData = []): MailTemplateRenderResultCollection
     {
         $renderedResult = new MailTemplateRenderResultCollection();
 
-        $templateData = $this->mailDataProvider->getTemplateData($flowEventClass, $context, $entityIds);
+        $templateData = $this->mailDataProvider->getTemplateData($context, $flowEventClass, $entityIds, $injectedTemplateData);
 
         if (!$strict) {
             $this->templateRenderer->enableTestMode();
@@ -84,22 +85,22 @@ class MailTemplateService
 
     /**
      * @param array<string, mixed> $data
-     * @param class-string<FlowEventAware> $flowEventClass
+     * @param class-string<FlowEventAware>|null $flowEventClass
      * @param array<string,string> $entityIds
+     * @param array<string,mixed> $injectedTemplateData
      */
-    public function getTemplateDataAndSend(array $data, string $flowEventClass, Context $context, array $entityIds = []): ?Email
+    public function getTemplateDataAndSend(array $data, Context $context, ?string $flowEventClass = null, array $entityIds = [], array $injectedTemplateData = []): ?Email
     {
-        $templateData = $this->mailDataProvider->getTemplateData($flowEventClass, $context);
+        $templateData = $this->mailDataProvider->getTemplateData($context, $flowEventClass, $entityIds, $injectedTemplateData);
 
-        return $this->send($data, $context, $templateData, $entityIds);
+        return $this->send($data, $context, $templateData);
     }
 
     /**
      * @param array<string, mixed> $data
      * @param array<string|int,mixed> $templateData
-     * @param array<string,string> $entityIds
      */
-    public function send(array $data, Context $context, array $templateData, array $entityIds = []): ?Email
+    public function send(array $data, Context $context, array $templateData): ?Email
     {
         $extension = new MailSendSubscriberConfig(
             false,
@@ -119,14 +120,15 @@ class MailTemplateService
     }
 
     /**
-     * @param class-string<FlowEventAware> $flowEventClass
+     * @param class-string<FlowEventAware>|null $flowEventClass
      * @param array<string,string> $entityIds
+     * @param array<string,mixed> $injectedTemplateData
      *
      * @return array<string,int|string|bool>[]
      */
-    public function availableVariables(string $flowEventClass, string $fieldPath, Context $context, array $entityIds = []): array
+    public function availableVariables(string $fieldPath, Context $context, ?string $flowEventClass = null, array $entityIds = [], array $injectedTemplateData = []): array
     {
-        $templateData = $this->mailDataProvider->getTemplateData($flowEventClass, $context, $entityIds);
+        $templateData = $this->mailDataProvider->getTemplateData($context, $flowEventClass, $entityIds, $injectedTemplateData);
 
         if ($fieldPath === '') {
             return \array_map(

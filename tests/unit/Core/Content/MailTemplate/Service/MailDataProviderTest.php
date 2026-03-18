@@ -36,7 +36,7 @@ class MailDataProviderTest extends TestCase
         $mailDataProvider = new MailDataProvider([], $definitionInstanceRegistry, $languageCollection);
 
         // @phpstan-ignore-next-line
-        $result = $mailDataProvider->getTemplateData(self::class, $context);
+        $result = $mailDataProvider->getTemplateData($context, self::class);
 
         static::assertSame([], $result);
     }
@@ -54,7 +54,7 @@ class MailDataProviderTest extends TestCase
 
         $mailDataProvider = new MailDataProvider([], $definitionInstanceRegistry, $languageCollection);
 
-        $result = $mailDataProvider->getTemplateData(MailErrorEvent::class, $context);
+        $result = $mailDataProvider->getTemplateData($context, MailErrorEvent::class);
 
         static::assertSame([], $result);
     }

@@ -125,30 +125,34 @@ class MailDataProvider
     }
 
     /**
-     * @param class-string<FlowEventAware> $flowEventClass
+     * @param class-string<FlowEventAware>|null $flowEventClass
      * @param array<string,string> $entityIds
+     * @param array<string,mixed> $injectedTemplateData
      *
      * @return array<string, mixed>
      */
-    public function getTemplateData(string $flowEventClass, Context $context, array $entityIds = [], ?int $seed = null): array
+    public function getTemplateData(Context $context, ?string $flowEventClass = null, array $entityIds = [], array $injectedTemplateData = [], ?int $seed = null): array
     {
         $faker = $this->createFaker($context, $seed);
 
         $templateData = [];
         $referenceData = [];
+        $eventData = [];
 
-        try {
-            $flowEvent = new \ReflectionClass($flowEventClass);
+        if ($flowEventClass !== null) {
+            try {
+                $flowEvent = new \ReflectionClass($flowEventClass);
 
-            $eventDataCollection = $flowEvent->getMethod('getAvailableData')->invoke(null);
-            \assert($eventDataCollection instanceof EventDataCollection);
-            $eventData = $eventDataCollection->getData();
-        } catch (\ReflectionException $e) {
-            return $templateData;
-        }
+                $eventDataCollection = $flowEvent->getMethod('getAvailableData')->invoke(null);
+                \assert($eventDataCollection instanceof EventDataCollection);
+                $eventData = $eventDataCollection->getData();
+            } catch (\ReflectionException $e) {
+                return $templateData;
+            }
 
-        if (!$flowEvent->implementsInterface(MailAware::class)) {
-            return $templateData;
+            if (!$flowEvent->implementsInterface(MailAware::class)) {
+                return $templateData;
+            }
         }
 
         $templateData[MailAware::TIMEZONE] = 'UTC';
@@ -177,7 +181,7 @@ class MailDataProvider
             $templateData = \array_merge($templateData, $entities);
         }
 
-        return $templateData;
+        return \array_merge($templateData, $injectedTemplateData);
     }
 
     /**

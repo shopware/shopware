@@ -26,5 +26,10 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
+        showSwitch: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
     },
 });

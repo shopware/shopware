@@ -63,6 +63,7 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(buttons).toHaveLength(2);
             expect(buttons[0].text()).toBe('sw-settings-usage-data.consent-modal.actions.decline');
             expect(buttons[1].text()).toBe('sw-settings-usage-data.consent-modal.actions.give-consent');
+            expect(wrapper.findAllComponents(MtSwitch)).toHaveLength(0);
         });
 
         it('shows decline/give consent buttons when store data consent is hidden by permissions', async () => {
@@ -75,6 +76,7 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(buttons).toHaveLength(2);
             expect(buttons[0].text()).toBe('sw-settings-usage-data.consent-modal.actions.decline');
             expect(buttons[1].text()).toBe('sw-settings-usage-data.consent-modal.actions.give-consent');
+            expect(wrapper.findAllComponents(MtSwitch)).toHaveLength(0);
         });
 
         it('shows save preferences when one or both consent states changes', async () => {

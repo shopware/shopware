@@ -33,6 +33,7 @@
                 />
                 <sw-settings-usage-data-user-data-consent-card
                     v-model:consent="userDataConsent"
+                    :show-switch="!showSingleOptionActions"
                     @legal-link-clicked="trackLegalLinkClick('privacy_policy')"
                 />
 

@@ -51,7 +51,7 @@ class SetOrderCustomFieldActionTest extends TestCase
     #[DataProvider('createDataProvider')]
     public function testCreateCustomFieldForOrder(string $option, ?array $existedData, ?array $updateData, ?array $expectData): void
     {
-        $customFieldName = 'custom_field_test';
+        $customFieldName = 'custom_field_test_SetOrderCustomFieldActionTest';
         $entity = 'order';
         $customFieldId = $this->createCustomField($customFieldName, $entity);
 

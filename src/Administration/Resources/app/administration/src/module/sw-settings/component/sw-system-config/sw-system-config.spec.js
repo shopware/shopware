@@ -3,7 +3,6 @@
 /**
  * @sw-package framework
  */
-/* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
 import { MtTextField, MtUrlField } from '@shopware-ag/meteor-component-library';

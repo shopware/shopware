@@ -28,7 +28,6 @@ export default {
             required: false,
             default: '',
         },
-        // eslint-disable-next-line vue/require-default-prop
         value: {
             type: Object,
             required: false,

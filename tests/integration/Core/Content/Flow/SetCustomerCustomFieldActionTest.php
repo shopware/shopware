@@ -95,6 +95,8 @@ class SetCustomerCustomFieldActionTest extends TestCase
 
         $expect = $option === 'clear' ? null : [$customFieldName => $expectData];
         static::assertSame($customer->getCustomFields(), $expect);
+
+        static::getContainer()->get('custom_field.repository')->delete([$customFieldId], Context::createDefaultContext());
     }
 
     /**

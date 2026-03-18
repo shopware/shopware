@@ -38,9 +38,8 @@ class Migration1773420826AddSalutationPositionColumnTest extends TestCase
         static::assertSame('2', $positions['mrs']);
         static::assertSame('3', $positions['mr']);
 
-        foreach ($positions as $pos) {
-            static::assertSame(1, preg_match('/^\d+$/', (string) $pos));
-        }
+        static::assertArrayHasKey('diverse', $positions);
+        static::assertSame('1', $positions['diverse']);
     }
 
     private function dropPositionColumnIfExists(Connection $connection): void

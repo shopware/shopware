@@ -35,7 +35,7 @@ class TwigComponentHelperTest extends TestCase
     public function testGetComponentsReturnsEmptyCollectionWhenNoBundlesOrApps(): void
     {
         $bundlePath = $this->tempDir . '/EmptyBundle';
-        $componentDir = $bundlePath . '/Resources/views/storefront/components';
+        $componentDir = $bundlePath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
         mkdir($componentDir, 0777, true);
 
         $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
@@ -49,7 +49,6 @@ class TwigComponentHelperTest extends TestCase
         $connection->method('fetchAllAssociative')->willReturn([]);
 
         $helper = new TwigComponentHelper(
-            'Resources/views/storefront/components',
             [
                 'EmptyBundle' => ['path' => $bundlePath],
             ],
@@ -67,7 +66,7 @@ class TwigComponentHelperTest extends TestCase
     public function testGetComponentsFindsComponentsFromBundles(): void
     {
         $bundlePath = $this->tempDir . '/TestBundle';
-        $componentDir = $bundlePath . '/Resources/views/storefront/components';
+        $componentDir = $bundlePath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
         mkdir($componentDir, 0777, true);
 
         file_put_contents($componentDir . '/Button.html.twig', '<button>{{ label }}</button>');
@@ -84,7 +83,6 @@ class TwigComponentHelperTest extends TestCase
         $connection->method('fetchAllAssociative')->willReturn([]);
 
         $helper = new TwigComponentHelper(
-            'Resources/views/storefront/components',
             [
                 'TestBundle' => ['path' => $bundlePath],
             ],
@@ -104,7 +102,7 @@ class TwigComponentHelperTest extends TestCase
     public function testGetComponentsFindsNestedComponents(): void
     {
         $bundlePath = $this->tempDir . '/TestBundle';
-        $componentDir = $bundlePath . '/Resources/views/storefront/components';
+        $componentDir = $bundlePath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
         $nestedDir = $componentDir . '/Forms/Input';
         mkdir($nestedDir, 0777, true);
 
@@ -121,7 +119,6 @@ class TwigComponentHelperTest extends TestCase
         $connection->method('fetchAllAssociative')->willReturn([]);
 
         $helper = new TwigComponentHelper(
-            'Resources/views/storefront/components',
             [
                 'TestBundle' => ['path' => $bundlePath],
             ],
@@ -144,7 +141,7 @@ class TwigComponentHelperTest extends TestCase
     public function testGetComponentsExcludesFilesInUnderscoreDirectories(): void
     {
         $bundlePath = $this->tempDir . '/TestBundle';
-        $componentDir = $bundlePath . '/Resources/views/storefront/components';
+        $componentDir = $bundlePath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
         $normalDir = $componentDir . '/ui';
         $privateDir = $normalDir . '/_private';
         mkdir($privateDir, 0777, true);
@@ -163,7 +160,6 @@ class TwigComponentHelperTest extends TestCase
         $connection->method('fetchAllAssociative')->willReturn([]);
 
         $helper = new TwigComponentHelper(
-            'Resources/views/storefront/components',
             [
                 'TestBundle' => ['path' => $bundlePath],
             ],
@@ -183,7 +179,7 @@ class TwigComponentHelperTest extends TestCase
     public function testGetComponentsIncludesMetadataWhenRequested(): void
     {
         $bundlePath = $this->tempDir . '/TestBundle';
-        $componentDir = $bundlePath . '/Resources/views/storefront/components';
+        $componentDir = $bundlePath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
         mkdir($componentDir, 0777, true);
 
         file_put_contents($componentDir . '/Button.html.twig', '<button>{{ label }}</button>');
@@ -206,7 +202,6 @@ class TwigComponentHelperTest extends TestCase
         $connection->method('fetchAllAssociative')->willReturn([]);
 
         $helper = new TwigComponentHelper(
-            'Resources/views/storefront/components',
             [
                 'TestBundle' => ['path' => $bundlePath],
             ],
@@ -231,7 +226,7 @@ class TwigComponentHelperTest extends TestCase
     public function testGetComponentsDoesNotIncludeMetadataByDefault(): void
     {
         $bundlePath = $this->tempDir . '/TestBundle';
-        $componentDir = $bundlePath . '/Resources/views/storefront/components';
+        $componentDir = $bundlePath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
         mkdir($componentDir, 0777, true);
 
         file_put_contents($componentDir . '/Button.html.twig', '<button>{{ label }}</button>');
@@ -247,7 +242,6 @@ class TwigComponentHelperTest extends TestCase
         $connection->method('fetchAllAssociative')->willReturn([]);
 
         $helper = new TwigComponentHelper(
-            'Resources/views/storefront/components',
             [
                 'TestBundle' => ['path' => $bundlePath],
             ],
@@ -271,7 +265,7 @@ class TwigComponentHelperTest extends TestCase
     public function testGetComponentsFromAppInSubdirectoryHasCorrectComponentName(): void
     {
         $appRelPath = 'TestApp';
-        $componentDir = $this->tempDir . '/' . $appRelPath . '/Resources/views/storefront/components';
+        $componentDir = $this->tempDir . '/' . $appRelPath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
         $customDir = $componentDir . '/Custom';
         mkdir($customDir, 0777, true);
         file_put_contents($customDir . '/Test.html.twig', '<div>Test</div>');
@@ -287,7 +281,6 @@ class TwigComponentHelperTest extends TestCase
             ->willReturn(new Filesystem($this->tempDir . '/' . $appRelPath));
 
         $helper = new TwigComponentHelper(
-            'Resources/views/storefront/components',
             [],
             $this->createMock(NamespaceHierarchyBuilder::class),
             $this->createComponentFactory(),
@@ -316,7 +309,7 @@ class TwigComponentHelperTest extends TestCase
         // Two templates in different subdirectories from the same app should both
         // be found when the root components/ dir is used as the Finder base.
         $appRelPath = 'MultiTemplateApp';
-        $componentDir = $this->tempDir . '/' . $appRelPath . '/Resources/views/storefront/components';
+        $componentDir = $this->tempDir . '/' . $appRelPath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
         mkdir($componentDir . '/Custom', 0777, true);
         mkdir($componentDir . '/Other', 0777, true);
         file_put_contents($componentDir . '/Custom/Test.html.twig', '<div>Test</div>');
@@ -334,7 +327,6 @@ class TwigComponentHelperTest extends TestCase
             ->willReturn(new Filesystem($this->tempDir . '/' . $appRelPath));
 
         $helper = new TwigComponentHelper(
-            'Resources/views/storefront/components',
             [],
             $this->createMock(NamespaceHierarchyBuilder::class),
             $this->createComponentFactory(),
@@ -357,7 +349,6 @@ class TwigComponentHelperTest extends TestCase
         $splFileInfo = new SplFileInfo($templatePath, '', 'Button.html.twig');
 
         $helper = new TwigComponentHelper(
-            'Resources/views/storefront/components',
             [],
             $this->createMock(NamespaceHierarchyBuilder::class),
             $this->createComponentFactory(),
@@ -383,7 +374,6 @@ class TwigComponentHelperTest extends TestCase
         $splFileInfo = new SplFileInfo($templatePath, 'Forms/Input', 'Forms/Input/Text.html.twig');
 
         $helper = new TwigComponentHelper(
-            'Resources/views/storefront/components',
             [],
             $this->createMock(NamespaceHierarchyBuilder::class),
             $this->createComponentFactory(),
@@ -409,7 +399,6 @@ class TwigComponentHelperTest extends TestCase
         $splFileInfo = new SplFileInfo($templatePath, 'components', 'components/Button.html.twig');
 
         $helper = new TwigComponentHelper(
-            'Resources/views/storefront/components',
             [],
             $this->createMock(NamespaceHierarchyBuilder::class),
             $this->createComponentFactory(),
@@ -426,12 +415,12 @@ class TwigComponentHelperTest extends TestCase
     public function testGetComponentsHandlesMultipleBundles(): void
     {
         $bundle1Path = $this->tempDir . '/Bundle1';
-        $component1Dir = $bundle1Path . '/Resources/views/storefront/components';
+        $component1Dir = $bundle1Path . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
         mkdir($component1Dir, 0777, true);
         file_put_contents($component1Dir . '/Button.html.twig', '<button>Bundle1</button>');
 
         $bundle2Path = $this->tempDir . '/Bundle2';
-        $component2Dir = $bundle2Path . '/Resources/views/storefront/components';
+        $component2Dir = $bundle2Path . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
         mkdir($component2Dir, 0777, true);
         file_put_contents($component2Dir . '/Card.html.twig', '<div>Bundle2</div>');
 
@@ -447,7 +436,6 @@ class TwigComponentHelperTest extends TestCase
         $connection->method('fetchAllAssociative')->willReturn([]);
 
         $helper = new TwigComponentHelper(
-            'Resources/views/storefront/components',
             [
                 'Bundle1' => ['path' => $bundle1Path],
                 'Bundle2' => ['path' => $bundle2Path],
@@ -468,7 +456,7 @@ class TwigComponentHelperTest extends TestCase
     public function testGetComponentsSkipsBundlesWithoutComponentDirectory(): void
     {
         $bundle1Path = $this->tempDir . '/Bundle1';
-        $component1Dir = $bundle1Path . '/Resources/views/storefront/components';
+        $component1Dir = $bundle1Path . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
         mkdir($component1Dir, 0777, true);
         file_put_contents($component1Dir . '/Button.html.twig', '<button>Bundle1</button>');
 
@@ -487,7 +475,6 @@ class TwigComponentHelperTest extends TestCase
         $connection->method('fetchAllAssociative')->willReturn([]);
 
         $helper = new TwigComponentHelper(
-            'Resources/views/storefront/components',
             [
                 'Bundle1' => ['path' => $bundle1Path],
                 'Bundle2' => ['path' => $bundle2Path],
@@ -508,7 +495,7 @@ class TwigComponentHelperTest extends TestCase
     public function testGetComponentsHandlesStorefrontNamespace(): void
     {
         $storefrontPath = $this->tempDir . '/Storefront';
-        $componentDir = $storefrontPath . '/Resources/views/storefront/components';
+        $componentDir = $storefrontPath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
         mkdir($componentDir, 0777, true);
         file_put_contents($componentDir . '/Button.html.twig', '<button>Storefront</button>');
 
@@ -523,7 +510,6 @@ class TwigComponentHelperTest extends TestCase
         $connection->method('fetchAllAssociative')->willReturn([]);
 
         $helper = new TwigComponentHelper(
-            'Resources/views/storefront/components',
             [
                 'Storefront' => ['path' => $storefrontPath],
             ],
@@ -543,7 +529,7 @@ class TwigComponentHelperTest extends TestCase
     public function testGetComponentsSkipsAppWhenFilesystemThrows(): void
     {
         // A valid bundle dir is required so Finder->in() has at least one directory
-        $bundleDir = $this->tempDir . '/BundleForAppTest/Resources/views/storefront/components';
+        $bundleDir = $this->tempDir . '/BundleForAppTest/' . TwigComponentHelper::COMPONENT_DIRECTORY;
         mkdir($bundleDir, 0777, true);
 
         $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
@@ -562,7 +548,6 @@ class TwigComponentHelperTest extends TestCase
             ->willThrowException(new \RuntimeException('Filesystem unavailable'));
 
         $helper = new TwigComponentHelper(
-            'Resources/views/storefront/components',
             ['BundleForAppTest' => ['path' => $this->tempDir . '/BundleForAppTest']],
             $namespaceHierarchyBuilder,
             $this->createComponentFactory(),
@@ -579,7 +564,7 @@ class TwigComponentHelperTest extends TestCase
     public function testGetComponentsSkipsAppWhenComponentDirDoesNotExist(): void
     {
         // A valid bundle dir is required so Finder->in() has at least one directory
-        $bundleDir = $this->tempDir . '/BundleForAppTest2/Resources/views/storefront/components';
+        $bundleDir = $this->tempDir . '/BundleForAppTest2/' . TwigComponentHelper::COMPONENT_DIRECTORY;
         mkdir($bundleDir, 0777, true);
 
         $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
@@ -602,7 +587,6 @@ class TwigComponentHelperTest extends TestCase
             ->willReturn($filesystem);
 
         $helper = new TwigComponentHelper(
-            'Resources/views/storefront/components',
             ['BundleForAppTest2' => ['path' => $this->tempDir . '/BundleForAppTest2']],
             $namespaceHierarchyBuilder,
             $this->createComponentFactory(),

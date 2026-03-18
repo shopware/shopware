@@ -19,13 +19,14 @@ class TwigComponentHelper
 {
     private const MAIN_NAMESPACE = 'Storefront';
 
+    public const COMPONENT_DIRECTORY = 'Resources/views/components/';
+
     /**
      * @param array<string, array{path: string}> $bundlesMetadata
      *
      * @internal
      */
     public function __construct(
-        private string $componentDirectory,
         private array $bundlesMetadata,
         private readonly NamespaceHierarchyBuilder $namespaceHierarchyBuilder,
         private readonly ComponentFactory $componentFactory,
@@ -130,7 +131,7 @@ class TwigComponentHelper
             }
 
             $path = $this->bundlesMetadata[$namespace]['path'];
-            $componentDir = Path::join($path, $this->componentDirectory);
+            $componentDir = Path::join($path, self::COMPONENT_DIRECTORY);
 
             if (!is_dir($componentDir)) {
                 continue;
@@ -165,7 +166,7 @@ class TwigComponentHelper
                 continue;
             }
 
-            $componentDir = $filesystem->path($this->componentDirectory);
+            $componentDir = $filesystem->path(self::COMPONENT_DIRECTORY);
 
             if (!is_dir($componentDir)) {
                 continue;

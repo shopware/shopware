@@ -573,7 +573,6 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper">
-            <argument>Resources/views/components/</argument>
             <argument>%kernel.bundles_metadata%</argument>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
             <argument type="service" id="ux.twig_component.component_factory"/>

@@ -594,7 +594,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigStorage"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Routing\StorybookRouteScopeWhitelist">
+        <service id="Shopware\Storefront\Framework\Routing\StorybookRouteScopeAllowList">
             <tag name="shopware.route_scope_whitelist"/>
         </service>
     </services>

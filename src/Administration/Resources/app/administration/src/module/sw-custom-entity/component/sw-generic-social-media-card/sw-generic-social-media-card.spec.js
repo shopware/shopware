@@ -20,7 +20,6 @@ async function createWrapper() {
                     template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-text-field': {
-                    // eslint-disable-next-line max-len
                     template:
                         '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
                     props: [
@@ -32,7 +31,6 @@ async function createWrapper() {
                     ],
                 },
                 'mt-textarea': {
-                    // eslint-disable-next-line max-len
                     template:
                         '<textarea class="sw-text-field" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
                     props: [
@@ -150,18 +148,9 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
     it('should allow uploading an og-image', async () => {
         const wrapper = await createWrapper();
 
-        // media preview should be empty
+        // media preview should be empty (images not rendered due to v-if)
         let imageElements = wrapper.findAll('.sw-generic-social-media-card__media-preview-image');
-        expect(imageElements.map((element) => element.attributes())).toEqual([
-            expect.not.objectContaining({
-                src: TEST_OG_IMAGE.url,
-                alt: TEST_OG_IMAGE.alt,
-            }),
-            expect.not.objectContaining({
-                src: TEST_OG_IMAGE.url,
-                alt: TEST_OG_IMAGE.alt,
-            }),
-        ]);
+        expect(imageElements).toHaveLength(0);
 
         // read the uploadTag
         const uploadTag = wrapper.vm.uploadTag;
@@ -201,18 +190,9 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
     it('should allow selecting an existing images as og-image', async () => {
         const wrapper = await createWrapper();
 
-        // media preview should be empty and the media modal should not be open
+        // media preview should be empty (images not rendered due to v-if) and the media modal should not be open
         let imageElements = wrapper.findAll('.sw-generic-social-media-card__media-preview-image');
-        expect(imageElements.map((element) => element.attributes())).toEqual([
-            expect.not.objectContaining({
-                src: TEST_OG_IMAGE.url,
-                alt: TEST_OG_IMAGE.alt,
-            }),
-            expect.not.objectContaining({
-                src: TEST_OG_IMAGE.url,
-                alt: TEST_OG_IMAGE.alt,
-            }),
-        ]);
+        expect(imageElements).toHaveLength(0);
         expect(wrapper.find('sw-generic-social-media-card__media-modal').exists()).toBe(false);
 
         // read the uploadTag from the mediaUpload component

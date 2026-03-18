@@ -352,7 +352,7 @@ export default {
 
                 // check for other sort values
                 if (this.sortBy === 'name') {
-                    searchCriteria.addSorting(Criteria.sort('product.options.name', this.sortDirection));
+                    searchCriteria.addSorting(Criteria.sort('product.options.name', this.sortDirection, true));
                 } else {
                     searchCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
                 }
@@ -698,7 +698,6 @@ export default {
             this.toBeDeletedVariantIds = [];
         },
 
-        /* eslint-disable no-unused-vars */
         onConfirmDelete() {
             this.modalLoading = true;
             this.showDeleteModal = false;

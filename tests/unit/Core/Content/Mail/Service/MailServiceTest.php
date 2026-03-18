@@ -188,7 +188,7 @@ class MailServiceTest extends TestCase
         $this->logger->expects($this->once())->method('log')->with(Level::Warning);
         $this->eventDispatcher->expects($this->exactly(2))
             ->method('dispatch')
-            ->willReturnCallback(function (Event $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
+            ->willReturnCallback(static function (Event $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
                 if ($event instanceof MailBeforeValidateEvent) {
                     $beforeValidateEvent = $event;
 
@@ -314,7 +314,7 @@ class MailServiceTest extends TestCase
 
         $this->eventDispatcher
             ->method('dispatch')
-            ->willReturnCallback(function (Event $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
+            ->willReturnCallback(static function (Event $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
                 if ($event instanceof MailBeforeValidateEvent) {
                     $beforeValidateEvent = $event;
 

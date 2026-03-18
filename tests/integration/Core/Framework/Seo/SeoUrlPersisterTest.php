@@ -799,7 +799,7 @@ class SeoUrlPersisterTest extends TestCase
         $seoUrls = $seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities();
         static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
 
-        return $seoUrls->map(fn (SeoUrlEntity $url) => [
+        return $seoUrls->map(static fn (SeoUrlEntity $url) => [
             'seoPathInfo' => $url->getSeoPathInfo(),
             'isCanonical' => $url->getIsCanonical(),
             'isDeleted' => $url->getIsDeleted(),
@@ -824,7 +824,7 @@ class SeoUrlPersisterTest extends TestCase
         $seoUrls = $seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities();
         static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
 
-        return $seoUrls->map(fn (SeoUrlEntity $url) => [
+        return $seoUrls->map(static fn (SeoUrlEntity $url) => [
             'seoPathInfo' => $url->getSeoPathInfo(),
             'isCanonical' => $url->getIsCanonical(),
             'isDeleted' => $url->getIsDeleted(),
@@ -848,7 +848,7 @@ class SeoUrlPersisterTest extends TestCase
         $seoUrls = $seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities();
         static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
 
-        return $seoUrls->map(fn (SeoUrlEntity $url) => [
+        return $seoUrls->map(static fn (SeoUrlEntity $url) => [
             'seoPathInfo' => $url->getSeoPathInfo(),
             'isCanonical' => $url->getIsCanonical(),
             'isDeleted' => $url->getIsDeleted(),

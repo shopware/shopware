@@ -142,9 +142,17 @@ export default class SpatialArViewerPlugin extends Plugin {
         }
     }
 
+    /**
+     * Thin wrapper so tests can spy on location access without mocking window.location
+     * (non-configurable in JSDOM v26).
+     */
+    _getLocationSearch(): string {
+        return window.location.search;
+    }
+
     private onReady(): void {
         this.el.classList.add('spatial-ar-ready');
-        const qrParams = new URLSearchParams(window.location.search);
+        const qrParams = new URLSearchParams(this._getLocationSearch());
 
         if (!qrParams.has('autostartAr') || !this.spatialArId || qrParams.get('autostartAr') !== this.spatialArId) {
             return;
@@ -256,7 +264,7 @@ export default class SpatialArViewerPlugin extends Plugin {
         let qrModalTemplate;
         if (spatialArId) {
             qrModalTemplate = document.querySelector(
-                `.ar-qr-modal [data-ar-model-id='${spatialArId}']`
+                `.ar-qr-modal [data-ar-model-id='${spatialArId}']`,
             )?.closest('.ar-qr-modal') as HTMLElement | null;
         } else {
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -273,7 +281,7 @@ export default class SpatialArViewerPlugin extends Plugin {
         }
 
         const autostartArModalButton = autostartArModal.querySelector(
-            `[data-modal-open-ar-session-autostart='${spatialArId}']`
+            `[data-modal-open-ar-session-autostart='${spatialArId}']`,
         );
 
         if (!autostartArModalButton) {

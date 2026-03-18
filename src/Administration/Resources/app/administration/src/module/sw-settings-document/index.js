@@ -1,15 +1,15 @@
+/**
+ * @sw-package after-sales
+ */
 import './acl';
 
 const { Module, Component } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Component.register('sw-settings-document-list', () => import('./page/sw-settings-document-list'));
 Component.register('sw-settings-document-detail', () => import('./page/sw-settings-document-detail'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
-/**
- * @sw-package after-sales
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-document', {
     type: 'core',

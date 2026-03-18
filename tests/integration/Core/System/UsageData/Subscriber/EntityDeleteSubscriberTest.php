@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\System\UsageData\Subscriber;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -14,9 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
-use Shopware\Core\System\UsageData\Consent\ConsentState;
+use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -36,17 +37,13 @@ class EntityDeleteSubscriberTest extends TestCase
 
     private Connection $connection;
 
-    private SystemConfigService $systemConfigService;
-
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
 
-        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
-
         /** @var MockHttpClient $client */
         $client = static::getContainer()->get('shopware.usage_data.gateway.client');
-        $client->setResponseFactory(function (string $method, string $url): ResponseInterface {
+        $client->setResponseFactory(static function (string $method, string $url): ResponseInterface {
             if (\str_ends_with($url, '/killswitch')) {
                 $body = json_encode(['killswitch' => false]);
                 static::assertIsString($body);
@@ -61,8 +58,7 @@ class EntityDeleteSubscriberTest extends TestCase
     public function testHandleDeleteEventWritesSinglePrimaryKeyToDatabase(): void
     {
         static::mockTime(new \DateTimeImmutable('2023-08-30 00:00:00.000'));
-
-        $this->systemConfigService->set(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE, ConsentState::ACCEPTED->value);
+        $this->setConsentState(ConsentStatus::ACCEPTED);
 
         $productIds = new IdsCollection();
 
@@ -94,8 +90,7 @@ class EntityDeleteSubscriberTest extends TestCase
     public function testDoesNotTriggerWhenDeletingNonLiveVersionSinglePrimaryKey(): void
     {
         static::mockTime(new \DateTimeImmutable('2023-08-30 00:00:00.000'));
-
-        $this->systemConfigService->set(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE, ConsentState::REQUESTED->value);
+        $this->setConsentState(ConsentStatus::REVOKED);
 
         $productIds = new IdsCollection();
 
@@ -121,8 +116,7 @@ class EntityDeleteSubscriberTest extends TestCase
     public function testDoesNotTriggerWhenDeletingNonLiveVersionCombinedPrimaryKeys(): void
     {
         static::mockTime(new \DateTimeImmutable('2023-08-30 00:00:00.000'));
-
-        $this->systemConfigService->set(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE, ConsentState::REQUESTED->value);
+        $this->setConsentState(ConsentStatus::REVOKED);
 
         $idsCollection = new IdsCollection();
 
@@ -156,7 +150,7 @@ class EntityDeleteSubscriberTest extends TestCase
     {
         static::mockTime(new \DateTimeImmutable('2023-08-30 00:00:00.000'));
 
-        $this->systemConfigService->set(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE, ConsentState::ACCEPTED->value);
+        $this->setConsentState(ConsentStatus::ACCEPTED);
 
         $userId = Uuid::randomHex();
         $userData = [
@@ -256,5 +250,35 @@ class EntityDeleteSubscriberTest extends TestCase
         $categoryRepository->create([$category], Context::createDefaultContext());
 
         return $category;
+    }
+
+    private function setConsentState(ConsentStatus $status): void
+    {
+        $this->connection->executeStatement(
+            'DELETE FROM consent_state WHERE name = :name AND identifier = :identifier',
+            ['name' => BackendData::NAME, 'identifier' => 'system']
+        );
+
+        if ($status !== ConsentStatus::ACCEPTED) {
+            static::getContainer()->get(ConsentService::class)->reset();
+
+            return;
+        }
+
+        $this->connection->executeStatement(
+            'INSERT INTO consent_state (id, name, identifier, state, actor, updated_at)
+            VALUES (:id, :name, :identifier, :state, :actor, :updatedAt)',
+            [
+                'id' => Uuid::randomBytes(),
+                'name' => BackendData::NAME,
+                'identifier' => 'system',
+                'state' => 'accepted',
+                'actor' => 'test',
+                'updatedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ],
+            ['id' => ParameterType::BINARY]
+        );
+
+        static::getContainer()->get(ConsentService::class)->reset();
     }
 }

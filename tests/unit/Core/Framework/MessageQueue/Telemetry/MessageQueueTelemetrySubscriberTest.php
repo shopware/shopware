@@ -49,7 +49,7 @@ class MessageQueueTelemetrySubscriberTest extends TestCase
 
         $this->meter->expects($this->once())
             ->method('emit')
-            ->with(static::callback(function (ConfiguredMetric $histogram) {
+            ->with(static::callback(static function (ConfiguredMetric $histogram) {
                 return $histogram->name === 'messenger.message.size'
                     && $histogram->value === 15;
             }));

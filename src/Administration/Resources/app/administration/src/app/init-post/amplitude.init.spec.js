@@ -1,29 +1,84 @@
-import * as amplitude from '@amplitude/analytics-browser';
+import { CookieStorage } from 'cookie-storage';
 import initAmplitude from './amplitude.init';
 import { TelemetryEvent } from '../../core/telemetry/types';
+import { ConsentEvent } from '../../core/consent/events';
+import useConsentStore from '../../core/consent/consent.store';
 
-jest.mock('@amplitude/analytics-browser');
+const mockDeleteUserAmplitudeClient = {
+    init: jest.fn(),
+    track: jest.fn(),
+    flush: jest.fn(),
+};
+const amplitudeCookieName = 'AMP_placeholde';
+const amplitudeMarketingCookieName = 'AMP_MKTG_placeholde';
+
+jest.mock('@amplitude/analytics-browser', () => ({
+    createInstance: jest.fn(() => mockDeleteUserAmplitudeClient),
+    add: jest.fn(),
+    init: jest.fn(),
+    track: jest.fn(),
+    setUserId: jest.fn(),
+    getUserId: jest.fn(),
+    setOptOut: jest.fn(),
+    setTransport: jest.fn(),
+    flush: jest.fn(),
+    reset: jest.fn(),
+}));
 
 describe('src/app/post-init/amplitude.init.ts', () => {
+    let mockLoginService;
+    let storage;
+    const testShopId = 'knneBsx7LiKySnUq';
+    const testUserId = '8b8ebef4-7fa3-4844-ab7e-120463ea558b';
+
     beforeEach(() => {
-        amplitude.add.mockClear();
-        amplitude.init.mockClear();
-        amplitude.track.mockClear();
-        amplitude.setUserId.mockClear();
-        amplitude.getUserId.mockClear();
-        amplitude.flush.mockClear();
-        amplitude.reset.mockClear();
-        global.Shopware = {
-            ...global.Shopware,
-            Context: {
-                ...global.Shopware?.Context,
-                app: {
-                    systemCurrencyISOCode: 'EUR',
-                },
-            },
+        jest.clearAllMocks();
+        Shopware.Utils.EventBus.all?.clear();
+        const { createInstance } = jest.requireMock('@amplitude/analytics-browser');
+        createInstance.mockReset();
+        createInstance.mockImplementation(() => mockDeleteUserAmplitudeClient);
+        mockDeleteUserAmplitudeClient.init.mockClear();
+        mockDeleteUserAmplitudeClient.track.mockClear();
+        mockDeleteUserAmplitudeClient.flush.mockClear();
+        global.fetch = jest.fn(() => Promise.resolve({ ok: true }));
+        document.cookie = `${amplitudeCookieName}=test-value`;
+        document.cookie = `${amplitudeMarketingCookieName}=test-value`;
+        storage = new CookieStorage({
+            path: '/',
+            domain: null,
+            secure: false,
+            sameSite: 'Lax',
+        });
+
+        mockLoginService = {
+            addOnLogoutListener: jest.fn(),
+            getStorage: jest.fn(() => storage),
         };
 
-        Shopware.Store.get('context').app.analyticsGatewayUrl = 'https://analytics.example.com';
+        Shopware.Service = jest.fn((serviceName) => {
+            if (serviceName === 'loginService') {
+                return mockLoginService;
+            }
+            return undefined;
+        });
+
+        global.Shopware = {
+            ...global.Shopware,
+            Service: Shopware.Service,
+        };
+
+        Shopware.Store.get('context').app.analyticsGatewayUrl = 'https://gateway.example';
+        Shopware.Store.get('context').app.config.shopId = testShopId;
+        Shopware.Store.get('session').currentUser = {
+            id: testUserId,
+        };
+        useConsentStore().consents = {
+            product_analytics: {
+                name: 'product_analytics',
+                status: 'accepted',
+            },
+        };
+        Shopware.Utils.EventBus.all?.clear();
 
         global.repositoryFactoryMock.responses.addResponse({
             method: 'Post',
@@ -44,24 +99,28 @@ describe('src/app/post-init/amplitude.init.ts', () => {
 
     describe('initialization', () => {
         it('add enrichment plugin and calls initialization routine', async () => {
+            const { init, add } = await import('@amplitude/analytics-browser');
+
             await initAmplitude();
 
-            expect(amplitude.add).toHaveBeenCalled();
-            expect(amplitude.add).toHaveBeenCalledWith(
+            expect(add).toHaveBeenCalled();
+            expect(add).toHaveBeenCalledWith(
                 expect.objectContaining({
                     name: 'DefaultShopwareProperties',
                     execute: expect.any(Function),
                 }),
             );
 
-            expect(amplitude.init).toHaveBeenCalled();
-            expect(amplitude.init).toHaveBeenCalledWith(
-                'placeholder-apikey',
+            expect(init).toHaveBeenCalled();
+            expect(init).toHaveBeenCalledWith(
+                expect.any(String),
                 undefined,
                 expect.objectContaining({
                     autocapture: false,
                     serverZone: 'EU',
                     appVersion: Shopware.Store.get('context').app.config.version,
+                    flushMaxRetries: 2,
+                    logLevel: 0,
                     trackingOptions: {
                         ipAddress: false,
                         language: false,
@@ -72,67 +131,24 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             );
         });
 
-        it('should return early when analyticsGatewayUrl is not set', async () => {
+        it('does not initialize anonymous amplitude when gateway base url is missing', async () => {
+            const { init } = await import('@amplitude/analytics-browser');
             Shopware.Store.get('context').app.analyticsGatewayUrl = null;
 
             await initAmplitude();
 
-            expect(amplitude.init).not.toHaveBeenCalled();
+            expect(init).not.toHaveBeenCalled();
+            expect(global.fetch).not.toHaveBeenCalled();
         });
 
-        it('should execute enrichment plugin with route properties when router is available', async () => {
-            Object.defineProperty(window.screen, 'orientation', {
-                value: { type: 'landscape-primary' },
-                configurable: true,
-            });
-
-            const mockRoute = {
-                value: {
-                    name: 'sw.product.detail',
-                    path: '/sw/product/detail/123',
-                    fullPath: '/sw/product/detail/123?tab=general',
-                },
-            };
-
-            Shopware.Application.view = {
-                router: {
-                    currentRoute: mockRoute,
-                },
-            };
+        it('does not initialize amplitude without product analytics consent', async () => {
+            const { init } = await import('@amplitude/analytics-browser');
+            useConsentStore().consents.product_analytics.status = 'revoked';
+            init.mockClear();
 
             await initAmplitude();
 
-            const enrichmentPlugin = amplitude.add.mock.calls[0][0];
-            const mockEvent = { event_properties: {} };
-            const result = await enrichmentPlugin.execute(mockEvent);
-
-            expect(result.event_properties).toEqual(
-                expect.objectContaining({
-                    sw_page_name: 'sw.product.detail',
-                    sw_page_path: '/sw/product/detail/123',
-                    sw_page_full_path: '/sw/product/detail/123?tab=general',
-                    sw_screen_orientation: 'landscape',
-                }),
-            );
-        });
-
-        it('should execute enrichment plugin without route properties when router is not available', async () => {
-            Object.defineProperty(window.screen, 'orientation', {
-                value: { type: 'portrait-primary' },
-                configurable: true,
-            });
-
-            Shopware.Application.view = null;
-
-            await initAmplitude();
-
-            const enrichmentPlugin = amplitude.add.mock.calls[0][0];
-            const mockEvent = { event_properties: {} };
-            const result = await enrichmentPlugin.execute(mockEvent);
-
-            expect(result.event_properties.sw_page_name).toBeUndefined();
-            expect(result.event_properties.sw_page_path).toBeUndefined();
-            expect(result.event_properties.sw_page_full_path).toBeUndefined();
+            expect(init).not.toHaveBeenCalled();
         });
     });
 
@@ -148,7 +164,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     },
                 }),
                 {
-                    eventName: 'Page Viewed',
+                    eventName: 'page_viewed',
                     properties: {
                         sw_route_from_name: 'sw.dashboard.index',
                         sw_route_from_href: '/sw/dashboard/index',
@@ -175,7 +191,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     }),
                 }),
                 {
-                    eventName: 'Button Click',
+                    eventName: 'button_click',
                     properties: {
                         sw_element_id: 'administration.sw-product.save',
                         sw_element_product_name: 'nice product',
@@ -198,7 +214,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     originalEvent: new Event('click'),
                 }),
                 {
-                    eventName: 'Link Visited',
+                    eventName: 'link_visited',
                     properties: {
                         sw_link_href: 'https://example.com',
                         sw_link_type: 'external',
@@ -206,26 +222,299 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                 },
             ],
         ])('handles event', async (telemetryEvent, trackedData) => {
+            const { track } = await import('@amplitude/analytics-browser');
+
             await initAmplitude();
 
             Shopware.Utils.EventBus.emit('telemetry', telemetryEvent);
 
-            expect(amplitude.track).toHaveBeenCalled();
-            expect(amplitude.track).toHaveBeenCalledWith(trackedData.eventName, trackedData.properties);
+            expect(track).toHaveBeenCalled();
+            expect(track).toHaveBeenCalledWith(trackedData.eventName, trackedData.properties);
+        });
+
+        it('does not send telemetry events without product analytics consent', async () => {
+            const { track } = await import('@amplitude/analytics-browser');
+            useConsentStore().consents.product_analytics.status = 'revoked';
+
+            await initAmplitude();
+            track.mockClear();
+
+            Shopware.Utils.EventBus.emit(
+                'telemetry',
+                new TelemetryEvent('page_change', {
+                    from: { name: 'sw.dashboard.index', path: '/sw/dashboard/index' },
+                    to: {
+                        name: 'sw.product.index',
+                        path: '/sw/product/index',
+                        fullPath: '/sw-product/index?order=asc&page=1&limit=50',
+                    },
+                }),
+            );
+
+            expect(track).not.toHaveBeenCalled();
+        });
+
+        it('routes consent events to the anonymous gateway client', async () => {
+            const { track } = await import('@amplitude/analytics-browser');
+
+            await initAmplitude();
+
+            Shopware.Utils.EventBus.emit(
+                'consent',
+                new ConsentEvent('consent_modal_viewed', {
+                    consents_shown: [
+                        'backend_data',
+                        'product_analytics',
+                    ],
+                }),
+            );
+
+            expect(global.fetch).toHaveBeenCalledWith(
+                'https://gateway.example/event/anonymous',
+                expect.objectContaining({
+                    method: 'POST',
+                    credentials: 'omit',
+                    keepalive: true,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: expect.any(String),
+                }),
+            );
+
+            expect(JSON.parse(global.fetch.mock.calls[0][1].body)).toEqual({
+                events: [
+                    {
+                        event_type: 'consent_modal_viewed',
+                        event_properties: {
+                            consents_shown: [
+                                'backend_data',
+                                'product_analytics',
+                            ],
+                        },
+                        time: expect.any(Number),
+                    },
+                ],
+            });
+            expect(track).not.toHaveBeenCalledWith('consent_modal_viewed', expect.anything());
+        });
+
+        it('routes consent events even without product analytics consent', async () => {
+            useConsentStore().consents.product_analytics.status = 'revoked';
+
+            await initAmplitude();
+
+            Shopware.Utils.EventBus.emit(
+                'consent',
+                new ConsentEvent('consent_modal_viewed', {
+                    consents_shown: [
+                        'backend_data',
+                        'product_analytics',
+                    ],
+                }),
+            );
+
+            expect(global.fetch).toHaveBeenCalledWith(
+                'https://gateway.example/event/anonymous',
+                expect.objectContaining({
+                    body: expect.any(String),
+                }),
+            );
+
+            expect(JSON.parse(global.fetch.mock.calls[0][1].body)).toEqual({
+                events: [
+                    {
+                        event_type: 'consent_modal_viewed',
+                        event_properties: {
+                            consents_shown: [
+                                'backend_data',
+                                'product_analytics',
+                            ],
+                        },
+                        time: expect.any(Number),
+                    },
+                ],
+            });
+        });
+
+        it('stops telemetry after consent is revoked during runtime', async () => {
+            const { createInstance, reset, setOptOut } = await import('@amplitude/analytics-browser');
+            const consentStore = useConsentStore();
+            const eventBusOffSpy = jest.spyOn(Shopware.Utils.EventBus, 'off');
+
+            await initAmplitude();
+
+            eventBusOffSpy.mockClear();
+
+            consentStore.$patch({
+                consents: {
+                    ...consentStore.consents,
+                    product_analytics: {
+                        ...consentStore.consents.product_analytics,
+                        status: 'revoked',
+                    },
+                },
+            });
+
+            await flushPromises();
+
+            expect(eventBusOffSpy).toHaveBeenCalledWith('telemetry', expect.any(Function));
+            expect(createInstance).toHaveBeenCalledTimes(1);
+            expect(mockDeleteUserAmplitudeClient.init).toHaveBeenCalledWith(
+                expect.any(String),
+                undefined,
+                expect.objectContaining({
+                    serverUrl: 'https://gateway.example/delete-user',
+                }),
+            );
+            expect(mockDeleteUserAmplitudeClient.track).toHaveBeenCalledWith('delete_user', {
+                shop_id: testShopId,
+                user_id: testUserId,
+                amplitude_user_id: `${testShopId}:${testUserId}`,
+            });
+            expect(mockDeleteUserAmplitudeClient.flush).toHaveBeenCalledTimes(1);
+            expect(setOptOut).toHaveBeenCalledWith(true);
+            expect(reset).toHaveBeenCalled();
+            expect(document.cookie).not.toContain(`${amplitudeCookieName}=`);
+            expect(document.cookie).not.toContain(`${amplitudeMarketingCookieName}=`);
+        });
+
+        it('starts telemetry when consent is accepted during runtime', async () => {
+            const { track, init, setOptOut } = await import('@amplitude/analytics-browser');
+            const consentStore = useConsentStore();
+            const eventBusOnSpy = jest.spyOn(Shopware.Utils.EventBus, 'on');
+
+            jest.useFakeTimers();
+            consentStore.consents.product_analytics.status = 'revoked';
+
+            await initAmplitude();
+
+            expect(init).not.toHaveBeenCalled();
+            eventBusOnSpy.mockClear();
+            track.mockClear();
+
+            consentStore.$patch({
+                consents: {
+                    ...consentStore.consents,
+                    product_analytics: {
+                        ...consentStore.consents.product_analytics,
+                        status: 'accepted',
+                    },
+                },
+            });
+
+            await flushPromises();
+
+            expect(init).not.toHaveBeenCalled();
+            expect(eventBusOnSpy).not.toHaveBeenCalledWith('telemetry', expect.any(Function));
+
+            jest.runOnlyPendingTimers();
+            await flushPromises();
+
+            expect(init).toHaveBeenCalledTimes(1);
+            expect(eventBusOnSpy).toHaveBeenCalledWith('telemetry', expect.any(Function));
+            expect(setOptOut).toHaveBeenCalledWith(false);
+
+            Shopware.Utils.EventBus.emit(
+                'telemetry',
+                new TelemetryEvent('page_change', {
+                    from: { name: 'sw.dashboard.index', path: '/sw/dashboard/index' },
+                    to: {
+                        name: 'sw.product.index',
+                        path: '/sw/product/index',
+                        fullPath: '/sw-product/index?order=asc&page=1&limit=50',
+                    },
+                }),
+            );
+
+            expect(track.mock.calls).toHaveLength(1);
+
+            jest.useRealTimers();
+        });
+
+        it('does not start telemetry before the deferred runtime activation finishes', async () => {
+            const { track } = await import('@amplitude/analytics-browser');
+            const consentStore = useConsentStore();
+
+            jest.useFakeTimers();
+            consentStore.consents.product_analytics.status = 'revoked';
+
+            await initAmplitude();
+            track.mockClear();
+
+            consentStore.$patch({
+                consents: {
+                    ...consentStore.consents,
+                    product_analytics: {
+                        ...consentStore.consents.product_analytics,
+                        status: 'accepted',
+                    },
+                },
+            });
+
+            await flushPromises();
+
+            Shopware.Utils.EventBus.emit(
+                'telemetry',
+                new TelemetryEvent('page_change', {
+                    from: { name: 'sw.dashboard.index', path: '/sw/dashboard/index' },
+                    to: {
+                        name: 'sw.product.index',
+                        path: '/sw/product/index',
+                        fullPath: '/sw-product/index?order=asc&page=1&limit=50',
+                    },
+                }),
+            );
+
+            expect(track).not.toHaveBeenCalled();
+
+            jest.runOnlyPendingTimers();
+            await flushPromises();
+
+            Shopware.Utils.EventBus.emit(
+                'telemetry',
+                new TelemetryEvent('page_change', {
+                    from: { name: 'sw.dashboard.index', path: '/sw/dashboard/index' },
+                    to: {
+                        name: 'sw.product.index',
+                        path: '/sw/product/index',
+                        fullPath: '/sw-product/index?order=asc&page=1&limit=50',
+                    },
+                }),
+            );
+
+            expect(track.mock.calls).toHaveLength(1);
+
+            jest.useRealTimers();
+        });
+
+        it('does not send consent events when gateway base url is missing', async () => {
+            Shopware.Store.get('context').app.analyticsGatewayUrl = null;
+
+            await initAmplitude();
+
+            Shopware.Utils.EventBus.emit(
+                'consent',
+                new ConsentEvent('consent_modal_viewed', {
+                    option: [
+                        'backend_data',
+                        'product_analytics',
+                    ],
+                }),
+            );
+
+            expect(global.fetch).not.toHaveBeenCalled();
         });
     });
 
     describe('user identification', () => {
-        const testShopId = 'knneBsx7LiKySnUq';
-        const testUserId = '8b8ebef4-7fa3-4844-ab7e-120463ea558b';
-
         beforeEach(() => {
             jest.clearAllMocks();
-
-            Shopware.Store.get('context').app.config.shopId = testShopId;
         });
 
         it('should set user ID in format "shopId:userId"', async () => {
+            const amplitude = await import('@amplitude/analytics-browser');
+
             await initAmplitude();
 
             const identifyEvent = new TelemetryEvent('identify', {
@@ -238,6 +527,8 @@ describe('src/app/post-init/amplitude.init.ts', () => {
         });
 
         it('should update user ID when a different user identifies', async () => {
+            const amplitude = await import('@amplitude/analytics-browser');
+
             await initAmplitude();
 
             const firstIdentifyEvent = new TelemetryEvent('identify', {
@@ -262,20 +553,18 @@ describe('src/app/post-init/amplitude.init.ts', () => {
     });
 
     describe('login and logout tracking', () => {
-        const testShopId = 'knneBsx7LiKySnUq';
-
         beforeEach(() => {
             jest.clearAllMocks();
-
-            Shopware.Store.get('context').app.config.shopId = testShopId;
         });
 
-        it('should track Login event when a identify telemetry event with a different userId arrives', async () => {
+        it('should track login event when a identify telemetry event with a different userId arrives', async () => {
+            const amplitude = await import('@amplitude/analytics-browser');
+
             let amplitudeUserId = null;
-            amplitude.setUserId.mockImplementation((userId) => {
+            jest.spyOn(amplitude, 'setUserId').mockImplementation((userId) => {
                 amplitudeUserId = userId;
             });
-            amplitude.getUserId.mockImplementation(() => amplitudeUserId);
+            jest.spyOn(amplitude, 'getUserId').mockImplementation(() => amplitudeUserId);
 
             await initAmplitude();
 
@@ -286,7 +575,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     userId: newUserId,
                 }),
             );
-            expect(amplitude.track).toHaveBeenCalledWith('Login');
+            expect(amplitude.track).toHaveBeenCalledWith('login');
 
             newUserId = 'newUserId-2';
             Shopware.Utils.EventBus.emit(
@@ -295,7 +584,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     userId: newUserId,
                 }),
             );
-            expect(amplitude.track).toHaveBeenCalledWith('Login');
+            expect(amplitude.track).toHaveBeenCalledWith('login');
 
             const sameUserId = newUserId;
             Shopware.Utils.EventBus.emit(
@@ -308,32 +597,85 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             expect(amplitude.track).toHaveBeenCalledTimes(2);
         });
 
-        it('should track Logout event when a reset telemetry event arrives', async () => {
+        it('should track logout event when a reset telemetry event arrives', async () => {
+            const amplitude = await import('@amplitude/analytics-browser');
+
             await initAmplitude();
 
             const resetEvent = new TelemetryEvent('reset', {});
 
             Shopware.Utils.EventBus.emit('telemetry', resetEvent);
 
-            expect(amplitude.track).toHaveBeenCalledWith('Logout');
+            expect(amplitude.track).toHaveBeenCalledWith('logout');
+            expect(amplitude.flush).not.toHaveBeenCalled();
+            expect(amplitude.reset).not.toHaveBeenCalled();
         });
 
-        it('should call flush and reset after Logout event', async () => {
+        it('should flush telemetry amplitude on logout listener execution', async () => {
+            const amplitude = await import('@amplitude/analytics-browser');
             jest.useFakeTimers();
 
             await initAmplitude();
 
-            const resetEvent = new TelemetryEvent('reset', {});
+            expect(mockLoginService.addOnLogoutListener).toHaveBeenCalledTimes(1);
+            const logoutListener = mockLoginService.addOnLogoutListener.mock.calls[0][0];
 
-            Shopware.Utils.EventBus.emit('telemetry', resetEvent);
+            logoutListener();
 
-            expect(amplitude.flush).not.toHaveBeenCalled();
-            expect(amplitude.reset).not.toHaveBeenCalled();
+            expect(amplitude.setTransport).toHaveBeenCalledWith('beacon');
 
-            jest.runAllTimers();
+            jest.runOnlyPendingTimers();
 
-            expect(amplitude.flush).toHaveBeenCalled();
-            expect(amplitude.reset).toHaveBeenCalled();
+            expect(amplitude.flush).toHaveBeenCalledTimes(1);
+            expect(amplitude.reset).toHaveBeenCalledTimes(1);
+
+            jest.useRealTimers();
+        });
+
+        it('deletes user data when consent is revoked before deferred runtime activation finishes', async () => {
+            const { init, createInstance } = await import('@amplitude/analytics-browser');
+            const consentStore = useConsentStore();
+
+            jest.useFakeTimers();
+            consentStore.consents.product_analytics.status = 'revoked';
+
+            await initAmplitude();
+
+            init.mockClear();
+            createInstance.mockClear();
+
+            consentStore.$patch({
+                consents: {
+                    ...consentStore.consents,
+                    product_analytics: {
+                        ...consentStore.consents.product_analytics,
+                        status: 'accepted',
+                    },
+                },
+            });
+
+            await flushPromises();
+
+            consentStore.$patch({
+                consents: {
+                    ...consentStore.consents,
+                    product_analytics: {
+                        ...consentStore.consents.product_analytics,
+                        status: 'revoked',
+                    },
+                },
+            });
+
+            await flushPromises();
+
+            expect(init).not.toHaveBeenCalled();
+            expect(createInstance).toHaveBeenCalledTimes(1);
+            expect(mockDeleteUserAmplitudeClient.track).toHaveBeenCalledWith('delete_user', {
+                shop_id: testShopId,
+                user_id: testUserId,
+                amplitude_user_id: `${testShopId}:${testUserId}`,
+            });
+            expect(mockDeleteUserAmplitudeClient.flush).toHaveBeenCalled();
 
             jest.useRealTimers();
         });

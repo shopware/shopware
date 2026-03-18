@@ -34,7 +34,7 @@ The Store API route `/store-api/document/download` returns now a standard Shopwa
 ## Removal of `/api/_info/queue.json` endpoint
 
 The `/api/_info/queue.json` endpoint has been removed. You may `/api/_info/message-stats.json` as alternative to get statistics for message queues.
-  
+
 ## Newsletter route methods removed and response changed
 
 The following methods have been removed:
@@ -48,7 +48,7 @@ The following methods are now abstract and must be implemented by extensions. Th
 - `subscribeWithResponse()` returns `NewsletterSubscribeRouteResponse`
 - `confirmWithResponse()` returns `SuccessResponse`
 - `unsubscribeWithResponse()` returns `SuccessResponse`
-  
+
 </details>
 
 # Core
@@ -61,6 +61,11 @@ Multiple calls to the `/payment-finalize` endpoint using the same payment token 
 If the token has already been consumed, the user is redirected to the finish page without triggering a PaymentException.
 To support this behavior, a new `consumed` flag has been added to the payment token struct, which indicates if the token has already been processed.
 Since tokens are no longer deleted after use, a new scheduled task runs daily to remove all expired tokens and keep the system clean.
+
+## Automatic promotions are no longer removable
+
+Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
+The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
 
 ## Removal of `$options` parameter in custom validator's constraints
 
@@ -384,6 +389,18 @@ Profiles are now identified and displayed only by their technical name.
 The following unused exceptions were removed:
 * `\Shopware\Core\Content\ImportExport\Exception\LogNotWritableException`
 * `\Shopware\Core\Content\ImportExport\Exception\MappingException`
+
+## SystemConfigService: `$silent` parameter changed default value from `false` to `true`
+
+`SystemConfigService::set()`, `setMultiple()`, and `delete()` changed the default value for the `$silent` parameter from `false` to `true`, meaning config writes **no longer invalidate the HTTP cache** (`system.config-{salesChannelId}` tag) by default. The internal config cache (`system-config`) is always cleared regardless.
+
+If your code writes config values that require immediate cache invalidation (e.g. display settings, feature toggles read via `SystemConfigService::get()` in templates), pass `silent: false` explicitly:
+
+```php
+$this->systemConfigService->set('MyPlugin.config.showBanner', true, $salesChannelId, false);
+```
+
+Please pass `false` only when absolutely necessary, as it leads to invalidation of a huge number of HTTP pages and decreases overall system performance.
 
 ## Removed SystemConfig exceptions
 
@@ -803,12 +820,96 @@ The indexing progress notifications in the Administration notification center ha
 
 </details>
 
+## Document settings changes
+
+We've restructured the document settings to make them more intuitive and user-friendly.
+
+As part of this update, the following administration component parts have been deprecated:
+* `src/module/sw-settings-document/page/sw-settings-document-detail`:
+  * computed `expandButtonClass` was deprecated without replacement
+  * computed `collapseButtonClass` was deprecated without replacement
+  * property `sortBy` was deprecated without replacement
+
+* `src/module/sw-settings-document/page/sw-settings-document-list`
+  * computed `countryRepository` was deprecated without replacement
+  * computed `documentTypeRepository` was deprecated without replacement
+  * computed `documentBaseConfigSalesChannelRepository` was deprecated without replacement
+  * property `selectedType` was deprecated without replacement
+  * property `isSaveSuccessful` was deprecated without replacement
+  * property `isShowCountriesSelect` was deprecated without replacement
+  * method `loadAvailableSalesChannel()` was deprecated without replacement
+  * method `showOption()` was deprecated without replacement
+
+## Deprecated unused methods in `sw-order-document-card`
+
+- deprecated method `documentTypeAvailable()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
+- deprecated method `invoiceExists()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
+
 # Storefront
 
 <details>
 
+## Removal of inline microdata in favour of JSON-LD structured data
+
+All inline microdata attributes (`itemscope`, `itemtype`, `itemprop`) have been removed from Storefront templates. Structured data is now emitted exclusively as JSON-LD via `<script type="application/ld+json">` tags in the document `<head>`.
+
+The following templates no longer contain any microdata attributes:
+
+| Template | What was removed |
+|---|---|
+| `base.html.twig` | `itemscope`/`itemtype="WebPage"` on `<html>` |
+| `layout/meta.html.twig` | `layout_head_meta_tags_schema_webpage` block; `itemprop="name"` on `<title>` |
+| `page/content/product-detail.html.twig` | `itemscope`/`itemtype="Product"` on the CMS wrapper |
+| `component/buy-widget/buy-widget.html.twig` | Brand, dimensions, identifiers, Offer/AggregateOffer |
+| `component/buy-widget/buy-widget-price.html.twig` | Tiered Offer rows |
+| `component/delivery-information.html.twig` | Availability `<link>` tags |
+| `component/wishlist/delivery-information.html.twig` | Availability `<link>` tags |
+| `component/review/review-widget.html.twig` | `AggregateRating` |
+| `component/review/review-item.html.twig` | `Review`, `Person` |
+| `layout/breadcrumb.html.twig` | `BreadcrumbList` and `ListItem` |
+| `layout/navbar/navbar.html.twig`, `categories.html.twig`, `content.html.twig` | `SiteNavigationElement` |
+| `layout/navigation/offcanvas/*.html.twig` (5 files) | `SiteNavigationElement` |
+| `element/cms-element-image-gallery.html.twig` | `itemprop="image"` / `itemprop="video"` |
+| `element/cms-element-product-name.html.twig` | `itemprop="name"` |
+| `component/product/description.html.twig` | `itemprop="description"` |
+| `page/content/single-cms-page.html.twig` | `WebPage` on `<html>` |
+| `page/error/error-maintenance.html.twig` | `WebPage` on `<html>` |
+
+If your plugin or theme adds structured data by extending blocks in the templates above, migrate your overrides to the new JSON-LD template extension points described below.
+
+## New JSON-LD structured data block system
+
+Structured data is now output from a set of dedicated templates under `storefront/layout/structured-data/`. Each template exposes two Twig blocks: an outer block containing the data-building logic, and an inner `_script` block containing the `<script>` tag output. The `JSON_LD_DATA` feature flag, which guarded the rollout, is now permanently active and has been removed.
+
+The `<head>` of every page now includes the following blocks in `layout/meta.html.twig`:
+
+- **`layout_head_json_ld_global`** — always rendered on every page; includes `json-ld-website.html.twig` (`WebSite` + `SearchAction`) and `json-ld-organization.html.twig` (`Organization`)
+- **`layout_head_json_ld`** — page-specific; includes `json-ld-webpage.html.twig` (`WebPage`) and `json-ld-breadcrumb.html.twig` (`BreadcrumbList`) by default. Overridden per page type:
+  - `page/product-detail/meta.html.twig` — adds `json-ld-product.html.twig` (`Product`) and sets `WebPage` type to `ProductPage`
+  - `page/content/meta.html.twig` — adds `json-ld-item-list.html.twig` (`ItemList`) and sets `WebPage` type to `CollectionPage` (or `WebPage` for landing pages)
+  - `page/search/meta.html.twig` — adds `json-ld-item-list.html.twig` and sets `WebPage` type to `SearchResultsPage`
+
+To extend or replace a schema in a plugin or theme, use `sw_extends` on the relevant template and override the `_script` block. The data variable (`productData`, `orgData`, `webPageData`, etc.) built by the outer block is available inside the `_script` block:
+
+```twig
+{# MyPlugin/Resources/views/storefront/layout/structured-data/json-ld-product.html.twig #}
+{% sw_extends '@Storefront/storefront/layout/structured-data/json-ld-product.html.twig' %}
+
+{% block page_product_detail_json_ld_script %}
+    {% set productData = productData|merge({'color': page.product.translated.customFields.my_color ?? null}) %}
+    {{ parent() }}
+{% endblock %}
+```
+
+## Removed block `page_product_detail_product_buy_button_label` from `@Storefront/storefront/component/product/card/action.html.twig`
+
+The block `page_product_detail_product_buy_button_label` has been removed. Use `component_product_box_action_buy_button_label` instead.
+
 ## TOS checkbox position update
 The Terms of Service (TOS) was relocated to the bottom of the order confirmation page. The checkbox is now hidden by default due to not being necessary and replaced with a descriptive label, while its visibility can be controlled using the new configuration option `core.cart.showTosCheckbox`.
+
+## Revocation checkbox position update
+The revocation checkbox for digital products was relotaced to the bottom of the order confirmation page. The checkbox is now below the TOS checkbox
 
 ## Removal of hardcoded language flags
 
@@ -1037,6 +1138,8 @@ Instead of returning `204`, the route now returns:
 The block `buy_widget_price_unit` and its children has been moved into `@Storefront/storefront/component/buy-widget/buy-widget.html.twig`.
 Instead of overwriting any of those blocks inside `@Storefront/storefront/component/buy-widget/buy-widget-price.html.twig`, extend the new `@Storefront/storefront/component/buy-widget/buy-widget.html.twig` file using the same blocks.
 
+## Removed address book action template
+The unused template `@/Storefront/Resources/views/storefront/page/account/addressbook/address-actions.html.twig` was removed.
 </details>
 
 # App System
@@ -1095,6 +1198,16 @@ State-based invalidation is not supported anymore.
 # Hosting & Configuration
 
 <details>
+
+## Database: Time zone support required
+
+The database now requires time zone data to be loaded. You can verify whether time zone data is available by running:
+
+```sql
+SELECT CONVERT_TZ(NOW(), 'UTC', 'Europe/Berlin');
+```
+
+If this returns `NULL`, time zone tables are not populated. Refer to the [MariaDB documentation on time zone tables](https://mariadb.com/docs/server/reference/data-types/string-data-types/character-sets/internationalization-and-localization/time-zones#mysql-time-zone-tables) for instructions on how to import them.
 
 ## HTTP Cache Changes
 
@@ -1225,5 +1338,18 @@ Instead, you must use the `type` field to indicate the product type.
 The `states` field of the `line_item` and `order_line_item` entity has also been removed.
 Use the `productType` field in the `line_item`.`payload` (or `order_line_item`.`payload`) to indicate the product type of a product line item.
 Also the rule `LineItemProductStatesRule` has been removed. Use `LineItemProductTypeRule` instead.
+
+## Customer group registration flow events no longer use a SalesChannelContext
+
+For customer group registration events, the event context is no longer restored via `SalesChannelContextRestorer`.
+This affects:
+
+- `customer.group.registration.accepted` (`\Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted`)
+- `customer.group.registration.declined` (`\Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined`)
+
+If your extension relied on a restored `SalesChannelContext` (for example, customer specific rule ids from that restored context), you need to migrate to the event payload and event context:
+
+- Use `getCustomer()` / `getCustomerGroup()` from the event for entity data.
+- Use `getContext()` from the event for framework context data.
 
 </details>

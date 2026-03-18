@@ -9,8 +9,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
-use Shopware\Core\Framework\Store\Exception\ShopSecretInvalidException;
 use Shopware\Core\Framework\Store\Services\ShopSecretInvalidMiddleware;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -69,7 +69,7 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
             $systemConfigService
         );
 
-        $this->expectException(ShopSecretInvalidException::class);
+        $this->expectExceptionObject(StoreException::shopSecretInvalid());
         $middleware($response, $request);
     }
 }

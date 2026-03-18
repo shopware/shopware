@@ -19,6 +19,19 @@
         {% set navigationDots = sliderConfig.navigationDots.value %}
         {% set galleryPosition = sliderConfig.galleryPosition.value %}
         {% set verticalAlign = sliderConfig.verticalAlign.value %}
+
+        {% set containerClass = '' %}
+        {% if minHeight and verticalAlign %}
+            {% set containerClass = ' has-vertical-align is-align-' %}
+            {% if verticalAlign == "center" %}
+                {% set containerClass = containerClass ~ 'center' %}
+            {% elseif verticalAlign == "flex-end" %}
+                {% set containerClass = containerClass ~ 'bottom' %}
+            {% else %}
+                {% set containerClass = containerClass ~ 'top' %}
+            {% endif %}
+        {% endif %}
+
         {% set zoomImageContainerSelector = sliderConfig.zoomImageContainerSelector.value %}
         {% set arViewerBaseOptions = {
             snippets: {
@@ -51,7 +64,7 @@
     {% endif %}
 
     {% if fallbackImageTitle is not defined %}
-        {% set fallbackImageTitle = '' %}
+        {% set fallbackImageTitle = page.product.translated.name|default('') %}
     {% endif %}
 
     {# @var mediaItems \Shopware\Core\Content\Media\MediaCollection #}
@@ -194,7 +207,7 @@
                                     {% if imageCount > 1 %}
                                         {% block element_image_gallery_inner_multiple_slides %}
                                             {% block element_image_gallery_inner_container %}
-                                                <div class="gallery-slider-container"
+                                                <div class="gallery-slider-container{{ containerClass }}"
                                                      data-gallery-slider-container="true">
                                                     {% block element_image_gallery_inner_items %}
                                                         {% for image in mediaItems %}
@@ -276,7 +289,8 @@
                                                                             {% block element_image_gallery_inner_item_video %}
                                                                                 {% set attributes = attributes|merge({ controls: true }) %}
 
-                                                                                {% if isProduct %}
+                                                                                {# @deprecated tag:v6.8.0 - Product video microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                                                                                {% if not feature('JSON_LD_DATA') and isProduct %}
                                                                                     {% set attributes = attributes|merge({ itemprop: 'video' }) %}
                                                                                 {% endif %}
 
@@ -298,7 +312,8 @@
                                                                                     {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
                                                                                 {% endif %}
 
-                                                                                {% if isProduct %}
+                                                                                {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                                                                                {% if not feature('JSON_LD_DATA') and isProduct %}
                                                                                     {% if loop.first %}
                                                                                         {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
                                                                                     {% else %}
@@ -436,7 +451,8 @@
                                                             {% block element_image_gallery_inner_single_video %}
                                                                 {% set attributes = attributes|merge({ controls: true }) %}
 
-                                                                {% if isProduct %}
+                                                                {# @deprecated tag:v6.8.0 - Product video microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                                                                {% if not feature('JSON_LD_DATA') and isProduct %}
                                                                     {% set attributes = attributes|merge({ itemprop: 'video' }) %}
                                                                 {% endif %}
 
@@ -458,7 +474,8 @@
                                                                     {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}
                                                                 {% endif %}
 
-                                                                {% if isProduct %}
+                                                                {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                                                                {% if not feature('JSON_LD_DATA') and isProduct %}
                                                                     {% if loop.first %}
                                                                         {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
                                                                     {% else %}
@@ -533,7 +550,8 @@
                                                                         {% endblock %}
                                                                     {% elseif image.getMediaType().getName() === 'VIDEO' %}
                                                                         {% block element_image_gallery_inner_thumbnails_item_inner_video %}
-                                                                            {% if isProduct %}
+                                                                            {# @deprecated tag:v6.8.0 - Product video microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                                                                            {% if not feature('JSON_LD_DATA') and isProduct %}
                                                                                 {% set attributes = attributes|merge({ itemprop: 'video' }) %}
                                                                             {% endif %}
 
@@ -544,13 +562,14 @@
 
                                                                             <div class="gallery-slider-thumbnails-play-button"></div>
                                                                         {% endblock %}
-                                                                    {% else %}
+                                                                        {% else %}
                                                                         {% block element_image_gallery_inner_thumbnails_item_inner_image %}
                                                                             {% set attributes = attributes|merge({
                                                                                 alt: (image.translated.alt ?: false)
                                                                             }) %}
 
-                                                                            {% if isProduct %}
+                                                                            {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                                                                            {% if not feature('JSON_LD_DATA') and isProduct %}
                                                                                 {% if loop.first %}
                                                                                     {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
                                                                                 {% else %}

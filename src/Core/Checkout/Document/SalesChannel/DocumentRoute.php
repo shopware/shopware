@@ -138,7 +138,7 @@ final class DocumentRoute extends AbstractDocumentRoute
 
         $supportedRequestedFormats = array_filter(
             $requestedTypesMapping,
-            fn (string $fileType) => isset($supportedTypesMapping[$fileType]),
+            static fn (string $fileType) => isset($supportedTypesMapping[$fileType]),
             \ARRAY_FILTER_USE_KEY
         );
 

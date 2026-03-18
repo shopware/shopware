@@ -2,13 +2,12 @@
  * @sw-package framework
  */
 import useConsentStore from 'src/core/consent/consent.store';
+import { dispatchConsentEvent } from 'src/core/consent/events';
 import template from './sw-settings-usage-data-store-data-consent.html.twig';
 import './sw-settings-usage-data-store-data-consent.scss';
 
-/* eslint-disable max-len */
 import SwSettingsUsageDataStoreDataConsentCard from '../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-store-data-consent-card';
 import SwSettingsUsageDataConsentCheckList from '../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-consent-check-list';
-/* eslint-enable max-len */
 
 /**
  * @private
@@ -71,6 +70,10 @@ export default Shopware.Component.wrapComponentConfig({
             } finally {
                 this.isLoading = false;
             }
+        },
+
+        onLegalLinkClick() {
+            dispatchConsentEvent('consent_legal_link_clicked', { link_target: 'privacy_policy', source: 'setting' });
         },
     },
 });

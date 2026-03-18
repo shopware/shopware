@@ -61,7 +61,7 @@ class DataAbstractionLayerValidateCommand extends Command
         if (!empty($namespaces)) {
             $errors = array_filter(
                 $errors,
-                function ($_, $class) use ($namespaces) {
+                static function ($_, $class) use ($namespaces) {
                     foreach ($namespaces as $ns) {
                         if (str_starts_with($class, (string) $ns)) {
                             return true;

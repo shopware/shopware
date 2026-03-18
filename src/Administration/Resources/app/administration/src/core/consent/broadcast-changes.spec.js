@@ -15,6 +15,7 @@ describe('src/core/consent/broadcast-changes', () => {
     });
 
     it('sends broadcast message when store runs update', async () => {
+        global.activeFeatureFlags = ['PRODUCT_ANALYTICS'];
         const store = useConsentStore();
         store.consents = {
             test_consent: {
@@ -50,13 +51,23 @@ describe('src/core/consent/broadcast-changes', () => {
         };
 
         const bc = broadcastConsentChanges();
+        const originalOnMessage = bc.onmessage;
+        const messageHandled = new Promise((resolve) => {
+            bc.onmessage = (event) => {
+                if (typeof originalOnMessage === 'function') {
+                    originalOnMessage(event);
+                }
+
+                resolve(undefined);
+            };
+        });
 
         testChannel.postMessage({
             type: 'consent-changed',
             updatedConsent: { name: 'test_consent', status: 'accepted' },
         });
 
-        await flushPromises();
+        await messageHandled;
 
         bc.close();
         testChannel.close();

@@ -182,8 +182,8 @@ class SalesChannelContextServiceTest extends TestCase
         $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token));
     }
 
-    #[DataProvider('skipCartCalculationIfAlreadyDoneProvider')]
-    public function testSkipCartCalculationIfAlreadyDone(bool $hasCart): void
+    #[DataProvider('skipCartCalculationIfAlreadyDoneAndESISubrequestProvider')]
+    public function testSkipCartCalculationIfAlreadyDoneAndESISubrequest(Request $request, bool $hasCart, bool $expectCalculation): void
     {
         $customerId = Uuid::randomHex();
         $token = Uuid::randomHex();
@@ -204,7 +204,7 @@ class SalesChannelContextServiceTest extends TestCase
             ->with($token)
             ->willReturn($hasCart);
 
-        if (!$hasCart) {
+        if ($expectCalculation) {
             $this->cartRuleLoader
                 ->expects($this->once())
                 ->method('loadByToken')
@@ -229,7 +229,6 @@ class SalesChannelContextServiceTest extends TestCase
         $session->set(SalesChannelContextService::RULE_IDS, ['rule-1', 'rule-2']);
         $session->set(SalesChannelContextService::AREA_RULE_IDS, [RuleAreas::PRODUCT_AREA => ['rule-1'], RuleAreas::PROMOTION_AREA => ['rule-2']]);
 
-        $request = new Request();
         $request->setSession($session);
         $this->requestStack->push($request);
 
@@ -239,10 +238,12 @@ class SalesChannelContextServiceTest extends TestCase
         static::assertSame($session->get(SalesChannelContextService::AREA_RULE_IDS), $context->getAreaRuleIds());
     }
 
-    public static function skipCartCalculationIfAlreadyDoneProvider(): \Generator
+    public static function skipCartCalculationIfAlreadyDoneAndESISubrequestProvider(): \Generator
     {
-        yield 'cart exists' => [true];
-        yield 'cart not exists' => [false];
+        yield 'esi request with cart => false' => [new Request(attributes: ['_esi' => true]), true, false];
+        yield 'esi request without cart => true' => [new Request(attributes: ['_esi' => true]), false, true];
+        yield 'no esi request but cart => true' => [new Request(), true, true];
+        yield 'no esi request and no cart => true' => [new Request(), false, true];
     }
 
     public function testAddStatesFromOriginalContext(): void

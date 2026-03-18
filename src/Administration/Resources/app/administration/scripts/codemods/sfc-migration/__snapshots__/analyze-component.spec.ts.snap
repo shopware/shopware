@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`scripts/codemods/sfc-migration/analyze-component summary report for the full fixture batch matches the complete summary output snapshot 1`] = `
+"Migration Summary
+=================
+Total components analysed: 4
+
+Fully migrated (2):
+  ✓ sw-simple-card
+  ✓ sw-block-card
+
+Partially migrated — Options API backoff used (1):
+  ~ sw-mixin-list [blockers: mixins]
+
+Not migratable — manual migration required (1):
+  ✗ sw-render-component [blockers: render function]"
+`;

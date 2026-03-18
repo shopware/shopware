@@ -12,8 +12,11 @@ function readFixture(name: string): string {
  * Integrative tests for mergeComponentFiles().
  *
  * Each test provides a complete .html.twig + index.js pair and asserts that
- * the entire resulting .vue SFC is structurally correct — template, script,
- * imports, and component name — in one end-to-end pass.
+ * the entire resulting .vue SFC is structurally correct in one end-to-end pass.
+ *
+ * Fully-migrated components wrap all their state in createExtendableSetup() so
+ * they remain extensible via overrideComponentSetup() — exactly as specified by
+ * the composition extension system (composition-extension-system.ts).
  */
 describe('scripts/codemods/sfc-migration/generate-sfc', () => {
     describe('simple-component: fully migrated SFC with plain template and <script setup>', () => {
@@ -43,20 +46,32 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
             expect(result.sfc).not.toContain('<script>');
         });
 
-        it('imports the required Composition API composables from vue', () => {
+        it('imports createExtendableSetup from the composition extension system', () => {
+            expect(result.sfc).toContain(
+                "import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';",
+            );
+        });
+
+        it('imports the required Vue composables from vue', () => {
             expect(result.sfc).toMatch(/import\s*\{[^}]*ref[^}]*\}\s*from\s*['"]vue['"]/);
         });
 
-        it('contains the component name sw-simple-card in the script', () => {
-            expect(result.sfc).toContain('sw-simple-card');
+        it('wraps all state in createExtendableSetup with the component name "sw-simple-card"', () => {
+            expect(result.sfc).toContain('createExtendableSetup(');
+            expect(result.sfc).toContain("name: 'sw-simple-card'");
         });
 
-        it('converts inject, data, computed, and methods — all in the single SFC output', () => {
-            expect(result.sfc).toContain("inject('repositoryFactory')");
-            expect(result.sfc).toContain("ref('Default Title')");
-            expect(result.sfc).toContain('ref(false)');
-            expect(result.sfc).toContain('computed(');
-            expect(result.sfc).toContain('onSave');
+        it('declares inject, data, computed, and method state inside the createExtendableSetup callback', () => {
+            const setupStart = result.sfc.indexOf('createExtendableSetup(');
+            expect(result.sfc.indexOf("inject('repositoryFactory')")).toBeGreaterThan(setupStart);
+            expect(result.sfc.indexOf("ref('Default Title')")).toBeGreaterThan(setupStart);
+            expect(result.sfc.indexOf('ref(false)')).toBeGreaterThan(setupStart);
+            expect(result.sfc.indexOf('computed(')).toBeGreaterThan(setupStart);
+        });
+
+        it('returns state under a public: key and destructures the result for template access', () => {
+            expect(result.sfc).toContain('public:');
+            expect(result.sfc).toMatch(/const\s*\{[^}]*\}\s*=\s*createExtendableSetup\s*\(/);
         });
 
         it('places <template> before <script setup> in the file', () => {
@@ -68,7 +83,7 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         });
     });
 
-    describe('block-component: fully migrated SFC with twig blocks replaced and full Composition API script', () => {
+    describe('block-component: fully migrated SFC with twig blocks replaced and createExtendableSetup script', () => {
         let result: ReturnType<typeof mergeComponentFiles>;
 
         beforeAll(() => {
@@ -93,21 +108,22 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
             expect(result.sfc).not.toContain('%}');
         });
 
-        it('converts inject, data (3 properties), computed getter, computed getter+setter, watch, method, and lifecycle hook — all present', () => {
-            expect(result.sfc).toContain("inject('acl')");
-            expect(result.sfc).toContain("ref('Block Card')");
-            expect(result.sfc).toContain("ref('A card with extensible blocks')");
-            expect(result.sfc).toContain('ref(0)');
-            expect(result.sfc).toContain('const canEdit = computed(');
-            expect(result.sfc).toContain('const label = computed({');
-            expect(result.sfc).toContain('watch(');
-            expect(result.sfc).toContain('const onAction =');
-            expect(result.sfc).toContain('onMounted(');
+        it('wraps all state in createExtendableSetup with the component name "sw-block-card"', () => {
+            expect(result.sfc).toContain('createExtendableSetup(');
+            expect(result.sfc).toContain("name: 'sw-block-card'");
         });
 
-        it('produces a <script setup> section', () => {
-            expect(result.sfc).toContain('<script setup>');
-            expect(result.sfc).not.toContain('<script>');
+        it('declares inject, all data refs, computed properties, watch, method, and lifecycle hook inside the callback', () => {
+            const setupStart = result.sfc.indexOf('createExtendableSetup(');
+            expect(result.sfc.indexOf("inject('acl')")).toBeGreaterThan(setupStart);
+            expect(result.sfc.indexOf("ref('Block Card')")).toBeGreaterThan(setupStart);
+            expect(result.sfc.indexOf('computed(')).toBeGreaterThan(setupStart);
+            expect(result.sfc.indexOf('watch(')).toBeGreaterThan(setupStart);
+            expect(result.sfc.indexOf('onMounted(')).toBeGreaterThan(setupStart);
+        });
+
+        it('returns state under a public: key', () => {
+            expect(result.sfc).toContain('public:');
         });
 
         it('matches the complete SFC output snapshot', () => {
@@ -115,11 +131,10 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         });
     });
 
-    describe('mixin-component: partially migrated SFC — template converted, script kept as Options API', () => {
+    describe('mixin-component: partially migrated SFC — template converted, script kept as Options API without createExtendableSetup', () => {
         let result: ReturnType<typeof mergeComponentFiles>;
 
         beforeAll(() => {
-            // Mixin fixture has no twig template file; use a plain template
             result = mergeComponentFiles(
                 '<div class="sw-mixin-list"></div>',
                 readFixture('mixin-component.index.js'),
@@ -136,16 +151,15 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
             expect(result.sfc).not.toContain('<script setup>');
         });
 
+        it('does not use createExtendableSetup — backoff components remain as-is for manual migration', () => {
+            expect(result.sfc).not.toContain('createExtendableSetup');
+        });
+
         it('preserves the full Options API component definition intact in the script', () => {
             expect(result.sfc).toContain('sw-mixin-list');
             expect(result.sfc).toContain('mixins:');
             expect(result.sfc).toContain('loadItems');
             expect(result.sfc).toContain('onNotify');
-        });
-
-        it('wraps the template in a <template> section', () => {
-            expect(result.sfc).toContain('<template>');
-            expect(result.sfc).toContain('class="sw-mixin-list"');
         });
 
         it('matches the complete partially-migrated SFC output snapshot', () => {
@@ -163,11 +177,8 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
             );
         });
 
-        it('reports status not-migratable', () => {
+        it('reports status not-migratable with render function as the blocker', () => {
             expect(result.status).toBe('not-migratable');
-        });
-
-        it('lists render function as the blocker', () => {
             expect(result.blockers).toContain('render function');
         });
 

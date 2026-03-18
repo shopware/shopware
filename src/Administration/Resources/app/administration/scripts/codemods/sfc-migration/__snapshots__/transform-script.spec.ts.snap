@@ -1,0 +1,135 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`scripts/codemods/sfc-migration/transform-script block-component: fully converts inject, data, computed getter+setter, watch, methods, and lifecycle hook matches the complete converted script snapshot 1`] = `
+"import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { ref, computed, inject, watch, onMounted } from 'vue';
+
+const {
+    acl,
+    title,
+    description,
+    count,
+    canEdit,
+    label,
+    onAction,
+} = createExtendableSetup(
+    {
+        name: 'sw-block-card',
+        props,
+    },
+    () => {
+        const acl = inject('acl');
+
+        const title = ref('Block Card');
+        const description = ref('A card with extensible blocks');
+        const count = ref(0);
+
+        const canEdit = computed(() => {return this.acl.can('product.editor');});
+        const label = computed({
+            get: () => {return this.title;},
+            set: (val) => {this.title = val;},
+        });
+
+        watch(() => count.value, (newVal) => {if (newVal > 10) {
+    this.title = 'Limit reached';
+}});
+
+        const onAction = () => {this.count += 1;
+this.$emit('action', this.count);};
+
+        onMounted(() => {this.count = 0;});
+
+        return {
+            public: {
+                acl,
+                title,
+                description,
+                count,
+                canEdit,
+                label,
+                onAction,
+            },
+        };
+    },
+);"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-script mixin-component: detects mixins as a blocker and falls back to Options API matches the complete Options API backoff script snapshot 1`] = `
+"import listingMixin from 'src/app/mixin/listing.mixin';
+
+Shopware.Component.register('sw-mixin-list', {
+    template,
+
+    mixins: [
+        Shopware.Mixin.getByName('notification'),
+        listingMixin,
+    ],
+
+    data() {
+        return {
+            items: [],
+            isLoading: false,
+        };
+    },
+
+    computed: {
+        total() {
+            return this.items.length;
+        },
+    },
+
+    methods: {
+        async loadItems() {
+            this.isLoading = true;
+            try {
+                this.items = await this.fetchItems();
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        onNotify() {
+            this.createNotificationSuccess({ message: 'Done' });
+        },
+    },
+});"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-script simple-component: fully converts inject, data, computed, and methods to Composition API matches the complete converted script snapshot 1`] = `
+"import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { ref, computed, inject } from 'vue';
+
+const {
+    repositoryFactory,
+    title,
+    isLoading,
+    description,
+    onSave,
+} = createExtendableSetup(
+    {
+        name: 'sw-simple-card',
+        props,
+    },
+    () => {
+        const repositoryFactory = inject('repositoryFactory');
+
+        const title = ref('Default Title');
+        const isLoading = ref(false);
+
+        const description = computed(() => {return \`This is: \${this.title}\`;});
+
+        const onSave = () => {this.isLoading = true;
+this.$emit('save', this.title);};
+
+        return {
+            public: {
+                repositoryFactory,
+                title,
+                isLoading,
+                description,
+                onSave,
+            },
+        };
+    },
+);"
+`;

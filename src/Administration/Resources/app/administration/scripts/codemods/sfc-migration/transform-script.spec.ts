@@ -14,6 +14,9 @@ function readFixture(name: string): string {
  * Each test provides a complete index.js file and asserts that the entire
  * resulting script block is correct — every Options API section (inject, data,
  * computed, methods, watch, lifecycle) is correctly converted in one pass.
+ *
+ * Migrated components wrap all state in createExtendableSetup() so they remain
+ * extensible via overrideComponentSetup() after migration.
  */
 describe('scripts/codemods/sfc-migration/transform-script', () => {
     describe('simple-component: fully converts inject, data, computed, and methods to Composition API', () => {
@@ -32,28 +35,41 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.scriptType).toBe('setup');
         });
 
-        it('contains a single Vue import statement with all required composables', () => {
-            expect(result.script).toMatch(/import\s*\{[^}]*\}\s*from\s*['"]vue['"]/);
-            expect(result.script).toContain('ref');
+        it('imports createExtendableSetup from the composition extension system', () => {
+            expect(result.script).toContain(
+                "import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';",
+            );
+        });
+
+        it('imports the required Vue composables from vue', () => {
+            expect(result.script).toMatch(/import\s*\{[^}]*ref[^}]*\}\s*from\s*['"]vue['"]/);
             expect(result.script).toContain('computed');
             expect(result.script).toContain('inject');
         });
 
-        it('converts inject to an inject() call', () => {
-            expect(result.script).toContain("const repositoryFactory = inject('repositoryFactory');");
+        it('passes the component name "sw-simple-card" to createExtendableSetup', () => {
+            expect(result.script).toContain("name: 'sw-simple-card'");
         });
 
-        it('converts data() — title string to ref(), isLoading boolean to ref()', () => {
-            expect(result.script).toContain("const title = ref('Default Title');");
-            expect(result.script).toContain('const isLoading = ref(false);');
+        it('declares inject, data, computed, and method state inside the createExtendableSetup callback', () => {
+            const setupCallbackStart = result.script.indexOf('createExtendableSetup(');
+            expect(result.script.indexOf("inject('repositoryFactory')")).toBeGreaterThan(setupCallbackStart);
+            expect(result.script.indexOf("ref('Default Title')")).toBeGreaterThan(setupCallbackStart);
+            expect(result.script.indexOf('ref(false)')).toBeGreaterThan(setupCallbackStart);
+            expect(result.script.indexOf('computed(')).toBeGreaterThan(setupCallbackStart);
         });
 
-        it('converts the computed getter to computed()', () => {
-            expect(result.script).toContain('const description = computed(');
+        it('returns state under the public: key inside the createExtendableSetup callback', () => {
+            expect(result.script).toContain('public:');
+            expect(result.script).toContain('repositoryFactory');
+            expect(result.script).toContain('title');
+            expect(result.script).toContain('isLoading');
+            expect(result.script).toContain('description');
+            expect(result.script).toContain('onSave');
         });
 
-        it('converts the onSave method to a function declaration', () => {
-            expect(result.script).toContain('const onSave =');
+        it('destructures the createExtendableSetup result at the top level', () => {
+            expect(result.script).toMatch(/const\s*\{[^}]*\}\s*=\s*createExtendableSetup\s*\(/);
         });
 
         it('matches the complete converted script snapshot', () => {
@@ -77,37 +93,36 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.scriptType).toBe('setup');
         });
 
-        it('converts inject to an inject() call', () => {
-            expect(result.script).toContain("const acl = inject('acl');");
+        it('imports createExtendableSetup from the composition extension system', () => {
+            expect(result.script).toContain(
+                "import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';",
+            );
         });
 
-        it('converts all three data() properties to ref() declarations', () => {
-            expect(result.script).toContain("const title = ref('Block Card');");
-            expect(result.script).toContain("const description = ref('A card with extensible blocks');");
-            expect(result.script).toContain('const count = ref(0);');
+        it('passes the component name "sw-block-card" to createExtendableSetup', () => {
+            expect(result.script).toContain("name: 'sw-block-card'");
         });
 
-        it('converts the plain computed getter (canEdit) to computed()', () => {
-            expect(result.script).toContain('const canEdit = computed(');
+        it('declares all state inside the createExtendableSetup callback — inject, three data refs, two computed, watch, method, and lifecycle hook', () => {
+            const setupCallbackStart = result.script.indexOf('createExtendableSetup(');
+
+            expect(result.script.indexOf("inject('acl')")).toBeGreaterThan(setupCallbackStart);
+            expect(result.script.indexOf("ref('Block Card')")).toBeGreaterThan(setupCallbackStart);
+            expect(result.script.indexOf("ref('A card with extensible blocks')")).toBeGreaterThan(setupCallbackStart);
+            expect(result.script.indexOf('ref(0)')).toBeGreaterThan(setupCallbackStart);
+            expect(result.script.indexOf('computed(')).toBeGreaterThan(setupCallbackStart);
+            expect(result.script.indexOf('watch(')).toBeGreaterThan(setupCallbackStart);
+            expect(result.script.indexOf('onMounted(')).toBeGreaterThan(setupCallbackStart);
         });
 
-        it('converts the getter+setter computed (label) to computed({ get, set })', () => {
+        it('exposes the getter+setter computed (label) as computed({ get, set }) in the public return', () => {
             expect(result.script).toContain('const label = computed({');
             expect(result.script).toContain('get:');
             expect(result.script).toContain('set:');
         });
 
-        it('converts the count watcher to a watch() call', () => {
-            expect(result.script).toContain('watch(');
-            expect(result.script).toContain('count');
-        });
-
-        it('converts the onAction method to a function declaration', () => {
-            expect(result.script).toContain('const onAction =');
-        });
-
-        it('converts the mounted() lifecycle hook to onMounted()', () => {
-            expect(result.script).toContain('onMounted(');
+        it('returns all state under the public: key', () => {
+            expect(result.script).toContain('public:');
         });
 
         it('matches the complete converted script snapshot', () => {
@@ -122,27 +137,20 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             result = transformScript(readFixture('mixin-component.index.js'));
         });
 
-        it('reports status partially-migratable', () => {
+        it('reports status partially-migratable with mixins as the blocker', () => {
             expect(result.status).toBe('partially-migratable');
-        });
-
-        it('lists mixins as the blocker', () => {
             expect(result.blockers).toContain('mixins');
         });
 
-        it('produces an options script type (backoff)', () => {
+        it('produces an options script type (backoff — no createExtendableSetup)', () => {
             expect(result.scriptType).toBe('options');
+            expect(result.script).not.toContain('createExtendableSetup');
         });
 
-        it('preserves the original component registration intact in the script output', () => {
+        it('preserves the original Options API component registration intact', () => {
             expect(result.script).toContain('sw-mixin-list');
             expect(result.script).toContain('mixins:');
             expect(result.script).toContain('loadItems');
-        });
-
-        it('does not produce any Composition API ref() or computed() calls', () => {
-            expect(result.script).not.toContain('= ref(');
-            expect(result.script).not.toContain('= computed(');
         });
 
         it('matches the complete Options API backoff script snapshot', () => {
@@ -157,11 +165,8 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             result = transformScript(readFixture('render-component.index.js'));
         });
 
-        it('reports status not-migratable', () => {
+        it('reports status not-migratable with render function as the blocker', () => {
             expect(result.status).toBe('not-migratable');
-        });
-
-        it('lists render function as the blocker', () => {
             expect(result.blockers).toContain('render function');
         });
 

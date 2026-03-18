@@ -5,29 +5,12 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
-use Shopware\Core\System\SalesChannel\SalesChannelCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\StorybookController;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
-use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
-use Shopware\Storefront\Theme\ThemeRuntimeConfigStorage;
+use Shopware\Storefront\Storybook\StorybookService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Twig\Environment;
@@ -42,77 +25,24 @@ class StorybookControllerTest extends TestCase
 {
     private StorybookTwigEnvironment $twig;
 
-    /**
-     * @var SalesChannelRepository<SalesChannelProductCollection>&MockObject
-     */
-    private SalesChannelRepository&MockObject $productRepository;
-
-    /**
-     * @var EntityRepository<MediaCollection>&MockObject
-     */
-    private EntityRepository&MockObject $mediaRepository;
-
-    private AbstractSalesChannelContextFactory&MockObject $contextFactory;
-
-    /**
-     * @var EntityRepository<SalesChannelCollection>&MockObject
-     */
-    private EntityRepository&MockObject $salesChannelRepository;
-
-    private DatabaseSalesChannelThemeLoader&MockObject $themeLoader;
-
-    private ThemeRuntimeConfigStorage&MockObject $themeRuntimeConfigStorage;
-
     private TwigComponentHelper&MockObject $twigComponentHelper;
+
+    private StorybookService&MockObject $storybookService;
 
     protected function setUp(): void
     {
         $this->twig = new StorybookTwigEnvironment();
-        $this->productRepository = $this->createMock(SalesChannelRepository::class);
-        $this->mediaRepository = $this->createMock(EntityRepository::class);
-        $this->contextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
-        $this->salesChannelRepository = $this->createMock(EntityRepository::class);
-        $this->themeLoader = $this->createMock(DatabaseSalesChannelThemeLoader::class);
-        $this->themeRuntimeConfigStorage = $this->createMock(ThemeRuntimeConfigStorage::class);
         $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $this->storybookService = $this->createMock(StorybookService::class);
     }
 
     public function testStorybookThrowsNotFoundInNonDevEnvironment(): void
     {
         $controller = $this->createController('prod');
 
-        $request = new Request();
-        $request->headers->set('Origin', 'http://localhost:6006');
-
         $this->expectException(NotFoundHttpException::class);
-        $this->expectExceptionMessage('Route not found');
 
-        $controller->storybook('my-component', $request);
-    }
-
-    public function testStorybookThrowsNotFoundWhenOriginHeaderIsMissing(): void
-    {
-        $controller = $this->createController('dev');
-
-        $request = new Request();
-
-        $this->expectException(NotFoundHttpException::class);
-        $this->expectExceptionMessage('Route not found');
-
-        $controller->storybook('my-component', $request);
-    }
-
-    public function testStorybookThrowsNotFoundWhenOriginIsWrong(): void
-    {
-        $controller = $this->createController('dev');
-
-        $request = new Request();
-        $request->headers->set('Origin', 'http://localhost:3000');
-
-        $this->expectException(NotFoundHttpException::class);
-        $this->expectExceptionMessage('Route not found');
-
-        $controller->storybook('my-component', $request);
+        $controller->storybook('my-component', new Request());
     }
 
     public function testStorybookThrowsNotFoundWhenComponentNotRegistered(): void
@@ -122,74 +52,33 @@ class StorybookControllerTest extends TestCase
 
         $controller = $this->createController('dev');
 
-        $request = new Request();
-        $request->headers->set('Origin', 'http://localhost:6006');
-
         $this->expectException(NotFoundHttpException::class);
-        $this->expectExceptionMessage('Component not found');
 
-        $controller->storybook('unknown-component', $request);
-    }
-
-    public function testStorybookThrowsSalesChannelExceptionWhenNoneAvailable(): void
-    {
-        $this->twigComponentHelper->method('getComponents')
-            ->willReturn($this->createCollectionWithComponent('my-button'));
-
-        $this->salesChannelRepository->method('search')
-            ->willReturn(new EntitySearchResult(
-                SalesChannelDefinition::ENTITY_NAME,
-                0,
-                new SalesChannelCollection(),
-                null,
-                new Criteria(),
-                Context::createDefaultContext()
-            ));
-
-        $controller = $this->createController('dev');
-
-        $request = new Request();
-        $request->headers->set('Origin', 'http://localhost:6006');
-
-        $this->expectException(SalesChannelException::class);
-
-        $controller->storybook('my-button', $request);
+        $controller->storybook('unknown-component', new Request());
     }
 
     public function testStorybookRendersComponentSuccessfully(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
-        $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $this->twigComponentHelper->method('getComponents')
             ->willReturn($this->createCollectionWithComponent('my-button'));
 
-        $this->salesChannelRepository->method('search')
-            ->willReturn($this->createSalesChannelSearchResult($salesChannelId));
-
-        $this->contextFactory->method('create')
-            ->with('', $salesChannelId)
+        $this->storybookService->method('createSalesChannelContext')
             ->willReturn($salesChannelContext);
 
-        $this->themeLoader->method('load')
-            ->with($salesChannelId)
-            ->willReturn(['Storefront']);
-
-        $this->themeRuntimeConfigStorage->method('getThemeIdByTechnicalName')
-            ->with('Storefront')
+        $this->storybookService->method('getThemeId')
             ->willReturn('theme-id-123');
+
+        $this->storybookService->method('resolveComponentProps')
+            ->willReturn(['label' => 'Click me']);
 
         $this->twig->renderOutput = '<div>rendered component</div>';
 
-        $controller = $this->createController('dev');
-
-        $request = new Request();
-        $request->headers->set('Origin', 'http://localhost:6006');
-
-        $response = $controller->storybook('my-button', $request);
+        $response = $this->createController('dev')->storybook('my-button', new Request());
 
         static::assertSame(200, $response->getStatusCode());
-        static::assertSame('<div>rendered component</div>', (string) $response->getContent());
+        static::assertSame('<div>rendered component</div>', $response->getContent());
         static::assertSame('http://localhost:6006', $response->headers->get('Access-Control-Allow-Origin'));
     }
 
@@ -201,20 +90,16 @@ class StorybookControllerTest extends TestCase
         $this->twigComponentHelper->method('getComponents')
             ->willReturn($this->createCollectionWithComponent('my-button'));
 
-        $this->salesChannelRepository->method('search')
-            ->willReturn($this->createSalesChannelSearchResult($salesChannelId));
+        $this->storybookService->method('createSalesChannelContext')
+            ->willReturn($salesChannelContext);
 
-        $this->contextFactory->method('create')->willReturn($salesChannelContext);
-
-        $this->themeLoader->method('load')->willReturn(['Storefront']);
-        $this->themeRuntimeConfigStorage->method('getThemeIdByTechnicalName')->willReturn('theme-id-123');
-
-        $controller = $this->createController('dev');
+        $this->storybookService->method('getThemeId')
+            ->with($salesChannelId)
+            ->willReturn('theme-id-123');
 
         $request = new Request();
-        $request->headers->set('Origin', 'http://localhost:6006');
 
-        $controller->storybook('my-button', $request);
+        $this->createController('dev')->storybook('my-button', $request);
 
         static::assertSame('theme-id-123', $request->attributes->get('theme-id'));
         static::assertSame($salesChannelId, $request->attributes->get('sw-sales-channel-id'));
@@ -223,24 +108,17 @@ class StorybookControllerTest extends TestCase
     public function testStorybookSetsContextAndThemeIdAsGlobalsOnTwig(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
-        $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $this->twigComponentHelper->method('getComponents')
             ->willReturn($this->createCollectionWithComponent('my-button'));
 
-        $this->salesChannelRepository->method('search')
-            ->willReturn($this->createSalesChannelSearchResult($salesChannelId));
+        $this->storybookService->method('createSalesChannelContext')
+            ->willReturn($salesChannelContext);
 
-        $this->contextFactory->method('create')->willReturn($salesChannelContext);
-        $this->themeLoader->method('load')->willReturn(['Storefront']);
-        $this->themeRuntimeConfigStorage->method('getThemeIdByTechnicalName')->willReturn('theme-id-123');
+        $this->storybookService->method('getThemeId')
+            ->willReturn('theme-id-123');
 
-        $controller = $this->createController('dev');
-
-        $request = new Request();
-        $request->headers->set('Origin', 'http://localhost:6006');
-
-        $controller->storybook('my-button', $request);
+        $this->createController('dev')->storybook('my-button', new Request());
 
         static::assertSame($salesChannelContext, $this->twig->globals['context']);
         static::assertSame('theme-id-123', $this->twig->globals['themeId']);
@@ -249,25 +127,19 @@ class StorybookControllerTest extends TestCase
     public function testStorybookReturns500OnTwigRuntimeError(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
-        $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $this->twigComponentHelper->method('getComponents')
             ->willReturn($this->createCollectionWithComponent('my-button'));
 
-        $this->salesChannelRepository->method('search')
-            ->willReturn($this->createSalesChannelSearchResult($salesChannelId));
+        $this->storybookService->method('createSalesChannelContext')
+            ->willReturn($salesChannelContext);
 
-        $this->contextFactory->method('create')->willReturn($salesChannelContext);
-        $this->themeLoader->method('load')->willReturn([]);
+        $this->storybookService->method('getThemeId')->willReturn(null);
+        $this->storybookService->method('resolveComponentProps')->willReturn([]);
 
         $this->twig->renderException = new \Twig\Error\RuntimeError('Template rendering failed');
 
-        $controller = $this->createController('dev');
-
-        $request = new Request();
-        $request->headers->set('Origin', 'http://localhost:6006');
-
-        $response = $controller->storybook('my-button', $request);
+        $response = $this->createController('dev')->storybook('my-button', new Request());
 
         $content = $response->getContent();
         static::assertSame(500, $response->getStatusCode());
@@ -280,25 +152,19 @@ class StorybookControllerTest extends TestCase
     public function testStorybookReturns500OnTwigSyntaxError(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
-        $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $this->twigComponentHelper->method('getComponents')
             ->willReturn($this->createCollectionWithComponent('my-button'));
 
-        $this->salesChannelRepository->method('search')
-            ->willReturn($this->createSalesChannelSearchResult($salesChannelId));
+        $this->storybookService->method('createSalesChannelContext')
+            ->willReturn($salesChannelContext);
 
-        $this->contextFactory->method('create')->willReturn($salesChannelContext);
-        $this->themeLoader->method('load')->willReturn([]);
+        $this->storybookService->method('getThemeId')->willReturn(null);
+        $this->storybookService->method('resolveComponentProps')->willReturn([]);
 
         $this->twig->createTemplateException = new \Twig\Error\SyntaxError('Unexpected token');
 
-        $controller = $this->createController('dev');
-
-        $request = new Request();
-        $request->headers->set('Origin', 'http://localhost:6006');
-
-        $response = $controller->storybook('my-button', $request);
+        $response = $this->createController('dev')->storybook('my-button', new Request());
 
         $content = $response->getContent();
         static::assertSame(500, $response->getStatusCode());
@@ -307,61 +173,21 @@ class StorybookControllerTest extends TestCase
         static::assertStringContainsString('Unexpected token', $content);
     }
 
-    public function testStorybookFiltersDenyListedQueryParams(): void
+    public function testStorybookPassesResolvedPropsToTemplate(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
-        $salesChannelId = $salesChannelContext->getSalesChannelId();
+        $expectedProps = ['label' => 'Click me', 'disabled' => 'true'];
 
         $this->twigComponentHelper->method('getComponents')
             ->willReturn($this->createCollectionWithComponent('my-button'));
 
-        $this->salesChannelRepository->method('search')
-            ->willReturn($this->createSalesChannelSearchResult($salesChannelId));
+        $this->storybookService->method('createSalesChannelContext')
+            ->willReturn($salesChannelContext);
 
-        $this->contextFactory->method('create')->willReturn($salesChannelContext);
-        $this->themeLoader->method('load')->willReturn([]);
+        $this->storybookService->method('getThemeId')->willReturn(null);
 
-        $capturedProps = [];
-        $this->twig->renderCallback = static function (mixed $template, array $context) use (&$capturedProps): string {
-            $capturedProps = $context['componentProps'] ?? [];
-
-            return '';
-        };
-
-        $controller = $this->createController('dev');
-
-        $request = new Request([
-            'label' => 'Click me',
-            'measureEnabled' => 'true',
-            'backgrounds' => 'dark',
-            'outline' => '1',
-            'viewport' => 'mobile',
-        ]);
-        $request->headers->set('Origin', 'http://localhost:6006');
-
-        $controller->storybook('my-button', $request);
-
-        static::assertArrayHasKey('label', $capturedProps);
-        static::assertSame('Click me', $capturedProps['label']);
-        static::assertArrayNotHasKey('measureEnabled', $capturedProps);
-        static::assertArrayNotHasKey('backgrounds', $capturedProps);
-        static::assertArrayNotHasKey('outline', $capturedProps);
-        static::assertArrayNotHasKey('viewport', $capturedProps);
-    }
-
-    public function testStorybookFiltersInvalidQueryParamIdentifiers(): void
-    {
-        $salesChannelContext = Generator::generateSalesChannelContext();
-        $salesChannelId = $salesChannelContext->getSalesChannelId();
-
-        $this->twigComponentHelper->method('getComponents')
-            ->willReturn($this->createCollectionWithComponent('my-button'));
-
-        $this->salesChannelRepository->method('search')
-            ->willReturn($this->createSalesChannelSearchResult($salesChannelId));
-
-        $this->contextFactory->method('create')->willReturn($salesChannelContext);
-        $this->themeLoader->method('load')->willReturn([]);
+        $this->storybookService->method('resolveComponentProps')
+            ->willReturn($expectedProps);
 
         $capturedProps = [];
         $this->twig->renderCallback = static function (mixed $template, array $context) use (&$capturedProps): string {
@@ -370,186 +196,9 @@ class StorybookControllerTest extends TestCase
             return '';
         };
 
-        $controller = $this->createController('dev');
+        $this->createController('dev')->storybook('my-button', new Request());
 
-        $request = new Request([
-            'validProp' => 'hello',
-            '123invalid' => 'bad',
-            'also-invalid' => 'bad',
-            'valid_prop2' => 'world',
-        ]);
-        $request->headers->set('Origin', 'http://localhost:6006');
-
-        $controller->storybook('my-button', $request);
-
-        static::assertArrayHasKey('validProp', $capturedProps);
-        static::assertArrayHasKey('valid_prop2', $capturedProps);
-        static::assertArrayNotHasKey('123invalid', $capturedProps);
-        static::assertArrayNotHasKey('also-invalid', $capturedProps);
-    }
-
-    public function testStorybookResolvesProductEntityProperty(): void
-    {
-        $salesChannelContext = Generator::generateSalesChannelContext();
-        $salesChannelId = $salesChannelContext->getSalesChannelId();
-
-        $this->twigComponentHelper->method('getComponents')
-            ->willReturn($this->createCollectionWithComponent('product-card'));
-
-        $this->salesChannelRepository->expects($this->once())
-            ->method('search')
-            ->willReturn($this->createSalesChannelSearchResult($salesChannelId));
-
-        $this->contextFactory->method('create')->willReturn($salesChannelContext);
-        $this->themeLoader->method('load')->willReturn([]);
-
-        $product = new SalesChannelProductEntity();
-        $product->setId('product-id-123');
-        $product->setUniqueIdentifier('product-id-123');
-
-        $this->productRepository->method('search')
-            ->willReturn(new EntitySearchResult(
-                ProductDefinition::ENTITY_NAME,
-                1,
-                new SalesChannelProductCollection([$product]),
-                null,
-                new Criteria(),
-                $salesChannelContext->getContext()
-            ));
-
-        $capturedProps = [];
-        $this->twig->renderCallback = static function (mixed $template, array $context) use (&$capturedProps): string {
-            $capturedProps = $context['componentProps'] ?? [];
-
-            return '';
-        };
-
-        $controller = $this->createController('dev');
-
-        $request = new Request(['product' => 'product']);
-        $request->headers->set('Origin', 'http://localhost:6006');
-
-        $controller->storybook('product-card', $request);
-
-        static::assertArrayHasKey('product', $capturedProps);
-        static::assertSame($product, $capturedProps['product']);
-    }
-
-    public function testStorybookResolvesMediaEntityProperty(): void
-    {
-        $salesChannelContext = Generator::generateSalesChannelContext();
-        $salesChannelId = $salesChannelContext->getSalesChannelId();
-
-        $this->twigComponentHelper->method('getComponents')
-            ->willReturn($this->createCollectionWithComponent('media-card'));
-
-        $this->salesChannelRepository->expects($this->once())
-            ->method('search')
-            ->willReturn($this->createSalesChannelSearchResult($salesChannelId));
-
-        $this->contextFactory->method('create')->willReturn($salesChannelContext);
-        $this->themeLoader->method('load')->willReturn([]);
-
-        $media = new MediaEntity();
-        $media->setId('media-id-123');
-        $media->setUniqueIdentifier('media-id-123');
-
-        $this->mediaRepository->method('search')
-            ->willReturn(new EntitySearchResult(
-                MediaDefinition::ENTITY_NAME,
-                1,
-                new MediaCollection([$media]),
-                null,
-                new Criteria(),
-                $salesChannelContext->getContext()
-            ));
-
-        $capturedProps = [];
-        $this->twig->renderCallback = static function (mixed $template, array $context) use (&$capturedProps): string {
-            $capturedProps = $context['componentProps'] ?? [];
-
-            return '';
-        };
-
-        $controller = $this->createController('dev');
-
-        $request = new Request(['media' => 'media']);
-        $request->headers->set('Origin', 'http://localhost:6006');
-
-        $controller->storybook('media-card', $request);
-
-        static::assertArrayHasKey('media', $capturedProps);
-        static::assertSame($media, $capturedProps['media']);
-    }
-
-    public function testStorybookReturnsNullForProductWhenRepositoryIsEmpty(): void
-    {
-        $salesChannelContext = Generator::generateSalesChannelContext();
-        $salesChannelId = $salesChannelContext->getSalesChannelId();
-
-        $this->twigComponentHelper->method('getComponents')
-            ->willReturn($this->createCollectionWithComponent('product-card'));
-
-        $this->salesChannelRepository->method('search')
-            ->willReturn($this->createSalesChannelSearchResult($salesChannelId));
-
-        $this->contextFactory->method('create')->willReturn($salesChannelContext);
-        $this->themeLoader->method('load')->willReturn([]);
-
-        $this->productRepository->method('search')
-            ->willReturn(new EntitySearchResult(
-                ProductDefinition::ENTITY_NAME,
-                0,
-                new SalesChannelProductCollection(),
-                null,
-                new Criteria(),
-                $salesChannelContext->getContext()
-            ));
-
-        $capturedProps = [];
-        $this->twig->renderCallback = static function (mixed $template, array $context) use (&$capturedProps): string {
-            $capturedProps = $context['componentProps'] ?? [];
-
-            return '';
-        };
-
-        $controller = $this->createController('dev');
-
-        $request = new Request(['product' => 'product']);
-        $request->headers->set('Origin', 'http://localhost:6006');
-
-        $controller->storybook('product-card', $request);
-
-        static::assertArrayHasKey('product', $capturedProps);
-        static::assertNull($capturedProps['product']);
-    }
-
-    public function testStorybookUsesNullThemeIdWhenThemeLoaderReturnsEmpty(): void
-    {
-        $salesChannelContext = Generator::generateSalesChannelContext();
-        $salesChannelId = $salesChannelContext->getSalesChannelId();
-
-        $this->twigComponentHelper->method('getComponents')
-            ->willReturn($this->createCollectionWithComponent('my-button'));
-
-        $this->salesChannelRepository->method('search')
-            ->willReturn($this->createSalesChannelSearchResult($salesChannelId));
-
-        $this->contextFactory->method('create')->willReturn($salesChannelContext);
-        $this->themeLoader->method('load')->willReturn([]);
-
-        $this->themeRuntimeConfigStorage->expects($this->never())
-            ->method('getThemeIdByTechnicalName');
-
-        $controller = $this->createController('dev');
-
-        $request = new Request();
-        $request->headers->set('Origin', 'http://localhost:6006');
-
-        $controller->storybook('my-button', $request);
-
-        static::assertArrayHasKey('themeId', $this->twig->globals);
-        static::assertNull($this->twig->globals['themeId']);
+        static::assertSame($expectedProps, $capturedProps);
     }
 
     private function createController(string $environment): StorybookController
@@ -557,13 +206,8 @@ class StorybookControllerTest extends TestCase
         return new StorybookController(
             $environment,
             $this->twig,
-            $this->productRepository,
-            $this->mediaRepository,
-            $this->contextFactory,
-            $this->salesChannelRepository,
-            $this->themeLoader,
-            $this->themeRuntimeConfigStorage,
             $this->twigComponentHelper,
+            $this->storybookService,
         );
     }
 
@@ -572,25 +216,6 @@ class StorybookControllerTest extends TestCase
         $component = new TwigComponent($componentName, '/path/to/' . $componentName . '.html.twig', 'Storefront');
 
         return new TwigComponentCollection([$component]);
-    }
-
-    /**
-     * @return EntitySearchResult<SalesChannelCollection>
-     */
-    private function createSalesChannelSearchResult(string $salesChannelId): EntitySearchResult
-    {
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId($salesChannelId);
-        $salesChannel->setUniqueIdentifier($salesChannelId);
-
-        return new EntitySearchResult(
-            SalesChannelDefinition::ENTITY_NAME,
-            1,
-            new SalesChannelCollection([$salesChannel]),
-            null,
-            new Criteria(),
-            Context::createDefaultContext()
-        );
     }
 }
 

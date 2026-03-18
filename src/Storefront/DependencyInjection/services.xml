@@ -586,6 +586,15 @@
             <tag name="kernel.event_listener" />
         </service>
 
+        <service id="Shopware\Storefront\Storybook\StorybookService">
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigStorage"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\StorybookRouteScopeWhitelist">
             <tag name="shopware.route_scope_whitelist"/>
         </service>

@@ -104,7 +104,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
         static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $response);
-        static::assertSame('CHECKOUT__ORDER_ORDER_NOT_FOUND', $response['errors'][0]['code']);
+        static::assertSame('CHECKOUT__INVALID_ORDER_ID', $response['errors'][0]['code']);
     }
 
     public function testRequestWithStrangersOrder(): void
@@ -131,7 +131,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
         static::assertIsString($this->browser->getResponse()->getContent());
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $response);
-        static::assertSame('CHECKOUT__ORDER_ORDER_NOT_FOUND', $response['errors'][0]['code']);
+        static::assertSame('CHECKOUT__INVALID_ORDER_ID', $response['errors'][0]['code']);
     }
 
     public function testPayOrder(): void

@@ -46,6 +46,8 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(PaymentProcessor::class)]
 class PaymentProcessorTest extends TestCase
 {
+    private const INITIAL_STATE_ID = 'initial-state-id';
+
     private PaymentProcessor $processor;
 
     /**
@@ -69,6 +71,9 @@ class PaymentProcessorTest extends TestCase
 
     protected function setUp(): void
     {
+        $initialStateIdLoader = $this->createMock(InitialStateIdLoader::class);
+        $initialStateIdLoader->method('get')->willReturn(self::INITIAL_STATE_ID);
+
         $this->processor = new PaymentProcessor(
             $this->tokenFactory = $this->createMock(TokenFactoryInterfaceV2::class),
             $this->tokenGenerator = $this->createMock(PaymentTokenGenerator::class),
@@ -78,7 +83,7 @@ class PaymentProcessorTest extends TestCase
             $this->stateHandler = $this->createMock(OrderTransactionStateHandler::class),
             $this->createMock(LoggerInterface::class),
             $this->structFactory = $this->createMock(AbstractPaymentTransactionStructFactory::class),
-            $this->createMock(InitialStateIdLoader::class),
+            $initialStateIdLoader,
             $this->router = $this->createMock(RouterInterface::class),
             $this->createMock(SystemConfigService::class),
         );
@@ -93,6 +98,7 @@ class PaymentProcessorTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
@@ -149,6 +155,7 @@ class PaymentProcessorTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
@@ -223,6 +230,7 @@ class PaymentProcessorTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
@@ -279,6 +287,7 @@ class PaymentProcessorTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
@@ -352,15 +361,15 @@ class PaymentProcessorTest extends TestCase
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $response = $this->processor->pay(
+        $this->expectException(PaymentException::class);
+        $this->expectExceptionMessage('The order with id order-id is invalid or could not be found.');
+        $this->processor->pay(
             'order-id',
             $request,
             $salesChannelContext,
             'finish-url',
             'error-url',
         );
-
-        static::assertNull($response);
     }
 
     public function testPayWithInvalidOrder(): void
@@ -391,6 +400,7 @@ class PaymentProcessorTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
@@ -427,6 +437,7 @@ class PaymentProcessorTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
@@ -481,6 +492,7 @@ class PaymentProcessorTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();
@@ -516,6 +528,7 @@ class PaymentProcessorTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('payment-method-id');
+        $orderTransaction->setStateId(self::INITIAL_STATE_ID);
         $this->orderTransactionRepository->addSearch(new OrderTransactionCollection([$orderTransaction]));
 
         $request = new Request();

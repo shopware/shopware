@@ -273,14 +273,14 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
         return $id;
     }
 
-    protected function getSalesChannelContext(string $paymentMethodId, ?string $customerId = null): SalesChannelContext
+    protected function getSalesChannelContext(string $paymentMethodId): SalesChannelContext
     {
         return $this->salesChannelContextFactory->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
             [
                 SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
-                SalesChannelContextService::CUSTOMER_ID => $customerId,
+                SalesChannelContextService::CUSTOMER_ID => $this->ids->get('customer'),
             ]
         );
     }

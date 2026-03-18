@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionColl
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
-use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\Cart\AbstractPaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
@@ -211,7 +210,7 @@ class PaymentProcessor
         $transactions = $this->orderTransactionRepository->search($criteria, $salesChannelContext->getContext())->getEntities();
 
         if ($transactions->count() === 0) {
-            throw OrderException::orderNotFound($orderId);
+            throw PaymentException::invalidOrder($orderId);
         }
 
         return $transactions->filterByProperty('stateId', $initialStateId)->first();

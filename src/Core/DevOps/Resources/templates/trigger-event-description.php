@@ -1,5 +1,8 @@
 <?php declare(strict_types=1);
 
+/**
+ * @codeCoverageIgnore
+ */
 return [
     'checkout.customer.before.login' => <<<'EOD'
 Triggers as soon as a customer logs in

@@ -38,9 +38,18 @@ class TriggerReferenceGeneratorCommand extends Command
 
         $io->comment('Generating Markdown reference for business/flow triggers.');
 
+        if (!$this->filesystem->exists(self::EVENT_DESCRIPTIONS)) {
+            $io->error(\sprintf(
+                'Descriptions file is missing: %s. The generated reference requires trigger-event-description.php.',
+                self::EVENT_DESCRIPTIONS
+            ));
+
+            return self::FAILURE;
+        }
+
         $events = $this->collector->collect(Context::createCLIContext());
         /** @var array<string, string> $descriptions */
-        $descriptions = is_file(self::EVENT_DESCRIPTIONS) ? require self::EVENT_DESCRIPTIONS : [];
+        $descriptions = require self::EVENT_DESCRIPTIONS;
 
         // Sort events by name for stable output
         $rows = [];

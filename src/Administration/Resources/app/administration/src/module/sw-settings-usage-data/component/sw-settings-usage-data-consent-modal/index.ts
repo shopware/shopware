@@ -80,6 +80,10 @@ export default Shopware.Component.wrapComponentConfig({
                 : ['product_analytics'];
         },
 
+        showSingleOptionActions() {
+            return !this.showStoreDataConsent;
+        },
+
         showStoreDataConsent() {
             if (this.initialStoreDataConsent) {
                 return false;
@@ -89,11 +93,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         showSavePreferences() {
-            if (!this.showStoreDataConsent) {
-                return true;
-            }
-
-            return this.storeDataConsent || this.userDataConsent;
+            return this.showStoreDataConsent && (this.storeDataConsent || this.userDataConsent);
         },
     },
 
@@ -132,6 +132,30 @@ export default Shopware.Component.wrapComponentConfig({
                 await this.updateConsents(this.storeDataConsent, this.userDataConsent);
             } finally {
                 this.isLoading = false;
+                done();
+            }
+        },
+
+        async giveSingleOptionConsent(done: () => void) {
+            this.sharesAll = true;
+            this.userDataConsent = true;
+
+            try {
+                await this.updateConsents(this.storeDataConsent, true);
+            } finally {
+                this.sharesAll = false;
+                done();
+            }
+        },
+
+        async declineSingleOptionConsent(done: () => void) {
+            this.revokesAll = true;
+            this.userDataConsent = false;
+
+            try {
+                await this.updateConsents(this.storeDataConsent, false);
+            } finally {
+                this.revokesAll = false;
                 done();
             }
         },

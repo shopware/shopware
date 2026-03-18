@@ -33,6 +33,7 @@
                 />
                 <sw-settings-usage-data-user-data-consent-card
                     v-model:consent="userDataConsent"
+                    :hide-switch="showSingleOptionActions"
                     @legal-link-clicked="trackLegalLinkClick('privacy_policy')"
                 />
 
@@ -53,7 +54,41 @@
 
         <template #footer>
             <div class="sw-settings-usage-data-consent-modal__footer">
-                <template v-if="showSavePreferences">
+                <template v-if="showSingleOptionActions">
+                    <mt-modal-action
+                        as="mt-button"
+                        variant="primary"
+                        :is-loading="revokesAll"
+                        :disabled="sharesAll"
+                        @click="declineSingleOptionConsent"
+                    >
+                        <template #iconFront="{ size }">
+                            <mt-icon
+                                name="solid-times"
+                                :size="size"
+                            />
+                        </template>
+                        {{ $t('sw-settings-usage-data.consent-modal.actions.decline') }}
+                    </mt-modal-action>
+
+                    <mt-modal-action
+                        as="mt-button"
+                        variant="primary"
+                        :is-loading="sharesAll"
+                        :disabled="revokesAll"
+                        @click="giveSingleOptionConsent"
+                    >
+                        <template #iconFront="{ size }">
+                            <mt-icon
+                                name="solid-checkmark"
+                                :size="size"
+                            />
+                        </template>
+
+                        {{ $t('sw-settings-usage-data.consent-modal.actions.give-consent') }}
+                    </mt-modal-action>
+                </template>
+                <template v-else-if="showSavePreferences">
                     <mt-modal-action
                         as="mt-button"
                         variant="primary"

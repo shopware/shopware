@@ -64,7 +64,9 @@
       "actions": {
         "share-all-data": "Alle akzeptieren",
         "share-nothing": "Alle ablehnen",
-        "save-preferences": "Auswahl speichern"
+        "save-preferences": "Auswahl speichern",
+        "give-consent": "Zustimmung geben",
+        "decline": "Ablehnen"
       }
     }
   },

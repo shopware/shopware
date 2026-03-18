@@ -55,13 +55,28 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             expect(buttons[1].text()).toBe('sw-settings-usage-data.consent-modal.actions.share-all-data');
         });
 
-        it('shows save preferences when store data consent was given before', async () => {
+        it('shows decline/give consent buttons when store data consent was given before', async () => {
             const wrapper = await createConsentModal(true, false);
 
             const buttons = wrapper.findAll('.mt-modal__footer button');
 
-            expect(buttons).toHaveLength(1);
-            expect(buttons[0].text()).toBe('sw-settings-usage-data.consent-modal.actions.save-preferences');
+            expect(buttons).toHaveLength(2);
+            expect(buttons[0].text()).toBe('sw-settings-usage-data.consent-modal.actions.decline');
+            expect(buttons[1].text()).toBe('sw-settings-usage-data.consent-modal.actions.give-consent');
+            expect(wrapper.findAllComponents(MtSwitch)).toHaveLength(0);
+        });
+
+        it('shows decline/give consent buttons when store data consent is hidden by permissions', async () => {
+            global.activeAclRoles = ['user.update_profile'];
+
+            const wrapper = await createConsentModal(false, false);
+
+            const buttons = wrapper.findAll('.mt-modal__footer button');
+
+            expect(buttons).toHaveLength(2);
+            expect(buttons[0].text()).toBe('sw-settings-usage-data.consent-modal.actions.decline');
+            expect(buttons[1].text()).toBe('sw-settings-usage-data.consent-modal.actions.give-consent');
+            expect(wrapper.findAllComponents(MtSwitch)).toHaveLength(0);
         });
 
         it('shows save preferences when one or both consent states changes', async () => {
@@ -262,7 +277,11 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             acceptSpy.mockImplementation(() => Promise.resolve());
             revokeSpy.mockImplementation(() => Promise.resolve());
 
-            const wrapper = await createConsentModal(true, false);
+            const wrapper = await createConsentModal(false, false);
+
+            const [shareStoreDataSwitch] = wrapper.findAllComponents(MtSwitch);
+
+            await shareStoreDataSwitch.get('input').trigger('change');
 
             const eventhandler = jest.fn();
             Shopware.Utils.EventBus.on('consent', eventhandler);
@@ -281,6 +300,10 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
                 new ConsentEvent(
                     'consent_modal_decision',
                     {
+                        backend_data: {
+                            status: 'accepted',
+                            changed: true,
+                        },
                         product_analytics: {
                             status: 'revoked',
                             changed: false,
@@ -292,6 +315,59 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             );
 
             Shopware.Utils.EventBus.off('consent', eventhandler);
+        });
+
+        it('accepts user data consent when "Give Consent" is clicked in the single-option case', async () => {
+            global.activeAclRoles = ['user.update_profile'];
+
+            const consentStore = useConsentStore();
+            const acceptSpy = jest.spyOn(consentStore, 'accept');
+            acceptSpy.mockImplementation(() => Promise.resolve());
+
+            const wrapper = await createConsentModal(false, false);
+
+            const giveConsentButton = wrapper.findAll('.mt-modal__footer button')[1];
+
+            await giveConsentButton.trigger('click');
+
+            expect(acceptSpy).toHaveBeenCalledTimes(1);
+            expect(acceptSpy.mock.calls[0][0]).toBe('product_analytics');
+        });
+
+        it('keeps backend data consent accepted when "Decline" is clicked in the single-option admin case', async () => {
+            const consentStore = useConsentStore();
+            const acceptSpy = jest.spyOn(consentStore, 'accept');
+            const revokeSpy = jest.spyOn(consentStore, 'revoke');
+            acceptSpy.mockImplementation(() => Promise.resolve());
+            revokeSpy.mockImplementation(() => Promise.resolve());
+
+            const wrapper = await createConsentModal(true, false);
+
+            const declineButton = wrapper.findAll('.mt-modal__footer button')[0];
+
+            await declineButton.trigger('click');
+
+            expect(acceptSpy).toHaveBeenCalledTimes(1);
+            expect(acceptSpy.mock.calls[0][0]).toBe('backend_data');
+            expect(revokeSpy).toHaveBeenCalledTimes(1);
+            expect(revokeSpy.mock.calls[0][0]).toBe('product_analytics');
+        });
+
+        it('revokes user data consent when "Decline" is clicked in the single-option case', async () => {
+            global.activeAclRoles = ['user.update_profile'];
+
+            const consentStore = useConsentStore();
+            const revokeSpy = jest.spyOn(consentStore, 'revoke');
+            revokeSpy.mockImplementation(() => Promise.resolve());
+
+            const wrapper = await createConsentModal(false, false);
+
+            const declineButton = wrapper.findAll('.mt-modal__footer button')[0];
+
+            await declineButton.trigger('click');
+
+            expect(revokeSpy).toHaveBeenCalledTimes(1);
+            expect(revokeSpy.mock.calls[0][0]).toBe('product_analytics');
         });
 
         it('does not update backend data consent if permissions are missing', async () => {
@@ -323,7 +399,11 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             acceptSpy.mockImplementation(() => Promise.resolve());
             revokeSpy.mockImplementation(() => Promise.resolve());
 
-            const wrapper = await createConsentModal(true, false);
+            const wrapper = await createConsentModal(false, false);
+
+            const [shareStoreDataSwitch] = wrapper.findAllComponents(MtSwitch);
+
+            await shareStoreDataSwitch.get('input').trigger('change');
 
             const savePreferencesButton = wrapper.find('.mt-modal__footer button');
 
@@ -343,7 +423,11 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
 
             acceptSpy.mockImplementation(() => Promise.reject());
 
-            const wrapper = await createConsentModal(true, false);
+            const wrapper = await createConsentModal(false, false);
+
+            const [shareStoreDataSwitch] = wrapper.findAllComponents(MtSwitch);
+
+            await shareStoreDataSwitch.get('input').trigger('change');
 
             const savePreferencesButton = wrapper.find('.mt-modal__footer button');
 

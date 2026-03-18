@@ -90,6 +90,42 @@ The API service automatically attaches these headers to every request, ensuring 
 - Implements 30-minute inactivity threshold
 - Triggers automatic logout for inactive sessions (unless "Remember Me" is enabled)
 
+### 5. Cross-Tab Token Refresh (Web Locks)
+
+To prevent multiple browser tabs from triggering simultaneous refresh requests, the login service uses the [Web Locks API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Locks_API):
+
+- A named lock `sw-admin-token-refresh` is acquired before any token refresh request
+- Only the tab that holds the lock performs the actual HTTP refresh; all other tabs wait
+- When the lock-holding tab finishes, waiting tabs reuse the newly issued token
+- Tabs that have already subscribed via `subscribeToTokenRefresh` receive the result through their callbacks without repeating the request
+
+This removes the previous `refresh-token.helper.js` subscriber pattern and centralises coordination inside the login service itself.
+
+**In-Flight Deduplication**:
+Even within a single tab, concurrent requests that all require a fresh token are deduplicated: the first request triggers the refresh and the rest wait on the same promise.
+
+**Exponential Backoff Retry**:
+The token refresh HTTP call is retried up to 3 times with exponential backoff (default delay doubles each attempt) before giving up and triggering a logout.
+
+### 6. Public Token Refresh API
+
+Two additional methods are available on the login service to integrate with the token refresh lifecycle:
+
+```typescript
+// Subscribe to the outcome of the next (or current) token refresh.
+// Useful for request interceptors that need to retry after a token is renewed.
+loginService.subscribeToTokenRefresh(
+    (newToken: string) => { /* retry queued requests */ },
+    (error: Error) => { /* handle refresh failure */ }
+);
+
+// Returns true if a refresh is already in progress
+// (checks both the in-tab promise and the shared Web Lock).
+const refreshing = await loginService.isRefreshing();
+```
+
+`subscribeToTokenRefresh` is consumed internally by the HTTP factory to queue failed requests during a refresh. External integrations (e.g. Admin-SDK, extension workers) can call it to avoid sending requests with an expired token.
+
 ## Context Management
 
 ### Context Store Structure

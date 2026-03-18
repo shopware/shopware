@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
@@ -108,12 +109,22 @@ class MailTemplateService
             $data['mediaIds'] ?? [],
         );
 
+        $orderId = null;
+
+        if (\array_key_exists('order', $templateData)) {
+            if (\is_array($templateData['order'])) {
+                $orderId = $templateData['order']['id'] ?? null;
+            } elseif ($templateData['order'] instanceof OrderEntity) {
+                $orderId = $templateData['order']->getId();
+            }
+        }
+
         $data['attachmentsConfig'] = new MailAttachmentsConfig(
             $context,
             new MailTemplateEntity(),
             $extension,
             [],
-            $templateData['order']['id'] ?? null,
+            $orderId,
         );
 
         return $this->mailService->send($data, $context, $templateData);

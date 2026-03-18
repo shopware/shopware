@@ -22,8 +22,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Mime\Email;
@@ -94,6 +94,7 @@ class MailTemplateServiceTest extends TestCase
         static::assertSame('Shopware', $mailTemplate->getSenderName());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testPreviewNonExistingEntitiesErrorInStrictMode(): void
     {
         $templateContent = 'Order ID: {{ order.id }}';
@@ -106,15 +107,13 @@ class MailTemplateServiceTest extends TestCase
 
         static::assertCount(2, $rendered);
 
-        $name = Hasher::hash($templateContent . false);
-        $expectedContent = 'Failed rendering string template using Twig: Variable "order" does not exist in "' . $name . '" at line 1.';
-
         static::assertSame(MailTemplateRenderError::TYPE, $rendered->get('contentHtml')?->getType());
-        static::assertSame($expectedContent, $rendered->get('contentHtml')->getContent());
+        static::assertMatchesRegularExpression('/^Failed rendering string template using Twig: Variable "order" does not exist in "[0-9a-f]{32}" at line 1.$/', $rendered->get('contentHtml')->getContent());
         static::assertSame(MailTemplateRenderError::TYPE, $rendered->get('contentPlain')?->getType());
-        static::assertSame($expectedContent, $rendered->get('contentPlain')->getContent());
+        static::assertMatchesRegularExpression('/^Failed rendering string template using Twig: Variable "order" does not exist in "[0-9a-f]{32}" at line 1.$/', $rendered->get('contentPlain')->getContent());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testPreviewIgnoresMissingVariablesInNonStrictMode(): void
     {
         $rendered = $this->mailTemplateService->preview(
@@ -132,6 +131,7 @@ class MailTemplateServiceTest extends TestCase
         static::assertEquals($expected, $rendered->get('contentPlain'));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testPreviewCanRenderVariables(): void
     {
         $rendered = $this->mailTemplateService->preview(
@@ -160,6 +160,7 @@ class MailTemplateServiceTest extends TestCase
         static::assertTrue(Uuid::isValid(\explode('Order ID: ', $renderedPlain)[1]));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testSendNoEntitiesButNotRequired(): void
     {
         $data = [
@@ -215,6 +216,7 @@ class MailTemplateServiceTest extends TestCase
         $mailTemplateService->getTemplateDataAndSend($data, $this->context, ContactFormEvent::class);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testSendNonExistingEntities(): void
     {
         $data = [
@@ -249,6 +251,7 @@ class MailTemplateServiceTest extends TestCase
         );
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testCanSend(): void
     {
         $data = [
@@ -267,13 +270,11 @@ class MailTemplateServiceTest extends TestCase
 
         $textBody = $email->getTextBody();
         static::assertIsString($textBody);
-        static::assertStringContainsString('Order ID: ', $textBody);
-        static::assertTrue(Uuid::isValid(\explode('Order ID: ', $textBody)[1]));
+        static::assertMatchesRegularExpression('/"[\w \.]+"Order ID: [0-9a-f]{32}"[\w \.]+"/', $textBody);
 
         $htmlBody = $email->getHtmlBody();
         static::assertIsString($htmlBody);
-        static::assertStringContainsString('Order ID: ', $htmlBody);
-        static::assertTrue(Uuid::isValid(\explode('Order ID: ', $htmlBody)[1]));
+        static::assertMatchesRegularExpression('/"[\w \.]+"Order ID: [0-9a-f]{32}"[\w \.]+"/', $htmlBody);
 
         static::assertSame('Test', $email->getSubject());
         static::assertSame('Shopware', $email->getFrom()[0]->getName());
@@ -281,6 +282,7 @@ class MailTemplateServiceTest extends TestCase
         static::assertSame('test@shopware.com', $email->getTo()[0]->getAddress());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testCanSendMultipleEntities(): void
     {
         $data = [
@@ -304,17 +306,12 @@ class MailTemplateServiceTest extends TestCase
         $textBody = $email->getTextBody();
         static::assertIsString($textBody);
 
-        $uuids = [];
-        \preg_match_all('/[0-9a-f]{32}/', $textBody, $uuids);
+        static::assertMatchesRegularExpression('/"[\w \.]+"Main order ID: [0-9a-f]{32}, Customer ID: [0-9a-f]{32}"[\w \.]+"/', $textBody);
 
-        static::assertSame(
-            'Main order ID: ' . $uuids[0][0] . ', Customer ID: ' . $uuids[0][1],
-            $email->getTextBody()
-        );
-        static::assertSame(
-            'Main order ID: ' . $uuids[0][0] . ', Customer ID: ' . $uuids[0][1],
-            $email->getHtmlBody()
-        );
+        $htmlBody = $email->getHtmlBody();
+        static::assertIsString($htmlBody);
+
+        static::assertMatchesRegularExpression('/"[\w \.]+"Main order ID: [0-9a-f]{32}, Customer ID: [0-9a-f]{32}"[\w \.]+"/', $htmlBody);
 
         static::assertSame('Test', $email->getSubject());
         static::assertSame('Shopware', $email->getFrom()[0]->getName());

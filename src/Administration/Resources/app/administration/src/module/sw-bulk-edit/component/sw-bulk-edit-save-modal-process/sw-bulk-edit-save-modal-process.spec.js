@@ -3,6 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
+
 async function createWrapper() {
     return mount(
         await wrapTestComponent('sw-bulk-edit-save-modal-process', {
@@ -21,6 +22,7 @@ async function createWrapper() {
                         },
                         generate: () => null,
                     },
+                    syncService: {},
                 },
             },
         },

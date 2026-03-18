@@ -85,6 +85,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-bulk-edit-order-documents-generate-delivery-note': true,
                     'sw-bulk-edit-order-documents-generate-credit-note': true,
                     'sw-bulk-edit-order-documents-download-documents': true,
+                    'sw-bulk-edit-order-documents-delete-documents': true,
                     'sw-entity-tag-select': true,
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                     'sw-error-summary': true,
@@ -230,6 +231,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                         startEventListener: () => {},
                         stopEventListener: () => {},
                     },
+                    syncService: {},
                 },
             },
             props: {

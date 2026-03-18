@@ -1,7 +1,7 @@
 # Consent system in the Administration
 
 Becoming a service-driven product, it becomes more and more important to request a consent to process shop data in external services.
-In the PHP core we created a system to manage user's consent decisions.
+In the PHP core we created a system to manage user's consent decisions (see the `Shopware\Core\System\Consent` namespace).
 In the Administration, we can now use this system to read and update the consent states of the users.
 
 ## Read a consent state
@@ -38,6 +38,80 @@ consentStore.accept('your_consent');
 
 // revoke or decline a consent
 consentStore.revoke('your_consent');
+```
+
+## Consent Events
+
+We dispatch events on consent changes, via the Admin's global event bus.
+To listen to these events, you can use the `on` method of the event bus.
+
+```ts
+import type { ConsentEvent } from 'src/core/consent/events';
+
+const eventHandler = (event: ConsentEvent) => { /* handle event */ };
+
+// subscribe to consent events
+Shopware.Utils.EventBus.on('consent', eventHandler);
+
+// unsubscribe from events
+Shopware.Utils.EventBus.off('consent', eventHandler);
+```
+
+### Event types
+
+- **consent_status_change**: This event is dispatched whenever a consent's status changes. The event payload is the updated consent status:
+```ts
+{
+    eventName: 'consent_status_change';
+    {
+        name: string;
+        identifier: string;
+        scopeName: 'system' | 'admin_user';
+        actor: string | null;
+        status: 'unset' | 'declined' | 'accepted' | 'revoked';
+        updated_at: string | null;
+    };
+    timestamp: Date;
+}
+```
+* **consent_modal_viewed** (internal): This event is dispatched when the `sw-settings-usage-data-consent-modal` component is shown.
+```ts
+{
+    eventName: 'consent_modal_viewed';
+    eventProperties: {
+        consents_shown:  Array<'backend_data' | 'product_analytics'>;
+    };
+    timestamp: Date;
+}
+```
+- **consent_modal_decision** (internal): This event is dispatched when the `sw-settings-usage-data-consent-modal` component is closed with a click on the buttons of its footer. The event payload contains the consents that were accepted and declined in the modal.
+```ts
+{
+    eventName: 'consent_modal_decision';
+    eventProperties: {
+        backend_data?: {
+            status: ConsentAction;
+            changed: boolean;
+        };
+        product_analytics: {
+            status: ConsentAction;
+            changed: boolean;
+        };
+        time_spent_on_modal: number;
+    };
+    timestamp: Date;
+}
+```
+- **consent_legal_link_clicked** (internal): This event is dispatched when links to our data privacy page or our data sharing policy are clicked.
+```ts
+{
+    eventName: 'consent_modal_decision';
+    eventProperties: {
+        link_target: 'privacy_policy' | 'data_use_details';
+        source: 'modal' | 'setting' | 'user';
+    };
+    timestamp: Date;
+}
 ```
 
 ## Further steps

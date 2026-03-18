@@ -1,81 +1,80 @@
 /**
  * @sw-package framework
  */
-import type { ConsentEventName, ConsentEvents, TrackableType } from './events';
+import { isConsentEvent, isConsentEventType, type TrackableType } from './events';
 
 type TrackClient = {
     track: (eventName: string, eventProperties: Record<string, TrackableType>, time: number) => void;
 };
 
-const ANONYMOUS_ALLOWED_PROPERTIES: { [Property in keyof ConsentEvents]: ReadonlyArray<keyof ConsentEvents[Property]> } = {
-    consent_modal_viewed: ['option'],
-    consent_decision_made: [
-        'option',
-        'decision',
-        'time_spent_on_modal',
-    ],
-    consent_option_changed: [
-        'option',
-        'state',
-    ],
-    consent_legal_link_clicked: [
-        'link_target',
-        'source',
-    ],
-    consent_revoked: [
-        'accepted_options',
-        'declined_options',
-    ],
-};
-
-function isConsentEventName(value: unknown): value is ConsentEventName {
-    return typeof value === 'string' && value in ANONYMOUS_ALLOWED_PROPERTIES;
-}
-
-function isTrackableProperties(value: unknown): value is Record<string, TrackableType> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function sanitizeAnonymousProperties(
-    eventName: ConsentEventName,
-    properties: Record<string, TrackableType>,
-): Record<string, TrackableType> {
-    return ANONYMOUS_ALLOWED_PROPERTIES[eventName].reduce<Record<string, TrackableType>>((sanitized, key) => {
-        const value = properties[key];
-
-        if (value === undefined) {
-            return sanitized;
-        }
-
-        if (key === 'time_spent_on_modal' && typeof value !== 'number') {
-            return sanitized;
-        }
-
-        sanitized[key] = value;
-
-        return sanitized;
-    }, {});
-}
+type EventPayload = Record<string, TrackableType>;
 
 /**
  * @private
  */
 export default function createConsentEventHandler(anonymousAmplitude: TrackClient): (consentEvent: unknown) => void {
     return (consentEvent: unknown) => {
-        if (typeof consentEvent !== 'object' || consentEvent === null) {
+        if (!isConsentEvent(consentEvent)) {
             return;
         }
 
-        const { eventName, eventProperties } = consentEvent as {
-            eventName: unknown;
-            eventProperties: unknown;
-        };
-        const timestamp = 'timestamp' in consentEvent ? consentEvent.timestamp : undefined;
+        if (isConsentEventType(consentEvent, 'consent_modal_viewed')) {
+            anonymousAmplitude.track(
+                consentEvent.eventName,
+                {
+                    consents_shown: consentEvent.eventProperties.consents_shown,
+                },
+                consentEvent.timestamp.getTime(),
+            );
 
-        if (!isConsentEventName(eventName) || !isTrackableProperties(eventProperties) || !(timestamp instanceof Date)) {
             return;
         }
 
-        anonymousAmplitude.track(eventName, sanitizeAnonymousProperties(eventName, eventProperties), timestamp.getTime());
+        if (isConsentEventType(consentEvent, 'consent_modal_decision')) {
+            const eventProps: EventPayload = {
+                product_analytics_state: consentEvent.eventProperties.product_analytics.status,
+                product_analytics_changed: consentEvent.eventProperties.product_analytics.changed,
+                time_spent_on_modal: consentEvent.eventProperties.time_spent_on_modal,
+            };
+
+            if (consentEvent.eventProperties.backend_data) {
+                eventProps.backend_data_state = consentEvent.eventProperties.backend_data.status;
+                eventProps.backend_data_changed = consentEvent.eventProperties.backend_data.changed;
+            }
+
+            anonymousAmplitude.track(consentEvent.eventName, eventProps, consentEvent.timestamp.getTime());
+            return;
+        }
+
+        if (isConsentEventType(consentEvent, 'consent_status_change')) {
+            if (
+                consentEvent.eventProperties.name !== 'backend_data' &&
+                consentEvent.eventProperties.name !== 'product_analytics'
+            ) {
+                return;
+            }
+
+            anonymousAmplitude.track(
+                consentEvent.eventName,
+                {
+                    consent: consentEvent.eventProperties.name,
+                    status: consentEvent.eventProperties.status,
+                },
+                consentEvent.timestamp.getTime(),
+            );
+
+            return;
+        }
+
+        if (isConsentEventType(consentEvent, 'consent_legal_link_clicked')) {
+            anonymousAmplitude.track(
+                consentEvent.eventName,
+                {
+                    link_target: consentEvent.eventProperties.link_target,
+                    source: consentEvent.eventProperties.source,
+                },
+                consentEvent.timestamp.getTime(),
+            );
+        }
     };
 }

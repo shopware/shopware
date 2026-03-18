@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 import useConsentStore from 'src/core/consent/consent.store';
-import { dispatchConsentEvent } from 'src/core/consent/events';
+import { dispatchConsentEvent, type ConsentEvents } from 'src/core/consent/events';
 import template from './sw-settings-usage-data-consent-modal.html.twig';
 import './sw-settings-usage-data-consent-modal.scss';
 
@@ -67,17 +67,17 @@ export default Shopware.Component.wrapComponentConfig({
         this.userDataConsent = this.initialUserDataConsent;
 
         this.modalOpenedAt = Date.now();
-        dispatchConsentEvent('consent_modal_viewed', { option: this.visibleOptions });
+        dispatchConsentEvent('consent_modal_viewed', { consents_shown: this.visibleOptions });
     },
 
     computed: {
-        visibleOptions(): Array<'backend_data' | 'user_tracking'> {
+        visibleOptions(): Array<'backend_data' | 'product_analytics'> {
             return this.showStoreDataConsent
                 ? [
                       'backend_data',
-                      'user_tracking',
+                      'product_analytics',
                   ]
-                : ['user_tracking'];
+                : ['product_analytics'];
         },
 
         showStoreDataConsent() {
@@ -85,11 +85,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return false;
             }
 
-            if (!this.acl.can('system.system_config')) {
-                return false;
-            }
-
-            return true;
+            return this.acl.can('system.system_config');
         },
 
         showSavePreferences() {
@@ -110,81 +106,56 @@ export default Shopware.Component.wrapComponentConfig({
             dispatchConsentEvent('consent_legal_link_clicked', { link_target: linkTarget, source: 'modal' });
         },
 
-        trackChangedOptionEventsForVisibleOptions() {
-            if (this.showStoreDataConsent && this.storeDataConsent !== this.initialStoreDataConsent) {
-                dispatchConsentEvent('consent_option_changed', {
-                    option: 'backend_data',
-                    state: this.storeDataConsent ? 'enabled' : 'disabled',
-                });
-            }
-
-            if (this.userDataConsent !== this.initialUserDataConsent) {
-                dispatchConsentEvent('consent_option_changed', {
-                    option: 'user_tracking',
-                    state: this.userDataConsent ? 'enabled' : 'disabled',
-                });
-            }
-        },
-
-        trackDecisionEventsForVisibleOptions() {
-            const timeSpentOnModal = this.getModalTimeSpentInSeconds();
+        trackDecisionEventForVisibleOptions(storeDataConsent: boolean, userDataConsent: boolean) {
+            const eventProps: ConsentEvents['consent_modal_decision'] = {
+                product_analytics: {
+                    status: userDataConsent ? 'accepted' : 'revoked',
+                    changed: userDataConsent !== this.initialUserDataConsent,
+                },
+                time_spent_on_modal: this.getModalTimeSpentInSeconds(),
+            };
 
             if (this.showStoreDataConsent) {
-                dispatchConsentEvent('consent_decision_made', {
-                    option: 'backend_data',
-                    decision: this.storeDataConsent ? 'accepted' : 'revoked',
-                    time_spent_on_modal: timeSpentOnModal,
-                });
+                eventProps.backend_data = {
+                    status: storeDataConsent ? 'accepted' : 'revoked',
+                    changed: storeDataConsent !== this.initialStoreDataConsent,
+                };
             }
 
-            dispatchConsentEvent('consent_decision_made', {
-                option: 'user_tracking',
-                decision: this.userDataConsent ? 'accepted' : 'revoked',
-                time_spent_on_modal: timeSpentOnModal,
-            });
+            dispatchConsentEvent('consent_modal_decision', eventProps);
         },
 
         async savePreferences(done: () => void) {
             this.isLoading = true;
 
-            await this.updateConsents(this.storeDataConsent, this.userDataConsent);
-            this.trackChangedOptionEventsForVisibleOptions();
-            this.trackDecisionEventsForVisibleOptions();
-
-            this.isLoading = false;
-            done();
+            try {
+                await this.updateConsents(this.storeDataConsent, this.userDataConsent);
+            } finally {
+                this.isLoading = false;
+                done();
+            }
         },
 
         async shareAll(done: () => void) {
             this.sharesAll = true;
 
-            if (this.showStoreDataConsent) {
-                this.storeDataConsent = true;
+            try {
+                await this.updateConsents(true, true);
+            } finally {
+                this.sharesAll = false;
+                done();
             }
-            this.userDataConsent = true;
-
-            await this.updateConsents(true, true);
-            this.trackChangedOptionEventsForVisibleOptions();
-            this.trackDecisionEventsForVisibleOptions();
-
-            this.sharesAll = false;
-            done();
         },
 
         async shareNothing(done: () => void) {
             this.revokesAll = true;
 
-            if (this.showStoreDataConsent) {
-                this.storeDataConsent = false;
+            try {
+                await this.updateConsents(false, false);
+            } finally {
+                this.revokesAll = false;
+                done();
             }
-            this.userDataConsent = false;
-
-            await this.updateConsents(false, false);
-            this.trackChangedOptionEventsForVisibleOptions();
-            this.trackDecisionEventsForVisibleOptions();
-
-            this.revokesAll = false;
-            done();
         },
 
         async updateConsents(storeDataConsent: boolean, userDataConsent: boolean) {
@@ -195,6 +166,8 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.acl.can('user.update_profile')) {
                 await this.updateSingleConsent('product_analytics', userDataConsent);
             }
+
+            this.trackDecisionEventForVisibleOptions(storeDataConsent, userDataConsent);
         },
 
         async updateSingleConsent(consent: 'backend_data' | 'product_analytics', accepted: boolean) {

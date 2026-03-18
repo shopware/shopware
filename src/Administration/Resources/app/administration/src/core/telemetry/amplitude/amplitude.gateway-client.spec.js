@@ -12,7 +12,7 @@ describe('src/core/telemetry/amplitude/amplitude.gateway-client.ts', () => {
         anonymousGatewayClient.track(
             'consent_modal_viewed',
             {
-                option: ['user_tracking'],
+                option: ['product_analytics'],
             },
             1735689600000,
         );
@@ -31,7 +31,7 @@ describe('src/core/telemetry/amplitude/amplitude.gateway-client.ts', () => {
                         {
                             event_type: 'consent_modal_viewed',
                             event_properties: {
-                                option: ['user_tracking'],
+                                option: ['product_analytics'],
                             },
                             time: 1735689600000,
                         },

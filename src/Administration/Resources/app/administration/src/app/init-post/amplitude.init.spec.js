@@ -262,9 +262,9 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             Shopware.Utils.EventBus.emit(
                 'consent',
                 new ConsentEvent('consent_modal_viewed', {
-                    option: [
+                    consents_shown: [
                         'backend_data',
-                        'user_tracking',
+                        'product_analytics',
                     ],
                 }),
             );
@@ -287,9 +287,9 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     {
                         event_type: 'consent_modal_viewed',
                         event_properties: {
-                            option: [
+                            consents_shown: [
                                 'backend_data',
-                                'user_tracking',
+                                'product_analytics',
                             ],
                         },
                         time: expect.any(Number),
@@ -307,9 +307,9 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             Shopware.Utils.EventBus.emit(
                 'consent',
                 new ConsentEvent('consent_modal_viewed', {
-                    option: [
+                    consents_shown: [
                         'backend_data',
-                        'user_tracking',
+                        'product_analytics',
                     ],
                 }),
             );
@@ -326,9 +326,9 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     {
                         event_type: 'consent_modal_viewed',
                         event_properties: {
-                            option: [
+                            consents_shown: [
                                 'backend_data',
-                                'user_tracking',
+                                'product_analytics',
                             ],
                         },
                         time: expect.any(Number),
@@ -498,7 +498,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                 new ConsentEvent('consent_modal_viewed', {
                     option: [
                         'backend_data',
-                        'user_tracking',
+                        'product_analytics',
                     ],
                 }),
             );

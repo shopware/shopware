@@ -1,43 +1,45 @@
 /**
  * @sw-package framework
  */
+import type { ConsentDTO } from './consent.store';
 
 type TrackableType = string | string[] | number | boolean | null;
 
-type ConsentOption = 'backend_data' | 'user_tracking';
+type ModalConsents = 'backend_data' | 'product_analytics';
+type ConsentAction = ConsentDTO['status'];
+
 type ConsentEvents = {
     consent_modal_viewed: {
-        option: ConsentOption[];
+        consents_shown: ModalConsents[];
     };
-    consent_decision_made: {
-        option: ConsentOption;
-        decision: 'accepted' | 'revoked';
+    consent_modal_decision: {
+        backend_data?: {
+            status: ConsentAction;
+            changed: boolean;
+        };
+        product_analytics: {
+            status: ConsentAction;
+            changed: boolean;
+        };
         time_spent_on_modal: number;
     };
-    consent_option_changed: {
-        option: ConsentOption;
-        state: 'enabled' | 'disabled';
-    };
+    consent_status_change: ConsentDTO;
     consent_legal_link_clicked: {
         link_target: 'privacy_policy' | 'data_use_details';
         source: 'modal' | 'setting' | 'user';
-    };
-    consent_revoked: {
-        accepted_options: ConsentOption[];
-        declined_options: ConsentOption[];
     };
 };
 
 type ConsentEventName = keyof ConsentEvents;
 
-class ConsentEvent {
+class ConsentEvent<N extends ConsentEventName> {
     static #lastConsentEventTimestamp = 0;
 
     public readonly timestamp: Date;
 
     constructor(
-        public readonly eventName: ConsentEventName,
-        public readonly eventProperties: Record<string, TrackableType>,
+        public readonly eventName: N,
+        public readonly eventProperties: ConsentEvents[N],
         timestamp = new Date(Math.max(Date.now(), ConsentEvent.#lastConsentEventTimestamp + 1)),
     ) {
         this.timestamp = timestamp;
@@ -53,5 +55,24 @@ function dispatchConsentEvent<N extends ConsentEventName>(eventName: N, eventPro
     Shopware.Utils.EventBus.emit('consent', new ConsentEvent(eventName, eventProperties));
 }
 
+function isConsentEvent(event: unknown): event is ConsentEvent<ConsentEventName> {
+    return event instanceof ConsentEvent;
+}
+
+function isConsentEventType<N extends ConsentEventName>(
+    event: ConsentEvent<ConsentEventName>,
+    name: N,
+): event is ConsentEvent<N> {
+    return event.eventName === name;
+}
+
 /** @private */
-export { ConsentEvent, dispatchConsentEvent, type ConsentEventName, type ConsentEvents, type TrackableType };
+export {
+    ConsentEvent,
+    dispatchConsentEvent,
+    isConsentEvent,
+    isConsentEventType,
+    type ConsentEventName,
+    type ConsentEvents,
+    type TrackableType,
+};

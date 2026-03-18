@@ -1,5 +1,6 @@
 import useConsentStore from './consent.store';
 import ConsentApiService from './consent.api.service';
+import { ConsentEvent } from './events';
 
 const defaultConsents = {
     test_consent: {
@@ -20,7 +21,9 @@ describe('/core/consent/consent.store', () => {
     });
 
     beforeEach(() => {
+        global.activeFeatureFlags = ['PRODUCT_ANALYTICS'];
         useConsentStore().$reset();
+        jest.useFakeTimers();
     });
 
     it('updates consent states', async () => {
@@ -56,15 +59,26 @@ describe('/core/consent/consent.store', () => {
             const store = useConsentStore();
             store.consents = { ...defaultConsents };
 
+            const consentEventHandler = jest.fn();
+            Shopware.Utils.EventBus.on('consent', consentEventHandler);
+
             await store.accept('test_consent');
 
-            expect(acceptSpy).toHaveBeenCalledWith('test_consent');
-            expect(store.consents.test_consent).toEqual({
+            Shopware.Utils.EventBus.off('consent', consentEventHandler);
+
+            const expectedUpdatedValue = {
                 ...defaultConsents.test_consent,
                 status: 'accepted',
                 actor: 'user-id',
                 updated_at: '2026-02-02 16:04:21.006',
-            });
+            };
+
+            expect(acceptSpy).toHaveBeenCalledWith('test_consent');
+            expect(store.consents.test_consent).toEqual(expectedUpdatedValue);
+
+            expect(consentEventHandler).toHaveBeenCalledWith(
+                new ConsentEvent('consent_status_change', expectedUpdatedValue, new Date()),
+            );
         });
 
         it('throws error if consent to accept does not exist', async () => {
@@ -87,9 +101,15 @@ describe('/core/consent/consent.store', () => {
                 },
             };
 
+            const consentEventHandler = jest.fn();
+            Shopware.Utils.EventBus.on('consent', consentEventHandler);
+
             await store.accept('test_consent');
 
+            Shopware.Utils.EventBus.off('consent', consentEventHandler);
+
             expect(acceptSpy).not.toHaveBeenCalled();
+            expect(consentEventHandler).not.toHaveBeenCalled();
         });
 
         describe('revoke', () => {
@@ -108,15 +128,26 @@ describe('/core/consent/consent.store', () => {
                 const store = useConsentStore();
                 store.consents = { ...defaultConsents };
 
+                const consentEventHandler = jest.fn();
+                Shopware.Utils.EventBus.on('consent', consentEventHandler);
+
                 await store.revoke('test_consent');
 
-                expect(revokeSpy).toHaveBeenCalledWith('test_consent');
-                expect(store.consents.test_consent).toEqual({
+                Shopware.Utils.EventBus.off('consent', consentEventHandler);
+
+                const expectedUpdatedValue = {
                     ...defaultConsents.test_consent,
                     status: 'revoked',
                     actor: 'user-id',
                     updated_at: '2026-02-02 16:04:21.006',
-                });
+                };
+
+                expect(revokeSpy).toHaveBeenCalledWith('test_consent');
+                expect(store.consents.test_consent).toEqual(expectedUpdatedValue);
+
+                expect(consentEventHandler).toHaveBeenCalledWith(
+                    new ConsentEvent('consent_status_change', expectedUpdatedValue, new Date()),
+                );
             });
 
             it('throws error if consent to accept does not exist', async () => {
@@ -139,9 +170,15 @@ describe('/core/consent/consent.store', () => {
                     },
                 };
 
+                const consentEventHandler = jest.fn();
+                Shopware.Utils.EventBus.on('consent', consentEventHandler);
+
                 await store.revoke('test_consent');
 
+                Shopware.Utils.EventBus.off('consent', consentEventHandler);
+
                 expect(revokeSpy).not.toHaveBeenCalled();
+                expect(consentEventHandler).not.toHaveBeenCalled();
             });
         });
     });

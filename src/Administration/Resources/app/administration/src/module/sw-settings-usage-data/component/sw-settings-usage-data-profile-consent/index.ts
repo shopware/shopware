@@ -55,11 +55,8 @@ export default Shopware.Component.wrapComponentConfig({
             try {
                 if (newValue) {
                     await consentStore.accept('product_analytics');
-                    dispatchConsentEvent('consent_option_changed', { option: 'user_tracking', state: 'enabled' });
                 } else {
                     await consentStore.revoke('product_analytics');
-                    dispatchConsentEvent('consent_option_changed', { option: 'user_tracking', state: 'disabled' });
-                    dispatchConsentEvent('consent_revoked', { accepted_options: [], declined_options: ['user_tracking'] });
                 }
             } catch {
                 Shopware.Store.get('notification').createNotification({

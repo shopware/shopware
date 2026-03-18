@@ -24,5 +24,6 @@ runNpmAudit({
         "https://github.com/advisories/GHSA-23c5-xmqv-rm74", // minimatch - waiting for eslint update
         "https://github.com/advisories/GHSA-7r86-cg39-jmmj", // minimatch - waiting for eslint update
         "https://github.com/advisories/GHSA-fp25-p6mj-qqg6", // needs to wait for twig lib update release
+        'https://github.com/advisories/GHSA-vh9h-29pq-r5m8', // locutus RCE via create_function(), critical severity, devDep only (twig@1.17.1), no safe upgrade without breaking change
     ],
 });

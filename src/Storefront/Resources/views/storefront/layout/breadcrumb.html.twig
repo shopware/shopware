@@ -17,7 +17,7 @@
         {% set breadcrumbDivider = 'url(data:image/svg+xml,' ~ source('@Storefront/assets/icon/solid/arrow-medium-right.svg')|url_encode ~ ')' %}
 
         {% block layout_breadcrumb_container %}
-            <nav aria-label="breadcrumb"{% if feature('JSON_LD_DATA') %} style="--bs-breadcrumb-divider: {{ breadcrumbDivider }};"{% endif %}>
+            <nav aria-label="breadcrumb"{% if feature('v6.8.0.0') %} style="--bs-breadcrumb-divider: {{ breadcrumbDivider }};"{% endif %}>
                 {% block layout_breadcrumb_list %}
                     {# @deprecated tag:v6.8.0 - BreadcrumbList microdata replaced by JSON-LD in json-ld-breadcrumb.html.twig. Will be removed. #}
                     <ol class="breadcrumb"
@@ -69,7 +69,7 @@
                                 </li>
                             {% endblock %}
 
-                            {% if not feature('JSON_LD_DATA') %}
+                            {% if not feature('v6.8.0.0') %}
                                 {# @deprecated tag:v6.8.0 - Block will be removed, the separator has been moved to a CSS only solution - Extend the `layout_breadcrumb_list_item` block if needed #}
                                 {% block layout_breadcrumb_placeholder %}
                                     {% if key != breadcrumbKeys|last %}

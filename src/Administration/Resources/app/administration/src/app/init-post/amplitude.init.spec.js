@@ -278,21 +278,24 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        events: [
-                            {
-                                event_type: 'consent_modal_viewed',
-                                event_properties: {
-                                    option: [
-                                        'backend_data',
-                                        'user_tracking',
-                                    ],
-                                },
-                            },
-                        ],
-                    }),
+                    body: expect.any(String),
                 }),
             );
+
+            expect(JSON.parse(global.fetch.mock.calls[0][1].body)).toEqual({
+                events: [
+                    {
+                        event_type: 'consent_modal_viewed',
+                        event_properties: {
+                            option: [
+                                'backend_data',
+                                'user_tracking',
+                            ],
+                        },
+                        time: expect.any(Number),
+                    },
+                ],
+            });
             expect(track).not.toHaveBeenCalledWith('consent_modal_viewed', expect.anything());
         });
 
@@ -314,21 +317,24 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             expect(global.fetch).toHaveBeenCalledWith(
                 'https://gateway.example/event/anonymous',
                 expect.objectContaining({
-                    body: JSON.stringify({
-                        events: [
-                            {
-                                event_type: 'consent_modal_viewed',
-                                event_properties: {
-                                    option: [
-                                        'backend_data',
-                                        'user_tracking',
-                                    ],
-                                },
-                            },
-                        ],
-                    }),
+                    body: expect.any(String),
                 }),
             );
+
+            expect(JSON.parse(global.fetch.mock.calls[0][1].body)).toEqual({
+                events: [
+                    {
+                        event_type: 'consent_modal_viewed',
+                        event_properties: {
+                            option: [
+                                'backend_data',
+                                'user_tracking',
+                            ],
+                        },
+                        time: expect.any(Number),
+                    },
+                ],
+            });
         });
 
         it('stops telemetry after consent is revoked during runtime', async () => {

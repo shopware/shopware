@@ -2,10 +2,12 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Document\Zugferd;
 
+use horstoeko\zugferd\codelists\ZugferdInvoiceType;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
@@ -23,6 +25,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -58,15 +61,33 @@ class ZugferdDocumentTest extends TestCase
             );
     }
 
-    public function testWithNegativePrice(): void
+    public function testWithUnsetPrice(): void
     {
-        $this->expectException(DocumentException::class);
-        $this->expectExceptionMessage('Price can\'t be negative or null: Test Item');
+        static::expectExceptionObject(DocumentException::generationError('Price can\'t be null'));
+
+        $lineItem = new OrderLineItemEntity();
+        $lineItem->setLabel('Test Item');
+
+        (new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3)))
+            ->withProductLineItem($lineItem, '');
+    }
+
+    #[TestWith([true], 'should not throw when negative price is allowed')]
+    #[TestWith([false], 'should throw when negative price is disallowed')]
+    public function testWithNegativePrice(bool $allowNegative): void
+    {
+        if ($allowNegative) {
+            static::expectNotToPerformAssertions();
+        } else {
+            static::expectExceptionObject(DocumentException::generationError('Price can\'t be negative'));
+        }
 
         $lineItem = new OrderLineItemEntity();
         $lineItem->setLabel('Test Item');
         $lineItem->setUnitPrice(-10);
         $lineItem->setTotalPrice(-10);
+        $lineItem->setPosition(1);
+        $lineItem->setQuantity(1);
 
         $lineItem->setPrice(new CalculatedPrice(
             $lineItem->getUnitPrice(),
@@ -75,7 +96,13 @@ class ZugferdDocumentTest extends TestCase
             new TaxRuleCollection()
         ));
 
-        (new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3)))->withProductLineItem($lineItem, '');
+        $zugferdDocument = new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3));
+
+        if ($allowNegative) {
+            $zugferdDocument->allowNegativeProductLineItems();
+        }
+
+        $zugferdDocument->withProductLineItem($lineItem, '');
     }
 
     /**
@@ -120,6 +147,16 @@ class ZugferdDocumentTest extends TestCase
             $this->createOrderDeliveryItem($deliveryGross[2], 19.0, $isGross),
             $this->createOrderDeliveryItem($deliveryGross[3], 7.0, $isGross),
         ]));
+
+        $document->withInvoiceReference('1001', new \DateTimeImmutable('2024-01-01'));
+
+        $document->withGeneralOrderData(
+            new \DateTime('2024-01-02'),
+            (new \DateTime('2024-01-03'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            '1002',
+            'EUR',
+            ZugferdInvoiceType::CORRECTION,
+        );
 
         if ($isGross) {
             $order->setAmountTotal(round(array_sum($lineItemGross) + array_sum($discountGross) + array_sum($deliveryGross), 2));
@@ -193,6 +230,14 @@ class ZugferdDocumentTest extends TestCase
         $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), true);
         $document->withProductLineItem($lineItem, '');
         $document->withPaidAmount(100.0);
+        $document->withInvoiceReference('1001', new \DateTimeImmutable('2024-01-01'));
+        $document->withGeneralOrderData(
+            new \DateTime('2024-01-02'),
+            (new \DateTime('2024-01-03'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            '1002',
+            'EUR',
+            ZugferdInvoiceType::CORRECTION,
+        );
 
         $calculator = new AmountCalculator(
             new CashRounding(),
@@ -312,6 +357,19 @@ class ZugferdDocumentTest extends TestCase
         static::assertSame((float) $taxBasisTotalAmount->item(0)->nodeValue, round($totalNet, 2));
         static::assertSame((float) $grandTotalAmount->item(0)->nodeValue, round($totalGross, 2));
         static::assertSame((float) $grandTotalAmount->item(0)->nodeValue, round($paidWithDuePayableAmount, 2));
+
+        $invoiceReference = $document->getElementsByTagName('InvoiceReferencedDocument')->item(0);
+        static::assertNotNull($invoiceReference);
+
+        static::assertSame('1001', $invoiceReference->getElementsByTagName('IssuerAssignedID')->item(0)?->nodeValue);
+        static::assertSame('20240101', $invoiceReference->getElementsByTagName('DateTimeString')->item(0)?->nodeValue);
+
+        $general = $document->getElementsByTagName('ExchangedDocument')->item(0);
+        static::assertNotNull($general);
+
+        static::assertSame('1002', $general->getElementsByTagName('ID')->item(0)?->nodeValue);
+        static::assertSame(ZugferdInvoiceType::CORRECTION, $general->getElementsByTagName('TypeCode')->item(0)?->nodeValue);
+        static::assertSame('20240103', \trim($general->getElementsByTagName('IssueDateTime')->item(0)->nodeValue ?? ''));
     }
 
     private function createOrderLineItem(float $price, float $taxRate, bool $isGross, ?int $position = null): OrderLineItemEntity

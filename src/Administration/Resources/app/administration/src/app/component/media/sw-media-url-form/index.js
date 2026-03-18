@@ -53,8 +53,7 @@ export default {
         urlObject() {
             try {
                 return new URL(this.url);
-            } catch (e) {
-                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+            } catch (_e) {
                 this.extensionFromUrl = '';
                 return null;
             }

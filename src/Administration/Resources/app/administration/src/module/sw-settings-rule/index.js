@@ -2,7 +2,7 @@ import './acl';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register(
     'sw-settings-rule-add-assignment-modal',
     () => import('./component/sw-settings-rule-add-assignment-modal'),
@@ -30,7 +30,7 @@ Shopware.Component.register(
     'sw-settings-rule-detail-assignments',
     () => import('./view/sw-settings-rule-detail-assignments'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**
  * @private

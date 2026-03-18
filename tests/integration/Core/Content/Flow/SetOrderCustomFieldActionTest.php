@@ -51,7 +51,7 @@ class SetOrderCustomFieldActionTest extends TestCase
     #[DataProvider('createDataProvider')]
     public function testCreateCustomFieldForOrder(string $option, ?array $existedData, ?array $updateData, ?array $expectData): void
     {
-        $customFieldName = 'custom_field_test_SetOrderCustomFieldActionTest';
+        $customFieldName = 'custom_field_test';
         $entity = 'order';
         $customFieldId = $this->createCustomField($customFieldName, $entity);
 
@@ -91,8 +91,6 @@ class SetOrderCustomFieldActionTest extends TestCase
 
         $expect = $option === 'clear' ? null : [$customFieldName => $expectData];
         static::assertSame($order->getCustomFields(), $expect);
-
-        static::getContainer()->get('custom_field.repository')->delete([$customFieldId], Context::createDefaultContext());
     }
 
     /**

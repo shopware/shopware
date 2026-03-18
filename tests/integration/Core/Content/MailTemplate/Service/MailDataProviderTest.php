@@ -8,11 +8,13 @@ use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\MailTemplate\Service\MailDataProvider;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerGroupProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
@@ -34,6 +36,11 @@ class MailDataProviderTest extends TestCase
 
     protected function setUp(): void
     {
+        $orderDefinition = $this->getContainer()->get(OrderDefinition::class);
+        $customFields = $orderDefinition->getFields()->get('customFields');
+        \assert($customFields instanceof CustomFields);
+        $customFields->setPropertyMapping([]);
+
         $this->mailDataProvider = $this->getContainer()->get(MailDataProvider::class);
     }
 

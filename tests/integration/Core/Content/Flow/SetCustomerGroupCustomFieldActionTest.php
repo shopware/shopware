@@ -54,7 +54,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
     #[DataProvider('createDataProvider')]
     public function testCreateCustomFieldForCustomerGroup(string $option, ?array $existedData, ?array $updateData, ?array $expectData): void
     {
-        $customFieldName = 'custom_field_test_SetCustomerGroupCustomFieldActionTest';
+        $customFieldName = 'custom_field_test';
         $entity = 'customer_group';
         $customFieldId = $this->createCustomField($customFieldName, $entity);
 

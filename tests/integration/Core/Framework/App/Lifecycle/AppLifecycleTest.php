@@ -100,7 +100,6 @@ class AppLifecycleTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->markTestSkipped();
         $this->appRepository = static::getContainer()->get('app.repository');
         $this->actionButtonRepository = static::getContainer()->get('app_action_button.repository');
 

@@ -54,7 +54,7 @@ class SetCustomerCustomFieldActionTest extends TestCase
     #[DataProvider('createDataProvider')]
     public function testCreateCustomFieldForCustomer(string $option, ?array $existedData, ?array $updateData, ?array $expectData): void
     {
-        $customFieldName = 'custom_field_test_SetCustomerCustomFieldActionTest';
+        $customFieldName = 'custom_field_test';
         $entity = 'customer';
         $customFieldId = $this->createCustomField($customFieldName, $entity);
 
@@ -95,8 +95,6 @@ class SetCustomerCustomFieldActionTest extends TestCase
 
         $expect = $option === 'clear' ? null : [$customFieldName => $expectData];
         static::assertSame($customer->getCustomFields(), $expect);
-
-        static::getContainer()->get('custom_field.repository')->delete([$customFieldId], Context::createDefaultContext());
     }
 
     /**

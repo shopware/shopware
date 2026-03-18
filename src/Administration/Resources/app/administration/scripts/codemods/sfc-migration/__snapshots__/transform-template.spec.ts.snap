@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`scripts/codemods/sfc-migration/transform-template integrative tests using fixture files matches the block-component transformed template snapshot 1`] = `
+"<template>
+<sw-block name="sw_block_card" :data="$dataScope">
+<div class="sw-block-card">
+    <sw-block name="sw_block_card_header" :data="$dataScope">
+    <div class="sw-block-card__header">
+        <h3>{{ title }}</h3>
+    </div>
+    </sw-block>
+
+    <sw-block name="sw_block_card_content" :data="$dataScope">
+    <div class="sw-block-card__content">
+        <p>{{ description }}</p>
+    </div>
+    </sw-block>
+
+    <sw-block name="sw_block_card_footer" :data="$dataScope">
+    <div class="sw-block-card__footer">
+        <sw-block-parent/>
+        <button @click="onAction">Action</button>
+    </div>
+    </sw-block>
+</div>
+</sw-block>
+
+</template>"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-template integrative tests using fixture files wrapping a plain html template produces a valid <template> snapshot 1`] = `
+"<template>
+<div class="sw-simple-card">
+    <div class="sw-simple-card__title">{{ title }}</div>
+    <div class="sw-simple-card__description">{{ description }}</div>
+    <button class="sw-simple-card__action" @click="onSave">Save</button>
+</div>
+
+</template>"
+`;

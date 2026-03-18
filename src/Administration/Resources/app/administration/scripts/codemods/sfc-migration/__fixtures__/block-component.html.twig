@@ -1,0 +1,23 @@
+{% block sw_block_card %}
+<div class="sw-block-card">
+    {% block sw_block_card_header %}
+    <div class="sw-block-card__header">
+        <h3>{{ title }}</h3>
+    </div>
+    {% endblock %}
+
+    {% block sw_block_card_content %}
+    <div class="sw-block-card__content">
+        <p>{{ description }}</p>
+    </div>
+    {% endblock %}
+
+    {% block sw_block_card_footer %}
+    <div class="sw-block-card__footer">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {{ parent() }}
+        <button @click="onAction">Action</button>
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

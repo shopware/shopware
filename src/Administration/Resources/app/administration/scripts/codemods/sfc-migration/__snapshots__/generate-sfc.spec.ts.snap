@@ -1,0 +1,130 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`scripts/codemods/sfc-migration/generate-sfc mergeComponentFiles matches the fully-migrated block-component SFC output snapshot 1`] = `
+"<template>
+<sw-block name="sw_block_card" :data="$dataScope">
+<div class="sw-block-card">
+    <sw-block name="sw_block_card_header" :data="$dataScope">
+    <div class="sw-block-card__header">
+        <h3>{{ title }}</h3>
+    </div>
+    </sw-block>
+
+    <sw-block name="sw_block_card_content" :data="$dataScope">
+    <div class="sw-block-card__content">
+        <p>{{ description }}</p>
+    </div>
+    </sw-block>
+
+    <sw-block name="sw_block_card_footer" :data="$dataScope">
+    <div class="sw-block-card__footer">
+        <sw-block-parent/>
+        <button @click="onAction">Action</button>
+    </div>
+    </sw-block>
+</div>
+</sw-block>
+
+</template>
+
+<script setup>
+// Component: sw-block-card
+
+import { ref, computed, inject, onMounted } from 'vue';
+
+const acl = inject('acl');
+
+const title = ref('Block Card');
+const description = ref('A card with extensible blocks');
+const count = ref(0);
+
+const canEdit = computed(() => {
+            return this.acl.can('product.editor');
+        });
+const get = computed(() => {
+                return this.title;
+            });
+const set = computed((val) => {
+                this.title = val;
+            });
+
+onMounted(() => {
+        this.count = 0;
+    });
+</script>"
+`;
+
+exports[`scripts/codemods/sfc-migration/generate-sfc mergeComponentFiles matches the fully-migrated simple-component SFC output snapshot 1`] = `
+"<template>
+<div class="sw-simple-card">
+    <div class="sw-simple-card__title">{{ title }}</div>
+    <div class="sw-simple-card__description">{{ description }}</div>
+    <button class="sw-simple-card__action" @click="onSave">Save</button>
+</div>
+
+</template>
+
+<script setup>
+// Component: sw-simple-card
+
+import { ref, computed, inject } from 'vue';
+
+const repositoryFactory = inject('repositoryFactory');
+
+const title = ref('Default Title');
+const isLoading = ref(false);
+
+const description = computed(() => {
+            return \`This is: \${this.title}\`;
+        });
+</script>"
+`;
+
+exports[`scripts/codemods/sfc-migration/generate-sfc mergeComponentFiles matches the partially-migrated mixin-component SFC output snapshot 1`] = `
+"<template>
+<div>list</div>
+</template>
+
+<script>
+import listingMixin from 'src/app/mixin/listing.mixin';
+
+// Options API backoff: automatic Composition API conversion was not possible
+// for "sw-mixin-list". Migrate manually when ready.
+Shopware.Component.register('sw-mixin-list', {
+    template,
+
+    mixins: [
+        Shopware.Mixin.getByName('notification'),
+        listingMixin,
+    ],
+
+    data() {
+        return {
+            items: [],
+            isLoading: false,
+        };
+    },
+
+    computed: {
+        total() {
+            return this.items.length;
+        },
+    },
+
+    methods: {
+        async loadItems() {
+            this.isLoading = true;
+            try {
+                this.items = await this.fetchItems();
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        onNotify() {
+            this.createNotificationSuccess({ message: 'Done' });
+        },
+    },
+});
+</script>"
+`;

@@ -166,6 +166,10 @@
             {% endblock %}
         {% endif %}
 
+        <style>
+            .sf-toolbar { display: none !important; }
+        </style>
+
         {% block layout_head_javascript_router %}
             {# Register all routes that will be needed in JavaScript to the window.router object #}
             <script>

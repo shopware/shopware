@@ -1,50 +1,166 @@
 export default class MediaGallery extends ShopwareComponent {
     static options = {
-        zoomScale: 2.5,
         showMagnifier: true,
         thumbnailNavigationPosition: 'left',
+        showNavigationArrows: true,
+        showFullScreenGallery: true,
+        zoomScale: 2.5,
+        isLightbox: false,
     };
 
     init() {
+        // Thumbnail navigation buttons
         this.thumbnailButtons = this.el.querySelectorAll('[data-gallery-thumbnail-button]');
-        this.previewsElements = this.el.querySelectorAll('.sw-media-gallery__preview');
+        this.thumbnailNavInner = this.el.querySelector('.sw-thumbnail-nav__inner');        
+        this.thumbnailNavScrollBackBtn = this.el.querySelector('.sw-thumbnail-nav__scroll-control.is--backward');
+        this.thumbnailNavScrollFordwardBtn = this.el.querySelector('.sw-thumbnail-nav__scroll-control.is--forward');
+
+        // Previews scroll container
         this.previewsContainer = this.el.querySelector('.sw-media-gallery__previews');
         this.previewItems = this.el.querySelectorAll('.sw-media-gallery__preview-item');
+
+        // Counter
         this.counterBadge = this.el.querySelector('.sw-media-gallery__preview-item-badge');
-        this.lightboxElement = this.el.querySelector('.sw-media-gallery__lightbox');
+
+        // Arrow navigation buttons
+        this.backwardBtn = this.el.querySelector('.sw-media-gallery__nav-button.is--backward');
+        this.forwardBtn = this.el.querySelector('.sw-media-gallery__nav-button.is--forward');
 
         this.initThumbnailNav();
-        this.initPreviewZoom();
-
-        this.initLightbox()
-        // this.initLightboxZoom();
-        this.initThumbnailNavScroller();
+        this.initThumbnailNavScrollArrows();
         this.initThumbnailNavScrollSync();
-        this.initNavButtons();
+
+        if (this.options.showMagnifier) {
+            this.initPreviewZoom();
+        }
+
+        if (this.options.showNavigationArrows) {
+            this.initNavigationArrows();
+        }
+
+        if (this.options.isLightbox) {
+            this.initLightbox();
+        }
+    }
+
+    initNavigationArrows() {
+        this.onBackwardClick = () => this.scrollToIndex(this.getCurrentIndex() - 1);
+        this.onForwardClick = () => this.scrollToIndex(this.getCurrentIndex() + 1);
+        this.backwardBtn.addEventListener('click', this.onBackwardClick);
+        this.forwardBtn.addEventListener('click', this.onForwardClick);
     }
 
     initLightbox() {
-        this.lightboxElement.addEventListener('show.bs.modal', (event) => {
-            // Show the image in the lightbox with the matching id by scrolling to the item
-            
-            this.initLightboxZoom();
+        // Find parent modal element
+        this.modalElement = this.el.closest('.modal.sw-media-gallery-lightbox');
+
+        if (!this.modalElement) {
+            return;
+        }
+
+        // After modal is shown, scroll to the correct item
+        this.onSetLightboxScrollPosition = this.setLightboxScrollPosition.bind(this);
+        this.modalElement.addEventListener('shown.bs.modal', this.onSetLightboxScrollPosition);
+
+        this.initLightboxClickZoom();
+    }
+
+    setLightboxScrollPosition(event) {
+        // Find index of item that triggered the lightbox modal
+        const targetIndex = event.relatedTarget?.dataset?.mediaId;
+
+        if (!targetIndex) {
+            return;
+        }
+
+        const index = parseInt(targetIndex, 10) - 1;
+        this.scrollToIndex(index, 'instant');
+    }
+
+    initLightboxClickZoom() {
+        // const previewItems = this.el.querySelectorAll('.sw-media-gallery__preview-item');
+
+        if (!this.previewItems.length) {
+            return;
+        }
+
+        this.onToggleClickZoom = this.toggleClickZoom.bind(this);
+        this.previewItems.forEach((container) => {
+            container.addEventListener('click', this.onToggleClickZoom);
         });
     }
 
-    initLightboxZoom() {
-        const modalImgs = document.querySelectorAll('.sw-media-gallery__fullscreen-image-media');
-        modalImgs.forEach((img) => {
-                img.addEventListener('click', () => {
-                img.classList.toggle('is--zoomed');
-            });
+    toggleClickZoom(event) {
+        const container = event.currentTarget;
+
+        // Suppress the click that fires after a drag ends
+        if (container._dragOccurred) {
+            container._dragOccurred = false;
+            return;
+        }
+
+        if (container.classList.contains('is--zoomed')) {
+            container.classList.remove('is--zoomed');
+            return;
+        }
+
+        container.classList.add('is--zoomed');
+
+        // Only attach drag listeners once per container
+        if (container._dragListenersAdded) {
+            return;
+        }
+
+        container._dragListenersAdded = true;
+
+        // When lightbox preview item is zoomed, it becomes a scrollable container.
+        // Native mousewheel scrolls or touch swipes can scroll the container normally.
+        // Since there is no native mouse "drag-to-scroll" functionality, we change the scroll position when dragging the mouse.
+        let isDown = false;
+        let startX, startY, scrollLeft, scrollTop;
+
+        container.addEventListener('mousedown', (e) => {
+            isDown = true;
+            container._dragOccurred = false;
+            container.style.cursor = 'grabbing';
+            startX = e.pageX - container.offsetLeft;
+            startY = e.pageY - container.offsetTop;
+            scrollLeft = container.scrollLeft;
+            scrollTop = container.scrollTop;
+        });
+
+        container.addEventListener('mouseleave', () => { 
+            isDown = false; 
+            container.style.cursor = 'zoom-out'; 
+        });
+
+        container.addEventListener('mouseup', () => { 
+            isDown = false; 
+            container.style.cursor = 'zoom-out'; 
+        });
+
+        container.addEventListener('mousemove', (e) => {
+            if (!isDown) {
+                return;
+            }
+            e.preventDefault();
+            const x = e.pageX - container.offsetLeft;
+            const y = e.pageY - container.offsetTop;
+            const deltaX = x - startX;
+            const deltaY = y - startY;
+            if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+                container._dragOccurred = true;
+            }
+            container.scrollLeft = scrollLeft - deltaX;
+            container.scrollTop = scrollTop - deltaY;
         });
     }
 
-    scrollToIndex(index) {
+    scrollToIndex(index, behavior = 'smooth') {
         const clamped = Math.max(0, Math.min(index, this.previewItems.length - 1));
         this.previewsContainer.scrollTo({
             left: clamped * this.previewsContainer.clientWidth,
-            behavior: 'smooth',
+            behavior: behavior,
         });
     }
 
@@ -54,9 +170,9 @@ export default class MediaGallery extends ShopwareComponent {
 
     initThumbnailNav() {
         this.thumbnailButtons.forEach((button) => {
-            button.addEventListener('click', () => {
+            button.addEventListener('mouseover', () => {
                 const index = parseInt(button.dataset.target, 10) - 1;
-                this.scrollToIndex(index);
+                this.scrollToIndex(index, 'instant');
             });
         });
     }
@@ -81,26 +197,24 @@ export default class MediaGallery extends ShopwareComponent {
     }
 
     initPreviewZoom() {
-        const scale = this.constructor.options.zoomScale;
-        const previewsContainer = this.el.querySelector('.sw-media-gallery__previews');
-        const previews = this.el.querySelectorAll('.sw-media-gallery__preview');
+        const scale = this.options.zoomScale;
 
-        if (!previewsContainer) {
+        if (!this.previewsContainer) {
             return;
         }
 
-        previews.forEach((img) => {
+        this.previewItems.forEach((img) => {
             img.style.transform = 'scale(1) translate(0px, 0px)';
             img.style.transformOrigin = '0px 0px 0px';
         });
 
         const getVisiblePreview = () => {
-            const index = Math.round(previewsContainer.scrollLeft / previewsContainer.clientWidth);
-            return previews[index] ?? null;
+            const index = Math.round(this.previewsContainer.scrollLeft / this.previewsContainer.clientWidth);
+            return this.previewItems[index] ?? null;
         };
 
         // Always reset zoom when container is scrolled
-        previewsContainer.addEventListener('scroll', () => {
+        this.previewsContainer.addEventListener('scroll', () => {
             const img = getVisiblePreview();
             if (img) {
                 img.style.transform = 'scale(1) translate(0px, 0px)';
@@ -108,8 +222,7 @@ export default class MediaGallery extends ShopwareComponent {
             }
         });
 
-        // TODO: Stop mouseenter zoom events when container is scrolled
-        previewsContainer.addEventListener('mouseenter', () => {
+        this.previewsContainer.addEventListener('mouseenter', () => {
             const img = getVisiblePreview();
             if (img) {
                 img.style.transform = `scale(${scale}) translate(0px, 0px)`;
@@ -117,12 +230,12 @@ export default class MediaGallery extends ShopwareComponent {
             }
         });
 
-        previewsContainer.addEventListener('mousemove', (e) => {
+        this.previewsContainer.addEventListener('mousemove', (e) => {
             const img = getVisiblePreview();
             if (!img) {
                 return;
             }
-            const rect = previewsContainer.getBoundingClientRect();
+            const rect = this.previewsContainer.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
             const tx = -x * (scale - 1) / scale;
@@ -130,7 +243,7 @@ export default class MediaGallery extends ShopwareComponent {
             img.style.transform = `scale(${scale}) translate(${tx}px, ${ty}px)`;
         });
 
-        previewsContainer.addEventListener('mouseleave', () => {
+        this.previewsContainer.addEventListener('mouseleave', () => {
             const img = getVisiblePreview();
             if (img) {
                 img.style.transform = 'scale(1) translate(0px, 0px)';
@@ -139,34 +252,46 @@ export default class MediaGallery extends ShopwareComponent {
         });
     }
 
-    initThumbnailNavScroller() {
-        // Vertical nav scroller
-        // When scrollbar is visible, show the scroll controls
-        const verticalNav = this.el.querySelector('.sw-media-gallery__thumbnail-nav');
-        const verticalNavInner = this.el.querySelector('.sw-thumbnail-nav__inner');
-        const verticalNavScrollControl = this.el.querySelector('.sw-thumbnail-nav__scroll-control');
-
-        verticalNavInner.addEventListener('scroll', () => {
-            console.log('scrolling', verticalNavInner.scrollHeight, verticalNavInner.clientHeight);
-
-            const isScrollbarVisible = verticalNavInner.scrollHeight > verticalNavInner.clientHeight;
-            verticalNavScrollControl.style.display = isScrollbarVisible ? 'block' : 'none';
-        });
-    }
-
-    initNavButtons() {
-        const backward = this.el.querySelector('.sw-media-gallery__nav-button.is--backward');
-        const forward = this.el.querySelector('.sw-media-gallery__nav-button.is--forward');
-
-        if (!backward || !forward) {
+    initThumbnailNavScrollArrows() {
+        if (!this.thumbnailNavInner || !this.thumbnailNavScrollBackBtn || !this.thumbnailNavScrollFordwardBtn) {
             return;
         }
 
-        backward.addEventListener('click', () => this.scrollToIndex(this.getCurrentIndex() - 1));
-        forward.addEventListener('click', () => this.scrollToIndex(this.getCurrentIndex() + 1));
+        this.thumbnailNavInner.addEventListener('scroll', this.updateThumbnailNavScrollArrows.bind(this));
+        this.thumbnailNavScrollFordwardBtn.addEventListener('click', this.scrollForwardThumbnailNav.bind(this));
+        this.thumbnailNavScrollBackBtn.addEventListener('click', this.scrollBackwardThumbnailNav.bind(this));
+
+        this.updateThumbnailNavScrollArrows();
+    }
+
+    scrollForwardThumbnailNav() {
+        this.thumbnailNavInner.scrollBy({ top: this.thumbnailNavInner.clientHeight / 2, behavior: 'smooth' });
+    }
+
+    scrollBackwardThumbnailNav() {
+        this.thumbnailNavInner.scrollBy({ top: -(this.thumbnailNavInner.clientHeight / 2), behavior: 'smooth' });
+    }
+
+    updateThumbnailNavScrollArrows() {
+        const canScrollUp = this.thumbnailNavInner.scrollTop > 0;
+        const canScrollDown = this.thumbnailNavInner.scrollTop + this.thumbnailNavInner.clientHeight < this.thumbnailNavInner.scrollHeight - 1;
+
+        this.thumbnailNavScrollBackBtn.toggleAttribute('hidden', !canScrollUp);
+        this.thumbnailNavScrollFordwardBtn.toggleAttribute('hidden', !canScrollDown);
     }
 
     destroy() {
-        // TODO: Implement destroy method
+        this.backwardBtn.removeEventListener('click', this.onBackwardClick);
+        this.forwardBtn.removeEventListener('click', this.onForwardClick);
+
+        if (this.modalElement) {
+            this.modalElement.removeEventListener('shown.bs.modal', this.onSetLightboxScrollPosition);
+        }
+
+        if (this.options.isLightbox) {
+            this.previewItems.forEach((container) => {
+                container.removeEventListener('click', this.onToggleClickZoom);
+            });
+        }
     }
 }

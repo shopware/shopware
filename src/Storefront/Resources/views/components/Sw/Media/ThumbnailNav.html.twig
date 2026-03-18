@@ -31,6 +31,7 @@
         type="button" 
         class="sw-thumbnail-nav__scroll-control is--backward btn btn-light"
         aria-label="{{ scrollBackwardText }}"
+        hidden="hidden"
     >
         <twig:Sw:Icon 
             :name="scrollBackwardIcon" 
@@ -39,11 +40,12 @@
     </button>
     <div class="sw-thumbnail-nav__inner">
         {% for mediaItem in mediaItems %}
-            <button 
+            <button
                 class="sw-thumbnail-nav__button {% if loop.first %}is--active{% endif %}" 
                 type="button"
                 data-gallery-thumbnail-button="true"
                 data-target="{{ loop.index }}"
+                aria-label="Show image {{ loop.index }} of {{ mediaItems|length }}"
             >
                 <twig:Sw:Media 
                     class="sw-thumbnail-nav__media"
@@ -53,10 +55,11 @@
             </button>
         {% endfor %}
     </div>
-    <button 
+    <button
         type="button" 
         class="sw-thumbnail-nav__scroll-control is--forward btn btn-light"
         aria-label="{{ scrollForwardText }}"
+        hidden="hidden"
     >
         <twig:Sw:Icon 
             :name="scrollForwardIcon" 

@@ -16,6 +16,7 @@
     id: 'sw-media-gallery-modal',
     size: 'full',
     fullscreen: true,
+    animation: false,
 } %}
 
 <twig:Sw:Content:Modal {{ ...attributes.defaults(defaultAttributes)}}>
@@ -23,29 +24,22 @@
 
         <button
             type="button"
-            class="btn btn-light"
+            class="sw-media-gallery-lightbox__close-btn btn btn-light"
             data-bs-dismiss="modal"
-            aria-label="{{ closeLabel }}"
-            style="position: absolute; padding: 0;top: 1rem; right: 1rem; width: 40px; height: 40px; z-index: 1;">
+            aria-label="{{ closeLabel }}">
             <twig:Sw:Icon name="x" size="sm" />
         </button>
 
         <div class="sw-media-gallery-lightbox__content">
-
-            <twig:Sw:Media:ThumbnailNav 
-                :mediaItems="mediaItems" 
+            <twig:Sw:Media:Gallery
+                class="sw-media-gallery-lightbox__gallery"
+                :isLightbox="true"
+                :mediaItems="mediaItems"
                 :thumbnailSize="thumbnailSize"
+                :showFullScreenGallery="false"
+                :showMagnifier="false"
+                :useSchemaMarkup="false"
             />
-
-            <div class="sw-media-gallery__fullscreen-image" style="overflow: scroll;">
-                {% for mediaItem in mediaItems %}
-                    <twig:Sw:Media 
-                        :hidden="not loop.first"
-                        class="sw-media-gallery__fullscreen-image-media img-fluid"
-                        :media="mediaItem"
-                    />
-                {% endfor %}
-            </div>
         </div>
     </twig:block>
 

@@ -18,10 +18,11 @@
     displayMode = 'auto',
     thumbnailSize = 70,
     thumbnailNavigationPosition = 'left',
-    showNavigationArrows = false,
+    showNavigationArrows = true,
     showMagnifier = true,
     useSchemaMarkup = false,
     showFullScreenGallery = true,
+    isLightbox = false,
 %}
 
 {% set lightboxId = 'sw-media-gallery-lightbox-' ~ random() %}
@@ -41,16 +42,22 @@
         singleMedia: {
             true: 'sw-media-gallery--single-media',
         },
+        isLightbox: {
+            true: 'sw-media-gallery--is-lightbox',
+        }
     },
 }) %}
 
 {% set mediaGalleryOptions = {
     showMagnifier,
     thumbnailNavigationPosition,
+    showNavigationArrows,
+    showFullScreenGallery,
+    isLightbox,
 } %}
 
 {% set defaultAttributes = {
-    class: mediaGalleryCVA.apply({ thumbnailNavigationPosition, displayMode, singleMedia }),
+    class: mediaGalleryCVA.apply({ thumbnailNavigationPosition, displayMode, singleMedia, isLightbox }),
     'data-component': 'Sw:Media:Gallery',
     'data-component-options': mediaGalleryOptions|json_encode,
 } %}
@@ -65,17 +72,25 @@
         />
     {% endif %}
 
-    <div class="sw-media-gallery-previews-wrapper position-relative">
+    <div class="sw-media-gallery__previews-wrapper">
         <div class="sw-media-gallery__previews">
             {% for mediaItem in mediaItems %}
-                <div class="sw-media-gallery__preview-item" id="sw-media-gallery-preview-{{ loop.index }}">
+                <div 
+                    class="sw-media-gallery__preview-item" 
+                    id="sw-media-gallery-preview-{{ loop.index }}"
+                    data-media-id="{{ loop.index }}"
+                    {% if showFullScreenGallery %}
+                        data-bs-toggle="modal"
+                        data-bs-target="#{{ lightboxId }}"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Open image {{ loop.index }} in lightbox"
+                    {% endif %}
+                >
                     <twig:Sw:Media 
                         :media="mediaItem"
                         :title="null"
                         class="sw-media-gallery__preview"
-                        data-media-id="{{ loop.index }}"
-                        data-bs-toggle="modal"
-                        data-bs-target="#{{ lightboxId }}"
                         :itemprop="useSchemaMarkup ? ('image' ~ (loop.first ? ' primaryImageOfPage' : '')) : null"
                     />
                 </div>
@@ -106,13 +121,13 @@
             </span>
         {% endif %}
     </div>
-
-    {% if showFullScreenGallery %}
-        <twig:Sw:Media:GalleryLightbox
-            class="sw-media-gallery__lightbox"
-            id="{{ lightboxId }}"
-            :mediaItems="mediaItems"
-            :thumbnailSize="thumbnailSize"
-        />
-    {% endif %}
 </div>
+
+{% if showFullScreenGallery %}
+    <twig:Sw:Media:GalleryLightbox
+        class="sw-media-gallery__lightbox"
+        id="{{ lightboxId }}"
+        :mediaItems="mediaItems"
+        :thumbnailSize="thumbnailSize"
+    />
+{% endif %}

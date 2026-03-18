@@ -3,7 +3,7 @@
  */
 import './init/services.init';
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-bulk-edit-product', () => import('./page/sw-bulk-edit-product'));
 Shopware.Component.register('sw-bulk-edit-order', () => import('./page/sw-bulk-edit-order'));
 Shopware.Component.register('sw-bulk-edit-customer', () => import('./page/sw-bulk-edit-customer'));
@@ -69,7 +69,7 @@ Shopware.Component.register('sw-bulk-edit-save-modal-confirm', () => import('./c
 Shopware.Component.register('sw-bulk-edit-save-modal-process', () => import('./component/sw-bulk-edit-save-modal-process'));
 Shopware.Component.register('sw-bulk-edit-save-modal-success', () => import('./component/sw-bulk-edit-save-modal-success'));
 Shopware.Component.register('sw-bulk-edit-save-modal-error', () => import('./component/sw-bulk-edit-save-modal-error'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 

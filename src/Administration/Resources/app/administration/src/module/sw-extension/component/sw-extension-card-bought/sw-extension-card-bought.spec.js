@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 
@@ -453,7 +452,6 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
 
     it('should display error on install and download attempt when app subscription is expired', async () => {
         httpClient.post.mockImplementation(() => {
-            // eslint-disable-next-line prefer-promise-reject-errors
             return Promise.reject({
                 response: {
                     data: {

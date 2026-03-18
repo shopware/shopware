@@ -5,7 +5,7 @@
  * works correctly with the new Composition API extension system.
  */
 
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, max-len, @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call */
 
 import { createExtendableSetup, overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
 import { mount } from '@vue/test-utils';
@@ -2652,7 +2652,6 @@ describe('src/app/adapter/composition-extension-system', () => {
                         () => {
                             const baseValue = ref(1);
                             const multipliedValue = computed(() => baseValue.value * props.multiplier);
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                             const addedValue = computed(() => baseValue.value + props.added);
 
                             return {
@@ -3180,7 +3179,6 @@ describe('src/app/adapter/composition-extension-system', () => {
                             const baseValue = ref(1);
                             const title = ref('Original Title');
                             const multipliedValue = computed(() => baseValue.value * props.multiplier);
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                             const addedValue = computed(() => baseValue.value + props.added);
                             const privateValue = ref('Private');
 
@@ -3242,7 +3240,6 @@ describe('src/app/adapter/composition-extension-system', () => {
                     const baseValue = ref(1);
                     const title = ref('Original Title');
                     const multipliedValue = computed(() => baseValue.value * props.multiplier);
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                     const addedValue = computed(() => baseValue.value + props.added);
                     const privateValue = ref('Private');
 

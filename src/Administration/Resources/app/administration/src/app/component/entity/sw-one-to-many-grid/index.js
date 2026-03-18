@@ -28,10 +28,8 @@ export default {
         },
         localMode: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
-        // eslint-disable-next-line vue/require-default-prop
         dataSource: {
             type: [
                 Array,
@@ -45,7 +43,6 @@ export default {
         allowDelete: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         tooltipDelete: {

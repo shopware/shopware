@@ -13,8 +13,6 @@ import SwSettingsServicesServiceCard from './index';
 import SwColorBadge from '../../../../app/component/utils/sw-color-badge';
 
 describe('src/module/sw-settings-services/component/sw-settings-services-service-card.ts', () => {
-    let originalWindowLocation;
-
     beforeAll(() => {
         Shopware.Service().register('shopwareExtensionService', () => ({
             activateExtension: jest.fn(),
@@ -24,20 +22,6 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
         Shopware.Service().register('shopwareServicesService', () => ({
             getCategorizedPermissions: jest.fn(),
         }));
-
-        originalWindowLocation = window.location;
-
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: jest.fn() },
-        });
-    });
-
-    afterAll(() => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: originalWindowLocation },
-        });
     });
 
     it.each([
@@ -199,6 +183,8 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
             },
         });
 
+        jest.spyOn(card.vm, '_reloadPage').mockImplementation(() => {});
+
         const popover = card.findComponent(MtPopover);
         expect(popover.exists()).toBeTruthy();
 
@@ -229,7 +215,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
         await deactivateButton.trigger('click');
 
         expect(Shopware.Service('shopwareExtensionService').deactivateExtension).toHaveBeenCalledWith('service-name', 'app');
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(card.vm._reloadPage).toHaveBeenCalled();
     });
 
     it('activates a service', async () => {
@@ -275,6 +261,8 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
             },
         });
 
+        jest.spyOn(card.vm, '_reloadPage').mockImplementation(() => {});
+
         const popover = card.findComponent(MtPopover);
         expect(popover.exists()).toBeTruthy();
 
@@ -300,7 +288,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
         });
 
         expect(Shopware.Service('shopwareExtensionService').activateExtension).toHaveBeenCalledWith('service-name', 'app');
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(card.vm._reloadPage).toHaveBeenCalled();
     });
 
     it('shows permissions modal for a service', async () => {

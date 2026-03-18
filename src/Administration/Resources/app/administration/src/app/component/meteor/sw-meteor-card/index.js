@@ -1,4 +1,3 @@
-/* eslint-disable indent */
 import template from './sw-meteor-card.html.twig';
 import './sw-meteor-card.scss';
 
@@ -28,7 +27,6 @@ export default {
     template,
 
     props: {
-        // eslint-disable-next-line vue/require-default-prop
         title: {
             type: String,
             required: false,

@@ -35,7 +35,12 @@ class OrderActionController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/order/{orderId}/state/{transition}', name: 'api.action.order.state_machine.order.transition_state', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/order/{orderId}/state/{transition}',
+        name: 'api.action.order.state_machine.order.transition_state',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function orderStateTransition(
         string $orderId,
         string $transition,
@@ -71,7 +76,12 @@ class OrderActionController extends AbstractController
         return new JsonResponse($toPlace->jsonSerialize());
     }
 
-    #[Route(path: '/api/_action/order_transaction/{orderTransactionId}/state/{transition}', name: 'api.action.order.state_machine.order_transaction.transition_state', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/order_transaction/{orderTransactionId}/state/{transition}',
+        name: 'api.action.order.state_machine.order_transaction.transition_state',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order_transaction:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function orderTransactionStateTransition(
         string $orderTransactionId,
         string $transition,
@@ -107,7 +117,12 @@ class OrderActionController extends AbstractController
         return new JsonResponse($toPlace->jsonSerialize());
     }
 
-    #[Route(path: '/api/_action/order_delivery/{orderDeliveryId}/state/{transition}', name: 'api.action.order.state_machine.order_delivery.transition_state', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/order_delivery/{orderDeliveryId}/state/{transition}',
+        name: 'api.action.order.state_machine.order_delivery.transition_state',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order_delivery:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function orderDeliveryStateTransition(
         string $orderDeliveryId,
         string $transition,

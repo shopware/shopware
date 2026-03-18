@@ -980,7 +980,9 @@ describe('components/data-grid/sw-data-grid', () => {
         });
         expect(wrapper.find('.sw-data-grid__cell--icon-label').exists()).toBe(true);
         expect(wrapper.find('.sw-data-grid__cell--icon-label .mt-icon').classes()).toContain('icon--regular-file-text');
-        expect(wrapper.find('.sw-data-grid__cell--icon-label .mt-icon').attributes()).not.toContain('data-tooltip-message');
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .mt-icon').attributes()).not.toHaveProperty(
+            'data-tooltip-message',
+        );
     });
 
     it('should render icon column header with tooltip', async () => {

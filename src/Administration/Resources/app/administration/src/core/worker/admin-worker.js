@@ -10,9 +10,7 @@ import Axios from 'axios';
  * @module core/worker/admin-worker
  */
 
-// eslint-disable-next-line no-restricted-globals
 self.onmessage = onMessage;
-// eslint-disable-next-line no-restricted-globals
 self.onconnect = onconnect;
 
 const { CancelToken } = Axios;
@@ -24,7 +22,6 @@ let cancelTokenSource = CancelToken.source();
 let consumeTimeoutIds = {};
 let ports = [];
 
-// eslint-disable-next-line no-restricted-globals
 self.onerror = (msg, url, lineNo, columnNo, error) => {
     const data = {
         message: msg,

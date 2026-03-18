@@ -45,7 +45,7 @@ class Migration1773225412AddZugferdEmbeddedCancellationInvoice extends Migration
         ]);
 
         $translation = new Translations(
-            ['document_type_id' => $cancellationInvoiceId, 'name' => 'ZUGFeRD Stornorechnung (embedded)'],
+            ['document_type_id' => $cancellationInvoiceId, 'name' => 'ZUGFeRD Stornorechnung (eingebettet)'],
             ['document_type_id' => $cancellationInvoiceId, 'name' => 'ZUGFeRD Cancellation Invoice (embedded)']
         );
 

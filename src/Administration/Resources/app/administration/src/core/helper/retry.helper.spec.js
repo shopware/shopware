@@ -11,7 +11,7 @@ describe('core/helper/retry.helper.js', () => {
 
         try {
             await retryHelper.retry(innerFunction, 1, 1);
-        } catch (e) {
+        } catch (_e) {
             // nth
         }
 

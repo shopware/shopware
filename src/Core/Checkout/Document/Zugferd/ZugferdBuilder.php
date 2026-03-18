@@ -24,6 +24,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('after-sales')]
 class ZugferdBuilder
 {
+    private string $currentDocumentType;
+
     /**
      * @internal
      */
@@ -54,31 +56,6 @@ class ZugferdBuilder
         return $this->build($order, $config, $context, $documentType, $invoiceReference);
     }
 
-    protected function addLineItems(ZugferdDocument $document, ?OrderLineItemCollection $lineItems, string $parentPosition = ''): self
-    {
-        if (!$lineItems) {
-            return $this;
-        }
-
-        foreach ($lineItems as $lineItem) {
-            $this->matchByType($document, $lineItem, $parentPosition);
-            $this->addLineItems($document, $lineItem->getChildren(), $lineItem->getPosition() . '-');
-        }
-
-        return $this;
-    }
-
-    protected function matchByType(ZugferdDocument $document, OrderLineItemEntity $lineItem, string $parentPosition = ''): void
-    {
-        match ($lineItem->getType()) {
-            LineItem::PRODUCT_LINE_ITEM_TYPE, LineItem::CUSTOM_LINE_ITEM_TYPE => $document->withProductLineItem($lineItem, $parentPosition),
-            LineItem::PROMOTION_LINE_ITEM_TYPE, LineItem::CREDIT_LINE_ITEM_TYPE => $document->withDiscountItem($lineItem),
-            default => null,
-        };
-
-        $this->eventDispatcher->dispatch(new ZugferdInvoiceItemAddedEvent($document, $lineItem, $parentPosition), 'zugferd-item-added.' . $lineItem->getType());
-    }
-
     /**
      * @param array<string, mixed>|null $invoiceReference
      */
@@ -89,6 +66,8 @@ class ZugferdBuilder
         string $documentType,
         ?array $invoiceReference = null,
     ): string {
+        $this->currentDocumentType = $documentType;
+
         $billingAddress = $order->getAddresses()?->get($order->getBillingAddressId());
         if (!$billingAddress) {
             throw DocumentException::generationError('Billing address not found');
@@ -152,6 +131,45 @@ class ZugferdBuilder
         $this->eventDispatcher->dispatch(new ZugferdInvoiceGeneratedEvent($document, $order, $config, $context));
 
         return $document->getContent($order, $this->calculator);
+    }
+
+    protected function addLineItems(ZugferdDocument $document, ?OrderLineItemCollection $lineItems, string $parentPosition = ''): self
+    {
+        if (!$lineItems) {
+            return $this;
+        }
+
+        foreach ($lineItems as $lineItem) {
+            $this->matchByType($document, $lineItem, $parentPosition);
+            $this->addLineItems($document, $lineItem->getChildren(), $lineItem->getPosition() . '-');
+        }
+
+        return $this;
+    }
+
+    protected function matchByType(ZugferdDocument $document, OrderLineItemEntity $lineItem, string $parentPosition = ''): void
+    {
+        match ($lineItem->getType()) {
+            LineItem::PRODUCT_LINE_ITEM_TYPE, LineItem::CUSTOM_LINE_ITEM_TYPE => $document->withProductLineItem($lineItem, $parentPosition),
+            LineItem::PROMOTION_LINE_ITEM_TYPE => $document->withDiscountItem($lineItem),
+            LineItem::CREDIT_LINE_ITEM_TYPE => $this->handleCreditLineItem($document, $lineItem, $parentPosition),
+            default => null,
+        };
+
+        $this->eventDispatcher->dispatch(new ZugferdInvoiceItemAddedEvent($document, $lineItem, $parentPosition), 'zugferd-item-added.' . $lineItem->getType());
+    }
+
+    private function handleCreditLineItem(ZugferdDocument $document, OrderLineItemEntity $lineItem, string $parentPosition = ''): void
+    {
+        if ($lineItem->getType() !== LineItem::CREDIT_LINE_ITEM_TYPE) {
+            return;
+        }
+
+        if ($this->currentDocumentType === ZugferdInvoiceType::CREDITNOTE) {
+            $document->withProductLineItem($lineItem, $parentPosition);
+        } else {
+            $document->withDiscountItem($lineItem);
+        }
     }
 
     private function addPaymentInfo(ZugferdDocument $document, DocumentConfiguration $config, PaymentMethodEntity $paymentMethod): void

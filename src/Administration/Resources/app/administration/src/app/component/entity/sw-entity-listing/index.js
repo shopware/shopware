@@ -50,7 +50,6 @@ export default {
             default: null,
         },
 
-        // eslint-disable-next-line vue/require-default-prop
         dataSource: {
             type: [
                 Array,
@@ -62,7 +61,6 @@ export default {
         showSettings: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -83,21 +81,18 @@ export default {
         fullPage: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         allowInlineEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         allowColumnEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -110,7 +105,6 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -123,7 +117,6 @@ export default {
         allowDelete: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 

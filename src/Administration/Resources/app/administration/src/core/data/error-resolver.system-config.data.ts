@@ -1,6 +1,5 @@
 import ShopwareError from 'src/core/data/ShopwareError';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 interface ApiError {
     code: string;
     title: string;

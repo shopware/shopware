@@ -200,6 +200,14 @@ class FormController extends StorefrontController
                     'list' => $errors,
                 ]),
             ];
+        } catch (RateLimitExceededException $exception) {
+            $response[] = [
+                'type' => 'info',
+                'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
+                    'type' => 'info',
+                    'content' => $this->trans('error.rateLimitExceeded', ['%seconds%' => $exception->getWaitTime()]),
+                ]),
+            ];
         } catch (\Exception) {
             $response[] = [
                 'type' => 'danger',
@@ -236,6 +244,14 @@ class FormController extends StorefrontController
                 'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
                     'type' => 'danger',
                     'list' => $errors,
+                ]),
+            ];
+        } catch (RateLimitExceededException $exception) {
+            $response[] = [
+                'type' => 'info',
+                'alert' => $this->renderView('@Storefront/storefront/utilities/alert.html.twig', [
+                    'type' => 'info',
+                    'content' => $this->trans('error.rateLimitExceeded', ['%seconds%' => $exception->getWaitTime()]),
                 ]),
             ];
         } catch (\Exception) {

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\Country\CountryCollection;
@@ -34,7 +35,7 @@ class AccountLoginPageLoader
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractCountryRoute $countryRoute,
         private readonly AbstractSalutationRoute $salutationRoute,
-        private readonly AbstractSalutationsSorter $salutationsSorter,
+        private readonly AbstractSalutationsSorter $salutationSorter,
         private readonly AbstractTranslator $translator
     ) {
     }
@@ -82,7 +83,13 @@ class AccountLoginPageLoader
     {
         $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
 
-        return $this->salutationsSorter->sort($salutations);
+        if (Feature::isActive('v6.8.0.0')) {
+            $salutations->sortByPosition();
+        } else {
+            $this->salutationSorter->sort($salutations);
+        }
+
+        return $salutations;
     }
 
     private function getCountries(SalesChannelContext $salesChannelContext): CountryCollection

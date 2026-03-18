@@ -8,6 +8,7 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -33,7 +34,7 @@ class AccountProfilePageLoader
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractSalutationRoute $salutationRoute,
-        private readonly AbstractSalutationsSorter $salutationsSorter,
+        private readonly AbstractSalutationsSorter $salutationSorter,
         private readonly AbstractTranslator $translator
     ) {
     }
@@ -88,6 +89,12 @@ class AccountProfilePageLoader
             ->load($event->getStoreApiRequest(), $context, $event->getCriteria())
             ->getSalutations();
 
-        return $this->salutationsSorter->sort($salutations);
+        if (Feature::isActive('v6.8.0.0')) {
+            $salutations->sortByPosition();
+        } else {
+            $this->salutationSorter->sort($salutations);
+        }
+
+        return $salutations;
     }
 }

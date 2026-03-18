@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -43,7 +44,7 @@ class AddressDetailPageLoader
         private readonly AbstractSalutationRoute $salutationRoute,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractListAddressRoute $listAddressRoute,
-        private readonly AbstractSalutationsSorter $salutationsSorter,
+        private readonly AbstractSalutationsSorter $salutationSorter,
         private readonly AbstractTranslator $translator
     ) {
     }
@@ -97,7 +98,13 @@ class AddressDetailPageLoader
     {
         $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
 
-        return $this->salutationsSorter->sort($salutations);
+        if (Feature::isActive('v6.8.0.0')) {
+            $salutations->sortByPosition();
+        } else {
+            $this->salutationSorter->sort($salutations);
+        }
+
+        return $salutations;
     }
 
     /**

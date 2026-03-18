@@ -6,6 +6,7 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\AbstractSalutationsSorter;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
@@ -19,7 +20,7 @@ class FormCmsElementResolver extends AbstractCmsElementResolver
      */
     public function __construct(
         private readonly AbstractSalutationRoute $salutationRoute,
-        private readonly AbstractSalutationsSorter $salutationsSorter
+        private readonly AbstractSalutationsSorter $salutationSorter
     ) {
     }
 
@@ -38,7 +39,12 @@ class FormCmsElementResolver extends AbstractCmsElementResolver
         $context = $resolverContext->getSalesChannelContext();
 
         $salutations = $this->salutationRoute->load(new Request(), $context, new Criteria())->getSalutations();
-        $salutations = $this->salutationsSorter->sort($salutations);
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $salutations->sortByPosition();
+        } else {
+            $this->salutationSorter->sort($salutations);
+        }
 
         $slot->setData($salutations);
     }

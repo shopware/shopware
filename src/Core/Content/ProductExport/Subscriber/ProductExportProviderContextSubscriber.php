@@ -44,13 +44,13 @@ readonly class ProductExportProviderContextSubscriber implements EventSubscriber
             return;
         }
 
-        $salesChannel = $productExport->getSalesChannel();
+        $providerKey = $productExport->getProvider();
 
-        if ($salesChannel === null) {
+        if (!$providerKey) {
             return;
         }
 
-        $provider = $this->providerRegistry->getBySalesChannelType($salesChannel->getTypeId());
+        $provider = $this->providerRegistry->getByTechnicalName($providerKey);
 
         if ($provider === null) {
             return;

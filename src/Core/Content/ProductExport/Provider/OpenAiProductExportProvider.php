@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\ProductExport\Provider;
 
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -16,11 +15,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('discovery')]
 class OpenAiProductExportProvider extends AbstractProductExportProvider
 {
-    public function supportsSalesChannelType(string $salesChannelTypeId): bool
-    {
-        return $salesChannelTypeId === Defaults::SALES_CHANNEL_TYPE_AGENTIC_AI;
-    }
-
     public function getTechnicalName(): string
     {
         return 'open-ai';

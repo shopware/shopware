@@ -21,7 +21,7 @@ class Migration1773329152AddAgenticAiSalesChannelType extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $salesChannelTypeId = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_AGENTIC_AI);
+        $salesChannelTypeId = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE);
         $defaultLanguageIds = $this->fetchDefaultLanguageIds($connection);
         $systemLanguageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
@@ -34,9 +34,9 @@ class Migration1773329152AddAgenticAiSalesChannelType extends MigrationStep
 
             $translations = [
                 $systemLanguageId => [
-                    'name' => 'Agentic AI',
+                    'name' => 'Agentic Commerce',
                     'manufacturer' => 'shopware AG',
-                    'description' => 'Sales channel for agentic AI commerce platforms',
+                    'description' => 'Sales channel for agentic commerce platforms',
                 ],
             ];
 
@@ -44,9 +44,9 @@ class Migration1773329152AddAgenticAiSalesChannelType extends MigrationStep
 
             if ($englishLanguageId !== null && $englishLanguageId !== $systemLanguageId) {
                 $translations[$englishLanguageId] = [
-                    'name' => 'Agentic AI',
+                    'name' => 'Agentic Commerce',
                     'manufacturer' => 'shopware AG',
-                    'description' => 'Sales channel for agentic AI commerce platforms',
+                    'description' => 'Sales channel for agentic commerce platforms',
                 ];
             }
 
@@ -54,9 +54,9 @@ class Migration1773329152AddAgenticAiSalesChannelType extends MigrationStep
 
             if ($germanLanguageId !== null && $germanLanguageId !== $systemLanguageId) {
                 $translations[$germanLanguageId] = [
-                    'name' => 'Agentenbasierte KI',
+                    'name' => 'Agentic Commerce',
                     'manufacturer' => 'shopware AG',
-                    'description' => 'Verkaufskanal für agentenbasierte KI-Handelsplatformen',
+                    'description' => 'Verkaufskanal für Agentic-Commerce-Plattformen',
                 ];
             }
 

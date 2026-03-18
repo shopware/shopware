@@ -39,6 +39,8 @@ class ProductExportEntity extends Entity
 
     protected string $fileFormat;
 
+    protected ?string $provider = null;
+
     protected ?ProductStreamEntity $productStream = null;
 
     protected ?SalesChannelEntity $storefrontSalesChannel = null;
@@ -155,6 +157,16 @@ class ProductExportEntity extends Entity
     public function setFileFormat(string $fileFormat): void
     {
         $this->fileFormat = $fileFormat;
+    }
+
+    public function getProvider(): ?string
+    {
+        return $this->provider;
+    }
+
+    public function setProvider(?string $provider): void
+    {
+        $this->provider = $provider;
     }
 
     public function getProductStream(): ?ProductStreamEntity

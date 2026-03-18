@@ -14,8 +14,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('discovery')]
 abstract class AbstractProductExportProvider
 {
-    abstract public function supportsSalesChannelType(string $salesChannelTypeId): bool;
-
     abstract public function getTechnicalName(): string;
 
     /**

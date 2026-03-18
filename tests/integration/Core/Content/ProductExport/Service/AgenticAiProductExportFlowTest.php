@@ -51,22 +51,22 @@ class AgenticAiProductExportFlowTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testAgenticAiSalesChannelGeneratesOpenAiFeedFromExplicitProductExport(): void
+    public function testAgenticCommerceSalesChannelGeneratesOpenAiFeedFromExplicitProductExport(): void
     {
         $product = $this->createExportableProduct();
         $productStreamId = $this->createProductStreamForProduct($product['id']);
 
         $agenticSalesChannel = $this->createSalesChannel([
             'id' => Uuid::randomHex(),
-            'typeId' => Defaults::SALES_CHANNEL_TYPE_AGENTIC_AI,
-            'name' => 'Agentic AI Feed',
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE,
+            'name' => 'Agentic Commerce Feed',
             'domains' => [
                 [
                     'id' => Uuid::randomHex(),
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                    'url' => 'http://agentic-ai.localhost',
+                    'url' => 'http://agentic-commerce.localhost',
                 ],
             ],
         ]);
@@ -229,6 +229,7 @@ class AgenticAiProductExportFlowTest extends TestCase
                 'accessKey' => Uuid::randomHex(),
                 'encoding' => ProductExportEntity::ENCODING_UTF8,
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_JSONL,
+                'provider' => 'open-ai',
                 'includeVariants' => false,
                 'generateByCronjob' => false,
                 'interval' => 86400,

@@ -21,7 +21,7 @@ class SalesChannelTypeValidator implements EventSubscriberInterface
         Defaults::SALES_CHANNEL_TYPE_API,
         Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
         Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON,
-        Defaults::SALES_CHANNEL_TYPE_AGENTIC_AI,
+        Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE,
     ];
 
     public static function getSubscribedEvents(): array

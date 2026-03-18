@@ -19,10 +19,10 @@ readonly class ProductExportProviderRegistry
     {
     }
 
-    public function getBySalesChannelType(string $salesChannelTypeId): ?AbstractProductExportProvider
+    public function getByTechnicalName(string $technicalName): ?AbstractProductExportProvider
     {
         foreach ($this->providers as $provider) {
-            if ($provider->supportsSalesChannelType($salesChannelTypeId)) {
+            if ($provider->getTechnicalName() === $technicalName) {
                 return $provider;
             }
         }

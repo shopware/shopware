@@ -107,6 +107,7 @@ PHP);
         static::assertFileExists(self::$outputPath);
 
         $content = file_get_contents(self::$outputPath);
+        static::assertNotFalse($content);
         static::assertStringContainsString('# Trigger Events Reference', $content);
         static::assertStringContainsString('| Event | Description |', $content);
         static::assertStringContainsString('test.event.one', $content);

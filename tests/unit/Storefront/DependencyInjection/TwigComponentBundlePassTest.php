@@ -4,10 +4,10 @@ namespace Shopware\Tests\Unit\Storefront\DependencyInjection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Bundle;
 use Shopware\Storefront\DependencyInjection\TwigComponentBundlePass;
 use Shopware\Storefront\Storefront;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -47,33 +47,66 @@ class TwigComponentBundlePassTest extends TestCase
         static::assertSame([], $container->getParameter('ux.twig_component.component_defaults'));
     }
 
-    public function testProcessRegistersNamespaceForBundleWithComponentsDirectory(): void
+    public function testProcessDoesNothingWhenKernelBundlesMetadataIsNotArray(): void
     {
         $container = new ContainerBuilder();
         $container->setParameter('ux.twig_component.component_defaults', []);
-        $container->setParameter('kernel.bundles', ['Storefront' => Storefront::class]);
+        $container->setParameter('kernel.bundles', []);
+        $container->setParameter('kernel.bundles_metadata', 'not-an-array');
 
         (new TwigComponentBundlePass())->process($container);
+
+        static::assertSame([], $container->getParameter('ux.twig_component.component_defaults'));
+    }
+
+    public function testProcessRegistersNamespaceForBundleWithComponentsDirectory(): void
+    {
+        $bundlePath = '/some/storefront/path';
+
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->expects($this->once())
+            ->method('exists')
+            ->with($bundlePath . '/Resources/views/components')
+            ->willReturn(true);
+
+        $container = new ContainerBuilder();
+        $container->setParameter('ux.twig_component.component_defaults', []);
+        $container->setParameter('kernel.bundles', ['Storefront' => Storefront::class]);
+        $container->setParameter('kernel.bundles_metadata', [
+            'Storefront' => ['path' => $bundlePath, 'namespace' => 'Shopware\\Storefront'],
+        ]);
+
+        (new TwigComponentBundlePass($filesystem))->process($container);
 
         $defaults = $container->getParameter('ux.twig_component.component_defaults');
         static::assertIsArray($defaults);
 
         $expectedNamespace = 'Shopware\\Storefront\\Resources\\views\\components\\';
         static::assertArrayHasKey($expectedNamespace, $defaults);
-        static::assertSame('components', $defaults[$expectedNamespace]['template_directory']);
+        static::assertSame('@Storefront/components', $defaults[$expectedNamespace]['template_directory']);
         static::assertSame('Storefront', $defaults[$expectedNamespace]['name_prefix']);
     }
 
     public function testProcessDoesNotOverwriteAlreadyRegisteredNamespace(): void
     {
+        $bundlePath = '/some/storefront/path';
         $existingConfig = ['template_directory' => 'custom', 'name_prefix' => 'Custom'];
         $namespace = 'Shopware\\Storefront\\Resources\\views\\components\\';
+
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->expects($this->once())
+            ->method('exists')
+            ->with($bundlePath . '/Resources/views/components')
+            ->willReturn(true);
 
         $container = new ContainerBuilder();
         $container->setParameter('ux.twig_component.component_defaults', [$namespace => $existingConfig]);
         $container->setParameter('kernel.bundles', ['Storefront' => Storefront::class]);
+        $container->setParameter('kernel.bundles_metadata', [
+            'Storefront' => ['path' => $bundlePath, 'namespace' => 'Shopware\\Storefront'],
+        ]);
 
-        (new TwigComponentBundlePass())->process($container);
+        (new TwigComponentBundlePass($filesystem))->process($container);
 
         $defaults = $container->getParameter('ux.twig_component.component_defaults');
         static::assertIsArray($defaults);
@@ -84,7 +117,8 @@ class TwigComponentBundlePassTest extends TestCase
     {
         $container = new ContainerBuilder();
         $container->setParameter('ux.twig_component.component_defaults', []);
-        $container->setParameter('kernel.bundles', ['stdClass' => \stdClass::class]);
+        $container->setParameter('kernel.bundles', ['StdClass' => \stdClass::class]);
+        $container->setParameter('kernel.bundles_metadata', []);
 
         (new TwigComponentBundlePass())->process($container);
 
@@ -93,11 +127,22 @@ class TwigComponentBundlePassTest extends TestCase
 
     public function testProcessSkipsBundleWithoutComponentsDirectory(): void
     {
+        $bundlePath = '/some/path/without/components';
+
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->expects($this->once())
+            ->method('exists')
+            ->with($bundlePath . '/Resources/views/components')
+            ->willReturn(false);
+
         $container = new ContainerBuilder();
         $container->setParameter('ux.twig_component.component_defaults', []);
-        $container->setParameter('kernel.bundles', ['TestBundle' => TwigComponentTestBundleWithoutComponents::class]);
+        $container->setParameter('kernel.bundles', ['Storefront' => Storefront::class]);
+        $container->setParameter('kernel.bundles_metadata', [
+            'Storefront' => ['path' => $bundlePath, 'namespace' => 'Shopware\\Storefront'],
+        ]);
 
-        (new TwigComponentBundlePass())->process($container);
+        (new TwigComponentBundlePass($filesystem))->process($container);
 
         static::assertSame([], $container->getParameter('ux.twig_component.component_defaults'));
     }
@@ -107,34 +152,25 @@ class TwigComponentBundlePassTest extends TestCase
         $container = new ContainerBuilder();
         $container->setParameter('ux.twig_component.component_defaults', []);
         $container->setParameter('kernel.bundles', ['Ghost' => 'NonExistent\\GhostBundle']);
+        $container->setParameter('kernel.bundles_metadata', []);
 
         (new TwigComponentBundlePass())->process($container);
 
         static::assertSame([], $container->getParameter('ux.twig_component.component_defaults'));
     }
 
-    public function testProcessSkipsClassThatThrowsReflectionExceptionOnInstantiation(): void
+    public function testProcessSkipsBundleWithMissingMetadata(): void
     {
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->expects($this->never())->method('exists');
+
         $container = new ContainerBuilder();
         $container->setParameter('ux.twig_component.component_defaults', []);
-        // \Closure is an internal PHP class — newInstanceWithoutConstructor() throws ReflectionException
-        $container->setParameter('kernel.bundles', ['Closure' => \Closure::class]);
+        $container->setParameter('kernel.bundles', ['Storefront' => Storefront::class]);
+        $container->setParameter('kernel.bundles_metadata', []);
 
-        (new TwigComponentBundlePass())->process($container);
+        (new TwigComponentBundlePass($filesystem))->process($container);
 
         static::assertSame([], $container->getParameter('ux.twig_component.component_defaults'));
-    }
-}
-
-/**
- * @internal
- *
- * A Shopware Bundle that returns a path with no components directory, to test the skip branch.
- */
-class TwigComponentTestBundleWithoutComponents extends Bundle
-{
-    public function getPath(): string
-    {
-        return sys_get_temp_dir();
     }
 }

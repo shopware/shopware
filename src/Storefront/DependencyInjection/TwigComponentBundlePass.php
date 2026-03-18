@@ -4,8 +4,10 @@ namespace Shopware\Storefront\DependencyInjection;
 
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Automatically registers Twig component namespaces for all bundles that have a components directory.
@@ -14,6 +16,11 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 #[Package('framework')]
 class TwigComponentBundlePass implements CompilerPassInterface
 {
+    public function __construct(
+        private readonly Filesystem $filesystem = new Filesystem(),
+    ) {
+    }
+
     public function process(ContainerBuilder $container): void
     {
         // Only proceed if TwigComponentBundle is installed and configured
@@ -31,41 +38,34 @@ class TwigComponentBundlePass implements CompilerPassInterface
             return;
         }
 
-        foreach ($bundles as $bundleClass) {
-            if (!\is_string($bundleClass) || !class_exists($bundleClass)) {
+        $bundlesMeta = $container->getParameter('kernel.bundles_metadata');
+        if (!\is_array($bundlesMeta)) {
+            return;
+        }
+
+        foreach ($bundles as $bundleName => $bundleClass) {
+            if (!\is_string($bundleClass) || !is_a($bundleClass, Bundle::class, true)) {
                 continue;
             }
 
-            try {
-                $reflection = new \ReflectionClass($bundleClass);
-                $bundle = $reflection->newInstanceWithoutConstructor();
-            } catch (\ReflectionException $e) {
-                // Skip bundles that can't be reflected
+            $meta = $bundlesMeta[$bundleName] ?? null;
+            if (!\is_array($meta)) {
                 continue;
             }
 
-            if (!$bundle instanceof Bundle) {
-                continue;
-            }
+            $componentDir = rtrim($meta['path'] . '/' . TwigComponentHelper::COMPONENT_DIRECTORY, '/');
 
-            $bundlePath = $bundle->getPath();
-            $componentDir = $bundlePath . '/Resources/views/components';
-
-            if (!is_dir($componentDir)) {
+            if (!$this->filesystem->exists($componentDir)) {
                 continue;
             }
 
             // Build the namespace for component classes in this bundle
             // Format: BundleNamespace\Resources\views\components\
-            // Note: Using lowercase to match actual directory structure (PSR-4 is case-sensitive)
-            $bundleNamespace = $reflection->getNamespaceName();
-            $componentNamespace = $bundleNamespace . '\\Resources\\views\\components\\';
+            $componentNamespace = $meta['namespace'] . '\\Resources\\views\\components\\';
 
             if (!isset($defaults[$componentNamespace])) {
-                $bundleName = $bundle->getName();
-
                 $defaults[$componentNamespace] = [
-                    'template_directory' => 'components',
+                    'template_directory' => '@' . $bundleName . '/components',
                     'name_prefix' => $bundleName,
                 ];
             }

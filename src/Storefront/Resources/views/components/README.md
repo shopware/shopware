@@ -86,9 +86,7 @@ The only thing you have to do though is to register your component class as a se
 
 <!-- other config ... -->
 
-<service id="Shopware\Storefront\Resources\views\components\Button">
-    <tag name="twig.component" />
-</service>
+<service id="Shopware\Storefront\Resources\views\components\Button" autoconfigure="true" />
 ```
 
 Now your component is all set up and ready to go. You can directly access it in the template under the given name and namespace.
@@ -133,8 +131,10 @@ Components that make use of a PHP class can only be provided by plugins, not via
 MyPlugin/
   src/
     Resources/
+      config/
+        services.xml
       views/
-        commponents/
+        components/
           Button/
             Primary.html.twig
             Primary.php
@@ -157,6 +157,23 @@ class Primary
     // Add more public props and logic here.
 }
 ```
+
+The component class must be registered as a service in your plugin's `services.xml` with `autoconfigure="true"`. This lets Symfony read the `#[AsTwigComponent]` attribute and wire up everything — including public property exposure — automatically. Without this registration the PHP class is unknown to the container and Twig silently falls back to an anonymous (template-only) component.
+
+```XML
+<!-- src/Resources/config/services.xml -->
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="MyPlugin\Resources\views\components\Button\Primary" autoconfigure="true" />
+    </services>
+</container>
+```
+
+Now you can use your component in the template.
 
 ```Twig
 <twig:MyPlugin:Button:Primary />

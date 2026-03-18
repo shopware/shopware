@@ -7,8 +7,10 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationDataLoader;
 use Shopware\Core\Content\Category\Tree\Tree;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemDataLoaderTypeCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
@@ -60,8 +62,19 @@ class ContentSystemDataLoaderTypeCompilerPassTest extends TestCase
         static::assertSame([], $argument);
     }
 
-    #[TestDox('skips tagged service that does not extend AbstractContentDataLoader')]
-    public function testProcessSkipsNonContentDataLoaderSubclass(): void
+    #[TestDox('returns early when resolver definition is missing')]
+    public function testProcessReturnsEarlyWithoutResolver(): void
+    {
+        $container = new ContainerBuilder();
+
+        $pass = new ContentSystemDataLoaderTypeCompilerPass();
+        $pass->process($container);
+
+        static::assertFalse($container->hasDefinition(ContentSystemDataLoaderTypeResolver::class));
+    }
+
+    #[TestDox('throws when tagged service does not extend AbstractContentDataLoader')]
+    public function testProcessThrowsForNonContentDataLoaderSubclass(): void
     {
         $container = new ContainerBuilder();
 
@@ -72,22 +85,9 @@ class ContentSystemDataLoaderTypeCompilerPassTest extends TestCase
         $loaderDefinition->addTag('content_system.data_loader');
         $container->setDefinition('app.wrong_class_loader', $loaderDefinition);
 
-        $pass = new ContentSystemDataLoaderTypeCompilerPass();
-        $pass->process($container);
-
-        $argument = $resolverDefinition->getArgument('$compiledSourceToTypes');
-        static::assertIsArray($argument);
-        static::assertSame([], $argument);
-    }
-
-    #[TestDox('returns early when resolver definition is missing')]
-    public function testProcessReturnsEarlyWithoutResolver(): void
-    {
-        $container = new ContainerBuilder();
+        $this->expectExceptionObject(DependencyInjectionException::taggedServiceHasWrongType('app.wrong_class_loader', 'content_system.data_loader', AbstractContentDataLoader::class));
 
         $pass = new ContentSystemDataLoaderTypeCompilerPass();
         $pass->process($container);
-
-        static::assertFalse($container->hasDefinition(ContentSystemDataLoaderTypeResolver::class));
     }
 }

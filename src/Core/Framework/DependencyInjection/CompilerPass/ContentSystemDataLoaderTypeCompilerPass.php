@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver;
+use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -32,7 +33,7 @@ final class ContentSystemDataLoaderTypeCompilerPass implements CompilerPassInter
             }
 
             if (!is_subclass_of($class, AbstractContentDataLoader::class)) {
-                continue;
+                throw DependencyInjectionException::taggedServiceHasWrongType($serviceId, 'content_system.data_loader', AbstractContentDataLoader::class);
             }
 
             /** @var class-string<AbstractContentDataLoader<Struct>> $class */

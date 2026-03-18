@@ -249,13 +249,6 @@ async function createWrapper() {
                     router,
                 ],
                 provide: {
-                    productTypeService: {
-                        fetchProductTypes: () =>
-                            Promise.resolve([
-                                'physical',
-                                'digital',
-                            ]),
-                    },
                     numberRangeService: {},
                     repositoryFactory: {
                         create: (name) => {

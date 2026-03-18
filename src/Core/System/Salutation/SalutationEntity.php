@@ -37,7 +37,7 @@ class SalutationEntity extends Entity
 
     protected ?NewsletterRecipientCollection $newsletterRecipients = null;
 
-    protected int $position = 1;
+    protected int $position = SalutationDefinition::DEFAULT_POSITION;
 
     public function getSalutationKey(): ?string
     {

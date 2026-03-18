@@ -11,7 +11,7 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 /**
  * @internal
  */
-#[Package('Core')]
+#[Package('framework')]
 class Migration1773420826AddSalutationPositionColumn extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -24,18 +24,16 @@ class Migration1773420826AddSalutationPositionColumn extends MigrationStep
      */
     public function update(Connection $connection): void
     {
-        $columnCreated = $this->addColumn(
+        $this->addColumn(
             $connection,
             'salutation',
             'position',
-            'INT'
+            'INT',
+            false,
+            (string) SalutationDefinition::DEFAULT_POSITION
         );
 
-        if ($columnCreated) {
-            $this->assignDefaultPositions($connection);
-
-            $connection->executeStatement('ALTER TABLE `salutation` MODIFY `position` INT NOT NULL');
-        }
+        $this->assignDefaultPositions($connection);
     }
 
     /**
@@ -43,33 +41,20 @@ class Migration1773420826AddSalutationPositionColumn extends MigrationStep
      */
     private function assignDefaultPositions(Connection $connection): void
     {
-        $salutations = $connection->fetchAllAssociative(
-            'SELECT `id`, `salutation_key` FROM `salutation` ORDER BY `salutation_key` ASC'
-        );
-
-        if (empty($salutations)) {
-            return;
-        }
-
-        $defaults = [
+        $defaultPositions = [
             SalutationDefinition::NOT_SPECIFIED => 1,
             SalutationDefinition::MRS => 2,
             SalutationDefinition::MR => 3,
         ];
-        $position = \count($defaults);
 
-        foreach ($salutations as $salutation) {
-            $key = (string) $salutation['salutation_key'];
-
-            $positionValue = $defaults[$key] ?? ++$position;
-
+        foreach ($defaultPositions as $key => $position) {
             $connection->executeStatement(
                 'UPDATE `salutation`
                  SET `position` = :position
-                 WHERE `id` = :id',
+                 WHERE `salutation_key` = :key',
                 [
-                    'position' => $positionValue,
-                    'id' => $salutation['id'],
+                    'position' => $position,
+                    'key' => $key,
                 ]
             );
         }

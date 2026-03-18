@@ -166,6 +166,10 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 
 Get the latest order transaction with `order.primaryOrderDelivery` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
+## Salutation ordering
+
+A new `position` column was added to the `salutation` entity so merchants can control salutation order in forms. Default salutations (`not_specified`, `mrs`, `mr`) are migrated automatically. If you have custom salutations, review them in Administration → Settings → Shop → Salutations after upgrading and assign explicit positions; otherwise they will keep the default value of `1` and appear grouped together.
+
 ## Removal of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
 
 Following helper methods have been removed from the `EntityDefinitionQueryHelper`:

@@ -21,14 +21,6 @@ class SalutationCollection extends EntityCollection
                 return $a->getSalutationKey() <=> $b->getSalutationKey();
             }
 
-            if ($aPosition === null) {
-                return 1;
-            }
-
-            if ($bPosition === null) {
-                return -1;
-            }
-
             return $aPosition <=> $bPosition;
         });
     }

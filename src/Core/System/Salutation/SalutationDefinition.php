@@ -34,6 +34,8 @@ class SalutationDefinition extends EntityDefinition
 
     final public const MRS = 'mrs';
 
+    final public const DEFAULT_POSITION = 1;
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
@@ -62,7 +64,7 @@ class SalutationDefinition extends EntityDefinition
             (new TranslatedField('displayName'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('letterName'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
-            (new IntField('position', 'position'))->addFlags(new ApiAware(), new Required())->setDescription('Numerical value that indicates the order in which the defined salutations must be displayed in the frontend.'),
+            (new IntField('position', 'position'))->addFlags(new ApiAware())->setDescription('Numerical value that indicates the order in which the defined salutations must be displayed in the frontend.'),
 
             (new TranslationsAssociationField(SalutationTranslationDefinition::class, 'salutation_id'))->addFlags(new Required()),
 

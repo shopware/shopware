@@ -64,6 +64,40 @@ class ZugferdBuilderTest extends TestCase
         $country->setIso('UK');
 
         $config = [
+            'documentNumber' => 'test-1001',
+            'companyCountryId' => $country->getId(),
+            'companyStreet' => 'Musterstreet 1',
+            'companyZipcode' => '12345',
+            'companyCity' => 'Mustercity',
+            'companyName' => 'Muster company SE',
+        ];
+
+        $documentConfig = DocumentConfigurationFactory::createConfiguration($config);
+        $documentConfig->setCompanyCountry($country);
+
+        $xmlContent = (new ZugferdBuilder(
+            $this->createMock(EventDispatcherInterface::class),
+            new AmountCalculator(new CashRounding(), new PercentageTaxRuleBuilder(), new TaxCalculator())
+        ))->buildDocument(
+            $order,
+            $documentConfig,
+            Context::createDefaultContext(),
+        );
+
+        static::assertStringStartsWith('<?xml', $xmlContent);
+        static::assertStringContainsString('<TypeCode>' . ZugferdInvoiceType::INVOICE . '<', $xmlContent);
+        static::assertStringContainsString('test-1001', $xmlContent);
+    }
+
+    public function testBuildDocumentWithType(): void
+    {
+        $order = $this->buildOrder();
+
+        $country = new CountryEntity();
+        $country->setId(Uuid::randomHex());
+        $country->setIso('UK');
+
+        $config = [
             'documentNumber' => 'test-1000',
             'companyCountryId' => $country->getId(),
             'companyStreet' => 'Musterstreet 1',
@@ -85,7 +119,7 @@ class ZugferdBuilderTest extends TestCase
         $xmlContent = (new ZugferdBuilder(
             $this->createMock(EventDispatcherInterface::class),
             new AmountCalculator(new CashRounding(), new PercentageTaxRuleBuilder(), new TaxCalculator())
-        ))->buildDocument(
+        ))->buildDocumentWithType(
             $order,
             $documentConfig,
             Context::createDefaultContext(),

@@ -6,9 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Seo\Exception\InvalidTemplateException;
-use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -19,9 +17,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -257,33 +256,39 @@ class SeoUrlGeneratorTest extends TestCase
         iterator_to_array($generator->generate(['entity-1'], '{{ missing.value }}', $route, $this->context, $this->salesChannel), false);
     }
 
-    public function testGetAssociationsReturnsUniqueAssociationPaths(): void
+    public function testGenerateThrowsExceptionWhileParsingTemplate(): void
     {
-        $categoryDefinition = new CategoryDefinition();
-        new StaticEntityRepository([], $categoryDefinition);
-
+        $entity = new ArrayEntity(['id' => 'entity-1']);
+        $entityRepository = new StaticEntityRepository([
+            new EntityCollection([$entity]),
+        ], $this->createTestDefinition());
         $parser = $this->createMock(TwigVariableParser::class);
-        $parser->method('parse')->willReturn(['visibleChildCount', 'visibleChildCount']);
-
-        $generator = $this->createGenerator([], parser: $parser);
-
-        /** @var array<string> $associations */
-        $associations = $this->invokePrivate($generator, 'getAssociations', ['{{ category.visibleChildCount }}', $categoryDefinition]);
-        static::assertSame([], array_values($associations));
+        $parser->method('parse')->willThrowException(new \Exception('broken parser'));
+        $twig = $this->createTwigEnvironment(true);
+        $router = $this->createMock(RouterInterface::class);
+        $requestStack = new RequestStack();
+        $generator = $this->createGenerator([self::TEST_ENTITY_NAME => $entityRepository], $twig, $parser, null, $router, $requestStack);
+        $this->expectException(InvalidTemplateException::class);
+        \iterator_to_array($generator->generate(['entity-1'], '{{ missing.value }}', $this->createMock(SeoUrlRouteInterface::class), $this->context, $this->salesChannel), false);
     }
 
-    public function testGetAssociationsThrowsSeoExceptionOnParserFailure(): void
+    public function testGenerateWithLastFieldHasRuntimeFlag(): void
     {
-        $categoryDefinition = new CategoryDefinition();
-        new StaticEntityRepository([], $categoryDefinition);
-
+        $entity = new ArrayEntity(['id' => 'entity-1']);
+        $entityRepository = new StaticEntityRepository([
+            new EntityCollection([$entity]),
+            new EntityCollection(),
+        ], $this->createTestDefinition());
         $parser = $this->createMock(TwigVariableParser::class);
-        $parser->method('parse')->willThrowException(new \RuntimeException('broken parser'));
-
-        $generator = $this->createGenerator([], parser: $parser);
-
-        $this->expectExceptionObject(SeoException::invalidTemplate('broken parser'));
-        $this->invokePrivate($generator, 'getAssociations', ['{{ category.name }}', $categoryDefinition]);
+        $parser->method('parse')->willReturn(['testRuntime']);
+        $twig = $this->createTwigEnvironment();
+        $router = $this->createMock(RouterInterface::class);
+        $requestStack = new RequestStack();
+        $generator = $this->createGenerator([self::TEST_ENTITY_NAME => $entityRepository], $twig, $parser, null, $router, $requestStack);
+        $route = $this->createMock(SeoUrlRouteInterface::class);
+        $route->method('getConfig')->willReturn(new SeoUrlRouteConfig($this->createTestDefinition(), 'frontend.detail.page', '{{ missing.value }}', true));
+        $urls = iterator_to_array($generator->generate(['entity-1'], '{{ missing.value }}', $route, $this->context, $this->salesChannel), false);
+        static::assertCount(0, $urls);
     }
 
     /**
@@ -298,13 +303,7 @@ class SeoUrlGeneratorTest extends TestCase
         ?RequestStack $requestStack = null
     ): SeoUrlGenerator {
         $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $definitionRegistry->method('getRepository')->willReturnCallback(static function (string $entityName) use ($repositories): EntityRepository {
-            if (!isset($repositories[$entityName])) {
-                throw new \RuntimeException(\sprintf('Missing repository for "%s".', $entityName));
-            }
-
-            return $repositories[$entityName];
-        });
+        $definitionRegistry->method('getRepository')->willReturn($repositories[self::TEST_ENTITY_NAME]);
 
         $twig ??= $this->createMock(Environment::class);
         $parser ??= $this->createMock(TwigVariableParser::class);
@@ -323,17 +322,6 @@ class SeoUrlGeneratorTest extends TestCase
             $parserFactory,
             $logger
         );
-    }
-
-    /**
-     * @param list<mixed> $arguments
-     */
-    private function invokePrivate(object $instance, string $methodName, array $arguments = []): mixed
-    {
-        $method = new \ReflectionMethod($instance, $methodName);
-        $method->setAccessible(true);
-
-        return $method->invokeArgs($instance, $arguments);
     }
 
     private function createTwigEnvironment(bool $strict = false): Environment
@@ -363,6 +351,7 @@ class SeoUrlGeneratorTest extends TestCase
             {
                 return new FieldCollection([
                     (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
+                    (new StringField('testRuntime', 'testRuntime'))->addFlags(new Runtime()),
                 ]);
             }
         };

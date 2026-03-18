@@ -331,7 +331,7 @@ class SalesChannelContextServiceTest extends TestCase
         $this->setupSessionAndRequest([
             'sw-rule-ids' => $ruleIds,
         ], [
-            '_sw_esi' => true,
+            '_esi' => true,
         ]);
 
         $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, Defaults::LANGUAGE_SYSTEM));

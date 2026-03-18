@@ -225,8 +225,7 @@ export default {
             window.removeEventListener('beforeunload', this.beforeUnloadListener);
         },
 
-        // eslint-disable-next-line no-unused-vars
-        beforeUnloadListener(event) {
+        beforeUnloadListener() {
             this.saveUserConfig();
         },
 

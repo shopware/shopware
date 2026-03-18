@@ -29,7 +29,6 @@ import type { SetupContext, PublicProps } from '@vue/runtime-core';
  */
 
 // Disable ESLint rules for this file due to the use of 'any' types and potentially unsafe operations
-// eslint-disable-next-line max-len
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
 declare global {
     /**
@@ -83,7 +82,6 @@ const checkNestedStructure = ({
         error: string | null;
     } = { isValid: true, error: null };
 
-    // eslint-disable-next-line no-restricted-syntax
     for (const key of Object.keys(oldObj)) {
         const currentPath = path ? `${path}.${key}` : key;
 
@@ -175,7 +173,6 @@ export function createExtendableSetup<
     // Stop execution and throw an error if the original setup function does not return a public or private property
     if (!originalSetupResultRaw.public && !originalSetupResultRaw.private) {
         console.error(
-            // eslint-disable-next-line max-len
             `[${options.name}] The original setup function for the originalComponent component must return at least one public or private property.`,
         );
         return {} as any;
@@ -185,19 +182,16 @@ export function createExtendableSetup<
     Object.keys(originalSetupResultRaw).forEach((key) => {
         if (key !== 'public' && key !== 'private') {
             console.error(
-                // eslint-disable-next-line max-len
                 `[${options.name}] The original setup function for the originalComponent component returned an unexpected value. Only public and private properties at first level are allowed.`,
             );
         }
     });
 
-    // eslint-disable-next-line max-len
     const originalSetupResultPublic =
         originalSetupResultRaw.public ?? ({} as Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]>);
     const originalSetupResultPrivate = originalSetupResultRaw.private ?? ({} as PRIVATE_SETUP_RESULT);
 
     // Merge public and private properties
-    // eslint-disable-next-line max-len
     const originalSetupResult: Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]> & PRIVATE_SETUP_RESULT = {
         ...originalSetupResultPublic,
         ...originalSetupResultPrivate,
@@ -207,7 +201,6 @@ export function createExtendableSetup<
     Object.keys(options.props).forEach((key) => {
         if (Object.keys(originalSetupResult).includes(key)) {
             console.error(
-                // eslint-disable-next-line max-len
                 `[${options.name}] The original setup function for the originalComponent component returned a prop. This is not allowed. Props are only available for overrides with the second argument.`,
             );
 
@@ -272,7 +265,6 @@ export function createExtendableSetup<
                 // Skip if the key is a prop, as props should not be overridden
                 if (Object.keys(options.props).includes(key)) {
                     console.error(
-                        // eslint-disable-next-line max-len
                         `[${options.name}] Override result value not working. Cannot override props. Following prop should be changed: "${key}"`,
                     );
                     return;
@@ -320,7 +312,6 @@ export function createExtendableSetup<
                     reactiveWrappedState[key] = resultValue;
                 } else {
                     // Log an error for unhandled types
-                    // eslint-disable-next-line max-len
                     console.error(
                         `[${options.name}] Override value not working. No handling declared for:`,
                         key,

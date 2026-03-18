@@ -82,7 +82,6 @@ export default {
             required: false,
             default: false,
         },
-        // eslint-disable-next-line vue/require-default-prop
         routerLink: {
             type: Object,
             required: false,

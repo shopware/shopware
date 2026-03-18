@@ -150,13 +150,14 @@ class ZugferdDocumentTest extends TestCase
 
         $document->withInvoiceReference('1001', new \DateTimeImmutable('2024-01-01'));
 
-        $document->withGeneralOrderData(
-            new \DateTime('2024-01-02'),
-            (new \DateTime('2024-01-03'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            '1002',
-            'EUR',
-            ZugferdInvoiceType::CORRECTION,
-        );
+        $document
+            ->withDocumentInformation(
+                (new \DateTime('2024-01-03'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                '1002',
+                'EUR',
+                ZugferdInvoiceType::CORRECTION,
+            )
+            ->withDocumentSupplyChainEvent(new \DateTime('2024-01-02'));
 
         if ($isGross) {
             $order->setAmountTotal(round(array_sum($lineItemGross) + array_sum($discountGross) + array_sum($deliveryGross), 2));
@@ -206,6 +207,51 @@ class ZugferdDocumentTest extends TestCase
         ];
     }
 
+    public function testWithDocumentInformation(): void
+    {
+        $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), true);
+        $document->withDocumentInformation('2024-01-03', '1002', 'EUR', ZugferdInvoiceType::CORRECTION);
+
+        $order = new OrderEntity();
+        $order->setTaxStatus(CartPrice::TAX_STATE_GROSS);
+        $order->setAmountTotal(0.0);
+        $order->setAmountNet(0.0);
+        $order->setItemRounding(new CashRoundingConfig(2, .01, false));
+        $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
+
+        $calculator = new AmountCalculator(new CashRounding(), new PercentageTaxRuleBuilder(), new TaxCalculator());
+        $dom = $document->getDomContent($order, $calculator);
+
+        $general = $dom->getElementsByTagName('ExchangedDocument')->item(0);
+
+        static::assertNotNull($general);
+        static::assertSame('1002', $general->getElementsByTagName('ID')->item(0)?->nodeValue);
+        static::assertSame(ZugferdInvoiceType::CORRECTION, $general->getElementsByTagName('TypeCode')->item(0)?->nodeValue);
+        static::assertSame('20240103', \trim($general->getElementsByTagName('IssueDateTime')->item(0)->nodeValue ?? ''));
+    }
+
+    public function testWithDocumentSupplyChainEvent(): void
+    {
+        $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), true);
+        $document->withDocumentSupplyChainEvent(new \DateTime('2024-01-02'));
+
+        $order = new OrderEntity();
+        $order->setTaxStatus(CartPrice::TAX_STATE_GROSS);
+        $order->setAmountTotal(0.0);
+        $order->setAmountNet(0.0);
+        $order->setItemRounding(new CashRoundingConfig(2, .01, false));
+        $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
+
+        $calculator = new AmountCalculator(new CashRounding(), new PercentageTaxRuleBuilder(), new TaxCalculator());
+        $dom = $document->getDomContent($order, $calculator);
+
+        $occurrenceDateTime = $dom->getElementsByTagName('ActualDeliverySupplyChainEvent')->item(0)
+            ?->getElementsByTagName('OccurrenceDateTime')->item(0);
+
+        static::assertNotNull($occurrenceDateTime);
+        static::assertSame('20240102', \trim($occurrenceDateTime->getElementsByTagName('DateTimeString')->item(0)->nodeValue ?? ''));
+    }
+
     public function testEmptyCalculatedTaxes(): void
     {
         $order = new OrderEntity();
@@ -231,13 +277,14 @@ class ZugferdDocumentTest extends TestCase
         $document->withProductLineItem($lineItem, '');
         $document->withPaidAmount(100.0);
         $document->withInvoiceReference('1001', new \DateTimeImmutable('2024-01-01'));
-        $document->withGeneralOrderData(
-            new \DateTime('2024-01-02'),
-            (new \DateTime('2024-01-03'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            '1002',
-            'EUR',
-            ZugferdInvoiceType::CORRECTION,
-        );
+        $document
+            ->withDocumentInformation(
+                (new \DateTime('2024-01-03'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                '1002',
+                'EUR',
+                ZugferdInvoiceType::CORRECTION,
+            )
+            ->withDocumentSupplyChainEvent(new \DateTime('2024-01-02'));
 
         $calculator = new AmountCalculator(
             new CashRounding(),

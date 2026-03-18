@@ -3,35 +3,60 @@
 namespace Shopware\Storefront\Framework\Twig\Components;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @internal
  *
- * @extends Collection<TwigComponent>
+ * @implements \IteratorAggregate<string, TwigComponent>
  */
 #[Package('framework')]
-class TwigComponentCollection extends Collection
+class TwigComponentCollection implements \Countable, \IteratorAggregate
 {
+    /**
+     * @var array<string, TwigComponent>
+     */
+    private array $elements = [];
+
+    /**
+     * @param iterable<TwigComponent> $elements
+     */
     public function __construct(iterable $elements = [])
     {
-        parent::__construct();
-
         foreach ($elements as $element) {
-            $this->validateType($element);
-
-            $this->set($element->getTag(), $element);
+            $this->add($element);
         }
     }
 
-    public function add($element): void
+    public function add(TwigComponent $element): void
     {
-        $this->validateType($element);
-        $this->set($element->getTag(), $element);
+        $this->elements[$element->getTag()] = $element;
     }
 
-    protected function getExpectedClass(): string
+    public function get(string $key): ?TwigComponent
     {
-        return TwigComponent::class;
+        return $this->elements[$key] ?? null;
+    }
+
+    public function has(string $key): bool
+    {
+        return isset($this->elements[$key]);
+    }
+
+    public function remove(string $key): void
+    {
+        unset($this->elements[$key]);
+    }
+
+    public function count(): int
+    {
+        return \count($this->elements);
+    }
+
+    /**
+     * @return \ArrayIterator<string, TwigComponent>
+     */
+    public function getIterator(): \ArrayIterator
+    {
+        return new \ArrayIterator($this->elements);
     }
 }

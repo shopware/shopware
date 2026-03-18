@@ -17,9 +17,8 @@ use Symfony\UX\TwigComponent\ComponentFactory;
 #[Package('framework')]
 class TwigComponentHelper
 {
-    private const MAIN_NAMESPACE = 'Storefront';
-
     public const COMPONENT_DIRECTORY = 'Resources/views/components/';
+    private const MAIN_NAMESPACE = 'Storefront';
 
     /**
      * @param array<string, array{path: string}> $bundlesMetadata
@@ -41,8 +40,8 @@ class TwigComponentHelper
 
         foreach ($this->findComponentsByTemplate() as $component) {
             if ($includeMetadata) {
-                $componentMetadata = $this->componentFactory->metadataFor($component->getName());
-                $component->setMetadata($componentMetadata);
+                $componentMetadata = $this->componentFactory->metadataFor($component->name);
+                $component->metadata = $componentMetadata;
             }
 
             $components->add($component);
@@ -51,7 +50,7 @@ class TwigComponentHelper
         return $components;
     }
 
-    public function getComponentFromTemplate(SplFileInfo $template, string $componentNamespace): TwigComponent
+    private function getComponentFromTemplate(SplFileInfo $template, string $componentNamespace): TwigComponent
     {
         $componentName = $this->getComponentNameFromPath($template->getRelativePathname());
 
@@ -86,7 +85,7 @@ class TwigComponentHelper
             $componentNamespace = $this->getComponentNamespace($template->getRealPath(), $dirs);
             $component = $this->getComponentFromTemplate($template, $componentNamespace);
 
-            $components[$component->getName()] = $component;
+            $components[$component->name] = $component;
         }
 
         return $components;
@@ -166,13 +165,11 @@ class TwigComponentHelper
                 continue;
             }
 
-            $componentDir = $filesystem->path(self::COMPONENT_DIRECTORY);
-
-            if (!is_dir($componentDir)) {
+            if (!$filesystem->has(self::COMPONENT_DIRECTORY)) {
                 continue;
             }
 
-            $dirs[$componentDir] = $app['namespace'];
+            $dirs[$filesystem->path(self::COMPONENT_DIRECTORY)] = $app['namespace'];
         }
 
         return $dirs;

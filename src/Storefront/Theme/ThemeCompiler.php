@@ -27,6 +27,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\Validator\SCSSValidator;
 use Symfony\Component\Asset\Package as AssetPackage;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Filesystem as LocalFilesystem;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
 
@@ -56,6 +57,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly array $customAllowedRegex = [],
         private readonly bool $validate = false,
         private readonly string $visibility = Visibility::PUBLIC,
+        private readonly LocalFilesystem $localFilesystem = new LocalFilesystem(),
     ) {
     }
 
@@ -209,7 +211,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         foreach ($componentScriptFiles as $component) {
             $componentPath = $component->getScriptPath();
 
-            if ($componentPath === null) {
+            if (!$this->localFilesystem->exists($componentPath)) {
                 continue;
             }
 

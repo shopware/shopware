@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBu
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
-use Symfony\Component\Finder\SplFileInfo;
 use Symfony\UX\TwigComponent\ComponentFactory;
 use Symfony\UX\TwigComponent\ComponentMetadata;
 
@@ -134,8 +133,8 @@ class TwigComponentHelperTest extends TestCase
         static::assertTrue($components->has('TestBundle:Forms:Input:Text'));
 
         $component = $components->get('TestBundle:Forms:Input:Text');
-        static::assertSame('Forms:Input:Text', $component->getName());
-        static::assertSame('TestBundle', $component->getNamespace());
+        static::assertSame('Forms:Input:Text', $component->name);
+        static::assertSame('TestBundle', $component->namespace);
     }
 
     public function testGetComponentsExcludesFilesInUnderscoreDirectories(): void
@@ -217,7 +216,7 @@ class TwigComponentHelperTest extends TestCase
         $component = $components->get('TestBundle:Button');
         static::assertNotNull($component);
 
-        $componentMetadata = $component->getMetadata();
+        $componentMetadata = $component->metadata;
         static::assertNotNull($componentMetadata);
         static::assertSame('Button', $componentMetadata->getName());
         static::assertSame('components/Button.html.twig', $componentMetadata->getTemplate());
@@ -256,7 +255,7 @@ class TwigComponentHelperTest extends TestCase
         static::assertCount(1, $components);
         $component = $components->get('TestBundle:Button');
         static::assertNotNull($component);
-        static::assertNull($component->getMetadata());
+        static::assertNull($component->metadata);
     }
 
     /**
@@ -297,8 +296,8 @@ class TwigComponentHelperTest extends TestCase
         static::assertFalse($components->has('TestApp:Test'), 'Component must not be named without its subdirectory');
 
         $component = $components->get('TestApp:Custom:Test');
-        static::assertSame('Custom:Test', $component->getName());
-        static::assertSame('TestApp', $component->getNamespace());
+        static::assertSame('Custom:Test', $component->name);
+        static::assertSame('TestApp', $component->namespace);
 
         // getRelativeNamespaceDirectory() must include 'Custom' subdirectory
         static::assertSame('TestApp/Custom', $component->getRelativeNamespaceDirectory());
@@ -339,77 +338,6 @@ class TwigComponentHelperTest extends TestCase
         static::assertCount(2, $components);
         static::assertTrue($components->has('MultiTemplateApp:Custom:Test'));
         static::assertTrue($components->has('MultiTemplateApp:Other:Widget'));
-    }
-
-    public function testGetComponentFromTemplate(): void
-    {
-        $templatePath = $this->tempDir . '/Button.html.twig';
-        file_put_contents($templatePath, '<button>Test</button>');
-
-        $splFileInfo = new SplFileInfo($templatePath, '', 'Button.html.twig');
-
-        $helper = new TwigComponentHelper(
-            [],
-            $this->createMock(NamespaceHierarchyBuilder::class),
-            $this->createComponentFactory(),
-            $this->createMock(Connection::class),
-            $this->createMock(SourceResolver::class)
-        );
-
-        $component = $helper->getComponentFromTemplate($splFileInfo, 'TestNamespace');
-
-        static::assertSame('Button', $component->getName());
-        static::assertSame($templatePath, $component->getPath());
-        static::assertSame('TestNamespace', $component->getNamespace());
-    }
-
-    public function testGetComponentFromTemplateWithNestedPath(): void
-    {
-        $nestedDir = $this->tempDir . '/Forms/Input';
-        mkdir($nestedDir, 0777, true);
-
-        $templatePath = $nestedDir . '/Text.html.twig';
-        file_put_contents($templatePath, '<input type="text" />');
-
-        $splFileInfo = new SplFileInfo($templatePath, 'Forms/Input', 'Forms/Input/Text.html.twig');
-
-        $helper = new TwigComponentHelper(
-            [],
-            $this->createMock(NamespaceHierarchyBuilder::class),
-            $this->createComponentFactory(),
-            $this->createMock(Connection::class),
-            $this->createMock(SourceResolver::class)
-        );
-
-        $component = $helper->getComponentFromTemplate($splFileInfo, 'TestNamespace');
-
-        static::assertSame('Forms:Input:Text', $component->getName());
-        static::assertSame($templatePath, $component->getPath());
-        static::assertSame('TestNamespace', $component->getNamespace());
-    }
-
-    public function testGetComponentFromTemplateWithComponentsPrefix(): void
-    {
-        $componentDir = $this->tempDir . '/components';
-        mkdir($componentDir, 0777, true);
-
-        $templatePath = $componentDir . '/Button.html.twig';
-        file_put_contents($templatePath, '<button>Test</button>');
-
-        $splFileInfo = new SplFileInfo($templatePath, 'components', 'components/Button.html.twig');
-
-        $helper = new TwigComponentHelper(
-            [],
-            $this->createMock(NamespaceHierarchyBuilder::class),
-            $this->createComponentFactory(),
-            $this->createMock(Connection::class),
-            $this->createMock(SourceResolver::class)
-        );
-
-        $component = $helper->getComponentFromTemplate($splFileInfo, 'TestNamespace');
-
-        static::assertSame('Button', $component->getName());
-        static::assertSame($templatePath, $component->getPath());
     }
 
     public function testGetComponentsHandlesMultipleBundles(): void
@@ -578,8 +506,7 @@ class TwigComponentHelperTest extends TestCase
         ]);
 
         $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->method('path')
-            ->willReturn(sys_get_temp_dir() . '/non-existent-components-' . uniqid());
+        $filesystem->method('has')->willReturn(false);
 
         $sourceResolver = $this->createMock(SourceResolver::class);
         $sourceResolver->method('filesystemForAppName')

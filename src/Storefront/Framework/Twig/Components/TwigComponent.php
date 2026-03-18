@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Framework\Twig\Components;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Filesystem\Path;
 use Symfony\UX\TwigComponent\ComponentMetadata;
 
@@ -11,36 +10,16 @@ use Symfony\UX\TwigComponent\ComponentMetadata;
  * @internal
  */
 #[Package('framework')]
-class TwigComponent extends Struct
+class TwigComponent
 {
     private const MAIN_NAMESPACE = 'Storefront';
 
-    protected string $name;
-
-    protected string $path;
-
-    protected string $namespace;
-
-    protected ?ComponentMetadata $metadata = null;
-
     public function __construct(
-        string $name,
-        string $path,
-        string $namespace,
+        public string $name,
+        public string $path,
+        public string $namespace,
+        public ?ComponentMetadata $metadata = null,
     ) {
-        $this->name = $name;
-        $this->path = $path;
-        $this->namespace = $namespace;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function getNamespace(): string
-    {
-        return $this->namespace;
     }
 
     public function getBaseName(): string
@@ -69,25 +48,20 @@ class TwigComponent extends Struct
         return $name;
     }
 
-    public function getPath(): string
-    {
-        return $this->path;
-    }
-
     public function getRelativeNamespacePath(): string
     {
-        $relativeName = $this->getName();
+        $relativeName = $this->name;
 
         if ($this->namespace !== self::MAIN_NAMESPACE) {
             $relativeName = $this->namespace . ':' . $relativeName;
         }
 
-        return str_replace(':', '/', $relativeName);
+        return str_replace(':', \DIRECTORY_SEPARATOR, $relativeName);
     }
 
     public function getRelativeNamespaceDirectory(): string
     {
-        $relativeName = $this->getName();
+        $relativeName = $this->name;
 
         if ($this->namespace !== self::MAIN_NAMESPACE) {
             $relativeName = $this->namespace . ':' . $relativeName;
@@ -100,26 +74,14 @@ class TwigComponent extends Struct
         return implode('/', $nameParts);
     }
 
-    public function getStylePath(): ?string
+    public function getStylePath(): string
     {
-        $stylePath = Path::join($this->getDirectory(), $this->getBaseName() . '.scss');
-
-        if (!is_file($stylePath)) {
-            return null;
-        }
-
-        return $stylePath;
+        return Path::join($this->getDirectory(), $this->getBaseName() . '.scss');
     }
 
-    public function getScriptPath(): ?string
+    public function getScriptPath(): string
     {
-        $scriptPath = Path::join($this->getDirectory(), $this->getBaseName() . '.js');
-
-        if (!is_file($scriptPath)) {
-            return null;
-        }
-
-        return $scriptPath;
+        return Path::join($this->getDirectory(), $this->getBaseName() . '.js');
     }
 
     public function isIndexComponent(): bool
@@ -130,30 +92,5 @@ class TwigComponent extends Struct
     public function getDirectory(): string
     {
         return Path::getDirectory($this->path);
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
-    public function setPath(string $path): void
-    {
-        $this->path = $path;
-    }
-
-    public function setNamespace(string $namespace): void
-    {
-        $this->namespace = $namespace;
-    }
-
-    public function getMetadata(): ?ComponentMetadata
-    {
-        return $this->metadata;
-    }
-
-    public function setMetadata(ComponentMetadata $metadata): void
-    {
-        $this->metadata = $metadata;
     }
 }

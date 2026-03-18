@@ -4,8 +4,6 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Components;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\FrameworkException;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection;
 
@@ -97,32 +95,15 @@ class TwigComponentCollectionTest extends TestCase
 
         static::assertCount(1, $collection);
         static::assertSame($component2, $collection->get('Button'));
-        static::assertSame('/path/to/NewButton.html.twig', $collection->get('Button')->getPath());
+        static::assertSame('/path/to/NewButton.html.twig', $collection->get('Button')->path);
     }
 
-    public function testValidateTypeThrowsExceptionForInvalidType(): void
+    public function testAddThrowsTypeErrorForInvalidType(): void
     {
-        $invalidElement = new class extends Struct {
-        };
-
-        $this->expectExceptionObject(
-            FrameworkException::collectionElementInvalidType(
-                TwigComponent::class,
-                $invalidElement::class
-            )
-        );
+        $this->expectException(\TypeError::class);
 
         /** @phpstan-ignore-next-line argument.type - Intentionally passing wrong type to test validation */
-        new TwigComponentCollection([$invalidElement]);
-    }
-
-    public function testGetExpectedClass(): void
-    {
-        $collection = new TwigComponentCollection();
-        $reflection = new \ReflectionClass($collection);
-        $method = $reflection->getMethod('getExpectedClass');
-
-        static::assertSame(TwigComponent::class, $method->invoke($collection));
+        new TwigComponentCollection([new \stdClass()]);
     }
 
     public function testIterateOverCollection(): void

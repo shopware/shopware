@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use League\Flysystem\Visibility;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -32,6 +33,7 @@ use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Filesystem as LocalFilesystem;
 
 /**
  * @internal
@@ -68,6 +70,8 @@ class ThemeCompilerTest extends TestCase
 
     private TwigComponentHelper&MockObject $twigComponentHelper;
 
+    private LocalFilesystem&MockObject $localFilesystem;
+
     protected function setUp(): void
     {
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
@@ -83,6 +87,8 @@ class ThemeCompilerTest extends TestCase
         $this->themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
         $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
         $this->twigComponentHelper->method('getComponents')->willReturn(new TwigComponentCollection());
+        $this->localFilesystem = $this->createMock(LocalFilesystem::class);
+        $this->localFilesystem->method('exists')->willReturn(false);
     }
 
     // ===================================
@@ -705,62 +711,52 @@ class ThemeCompilerTest extends TestCase
     {
         $this->setupBasicFileResolution();
 
-        // TwigComponent::getScriptPath() checks is_file() on disk, so we need a real file
-        $tempDir = sys_get_temp_dir() . '/test-component-' . uniqid();
-        mkdir($tempDir . '/Sw', 0777, true);
-        file_put_contents($tempDir . '/Sw/Button.js', 'console.log("hello");');
+        $component = new \Shopware\Storefront\Framework\Twig\Components\TwigComponent(
+            'Sw:Button',
+            '/some/path/Sw/Button.html.twig',
+            'Storefront'
+        );
 
-        try {
-            $component = new \Shopware\Storefront\Framework\Twig\Components\TwigComponent(
-                'Sw:Button',
-                $tempDir . '/Sw/Button.html.twig',
-                'Storefront'
-            );
+        $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $this->twigComponentHelper->method('getComponents')
+            ->willReturn(new TwigComponentCollection([$component]));
 
-            // Re-create the mock so the getComponents() configuration is not overridden by setUp
-            $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
-            $this->twigComponentHelper->method('getComponents')
-                ->willReturn(new TwigComponentCollection([$component]));
+        $this->localFilesystem->method('exists')->willReturn(true);
 
-            $compiler = $this->createThemeCompiler();
+        $compiler = $this->createThemeCompiler();
 
-            $compiler->compileTheme(
-                TestDefaults::SALES_CHANNEL,
-                'theme-id',
-                $this->createThemeConfig('TestTheme'),
-                new StorefrontPluginConfigurationCollection(),
-                false,
-                Context::createDefaultContext()
-            );
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $this->createThemeConfig('TestTheme'),
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
 
-            $themePrefix = $this->pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-id');
-            $expectedPath = 'theme/' . $themePrefix . '/js/components/Sw/Button.js';
+        $themePrefix = $this->pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-id');
+        $expectedPath = 'theme/' . $themePrefix . '/js/components/Sw/Button.js';
 
-            static::assertTrue($this->filesystem->has($expectedPath));
-        } finally {
-            unlink($tempDir . '/Sw/Button.js');
-            rmdir($tempDir . '/Sw');
-            rmdir($tempDir);
-        }
+        static::assertTrue($this->filesystem->has($expectedPath));
     }
 
-    public function testCopyComponentScriptFilesSkipsComponentsWithNullScriptPath(): void
+    public function testCopyComponentScriptFilesSkipsComponentsWithNoScriptFile(): void
     {
         $this->setupBasicFileResolution();
 
-        // Component where no .js file exists beside the template → getScriptPath() returns null
         $component = new \Shopware\Storefront\Framework\Twig\Components\TwigComponent(
             'Sw:Badge',
-            sys_get_temp_dir() . '/Sw/Badge.html.twig',
+            '/some/path/Sw/Badge.html.twig',
             'Storefront'
         );
 
         $this->twigComponentHelper->method('getComponents')
             ->willReturn(new TwigComponentCollection([$component]));
 
+        // localFilesystem defaults to exists() = false in setUp
+
         $compiler = $this->createThemeCompiler();
 
-        // Should not throw — null path component is simply skipped
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
             'theme-id',
@@ -964,7 +960,9 @@ class ThemeCompilerTest extends TestCase
             $pathBuilder ?? $this->pathBuilder,
             $this->scssPhpCompiler,
             [], // customAllowedRegex
-            false // validate
+            false, // validate
+            Visibility::PUBLIC,
+            $this->localFilesystem,
         );
     }
 

@@ -607,7 +607,10 @@ class ThemeFileResolverTest extends TestCase
             ->method('getComponents')
             ->willReturn($componentCollection);
 
-        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+        $localFilesystem = $this->createMock(Filesystem::class);
+        $localFilesystem->method('exists')->willReturn(true);
+
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper, $localFilesystem);
 
         $result = $resolver->resolveStyleFiles($config, $configCollection, false);
 
@@ -659,7 +662,10 @@ class ThemeFileResolverTest extends TestCase
             ->method('getComponents')
             ->willReturn(new TwigComponentCollection([$component]));
 
-        $result = (new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper))
+        $localFilesystem = $this->createMock(Filesystem::class);
+        $localFilesystem->method('exists')->willReturn(true);
+
+        $result = (new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper, $localFilesystem))
             ->resolveStyleFiles($config, $configCollection, false);
 
         static::assertCount(1, $result);
@@ -728,7 +734,10 @@ class ThemeFileResolverTest extends TestCase
             ->method('getComponents')
             ->willReturn($componentCollection);
 
-        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+        $localFilesystem = $this->createMock(Filesystem::class);
+        $localFilesystem->method('exists')->willReturn(true);
+
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper, $localFilesystem);
 
         $result = $resolver->resolveStyleFiles($config, $configCollection, false);
 
@@ -758,8 +767,11 @@ class ThemeFileResolverTest extends TestCase
         $twigComponentHelper->method('getComponents')
             ->willReturn(new TwigComponentCollection([$component]));
 
+        $localFilesystem = $this->createMock(Filesystem::class);
+        $localFilesystem->method('exists')->willReturn(true);
+
         $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
-        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper, $localFilesystem);
 
         $result = $resolver->resolveScriptFiles($config, $configCollection, false);
 
@@ -775,15 +787,18 @@ class ThemeFileResolverTest extends TestCase
 
         $configCollection = new StorefrontPluginConfigurationCollection([$config]);
 
-        // Component with no .js file alongside its template — getScriptPath() returns null
+        // Component with no .js file alongside its template — filesystem reports it does not exist
         $component = new TwigComponent('Sw:Badge', '/base/Storefront/Resources/views/components/Sw/Badge/index.html.twig', 'Storefront');
 
         $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
         $twigComponentHelper->method('getComponents')
             ->willReturn(new TwigComponentCollection([$component]));
 
+        $localFilesystem = $this->createMock(Filesystem::class);
+        $localFilesystem->method('exists')->willReturn(false);
+
         $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
-        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper, $localFilesystem);
 
         $result = $resolver->resolveScriptFiles($config, $configCollection, false);
 
@@ -832,8 +847,11 @@ class ThemeFileResolverTest extends TestCase
         $twigComponentHelper->method('getComponents')
             ->willReturn(new TwigComponentCollection([$component]));
 
+        $localFilesystem = $this->createMock(Filesystem::class);
+        $localFilesystem->method('exists')->willReturn(true);
+
         $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
-        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper, $localFilesystem);
 
         $result = $resolver->resolveScriptFiles($config, $configCollection, false);
 

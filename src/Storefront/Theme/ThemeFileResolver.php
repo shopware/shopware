@@ -9,6 +9,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
+use Symfony\Component\Filesystem\Filesystem as LocalFilesystem;
 
 #[Package('framework')]
 class ThemeFileResolver
@@ -21,7 +22,8 @@ class ThemeFileResolver
      */
     public function __construct(
         private readonly ThemeFilesystemResolver $themeFilesystemResolver,
-        private readonly TwigComponentHelper $twigComponentHelper
+        private readonly TwigComponentHelper $twigComponentHelper,
+        private readonly LocalFilesystem $localFilesystem = new LocalFilesystem(),
     ) {
     }
 
@@ -297,7 +299,7 @@ class ThemeFileResolver
                         ? $component->getScriptPath()
                         : $component->getStylePath();
 
-                    if ($componentPath !== null && !isset($processedFiles[$componentPath])) {
+                    if ($this->localFilesystem->exists($componentPath) && !isset($processedFiles[$componentPath])) {
                         $processedFiles[$componentPath] = true;
                         $namespaceDir = $component->getRelativeNamespaceDirectory();
                         $assetName = $namespaceDir !== '' ? $namespaceDir : null;
@@ -374,7 +376,7 @@ class ThemeFileResolver
         if ($requestedRelativePath !== null) {
             foreach ($this->twigComponentHelper->getComponents() as $component) {
                 // If bundle namespace is specified, filter by it
-                if ($componentBundleNamespace !== null && $component->getNamespace() !== $componentBundleNamespace) {
+                if ($componentBundleNamespace !== null && $component->namespace !== $componentBundleNamespace) {
                     continue;
                 }
 
@@ -387,9 +389,9 @@ class ThemeFileResolver
                     $componentFilePath = $component->getStylePath();
                 }
 
-                $bundleRelativeComponentPath = $component->getNamespace() . '/Resources/views/components/' . $requestedRelativePath;
+                $bundleRelativeComponentPath = $component->namespace . '/'. TwigComponentHelper::COMPONENT_DIRECTORY . $requestedRelativePath;
 
-                if ($componentFilePath !== null && str_ends_with($componentFilePath, $bundleRelativeComponentPath)) {
+                if ($componentFilePath !== null && $this->localFilesystem->exists($componentFilePath) && str_ends_with($componentFilePath, $bundleRelativeComponentPath)) {
                     $namespaceDir = $component->getRelativeNamespaceDirectory();
                     $assetName = $namespaceDir !== '' ? $namespaceDir : null;
                     $resolvedFile = new File($componentFilePath, [], $assetName);

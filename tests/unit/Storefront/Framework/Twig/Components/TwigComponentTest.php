@@ -22,9 +22,9 @@ class TwigComponentTest extends TestCase
             'Storefront'
         );
 
-        static::assertSame('Button:Primary', $component->getName());
-        static::assertSame('/path/to/Button/Primary.html.twig', $component->getPath());
-        static::assertSame('Storefront', $component->getNamespace());
+        static::assertSame('Button:Primary', $component->name);
+        static::assertSame('/path/to/Button/Primary.html.twig', $component->path);
+        static::assertSame('Storefront', $component->namespace);
     }
 
     public function testGetBaseName(): void
@@ -251,118 +251,41 @@ class TwigComponentTest extends TestCase
         static::assertSame('/path/to/components', $component->getDirectory());
     }
 
-    public function testGetStylePathWhenFileExists(): void
+    public function testGetStylePath(): void
     {
-        $tempDir = sys_get_temp_dir() . '/twig_component_test_' . uniqid();
-        mkdir($tempDir, 0777, true);
+        $component = new TwigComponent('Button', '/path/to/components/Button.html.twig', 'Storefront');
 
-        $templatePath = $tempDir . '/Button.html.twig';
-        $stylePath = $tempDir . '/Button.scss';
-
-        file_put_contents($templatePath, '');
-        file_put_contents($stylePath, '');
-
-        $component = new TwigComponent('Button', $templatePath, 'Storefront');
-
-        static::assertSame($stylePath, $component->getStylePath());
-
-        unlink($templatePath);
-        unlink($stylePath);
-        rmdir($tempDir);
+        static::assertSame('/path/to/components/Button.scss', $component->getStylePath());
     }
 
-    public function testGetStylePathWhenFileDoesNotExist(): void
+    public function testGetScriptPath(): void
     {
-        $tempDir = sys_get_temp_dir() . '/twig_component_test_' . uniqid();
-        mkdir($tempDir, 0777, true);
+        $component = new TwigComponent('Button', '/path/to/components/Button.html.twig', 'Storefront');
 
-        $templatePath = $tempDir . '/Button.html.twig';
-        file_put_contents($templatePath, '');
-
-        $component = new TwigComponent('Button', $templatePath, 'Storefront');
-
-        static::assertNull($component->getStylePath());
-
-        unlink($templatePath);
-        rmdir($tempDir);
+        static::assertSame('/path/to/components/Button.js', $component->getScriptPath());
     }
 
-    public function testGetScriptPathWhenFileExists(): void
-    {
-        $tempDir = sys_get_temp_dir() . '/twig_component_test_' . uniqid();
-        mkdir($tempDir, 0777, true);
-
-        $templatePath = $tempDir . '/Button.html.twig';
-        $scriptPath = $tempDir . '/Button.js';
-
-        file_put_contents($templatePath, '');
-        file_put_contents($scriptPath, '');
-
-        $component = new TwigComponent('Button', $templatePath, 'Storefront');
-
-        static::assertSame($scriptPath, $component->getScriptPath());
-
-        unlink($templatePath);
-        unlink($scriptPath);
-        rmdir($tempDir);
-    }
-
-    public function testGetScriptPathWhenFileDoesNotExist(): void
-    {
-        $tempDir = sys_get_temp_dir() . '/twig_component_test_' . uniqid();
-        mkdir($tempDir, 0777, true);
-
-        $templatePath = $tempDir . '/Button.html.twig';
-        file_put_contents($templatePath, '');
-
-        $component = new TwigComponent('Button', $templatePath, 'Storefront');
-
-        static::assertNull($component->getScriptPath());
-
-        unlink($templatePath);
-        rmdir($tempDir);
-    }
-
-    public function testSetName(): void
+    public function testPublicProperties(): void
     {
         $component = new TwigComponent('Button', '/path/to/Button.html.twig', 'Storefront');
 
-        $component->setName('NewButton');
+        $component->name = 'NewButton';
+        static::assertSame('NewButton', $component->name);
 
-        static::assertSame('NewButton', $component->getName());
-    }
+        $component->path = '/new/path/Button.html.twig';
+        static::assertSame('/new/path/Button.html.twig', $component->path);
 
-    public function testSetPath(): void
-    {
-        $component = new TwigComponent('Button', '/path/to/Button.html.twig', 'Storefront');
+        $component->namespace = 'CustomPlugin';
+        static::assertSame('CustomPlugin', $component->namespace);
 
-        $component->setPath('/new/path/Button.html.twig');
-
-        static::assertSame('/new/path/Button.html.twig', $component->getPath());
-    }
-
-    public function testSetNamespace(): void
-    {
-        $component = new TwigComponent('Button', '/path/to/Button.html.twig', 'Storefront');
-
-        $component->setNamespace('CustomPlugin');
-
-        static::assertSame('CustomPlugin', $component->getNamespace());
-    }
-
-    public function testMetadataGetterAndSetter(): void
-    {
-        $component = new TwigComponent('Button', '/path/to/Button.html.twig', 'Storefront');
-
-        static::assertNull($component->getMetadata());
+        static::assertNull($component->metadata);
 
         // ComponentMetadata is final, so we create a real instance using reflection
         $reflectionClass = new \ReflectionClass(ComponentMetadata::class);
         $metadata = $reflectionClass->newInstanceWithoutConstructor();
 
-        $component->setMetadata($metadata);
-
-        static::assertSame($metadata, $component->getMetadata());
+        $component->metadata = $metadata;
+        static::assertSame($metadata, $component->metadata);
     }
 
     public function testNestedComponentWithMultipleColons(): void

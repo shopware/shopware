@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -329,6 +330,45 @@ class EntitySearcherTest extends TestCase
         );
 
         static::assertSame([$productId1], $productIds->getIds());
+    }
+
+    public function testScoreRankingPicksHighestScoredRowPerGroup(): void
+    {
+        $ids = new IdsCollection();
+        $productBuilder1 = $this->buildProduct(
+            defaultTranslation: 'Sport Bottle Green',
+            productNumber: 'score-group-1',
+            ids: $ids,
+        );
+        $productBuilder2 = $this->buildProduct(
+            defaultTranslation: 'Sport Bottle Blue',
+            productNumber: 'score-group-2',
+            ids: $ids,
+        );
+
+        static::getContainer()->get('product.repository')->create(
+            [
+                $productBuilder1->build(),
+                $productBuilder2->build(),
+            ],
+            Context::createDefaultContext(),
+        );
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_FIND_BEST_VARIANT);
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport Bottle Green'), score: 500));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport Bottle'), score: 100));
+        $criteria->addGroupField(new FieldGrouping('displayGroup'));
+
+        $result = $this->entitySearcher->search(
+            static::getContainer()->get(ProductDefinition::class),
+            $criteria,
+            Context::createDefaultContext(),
+        );
+
+        $resultIds = $result->getIds();
+
+        static::assertContains($ids->get('score-group-1'), $resultIds, 'Higher-scored "Sport Bottle Green" should be selected for its group');
     }
 
     /**

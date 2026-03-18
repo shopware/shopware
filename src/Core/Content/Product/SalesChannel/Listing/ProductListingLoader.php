@@ -264,6 +264,15 @@ class ProductListingLoader
     {
         $this->addGrouping($criteria);
 
+        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
+
+        if ($isSearchRoute && $this->systemConfigService->getBool(
+            'core.listing.findBestVariant',
+            $context->getSalesChannelId()
+        )) {
+            $criteria->addState(Criteria::STATE_FIND_BEST_VARIANT);
+        }
+
         if ($this->systemConfigService->getBool(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             $context->getSalesChannelId()
@@ -273,97 +282,7 @@ class ProductListingLoader
             );
         }
 
-        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
-        $findBestVariant = $isSearchRoute
-            && ($criteria->getQueries() !== [] || $criteria->getTerm() !== null)
-            && $this->systemConfigService->getBool('core.listing.findBestVariant', $context->getSalesChannelId());
-
-        $result = $this->productRepository->searchIds($criteria, $context);
-
-        // Elasticsearch uses "collapse" (field collapsing) to group variants, which already
-        // returns the highest-scoring document per group. Only MySQL needs the extra re-scoring
-        // step because its GROUP BY picks an arbitrary variant from each display group.
-        if (!$findBestVariant || $result->hasState('loaded-by-elastic')) {
-            return $result;
-        }
-
-        return $this->swapBestVariants($result, $criteria, $context);
-    }
-
-    /**
-     * Re-score all sibling variants of the returned families and swap in the best match.
-     */
-    private function swapBestVariants(IdSearchResult $result, Criteria $criteria, SalesChannelContext $context): IdSearchResult
-    {
-        $ids = array_values($result->getIds());
-
-        if ($ids === []) {
-            return $result;
-        }
-
-        $idToParent = $this->findSiblingFamilies($ids, $context);
-
-        if ($idToParent === []) {
-            return $result;
-        }
-
-        $siblingIds = array_keys($idToParent);
-        $scoreCriteria = new Criteria($siblingIds);
-        $scoreCriteria->addFilter(...$criteria->getFilters());
-        $scoreCriteria->setLimit(null);
-        $scoreCriteria->setOffset(null);
-
-        $scoredResult = $this->productRepository->searchIds($scoreCriteria, $context);
-        $scoredResultIds = $scoredResult->getIds();
-
-        $bestPerParent = [];
-        foreach ($scoredResultIds as $id) {
-            $bestPerParent[$idToParent[$id]] ??= $id;
-        }
-
-        $newData = [];
-        foreach ($ids as $originalId) {
-            $parentId = $idToParent[$originalId] ?? $originalId;
-            $bestId = $bestPerParent[$parentId] ?? $originalId;
-            $newData[$bestId] = [
-                'primaryKey' => $bestId,
-                'data' => $scoredResult->getDataOfId($bestId) ?: $result->getDataOfId($originalId),
-            ];
-        }
-
-        $newResult = new IdSearchResult($result->getTotal(), $newData, $result->getCriteria(), $result->getContext());
-        $newResult->addState(...$result->getStates());
-        $newResult->addExtensions($result->getExtensions());
-
-        return $newResult;
-    }
-
-    /**
-     * @param list<string> $ids
-     *
-     * @return array<string, string> variant ID → parent ID
-     */
-    private function findSiblingFamilies(array $ids, SalesChannelContext $context): array
-    {
-        $versionBytes = Uuid::fromHexToBytes($context->getContext()->getVersionId());
-
-        return $this->connection->fetchAllKeyValue(
-            '# product-listing-loader::find-sibling-variants
-            SELECT LOWER(HEX(p.id)) as id,
-                   LOWER(HEX(p.parent_id)) as parentId
-            FROM product p
-            WHERE p.version_id = :version
-              AND p.parent_id IN (
-                  SELECT DISTINCT parent_id
-                  FROM product
-                  WHERE id IN (:ids) AND version_id = :version AND parent_id IS NOT NULL
-              )',
-            [
-                'ids' => Uuid::fromHexToBytesList($ids),
-                'version' => $versionBytes,
-            ],
-            ['ids' => ArrayParameterType::BINARY]
-        );
+        return $this->productRepository->searchIds($criteria, $context);
     }
 
     /**

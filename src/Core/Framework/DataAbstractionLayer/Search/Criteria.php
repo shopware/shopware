@@ -30,6 +30,8 @@ class Criteria extends Struct implements \Stringable
 
     final public const STATE_DISABLE_SEARCH_INFO = 'disableSearchInfo';
 
+    final public const STATE_FIND_BEST_VARIANT = 'findBestVariant';
+
     /**
      * no total count will be selected. Should be used if no pagination required (fastest)
      */

@@ -7,24 +7,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Payment\ContentSystem\DataLoader\PaymentMethodDataLoader;
-use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Checkout\Shipping\ContentSystem\DataLoader\ShippingMethodDataLoader;
-use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
-use Shopware\Core\Content\Breadcrumb\ContentSystem\DataLoader\BreadcrumbDataLoader;
-use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
-use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationDataLoader;
-use Shopware\Core\Content\Category\ContentSystem\DataLoader\ServiceMenuDataLoader;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
-use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingDataLoader;
-use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductListingDataLoader;
-use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewDataLoader;
-use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSearchDataLoader;
-use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductSuggestDataLoader;
-use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
@@ -32,10 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemData
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyDataLoader;
-use Shopware\Core\System\Currency\CurrencyCollection;
-use Shopware\Core\System\Language\ContentSystem\DataLoader\LanguageDataLoader;
-use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -46,7 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 class AbstractContentDataLoaderTest extends TestCase
 {
     /**
-     * @param class-string<AbstractContentDataLoader<\Shopware\Core\Framework\Struct\Struct>> $loaderClass
+     * @param class-string<AbstractContentDataLoader<Struct>> $loaderClass
      * @param list<class-string> $expectedGenericParams
      */
     #[DataProvider('resolvesProvidedDataProvider')]
@@ -85,23 +66,8 @@ class AbstractContentDataLoaderTest extends TestCase
      */
     public static function resolvesProvidedDataProvider(): \Generator
     {
-        // Stub loaders cover the two code paths in getProvidedData(): IdentifierTypeNode and GenericTypeNode
         yield 'identifier type resolves to Tree' => [SimpleStubLoader::class, Tree::class, []];
         yield 'generic type resolves outer class and captures param' => [GenericStubLoader::class, EntitySearchResult::class, [ProductReviewCollection::class]];
-
-        // Production loaders verify their @extends annotations remain parseable (annotation contract tests)
-        yield 'annotation contract: NavigationDataLoader' => [NavigationDataLoader::class, Tree::class, []];
-        yield 'annotation contract: ServiceMenuDataLoader' => [ServiceMenuDataLoader::class, CategoryCollection::class, []];
-        yield 'annotation contract: ProductListingDataLoader' => [ProductListingDataLoader::class, ProductListingResult::class, []];
-        yield 'annotation contract: ProductReviewDataLoader' => [ProductReviewDataLoader::class, EntitySearchResult::class, [ProductReviewCollection::class]];
-        yield 'annotation contract: ProductSearchDataLoader' => [ProductSearchDataLoader::class, ProductListingResult::class, []];
-        yield 'annotation contract: ProductSuggestDataLoader' => [ProductSuggestDataLoader::class, ProductListingResult::class, []];
-        yield 'annotation contract: CrossSellingDataLoader' => [CrossSellingDataLoader::class, CrossSellingElementCollection::class, []];
-        yield 'annotation contract: BreadcrumbDataLoader' => [BreadcrumbDataLoader::class, BreadcrumbCollection::class, []];
-        yield 'annotation contract: PaymentMethodDataLoader' => [PaymentMethodDataLoader::class, PaymentMethodCollection::class, []];
-        yield 'annotation contract: ShippingMethodDataLoader' => [ShippingMethodDataLoader::class, ShippingMethodCollection::class, []];
-        yield 'annotation contract: LanguageDataLoader' => [LanguageDataLoader::class, LanguageCollection::class, []];
-        yield 'annotation contract: CurrencyDataLoader' => [CurrencyDataLoader::class, CurrencyCollection::class, []];
     }
 
     /**

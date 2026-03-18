@@ -44,6 +44,15 @@ class ServiceMenuDataLoaderTest extends TestCase
         static::assertSame('service_menu', ServiceMenuDataLoader::getRequirementType());
     }
 
+    #[TestDox('resolves provided data type from annotation')]
+    public function testGetProvidedDataResolvesExpectedType(): void
+    {
+        $descriptor = ServiceMenuDataLoader::getProvidedData();
+
+        static::assertSame(CategoryCollection::class, $descriptor->className);
+        static::assertSame([], $descriptor->genericParameters);
+    }
+
     #[TestDox('loads service menu categories flattened from navigation tree')]
     public function testLoadReturnsFlattenedCategoryCollection(): void
     {

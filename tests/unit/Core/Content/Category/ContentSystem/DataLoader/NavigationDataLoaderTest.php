@@ -43,6 +43,15 @@ class NavigationDataLoaderTest extends TestCase
         static::assertSame('navigation', NavigationDataLoader::getRequirementType());
     }
 
+    #[TestDox('resolves provided data type from annotation')]
+    public function testGetProvidedDataResolvesExpectedType(): void
+    {
+        $descriptor = NavigationDataLoader::getProvidedData();
+
+        static::assertSame(Tree::class, $descriptor->className);
+        static::assertSame([], $descriptor->genericParameters);
+    }
+
     #[TestDox('loads navigation tree with explicit rootId from config')]
     public function testLoadWithExplicitRootIdCallsNavigationLoader(): void
     {

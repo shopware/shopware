@@ -176,7 +176,9 @@ class DocumentGenerator
             throw new \RuntimeException('Order not found');
         }
 
-        return new DocumentGenerationContext($order, $docType, $this->getDocumentConfig($docType, $context));
+        $documentNumber = '1001'; // todo: retrieve actual doc number
+
+        return new DocumentGenerationContext($order, $docType, $this->getDocumentConfig($docType, $context), $documentNumber);
     }
 
     private function getDocumentConfig(string $docType, Context $context): DocumentConfig

@@ -14,6 +14,7 @@ class DocumentGenerationContext
         public readonly OrderEntity $order,
         public readonly string $documentType,
         public readonly DocumentConfig $documentConfig,
+        public readonly string $documentNumber,
     ) {
     }
 }

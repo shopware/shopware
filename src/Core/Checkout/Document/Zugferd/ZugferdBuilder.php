@@ -71,8 +71,12 @@ class ZugferdBuilder
             ->withSellerInformation($config)
             ->withDelivery($order->getDeliveries() ?? new OrderDeliveryCollection())
             ->withTaxes($order->getPrice())
-            ->withGeneralOrderData($deliveryDate, $config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '', $documentType)
+            ->withDocumentInformation($config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '', $documentType)
             ->withBuyerReference($order->getOrderNumber() ?? '');
+
+        if ($deliveryDate !== null ) {
+            $document->withDocumentSupplyChainEvent($deliveryDate);
+        }
 
         if ($invoiceReference !== null && isset($invoiceReference['documentNumber'], $invoiceReference['config']['documentDate'])) {
             $document->withInvoiceReference(

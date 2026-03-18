@@ -215,6 +215,19 @@ custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
 
 As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
 
+### FormFieldToggle can toggle related submit button labels
+
+The storefront `FormFieldToggle` plugin now supports optionally updating a related button label when the toggle value changes.
+
+This is useful for dynamic forms (for example subscribe vs unsubscribe flows) where hidden/visible field groups and the submit action label should stay in sync without introducing a dedicated custom plugin.
+
+For extension and theme developers, two optional data attributes are available on the controlling field:
+
+- `data-form-field-toggle-button-target`: CSS selector for the related button.
+- `data-form-field-toggle-button-text`: Alternate button text that is applied when the toggle target is hidden.
+
+If those attributes are not provided, `FormFieldToggle` behaves exactly as before.
+
 ## App System
 
 ## Hosting & Configuration

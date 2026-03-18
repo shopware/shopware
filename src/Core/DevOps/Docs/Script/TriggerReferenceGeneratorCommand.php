@@ -38,10 +38,10 @@ class TriggerReferenceGeneratorCommand extends Command
 
         $io->comment('Generating Markdown reference for business/flow triggers.');
 
-        if (!$this->filesystem->exists(self::EVENT_DESCRIPTIONS)) {
+        if (!$this->filesystem->exists($this->getEventDescriptionsPath())) {
             $io->error(\sprintf(
                 'Descriptions file is missing: %s. The generated reference requires trigger-event-description.php.',
-                self::EVENT_DESCRIPTIONS
+                $this->getEventDescriptionsPath()
             ));
 
             return self::FAILURE;
@@ -49,7 +49,7 @@ class TriggerReferenceGeneratorCommand extends Command
 
         $events = $this->collector->collect(Context::createCLIContext());
         /** @var array<string, string> $descriptions */
-        $descriptions = require self::EVENT_DESCRIPTIONS;
+        $descriptions = require $this->getEventDescriptionsPath();
 
         // Sort events by name for stable output
         $rows = [];
@@ -79,15 +79,25 @@ class TriggerReferenceGeneratorCommand extends Command
         }
 
         $content = \implode(\PHP_EOL, $lines) . \PHP_EOL;
-        $this->filesystem->dumpFile(self::OUTPUT_PATH, $content);
+        $this->filesystem->dumpFile($this->getOutputPath(), $content);
 
         // Also print to stdout for convenience
         foreach ($lines as $line) {
             $io->writeln($line);
         }
 
-        $io->success(\sprintf('Trigger reference generated: %s', self::OUTPUT_PATH));
+        $io->success(\sprintf('Trigger reference generated: %s', $this->getOutputPath()));
 
         return self::SUCCESS;
+    }
+
+    protected function getEventDescriptionsPath(): string
+    {
+        return self::EVENT_DESCRIPTIONS;
+    }
+
+    protected function getOutputPath(): string
+    {
+        return self::OUTPUT_PATH;
     }
 }

@@ -33,14 +33,35 @@ class ZugferdBuilder
     ) {
     }
 
-    /**
-     * @param array<string, mixed>|null $invoiceReference
-     */
     public function buildDocument(
         OrderEntity $order,
         DocumentConfiguration $config,
         Context $context,
-        string $documentType = ZugferdInvoiceType::INVOICE,
+    ): string {
+        return $this->build($order, $config, $context, ZugferdInvoiceType::INVOICE);
+    }
+
+    /**
+     * @param array<string, mixed>|null $invoiceReference
+     */
+    public function buildDocumentWithType(
+        OrderEntity $order,
+        DocumentConfiguration $config,
+        Context $context,
+        string $documentType,
+        ?array $invoiceReference = null,
+    ): string {
+        return $this->build($order, $config, $context, $documentType, $invoiceReference);
+    }
+
+    /**
+     * @param array<string, mixed>|null $invoiceReference
+     */
+    private function build(
+        OrderEntity $order,
+        DocumentConfiguration $config,
+        Context $context,
+        string $documentType,
         ?array $invoiceReference = null,
     ): string {
         $billingAddress = $order->getAddresses()?->get($order->getBillingAddressId());

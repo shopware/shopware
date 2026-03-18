@@ -78,7 +78,7 @@ export default async function (): Promise<void> {
         pushTelemetryEventToAmplitude ??= createTelemetryEventHandler(amplitude);
 
         if (!isTelemetryLogoutListenerRegistered) {
-            registerTelemetryLogoutListener(amplitude);
+            registerTelemetryLogoutListener(amplitude, analyticsGatewayUrl);
             isTelemetryLogoutListenerRegistered = true;
         }
 

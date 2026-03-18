@@ -27,7 +27,6 @@ type ShopwareServicesState = {
     showGrantPermissionsModal: boolean;
 };
 
-/* eslint-disable import/prefer-default-export */
 /**
  * @private
  *
@@ -68,4 +67,3 @@ export const useShopwareServicesStore = Shopware.Store.register('shopwareService
         },
     },
 });
-/* eslint-enable import/prefer-default-export */

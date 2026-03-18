@@ -29,11 +29,9 @@ export default {
     emits: ['update:modelValue'],
 
     props: {
-        // eslint-disable-next-line vue/require-default-prop
         value: {
             type: String,
         },
-        // eslint-disable-next-line vue/require-default-prop
         modelValue: {
             type: String,
         },

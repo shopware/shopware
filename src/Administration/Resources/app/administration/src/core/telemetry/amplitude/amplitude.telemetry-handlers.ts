@@ -39,8 +39,6 @@ export default function createTelemetryEventHandler(
         },
         reset: () => {
             amplitude.track('logout');
-            amplitude.flush();
-            amplitude.reset();
         },
         user_interaction: (event) => {
             const { target, originalEvent } = event.eventData;

@@ -334,6 +334,17 @@ shopware:
                       interval: '60 seconds'
                     - limit: 10
                       interval: '90 seconds'
+            newsletter_unsubscribe_form:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 3
+                      interval: '30 seconds'
+                    - limit: 5
+                      interval: '60 seconds'
+                    - limit: 10
+                      interval: '90 seconds'
             cart_add_line_item:
                 enabled: true
                 policy: 'system_config'

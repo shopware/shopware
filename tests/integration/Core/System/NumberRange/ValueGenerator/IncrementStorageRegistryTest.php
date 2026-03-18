@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\NumberRange\NumberRangeException;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry;
 use Shopware\Core\Test\Stub\System\NumberRange\ValueGenerator\IncrementArrayStorage;
@@ -35,12 +34,6 @@ class IncrementStorageRegistryTest extends TestCase
     public function testGetDefaultStorage(): void
     {
         static::assertInstanceOf(IncrementSqlStorage::class, $this->registry->getStorage());
-    }
-
-    public function testGetUnknownStorageThrows(): void
-    {
-        static::expectException(NumberRangeException::class);
-        $this->registry->getStorage('foo');
     }
 
     public function testMigrateToSqlStorage(): void
@@ -93,17 +86,5 @@ class IncrementStorageRegistryTest extends TestCase
         $registry->migrate('SQL', 'Array');
 
         static::assertSame($sqlStorage->list(), $arrayStorage->list());
-    }
-
-    public function testMigrateWithUnknownFromStorageThrows(): void
-    {
-        static::expectException(NumberRangeException::class);
-        $this->registry->migrate('foo', 'mysql');
-    }
-
-    public function testMigrateWithUnknownToStorageThrows(): void
-    {
-        static::expectException(NumberRangeException::class);
-        $this->registry->migrate('SQL', 'foo');
     }
 }

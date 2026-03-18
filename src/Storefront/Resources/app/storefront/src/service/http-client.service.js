@@ -37,7 +37,7 @@ export default class HttpClient {
         url,
         data,
         callback,
-        contentType = 'application/json'
+        contentType = 'application/json',
     ) {
         contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('POST', url, contentType);
@@ -60,7 +60,7 @@ export default class HttpClient {
         url,
         data,
         callback,
-        contentType = 'application/json'
+        contentType = 'application/json',
     ) {
         contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('DELETE', url, contentType);
@@ -82,7 +82,7 @@ export default class HttpClient {
         url,
         data,
         callback,
-        contentType = 'application/json'
+        contentType = 'application/json',
     ) {
         contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('PATCH', url, contentType);

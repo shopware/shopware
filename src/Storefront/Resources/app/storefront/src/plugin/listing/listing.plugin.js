@@ -57,7 +57,7 @@ export default class ListingPlugin extends Plugin {
         // Init functionality for the filter panel
         if (this._filterPanelActive) {
             this._showResetAll = false;
-            this.activeFilterContainer = document.querySelector(this.options.activeFilterContainerSelector
+            this.activeFilterContainer = document.querySelector(this.options.activeFilterContainerSelector,
             );
             this.ariaLiveContainer = document.querySelector(this.options.ariaLiveSelector);
         }
@@ -302,7 +302,7 @@ export default class ListingPlugin extends Plugin {
     createResetAllButton() {
         this.activeFilterContainer.insertAdjacentHTML('beforeend', this.getResetAllButtonTemplate());
 
-        const resetAllButtonEl = this.activeFilterContainer.querySelector(this.options.resetAllFilterButtonSelector
+        const resetAllButtonEl = this.activeFilterContainer.querySelector(this.options.resetAllFilterButtonSelector,
         );
 
         resetAllButtonEl.removeEventListener('click', this.resetAllFilter.bind(this));

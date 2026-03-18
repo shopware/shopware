@@ -68,12 +68,12 @@ export default class GoogleAnalyticsPlugin extends Plugin
         if (gclid) {
             this.storage.setItem(
                 this._getGclidStorageKey(),
-                gclid
+                gclid,
             );
         } else if (this.storage.getItem(this._getGclidStorageKey())) {
             this.trackingUrl.searchParams.set(
                 'gclid',
-                this.storage.getItem(this._getGclidStorageKey())
+                this.storage.getItem(this._getGclidStorageKey()),
             );
         }
 

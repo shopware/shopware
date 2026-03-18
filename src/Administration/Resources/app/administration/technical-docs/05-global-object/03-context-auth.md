@@ -85,6 +85,21 @@ The API service automatically attaches these headers to every request, ensuring 
 - Handles expired tokens gracefully with automatic refresh attempts
 - Falls back to logout if refresh fails
 
+**Cross-Tab Coordination (Web Locks API)**:
+- When multiple browser tabs are open, only one tab performs the actual OAuth token refresh request
+- This is achieved using the browser's [Web Locks API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Locks_API) under the lock key `sw-admin-token-refresh`
+- Other tabs wait for the lock to be released and then check whether the token was already refreshed by the first tab
+- Falls back gracefully to single-tab behavior when the Web Locks API is unavailable
+
+**Exponential Backoff Retry**:
+- Failed token refresh requests are retried with exponential backoff
+- Default configuration: up to 2 retries, starting at 500 ms, doubling each attempt
+- All retries exhausted → triggers inactivity logout and notifies all error subscribers
+
+**In-Flight Deduplication**:
+- Within a single tab, concurrent calls to `refreshToken()` share the same in-flight promise
+- No duplicate HTTP requests are sent for overlapping refresh triggers
+
 **User Activity Monitoring**:
 - Tracks user activity to prevent unnecessary token refreshes
 - Implements 30-minute inactivity threshold
@@ -179,6 +194,36 @@ loginService.addOnLogoutListener(() => {
     // Handle logout cleanup
 });
 ```
+
+**Token Refresh Subscriber (HTTP interceptor pattern)**:
+
+Use `subscribeToTokenRefresh` when you have queued requests that must be retried with the new token after a refresh completes. This is the pattern used internally by the HTTP factory to replay requests that received a 401 response while a refresh was already in progress.
+
+```typescript
+const loginService = Shopware.Service('loginService');
+
+loginService.subscribeToTokenRefresh(
+    (newToken: string) => {
+        // Refresh succeeded — retry your queued request with the new token
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        resolve(httpClient(originalRequest));
+    },
+    (error: Error) => {
+        // Refresh failed (all retries exhausted) — abort the queued request
+        reject(error);
+    },
+);
+```
+
+Subscriber callbacks are **one-shot**: they are automatically cleared after the refresh cycle (success or failure) completes, so there is no need to unregister them manually.
+
+**Checking refresh state**:
+
+```typescript
+const refreshInProgress: boolean = await loginService.isRefreshing();
+```
+
+`isRefreshing()` returns `true` if a refresh is currently in-flight either within the current tab or (where the Web Locks API is available) in another browser tab.
 
 ### Event Notifications
 - **Automatic Notification**: Events are automatically triggered on state changes

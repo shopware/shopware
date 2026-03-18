@@ -52,8 +52,5 @@ return [
         // TaxProviderPersister was mistakenly not marked @internal
         preg_quote('CHANGED: Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister was marked "@internal"', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister#updateTaxProviders() was removed', '/'),
-
-        // False positive, constructor is internal
-        preg_quote('REMOVED: Property Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer#$shopwareVersion was removed', '/'),
     ],
 ];

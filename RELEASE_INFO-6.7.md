@@ -445,6 +445,11 @@ Product exports now support `ProductExportEntity::FILE_FORMAT_JSONL` as a third 
 ### [Experimental] Agentic Commerce product export provider abstraction
 
 The new `AbstractAgenticCommerceProductExportProvider` can be used to implement custom Agentic Commerce export providers.
+### Auto-resend double opt-in confirmation email on failed login
+
+When a customer with an unconfirmed double opt-in account tries to log in, Shopware now automatically resends the confirmation email if the original was sent more than a configurable interval ago.
+
+The interval is controlled by the new system config setting `core.loginRegistration.doubleOptInResendInterval` (default: `86400` seconds / 24 hours). Setting it to `0` disables the auto-resend entirely.
 
 ## Administration
 

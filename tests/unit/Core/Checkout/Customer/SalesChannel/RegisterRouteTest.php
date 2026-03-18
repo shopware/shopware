@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
+use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Framework\Context;
@@ -713,6 +714,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
             $definitionFactory,
+            $this->createMock(DoubleOptInService::class),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -819,6 +821,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
             $definitionFactory,
+            $this->createMock(DoubleOptInService::class),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -923,6 +926,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
             $definitionFactory,
+            $this->createMock(DoubleOptInService::class),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -1131,6 +1135,7 @@ class RegisterRouteTest extends TestCase
             $customFieldMapper,
             $salutationRepository,
             $this->createMock(DataValidationFactoryInterface::class),
+            $this->createMock(DoubleOptInService::class),
         );
     }
 

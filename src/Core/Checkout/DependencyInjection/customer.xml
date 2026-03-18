@@ -48,6 +48,14 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CartRestorer"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Service\DoubleOptInService"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Service\DoubleOptInService">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="sales_channel_domain.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory">
@@ -258,6 +266,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper"/>
             <argument type="service" id="salutation.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Service\DoubleOptInService"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute" public="true">

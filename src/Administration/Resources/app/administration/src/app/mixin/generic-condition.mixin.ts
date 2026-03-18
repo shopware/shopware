@@ -25,7 +25,7 @@ interface Config {
 }
 
 /* Mixin uses many untyped dependencies */
-/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,max-len,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment */
 
 /**
  * @private
@@ -169,7 +169,6 @@ export default Mixin.register(
                 return {
                     'sw-condition__condition-value': !!this.config.operatorSet,
                     // @ts-expect-error
-                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                     [`sw-condition__condition-type-${this.condition.type}`]: true,
                 };
             },

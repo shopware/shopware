@@ -185,7 +185,6 @@ export default {
 
         customFields: {
             handler(customFields) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.entity.customFields = customFields;
             },
             deep: true,
@@ -396,7 +395,6 @@ export default {
                     // replace the fully fetched set
                     this.sets.forEach((originalSet, index) => {
                         if (originalSet.id === newSet.id) {
-                            // eslint-disable-next-line vue/no-mutating-props
                             this.sets[index] = newSet;
                         }
                     });
@@ -425,7 +423,6 @@ export default {
             if (this.$refs.tabComponent || this.tabWaitsAttempts > this.tabWaitMaxAttempts) {
                 return this.resetTabs();
             }
-            // eslint-disable-next-line vue/valid-next-tick
             return this.$nextTick(() => {
                 this.tabWaitsAttempts += 1;
                 this.waitForTabComponent();
@@ -460,7 +457,6 @@ export default {
                     this.initializeCustomFields();
                     return;
                 }
-                // eslint-disable-next-line vue/no-mutating-props
                 this.entity.customFieldSets = this.entity.customFieldSets.filter(() => {
                     return false;
                 });

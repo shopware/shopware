@@ -6,10 +6,8 @@ import { dispatchConsentEvent } from 'src/core/consent/events';
 import template from './sw-settings-usage-data-store-data-consent.html.twig';
 import './sw-settings-usage-data-store-data-consent.scss';
 
-/* eslint-disable max-len */
 import SwSettingsUsageDataStoreDataConsentCard from '../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-store-data-consent-card';
 import SwSettingsUsageDataConsentCheckList from '../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-consent-check-list';
-/* eslint-enable max-len */
 
 /**
  * @private

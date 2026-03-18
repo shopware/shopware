@@ -65,8 +65,7 @@ export default {
         typeSearchAlwaysInContainer: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
-            default: false,
+            default: Context.app.adminEsEnable ?? false,
         },
         /**
          * Search bar placeholder
@@ -510,7 +509,6 @@ export default {
 
             const entities = this.getModuleEntities(searchTerm);
 
-            // eslint-disable-next-line no-unused-expressions
             entities?.length &&
                 this.results.unshift({
                     entity: 'module',
@@ -1022,7 +1020,7 @@ export default {
                     total: validInitialModules.length,
                     entities: validInitialModules,
                 };
-            } catch (error) {
+            } catch (_error) {
                 return {
                     entity: 'frequently_used',
                     total: 0,

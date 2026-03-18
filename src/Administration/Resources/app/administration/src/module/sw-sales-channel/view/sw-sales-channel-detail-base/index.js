@@ -43,7 +43,6 @@ export default {
     ],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
             required: true,
         },
@@ -54,7 +53,6 @@ export default {
             required: true,
         },
 
-        // eslint-disable-next-line vue/require-default-prop
         storefrontSalesChannelCriteria: {
             type: Criteria,
             required: false,
@@ -518,7 +516,6 @@ export default {
                 return '';
             }
 
-            // eslint-disable-next-line max-len
             return `php bin/console product-export:generate ${this.salesChannel.productExports[0].storefrontSalesChannelId} ${this.salesChannel.productExports[0].id}`;
         },
 
@@ -679,7 +676,7 @@ export default {
                 this.createNotificationSuccess({
                     message: this.$tc('global.sw-field.notification.notificationCopySuccessMessage'),
                 });
-            } catch (err) {
+            } catch (_err) {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),

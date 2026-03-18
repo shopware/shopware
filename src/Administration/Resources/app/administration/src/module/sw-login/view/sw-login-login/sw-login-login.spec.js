@@ -92,18 +92,8 @@ async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'http
 }
 
 describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
-    let originalLocation;
-
     beforeAll(() => {
         useSystem().locales.value.push(navigator.language);
-
-        originalLocation = window.location;
-        delete window.location;
-        window.location = { href: '' };
-    });
-
-    afterAll(() => {
-        window.location = originalLocation;
     });
 
     it('should show a warning if the login is rate limited', async () => {
@@ -154,8 +144,48 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
     });
 
     it('should redirect for SSO login', async () => {
-        await createWrapper(true, false, 'https://sso.test');
+        const navigateToSpy = jest.fn();
+        const component = await wrapTestComponent('sw-login-login', { sync: true });
+        component.methods._navigateTo = navigateToSpy;
 
-        expect(window.location.href).toBe('https://sso.test');
+        mount(component, {
+            global: {
+                mocks: {
+                    $tc: (...args) => JSON.stringify([...args]),
+                },
+                provide: {
+                    loginService: {
+                        loginByUsername: () => Promise.resolve(),
+                        setRememberMe: () => {},
+                        getLoginTemplateConfig: () => {
+                            return Promise.resolve({ useDefault: false, ssoProviders: [], url: 'https://sso.test' });
+                        },
+                    },
+                    userService: {},
+                    licenseViolationService: {},
+                },
+                stubs: {
+                    'router-view': true,
+                    'sw-loader': true,
+                    'sw-text-field': true,
+                    'sw-text-field-deprecated': true,
+                    'sw-contextual-field': true,
+                    'sw-block-field': true,
+                    'router-link': true,
+                    'sw-checkbox-field': true,
+                    'sw-checkbox-field-deprecated': true,
+                    'sw-base-field': true,
+                    'sw-field-error': true,
+                    'sw-field-copyable': true,
+                    'sw-inheritance-switch': true,
+                    'sw-ai-copilot-badge': true,
+                    'sw-help-text': true,
+                },
+            },
+        });
+
+        await flushPromises();
+
+        expect(navigateToSpy).toHaveBeenCalledWith('https://sso.test');
     });
 });

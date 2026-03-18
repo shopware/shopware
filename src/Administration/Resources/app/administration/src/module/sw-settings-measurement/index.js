@@ -3,13 +3,13 @@
  */
 import './acl';
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-measurement', () => import('./page/sw-settings-measurement'));
 Shopware.Component.register(
     'sw-settings-measurement-default-units',
     () => import('./component/sw-settings-measurement-default-units'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-settings-measurement', {

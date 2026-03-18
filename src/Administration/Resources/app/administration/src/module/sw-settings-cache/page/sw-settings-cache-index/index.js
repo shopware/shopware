@@ -263,7 +263,6 @@ export default {
         },
 
         createOnlySelection(only) {
-            // eslint-disable-next-line no-restricted-syntax
             for (const [
                 indexerName,
                 updaters,
@@ -273,7 +272,6 @@ export default {
                 }
 
                 const selectedUpdaters = [];
-                // eslint-disable-next-line no-restricted-syntax
                 for (const updater of updaters) {
                     if (this.indexerSelection.indexOf(updater) > -1) {
                         selectedUpdaters.push(updater);

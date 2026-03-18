@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-// eslint-disable-next-line import/no-extraneous-dependencies
 import template from './sw-tabs-deprecated.html.twig';
 import './sw-tabs-deprecated.scss';
 
@@ -61,7 +60,6 @@ export default {
         small: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 

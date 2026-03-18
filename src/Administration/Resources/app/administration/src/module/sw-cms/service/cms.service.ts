@@ -250,7 +250,6 @@ class CmsService {
         let obj = entity as { [key: string]: unknown };
         let value: unknown = null;
 
-        // eslint-disable-next-line no-restricted-syntax
         for (const key of path) {
             if (obj === null || typeof obj !== 'object') {
                 value = null;

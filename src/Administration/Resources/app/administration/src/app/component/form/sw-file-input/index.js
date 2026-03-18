@@ -1,4 +1,3 @@
-/* eslint-disable vue/require-default-prop */
 import template from './sw-file-input.html.twig';
 import './sw-file-input.scss';
 
@@ -50,7 +49,6 @@ export default {
             default: null,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: false,
         },

@@ -443,7 +443,6 @@ export default {
             this.content = this.value;
 
             if (!this.$options.buttonConfig) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.buttonConfig.push({
                     type: 'table',
                     title: this.$tc('sw-text-editor-toolbar.title.insert-table'),
@@ -454,7 +453,6 @@ export default {
                 });
 
                 if (!this.isInlineEdit) {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.buttonConfig.push({
                         type: 'codeSwitch',
                         title: this.$tc('sw-text-editor-toolbar.title.code-switch'),
@@ -485,7 +483,6 @@ export default {
 
                     dataMappingButton.children = buttonConfigs;
 
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.buttonConfig.push(dataMappingButton);
                 }
             }
@@ -591,7 +588,6 @@ export default {
         resetForeColor() {
             Object.keys(this.buttonConfig).forEach((key) => {
                 if (this.buttonConfig[key].type === 'foreColor') {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.buttonConfig[key].value = '';
                 }
             });
@@ -766,7 +762,6 @@ export default {
         },
 
         setTableSelectorListeners(selector) {
-            // eslint-disable-next-line max-len
             // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
             selector.addEventListener('mousedown', (e) => {
                 this.tableData.curCol = e.target.parentElement;
@@ -780,7 +775,6 @@ export default {
         },
 
         setTableListeners() {
-            // eslint-disable-next-line max-len
             // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
             this.$el.addEventListener('mousemove', (e) => {
                 if (this.tableData.curCol) {
@@ -794,7 +788,6 @@ export default {
                 }
             });
 
-            // eslint-disable-next-line max-len
             // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
             this.$el.addEventListener('mouseup', () => {
                 this.tableData.curCol = null;

@@ -21,11 +21,9 @@ export interface LoginConfig {
 }
 
 interface TokenResponse {
-    /* eslint-disable camelcase */
     access_token: string;
     refresh_token: string;
     expires_in: number;
-    /* eslint-enable camelcase */
 }
 
 interface RetryBackoffOptions {
@@ -112,7 +110,6 @@ export default function createLoginService(
      * Helper function to receive a logged in user token
      */
     function verifyUserToken(password: string): Promise<string> {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         return verifyUserByUsername(Shopware.Store.get('session').currentUser?.username ?? '', password)
             .then(({ access }) => {
                 if (Shopware.Utils.types.isString(access)) {
@@ -141,7 +138,6 @@ export default function createLoginService(
                     password: pass,
                 },
                 {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     baseURL: context.apiPath!,
                 },
             )
@@ -374,7 +370,6 @@ export default function createLoginService(
                     password: pass,
                 },
                 {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     baseURL: context.apiPath!,
                 },
             )
@@ -534,7 +529,6 @@ export default function createLoginService(
      */
     function getBearerAuthentication<K extends keyof AuthObject>(section?: K): AuthObject[K];
 
-    // eslint-disable-next-line max-len
     function getBearerAuthentication<K extends keyof AuthObject>(
         section: K | null = null,
     ): false | AuthObject | AuthObject[K] {
@@ -589,7 +583,6 @@ export default function createLoginService(
         notifyOnLogoutListener();
 
         // @ts-expect-error
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const router = Shopware.Application.view.router as null | Router;
         if (router) {
             const id = Shopware.Utils.createId();
@@ -623,7 +616,7 @@ export default function createLoginService(
                     .then((canvas) => {
                         try {
                             sessionStorage.setItem(`inactivityBackground_${id}`, canvas.toDataURL('image/jpeg'));
-                        } catch (e) {
+                        } catch (_e) {
                             // empty catch intended
                             // Calling toDataURL on a canvas with images from a different origin or css rules
                             // that contain urls to images from a different origin will throw a security error in Safari.
@@ -695,7 +688,6 @@ export default function createLoginService(
      * Returns a CookieStorage instance with the right domain and path from the context.
      */
     function cookieStorageFactory(): CookieStorage {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const path = context.basePath! + context.pathInfo!;
 
         // Set default cookie values

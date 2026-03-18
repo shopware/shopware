@@ -25,7 +25,6 @@ export default {
         overlay: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         disabled: {
@@ -537,7 +536,6 @@ export default {
             // recursion to find vnode
             for (let i = 0; i < children.length; i += 1) {
                 if (!children[i]) {
-                    // eslint-disable-next-line no-continue
                     continue;
                 }
 

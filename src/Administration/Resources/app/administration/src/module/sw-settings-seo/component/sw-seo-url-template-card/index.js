@@ -275,7 +275,6 @@ export default {
             this.debouncedPreviews[entity.id]();
         },
         setErrorMessagesForEntity(entity, value = null) {
-            // eslint-disable-next-line no-lonely-if
             this.errorMessages[entity.id] = value;
         },
         fetchSeoUrlPreview(entity) {

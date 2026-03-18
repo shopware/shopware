@@ -37,7 +37,6 @@ interface SwRouteConfig {
     redirect?: RouteRecordRedirectOption;
     alias?: string | string[];
     children?: SwRouteConfig[] | Record<string, SwRouteConfig>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     meta?: $TSFixMe;
     beforeEnter?: NavigationGuard;
     props?: boolean | object | RouterLinkProps;

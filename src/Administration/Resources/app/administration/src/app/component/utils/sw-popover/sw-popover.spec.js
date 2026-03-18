@@ -78,7 +78,6 @@ describe('src/app/component/base/sw-popover', () => {
 
         expect(warnSpy).toHaveBeenCalledWith(
             'sw-popover',
-            // eslint-disable-next-line max-len
             'The "resizeWidth" prop is deprecated and will be removed in v6.8.0. Please use "match-reference-width" instead.',
         );
 
@@ -98,7 +97,6 @@ describe('src/app/component/base/sw-popover', () => {
 
         expect(warnSpy).not.toHaveBeenCalledWith(
             'sw-popover',
-            // eslint-disable-next-line max-len
             'The "resizeWidth" prop is deprecated and will be removed in v6.8.0. Please use "match-reference-width" instead.',
         );
 

@@ -181,6 +181,45 @@ class SearchApiService extends ApiService {
 }
 ```
 
+### Validation API Service
+
+Provides server-side field validation against backend rules. Added in 6.7 to replace the client-only regex in `validation.service.js`.
+
+```typescript
+// Located in: core/service/api/validation.api.service.ts
+class ValidationApiService extends ApiService {
+    constructor(httpClient, loginService, apiEndpoint = 'validation') {
+        super(httpClient, loginService, apiEndpoint);
+        this.name = 'validationApiService';
+    }
+
+    async validateEmailAddress(email: string): Promise<boolean> {
+        // Returns false immediately when the value fails the basic client-side
+        // format check (avoids a round-trip for obvious typos).
+        if (!/.+@.+\..+/.test(email)) {
+            return false;
+        }
+
+        return this.httpClient
+            .post(`/${this.getApiBasePath()}/email`, { email }, { headers: this.getBasicHeaders() })
+            .then((resp) => resp.status === 204)
+            .catch(() => false);
+    }
+}
+```
+
+**Usage:**
+```typescript
+const validationService = Shopware.Service('validationApiService');
+
+const isValid = await validationService.validateEmailAddress('user@example.com');
+```
+
+> **Deprecation notice (tag:v6.8.0):** The synchronous `email()` helper exported from
+> `core/service/validation.service.js` is deprecated and will be removed in v6.8.0.
+> Replace any usage with `validationApiService.validateEmailAddress()`, which performs
+> the same check server-side and returns a `Promise<boolean>`.
+
 ## Common Service Patterns
 
 ### Authentication Integration

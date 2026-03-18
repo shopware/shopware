@@ -494,12 +494,7 @@ export default {
                                 : null;
                             payload.value = this.order?.[key];
                             data.statusData.push(payload);
-                        } else if (
-                            key !== 'documents'
-                            && key !== 'statusMails'
-                            && key !== 'delete'
-                            && key !== 'download'
-                        ) {
+                        } else if (key !== 'documents' && key !== 'statusMails' && key !== 'delete' && key !== 'download') {
                             data.syncData.push(payload);
                         }
                     }

@@ -65,4 +65,4 @@ export default {
             return this.documentTypeRepository.search(this.documentTypeCriteria);
         },
     },
-}
+};

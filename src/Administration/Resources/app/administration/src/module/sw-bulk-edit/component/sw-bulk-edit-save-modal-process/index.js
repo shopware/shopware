@@ -7,7 +7,6 @@ import './sw-bulk-edit-save-modal-process.scss';
 
 const { chunk: chunkArray } = Shopware.Utils.array;
 
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -58,11 +57,12 @@ export default {
             return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download?.value;
         },
 
-        deleteDocumentTypes(){
-            return Shopware.Store.get('swBulkEdit')
-                ?.orderDocuments?.delete?.value
-                ?.filter((documentType) => documentType.selected)
-                ?? [];
+        deleteDocumentTypes() {
+            return (
+                Shopware.Store.get('swBulkEdit')?.orderDocuments?.delete?.value?.filter(
+                    (documentType) => documentType.selected,
+                ) ?? []
+            );
         },
 
         documentTypeConfigs() {
@@ -200,30 +200,31 @@ export default {
         },
 
         async deleteDocuments() {
-            if(this.deleteDocumentTypes.length === 0) {
+            if (this.deleteDocumentTypes.length === 0) {
                 return;
             }
 
-
             const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equalsAny('orderId', this.selectedIds));
-            criteria.addFilter(Criteria.equalsAny(
-                'documentType.technicalName',
-                this.deleteDocumentTypes.map((documentType) => documentType.technicalName),
-            ));
+            criteria.addFilter(
+                Criteria.equalsAny(
+                    'documentType.technicalName',
+                    this.deleteDocumentTypes.map((documentType) => documentType.technicalName),
+                ),
+            );
 
             const documents = await this.documentRepository.searchIds(criteria);
 
-            if(documents.total === 0) {
+            if (documents.total === 0) {
                 return;
             }
 
             const syncPayload = {
-              'delete-order_document': {
-                  action: 'delete',
-                  entity: 'document',
-                  payload: documents.data.map((id) => ({id})),
-              },
+                'delete-order_document': {
+                    action: 'delete',
+                    entity: 'document',
+                    payload: documents.data.map((id) => ({ id })),
+                },
             };
 
             try {
@@ -241,19 +242,18 @@ export default {
                     message: detailedErrorMessage ? this.truncateErrorMessage(detailedErrorMessage) : error.message,
                 });
             }
-
         },
 
         truncateErrorMessage(detailedErrorMessage) {
             const dependentDocuments = detailedErrorMessage.split(', ');
 
-            if(dependentDocuments.length <= this.maxDependentDocumentsToShow) {
+            if (dependentDocuments.length <= this.maxDependentDocumentsToShow) {
                 return detailedErrorMessage;
             }
 
             const remainingDependentDocuments = dependentDocuments.length - this.maxDependentDocumentsToShow;
 
-            return `${dependentDocuments.slice(0, this.maxDependentDocumentsToShow)  }
+            return `${dependentDocuments.slice(0, this.maxDependentDocumentsToShow)}
                 ... (and ${remainingDependentDocuments} more)`;
         },
     },

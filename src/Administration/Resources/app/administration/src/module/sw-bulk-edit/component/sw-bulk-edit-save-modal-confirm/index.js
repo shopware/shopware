@@ -78,7 +78,7 @@ export default {
             return triggeredFlows;
         },
 
-        hasDocumentDeletionSelected () {
+        hasDocumentDeletionSelected() {
             return this.bulkEditData?.delete?.isChanged === true;
         },
     },

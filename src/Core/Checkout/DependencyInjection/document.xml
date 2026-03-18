@@ -222,6 +222,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\ZugferdCreditNoteRenderer"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService" />
+            <argument>%kernel.shopware_version%</argument>
 
             <tag name="document.renderer"/>
         </service>

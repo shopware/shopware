@@ -207,7 +207,7 @@ final class ZugferdCreditNoteRenderer extends AbstractDocumentRenderer
                 }
 
                 $creditOrder = $this->prepareCreditOrder($order, $creditItems);
-                $content = $this->documentBuilder->buildDocument(
+                $content = $this->documentBuilder->buildDocumentWithType(
                     $creditOrder,
                     $config,
                     $context,

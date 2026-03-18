@@ -26,7 +26,8 @@ class ZugferdEmbeddedCancellationInvoiceRendererTest extends TestCase
         $renderer = new ZugferdEmbeddedCancellationInvoiceRenderer(
             $this->createMock(AbstractDocumentRenderer::class),
             $this->createMock(AbstractDocumentRenderer::class),
-            new ZugferdEmbeddedService('version')
+            new ZugferdEmbeddedService(),
+            'version'
         );
 
         static::assertSame('zugferd_embedded_cancellation_invoice', $renderer->supports());
@@ -59,7 +60,8 @@ class ZugferdEmbeddedCancellationInvoiceRendererTest extends TestCase
         $renderer = new ZugferdEmbeddedCancellationInvoiceRenderer(
             $cancellationInvoiceRenderer,
             $electronicRenderer,
-            new ZugferdEmbeddedService('version')
+            new ZugferdEmbeddedService(),
+            'version'
         );
 
         $result = $renderer->render(

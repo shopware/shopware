@@ -18,7 +18,8 @@ class ZugferdEmbeddedCancellationInvoiceRenderer extends AbstractDocumentRendere
     public function __construct(
         protected AbstractDocumentRenderer $cancellationInvoiceRenderer,
         protected AbstractDocumentRenderer $zugferdCancellationInvoiceRenderer,
-        protected ZugferdEmbeddedService $zugferdEmbeddedService
+        protected ZugferdEmbeddedService $zugferdEmbeddedService,
+        protected string $shopwareVersion,
     ) {
     }
 
@@ -45,7 +46,8 @@ class ZugferdEmbeddedCancellationInvoiceRenderer extends AbstractDocumentRendere
             $context,
             $rendererConfig,
             $cancellationInvoice,
-            $this->zugferdCancellationInvoiceRenderer
+            $this->zugferdCancellationInvoiceRenderer,
+            $this->shopwareVersion
         );
     }
 }

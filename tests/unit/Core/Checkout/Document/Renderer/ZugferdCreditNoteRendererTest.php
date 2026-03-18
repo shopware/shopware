@@ -62,7 +62,7 @@ class ZugferdCreditNoteRendererTest extends TestCase
 
         $builder = $this->createMock(ZugferdBuilder::class);
         $builder->expects($this->once())
-            ->method('buildDocument')
+            ->method('buildDocumentWithType')
             ->willReturn('<?xml version="1.0" encoding="UTF-8"?>');
 
         $renderer = $this->createRenderer(

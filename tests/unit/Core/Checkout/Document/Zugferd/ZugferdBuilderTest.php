@@ -62,7 +62,7 @@ class ZugferdBuilderTest extends TestCase
         $order = $this->buildOrder();
         $documentConfig = $this->buildDocumentConfig();
 
-        $xmlContent = $this->createZugferdBuilder()->buildDocument(
+        $xmlContent = $this->createZugferdBuilder()->buildDocumentWithType(
             $order,
             $documentConfig,
             Context::createDefaultContext(),
@@ -121,7 +121,7 @@ class ZugferdBuilderTest extends TestCase
         $documentConfig = $this->buildDocumentConfig();
         $builder = $this->createZugferdBuilder();
 
-        $creditNoteXml = $builder->buildDocument(
+        $creditNoteXml = $builder->buildDocumentWithType(
             $order,
             $documentConfig,
             Context::createDefaultContext(),

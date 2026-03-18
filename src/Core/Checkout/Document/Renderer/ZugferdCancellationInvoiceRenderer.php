@@ -194,7 +194,7 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
             return;
         }
 
-        $content = $this->documentBuilder->buildDocument(
+        $content = $this->documentBuilder->buildDocumentWithType(
             $order,
             $config,
             $context,

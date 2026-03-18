@@ -23,6 +23,10 @@ export default class FormCmsHandler extends Plugin {
         this._getCmsBlock();
         this._getConfirmationText();
         this._submitButtonLoader = null;
+
+        if (this.formSubmittedByCaptcha === undefined) {
+            this.formSubmittedByCaptcha = false;
+        }
     }
 
     sendAjaxFormSubmit() {
@@ -73,10 +77,6 @@ export default class FormCmsHandler extends Plugin {
     }
 
     _submitForm() {
-        if (this.formSubmittedByCaptcha) {
-            return;
-        }
-
         this.$emitter.publish('beforeSubmit');
 
         if (this._submitButton) {

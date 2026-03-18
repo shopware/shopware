@@ -5,6 +5,7 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
+use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Dotenv\Dotenv;
 
 if (!\defined('TEST_PROJECT_DIR')) {
@@ -36,8 +37,13 @@ if (!\defined('TEST_PROJECT_DIR')) {
 $_ENV['PROJECT_ROOT'] = $_SERVER['PROJECT_ROOT'] = TEST_PROJECT_DIR;
 $classLoader = require TEST_PROJECT_DIR . '/vendor/autoload.php';
 
-if (is_file(TEST_PROJECT_DIR . '/var/cache/static_phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml')) {
-    // If the container debug file already exists, the kernel does not need to be booted again
+$cacheDir = TEST_PROJECT_DIR . '/var/cache/static_phpstan_dev';
+$containerXml = $cacheDir . '/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml';
+$containerPhp = $cacheDir . '/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.php';
+
+$cache = new ConfigCache($containerPhp, true);
+
+if (is_file($containerXml) && $cache->isFresh()) {
     return $classLoader;
 }
 

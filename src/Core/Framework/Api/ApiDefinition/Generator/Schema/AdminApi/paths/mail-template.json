@@ -304,19 +304,32 @@
                         "application\/json": {
                             "schema": {
                                 "required": [
-                                    "mailTemplateId"
+                                    "mailTemplateId",
+                                    "flowEventClass"
                                 ],
                                 "properties": {
                                     "mailTemplateId": {
                                         "description": "Identifier of the mail template which should be rendered.",
                                         "type": "string",
                                         "pattern": "^[0-9a-f]{32}$",
-                                        "example": "b3c4d5e6f7a8b90a1b2c3d4e5f67890"
+                                        "example": "b3c4d5e6f7a8b90a1b2c3d4e5f678906"
                                     },
                                     "flowEventClass":{
                                         "description": "The class of the flow trigger event that provides the available variables.",
                                         "type": "string",
                                         "example": "Shopware\\Core\\Content\\Product\\SalesChannel\\Review\\Event\\ReviewFormEvent"
+                                    },
+                                    "entities": {
+                                        "description": "A map of entity names and corresponding identifiers that define entities which should be used additionally during rendering.",
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        },
+                                        "example": {
+                                            "order": "b3c4d5e6f7a8b90a1b2c3d4e5f67890a",
+                                            "customer": "a1b2c3d4e5f67890b3c4d5e6f7a8b90a"
+                                        }
                                     }
                                 },
                                 "type": "object"
@@ -441,6 +454,7 @@
                             "schema": {
                                 "required": [
                                     "mailTemplateId",
+                                    "flowEventClass",
                                     "recipients",
                                     "salesChannelId"
                                 ],
@@ -449,7 +463,7 @@
                                         "description": "Identifier of the mail template which should be rendered.",
                                         "type": "string",
                                         "pattern": "^[0-9a-f]{32}$",
-                                        "example": "b3c4d5e6f7a8b90a1b2c3d4e5f67890"
+                                        "example": "b3c4d5e6f7a8b90a1b2c3d4e5f67890a"
                                     },
                                     "flowEventClass":{
                                         "description": "The class of the flow trigger event that provides the available variables.",
@@ -575,6 +589,18 @@
                                             "description": "Name of the recipient.",
                                             "type": "string"
                                         }
+                                    },
+                                    "entities": {
+                                        "description": "A map of entity names and corresponding identifiers that define entities which should be used additionally during rendering.",
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        },
+                                        "example": {
+                                            "order": "b3c4d5e6f7a8b90a1b2c3d4e5f67890a",
+                                            "customer": "a1b2c3d4e5f67890b3c4d5e6f7a8b90a"
+                                        }
                                     }
                                 },
                                 "type": "object"
@@ -636,6 +662,18 @@
                                         "description": "The path to the field of which the available variables should be returned. If no value (an empty string) is provided, the toplevel variables of the flow trigger event are returned.",
                                         "type": "string",
                                         "example": "product.translated"
+                                    },
+                                    "entities": {
+                                        "description": "A map of entity names and corresponding identifiers that define additionally available entities whose fields can be used as variables.",
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        },
+                                        "example": {
+                                            "order": "b3c4d5e6f7a8b90a1b2c3d4e5f67890a",
+                                            "customer": "a1b2c3d4e5f67890b3c4d5e6f7a8b90a"
+                                        }
                                     }
                                 },
                                 "type": "object"

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -46,7 +47,13 @@ class MailActionController extends AbstractController
         $data = $post->all();
 
         if (Feature::isActive('v6.8.0.0')) {
-            $message = $this->mailTemplateService->getTemplateDataAndSend($data, $data['flowEventClass'], $context);
+            $entities = $post->get('entities');
+
+            if (!$entities instanceof DataBag) {
+                $entities = new DataBag();
+            }
+
+            $message = $this->mailTemplateService->getTemplateDataAndSend($data, $data['flowEventClass'], $context, $entities->all());
         } else {
             $message = $this->mailTemplateService->send($data, $context, $data['mailTemplateData'] ?? []);
         }
@@ -81,7 +88,13 @@ class MailActionController extends AbstractController
             $mailTemplateContent = $data['mailTemplateContent'];
             $flowEventClass = $data['flowEventClass'];
 
-            $renderedTemplate = $this->mailTemplateService->preview($mailTemplateContent, $flowEventClass, $context, true);
+            $entities = $post->get('entities');
+
+            if (!$entities instanceof DataBag) {
+                $entities = new DataBag();
+            }
+
+            $renderedTemplate = $this->mailTemplateService->preview($mailTemplateContent, $flowEventClass, $context, true, $entities->all());
 
             return new JsonResponse($renderedTemplate);
         }
@@ -112,6 +125,12 @@ class MailActionController extends AbstractController
 
         $mailTemplate = $this->mailTemplateService->loadTemplate($templateId, $context);
 
+        $entities = $post->get('entities');
+
+        if (!$entities instanceof DataBag) {
+            $entities = new DataBag();
+        }
+
         $templateContent = [
             'subject' => $mailTemplate->getSubject() ?? '',
             'senderName' => $mailTemplate->getSenderName() ?? '',
@@ -119,7 +138,7 @@ class MailActionController extends AbstractController
             'contentPlain' => $mailTemplate->getContentPlain() ?? '',
         ];
 
-        $renderedTemplate = $this->mailTemplateService->preview($templateContent, $flowEventClass, $context, true);
+        $renderedTemplate = $this->mailTemplateService->preview($templateContent, $flowEventClass, $context, true, $entities->all());
 
         return new JsonResponse($renderedTemplate);
     }
@@ -149,7 +168,13 @@ class MailActionController extends AbstractController
         $data['subject'] ??= $mailTemplate->getSubject();
         $data['senderName'] ??= $mailTemplate->getSenderName();
 
-        $message = $this->mailTemplateService->getTemplateDataAndSend($data, $flowEventClass, $context);
+        $entities = $post->get('entities');
+
+        if (!$entities instanceof DataBag) {
+            $entities = new DataBag();
+        }
+
+        $message = $this->mailTemplateService->getTemplateDataAndSend($data, $flowEventClass, $context, $entities->all());
 
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
     }
@@ -164,6 +189,12 @@ class MailActionController extends AbstractController
         $flowEventClass = $post->get('flowEventClass');
         $fieldPath = $post->get('fieldPath');
 
-        return new JsonResponse($this->mailTemplateService->availableVariables($flowEventClass, $fieldPath, $context));
+        $entities = $post->get('entities');
+
+        if (!$entities instanceof DataBag) {
+            $entities = new DataBag();
+        }
+
+        return new JsonResponse($this->mailTemplateService->availableVariables($flowEventClass, $fieldPath, $context, $entities->all()));
     }
 }

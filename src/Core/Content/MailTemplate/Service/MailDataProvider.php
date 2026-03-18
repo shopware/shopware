@@ -126,10 +126,11 @@ class MailDataProvider
 
     /**
      * @param class-string<FlowEventAware> $flowEventClass
+     * @param array<string,string> $entityIds
      *
      * @return array<string, mixed>
      */
-    public function getTemplateData(string $flowEventClass, Context $context, ?int $seed = null): array
+    public function getTemplateData(string $flowEventClass, Context $context, array $entityIds = [], ?int $seed = null): array
     {
         $faker = $this->createFaker($context, $seed);
 
@@ -170,7 +171,51 @@ class MailDataProvider
             $templateData[$name] = $this->generateEventDataTypeData($type, $referenceData, $context, $faker);
         }
 
+        if ($entityIds !== []) {
+            $entities = $this->fetchEntities($entityIds, $context);
+
+            $templateData = \array_merge($templateData, $entities);
+        }
+
         return $templateData;
+    }
+
+    /**
+     * @param array<string,string> $entityIds
+     *
+     * @return array<string,Entity|string>
+     */
+    private function fetchEntities(array $entityIds, Context $context): array
+    {
+        $entities = [];
+
+        foreach ($entityIds as $entityName => $entityId) {
+            if (!\array_key_exists($entityName, $this->dataProviders)) {
+                continue;
+            }
+
+            $dataProvider = $this->dataProviders[$entityName];
+
+            $entity = $dataProvider->getData($entityId, $context);
+
+            if ($entity === null) {
+                continue;
+            }
+
+            $matches = [];
+            preg_match_all('/_./', $entityName, $matches, \PREG_OFFSET_CAPTURE);
+
+            $reduced_offset = 0;
+            foreach ($matches[0] as $match) {
+                $entityName = substr($entityName, 0, $match[1] - $reduced_offset) . strtoupper(substr($match[0], 1)) . substr($entityName, $match[1] + 2 - $reduced_offset);
+                ++$reduced_offset;
+            }
+
+            $entities[$entityName] = $entity;
+            $entities[$entityName . 'Id'] = $entity->getUniqueIdentifier();
+        }
+
+        return $entities;
     }
 
     /**

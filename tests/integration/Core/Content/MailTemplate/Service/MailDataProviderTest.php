@@ -5,12 +5,15 @@ namespace Shopware\Tests\Integration\Core\Content\MailTemplate\Service;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailDataProvider;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerGroupProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -43,7 +46,7 @@ class MailDataProviderTest extends TestCase
     {
         $templateData = \json_decode(
             \json_encode(
-                $this->mailDataProvider->getTemplateData($flowEventClass, Context::createDefaultContext(), 42),
+                $this->mailDataProvider->getTemplateData($flowEventClass, Context::createDefaultContext(), [], 42),
                 \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES | \JSON_PRESERVE_ZERO_FRACTION
             ),
             true
@@ -88,5 +91,31 @@ class MailDataProviderTest extends TestCase
             'flowEventClass' => UserRecoveryRequestEvent::class,
             'fileName' => 'user_recovery_request_event_data',
         ];
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testEventTemplateDataWithProvidedEntities(): void
+    {
+        $customerGroupRepository = $this->getContainer()->get('customer_group.repository');
+        $customerGroupProvider = $this->getContainer()->get(CustomerGroupProvider::class);
+        \assert($customerGroupProvider instanceof CustomerGroupProvider);
+
+        $context = Context::createDefaultContext();
+
+        $customerGroupId = $customerGroupRepository->search(new Criteria(), $context)->first()?->getUniqueIdentifier();
+        \assert(\is_string($customerGroupId));
+
+        $customerGroupEntity = $customerGroupProvider->getData($customerGroupId, $context);
+        \assert($customerGroupEntity instanceof CustomerGroupEntity);
+
+        $templateData = $this->mailDataProvider->getTemplateData(
+            CheckoutOrderPlacedEvent::class,    // provides a customer group itself, so the generated entity should be replaced by the entity in the database
+            Context::createDefaultContext(),
+            ['customer_group' => $customerGroupEntity->getId()],
+            42
+        );
+
+        static::assertSame($customerGroupEntity->getId(), $templateData['customerGroupId']);
+        static::assertEquals($customerGroupEntity, $templateData['customerGroup']);
     }
 }

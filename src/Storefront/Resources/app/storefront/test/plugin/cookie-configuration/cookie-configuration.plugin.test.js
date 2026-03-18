@@ -457,14 +457,11 @@ describe('CookieConfiguration plugin tests', () => {
     });
 
     test('_onLogin closes the offcanvas and redirects', () => {
-        const originalLocation = window.location;
-        delete window.location;
-        window.location = { href: '' };
+        const navigateToSpy = jest.spyOn(CookieConfiguration.prototype, '_navigateTo').mockImplementation(() => {});
         window.router['frontend.account.login.page'] = 'https://shop.example.com/login';
         plugin._onLogin();
         expect(AjaxOffCanvas.close).toHaveBeenCalled();
-        expect(window.location.href).toBe('https://shop.example.com/login');
-        window.location = originalLocation;
+        expect(navigateToSpy).toHaveBeenCalledWith('https://shop.example.com/login');
     });
 
     test('_onCancel closes the offcanvas', () => {

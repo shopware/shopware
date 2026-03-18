@@ -94,7 +94,7 @@ describe('Form auto submit plugin', () => {
         global.fetch = jest.fn(() =>
             Promise.resolve({
                 text: () => Promise.resolve('<div>Response</div>'),
-            })
+            }),
         );
 
         createPlugin({ useAjax: true, ajaxContainerSelector: '#newsletterForm' });
@@ -224,13 +224,13 @@ describe('Form auto submit plugin', () => {
     });
 
     it('should throw error when change trigger selectors is not an array', () => {
-        const expectedError = '[FormAutoSubmitPlugin] The option "changeTriggerSelectors" must be an array of selector strings.'
+        const expectedError = '[FormAutoSubmitPlugin] The option "changeTriggerSelectors" must be an array of selector strings.';
 
         expect(() => createPlugin({ changeTriggerSelectors: '.some-selector' })).toThrow(expectedError);
     });
 
     it('should throw error when ajax mode is missing a replace selector', () => {
-        const expectedError = '[FormAutoSubmitPlugin] The option "ajaxContainerSelector" must be given when using ajax.'
+        const expectedError = '[FormAutoSubmitPlugin] The option "ajaxContainerSelector" must be given when using ajax.';
 
         expect(() => createPlugin({ useAjax: true })).toThrow(expectedError);
     });
@@ -238,11 +238,7 @@ describe('Form auto submit plugin', () => {
     it('should update redirect parameters on form change not existing in form', () => {
         createPlugin({ changeTriggerSelectors: ['.form-unsubscribe', '.form-name'] });
 
-        Object.defineProperty(window, 'location', {
-            value: {
-                search: '?important=0&test=1',
-            },
-        });
+        jest.spyOn(FormAutoSubmitPlugin.prototype, '_getLocationSearch').mockReturnValue('?important=0&test=1');
 
         const emailField = document.querySelector('.form-email');
 

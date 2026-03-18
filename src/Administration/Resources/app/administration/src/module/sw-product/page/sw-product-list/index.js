@@ -301,7 +301,10 @@ export default {
         },
 
         productTypes() {
-            return ['physical', 'digital'];
+            return [
+                'physical',
+                'digital',
+            ];
         },
     },
 

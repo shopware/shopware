@@ -197,11 +197,11 @@
                     "content": {
                         "application\/json": {
                             "schema": {
+                                "required": [
+                                    "contentHtml",
+                                    "contentPlain"
+                                ],
                                 "properties": {
-                                    "required": [
-                                        "contentHtml",
-                                        "contentPlain"
-                                    ],
                                     "contentHtml": {
                                         "description": "The content of the mail in HTML format.",
                                         "type": "string"

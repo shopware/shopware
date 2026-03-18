@@ -140,24 +140,24 @@ export default Shopware.Component.wrapComponentConfig({
             this.sharesAll = true;
             this.userDataConsent = true;
 
-            await this.updateConsents(this.storeDataConsent, true);
-            this.trackChangedOptionEventsForVisibleOptions();
-            this.trackDecisionEventsForVisibleOptions();
-
-            this.sharesAll = false;
-            done();
+            try {
+                await this.updateConsents(this.storeDataConsent, true);
+            } finally {
+                this.sharesAll = false;
+                done();
+            }
         },
 
         async declineSingleOptionConsent(done: () => void) {
             this.revokesAll = true;
             this.userDataConsent = false;
 
-            await this.updateConsents(this.storeDataConsent, false);
-            this.trackChangedOptionEventsForVisibleOptions();
-            this.trackDecisionEventsForVisibleOptions();
-
-            this.revokesAll = false;
-            done();
+            try {
+                await this.updateConsents(this.storeDataConsent, false);
+            } finally {
+                this.revokesAll = false;
+                done();
+            }
         },
 
         async shareAll(done: () => void) {

@@ -300,6 +300,10 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
                 new ConsentEvent(
                     'consent_modal_decision',
                     {
+                        backend_data: {
+                            status: 'accepted',
+                            changed: true,
+                        },
                         product_analytics: {
                             status: 'revoked',
                             changed: false,

@@ -41,7 +41,7 @@ describe('module/sw-settings-usage-data/component/sw-settings-usage-data-consent
         const wrapper = await mount(SwSettingsUsageDataUserDataConsentCard, {
             props: {
                 consent: false,
-                showSwitch: false,
+                hideSwitch: true,
             },
         });
 

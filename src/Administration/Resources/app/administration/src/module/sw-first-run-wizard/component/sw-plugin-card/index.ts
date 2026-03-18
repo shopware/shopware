@@ -39,7 +39,6 @@ export default Shopware.Component.wrapComponentConfig({
         },
         showDescription: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -73,7 +72,6 @@ export default Shopware.Component.wrapComponentConfig({
                 await this.extensionHelperService.downloadAndActivateExtension(this.plugin.name, this.plugin.type);
                 this.$emit('extension-activated');
             } catch (error: unknown) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.showExtensionErrors(error);
             } finally {
                 this.pluginIsLoading = false;
@@ -81,7 +79,7 @@ export default Shopware.Component.wrapComponentConfig({
                 if (this.plugin.type === 'plugin') {
                     // wait until cacheApiService is transpiled to ts
                     // @ts-expect-error
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     this.cacheApiService.clear();
                 }
 

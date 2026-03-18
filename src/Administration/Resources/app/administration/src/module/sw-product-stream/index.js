@@ -7,7 +7,7 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-product-stream-list', () => import('./page/sw-product-stream-list'));
 Shopware.Component.register('sw-product-stream-detail', () => import('./page/sw-product-stream-detail'));
 Shopware.Component.register('sw-product-stream-field-select', () => import('./component/sw-product-stream-field-select'));
@@ -18,7 +18,7 @@ Shopware.Component.extend(
     'sw-condition-base',
     () => import('./component/sw-product-stream-filter'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**
  * @private

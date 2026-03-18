@@ -43,7 +43,6 @@ export default {
             required: true,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         hideListPrices: {
             required: false,
             default: false,
@@ -200,7 +199,6 @@ export default {
                 };
             }
 
-            // eslint-disable-next-line vue/no-mutating-props
             this.prices[this.prices.length] = price;
 
             this.createdComponent();

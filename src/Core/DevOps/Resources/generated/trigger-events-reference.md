@@ -27,6 +27,7 @@
 |`newsletter.unsubscribe` | Triggers when user unsubscribe from a sales channel newsletter |
 |`product_export.log` | Triggers when product export is executed |
 |`review_form.send` | Triggers when a product review form is submitted by a customer |
+|`revocation_request.sent` | Shopware\Core\Content\RevocationRequest\Event\RevocationRequestEvent |
 |`state_enter.order.state.cancelled` | Triggers when an order enters status "Cancelled" |
 |`state_enter.order.state.completed` | Triggers when an order enters status "Completed" |
 |`state_enter.order.state.in_progress` | Triggers when an order enters status "In progress" |

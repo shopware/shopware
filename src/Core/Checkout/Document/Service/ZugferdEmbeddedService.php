@@ -28,12 +28,6 @@ final class ZugferdEmbeddedService
 
     private const PDF_GENERATION_ERROR = 'Error during PDF generation';
 
-    public function __construct(
-        private readonly string $shopwareVersion,
-        private readonly DocumentFileRendererRegistry $fileRendererRegistry,
-    ) {
-    }
-
     /**
      * @param array<string, DocumentGenerateOperation> $operations
      */
@@ -43,6 +37,7 @@ final class ZugferdEmbeddedService
         DocumentRendererConfig $rendererConfig,
         RendererResult $baseDocument,
         AbstractDocumentRenderer $zugferdRenderer,
+        string $shopwareVersion,
     ): RendererResult {
         $this->setSuccessDocumentNumbers($baseDocument->getSuccess(), $operations);
 
@@ -82,7 +77,7 @@ final class ZugferdEmbeddedService
                 $combined = $this->merge(
                     $electronicDoc->getContent(),
                     $pdfDocument->getContent(),
-                    $this->shopwareVersion
+                    $shopwareVersion
                 );
 
                 $pdfDocument->setName('embedded_' . $pdfDocument->getName());

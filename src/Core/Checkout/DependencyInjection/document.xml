@@ -56,10 +56,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection" />
         </service>
 
-        <service id="Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService">
-            <argument>%kernel.shopware_version%</argument>
-            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry" />
-        </service>
+        <service id="Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService" />
 
         <service id="Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer">
             <argument type="service" id="order.repository"/>
@@ -189,6 +186,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService" />
+            <argument>%kernel.shopware_version%</argument>
 
             <tag name="document.renderer"/>
         </service>
@@ -221,6 +219,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\StornoRenderer" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\ZugferdCancellationInvoiceRenderer"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService" />
+            <argument>%kernel.shopware_version%</argument>
 
             <tag name="document.renderer"/>
         </service>
@@ -229,6 +228,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer" />
             <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\ZugferdCreditNoteRenderer"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService" />
+            <argument>%kernel.shopware_version%</argument>
 
             <tag name="document.renderer"/>
         </service>

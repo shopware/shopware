@@ -26,10 +26,7 @@ class ZugferdEmbeddedServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->service = new ZugferdEmbeddedService(
-            'version',
-            $this->createMock(DocumentFileRendererRegistry::class),
-        );
+        $this->service = new ZugferdEmbeddedService();
     }
 
     public function testEmbedWithFullSuccess(): void
@@ -45,7 +42,8 @@ class ZugferdEmbeddedServiceTest extends TestCase
             Context::createDefaultContext(),
             new DocumentRendererConfig(),
             $baseDocument,
-            $this->createElectronicRendererMock($electronicDocument)
+            $this->createElectronicRendererMock($electronicDocument),
+            'version'
         );
 
         static::assertInstanceOf(RenderedDocument::class, $result->getOrderSuccess('order1'));
@@ -64,7 +62,8 @@ class ZugferdEmbeddedServiceTest extends TestCase
             Context::createDefaultContext(),
             new DocumentRendererConfig(),
             $baseDocument,
-            $this->createElectronicRendererMock($electronicDocument)
+            $this->createElectronicRendererMock($electronicDocument),
+            'version'
         );
 
         static::assertInstanceOf(DocumentException::class, $result->getOrderError('order1'));
@@ -82,7 +81,8 @@ class ZugferdEmbeddedServiceTest extends TestCase
             Context::createDefaultContext(),
             new DocumentRendererConfig(),
             $baseDocument,
-            $this->createElectronicRendererMock($electronicDocument)
+            $this->createElectronicRendererMock($electronicDocument),
+            'version'
         );
 
         static::assertInstanceOf(DocumentException::class, $result->getOrderError('order1'));
@@ -101,7 +101,8 @@ class ZugferdEmbeddedServiceTest extends TestCase
             Context::createDefaultContext(),
             new DocumentRendererConfig(),
             $baseDocument,
-            $this->createElectronicRendererMock($electronicDocument)
+            $this->createElectronicRendererMock($electronicDocument),
+            'version'
         );
 
         static::assertInstanceOf(DocumentException::class, $result->getOrderError('order1'));
@@ -120,7 +121,8 @@ class ZugferdEmbeddedServiceTest extends TestCase
             Context::createDefaultContext(),
             new DocumentRendererConfig(),
             $baseDocument,
-            $this->createElectronicRendererMock($electronicDocument)
+            $this->createElectronicRendererMock($electronicDocument),
+            'version'
         );
 
         static::assertInstanceOf(DocumentException::class, $result->getOrderError('order1'));
@@ -139,7 +141,8 @@ class ZugferdEmbeddedServiceTest extends TestCase
             Context::createDefaultContext(),
             new DocumentRendererConfig(),
             $baseDocument,
-            $this->createElectronicRendererMock($electronicDocument)
+            $this->createElectronicRendererMock($electronicDocument),
+            'version'
         );
 
         static::assertInstanceOf(DocumentException::class, $result->getOrderError('order1'));
@@ -163,7 +166,8 @@ class ZugferdEmbeddedServiceTest extends TestCase
             Context::createDefaultContext(),
             new DocumentRendererConfig(),
             $baseDocument,
-            $this->createElectronicRendererMock($electronicDocument)
+            $this->createElectronicRendererMock($electronicDocument),
+            'version'
         );
 
         static::assertInstanceOf(RenderedDocument::class, $result->getOrderSuccess('success'));

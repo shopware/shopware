@@ -22,7 +22,7 @@ class Migration1773815272SalesChannelNameTranslation extends MigrationStep
     public function update(Connection $connection): void
     {
         $this->updateMailTemplateTranslationTable($connection);
-        $this->updateMailHeaderFooterTranslation($connection);
+//        $this->updateMailHeaderFooterTranslation($connection);
     }
 
     private function replaceSalesChannelNameTag(?string $content): ?string

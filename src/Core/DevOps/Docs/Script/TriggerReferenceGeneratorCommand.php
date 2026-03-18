@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\DevOps\Docs\Script;
 
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -28,8 +28,7 @@ class TriggerReferenceGeneratorCommand extends Command
     public function __construct(
         private readonly BusinessEventCollector $collector,
         private readonly Filesystem $filesystem,
-    )
-    {        
+    ) {
         parent::__construct();
     }
 

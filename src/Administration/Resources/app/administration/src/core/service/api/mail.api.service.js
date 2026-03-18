@@ -212,8 +212,10 @@ class MailApiService extends ApiService {
             .post(
                 apiRoute,
                 {
-                    flowEventClass,
                     fieldPath,
+                    flowEventClass,
+                    entities,
+                    templateData,
                 },
                 {
                     headers: this.getBasicHeaders(),

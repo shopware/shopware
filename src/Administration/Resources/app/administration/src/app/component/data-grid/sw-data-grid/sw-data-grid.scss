@@ -310,6 +310,8 @@
         }
 
         &.is--inline-edit {
+            vertical-align: top;
+
             .sw-data-grid__cell {
                 background-color: var(--color-background-brand-default);
                 border-top: 1px solid var(--color-border-brand-selected);
@@ -317,6 +319,7 @@
             }
 
             .sw-data-grid__cell-content {
+                height: auto;
                 padding: 10px;
                 color: var(--color-text-secondary-default);
 
@@ -481,6 +484,10 @@
         .sw-data-grid__body .sw-data-grid__cell-content {
             padding: 10px 20px;
             height: 42px;
+        }
+
+        .sw-data-grid__body .is--inline-edit .sw-data-grid__cell-content {
+            height: auto;
         }
 
         .sw-media-preview-v2 {

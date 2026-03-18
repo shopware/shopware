@@ -51,6 +51,6 @@ export async function getDefaultLanguageName(): Promise<string> {
 
         return defaultLanguage!.name;
     } catch {
-        return 'N/A'
+        return 'N/A';
     }
 }

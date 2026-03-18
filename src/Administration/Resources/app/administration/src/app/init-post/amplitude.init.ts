@@ -16,14 +16,14 @@ import {
 } from 'src/core/telemetry/amplitude/amplitude.shopware-properties';
 import createTelemetryEventHandler from 'src/core/telemetry/amplitude/amplitude.telemetry-handlers';
 import * as amplitude from '@amplitude/analytics-browser';
-import { computed, watch } from 'vue';
+import { computed, watch, type WatchHandle } from 'vue';
 
 type AmplitudeModule = typeof amplitude;
 
 /**
  * @private
  */
-export default async function (): Promise<void> {
+export default async function (): Promise<WatchHandle | undefined> {
     const analyticsGatewayUrl = Shopware.Store.get('context').app.analyticsGatewayUrl;
 
     if (!analyticsGatewayUrl) {
@@ -57,10 +57,7 @@ export default async function (): Promise<void> {
     registerTelemetryLogoutListener(amplitude, analyticsGatewayUrl);
     const eventHandlers = createTelemetryEventHandler(amplitude);
 
-    // eslint-disable-next-line listeners/no-missing-remove-event-listener
-    Shopware.Utils.EventBus.on('telemetry', eventHandlers);
-
-    watch(
+    return watch(
         isTelemetryConsentAccepted,
         (newValue: boolean) => {
             if (newValue) {
@@ -70,6 +67,8 @@ export default async function (): Promise<void> {
                 }
 
                 amplitude.setOptOut(false);
+                Shopware.Utils.EventBus.on('telemetry', eventHandlers);
+
                 Shopware.Telemetry.identify();
             } else {
                 if (!isAmplitudeInitialized) {
@@ -77,10 +76,12 @@ export default async function (): Promise<void> {
                 }
 
                 amplitude.setOptOut(true);
+                Shopware.Utils.EventBus.off('telemetry', eventHandlers);
+
                 deleteUser(amplitude, analyticsGatewayUrl);
 
                 amplitude.flush();
-                setTimeout(() => clearAmplitudeCookies(),0);
+                setTimeout(() => clearAmplitudeCookies(), 0);
             }
         },
         { immediate: true },

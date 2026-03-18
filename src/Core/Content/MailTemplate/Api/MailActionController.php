@@ -96,6 +96,8 @@ class MailActionController extends AbstractController
     {
         if (Feature::isActive('v6.8.0.0')) {
             $mailTemplateContent = $post->get('mailTemplateContent');
+            \assert($mailTemplateContent instanceof DataBag);
+            $mailTemplateContent = $mailTemplateContent->all();
 
             $flowEventClass = $post->get('flowEventClass');
             \assert(new ($flowEventClass) instanceof FlowEventAware);
@@ -111,7 +113,7 @@ class MailActionController extends AbstractController
             $renderedTemplate = $this->mailTemplateService->preview(
                 $mailTemplateContent,
                 $context,
-                true,
+                false,
                 $flowEventClass,
                 $entities,
                 $templateData,

@@ -97,7 +97,7 @@ class MailTemplateServiceTest extends TestCase
             $stringTemplateRenderer
         );
 
-        $rendered = $mailTemplateService->preview(['content' => 'foo'], Context::createDefaultContext(), false,ContactFormEvent::class);
+        $rendered = $mailTemplateService->preview(['content' => 'foo'], Context::createDefaultContext(), false, ContactFormEvent::class);
 
         static::assertCount(1, $rendered);
         static::assertEquals(new MailTemplateRenderSuccess('bar'), $rendered->get('content'));

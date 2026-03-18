@@ -99,9 +99,9 @@ class MailTemplateServiceTest extends TestCase
         $templateContent = 'Order ID: {{ order.id }}';
         $rendered = $this->mailTemplateService->preview(
             ['contentHtml' => $templateContent, 'contentPlain' => $templateContent],
-            ReviewFormEvent::class,
             $this->context,
-            true
+            true,
+            ReviewFormEvent::class
         );
 
         static::assertCount(2, $rendered);
@@ -119,8 +119,9 @@ class MailTemplateServiceTest extends TestCase
     {
         $rendered = $this->mailTemplateService->preview(
             ['contentHtml' => 'Order ID: {{ order.id }}', 'contentPlain' => 'Order ID: {{ order.id }}'],
-            ReviewFormEvent::class,
-            $this->context
+            $this->context,
+            false,
+            ReviewFormEvent::class
         );
 
         static::assertCount(2, $rendered);
@@ -135,8 +136,9 @@ class MailTemplateServiceTest extends TestCase
     {
         $rendered = $this->mailTemplateService->preview(
             ['contentHtml' => 'Order ID: {{ order.id }}', 'contentPlain' => 'Order ID: {{ order.id }}'],
-            CheckoutOrderPlacedEvent::class,
-            $this->context
+            $this->context,
+            false,
+            CheckoutOrderPlacedEvent::class
         );
 
         static::assertCount(2, $rendered);
@@ -210,7 +212,7 @@ class MailTemplateServiceTest extends TestCase
             $stringTemplateRenderer,
         );
 
-        $mailTemplateService->getTemplateDataAndSend($data, ContactFormEvent::class, $this->context);
+        $mailTemplateService->getTemplateDataAndSend($data, $this->context, ContactFormEvent::class);
     }
 
     public function testSendNonExistingEntities(): void
@@ -234,8 +236,8 @@ class MailTemplateServiceTest extends TestCase
 
         $email = $this->mailTemplateService->getTemplateDataAndSend(
             $data,
-            ReviewFormEvent::class,
-            $this->context
+            $this->context,
+            ReviewFormEvent::class
         );
 
         static::assertNull($email);
@@ -259,7 +261,7 @@ class MailTemplateServiceTest extends TestCase
             'senderName' => 'Shopware',
         ];
 
-        $email = $this->mailTemplateService->getTemplateDataAndSend($data, CheckoutOrderPlacedEvent::class, $this->context);
+        $email = $this->mailTemplateService->getTemplateDataAndSend($data, $this->context, CheckoutOrderPlacedEvent::class);
 
         static::assertInstanceOf(Email::class, $email);
 
@@ -293,8 +295,8 @@ class MailTemplateServiceTest extends TestCase
 
         $email = $this->mailTemplateService->getTemplateDataAndSend(
             $data,
-            CheckoutOrderPlacedEvent::class,
-            $this->context
+            $this->context,
+            CheckoutOrderPlacedEvent::class
         );
 
         static::assertInstanceOf(Email::class, $email);

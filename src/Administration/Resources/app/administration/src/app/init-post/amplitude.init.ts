@@ -54,7 +54,7 @@ export default async function (): Promise<void> {
     let isAmplitudeInitialized = false;
     amplitude.setOptOut(true);
     addDefaultShopwarePropertiesPlugin(amplitude, await getDefaultLanguageName());
-    registerTelemetryLogoutListener(amplitude);
+    registerTelemetryLogoutListener(amplitude, analyticsGatewayUrl);
     const eventHandlers = createTelemetryEventHandler(amplitude);
 
     // eslint-disable-next-line listeners/no-missing-remove-event-listener

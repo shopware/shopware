@@ -11,7 +11,8 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
-use Shopware\Core\Content\Newsletter\NewsletterException;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\AuthController as AdminAuthController;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -306,7 +307,7 @@ class RateLimiterTest extends TestCase
         static::assertInstanceOf(NoLimiter::class, $factory->create('example'));
     }
 
-    public function testRateLimitNewsletterForm(): void
+    public function testRateLimitNewsletterSubscribeForm(): void
     {
         for ($i = 0; $i <= 3; ++$i) {
             $this->browser
@@ -328,10 +329,65 @@ class RateLimiterTest extends TestCase
 
                 static::assertArrayHasKey('errors', $response);
                 static::assertSame(429, (int) $response['errors'][0]['status']);
-                static::assertSame(NewsletterException::NEWSLETTER_RECIPIENT_THROTTLED, $response['errors'][0]['code']);
+                static::assertSame('FRAMEWORK__RATE_LIMIT_EXCEEDED', $response['errors'][0]['code']);
             } else {
                 static::assertSame(200, $this->browser->getResponse()->getStatusCode());
             }
         }
+    }
+
+    public function testRateLimitNewsletterUnsubscribeForm(): void
+    {
+        $emailList = [
+            'testOne@example.com',
+            'testTwo@example.com',
+            'testThress@example.com',
+            'testFour@example.com',
+        ];
+
+        $this->createNewsletterRecipient($emailList);
+
+        foreach ($emailList as $email) {
+            $this->browser
+                ->request(
+                    'POST',
+                    '/store-api/newsletter/unsubscribe',
+                    [
+                        'email' => $email,
+                    ]
+                );
+
+            $response = $this->browser->getResponse()->getContent();
+
+            if ($email === 'testFour@example.com') {
+                static::assertJson((string) $response);
+                $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
+
+                static::assertArrayHasKey('errors', $response);
+                static::assertSame(429, (int) $response['errors'][0]['status']);
+                static::assertSame('FRAMEWORK__RATE_LIMIT_EXCEEDED', $response['errors'][0]['code']);
+            } else {
+                static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+            }
+        }
+    }
+
+    /**
+     * @param List<string> $emailList
+     */
+    private function createNewsletterRecipient(array $emailList): void
+    {
+        $newsletterRecipients = [];
+        foreach ($emailList as $email) {
+            $newsletterRecipients[] = [
+                'email' => $email,
+                'status' => NewsletterSubscribeRoute::STATUS_DIRECT,
+                'hash' => Uuid::randomHex(),
+                'salesChannelId' => $this->ids->get('sales-channel'),
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+            ];
+        }
+
+        $this->getContainer()->get('newsletter_recipient.repository')->upsert($newsletterRecipients, $this->context);
     }
 }

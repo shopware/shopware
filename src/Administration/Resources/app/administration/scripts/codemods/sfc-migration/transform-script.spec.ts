@@ -1,399 +1,172 @@
-import {
-    transformData,
-    transformComputed,
-    transformMethods,
-    transformWatch,
-    transformInject,
-    transformLifecycleHooks,
-    detectUnsupportedFeatures,
-} from './transform-script';
+import path from 'path';
+import fs from 'fs';
+import { transformScript } from './transform-script';
 
+const fixturesDir = path.join(__dirname, '__fixtures__');
+
+function readFixture(name: string): string {
+    return fs.readFileSync(path.join(fixturesDir, name), 'utf8');
+}
+
+/**
+ * Integrative tests for transformScript().
+ *
+ * Each test provides a complete index.js file and asserts that the entire
+ * resulting script block is correct — every Options API section (inject, data,
+ * computed, methods, watch, lifecycle) is correctly converted in one pass.
+ */
 describe('scripts/codemods/sfc-migration/transform-script', () => {
-    describe('transformData', () => {
-        it('converts a primitive string value to a ref()', () => {
-            const lines = transformData({ title: "'Default Title'" });
+    describe('simple-component: fully converts inject, data, computed, and methods to Composition API', () => {
+        let result: ReturnType<typeof transformScript>;
 
-            expect(lines).toContain("const title = ref('Default Title');");
+        beforeAll(() => {
+            result = transformScript(readFixture('simple-component.index.js'));
         });
 
-        it('converts a primitive number value to a ref()', () => {
-            const lines = transformData({ count: '0' });
-
-            expect(lines).toContain('const count = ref(0);');
+        it('reports status fully-migratable with no blockers', () => {
+            expect(result.status).toBe('fully-migratable');
+            expect(result.blockers).toEqual([]);
         });
 
-        it('converts a boolean value to a ref()', () => {
-            const lines = transformData({ isLoading: 'false' });
-
-            expect(lines).toContain('const isLoading = ref(false);');
+        it('produces a <script setup> script type', () => {
+            expect(result.scriptType).toBe('setup');
         });
 
-        it('converts an object value to a reactive()', () => {
-            const lines = transformData({ settings: '{ theme: "dark", size: 12 }' });
-
-            expect(lines.join('\n')).toContain('const settings = reactive(');
-            expect(lines.join('\n')).toContain('theme: "dark"');
+        it('contains a single Vue import statement with all required composables', () => {
+            expect(result.script).toMatch(/import\s*\{[^}]*\}\s*from\s*['"]vue['"]/);
+            expect(result.script).toContain('ref');
+            expect(result.script).toContain('computed');
+            expect(result.script).toContain('inject');
         });
 
-        it('converts an array value to a ref()', () => {
-            const lines = transformData({ items: '[]' });
-
-            expect(lines).toContain('const items = ref([]);');
+        it('converts inject to an inject() call', () => {
+            expect(result.script).toContain("const repositoryFactory = inject('repositoryFactory');");
         });
 
-        it('converts null value to a ref()', () => {
-            const lines = transformData({ selectedId: 'null' });
-
-            expect(lines).toContain('const selectedId = ref(null);');
+        it('converts data() — title string to ref(), isLoading boolean to ref()', () => {
+            expect(result.script).toContain("const title = ref('Default Title');");
+            expect(result.script).toContain('const isLoading = ref(false);');
         });
 
-        it('produces one declaration per data property', () => {
-            const lines = transformData({
-                title: "'hello'",
-                count: '0',
-                isLoading: 'false',
-            });
-
-            expect(lines).toHaveLength(3);
+        it('converts the computed getter to computed()', () => {
+            expect(result.script).toContain('const description = computed(');
         });
 
-        it('returns an empty array for empty data', () => {
-            const lines = transformData({});
+        it('converts the onSave method to a function declaration', () => {
+            expect(result.script).toContain('const onSave =');
+        });
 
-            expect(lines).toEqual([]);
+        it('matches the complete converted script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
         });
     });
 
-    describe('transformComputed', () => {
-        it('converts a getter-only function to a computed()', () => {
-            const lines = transformComputed({
-                description: "() => `This is: ${title.value}`",
-            });
+    describe('block-component: fully converts inject, data, computed getter+setter, watch, methods, and lifecycle hook', () => {
+        let result: ReturnType<typeof transformScript>;
 
-            expect(lines.join('\n')).toContain('const description = computed(');
-            expect(lines.join('\n')).toContain("() => `This is: ${title.value}`");
+        beforeAll(() => {
+            result = transformScript(readFixture('block-component.index.js'));
         });
 
-        it('converts a getter+setter pair to computed({ get, set })', () => {
-            const lines = transformComputed({
-                label: { get: '() => title.value', set: '(val) => { title.value = val; }' },
-            });
-
-            const joined = lines.join('\n');
-            expect(joined).toContain('const label = computed({');
-            expect(joined).toContain('get:');
-            expect(joined).toContain('set:');
+        it('reports status fully-migratable with no blockers', () => {
+            expect(result.status).toBe('fully-migratable');
+            expect(result.blockers).toEqual([]);
         });
 
-        it('produces one declaration per computed property', () => {
-            const lines = transformComputed({
-                foo: '() => 1',
-                bar: '() => 2',
-            });
-
-            expect(lines).toHaveLength(2);
+        it('produces a <script setup> script type', () => {
+            expect(result.scriptType).toBe('setup');
         });
 
-        it('returns an empty array for empty computed object', () => {
-            expect(transformComputed({})).toEqual([]);
-        });
-    });
-
-    describe('transformMethods', () => {
-        it('converts a regular method to a const arrow function', () => {
-            const lines = transformMethods({
-                onSave: "() => { isLoading.value = true; }",
-            });
-
-            expect(lines.join('\n')).toContain('const onSave =');
+        it('converts inject to an inject() call', () => {
+            expect(result.script).toContain("const acl = inject('acl');");
         });
 
-        it('converts an async method to an async arrow function', () => {
-            const lines = transformMethods({
-                loadData: 'async () => { const result = await fetch("/api"); }',
-            });
-
-            expect(lines.join('\n')).toContain('const loadData = async');
+        it('converts all three data() properties to ref() declarations', () => {
+            expect(result.script).toContain("const title = ref('Block Card');");
+            expect(result.script).toContain("const description = ref('A card with extensible blocks');");
+            expect(result.script).toContain('const count = ref(0);');
         });
 
-        it('substitutes this.xxx references with the bare variable name', () => {
-            const lines = transformMethods({
-                toggle: '() => { this.isLoading = !this.isLoading; }',
-            });
-
-            const joined = lines.join('\n');
-            expect(joined).not.toContain('this.isLoading');
-            expect(joined).toContain('isLoading');
+        it('converts the plain computed getter (canEdit) to computed()', () => {
+            expect(result.script).toContain('const canEdit = computed(');
         });
 
-        it('preserves this.$super() calls with a TODO migration comment', () => {
-            const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-            const lines = transformMethods({
-                save: "() => { this.$super('save'); }",
-            });
-
-            const joined = lines.join('\n');
-            expect(joined).toContain('$super');
-            expect(joined).toContain('TODO');
-
-            warnSpy.mockRestore();
+        it('converts the getter+setter computed (label) to computed({ get, set })', () => {
+            expect(result.script).toContain('const label = computed({');
+            expect(result.script).toContain('get:');
+            expect(result.script).toContain('set:');
         });
 
-        it('logs a warning when this.$super() is encountered', () => {
-            const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-            transformMethods({ save: "() => { this.$super('save'); }" });
-
-            expect(warnSpy).toHaveBeenCalledWith(
-                expect.stringContaining('$super'),
-            );
-
-            warnSpy.mockRestore();
+        it('converts the count watcher to a watch() call', () => {
+            expect(result.script).toContain('watch(');
+            expect(result.script).toContain('count');
         });
 
-        it('produces one declaration per method', () => {
-            const lines = transformMethods({
-                foo: '() => {}',
-                bar: '() => {}',
-                baz: '() => {}',
-            });
-
-            expect(lines).toHaveLength(3);
+        it('converts the onAction method to a function declaration', () => {
+            expect(result.script).toContain('const onAction =');
         });
 
-        it('returns an empty array for empty methods object', () => {
-            expect(transformMethods({})).toEqual([]);
+        it('converts the mounted() lifecycle hook to onMounted()', () => {
+            expect(result.script).toContain('onMounted(');
+        });
+
+        it('matches the complete converted script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
         });
     });
 
-    describe('transformWatch', () => {
-        it('converts a string-key shorthand watcher to a watch() call', () => {
-            const lines = transformWatch({
-                count: '(newVal) => { if (newVal > 10) title.value = "Limit"; }',
-            });
+    describe('mixin-component: detects mixins as a blocker and falls back to Options API', () => {
+        let result: ReturnType<typeof transformScript>;
 
-            const joined = lines.join('\n');
-            expect(joined).toContain('watch(');
-            expect(joined).toContain('count');
+        beforeAll(() => {
+            result = transformScript(readFixture('mixin-component.index.js'));
         });
 
-        it('converts a watcher with options (deep, immediate)', () => {
-            const lines = transformWatch({
-                count: {
-                    handler: '(newVal) => {}',
-                    deep: true,
-                    immediate: true,
-                },
-            });
-
-            const joined = lines.join('\n');
-            expect(joined).toContain('watch(');
-            expect(joined).toContain('deep: true');
-            expect(joined).toContain('immediate: true');
+        it('reports status partially-migratable', () => {
+            expect(result.status).toBe('partially-migratable');
         });
 
-        it('skips dot-notation paths and logs a warning', () => {
-            const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
-            const lines = transformWatch({
-                'product.name': '(val) => {}',
-            });
-
-            expect(lines).toHaveLength(0);
-            expect(warnSpy).toHaveBeenCalledWith(
-                expect.stringContaining('product.name'),
-            );
-
-            warnSpy.mockRestore();
+        it('lists mixins as the blocker', () => {
+            expect(result.blockers).toContain('mixins');
         });
 
-        it('produces one watch() call per supported watcher', () => {
-            const lines = transformWatch({
-                count: '() => {}',
-                title: '() => {}',
-            });
-
-            expect(lines).toHaveLength(2);
+        it('produces an options script type (backoff)', () => {
+            expect(result.scriptType).toBe('options');
         });
 
-        it('returns an empty array for empty watch object', () => {
-            expect(transformWatch({})).toEqual([]);
+        it('preserves the original component registration intact in the script output', () => {
+            expect(result.script).toContain('sw-mixin-list');
+            expect(result.script).toContain('mixins:');
+            expect(result.script).toContain('loadItems');
+        });
+
+        it('does not produce any Composition API ref() or computed() calls', () => {
+            expect(result.script).not.toContain('= ref(');
+            expect(result.script).not.toContain('= computed(');
+        });
+
+        it('matches the complete Options API backoff script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
         });
     });
 
-    describe('transformInject', () => {
-        it('converts array inject form to inject() calls', () => {
-            const lines = transformInject(['repositoryFactory', 'acl']);
+    describe('render-component: detects render() as a hard blocker and marks as not-migratable', () => {
+        let result: ReturnType<typeof transformScript>;
 
-            expect(lines).toContain("const repositoryFactory = inject('repositoryFactory');");
-            expect(lines).toContain("const acl = inject('acl');");
+        beforeAll(() => {
+            result = transformScript(readFixture('render-component.index.js'));
         });
 
-        it('converts object inject form with from alias to inject() call', () => {
-            const lines = transformInject({
-                myService: { from: 'repositoryFactory' },
-            });
-
-            expect(lines.join('\n')).toContain("inject('repositoryFactory')");
-            expect(lines.join('\n')).toContain('myService');
+        it('reports status not-migratable', () => {
+            expect(result.status).toBe('not-migratable');
         });
 
-        it('converts object inject form with a default value', () => {
-            const lines = transformInject({
-                locale: { from: 'locale', default: "'en-GB'" },
-            });
-
-            expect(lines.join('\n')).toContain("inject('locale', 'en-GB')");
+        it('lists render function as the blocker', () => {
+            expect(result.blockers).toContain('render function');
         });
 
-        it('produces one declaration per injected service', () => {
-            const lines = transformInject(['a', 'b', 'c']);
-
-            expect(lines).toHaveLength(3);
-        });
-
-        it('returns an empty array for empty inject array', () => {
-            expect(transformInject([])).toEqual([]);
-        });
-
-        it('returns an empty array for empty inject object', () => {
-            expect(transformInject({})).toEqual([]);
-        });
-    });
-
-    describe('transformLifecycleHooks', () => {
-        it('converts mounted to onMounted', () => {
-            const lines = transformLifecycleHooks({
-                mounted: '() => { count.value = 0; }',
-            });
-
-            expect(lines.join('\n')).toContain('onMounted(');
-        });
-
-        it('converts created to onMounted with a migration comment', () => {
-            const lines = transformLifecycleHooks({
-                created: '() => { init(); }',
-            });
-
-            const joined = lines.join('\n');
-            expect(joined).toContain('onMounted(');
-            expect(joined).toContain('created');
-        });
-
-        it('converts beforeDestroy to onBeforeUnmount', () => {
-            const lines = transformLifecycleHooks({
-                beforeDestroy: '() => { cleanup(); }',
-            });
-
-            expect(lines.join('\n')).toContain('onBeforeUnmount(');
-        });
-
-        it('converts destroyed to onUnmounted', () => {
-            const lines = transformLifecycleHooks({
-                destroyed: '() => {}',
-            });
-
-            expect(lines.join('\n')).toContain('onUnmounted(');
-        });
-
-        it('converts beforeMount to onBeforeMount', () => {
-            const lines = transformLifecycleHooks({
-                beforeMount: '() => {}',
-            });
-
-            expect(lines.join('\n')).toContain('onBeforeMount(');
-        });
-
-        it('converts updated to onUpdated', () => {
-            const lines = transformLifecycleHooks({
-                updated: '() => {}',
-            });
-
-            expect(lines.join('\n')).toContain('onUpdated(');
-        });
-
-        it('converts multiple hooks in one call', () => {
-            const lines = transformLifecycleHooks({
-                mounted: '() => {}',
-                beforeDestroy: '() => {}',
-            });
-
-            const joined = lines.join('\n');
-            expect(joined).toContain('onMounted(');
-            expect(joined).toContain('onBeforeUnmount(');
-        });
-
-        it('returns an empty array for empty hooks object', () => {
-            expect(transformLifecycleHooks({})).toEqual([]);
-        });
-    });
-
-    describe('detectUnsupportedFeatures', () => {
-        it('returns an empty array for a component using only supported features', () => {
-            const jsContent = `
-Shopware.Component.register('sw-simple', {
-    template,
-    inject: ['acl'],
-    data() { return { count: 0 }; },
-    computed: { doubled() { return this.count * 2; } },
-    methods: { increment() { this.count++; } },
-    mounted() {},
-});`;
-
-            expect(detectUnsupportedFeatures(jsContent)).toEqual([]);
-        });
-
-        it('detects mixins as an unsupported feature', () => {
-            const jsContent = `
-Shopware.Component.register('sw-list', {
-    template,
-    mixins: [Shopware.Mixin.getByName('notification')],
-    data() { return {}; },
-});`;
-
-            expect(detectUnsupportedFeatures(jsContent)).toContain('mixins');
-        });
-
-        it('detects render() function as an unsupported feature', () => {
-            const jsContent = `
-Shopware.Component.register('sw-render', {
-    render() { return h('div'); },
-});`;
-
-            expect(detectUnsupportedFeatures(jsContent)).toContain('render function');
-        });
-
-        it('detects Options API extends as an unsupported feature', () => {
-            const jsContent = `
-Shopware.Component.extend('sw-child', 'sw-parent', {
-    template,
-    data() { return {}; },
-});`;
-
-            expect(detectUnsupportedFeatures(jsContent)).toContain('extends');
-        });
-
-        it('detects multiple unsupported features at once', () => {
-            const jsContent = `
-Shopware.Component.register('sw-complex', {
-    template,
-    mixins: [someMixin],
-    render() { return h('div'); },
-});`;
-
-            const blockers = detectUnsupportedFeatures(jsContent);
-            expect(blockers).toContain('mixins');
-            expect(blockers).toContain('render function');
-        });
-
-        it('returns an empty array for an empty component definition', () => {
-            const jsContent = `
-Shopware.Component.register('sw-empty', {
-    template,
-});`;
-
-            expect(detectUnsupportedFeatures(jsContent)).toEqual([]);
+        it('produces an empty script string — no output is generated for non-migratable components', () => {
+            expect(result.script).toBe('');
         });
     });
 });

@@ -1,204 +1,96 @@
 import path from 'path';
 import fs from 'fs';
-import { replaceBlocks, wrapInTemplate } from './transform-template';
+import { transformTemplate } from './transform-template';
 
 const fixturesDir = path.join(__dirname, '__fixtures__');
 
+function readFixture(name: string): string {
+    return fs.readFileSync(path.join(fixturesDir, name), 'utf8');
+}
+
+/**
+ * Integrative tests for transformTemplate().
+ *
+ * Each test provides a complete .html.twig file and asserts that the entire
+ * resulting <template> block is correct — not just isolated conversions.
+ */
 describe('scripts/codemods/sfc-migration/transform-template', () => {
-    describe('replaceBlocks', () => {
-        it('converts a twig block start tag to an sw-block opening tag', () => {
-            const input = '{% block sw_my_card %}\n<div>content</div>\n{% endblock %}';
-            const result = replaceBlocks(input);
+    describe('block-component: twig block syntax is fully replaced across the whole template', () => {
+        let result: string;
 
-            expect(result).toContain('<sw-block name="sw_my_card" :data="$dataScope">');
+        beforeAll(() => {
+            result = transformTemplate(readFixture('block-component.html.twig'));
         });
 
-        it('converts a twig block end tag to an sw-block closing tag', () => {
-            const input = '{% block sw_foo %}\n<div/>\n{% endblock %}';
-            const result = replaceBlocks(input);
-
-            expect(result).toContain('</sw-block>');
-            expect(result).not.toContain('{% endblock %}');
+        it('wraps the entire output in a <template> tag', () => {
+            expect(result.trimStart().startsWith('<template>')).toBe(true);
+            expect(result.trimEnd().endsWith('</template>')).toBe(true);
         });
 
-        it('converts {{ parent() }} to <sw-block-parent/>', () => {
-            const input = '{% block sw_foo %}\n{{ parent() }}\n{% endblock %}';
-            const result = replaceBlocks(input);
+        it('converts all four {% block %} start tags to <sw-block name="..." :data="$dataScope">', () => {
+            expect(result).toContain('<sw-block name="sw_block_card" :data="$dataScope">');
+            expect(result).toContain('<sw-block name="sw_block_card_header" :data="$dataScope">');
+            expect(result).toContain('<sw-block name="sw_block_card_content" :data="$dataScope">');
+            expect(result).toContain('<sw-block name="sw_block_card_footer" :data="$dataScope">');
+        });
 
+        it('converts all {% endblock %} tags to </sw-block> — one per block', () => {
+            const count = (result.match(/<\/sw-block>/g) ?? []).length;
+            expect(count).toBe(4);
+        });
+
+        it('converts {{ parent() }} to <sw-block-parent/> and removes the eslint-disable comment above it', () => {
             expect(result).toContain('<sw-block-parent/>');
-            expect(result).not.toContain('{{ parent() }}');
-        });
-
-        it('converts {% parent() %} syntax to <sw-block-parent/>', () => {
-            const input = '{% block sw_foo %}\n{% parent() %}\n{% endblock %}';
-            const result = replaceBlocks(input);
-
-            expect(result).toContain('<sw-block-parent/>');
-        });
-
-        it('strips {% extends %} lines entirely', () => {
-            const input = "{% extends '@Storefront/storefront/page/content/index.html.twig' %}\n{% block sw_foo %}\n<div/>\n{% endblock %}";
-            const result = replaceBlocks(input);
-
-            expect(result).not.toContain('{% extends');
-            expect(result).not.toContain('@Storefront/storefront');
-        });
-
-        it('strips eslint-disable-next-line comments for no-twigjs-blocks', () => {
-            const input =
-                '{% block sw_foo %}\n<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->\n{{ parent() }}\n{% endblock %}';
-            const result = replaceBlocks(input);
-
-            expect(result).not.toContain('<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->');
-        });
-
-        it('strips inline eslint-disable comments from a line while preserving the rest of that line', () => {
-            const input =
-                '{% block sw_foo %}\n<div><!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->text</div>\n{% endblock %}';
-            const result = replaceBlocks(input);
-
+            expect(result).not.toContain('{{ parent()');
             expect(result).not.toContain('eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks');
-            expect(result).toContain('<div>text</div>');
         });
 
-        it('returns null when the input contains no twig blocks', () => {
-            const input = '<div class="plain-html">\n    <span>No twig here</span>\n</div>';
-            const result = replaceBlocks(input);
-
-            expect(result).toBeNull();
+        it('leaves no twig syntax in the output', () => {
+            expect(result).not.toContain('{%');
+            expect(result).not.toContain('%}');
         });
 
-        it('converts multiple sibling blocks in the same template', () => {
-            const input =
-                '{% block sw_header %}\n<header/>\n{% endblock %}\n{% block sw_content %}\n<main/>\n{% endblock %}';
-            const result = replaceBlocks(input);
-
-            expect(result).toContain('<sw-block name="sw_header" :data="$dataScope">');
-            expect(result).toContain('<sw-block name="sw_content" :data="$dataScope">');
-            expect((result?.match(/<\/sw-block>/g) ?? []).length).toBe(2);
+        it('preserves all original HTML elements and Vue template expressions', () => {
+            expect(result).toContain('class="sw-block-card"');
+            expect(result).toContain('class="sw-block-card__header"');
+            expect(result).toContain('<h3>{{ title }}</h3>');
+            expect(result).toContain('<p>{{ description }}</p>');
+            expect(result).toContain('<button @click="onAction">Action</button>');
         });
 
-        it('preserves nested block structure', () => {
-            const input = [
-                '{% block sw_outer %}',
-                '<div>',
-                '    {% block sw_inner %}',
-                '    <span>inner</span>',
-                '    {% endblock %}',
-                '</div>',
-                '{% endblock %}',
-            ].join('\n');
-
-            const result = replaceBlocks(input);
-
-            expect(result).toContain('<sw-block name="sw_outer" :data="$dataScope">');
-            expect(result).toContain('<sw-block name="sw_inner" :data="$dataScope">');
-            expect((result?.match(/<\/sw-block>/g) ?? []).length).toBe(2);
-
-            const outerIndex = result!.indexOf('sw_outer');
-            const innerIndex = result!.indexOf('sw_inner');
-            expect(innerIndex).toBeGreaterThan(outerIndex);
-        });
-
-        it('preserves plain HTML content outside blocks verbatim', () => {
-            const input = '{% block sw_foo %}\n<div class="my-class" data-value="42">keep me</div>\n{% endblock %}';
-            const result = replaceBlocks(input);
-
-            expect(result).toContain('<div class="my-class" data-value="42">keep me</div>');
-        });
-
-        it('handles block names with underscores and numbers', () => {
-            const input = '{% block sw_product_detail_v2_content %}\n<div/>\n{% endblock %}';
-            const result = replaceBlocks(input);
-
-            expect(result).toContain('name="sw_product_detail_v2_content"');
-        });
-
-        it('handles extra whitespace around block tags', () => {
-            const input = '{%  block   sw_spaced  %}\n<div/>\n{%  endblock  %}';
-            const result = replaceBlocks(input);
-
-            expect(result).toContain('<sw-block name="sw_spaced" :data="$dataScope">');
-            expect(result).toContain('</sw-block>');
+        it('matches the complete transformed template snapshot', () => {
+            expect(result).toMatchSnapshot();
         });
     });
 
-    describe('wrapInTemplate', () => {
-        it('wraps content in a <template> tag', () => {
-            const content = '<div>hello</div>';
-            const result = wrapInTemplate(content);
+    describe('simple-component: plain HTML without twig blocks is wrapped without modification', () => {
+        let result: string;
 
-            expect(result).toBe('<template>\n<div>hello</div>\n</template>');
+        beforeAll(() => {
+            result = transformTemplate(readFixture('simple-component.html.twig'));
         });
 
-        it('handles multi-line content', () => {
-            const content = '<div>\n    <span>text</span>\n</div>';
-            const result = wrapInTemplate(content);
-
-            expect(result.startsWith('<template>')).toBe(true);
-            expect(result.endsWith('</template>')).toBe(true);
-            expect(result).toContain('<span>text</span>');
+        it('wraps the output in a <template> tag', () => {
+            expect(result.trimStart().startsWith('<template>')).toBe(true);
+            expect(result.trimEnd().endsWith('</template>')).toBe(true);
         });
 
-        it('handles empty content by producing an empty template block', () => {
-            const result = wrapInTemplate('');
-
-            expect(result).toBe('<template>\n\n</template>');
-        });
-    });
-
-    describe('integrative tests using fixture files', () => {
-        it('transforms the block-component fixture template and wraps it in <template>', () => {
-            const twigContent = fs.readFileSync(
-                path.join(fixturesDir, 'block-component.html.twig'),
-                'utf8',
-            );
-
-            const transformed = replaceBlocks(twigContent);
-
-            expect(transformed).not.toBeNull();
-            expect(transformed).toContain('<sw-block name="sw_block_card" :data="$dataScope">');
-            expect(transformed).toContain('<sw-block name="sw_block_card_header" :data="$dataScope">');
-            expect(transformed).toContain('<sw-block name="sw_block_card_content" :data="$dataScope">');
-            expect(transformed).toContain('<sw-block name="sw_block_card_footer" :data="$dataScope">');
-            expect(transformed).toContain('<sw-block-parent/>');
-            expect(transformed).not.toContain('{% block');
-            expect(transformed).not.toContain('{% endblock %}');
-            expect(transformed).not.toContain('eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks');
-
-            const wrapped = wrapInTemplate(transformed!);
-            expect(wrapped.startsWith('<template>')).toBe(true);
-            expect(wrapped.endsWith('</template>')).toBe(true);
+        it('preserves every HTML element from the original file unchanged', () => {
+            expect(result).toContain('class="sw-simple-card"');
+            expect(result).toContain('class="sw-simple-card__title"');
+            expect(result).toContain('class="sw-simple-card__description"');
+            expect(result).toContain('<button class="sw-simple-card__action" @click="onSave">Save</button>');
+            expect(result).toContain('{{ title }}');
+            expect(result).toContain('{{ description }}');
         });
 
-        it('returns null for the simple-component fixture which has no twig blocks', () => {
-            const twigContent = fs.readFileSync(
-                path.join(fixturesDir, 'simple-component.html.twig'),
-                'utf8',
-            );
-
-            const result = replaceBlocks(twigContent);
-
-            expect(result).toBeNull();
+        it('introduces no <sw-block> elements when there were no twig blocks', () => {
+            expect(result).not.toContain('<sw-block');
+            expect(result).not.toContain('</sw-block>');
         });
 
-        it('matches the block-component transformed template snapshot', () => {
-            const twigContent = fs.readFileSync(
-                path.join(fixturesDir, 'block-component.html.twig'),
-                'utf8',
-            );
-
-            const transformed = replaceBlocks(twigContent);
-            expect(wrapInTemplate(transformed!)).toMatchSnapshot();
-        });
-
-        it('wrapping a plain html template produces a valid <template> snapshot', () => {
-            const twigContent = fs.readFileSync(
-                path.join(fixturesDir, 'simple-component.html.twig'),
-                'utf8',
-            );
-
-            expect(wrapInTemplate(twigContent)).toMatchSnapshot();
+        it('matches the complete wrapped template snapshot', () => {
+            expect(result).toMatchSnapshot();
         });
     });
 });

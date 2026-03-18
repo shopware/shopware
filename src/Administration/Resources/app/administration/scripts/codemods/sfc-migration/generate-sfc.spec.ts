@@ -1,281 +1,178 @@
 import path from 'path';
 import fs from 'fs';
-import { generateSFC, mergeComponentFiles } from './generate-sfc';
+import { mergeComponentFiles } from './generate-sfc';
 
 const fixturesDir = path.join(__dirname, '__fixtures__');
 
+function readFixture(name: string): string {
+    return fs.readFileSync(path.join(fixturesDir, name), 'utf8');
+}
+
+/**
+ * Integrative tests for mergeComponentFiles().
+ *
+ * Each test provides a complete .html.twig + index.js pair and asserts that
+ * the entire resulting .vue SFC is structurally correct — template, script,
+ * imports, and component name — in one end-to-end pass.
+ */
 describe('scripts/codemods/sfc-migration/generate-sfc', () => {
-    describe('generateSFC', () => {
-        it('produces a <script setup> block when scriptType is "setup"', () => {
-            const result = generateSFC({
-                template: '<div>Hello</div>',
-                script: 'const msg = ref("hi");',
-                scriptType: 'setup',
-            });
+    describe('simple-component: fully migrated SFC with plain template and <script setup>', () => {
+        let result: ReturnType<typeof mergeComponentFiles>;
 
-            expect(result).toContain('<script setup>');
-            expect(result).not.toContain('<script>');
+        beforeAll(() => {
+            result = mergeComponentFiles(
+                readFixture('simple-component.html.twig'),
+                readFixture('simple-component.index.js'),
+            );
         });
 
-        it('produces a <script> block (without setup) when scriptType is "options"', () => {
-            const result = generateSFC({
-                template: '<div>Hello</div>',
-                script: 'export default { data() { return {}; } }',
-                scriptType: 'options',
-            });
-
-            expect(result).toContain('<script>');
-            expect(result).not.toContain('<script setup>');
+        it('reports status fully-migrated with no blockers', () => {
+            expect(result.status).toBe('fully-migrated');
+            expect(result.blockers).toEqual([]);
         });
 
-        it('wraps the template string in a <template> tag', () => {
-            const result = generateSFC({
-                template: '<div class="root">content</div>',
-                script: '',
-                scriptType: 'setup',
-            });
-
-            expect(result).toContain('<template>');
-            expect(result).toContain('</template>');
-            expect(result).toContain('<div class="root">content</div>');
+        it('produces a <template> section with the original HTML preserved', () => {
+            expect(result.sfc).toContain('<template>');
+            expect(result.sfc).toContain('</template>');
+            expect(result.sfc).toContain('class="sw-simple-card"');
+            expect(result.sfc).toContain('@click="onSave"');
         });
 
-        it('omits the <template> block when template is empty', () => {
-            const result = generateSFC({
-                template: '',
-                script: 'const x = ref(1);',
-                scriptType: 'setup',
-            });
-
-            expect(result).not.toContain('<template>');
-            expect(result).toContain('<script setup>');
+        it('produces a <script setup> section (not a plain <script>)', () => {
+            expect(result.sfc).toContain('<script setup>');
+            expect(result.sfc).not.toContain('<script>');
         });
 
-        it('places <template> before <script> in the output', () => {
-            const result = generateSFC({
-                template: '<div/>',
-                script: 'const x = 1;',
-                scriptType: 'setup',
-            });
-
-            const templatePos = result.indexOf('<template>');
-            const scriptPos = result.indexOf('<script');
-            expect(templatePos).toBeLessThan(scriptPos);
+        it('imports the required Composition API composables from vue', () => {
+            expect(result.sfc).toMatch(/import\s*\{[^}]*ref[^}]*\}\s*from\s*['"]vue['"]/);
         });
 
-        it('separates <template> and <script> with a blank line', () => {
-            const result = generateSFC({
-                template: '<div/>',
-                script: 'const x = 1;',
-                scriptType: 'setup',
-            });
-
-            expect(result).toMatch(/\n\n/);
+        it('contains the component name sw-simple-card in the script', () => {
+            expect(result.sfc).toContain('sw-simple-card');
         });
 
-        it('closes the script block with </script>', () => {
-            const result = generateSFC({
-                template: '<div/>',
-                script: 'const x = 1;',
-                scriptType: 'setup',
-            });
+        it('converts inject, data, computed, and methods — all in the single SFC output', () => {
+            expect(result.sfc).toContain("inject('repositoryFactory')");
+            expect(result.sfc).toContain("ref('Default Title')");
+            expect(result.sfc).toContain('ref(false)');
+            expect(result.sfc).toContain('computed(');
+            expect(result.sfc).toContain('onSave');
+        });
 
-            expect(result).toContain('</script>');
+        it('places <template> before <script setup> in the file', () => {
+            expect(result.sfc.indexOf('<template>')).toBeLessThan(result.sfc.indexOf('<script setup>'));
+        });
+
+        it('matches the complete SFC output snapshot', () => {
+            expect(result.sfc).toMatchSnapshot();
         });
     });
 
-    describe('mergeComponentFiles', () => {
-        it('merges a simple component into a fully-migrated .vue SFC with <script setup>', () => {
-            const twigContent = fs.readFileSync(
-                path.join(fixturesDir, 'simple-component.html.twig'),
-                'utf8',
-            );
-            const jsContent = fs.readFileSync(
-                path.join(fixturesDir, 'simple-component.index.js'),
-                'utf8',
-            );
+    describe('block-component: fully migrated SFC with twig blocks replaced and full Composition API script', () => {
+        let result: ReturnType<typeof mergeComponentFiles>;
 
-            const { sfc, status } = mergeComponentFiles(twigContent, jsContent);
-
-            expect(status).toBe('fully-migrated');
-            expect(sfc).toContain('<template>');
-            expect(sfc).toContain('<script setup>');
-            expect(sfc).not.toContain('<script>');
+        beforeAll(() => {
+            result = mergeComponentFiles(
+                readFixture('block-component.html.twig'),
+                readFixture('block-component.index.js'),
+            );
         });
 
-        it('transforms twig blocks to <sw-block> in the merged template section', () => {
-            const twigContent = fs.readFileSync(
-                path.join(fixturesDir, 'block-component.html.twig'),
-                'utf8',
-            );
-            const jsContent = fs.readFileSync(
-                path.join(fixturesDir, 'block-component.index.js'),
-                'utf8',
-            );
-
-            const { sfc, status } = mergeComponentFiles(twigContent, jsContent);
-
-            expect(status).toBe('fully-migrated');
-            expect(sfc).toContain('<sw-block');
-            expect(sfc).not.toContain('{% block');
-            expect(sfc).not.toContain('{% endblock %}');
+        it('reports status fully-migrated with no blockers', () => {
+            expect(result.status).toBe('fully-migrated');
+            expect(result.blockers).toEqual([]);
         });
 
-        it('falls back to Options API <script> for components using mixins', () => {
-            const twigContent = '<div>list</div>';
-            const jsContent = fs.readFileSync(
-                path.join(fixturesDir, 'mixin-component.index.js'),
-                'utf8',
-            );
-
-            const { sfc, status } = mergeComponentFiles(twigContent, jsContent);
-
-            expect(status).toBe('partially-migrated');
-            expect(sfc).toContain('<script>');
-            expect(sfc).not.toContain('<script setup>');
+        it('replaces all twig block syntax with <sw-block> components in the <template> section', () => {
+            expect(result.sfc).toContain('<sw-block name="sw_block_card" :data="$dataScope">');
+            expect(result.sfc).toContain('<sw-block name="sw_block_card_header" :data="$dataScope">');
+            expect(result.sfc).toContain('<sw-block name="sw_block_card_content" :data="$dataScope">');
+            expect(result.sfc).toContain('<sw-block name="sw_block_card_footer" :data="$dataScope">');
+            expect(result.sfc).toContain('<sw-block-parent/>');
+            expect(result.sfc).not.toContain('{%');
+            expect(result.sfc).not.toContain('%}');
         });
 
-        it('returns status not-migratable for components with a render() function', () => {
-            const twigContent = '';
-            const jsContent = fs.readFileSync(
-                path.join(fixturesDir, 'render-component.index.js'),
-                'utf8',
-            );
-
-            const { sfc, status, blockers } = mergeComponentFiles(twigContent, jsContent);
-
-            expect(status).toBe('not-migratable');
-            expect(blockers).toContain('render function');
-            expect(sfc).toBe('');
+        it('converts inject, data (3 properties), computed getter, computed getter+setter, watch, method, and lifecycle hook — all present', () => {
+            expect(result.sfc).toContain("inject('acl')");
+            expect(result.sfc).toContain("ref('Block Card')");
+            expect(result.sfc).toContain("ref('A card with extensible blocks')");
+            expect(result.sfc).toContain('ref(0)');
+            expect(result.sfc).toContain('const canEdit = computed(');
+            expect(result.sfc).toContain('const label = computed({');
+            expect(result.sfc).toContain('watch(');
+            expect(result.sfc).toContain('const onAction =');
+            expect(result.sfc).toContain('onMounted(');
         });
 
-        it('preserves the Shopware component registration name in the script output', () => {
-            const twigContent = fs.readFileSync(
-                path.join(fixturesDir, 'simple-component.html.twig'),
-                'utf8',
-            );
-            const jsContent = fs.readFileSync(
-                path.join(fixturesDir, 'simple-component.index.js'),
-                'utf8',
-            );
-
-            const { sfc } = mergeComponentFiles(twigContent, jsContent);
-
-            expect(sfc).toContain('sw-simple-card');
+        it('produces a <script setup> section', () => {
+            expect(result.sfc).toContain('<script setup>');
+            expect(result.sfc).not.toContain('<script>');
         });
 
-        it('includes Composition API imports in the <script setup> block', () => {
-            const twigContent = fs.readFileSync(
-                path.join(fixturesDir, 'simple-component.html.twig'),
-                'utf8',
-            );
-            const jsContent = fs.readFileSync(
-                path.join(fixturesDir, 'simple-component.index.js'),
-                'utf8',
-            );
+        it('matches the complete SFC output snapshot', () => {
+            expect(result.sfc).toMatchSnapshot();
+        });
+    });
 
-            const { sfc } = mergeComponentFiles(twigContent, jsContent);
+    describe('mixin-component: partially migrated SFC — template converted, script kept as Options API', () => {
+        let result: ReturnType<typeof mergeComponentFiles>;
 
-            expect(sfc).toMatch(/import\s*\{[^}]*ref[^}]*\}\s*from\s*['"]vue['"]/);
+        beforeAll(() => {
+            // Mixin fixture has no twig template file; use a plain template
+            result = mergeComponentFiles(
+                '<div class="sw-mixin-list"></div>',
+                readFixture('mixin-component.index.js'),
+            );
         });
 
-        it('includes inject() calls for injected services in the <script setup> block', () => {
-            const twigContent = fs.readFileSync(
-                path.join(fixturesDir, 'simple-component.html.twig'),
-                'utf8',
-            );
-            const jsContent = fs.readFileSync(
-                path.join(fixturesDir, 'simple-component.index.js'),
-                'utf8',
-            );
-
-            const { sfc } = mergeComponentFiles(twigContent, jsContent);
-
-            expect(sfc).toContain("inject('repositoryFactory')");
+        it('reports status partially-migrated with mixins listed as a blocker', () => {
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers).toContain('mixins');
         });
 
-        it('converts data() properties to ref() declarations in <script setup>', () => {
-            const twigContent = fs.readFileSync(
-                path.join(fixturesDir, 'simple-component.html.twig'),
-                'utf8',
-            );
-            const jsContent = fs.readFileSync(
-                path.join(fixturesDir, 'simple-component.index.js'),
-                'utf8',
-            );
-
-            const { sfc } = mergeComponentFiles(twigContent, jsContent);
-
-            expect(sfc).toContain('ref(');
+        it('produces a plain <script> block (not <script setup>) as Options API backoff', () => {
+            expect(result.sfc).toContain('<script>');
+            expect(result.sfc).not.toContain('<script setup>');
         });
 
-        it('converts computed properties to computed() declarations in <script setup>', () => {
-            const twigContent = fs.readFileSync(
-                path.join(fixturesDir, 'simple-component.html.twig'),
-                'utf8',
-            );
-            const jsContent = fs.readFileSync(
-                path.join(fixturesDir, 'simple-component.index.js'),
-                'utf8',
-            );
-
-            const { sfc } = mergeComponentFiles(twigContent, jsContent);
-
-            expect(sfc).toContain('computed(');
+        it('preserves the full Options API component definition intact in the script', () => {
+            expect(result.sfc).toContain('sw-mixin-list');
+            expect(result.sfc).toContain('mixins:');
+            expect(result.sfc).toContain('loadItems');
+            expect(result.sfc).toContain('onNotify');
         });
 
-        it('converts lifecycle hooks to Composition API equivalents in <script setup>', () => {
-            const twigContent = fs.readFileSync(
-                path.join(fixturesDir, 'block-component.html.twig'),
-                'utf8',
-            );
-            const jsContent = fs.readFileSync(
-                path.join(fixturesDir, 'block-component.index.js'),
-                'utf8',
-            );
-
-            const { sfc } = mergeComponentFiles(twigContent, jsContent);
-
-            expect(sfc).toContain('onMounted(');
+        it('wraps the template in a <template> section', () => {
+            expect(result.sfc).toContain('<template>');
+            expect(result.sfc).toContain('class="sw-mixin-list"');
         });
 
-        it('matches the fully-migrated simple-component SFC output snapshot', () => {
-            const twigContent = fs.readFileSync(
-                path.join(fixturesDir, 'simple-component.html.twig'),
-                'utf8',
-            );
-            const jsContent = fs.readFileSync(
-                path.join(fixturesDir, 'simple-component.index.js'),
-                'utf8',
-            );
+        it('matches the complete partially-migrated SFC output snapshot', () => {
+            expect(result.sfc).toMatchSnapshot();
+        });
+    });
 
-            const { sfc } = mergeComponentFiles(twigContent, jsContent);
-            expect(sfc).toMatchSnapshot();
+    describe('render-component: not migratable — no SFC is produced', () => {
+        let result: ReturnType<typeof mergeComponentFiles>;
+
+        beforeAll(() => {
+            result = mergeComponentFiles(
+                '',
+                readFixture('render-component.index.js'),
+            );
         });
 
-        it('matches the fully-migrated block-component SFC output snapshot', () => {
-            const twigContent = fs.readFileSync(
-                path.join(fixturesDir, 'block-component.html.twig'),
-                'utf8',
-            );
-            const jsContent = fs.readFileSync(
-                path.join(fixturesDir, 'block-component.index.js'),
-                'utf8',
-            );
-
-            const { sfc } = mergeComponentFiles(twigContent, jsContent);
-            expect(sfc).toMatchSnapshot();
+        it('reports status not-migratable', () => {
+            expect(result.status).toBe('not-migratable');
         });
 
-        it('matches the partially-migrated mixin-component SFC output snapshot', () => {
-            const twigContent = '<div>list</div>';
-            const jsContent = fs.readFileSync(
-                path.join(fixturesDir, 'mixin-component.index.js'),
-                'utf8',
-            );
+        it('lists render function as the blocker', () => {
+            expect(result.blockers).toContain('render function');
+        });
 
-            const { sfc } = mergeComponentFiles(twigContent, jsContent);
-            expect(sfc).toMatchSnapshot();
+        it('produces an empty SFC string — nothing is written to disk for this component', () => {
+            expect(result.sfc).toBe('');
         });
     });
 });

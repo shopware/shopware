@@ -8,7 +8,6 @@ export default function initializeLocaleService() {
     const snippetService = Shopware.Service('snippetService');
 
     if (!snippetService) {
-        // eslint-disable-next-line no-console
         console.warn('Snippet service not found. Snippets could not be loaded');
 
         return localeFactory;

@@ -482,7 +482,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 ...mailTemplateTypeMock,
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
-                // eslint-disable-next-line max-len
                 contentHtml:
                     '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
                 senderName: '{{ salesChannel.name }}',
@@ -516,13 +515,11 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 ...mailTemplateTypeMock,
                 subject: undefined,
                 contentPlain: undefined,
-                // eslint-disable-next-line max-len
                 contentHtml: undefined,
                 senderName: undefined,
                 translated: {
                     subject: 'Your order with {{ salesChannel.name }} is partially paid',
                     contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
-                    // eslint-disable-next-line max-len
                     contentHtml:
                         '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
                     senderName: '{{ salesChannel.name }}',
@@ -641,7 +638,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 ...mailTemplateTypeMock,
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
-                // eslint-disable-next-line max-len
                 contentHtml:
                     '{{ order.deliveries.first.stateMachineState.translated.name }} {{ order.deliveries.at(1).trackingCodes.0 }},<br/><br/>',
                 senderName: '{{ salesChannel.name }}',
@@ -678,7 +674,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 ...mailTemplateTypeMock,
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
-                // eslint-disable-next-line max-len
                 contentHtml:
                     '{{ order.orderCustomer.salutation.translated.letterName {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
                 senderName: '{{ salesChannel.name }}',
@@ -715,7 +710,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 ...mailTemplateTypeMock,
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
-                // eslint-disable-next-line max-len
                 contentHtml:
                     '{{ order.orderCustomer.salutation.translated.letterName {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
                 senderName: '{{ salesChannel.name }}',
@@ -753,7 +747,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 ...mailTemplateTypeMock,
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
-                // eslint-disable-next-line max-len
                 contentHtml:
                     '{{ order.orderCustomer.salutation.translated.letterName {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
                 senderName: '{{ salesChannel.name }}',
@@ -808,13 +801,11 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 ...mailTemplateTypeMock,
                 subject: undefined,
                 contentPlain: undefined,
-                // eslint-disable-next-line max-len
                 contentHtml: undefined,
                 senderName: undefined,
                 translated: {
                     subject: 'Your order with {{ salesChannel.name }} is partially paid',
                     contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
-                    // eslint-disable-next-line max-len
                     contentHtml:
                         '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
                     senderName: '{{ salesChannel.name }}',
@@ -859,7 +850,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 ...mailTemplateTypeMock,
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
-                // eslint-disable-next-line max-len
                 contentHtml:
                     '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
                 senderName: '{{ salesChannel.name }}',

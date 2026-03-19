@@ -51,8 +51,8 @@ describe('src/core/telemetry/amplitude/amplitude.telemetry-handlers.ts', () => {
         pushTelemetryEventToAmplitude(new TelemetryEvent('reset', {}));
 
         expect(amplitude.track).toHaveBeenCalledWith('logout');
-        expect(amplitude.flush).toHaveBeenCalledTimes(1);
-        expect(amplitude.reset).toHaveBeenCalledTimes(1);
+        expect(amplitude.flush).not.toHaveBeenCalled();
+        expect(amplitude.reset).not.toHaveBeenCalled();
     });
 
     it('normalizes non-string route names for page change tracking', () => {

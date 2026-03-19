@@ -112,7 +112,6 @@ Shopware.Component.register('sw-cms-missing-element-modal', () => import('./sw-c
  * @private
  * @sw-package discovery
  */
-// eslint-disable-next-line max-len
 Shopware.Component.extend(
     'sw-cms-product-assignment',
     'sw-many-to-many-assignment-card',

@@ -93,7 +93,6 @@ export default {
          * @returns {[]}
          */
         sortedProductSortingFields() {
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             return this.productSortingEntity.fields.sort((a, b) => {
                 if (a.priority === b.priority) {
                     return 0;

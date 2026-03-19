@@ -551,7 +551,6 @@ export default {
             }
 
             const promises = [];
-            // eslint-disable-next-line max-len
             const hasSetOrderStateAction = this.sequences.some(
                 (sequence) => sequence.actionName === this.flowBuilderService.getActionName('SET_ORDER_STATE'),
             );
@@ -565,7 +564,6 @@ export default {
                 );
             }
 
-            // eslint-disable-next-line max-len
             const hasDocumentAction = this.sequences.some(
                 (sequence) => sequence.actionName === this.flowBuilderService.getActionName('GENERATE_DOCUMENT'),
             );
@@ -579,7 +577,6 @@ export default {
                 );
             }
 
-            // eslint-disable-next-line max-len
             const hasMailSendAction = this.sequences.some(
                 (sequence) => sequence.actionName === this.flowBuilderService.getActionName('MAIL_SEND'),
             );
@@ -593,7 +590,6 @@ export default {
                 );
             }
 
-            // eslint-disable-next-line max-len
             const hasChangeCustomerGroup = this.sequences.some(
                 (sequence) => sequence.actionName === this.flowBuilderService.getActionName('CHANGE_CUSTOMER_GROUP'),
             );
@@ -612,7 +608,6 @@ export default {
                 this.flowBuilderService.getActionName('SET_CUSTOMER_CUSTOM_FIELD'),
                 this.flowBuilderService.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'),
             ];
-            // eslint-disable-next-line max-len
             const hasSetCustomFieldAction = this.sequences.some((sequence) =>
                 customFieldActionConstants.includes(sequence.actionName),
             );

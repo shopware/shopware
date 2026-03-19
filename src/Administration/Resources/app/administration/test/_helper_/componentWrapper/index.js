@@ -4,7 +4,6 @@
 
 /* eslint-disable sw-test-rules/await-async-functions */
 import { defineAsyncComponent } from 'vue';
-// eslint-disable-next-line import/no-unresolved, import/extensions
 import components from './component-imports';
 import syncComponents from './syncComponents';
 

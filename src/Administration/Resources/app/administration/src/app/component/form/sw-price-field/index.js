@@ -72,19 +72,16 @@ export default {
             },
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         validation: {
             required: false,
             default: null,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         label: {
             required: false,
             default: true,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         compact: {
             required: false,
             default: false,
@@ -96,7 +93,6 @@ export default {
             default: null,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         disabled: {
             required: false,
             default: false,
@@ -135,7 +131,6 @@ export default {
         inherited: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
 

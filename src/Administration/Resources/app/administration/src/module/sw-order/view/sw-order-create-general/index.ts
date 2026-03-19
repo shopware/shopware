@@ -43,7 +43,6 @@ export default Component.wrapComponentConfig({
         },
 
         isCustomerActive(): boolean {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             return Store.get('swOrder').isCustomerActive;
         },
 
@@ -73,7 +72,6 @@ export default Component.wrapComponentConfig({
                         tax: format.currency(
                             item.tax,
                             this.currency.isoCode,
-                            // eslint-disable-next-line max-len
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
                             (this.currency.totalRounding as any)?.decimals,
                         ),

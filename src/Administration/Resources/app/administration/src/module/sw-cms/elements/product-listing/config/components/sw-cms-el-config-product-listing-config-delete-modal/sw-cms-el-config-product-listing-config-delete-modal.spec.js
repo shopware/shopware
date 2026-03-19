@@ -25,7 +25,6 @@ async function createWrapper() {
     });
 }
 
-// eslint-disable-next-line max-len
 describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-delete-modal', () => {
     it('cancels the dialog', async () => {
         const wrapper = await createWrapper();

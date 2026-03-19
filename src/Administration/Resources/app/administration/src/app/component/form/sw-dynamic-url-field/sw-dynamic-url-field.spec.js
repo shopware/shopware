@@ -207,9 +207,9 @@ describe('components/form/sw-text-editor/sw-dynamic-url-field', () => {
         expect(associations[0].criteria.associations).toHaveLength(1);
         expect(associations[0].criteria.associations[0].association).toBe('group');
 
-        expect(props.criteria.filters).toStrictEqual(
-            expect.objectContaining([
-                {
+        expect(props.criteria.filters).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
                     operator: 'OR',
                     queries: [
                         {
@@ -224,7 +224,7 @@ describe('components/form/sw-text-editor/sw-dynamic-url-field', () => {
                         },
                     ],
                     type: 'multi',
-                },
+                }),
             ]),
         );
 

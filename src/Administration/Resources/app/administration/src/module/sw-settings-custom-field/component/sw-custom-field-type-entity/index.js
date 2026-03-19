@@ -98,7 +98,6 @@ export default {
         },
 
         sortedEntityTypes() {
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             return this.entityTypes.sort((a, b) => {
                 return a.label.localeCompare(b.label);
             });

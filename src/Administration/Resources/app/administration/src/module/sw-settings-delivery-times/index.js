@@ -4,7 +4,7 @@ import './acl';
  * @sw-package discovery
  */
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-delivery-time-list', () => import('./page/sw-settings-delivery-time-list'));
 Shopware.Component.register('sw-settings-delivery-time-detail', () => import('./page/sw-settings-delivery-time-detail'));
 Shopware.Component.extend(
@@ -12,7 +12,7 @@ Shopware.Component.extend(
     'sw-settings-delivery-time-detail',
     () => import('./page/sw-settings-delivery-time-create'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 

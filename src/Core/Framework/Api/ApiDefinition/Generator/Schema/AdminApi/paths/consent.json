@@ -79,7 +79,7 @@
                         "string",
                         "null"
                       ],
-                      "description": "Optional accepted revision. When omitted, the consent definition's latest revision is used."
+                      "description": "Optional accepted revision. Only the consent definition's latest revision is accepted. When omitted, the latest revision is used automatically."
                     }
                   },
                   "required": ["consent"],
@@ -101,6 +101,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad request - Consent revision is invalid for current acceptance"
           },
           "404": {
             "description": "Bad request - Consent not found or consent property was empty"

@@ -226,6 +226,40 @@ class ConsentServiceTest extends TestCase
         static::assertFalse($updatedState->isStale());
     }
 
+    public function testAcceptConsentRejectsOlderExplicitRevision(): void
+    {
+        $service = $this->createService(null, [
+            new TestDefinition('consent-1', ConsentScope\System::NAME, latestRevision: '2.0.0'),
+        ]);
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('updateConsentState');
+
+        $context = Context::createDefaultContext(new AdminApiSource('user-123'));
+
+        $this->expectExceptionObject(ConsentException::invalidRevision('consent-1', '1.0.0', '2.0.0'));
+
+        $service->acceptConsent('consent-1', $context, '1.0.0');
+    }
+
+    public function testAcceptConsentRejectsExplicitRevisionForNonRevisionedConsent(): void
+    {
+        $service = $this->createService(null, [
+            new TestDefinition('consent-1', ConsentScope\System::NAME),
+        ]);
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('updateConsentState');
+
+        $context = Context::createDefaultContext(new AdminApiSource('user-123'));
+
+        $this->expectExceptionObject(ConsentException::invalidRevision('consent-1', '1.0.0', null));
+
+        $service->acceptConsent('consent-1', $context, '1.0.0');
+    }
+
     public function testAcceptConsent(): void
     {
         $eventDispatcher = new AssertingEventDispatcher($this, [

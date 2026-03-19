@@ -108,7 +108,7 @@ class ConsentService implements ResetInterface
     public function acceptConsent(string $name, Context $context, ?string $revision = null): ConsentState
     {
         $consent = $this->getConsentDefinition($name);
-        $revision = $revision ?? $consent->getLatestRevision();
+        $revision = $this->resolveAcceptedRevision($consent, $revision);
 
         $updatedState = $this->updateState($name, ConsentStatus::ACCEPTED, $context, $revision);
 
@@ -116,6 +116,21 @@ class ConsentService implements ResetInterface
         $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier, $updatedState->actor, $updatedState->acceptedRevision));
 
         return $updatedState;
+    }
+
+    private function resolveAcceptedRevision(ConsentDefinition $consent, ?string $revision): ?string
+    {
+        $latestRevision = $consent->getLatestRevision();
+
+        if ($revision === null) {
+            return $latestRevision;
+        }
+
+        if ($latestRevision === null || $revision !== $latestRevision) {
+            throw ConsentException::invalidRevision($consent->getName(), $revision, $latestRevision);
+        }
+
+        return $latestRevision;
     }
 
     public function revokeConsent(string $name, Context $context): ConsentState

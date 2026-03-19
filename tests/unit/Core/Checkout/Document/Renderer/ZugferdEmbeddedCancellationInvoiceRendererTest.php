@@ -27,7 +27,9 @@ class ZugferdEmbeddedCancellationInvoiceRendererTest extends TestCase
         $renderer = new ZugferdEmbeddedCancellationInvoiceRenderer(
             $this->createMock(AbstractDocumentRenderer::class),
             $this->createMock(AbstractDocumentRenderer::class),
-            new ZugferdEmbeddedService(),
+            new ZugferdEmbeddedService(
+                $this->createMock(DocumentFileRendererRegistry::class),
+            ),
             'version'
         );
 
@@ -61,7 +63,9 @@ class ZugferdEmbeddedCancellationInvoiceRendererTest extends TestCase
         $renderer = new ZugferdEmbeddedCancellationInvoiceRenderer(
             $cancellationInvoiceRenderer,
             $electronicRenderer,
-            new ZugferdEmbeddedService(),
+            new ZugferdEmbeddedService(
+                $this->createMock(DocumentFileRendererRegistry::class),
+            ),
             'version'
         );
 

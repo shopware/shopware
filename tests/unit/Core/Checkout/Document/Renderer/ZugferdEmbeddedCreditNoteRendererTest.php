@@ -27,7 +27,9 @@ class ZugferdEmbeddedCreditNoteRendererTest extends TestCase
         $renderer = new ZugferdEmbeddedCreditNoteRenderer(
             $this->createMock(AbstractDocumentRenderer::class),
             $this->createMock(AbstractDocumentRenderer::class),
-            new ZugferdEmbeddedService(),
+            new ZugferdEmbeddedService(
+                $this->createMock(DocumentFileRendererRegistry::class),
+            ),
             'version'
         );
 
@@ -61,7 +63,9 @@ class ZugferdEmbeddedCreditNoteRendererTest extends TestCase
         $renderer = new ZugferdEmbeddedCreditNoteRenderer(
             $cancellationInvoiceRenderer,
             $electronicRenderer,
-            new ZugferdEmbeddedService(),
+            new ZugferdEmbeddedService(
+                $this->createMock(DocumentFileRendererRegistry::class),
+            ),
             'version'
         );
 

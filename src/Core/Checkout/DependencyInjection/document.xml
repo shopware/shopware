@@ -56,7 +56,9 @@
             <argument type="service" id="Doctrine\DBAL\Connection" />
         </service>
 
-        <service id="Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService" />
+        <service id="Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService">
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry" />
+        </service>
 
         <service id="Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer">
             <argument type="service" id="order.repository"/>

@@ -27,7 +27,9 @@ class ZugferdEmbeddedRendererTest extends TestCase
         $renderer = new ZugferdEmbeddedRenderer(
             $this->createMock(AbstractDocumentRenderer::class),
             $this->createMock(AbstractDocumentRenderer::class),
-            new ZugferdEmbeddedService(),
+            new ZugferdEmbeddedService(
+                $this->createMock(DocumentFileRendererRegistry::class),
+            ),
             'version'
         );
 
@@ -61,7 +63,9 @@ class ZugferdEmbeddedRendererTest extends TestCase
         $renderer = new ZugferdEmbeddedRenderer(
             $invoiceRenderer,
             $electronicRenderer,
-            new ZugferdEmbeddedService(),
+            new ZugferdEmbeddedService(
+                $this->createMock(DocumentFileRendererRegistry::class),
+            ),
             'version'
         );
 

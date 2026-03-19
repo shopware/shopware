@@ -26,7 +26,9 @@ class ZugferdEmbeddedServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->service = new ZugferdEmbeddedService();
+        $this->service = new ZugferdEmbeddedService(
+            $this->createMock(DocumentFileRendererRegistry::class),
+        );
     }
 
     public function testEmbedWithFullSuccess(): void

@@ -180,19 +180,6 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
             ],
         ]);
 
-        if ($operation->isStatic()) {
-            $doc = new RenderedDocument(
-                $number,
-                $config->buildName(),
-                $operation->getFileType(),
-                $config->jsonSerialize()
-            );
-
-            $renderResult->addSuccess($order->getId(), $doc);
-
-            return;
-        }
-
         $content = $this->documentBuilder->buildDocumentWithType(
             $order,
             $config,

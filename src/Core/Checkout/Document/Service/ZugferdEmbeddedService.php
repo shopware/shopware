@@ -28,6 +28,11 @@ final class ZugferdEmbeddedService
 
     private const PDF_GENERATION_ERROR = 'Error during PDF generation';
 
+    public function __construct(
+        private readonly DocumentFileRendererRegistry $fileRendererRegistry
+    ) {
+    }
+
     /**
      * @param array<string, DocumentGenerateOperation> $operations
      */

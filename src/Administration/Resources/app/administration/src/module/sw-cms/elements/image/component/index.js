@@ -112,13 +112,13 @@ export default {
         'cmsPageState.currentDemoEntity': {
             handler() {
                 this.updateDemoValue(this.mediaConfigValue);
-                void this.updateMappedDemoMedia();
+                this.updateMappedDemoMedia();
             },
         },
 
         mediaConfigValue(value) {
             this.updateDemoValue(value);
-            void this.updateMappedDemoMedia();
+            this.updateMappedDemoMedia();
         },
     },
 
@@ -130,7 +130,7 @@ export default {
         createdComponent() {
             this.initElementConfig('image');
             this.initElementData('image');
-            void this.updateMappedDemoMedia();
+            this.updateMappedDemoMedia();
         },
 
         updateDemoValue(value) {

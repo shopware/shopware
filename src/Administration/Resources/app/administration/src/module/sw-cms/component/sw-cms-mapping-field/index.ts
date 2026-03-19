@@ -92,7 +92,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         'cmsPageState.currentDemoEntity': {
             handler() {
-                this.updateDemoValue();
+                void this.updateDemoValue();
             },
         },
     },
@@ -104,7 +104,7 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         createdComponent() {
             this.updateMappingTypes();
-            this.updateDemoValue();
+            void this.updateDemoValue();
         },
 
         updateMappingTypes() {

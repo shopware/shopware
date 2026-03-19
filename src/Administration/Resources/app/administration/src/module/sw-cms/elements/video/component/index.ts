@@ -138,17 +138,19 @@ export default Component.wrapComponentConfig({
             void this.updateMappedDemoMedia();
         },
 
-        loadVideoCoverMedia(media = (this.element?.data as unknown as { media?: Entity<'media'> }).media) {
-            if (!media || typeof media !== 'object') {
+        loadVideoCoverMedia(media?: Entity<'media'> | null) {
+            const currentMedia = media ?? (this.element.data as unknown as { media?: Entity<'media'> }).media;
+
+            if (!currentMedia || typeof currentMedia !== 'object') {
                 return;
             }
-            const metaData = media?.metaData as { video?: { coverMediaId?: string } } | undefined;
+            const metaData = currentMedia.metaData as { video?: { coverMediaId?: string } } | undefined;
             const coverMediaId = metaData?.video?.coverMediaId;
             if (!coverMediaId) {
                 return;
             }
 
-            const existingCover = media.extensions?.videoCoverMedia as Entity<'media'> | undefined;
+            const existingCover = currentMedia.extensions?.videoCoverMedia as Entity<'media'> | undefined;
             if (existingCover?.id === coverMediaId) {
                 return;
             }
@@ -158,8 +160,8 @@ export default Component.wrapComponentConfig({
                     return;
                 }
 
-                media.extensions = {
-                    ...(media.extensions ?? {}),
+                currentMedia.extensions = {
+                    ...(currentMedia.extensions ?? {}),
                     videoCoverMedia: cover,
                 };
             });
@@ -190,7 +192,7 @@ export default Component.wrapComponentConfig({
             }
 
             try {
-                const media = (await this.mediaRepository.get(demoMedia, Shopware.Context.api)) as Entity<'media'> | null;
+                const media = await this.mediaRepository.get(demoMedia, Shopware.Context.api);
 
                 if (fetchId !== this.mappedDemoMediaFetchId || !media) {
                     return;

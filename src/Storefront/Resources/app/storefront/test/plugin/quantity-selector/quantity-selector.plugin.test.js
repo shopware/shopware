@@ -9,26 +9,19 @@ let stepDownSpy;
 let triggerChangeSpy;
 let ariaLiveSpy;
 
-function createLivePlugin({ url = '/product/pid/purchase-limit', withAlertTemplate = false, inputValue = 5 } = {}) {
+function createLivePlugin({ url = '/product/pid/purchase-limit', inputValue = 5 } = {}) {
     document.body.innerHTML = `
         <form>
             <div class="input-group" data-quantity-selector="true"
-                 ${url ? `data-quantity-selector-plugin-options='{"purchaseLimitUrl": "${url}"}'` : ''}>
+                 ${url ? `data-quantity-selector-options='{"purchaseLimitUrl": "${url}"}'` : ''}>
                 <button type="button" class="js-btn-minus">-</button>
                 <input type="number" class="js-quantity-selector" min="1" max="10" step="1" value="${inputValue}">
                 <button type="button" class="js-btn-plus">+</button>
             </div>
-            ${withAlertTemplate ? `
-            <template class="js-quantity-stock-adjusted-template"
-                      data-stock-adjusted-text="Your quantity has been updated to %quantity%.">
-                <div class="alert alert-warning">
-                    <div class="js-stock-adjusted-text"></div>
-                </div>
-            </template>` : ''}
         </form>
     `;
 
-    return new QuantitySelectorPlugin(document.querySelector('[data-quantity-selector]'));
+    return new QuantitySelectorPlugin(document.querySelector('[data-quantity-selector]'), {}, 'QuantitySelector');
 }
 
 describe('QuantitySelectorPlugin tests', () => {
@@ -237,39 +230,55 @@ describe('QuantitySelectorPlugin tests', () => {
         expect(input.getAttribute('step')).toBe('2');
     });
 
-    test('clamps value to new max and shows alert when value exceeds new max', async () => {
+    test('clamps value and dispatches stockAdjusted event when value exceeds new max', async () => {
         jest.useRealTimers();
-        createLivePlugin({ withAlertTemplate: true, inputValue: 9 });
+        createLivePlugin({ inputValue: 9 });
         global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 3 }) }));
+
+        const form = document.querySelector('form');
+        const eventSpy = jest.fn();
+        form.addEventListener('quantitySelectorStockAdjusted', eventSpy);
 
         document.querySelector('.js-quantity-selector').dispatchEvent(new Event('focus'));
         await new Promise(process.nextTick);
 
         expect(document.querySelector('.js-quantity-selector').value).toBe('3');
-        expect(document.querySelector('.quantity-stock-adjusted-alert')).not.toBeNull();
-        expect(document.querySelector('.js-stock-adjusted-text').textContent).toBe('Your quantity has been updated to 3.');
+        expect(eventSpy).toHaveBeenCalledTimes(1);
+        expect(eventSpy.mock.calls[0][0].detail).toEqual({ quantity: 3 });
     });
 
-    test('does not show alert when value is within new limits', async () => {
+    test('does not dispatch event when value is within new limits', async () => {
         jest.useRealTimers();
-        createLivePlugin({ withAlertTemplate: true });
+        createLivePlugin();
         global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 10 }) }));
 
+        const form = document.querySelector('form');
+        const eventSpy = jest.fn();
+        form.addEventListener('quantitySelectorStockAdjusted', eventSpy);
+        form.addEventListener('quantitySelectorOutOfStock', eventSpy);
+
         document.querySelector('.js-quantity-selector').dispatchEvent(new Event('focus'));
         await new Promise(process.nextTick);
 
-        expect(document.querySelector('.quantity-stock-adjusted-alert')).toBeNull();
+        expect(eventSpy).not.toHaveBeenCalled();
     });
 
-    test('does not show alert when template is missing', async () => {
+    test('disables controls and dispatches outOfStock event when maxPurchase is 0', async () => {
         jest.useRealTimers();
-        createLivePlugin({ inputValue: 9 });
-        global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 3 }) }));
+        createLivePlugin();
+        global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 0 }) }));
+
+        const form = document.querySelector('form');
+        const eventSpy = jest.fn();
+        form.addEventListener('quantitySelectorOutOfStock', eventSpy);
 
         document.querySelector('.js-quantity-selector').dispatchEvent(new Event('focus'));
         await new Promise(process.nextTick);
 
-        expect(document.querySelector('.quantity-stock-adjusted-alert')).toBeNull();
+        expect(document.querySelector('.js-quantity-selector').disabled).toBe(true);
+        expect(document.querySelector('.js-btn-plus').disabled).toBe(true);
+        expect(document.querySelector('.js-btn-minus').disabled).toBe(true);
+        expect(eventSpy).toHaveBeenCalledTimes(1);
     });
 
     test('keeps rendered values and logs warning on fetch error', async () => {

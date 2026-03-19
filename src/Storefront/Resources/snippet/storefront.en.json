@@ -848,7 +848,8 @@
         "increaseOfProduct": "Increase quantity of %product%",
         "decrease": "Decrease quantity",
         "decreaseOfProduct": "Decrease quantity of %product%",
-        "stockAdjusted": "Your quantity has been updated to %quantity%."
+        "stockAdjusted": "Your quantity has been updated to %quantity%.",
+        "outOfStock": "The product is no longer available."
       },
       "configurator": {
         "legend": "<span class=\"%hidden_cls%\">Select&nbsp;</span>%group_name%"

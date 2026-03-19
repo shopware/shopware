@@ -19,8 +19,6 @@ export default class QuantitySelectorPlugin extends Plugin {
         ariaLiveTextValueToken: '%quantity%',
         ariaLiveTextProductToken: '%product%',
         purchaseLimitUrl: null,
-        stockAdjustedTemplateSelector: '.js-quantity-stock-adjusted-template',
-        stockAdjustedAlertClass: 'quantity-stock-adjusted-alert',
     };
 
     init() {
@@ -219,8 +217,7 @@ export default class QuantitySelectorPlugin extends Plugin {
 
     /**
      * Apply fetched purchase limits to the input element.
-     * Clamps the current value to the new constraints and dispatches a change event if needed.
-     * Shows a warning alert if the value was adjusted due to reduced stock.
+     * Clamps the current value to the new constraints and dispatches events for the form to handle.
      *
      * @param {{ minPurchase: number, purchaseSteps: number, maxPurchase: number }} limits
      * @private
@@ -230,8 +227,15 @@ export default class QuantitySelectorPlugin extends Plugin {
             return;
         }
 
-        const min = limits.minPurchase;
         const max = limits.maxPurchase;
+
+        if (max <= 0) {
+            this._disableControls();
+            this._dispatchFormEvent('quantitySelectorOutOfStock');
+            return;
+        }
+
+        const min = limits.minPurchase;
         const step = limits.purchaseSteps;
 
         this._input.setAttribute('min', min);
@@ -245,37 +249,29 @@ export default class QuantitySelectorPlugin extends Plugin {
         if (steppedValue !== currentValue) {
             this._input.value = steppedValue;
             this._triggerChange();
-            this._showStockAdjustedAlert(steppedValue);
+            this._dispatchFormEvent('quantitySelectorStockAdjusted', { quantity: steppedValue });
         }
     }
 
     /**
-     * Show a warning alert below the quantity selector when the value was adjusted to available stock.
-     * Removes any previously shown alert first.
+     * Disable quantity selector controls when the product is no longer purchasable.
      *
-     * @param {number} quantity
      * @private
      */
-    _showStockAdjustedAlert(quantity) {
-        const template = this.el.closest('form')?.querySelector(this.options.stockAdjustedTemplateSelector);
+    _disableControls() {
+        this._input.disabled = true;
+        this._btnPlus.disabled = true;
+        this._btnMinus.disabled = true;
+    }
 
-        if (!template) {
-            return;
-        }
-
-        const existingAlert = template.parentElement.querySelector(`.${this.options.stockAdjustedAlertClass}`);
-        if (existingAlert) {
-            existingAlert.remove();
-        }
-
-        const alert = template.content.firstElementChild.cloneNode(true);
-        alert.classList.add(this.options.stockAdjustedAlertClass);
-
-        const textEl = alert.querySelector('.js-stock-adjusted-text');
-        if (textEl) {
-            textEl.textContent = template.dataset.stockAdjustedText.replace('%quantity%', quantity);
-        }
-
-        template.insertAdjacentElement('afterend', alert);
+    /**
+     * Dispatch a CustomEvent on the parent form so form-level plugins can react.
+     *
+     * @param {string} eventName
+     * @param {Object} detail
+     * @private
+     */
+    _dispatchFormEvent(eventName, detail = {}) {
+        this.el.closest('form')?.dispatchEvent(new CustomEvent(eventName, { detail }));
     }
 }

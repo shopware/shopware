@@ -133,9 +133,8 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         $criteria = $collection->all()[ProductMediaDefinition::class]['product_media_' . $slot->getUniqueIdentifier()];
         static::assertCount(1, $criteria->getFilters());
-        static::assertInstanceOf(EqualsFilter::class, $criteria->getFilters()[0]);
-        /** @var EqualsFilter $productMediaFilter */
         $productMediaFilter = $criteria->getFilters()[0];
+        static::assertInstanceOf(EqualsFilter::class, $productMediaFilter);
         static::assertSame('productId', $productMediaFilter->getField());
         static::assertSame('product_01', $productMediaFilter->getValue());
         static::assertArrayHasKey('media', $criteria->getAssociations());
@@ -209,7 +208,6 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         $this->imageSliderResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ImageSliderStruct $imageSliderStruct */
         $imageSliderStruct = $slot->getData();
         static::assertInstanceOf(ImageSliderStruct::class, $imageSliderStruct);
         static::assertEmpty($imageSliderStruct->getSliderItems());
@@ -231,7 +229,6 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         $this->imageSliderResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ImageSliderStruct $imageSliderStruct */
         $imageSliderStruct = $slot->getData();
         static::assertInstanceOf(ImageSliderStruct::class, $imageSliderStruct);
 
@@ -268,7 +265,6 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         $this->imageSliderResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ImageSliderStruct $imageSliderStruct */
         $imageSliderStruct = $slot->getData();
         static::assertInstanceOf(ImageSliderStruct::class, $imageSliderStruct);
 
@@ -311,7 +307,6 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         $this->imageSliderResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ImageSliderStruct $imageSliderStruct */
         $imageSliderStruct = $slot->getData();
         static::assertInstanceOf(ImageSliderStruct::class, $imageSliderStruct);
 
@@ -339,7 +334,6 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         $this->imageSliderResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ImageSliderStruct $imageSliderStruct */
         $imageSliderStruct = $slot->getData();
         static::assertInstanceOf(ImageSliderStruct::class, $imageSliderStruct);
 
@@ -377,9 +371,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $result = $this->getEntitySearchResult($productMediaCollection, $resolverContext);
 
         $this->imageSliderResolver->enrich($slot, $resolverContext, $result);
-        /** @var ImageSliderStruct $imageSliderStruct */
         $imageSliderStruct = $slot->getData();
-
         static::assertInstanceOf(ImageSliderStruct::class, $imageSliderStruct);
 
         $imageSliderItems = $imageSliderStruct->getSliderItems() ?? [];
@@ -416,7 +408,6 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         $this->imageSliderResolver->enrich($slot, $resolverContext, $result);
 
-        /** @var ImageSliderStruct $imageSliderStruct */
         $imageSliderStruct = $slot->getData();
         static::assertInstanceOf(ImageSliderStruct::class, $imageSliderStruct);
 

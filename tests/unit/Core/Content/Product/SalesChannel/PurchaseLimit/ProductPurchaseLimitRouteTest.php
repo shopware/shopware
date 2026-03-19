@@ -54,12 +54,14 @@ class ProductPurchaseLimitRouteTest extends TestCase
             'id' => $productIdA,
             'minPurchase' => 1,
             'purchaseSteps' => 1,
+            'stock' => 100,
         ]);
 
         $productB = (new PartialEntity())->assign([
             'id' => $productIdB,
             'minPurchase' => 5,
             'purchaseSteps' => 5,
+            'stock' => 3,
         ]);
 
         $this->productRepository->method('search')->willReturn(
@@ -82,11 +84,13 @@ class ProductPurchaseLimitRouteTest extends TestCase
         static::assertSame(1, $items[0]->getMinPurchase());
         static::assertSame(1, $items[0]->getPurchaseSteps());
         static::assertSame(20, $items[0]->getMaxPurchase());
+        static::assertSame(100, $items[0]->getStock());
 
         static::assertSame($productIdB, $items[1]->getProductId());
         static::assertSame(5, $items[1]->getMinPurchase());
         static::assertSame(5, $items[1]->getPurchaseSteps());
         static::assertSame(50, $items[1]->getMaxPurchase());
+        static::assertSame(3, $items[1]->getStock());
     }
 
     public function testLoadDefaults(): void
@@ -110,6 +114,7 @@ class ProductPurchaseLimitRouteTest extends TestCase
         static::assertNotNull($result);
         static::assertSame(1, $result->getMinPurchase());
         static::assertSame(1, $result->getPurchaseSteps());
+        static::assertNull($result->getStock());
     }
 
     public function testLoadReturnsEmptyCollectionForUnknownIds(): void

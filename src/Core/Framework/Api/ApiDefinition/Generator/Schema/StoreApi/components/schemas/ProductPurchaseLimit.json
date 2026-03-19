@@ -7,7 +7,7 @@
       "ProductPurchaseLimit": {
         "type": "object",
         "description": "Current quantity purchase limits for a product.",
-        "required": ["productId", "minPurchase", "purchaseSteps", "maxPurchase"],
+        "required": ["productId", "minPurchase", "purchaseSteps", "maxPurchase", "apiAlias"],
         "properties": {
           "productId": {
             "type": "string",
@@ -25,6 +25,14 @@
           "maxPurchase": {
             "type": "integer",
             "description": "Maximum quantity a customer can purchase, reflecting current stock for closeout products."
+          },
+          "stock": {
+            "type": ["integer", "null"],
+            "description": "Current stock level of the product."
+          },
+          "apiAlias": {
+            "type": "string",
+            "enum": ["product_purchase_limit"]
           }
         }
       }

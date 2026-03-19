@@ -333,6 +333,7 @@ class ProductControllerTest extends TestCase
                 minPurchase: 1,
                 purchaseSteps: 1,
                 maxPurchase: 10,
+                stock: 100
             ),
         ]);
 

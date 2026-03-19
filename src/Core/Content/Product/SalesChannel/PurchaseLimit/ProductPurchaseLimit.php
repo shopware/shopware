@@ -16,6 +16,7 @@ class ProductPurchaseLimit extends Struct
         protected int $minPurchase,
         protected int $purchaseSteps,
         protected int $maxPurchase,
+        protected ?int $stock = null,
     ) {
     }
 
@@ -37,5 +38,15 @@ class ProductPurchaseLimit extends Struct
     public function getMaxPurchase(): int
     {
         return $this->maxPurchase;
+    }
+
+    public function getStock(): ?int
+    {
+        return $this->stock;
+    }
+
+    public function getApiAlias(): string
+    {
+        return 'product_purchase_limit';
     }
 }

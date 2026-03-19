@@ -238,12 +238,7 @@ class CmsService {
             const customFieldConfig = customField.config as { customFieldType?: string } | undefined;
 
             if (customFieldConfig?.customFieldType === 'media') {
-                this.addToMappingEntity(
-                    mappings,
-                    { entity: 'media' },
-                    `${entityName}.customFields`,
-                    customField.name,
-                );
+                this.addToMappingEntity(mappings, { entity: 'media' }, `${entityName}.customFields`, customField.name);
 
                 return;
             }

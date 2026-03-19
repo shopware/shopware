@@ -84,4 +84,3 @@ describe('src/module/sw-cms/component/sw-cms-mapping-field', () => {
         expect(wrapper.vm.demoValue).toEqual(mediaEntity);
     });
 });
-

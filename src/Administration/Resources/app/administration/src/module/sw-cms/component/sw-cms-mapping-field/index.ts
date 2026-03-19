@@ -8,7 +8,10 @@ import './sw-cms-mapping-field.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: ['cmsService', 'repositoryFactory'],
+    inject: [
+        'cmsService',
+        'repositoryFactory',
+    ],
 
     props: {
         config: {

@@ -11,7 +11,10 @@ const { CMS } = Shopware.Constants;
 export default {
     template,
 
-    inject: ['feature', 'repositoryFactory'],
+    inject: [
+        'feature',
+        'repositoryFactory',
+    ],
 
     mixins: [
         Mixin.getByName('cms-element'),

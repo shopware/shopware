@@ -55,6 +55,7 @@ type SingleWatchDefinition = ((newVal: unknown, oldVal: unknown) => void) | Watc
 type WatchDefinition = SingleWatchDefinition | SingleWatchDefinition[];
 
 type InjectConfig = ComponentConfig['inject'];
+type ObjectInjectConfig = Exclude<NonNullable<InjectConfig>, string[]>;
 
 /** Extended config that allows indexing with lifecycle hook names without explicit casts. */
 type ExtendedComponentConfig = ComponentConfig & Record<string, unknown>;
@@ -218,7 +219,7 @@ function resolveInject(injectConfig: ComponentConfig['inject']): ComponentState 
             resolved[key] = vueInject(key);
         });
     } else {
-        const objectConfig = injectConfig as Record<string, string | { from?: string; default?: unknown }>;
+        const objectConfig = injectConfig as ObjectInjectConfig;
         Object.entries(objectConfig).forEach(
             ([
                 localKey,
@@ -230,10 +231,11 @@ function resolveInject(injectConfig: ComponentConfig['inject']): ComponentState 
                     resolved[localKey] = vueInject(spec);
                 } else if (spec && typeof spec === 'object') {
                     // { localKey: { from: 'provideKey', default: fallback } }
-                    const from = spec.from ?? localKey;
-                    const hasDefault = Object.hasOwn(spec, 'default');
+                    const specOptions = spec as { from?: string; default?: unknown };
+                    const from = specOptions.from ?? localKey;
+                    const hasDefault = Object.hasOwn(specOptions, 'default');
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    resolved[localKey] = hasDefault ? vueInject(from, spec.default) : vueInject(from);
+                    resolved[localKey] = hasDefault ? vueInject(from, specOptions.default) : vueInject(from);
                 } else {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     resolved[localKey] = vueInject(localKey);

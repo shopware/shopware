@@ -373,7 +373,6 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should disable postal code validation', async () => {
-        // eslint-disable-next-line no-restricted-syntax
         for (const prop of [
             {
                 checkPostalCodePattern: true,
@@ -381,9 +380,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             },
             {},
         ]) {
-            // eslint-disable-next-line no-await-in-loop
             wrapper = await createWrapper(['country.editor'], prop);
-            // eslint-disable-next-line no-await-in-loop
             await flushPromises();
 
             const countryCheckPostalCodePatternField = wrapper.find(

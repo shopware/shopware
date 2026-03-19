@@ -69,7 +69,6 @@ export default {
     },
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         source: {
             required: true,
         },
@@ -89,21 +88,18 @@ export default {
         transparency: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         useThumbnails: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         hideTooltip: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 

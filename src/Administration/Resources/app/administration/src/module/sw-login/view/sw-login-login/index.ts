@@ -64,6 +64,15 @@ export default Component.wrapComponentConfig({
     },
 
     methods: {
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
+        _navigateTo(url: string) {
+            window.location.href = url;
+        },
+
         async createdComponent() {
             if (!localStorage.getItem('sw-admin-locale')) {
                 await Shopware.Store.get('session').setAdminLocale(navigator.language);
@@ -85,7 +94,7 @@ export default Component.wrapComponentConfig({
 
             this.ssoLoading = true;
             window.sessionStorage.setItem('redirectFromLogin', 'true');
-            window.location.href = this.loginConfig.url;
+            this._navigateTo(this.loginConfig.url);
         },
 
         loginUserWithPassword() {
@@ -131,8 +140,7 @@ export default Component.wrapComponentConfig({
                 if (shouldReload) {
                     sessionStorage.removeItem('sw-login-should-reload');
                     // reload page to rebuild the administration with all dependencies
-                    // @ts-expect-error - force reload
-                    window.location.reload(true);
+                    this._reloadPage();
                 }
             });
         },
@@ -204,7 +212,6 @@ export default Component.wrapComponentConfig({
             }
 
             if (error.code?.length) {
-                // eslint-disable-next-line max-len
                 const { message, title } = getErrorCode(parseInt(error.code as string, 10)) as {
                     message: string;
                     title: string;

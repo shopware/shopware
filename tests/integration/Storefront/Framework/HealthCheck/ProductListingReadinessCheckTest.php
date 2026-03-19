@@ -77,7 +77,7 @@ class ProductListingReadinessCheckTest extends TestCase
         $result = $check->run();
 
         static::assertTrue($result->healthy);
-        static::assertSame(Status::SKIPPED, $result->status);
+        static::assertSame(Status::OK, $result->status);
     }
 
     private function createCheck(): ProductListingReadinessCheck

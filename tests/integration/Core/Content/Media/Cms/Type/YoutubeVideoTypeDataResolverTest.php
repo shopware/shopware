@@ -248,4 +248,3 @@ class YoutubeVideoTypeDataResolverTest extends TestCase
         static::assertSame($media, $imageStruct->getMedia());
     }
 }
-

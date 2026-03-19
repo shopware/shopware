@@ -99,12 +99,16 @@ class StorefrontTest extends TestCase
             {
             }
 
-            /** @throws void */
+            /**
+             * @throws void
+             */
             public function load(array $configs, ContainerBuilder $container): void
             {
             }
 
-            /** @throws void */
+            /**
+             * @throws void
+             */
             public function getAlias(): string
             {
                 return $this->alias;

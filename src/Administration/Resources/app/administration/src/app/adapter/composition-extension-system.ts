@@ -200,11 +200,10 @@ export function createExtendableSetup<
 
     // Stop execution and throw an error if the original setup function does not return a public or private property
     if (!originalSetupResultRaw.public && !originalSetupResultRaw.private) {
-        console.error(
+        throw new Error(
             // eslint-disable-next-line max-len
             `[${options.name}] The original setup function for the originalComponent component must return at least one public or private property.`,
         );
-        return {} as ToRefs<Reactive<Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]> & PRIVATE_SETUP_RESULT>>;
     }
 
     // Check if any other return value was returned from the original setup

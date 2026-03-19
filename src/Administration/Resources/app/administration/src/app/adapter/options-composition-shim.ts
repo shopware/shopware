@@ -57,8 +57,23 @@ type WatchDefinition = SingleWatchDefinition | SingleWatchDefinition[];
 type InjectConfig = ComponentConfig['inject'];
 type ObjectInjectConfig = Exclude<NonNullable<InjectConfig>, string[]>;
 
-/** Extended config that allows indexing with lifecycle hook names without explicit casts. */
-type ExtendedComponentConfig = ComponentConfig & Record<string, unknown>;
+type LifecycleHookName =
+    | 'beforeCreate'
+    | 'created'
+    | 'beforeMount'
+    | 'mounted'
+    | 'beforeUpdate'
+    | 'updated'
+    | 'beforeUnmount'
+    | 'unmounted'
+    | 'activated'
+    | 'deactivated'
+    | 'errorCaptured';
+
+/** Extended config that types lifecycle hook properties directly to avoid explicit casts. */
+type ExtendedComponentConfig = ComponentConfig & {
+    [K in LifecycleHookName]?: LifecycleHookFn;
+};
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type OverrideFn<COMPONENT_NAME extends keyof ComponentPublicApiMapping & string = string> = (
@@ -72,7 +87,7 @@ export type OverrideFn<COMPONENT_NAME extends keyof ComponentPublicApiMapping & 
 /**
  * Maps Options API lifecycle hook names to their Composition API equivalents.
  * `null` means the hook runs immediately (beforeCreate/created happen during setup).
- * Cast is required because Vue's registration functions have complex internal generics.
+ * `satisfies` validates value types while keeping the literal key names for LifecycleHookName.
  */
 const LIFECYCLE_HOOK_MAP = {
     beforeCreate: null,
@@ -86,9 +101,9 @@ const LIFECYCLE_HOOK_MAP = {
     activated: onActivated,
     deactivated: onDeactivated,
     errorCaptured: onErrorCaptured,
-} as Record<string, ((fn: () => void) => void) | null>;
+} satisfies Record<string, ((fn: () => void) => void) | null>;
 
-const LIFECYCLE_HOOKS = Object.keys(LIFECYCLE_HOOK_MAP);
+const LIFECYCLE_HOOKS = Object.keys(LIFECYCLE_HOOK_MAP) as LifecycleHookName[];
 
 /**
  * Options API property keys that indicate an override is using Options API patterns.
@@ -110,7 +125,7 @@ interface MergedConfig extends Omit<ComponentConfig, 'data' | 'computed' | 'meth
     methods?: Record<string, AnyFn>;
     watch?: Record<string, WatchDefinition>;
     inject?: InjectConfig;
-    _lifecycleHooks?: Record<string, LifecycleHookFn[]>;
+    _lifecycleHooks?: Partial<Record<LifecycleHookName, LifecycleHookFn[]>>;
 }
 
 /**
@@ -289,7 +304,7 @@ function mergeInjectConfigs(existing: InjectConfig, incoming: InjectConfig): Inj
  * Merges mixins into the component configuration
  */
 function mergeMixins(config: ComponentConfig): MergedConfig {
-    const lifecycleHooks: Record<string, LifecycleHookFn[]> = {};
+    const lifecycleHooks: Partial<Record<LifecycleHookName, LifecycleHookFn[]>> = {};
     // Collect data factories in merge order so each is called exactly once.
     // Mixin factories are pushed first (deepest ancestor first via flattenMixins),
     // then the component's own factory last — so component keys win on conflict.
@@ -310,12 +325,13 @@ function mergeMixins(config: ComponentConfig): MergedConfig {
             const extendedMixin = mixin as ExtendedComponentConfig;
 
             // Collect lifecycle hooks from mixin (mixin hooks fire before component hooks)
-            LIFECYCLE_HOOKS.forEach((hook: string) => {
-                if (extendedMixin[hook]) {
+            LIFECYCLE_HOOKS.forEach((hook) => {
+                const hookFn = extendedMixin[hook];
+                if (hookFn) {
                     if (!lifecycleHooks[hook]) {
                         lifecycleHooks[hook] = [];
                     }
-                    lifecycleHooks[hook].push(extendedMixin[hook] as LifecycleHookFn);
+                    lifecycleHooks[hook].push(hookFn);
                 }
             });
 
@@ -364,12 +380,13 @@ function mergeMixins(config: ComponentConfig): MergedConfig {
 
     // Component's own hooks go last (after mixin hooks), matching Vue's merge strategy
     const extendedConfig = config as ExtendedComponentConfig;
-    LIFECYCLE_HOOKS.forEach((hook: string) => {
-        if (extendedConfig[hook]) {
+    LIFECYCLE_HOOKS.forEach((hook) => {
+        const hookFn = extendedConfig[hook];
+        if (hookFn) {
             if (!lifecycleHooks[hook]) {
                 lifecycleHooks[hook] = [];
             }
-            lifecycleHooks[hook].push(extendedConfig[hook] as LifecycleHookFn);
+            lifecycleHooks[hook].push(hookFn);
         }
     });
 
@@ -660,14 +677,18 @@ const ALREADY_PASSED_WHEN_MOUNTED = new Set([
  * - Future hooks (beforeUnmount, unmounted, etc.) cannot be registered and
  *   a warning is logged.
  */
-function setupLifecycleHooks(hooks: Record<string, LifecycleHookFn[]>, thisProxy: object): void {
+function setupLifecycleHooks(hooks: Partial<Record<LifecycleHookName, LifecycleHookFn[]>>, thisProxy: object): void {
     const instance = getCurrentInstance();
 
-    Object.entries(hooks).forEach(
+    (Object.entries(hooks) as Array<[LifecycleHookName, LifecycleHookFn[] | undefined]>).forEach(
         ([
             hookName,
             handlers,
         ]) => {
+            if (!handlers) {
+                return;
+            }
+
             const compositionHook = LIFECYCLE_HOOK_MAP[hookName];
 
             handlers.forEach((handler) => {

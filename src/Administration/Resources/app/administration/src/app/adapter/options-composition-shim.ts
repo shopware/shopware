@@ -54,6 +54,8 @@ interface WatchObjectDefinition {
 type SingleWatchDefinition = ((newVal: unknown, oldVal: unknown) => void) | WatchObjectDefinition | string;
 type WatchDefinition = SingleWatchDefinition | SingleWatchDefinition[];
 
+type InjectConfig = ComponentConfig['inject'];
+
 /** Extended config that allows indexing with lifecycle hook names without explicit casts. */
 type ExtendedComponentConfig = ComponentConfig & Record<string, unknown>;
 
@@ -101,7 +103,12 @@ const OPTION_KEYS = [
     'extends',
 ] as const;
 
-interface MergedConfig extends ComponentConfig {
+interface MergedConfig extends Omit<ComponentConfig, 'data' | 'computed' | 'methods' | 'watch' | 'inject'> {
+    data?: () => Record<string, unknown>;
+    computed?: Record<string, ComputedDefinition>;
+    methods?: Record<string, AnyFn>;
+    watch?: Record<string, WatchDefinition>;
+    inject?: InjectConfig;
     _lifecycleHooks?: Record<string, LifecycleHookFn[]>;
 }
 
@@ -149,10 +156,7 @@ export function convertOptionsApiOverrideToCompositionApi<
         const mergedConfig = mergeMixins(optionsConfig);
 
         if (mergedConfig.data) {
-            Object.assign(
-                result,
-                convertData(mergedConfig.data as unknown as (() => Record<string, unknown>) | Record<string, unknown>),
-            );
+            Object.assign(result, convertData(mergedConfig.data));
         }
 
         // Resolve inject values from Vue's provide/inject system.
@@ -164,15 +168,15 @@ export function convertOptionsApiOverrideToCompositionApi<
         const thisProxy = createThisProxy(previousState, props, result, injectedValues);
 
         if (mergedConfig.computed) {
-            Object.assign(result, convertComputed(mergedConfig.computed as Record<string, ComputedDefinition>, thisProxy));
+            Object.assign(result, convertComputed(mergedConfig.computed, thisProxy));
         }
 
         if (mergedConfig.methods) {
-            Object.assign(result, convertMethods(mergedConfig.methods as Record<string, AnyFn>, thisProxy));
+            Object.assign(result, convertMethods(mergedConfig.methods, thisProxy));
         }
 
         if (mergedConfig.watch) {
-            setupWatchers(mergedConfig.watch as Record<string, WatchDefinition>, thisProxy);
+            setupWatchers(mergedConfig.watch, thisProxy);
         }
 
         if (mergedConfig._lifecycleHooks) {
@@ -241,14 +245,12 @@ function resolveInject(injectConfig: ComponentConfig['inject']): ComponentState 
     return resolved;
 }
 
-type InjectConfig = ComponentConfig['inject'];
-
 /**
  * Merges two inject configurations (array or object form) into a single normalized object.
  * Existing (component-level) entries win on conflict, matching Vue's merge strategy.
  */
-function mergeInjectConfigs(existing: InjectConfig, incoming: InjectConfig): ComponentState {
-    const normalized: ComponentState = {};
+function mergeInjectConfigs(existing: InjectConfig, incoming: InjectConfig): InjectConfig {
+    const normalized: Record<string, unknown> = {};
 
     if (Array.isArray(existing)) {
         existing.forEach((key: string) => {
@@ -278,7 +280,7 @@ function mergeInjectConfigs(existing: InjectConfig, incoming: InjectConfig): Com
         );
     }
 
-    return normalized;
+    return normalized as InjectConfig;
 }
 
 /**
@@ -291,15 +293,12 @@ function mergeMixins(config: ComponentConfig): MergedConfig {
     // then the component's own factory last — so component keys win on conflict.
     const allDataFns: Array<() => Record<string, unknown>> = [];
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    // Vue's ComponentOptions types methods/computed/watch as `any` internally,
+    // so we cast once here at the boundary and let MergedConfig carry the correct types.
     const merged: MergedConfig = {
-        // Vue's ComponentOptions types methods/computed/watch as `any` internally
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        methods: { ...config.methods },
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        computed: { ...config.computed },
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        watch: { ...config.watch },
+        methods: { ...(config.methods as Record<string, AnyFn>) },
+        computed: { ...(config.computed as Record<string, ComputedDefinition>) },
+        watch: { ...(config.watch as Record<string, WatchDefinition>) },
         inject: config.inject,
     };
 
@@ -329,17 +328,15 @@ function mergeMixins(config: ComponentConfig): MergedConfig {
             }
 
             if (mixin.methods) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                merged.methods = { ...mixin.methods, ...merged.methods };
+                merged.methods = { ...(mixin.methods as Record<string, AnyFn>), ...merged.methods };
             }
 
             if (mixin.computed) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                merged.computed = { ...mixin.computed, ...merged.computed };
+                merged.computed = { ...(mixin.computed as Record<string, ComputedDefinition>), ...merged.computed };
             }
 
             if (mixin.watch) {
-                merged.watch = { ...mixin.watch, ...merged.watch };
+                merged.watch = { ...(mixin.watch as Record<string, WatchDefinition>), ...merged.watch };
             }
 
             if (mixin.inject) {

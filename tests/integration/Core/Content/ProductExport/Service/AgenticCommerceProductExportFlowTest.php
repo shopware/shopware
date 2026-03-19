@@ -28,7 +28,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
  * @internal
  */
 #[Package('discovery')]
-class AgenticAiProductExportFlowTest extends TestCase
+class AgenticCommerceProductExportFlowTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
@@ -256,39 +256,11 @@ class AgenticAiProductExportFlowTest extends TestCase
 
     private function getOpenAiBodyTemplate(): string
     {
-        return <<<'TWIG'
-{% set title = product.translated.name|default(product.name)|default('')|trim %}
-{% set description = product.translated.description|default(title)|default('')|striptags|trim %}
-{% set price = product.calculatedPrice %}
-{% if product.calculatedPrices.count > 0 %}
-    {% set price = product.calculatedPrices.last %}
-{% endif %}
-{% set imageUrl = '' %}
-{% if product.cover is defined and product.cover and product.cover.media is defined and product.cover.media %}
-    {% set imageUrl = product.cover.media.url %}
-{% endif %}
-{% if title and imageUrl and price %}
-{
-    "item_id": {{ (product.productNumber ? product.productNumber : product.id)|json_encode|raw }},
-    "title": {{ title|json_encode|raw }},
-    "description": {{ description|json_encode|raw }},
-    "url": {{ seoUrl('frontend.detail.page', {'productId': product.id})|json_encode|raw }},
-    "image_url": {{ imageUrl|json_encode|raw }},
-    "price": {{ ((price.unitPrice|number_format(context.currency.itemRounding.decimals, '.', '')) ~ ' ' ~ context.currency.isoCode)|json_encode|raw }},
-    "availability": {{ (product.available ? 'in_stock' : (product.restockTime ? 'backorder' : 'out_of_stock'))|json_encode|raw }},
-    "brand": {{ ((product.manufacturer is defined and product.manufacturer) ? product.manufacturer.translated.name : provider.sellerName)|json_encode|raw }},
-    "condition": "new",
-    "group_id": {{ (product.parentId ? product.parentId : product.id)|json_encode|raw }},
-    "listing_has_variations": {{ (product.parentId or product.childCount > 0) ? 'true' : 'false' }},
-    "store_country": {{ provider.storeCountry|json_encode|raw }},
-    "target_countries": {{ provider.targetCountries|json_encode|raw }},
-    "gtin": {{ product.ean|default('')|json_encode|raw }},
-    "mpn": {{ product.manufacturerNumber|default('')|json_encode|raw }},
-    "seller_name": {{ provider.sellerName|json_encode|raw }},
-    "seller_url": {{ provider.sellerUrl|json_encode|raw }}
-}
-{% endif %}
-TWIG;
+        $template = file_get_contents(__DIR__ . '/../../../../../../src/Administration/Resources/app/administration/src/module/sw-sales-channel/agentic-product-export-templates/open-ai/body.json.twig');
+
+        static::assertIsString($template);
+
+        return $template;
     }
 
     private function loadSalesChannel(string $salesChannelId): SalesChannelEntity

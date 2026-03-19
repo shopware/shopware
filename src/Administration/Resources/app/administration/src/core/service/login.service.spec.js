@@ -86,6 +86,7 @@ describe('core/service/login.service.js', () => {
         expect(loginService).toHaveProperty('setBearerAuthentication');
         expect(loginService).toHaveProperty('restartAutoTokenRefresh');
         expect(loginService).toHaveProperty('logout');
+        expect(loginService).toHaveProperty('logoutSso');
         expect(loginService).toHaveProperty('isLoggedIn');
         expect(loginService).toHaveProperty('addOnTokenChangedListener');
         expect(loginService).toHaveProperty('addOnLogoutListener');
@@ -749,6 +750,218 @@ describe('core/service/login.service.js', () => {
                     access: 'updated_token',
                 }),
             );
+        });
+    });
+
+    describe('logoutSso', () => {
+        let originalFetch;
+
+        beforeEach(() => {
+            originalFetch = global.fetch;
+            global.fetch = jest.fn(() => Promise.resolve({ ok: true }));
+        });
+
+        afterEach(() => {
+            global.fetch = originalFetch;
+            sessionStorage.removeItem('sw-sso-session');
+        });
+
+        it('should revoke server tokens, clear auth state, and redirect to SSO with prompt=login', async () => {
+            const { loginService, clientMock } = loginServiceFactory();
+            const navigateToSpy = jest.fn();
+            loginService._navigateTo = navigateToSpy;
+
+            clientMock.onPost('/oauth/token').reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            clientMock.onGet(/\/oauth\/sso\/config/).reply(200, {
+                useDefault: false,
+                url: 'https://idp.example.com/authorize?client_id=test',
+            });
+
+            await loginService.logoutSso();
+
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining('/_action/user/logout'),
+                expect.objectContaining({ method: 'POST' }),
+            );
+            expect(loginService.getBearerAuthentication()).toBeFalsy();
+            expect(navigateToSpy).toHaveBeenCalledWith('https://idp.example.com/authorize?client_id=test&usePromptLogin=1');
+        });
+
+        it('should fall back to regular logout when SSO config fetch fails', async () => {
+            Shopware.Application.view.router = {
+                currentRoute: { value: { fullPath: '/sw/dashboard/index', name: 'sw.dashboard.index' } },
+                push: jest.fn(),
+            };
+
+            const { loginService, clientMock } = loginServiceFactory();
+            const navigateToSpy = jest.fn();
+            loginService._navigateTo = navigateToSpy;
+
+            clientMock.onPost('/oauth/token').reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            clientMock.onGet(/\/oauth\/sso\/config/).reply(500);
+
+            await loginService.logoutSso();
+
+            expect(loginService.getBearerAuthentication()).toBeFalsy();
+            expect(navigateToSpy).not.toHaveBeenCalled();
+        });
+
+        it('should fall back to regular logout when SSO config has no url', async () => {
+            Shopware.Application.view.router = {
+                currentRoute: { value: { fullPath: '/sw/dashboard/index', name: 'sw.dashboard.index' } },
+                push: jest.fn(),
+            };
+
+            const { loginService, clientMock } = loginServiceFactory();
+            const navigateToSpy = jest.fn();
+            loginService._navigateTo = navigateToSpy;
+
+            clientMock.onPost('/oauth/token').reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            clientMock.onGet(/\/oauth\/sso\/config/).reply(200, {
+                useDefault: true,
+                url: '',
+            });
+
+            await loginService.logoutSso();
+
+            expect(loginService.getBearerAuthentication()).toBeFalsy();
+            expect(navigateToSpy).not.toHaveBeenCalled();
+        });
+
+        it('should continue even if server-side token revocation fails', async () => {
+            global.fetch = jest.fn(() => Promise.reject(new TypeError('Network error')));
+
+            const { loginService, clientMock } = loginServiceFactory();
+            const navigateToSpy = jest.fn();
+            loginService._navigateTo = navigateToSpy;
+
+            clientMock.onPost('/oauth/token').reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            clientMock.onGet(/\/oauth\/sso\/config/).reply(200, {
+                useDefault: false,
+                url: 'https://idp.example.com/authorize?client_id=test',
+            });
+
+            await loginService.logoutSso();
+
+            expect(loginService.getBearerAuthentication()).toBeFalsy();
+            expect(navigateToSpy).toHaveBeenCalledWith('https://idp.example.com/authorize?client_id=test&usePromptLogin=1');
+        });
+
+        it('should not redirect to SSO when useDefault is true and session is not SSO', async () => {
+            const { loginService, clientMock } = loginServiceFactory();
+            const navigateToSpy = jest.fn();
+            loginService._navigateTo = navigateToSpy;
+
+            clientMock.onPost('/oauth/token').reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            sessionStorage.removeItem('sw-sso-session');
+
+            clientMock.onGet(/\/oauth\/sso\/config/).reply(200, {
+                useDefault: true,
+                url: 'https://idp.example.com/authorize?client_id=test',
+            });
+
+            await loginService.logoutSso();
+
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining('/_action/user/logout'),
+                expect.objectContaining({ method: 'POST' }),
+            );
+            expect(loginService.getBearerAuthentication()).toBeFalsy();
+            expect(navigateToSpy).not.toHaveBeenCalled();
+        });
+
+        it('should redirect to SSO when useDefault is true but session was SSO', async () => {
+            const { loginService, clientMock } = loginServiceFactory();
+            const navigateToSpy = jest.fn();
+            loginService._navigateTo = navigateToSpy;
+
+            clientMock.onPost('/oauth/token').reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            sessionStorage.setItem('sw-sso-session', 'true');
+
+            clientMock.onGet(/\/oauth\/sso\/config/).reply(200, {
+                useDefault: true,
+                url: 'https://idp.example.com/authorize?client_id=test',
+            });
+
+            await loginService.logoutSso();
+
+            expect(loginService.getBearerAuthentication()).toBeFalsy();
+            expect(navigateToSpy).toHaveBeenCalledWith('https://idp.example.com/authorize?client_id=test&usePromptLogin=1');
+            expect(sessionStorage.getItem('sw-sso-session')).toBeNull();
+        });
+
+        it('should notify logout listeners when switching account', async () => {
+            const { loginService, clientMock } = loginServiceFactory();
+            const navigateToSpy = jest.fn();
+            loginService._navigateTo = navigateToSpy;
+            const logoutListener = jest.fn();
+            loginService.addOnLogoutListener(logoutListener);
+
+            clientMock.onPost('/oauth/token').reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            clientMock.onGet(/\/oauth\/sso\/config/).reply(200, {
+                useDefault: false,
+                url: 'https://idp.example.com/authorize?client_id=test',
+            });
+
+            await loginService.logoutSso();
+
+            expect(logoutListener).toHaveBeenCalled();
         });
     });
 

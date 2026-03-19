@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
-use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\Event\ZugferdCreditNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
@@ -197,15 +196,6 @@ final class ZugferdCreditNoteRenderer extends AbstractDocumentRenderer
                     $operation->setOrderVersionId($this->orderRepository->createVersion($order->getId(), $context, 'document'));
                 }
 
-                if ($operation->isStatic()) {
-                    $result->addSuccess(
-                        $orderId,
-                        new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize())
-                    );
-
-                    continue;
-                }
-
                 $creditOrder = $this->prepareCreditOrder($order, $creditItems);
                 $content = $this->documentBuilder->buildDocument(
                     $creditOrder,
@@ -218,6 +208,7 @@ final class ZugferdCreditNoteRenderer extends AbstractDocumentRenderer
                 $result->addSuccess(
                     $orderId,
                     new RenderedDocument(
+                        '',
                         $number,
                         $config->buildName(),
                         ZugferdRenderer::FILE_EXTENSION,
@@ -284,14 +275,6 @@ final class ZugferdCreditNoteRenderer extends AbstractDocumentRenderer
             new EqualsFilter('type', LineItem::CREDIT_LINE_ITEM_TYPE)
         );
 
-        $this->eventDispatcher->dispatch(new DocumentOrderCriteriaEvent(
-            $criteria,
-            $context,
-            [$operation->getOrderId() => $operation],
-            $rendererConfig,
-            self::TYPE
-        ));
-
         return $this->orderRepository->search($criteria, $versionContext)->getEntities()->first();
     }
 
@@ -310,7 +293,7 @@ final class ZugferdCreditNoteRenderer extends AbstractDocumentRenderer
                 $totalPrice,
                 $creditItemsCalculatedPrice->getCalculatedTaxes(),
                 $creditItemsCalculatedPrice->getTaxRules(),
-                $order->getTaxStatus() ?? $order->getPrice()->getTaxStatus(),
+                $order->getPrice()->getTaxStatus(),
             );
         } else {
             $price = new CartPrice(
@@ -319,7 +302,7 @@ final class ZugferdCreditNoteRenderer extends AbstractDocumentRenderer
                 $totalPrice,
                 $creditItemsCalculatedPrice->getCalculatedTaxes(),
                 $creditItemsCalculatedPrice->getTaxRules(),
-                $order->getTaxStatus() ?? $order->getPrice()->getTaxStatus(),
+                $order->getPrice()->getTaxStatus(),
             );
         }
 

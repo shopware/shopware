@@ -24,7 +24,7 @@
                                         {{ 'component.product.quantitySelect.legend'|trans|striptags }}
                                     </legend>
 
-                                    <div id="product-detail-quantity-group-{{ product.id }}" class="input-group product-detail-quantity-group quantity-selector-group" data-quantity-selector="true"{% if product.isCloseout %} data-quantity-selector-options='{"purchaseLimitUrl": "{{ path('frontend.product.purchase-limit', { productId: product.id }) }}"}'{% endif %}>
+                                    <div id="product-detail-quantity-group-{{ product.id }}" class="input-group product-detail-quantity-group quantity-selector-group" data-quantity-selector="true"{% if product.isCloseout %} data-quantity-selector-options="{{ { purchaseLimitUrl: path('frontend.product.purchase-limit', { productId: product.id }) }|json_encode|e('html_attr') }}"{% endif %}>
                                         <button type="button" class="btn btn-outline-light btn-minus js-btn-minus" aria-label="{{ 'component.product.quantitySelect.decrease'|trans|striptags }}">
                                             {% sw_icon 'minus' style {size: 'xs'} %}
                                         </button>

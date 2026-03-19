@@ -34,11 +34,13 @@ class AcmeLogTriggerSubscriber implements EventSubscriberInterface
         foreach ($event->getWriteResults() as $result) {
             $payload = $result->getPayload();
             if (empty($payload['customFields']['acme_sku'] ?? null)) {
-                $this->logger->warning('AcmePlugin: product written without acme_sku', [
+                // Log at ERROR — missing acme_sku blocks ERP sync and causes downstream failures.
+                $this->logger->error('AcmePlugin: product written without acme_sku — ERP sync will fail', [
                     'product_id' => $result->getPrimaryKey(),
                     'plugin' => 'AcmePlugin',
                     'field' => 'customFields.acme_sku',
                     'action_required' => 'Set acme_sku via Admin API or correct the import payload',
+                    'impact' => 'ERP sync job will reject this product and raise a reconciliation alert',
                 ]);
             }
         }

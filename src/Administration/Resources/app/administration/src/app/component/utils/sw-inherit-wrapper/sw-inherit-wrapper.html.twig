@@ -4,7 +4,6 @@
     :class="{ 'is--inherited': isInherited, 'is--required': required, 'has--parent' : hasParent }"
 >
     {% block sw_inherit_wrapper_toggle %}
-    <template v-if="label">
         {% block sw_inherit_wrapper_toggle_wrapper %}
         <div class="sw-inherit-wrapper__toggle-wrapper">
             {% block sw_inherit_wrapper_toggle_wrapper_field %}
@@ -21,6 +20,7 @@
             {% block sw_inherit_wrapper_toggle_wrapper_label %}
             <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
             <label
+                v-if="label"
                 class="sw-inherit-wrapper__inheritance-label"
                 :class="labelClasses"
             >
@@ -37,7 +37,6 @@
             {% endblock %}
         </div>
         {% endblock %}
-    </template>
     {% endblock %}
 
     {% block sw_inherit_wrapper_content %}

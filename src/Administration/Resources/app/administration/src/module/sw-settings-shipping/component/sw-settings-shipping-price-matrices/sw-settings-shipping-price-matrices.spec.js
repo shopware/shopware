@@ -696,7 +696,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         const allPricesMatrix = wrapper.findAllComponents('.sw-settings-shipping-price-matrix');
         const numberFields = wrapper.findAll('input[type="number"]');
-        const inheritanceSwitches = wrapper.findAllComponents('.sw-inheritance-switch');
+        const inheritanceSwitches = wrapper.findAllComponents(
+            '.sw-inheritance-switch.sw-settings-shipping-price-matrix__price-inherit-icon',
+        );
 
         expect(allPricesMatrix.length).toBeGreaterThan(0);
         expect(numberFields.length).toBeGreaterThan(0);
@@ -736,7 +738,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
         const allPricesMatrix = wrapper.findAllComponents('.sw-settings-shipping-price-matrix');
         const numberFields = wrapper.findAll('input[type="number"]');
-        const inheritanceSwitches = wrapper.findAllComponents('.sw-inheritance-switch');
+        const inheritanceSwitches = wrapper.findAllComponents(
+            '.sw-inheritance-switch.sw-settings-shipping-price-matrix__price-inherit-icon',
+        );
 
         expect(allPricesMatrix.length).toBeGreaterThan(0);
         expect(numberFields.length).toBeGreaterThan(0);

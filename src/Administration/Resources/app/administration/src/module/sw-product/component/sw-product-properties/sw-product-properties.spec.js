@@ -636,14 +636,14 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-inheritance-switch').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-card__title .sw-inheritance-switch').exists()).toBeTruthy();
 
         await wrapper.setProps({
             showInheritanceSwitcher: false,
         });
         expect(wrapper.vm.showInheritanceSwitcher).toBe(false);
 
-        expect(wrapper.find('.sw-inheritance-switch').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-card__title .sw-inheritance-switch').exists()).toBeFalsy();
     });
 
     it('should close properties modal and call a callback', async () => {

@@ -77,4 +77,19 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
         expect(wrapper.vm).toBeTruthy();
         expect(wrapper.vm.isInherited).toBe(true);
     });
+
+    it('should render inheritance switch without label', async () => {
+        const wrapper = await createWrapper({
+            propsData: {
+                value: null,
+                inheritedValue: 1,
+                hasParent: true,
+                label: null,
+            },
+            global: createWrapperGlobalValue,
+        });
+
+        expect(wrapper.find('sw-inheritance-switch-stub').exists()).toBe(true);
+        expect(wrapper.find('.sw-inherit-wrapper__inheritance-label').exists()).toBe(false);
+    });
 });

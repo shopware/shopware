@@ -33,7 +33,6 @@ describe('src/module/sw-extension/component/sw-extension-uninstall-modal', () =>
     it('should show the correct title', async () => {
         const wrapper = await createWrapper();
 
-        // eslint-disable-next-line max-len
         expect(wrapper.vm.title).toBe('sw-extension-store.component.sw-extension-uninstall-modal.titleSample extension');
     });
 

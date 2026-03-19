@@ -13,10 +13,10 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FoundCombination;
-use Shopware\Core\Content\Product\SalesChannel\QuantityLimits\AbstractProductQuantityLimitsRoute;
-use Shopware\Core\Content\Product\SalesChannel\QuantityLimits\ProductQuantityLimitsResult;
-use Shopware\Core\Content\Product\SalesChannel\QuantityLimits\ProductQuantityLimitsResultCollection;
-use Shopware\Core\Content\Product\SalesChannel\QuantityLimits\ProductQuantityLimitsRouteResponse;
+use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\AbstractProductPurchaseLimitRoute;
+use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimit;
+use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitCollection;
+use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
@@ -61,7 +61,7 @@ class ProductControllerTest extends TestCase
 
     private MockObject&ProductReviewLoader $productReviewLoaderMock;
 
-    private MockObject&AbstractProductQuantityLimitsRoute $productQuantityLimitsRouteMock;
+    private MockObject&AbstractProductPurchaseLimitRoute $productPurchaseLimitRouteMock;
 
     private ProductControllerStub $controller;
 
@@ -73,7 +73,7 @@ class ProductControllerTest extends TestCase
         $this->minimalQuickViewPageLoaderMock = $this->createMock(MinimalQuickViewPageLoader::class);
         $this->productReviewSaveRouteMock = $this->createMock(AbstractProductReviewSaveRoute::class);
         $this->productReviewLoaderMock = $this->createMock(ProductReviewLoader::class);
-        $this->productQuantityLimitsRouteMock = $this->createMock(AbstractProductQuantityLimitsRoute::class);
+        $this->productPurchaseLimitRouteMock = $this->createMock(AbstractProductPurchaseLimitRoute::class);
 
         $this->controller = new ProductControllerStub(
             $this->productPageLoaderMock,
@@ -82,7 +82,7 @@ class ProductControllerTest extends TestCase
             $this->productReviewSaveRouteMock,
             $this->seoUrlPlaceholderHandlerMock,
             $this->productReviewLoaderMock,
-            $this->productQuantityLimitsRouteMock,
+            $this->productPurchaseLimitRouteMock,
         );
     }
 
@@ -324,11 +324,11 @@ class ProductControllerTest extends TestCase
         static::assertInstanceOf(ProductReviewsWidgetLoadedHook::class, $this->controller->calledHook);
     }
 
-    public function testQuantityLimits(): void
+    public function testPurchaseLimit(): void
     {
         $productId = Uuid::randomHex();
-        $collection = new ProductQuantityLimitsResultCollection([
-            new ProductQuantityLimitsResult(
+        $collection = new ProductPurchaseLimitCollection([
+            new ProductPurchaseLimit(
                 productId: $productId,
                 minPurchase: 1,
                 purchaseSteps: 1,
@@ -336,11 +336,11 @@ class ProductControllerTest extends TestCase
             ),
         ]);
 
-        $this->productQuantityLimitsRouteMock
+        $this->productPurchaseLimitRouteMock
             ->method('load')
-            ->willReturn(new ProductQuantityLimitsRouteResponse($collection));
+            ->willReturn(new ProductPurchaseLimitRouteResponse($collection));
 
-        $response = $this->controller->quantityLimits(
+        $response = $this->controller->purchaseLimit(
             $productId,
             new Request(),
             $this->createMock(SalesChannelContext::class)
@@ -358,13 +358,13 @@ class ProductControllerTest extends TestCase
         );
     }
 
-    public function testQuantityLimits404WhenProductNotFound(): void
+    public function testPurchaseLimit404WhenProductNotFound(): void
     {
-        $this->productQuantityLimitsRouteMock
+        $this->productPurchaseLimitRouteMock
             ->method('load')
-            ->willReturn(new ProductQuantityLimitsRouteResponse(new ProductQuantityLimitsResultCollection()));
+            ->willReturn(new ProductPurchaseLimitRouteResponse(new ProductPurchaseLimitCollection()));
 
-        $response = $this->controller->quantityLimits(
+        $response = $this->controller->purchaseLimit(
             Uuid::randomHex(),
             new Request(),
             $this->createMock(SalesChannelContext::class)

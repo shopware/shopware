@@ -4,7 +4,7 @@
   "paths": [],
   "components": {
     "schemas": {
-      "ProductQuantityLimitsResult": {
+      "ProductPurchaseLimit": {
         "type": "object",
         "description": "Current quantity purchase limits for a product.",
         "required": ["productId", "minPurchase", "purchaseSteps", "maxPurchase"],

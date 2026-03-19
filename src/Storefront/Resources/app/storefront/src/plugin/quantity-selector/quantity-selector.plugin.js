@@ -18,7 +18,7 @@ export default class QuantitySelectorPlugin extends Plugin {
         ariaLiveUpdateMode: 'live',
         ariaLiveTextValueToken: '%quantity%',
         ariaLiveTextProductToken: '%product%',
-        liveQuantityUrlAttribute: 'data-live-quantity-url',
+        purchaseLimitUrl: null,
         stockAdjustedTemplateSelector: '.js-quantity-stock-adjusted-template',
         stockAdjustedAlertClass: 'quantity-stock-adjusted-alert',
     };
@@ -27,14 +27,14 @@ export default class QuantitySelectorPlugin extends Plugin {
         this._input = this.el.querySelector('input.js-quantity-selector');
         this._btnPlus = this.el.querySelector('.js-btn-plus');
         this._btnMinus = this.el.querySelector('.js-btn-minus');
-        this._liveLimitsFetched = false;
+        this._purchaseLimitFetched = false;
 
         if (this.options.ariaLiveUpdates) {
             this._initAriaLiveUpdates();
         }
 
         this._registerEvents();
-        this._registerLiveQuantityEvents();
+        this._registerLivePurchaseLimitEvents();
     }
 
     /**
@@ -151,19 +151,19 @@ export default class QuantitySelectorPlugin extends Plugin {
     }
 
     /**
-     * Register one-time interaction listeners that trigger the live quantity fetch.
+     * Register one-time interaction listeners that trigger the live purchase limit fetch.
      * The fetch fires once on the first focus or button click, then listeners are removed.
      *
      * @private
      */
-    _registerLiveQuantityEvents() {
-        const url = this.el.getAttribute(this.options.liveQuantityUrlAttribute);
+    _registerLivePurchaseLimitEvents() {
+        const url = this.options.purchaseLimitUrl;
 
         if (!url) {
             return;
         }
 
-        this._onFirstInteraction = this._fetchLiveQuantityLimits.bind(this, url);
+        this._onFirstInteraction = this._fetchLivePurchaseLimit.bind(this, url);
 
         this._input.addEventListener('focus', this._onFirstInteraction);
         this._btnPlus.addEventListener('click', this._onFirstInteraction, true);
@@ -171,31 +171,31 @@ export default class QuantitySelectorPlugin extends Plugin {
     }
 
     /**
-     * Remove the one-time interaction listeners for live quantity fetching.
+     * Remove the one-time interaction listeners for live purchase limit fetching.
      *
      * @private
      */
-    _removeLiveQuantityEvents() {
+    _removeLivePurchaseLimitEvents() {
         this._input.removeEventListener('focus', this._onFirstInteraction);
         this._btnPlus.removeEventListener('click', this._onFirstInteraction, true);
         this._btnMinus.removeEventListener('click', this._onFirstInteraction, true);
     }
 
     /**
-     * Fetch live quantity limits from the server and apply them to the input.
+     * Fetch live purchase limits from the server and apply them to the input.
      * Fires only once – subsequent calls are no-ops. Falls back silently on failure.
      *
      * @param {string} url
      * @private
      */
-    _fetchLiveQuantityLimits(url) {
-        if (this._liveLimitsFetched) {
+    _fetchLivePurchaseLimit(url) {
+        if (this._purchaseLimitFetched) {
             return;
         }
 
-        this._liveLimitsFetched = true;
+        this._purchaseLimitFetched = true;
 
-        this._removeLiveQuantityEvents();
+        this._removeLivePurchaseLimitEvents();
 
         fetch(url, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
@@ -209,7 +209,7 @@ export default class QuantitySelectorPlugin extends Plugin {
             })
             .then((data) => {
                 if (data) {
-                    this._applyQuantityLimits(data);
+                    this._applyPurchaseLimit(data);
                 }
             })
             .catch((error) => {
@@ -218,14 +218,14 @@ export default class QuantitySelectorPlugin extends Plugin {
     }
 
     /**
-     * Apply fetched quantity limits to the input element.
+     * Apply fetched purchase limits to the input element.
      * Clamps the current value to the new constraints and dispatches a change event if needed.
      * Shows a warning alert if the value was adjusted due to reduced stock.
      *
      * @param {{ minPurchase: number, purchaseSteps: number, maxPurchase: number }} limits
      * @private
      */
-    _applyQuantityLimits(limits) {
+    _applyPurchaseLimit(limits) {
         if (!this._input) {
             return;
         }

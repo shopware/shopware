@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\QuantityLimits;
+namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\PurchaseLimit;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
-use Shopware\Core\Content\Product\SalesChannel\QuantityLimits\ProductQuantityLimitsRoute;
+use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
@@ -21,8 +21,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[CoversClass(ProductQuantityLimitsRoute::class)]
-class ProductQuantityLimitsRouteTest extends TestCase
+#[CoversClass(ProductPurchaseLimitRoute::class)]
+class ProductPurchaseLimitRouteTest extends TestCase
 {
     /**
      * @var MockObject&SalesChannelRepository<SalesChannelProductCollection>
@@ -31,14 +31,14 @@ class ProductQuantityLimitsRouteTest extends TestCase
 
     private MockObject&AbstractProductMaxPurchaseCalculator $maxPurchaseCalculator;
 
-    private ProductQuantityLimitsRoute $route;
+    private ProductPurchaseLimitRoute $route;
 
     protected function setUp(): void
     {
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->maxPurchaseCalculator = $this->createMock(AbstractProductMaxPurchaseCalculator::class);
 
-        $this->route = new ProductQuantityLimitsRoute(
+        $this->route = new ProductPurchaseLimitRoute(
             $this->productRepository,
             $this->maxPurchaseCalculator,
         );
@@ -140,7 +140,7 @@ class ProductQuantityLimitsRouteTest extends TestCase
 
     public function testGetDecoratedThrows(): void
     {
-        $this->expectExceptionObject(new DecorationPatternException(ProductQuantityLimitsRoute::class));
+        $this->expectExceptionObject(new DecorationPatternException(ProductPurchaseLimitRoute::class));
         $this->route->getDecorated();
     }
 }

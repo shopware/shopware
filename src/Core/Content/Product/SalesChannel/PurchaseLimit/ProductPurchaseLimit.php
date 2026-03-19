@@ -1,12 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\SalesChannel\QuantityLimits;
+namespace Shopware\Core\Content\Product\SalesChannel\PurchaseLimit;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
-class ProductQuantityLimitsResult extends Struct
+class ProductPurchaseLimit extends Struct
 {
     public function __construct(
         protected string $productId,

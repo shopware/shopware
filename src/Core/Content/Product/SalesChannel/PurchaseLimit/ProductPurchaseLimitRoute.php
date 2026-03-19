@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Product\SalesChannel\QuantityLimits;
+namespace Shopware\Core\Content\Product\SalesChannel\PurchaseLimit;
 
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('inventory')]
-class ProductQuantityLimitsRoute extends AbstractProductQuantityLimitsRoute
+class ProductPurchaseLimitRoute extends AbstractProductPurchaseLimitRoute
 {
     /**
      * @internal
@@ -29,27 +29,28 @@ class ProductQuantityLimitsRoute extends AbstractProductQuantityLimitsRoute
     ) {
     }
 
-    public function getDecorated(): AbstractProductQuantityLimitsRoute
+    public function getDecorated(): AbstractProductPurchaseLimitRoute
     {
         throw new DecorationPatternException(self::class);
     }
 
     #[Route(
-        path: '/store-api/product-quantity-limits',
-        name: 'store-api.product-quantity-limits',
+        path: '/store-api/product/purchase-limit',
+        name: 'store-api.product.purchase-limit',
         methods: [Request::METHOD_GET],
+        priority: 1, // keeping priority higher than in \Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute
     )]
-    public function load(Request $request, SalesChannelContext $context): ProductQuantityLimitsRouteResponse
+    public function load(Request $request, SalesChannelContext $context): ProductPurchaseLimitRouteResponse
     {
         /** @var array<string> $ids */
         $ids = $request->query->all('ids');
 
         if (empty($ids)) {
-            return new ProductQuantityLimitsRouteResponse(new ProductQuantityLimitsResultCollection());
+            return new ProductPurchaseLimitRouteResponse(new ProductPurchaseLimitCollection());
         }
 
         $criteria = new Criteria($ids);
-        $criteria->setTitle('product-quantity-limits-route');
+        $criteria->setTitle('product-purchase-limit-route');
 
         $criteria->addFields([
             'minPurchase',
@@ -61,14 +62,14 @@ class ProductQuantityLimitsRoute extends AbstractProductQuantityLimitsRoute
 
         $products = $this->productRepository->search($criteria, $context);
 
-        $results = new ProductQuantityLimitsResultCollection();
+        $results = new ProductPurchaseLimitCollection();
 
         foreach ($products as $product) {
             $maxPurchase = $this->maxPurchaseCalculator->calculate($product, $context);
             $minPurchase = $product->get('minPurchase') ?? 1;
             $purchaseSteps = $product->get('purchaseSteps') ?? 1;
 
-            $results->add(new ProductQuantityLimitsResult(
+            $results->add(new ProductPurchaseLimit(
                 $product->getId(),
                 $minPurchase,
                 $purchaseSteps,
@@ -76,6 +77,6 @@ class ProductQuantityLimitsRoute extends AbstractProductQuantityLimitsRoute
             ));
         }
 
-        return new ProductQuantityLimitsRouteResponse($results);
+        return new ProductPurchaseLimitRouteResponse($results);
     }
 }

@@ -9,11 +9,11 @@ let stepDownSpy;
 let triggerChangeSpy;
 let ariaLiveSpy;
 
-function createLivePlugin({ url = '/product/pid/quantity-limits', withAlertTemplate = false, inputValue = 5 } = {}) {
+function createLivePlugin({ url = '/product/pid/purchase-limit', withAlertTemplate = false, inputValue = 5 } = {}) {
     document.body.innerHTML = `
         <form>
             <div class="input-group" data-quantity-selector="true"
-                 ${url ? `data-live-quantity-url="${url}"` : ''}>
+                 ${url ? `data-quantity-selector-options='{"purchaseLimitUrl": "${url}"}'` : ''}>
                 <button type="button" class="js-btn-minus">-</button>
                 <input type="number" class="js-quantity-selector" min="1" max="10" step="1" value="${inputValue}">
                 <button type="button" class="js-btn-plus">+</button>
@@ -204,7 +204,7 @@ describe('QuantitySelectorPlugin tests', () => {
         await new Promise(process.nextTick);
 
         expect(global.fetch).toHaveBeenCalledWith(
-            '/product/pid/quantity-limits',
+            '/product/pid/purchase-limit',
             { headers: { 'X-Requested-With': 'XMLHttpRequest' } },
         );
     });

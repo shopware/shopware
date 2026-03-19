@@ -625,14 +625,14 @@
                 ]
             }
         },
-        "/product-quantity-limits": {
+        "/product/purchase-limit": {
             "get": {
                 "tags": [
                     "Product"
                 ],
-                "summary": "Fetch current quantity limits for products",
-                "description": "Returns the current min/max/step purchase constraints for the given products, reflecting live stock. Intended for use on PDP to show actual values on product pages.",
-                "operationId": "readProductQuantityLimits",
+                "summary": "Fetch current purchase quantity limits for products",
+                "description": "Returns the current min/max/step purchase constraints for the given products, reflecting live stock or configured limitations. Intended for use on PDP to show actual values on product pages.",
+                "operationId": "readProductPurchaseLimit",
                 "parameters": [
                     {
                         "name": "ids[]",
@@ -656,7 +656,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/ProductQuantityLimitsResult"
+                                        "$ref": "#/components/schemas/ProductPurchaseLimit"
                                     }
                                 }
                             }

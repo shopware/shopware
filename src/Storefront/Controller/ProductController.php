@@ -6,7 +6,7 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
-use Shopware\Core\Content\Product\SalesChannel\QuantityLimits\AbstractProductQuantityLimitsRoute;
+use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\AbstractProductPurchaseLimitRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
@@ -48,7 +48,7 @@ class ProductController extends StorefrontController
         private readonly AbstractProductReviewSaveRoute $productReviewSaveRoute,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         private readonly AbstractProductReviewLoader $productReviewLoader,
-        private readonly AbstractProductQuantityLimitsRoute $productQuantityLimitsRoute,
+        private readonly AbstractProductPurchaseLimitRoute $productPurchaseLimitRoute,
     ) {
     }
 
@@ -231,16 +231,16 @@ class ProductController extends StorefrontController
     }
 
     #[Route(
-        path: '/product/{productId}/quantity-limits',
-        name: 'frontend.product.quantity-limits',
+        path: '/product/{productId}/purchase-limit',
+        name: 'frontend.product.purchase-limit',
         defaults: ['XmlHttpRequest' => true],
         methods: [Request::METHOD_GET]
     )]
-    public function quantityLimits(string $productId, Request $request, SalesChannelContext $context): JsonResponse
+    public function purchaseLimit(string $productId, Request $request, SalesChannelContext $context): JsonResponse
     {
-        $quantityLimitsRequest = $request->duplicate(['ids' => $productId]);
+        $purchaseLimitRequest = $request->duplicate(['ids' => [$productId]]);
 
-        $result = $this->productQuantityLimitsRoute->load($quantityLimitsRequest, $context)->getResult()->first();
+        $result = $this->productPurchaseLimitRoute->load($purchaseLimitRequest, $context)->getResult()->first();
 
         if ($result === null) {
             return new JsonResponse(null, Response::HTTP_NOT_FOUND);

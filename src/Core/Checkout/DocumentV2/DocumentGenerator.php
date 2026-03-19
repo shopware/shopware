@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\DocumentV2;
 
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -41,8 +42,21 @@ class DocumentGenerator
     /**
      * @param list<string> $formats
      */
-    public function generate(string $orderId, string $docType, array $formats, Context $context): void
-    {
+    public function generate(
+        string $orderId,
+        string $orderVersionId,
+        string $docType,
+        array $formats,
+        Context $context,
+        ?string $docNumber = null,
+    ): void {
+        // todo: return document entity instead of void
+
+        if ($orderVersionId === Defaults::LIVE_VERSION) {
+            // todo: error handling
+            throw new \RuntimeException('Live version not supported here, use an existing one or create one first');
+        }
+
         $renderers = $this->renderers[$docType] ?? [];
         if (empty($renderers)) {
             // todo: error handling
@@ -53,12 +67,13 @@ class DocumentGenerator
         $orderedRenderers = $this->topologicalSortRenderers($renderers, $neededFormats);
 
         $orderCriteria = new Criteria([$orderId]);
+        // todo: use order version passed in
         foreach ($orderedRenderers as $renderer) {
             $renderer->enrichOrderCriteria($docType, $orderCriteria);
         }
 
         // generate document contents
-        $generationContext = $this->getDocumentGenerationContext($orderCriteria, $docType, $context);
+        $generationContext = $this->getDocumentGenerationContext($orderCriteria, $docType, $docNumber, $context);
         $renderState = new RenderState();
         foreach ($orderedRenderers as $renderer) {
             echo 'rendering ' . $renderer->getFormat() . \PHP_EOL;
@@ -168,7 +183,7 @@ class DocumentGenerator
         return array_reverse($sorted);
     }
 
-    private function getDocumentGenerationContext(Criteria $orderCriteria, string $docType, Context $context): DocumentGenerationContext
+    private function getDocumentGenerationContext(Criteria $orderCriteria, string $docType, ?string $docNumber, Context $context): DocumentGenerationContext
     {
         $order = $this->orderRepository->search($orderCriteria, $context)->first();
         if (!$order instanceof OrderEntity) {
@@ -176,9 +191,11 @@ class DocumentGenerator
             throw new \RuntimeException('Order not found');
         }
 
-        $documentNumber = '1001'; // todo: retrieve actual doc number
+        if ($docNumber === null) {
+            $docNumber = '1001'; // todo: retrieve actual doc number
+        }
 
-        return new DocumentGenerationContext($order, $docType, $this->getDocumentConfig($docType, $context), $documentNumber);
+        return new DocumentGenerationContext($order, $docType, $this->getDocumentConfig($docType, $context), $docNumber);
     }
 
     private function getDocumentConfig(string $docType, Context $context): DocumentConfig

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Scripts\Examples;
 
@@ -13,19 +13,19 @@ $env = 'prod'; // by default, kernel gets booted in dev
 
 $kernel = require __DIR__ . '/../boot/boot.php';
 
-class TestDocumentGeneration extends BaseScript
+class testDocumentGeneration extends BaseScript
 {
-    public function run()
+    public function run(): void
     {
         $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
         $context = Context::createCLIContext();
 
         $orderId = '019cf72e720372baa50645ed166486ad';
+        $orderVersionId = 'todo';
 
-        $documentGenerator->generate($orderId, DocumentType::Invoice->value, [DocumentFormat::EmbeddedZugferd->value], $context);
-        //$documentGenerator->generate(DocumentType::Invoice->value, [DocumentFormat::Pdf->value, DocumentFormat::Html->value]);
+        $documentGenerator->generate($orderId, $orderVersionId, DocumentType::Invoice->value, [DocumentFormat::EmbeddedZugferd->value], $context);
+        // $documentGenerator->generate($orderId, $orderVersionId, DocumentType::Invoice->value, [DocumentFormat::Pdf->value, DocumentFormat::Html->value], $context);
     }
 }
-
 
 (new TestDocumentGeneration($kernel))->run();

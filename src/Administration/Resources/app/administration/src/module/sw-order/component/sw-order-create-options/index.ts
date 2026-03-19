@@ -103,7 +103,6 @@ export default Component.wrapComponentConfig({
         cartDelivery: {
             immediate: true,
             handler(value): void {
-                // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                 this.shippingCost = value?.shippingCosts?.totalPrice ?? 0;
             },

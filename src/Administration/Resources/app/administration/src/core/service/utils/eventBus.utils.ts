@@ -4,7 +4,7 @@
 
 import mitt from 'mitt';
 import type { TelemetryEvent, EventTypes as TelemetryEventTypes } from '../../telemetry/types';
-import type { ConsentEvent } from '../../consent/events';
+import type { ConsentEvent, ConsentEventName } from '../../consent/events';
 
 /**
  * The pattern for event names = component name in kebab case followed by the event
@@ -17,7 +17,7 @@ interface Events extends Record<string | symbol, unknown> {
     'sw-sales-channel-list-add-new-channel': undefined;
     'sw-media-library-item-updated': string;
     telemetry: TelemetryEvent<TelemetryEventTypes>;
-    consent: ConsentEvent;
+    consent: ConsentEvent<ConsentEventName>;
 }
 
 const emitter = mitt<Events>();

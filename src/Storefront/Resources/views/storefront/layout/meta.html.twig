@@ -143,10 +143,12 @@
 
         {# ludtwig-ignore twig-json-encode-escape-js #}
         {% block layout_head_component_importmap %}
-            {% if component_import_map() is not empty %}
+            {% set importmap = component_import_map() %}
+
+            {% if importmap is not empty %}
                 <script type="importmap">
                     {
-                        "imports": {{ component_import_map()|json_encode|raw }}
+                        "imports": {{ importmap|json_encode|raw }}
                     }
                 </script>
             {% endif %}

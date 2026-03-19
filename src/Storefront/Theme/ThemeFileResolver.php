@@ -141,214 +141,305 @@ class ThemeFileResolver
         array $processedFiles = [],
         array $processedConfigs = []
     ): FileCollection {
-        // Prevent circular configuration references
         $configName = $themeConfig->getTechnicalName();
         if (isset($processedConfigs[$configName])) {
-            // Circular reference detected - return empty collection to break the loop
             return new FileCollection();
         }
-        $nextProcessedConfigs = $processedConfigs;
-        $nextProcessedConfigs[$configName] = true;
+        $nextProcessedConfigs = [...$processedConfigs, $configName => true];
 
         // convertPathsToAbsolute changes the path, this should not affect the passed configuration
         $themeConfig = clone $themeConfig;
 
-        // Get initial file collection using the provided resolver
         $files = $configFileResolver($themeConfig, $onlySourceFiles);
 
-        // Return empty collection if no files found
         if ($files->count() === 0) {
             return $files;
         }
 
-        // Convert all relative paths to absolute paths
         $this->convertPathsToAbsolute($themeConfig, $files);
 
-        // Initialize collection for resolved files
         $resolvedFiles = new FileCollection();
-        $nextIncluded = $included;
+        $nextIncluded = $this->collectNamespaceIncludes($files, $included);
 
-        // Collect namespace includes for tracking
         foreach ($files as $file) {
             $filepath = $file->getFilepath();
-            if ($this->isInclude($filepath) && !str_contains($filepath, '/')) {
-                // Only track simple @ namespace references (not bundle-relative paths)
-                $nextIncluded[] = $filepath;
-            }
-        }
-
-        // Process files in order from theme.json
-        foreach ($files as $file) {
-            $filepath = $file->getFilepath();
-
-            // Handle bundle-relative single file references (@BundleName/path/to/file)
             $bundleRelative = $this->parseBundleRelativePath($filepath);
+
             if ($bundleRelative !== null) {
-                // Handle @Components single file references
-                if (str_starts_with($bundleRelative['bundle'], 'Components')) {
-                    $resolvedComponentFile = $this->resolveComponentSingleFile($filepath, $fileType);
-
-                    if ($resolvedComponentFile === null) {
-                        throw ThemeException::themeCompileException(
-                            $themeConfig->getTechnicalName(),
-                            \sprintf(
-                                'Unable to resolve file "%s". File does not exist.',
-                                $filepath
-                            )
-                        );
-                    }
-
-                    if (!isset($processedFiles[$resolvedComponentFile->getFilepath()])) {
-                        $processedFiles[$resolvedComponentFile->getFilepath()] = true;
-                        $resolvedFiles->add($resolvedComponentFile);
-                    }
-
-                    continue;
-                }
-
-                // Handle regular bundle-relative files
-                $bundleConfig = $configurationCollection->getByTechnicalName($bundleRelative['bundle']);
-                if (!$bundleConfig) {
-                    throw ThemeException::couldNotFindThemeByName($bundleRelative['bundle']);
-                }
-
-                // Resolve the specific file from the bundle
-                $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($bundleConfig);
-                if ($fs->has('Resources', $bundleRelative['path'])) {
-                    $absolutePath = $fs->realpath('Resources', $bundleRelative['path']);
-
-                    // Skip if already processed
-                    if (!isset($processedFiles[$absolutePath])) {
-                        $processedFiles[$absolutePath] = true;
-                        $resolvedFile = new File($absolutePath, [], $bundleConfig->getAssetName());
-                        $resolvedFiles->add($resolvedFile);
-                    }
-                } else {
-                    throw ThemeException::themeCompileException(
-                        $themeConfig->getTechnicalName(),
-                        \sprintf(
-                            'Unable to resolve file "%s". File does not exist.',
-                            $filepath
-                        )
-                    );
-                }
-                continue;
-            }
-
-            // Handle direct file paths (not starting with @)
-            if (!$this->isInclude($filepath)) {
-                if (\is_file($filepath)) {
-                    // Skip if already processed
-                    if (!isset($processedFiles[$filepath])) {
-                        $processedFiles[$filepath] = true;
-                        $resolvedFiles->add($file);
-                    }
-                    continue;
-                }
-
-                // removes file with old js structure (before async changes) from collection
-                if (!str_ends_with($filepath, $file->assetName . '/' . basename($filepath))) {
-                    continue;
-                }
-
-                throw ThemeException::themeCompileException(
-                    $themeConfig->getTechnicalName(),
-                    \sprintf(
-                        'Unable to resolve file "Resources/%s". %s',
-                        $filepath,
-                        'Did you forget to build the theme? Try running ./bin/build-storefront.sh'
-                    )
-                );
-            }
-
-            // Handle full bundle/namespace references (@BundleName, @Plugins, @Components, etc.)
-
-            // Skip if this namespace was already included (maintain existing behavior)
-            if (\in_array($filepath, $included, true)) {
-                continue;
-            }
-            $included[] = $filepath;
-
-            // Handle @Plugins
-            if ($filepath === '@Plugins') {
-                foreach ($configurationCollection->getNoneThemes() as $plugin) {
-                    foreach ($this->resolve(
-                        $fileType,
-                        $plugin,
-                        $configurationCollection,
-                        $onlySourceFiles,
-                        $configFileResolver,
-                        $nextIncluded,
-                        $processedFiles,
-                        $nextProcessedConfigs
-                    ) as $item) {
-                        $itemPath = $item->getFilepath();
-                        if (!isset($processedFiles[$itemPath])) {
-                            $processedFiles[$itemPath] = true;
-                            $resolvedFiles->add($item);
-                        }
-                    }
-                }
-                continue;
-            }
-
-            // Handle @Components
-            if ($filepath === '@Components') {
-                foreach ($this->twigComponentHelper->getComponents() as $component) {
-                    $componentPath = $fileType === self::SCRIPT_FILES
-                        ? $component->getScriptPath()
-                        : $component->getStylePath();
-
-                    if ($this->localFilesystem->exists($componentPath) && !isset($processedFiles[$componentPath])) {
-                        $processedFiles[$componentPath] = true;
-                        $namespaceDir = $component->getRelativeNamespaceDirectory();
-                        $assetName = $namespaceDir !== '' ? $namespaceDir : null;
-                        $resolvedFiles->add(new File($componentPath, [], $assetName));
-                    }
-                }
-
-                continue;
-            }
-
-            // Handle @StorefrontBootstrap
-            if ($filepath === '@StorefrontBootstrap') {
-                $bootstrapPath = __DIR__ . '/../Resources/app/storefront/src/scss/base.scss';
-                if (!isset($processedFiles[$bootstrapPath])) {
-                    $processedFiles[$bootstrapPath] = true;
-                    $resolvedFiles->add(new File(
-                        $bootstrapPath,
-                        ['vendor' => __DIR__ . '/../Resources/app/storefront/vendor']
-                    ));
-                }
-                continue;
-            }
-
-            // Handle other @ThemeName references
-            $name = mb_substr($filepath, 1);
-            $configuration = $configurationCollection->getByTechnicalName($name);
-            if (!$configuration) {
-                throw ThemeException::couldNotFindThemeByName($name);
-            }
-
-            foreach ($this->resolve(
-                $fileType,
-                $configuration,
-                $configurationCollection,
-                $onlySourceFiles,
-                $configFileResolver,
-                $nextIncluded,
-                $processedFiles,
-                $nextProcessedConfigs
-            ) as $item) {
-                $itemPath = $item->getFilepath();
-                if (!isset($processedFiles[$itemPath])) {
-                    $processedFiles[$itemPath] = true;
-                    $resolvedFiles->add($item);
-                }
+                $this->processBundleRelativeFile($filepath, $bundleRelative, $fileType, $themeConfig, $configurationCollection, $resolvedFiles, $processedFiles);
+            } elseif (!$this->isInclude($filepath)) {
+                $this->processDirectFile($file, $filepath, $themeConfig, $resolvedFiles, $processedFiles);
+            } else {
+                $this->processNamespaceReference($filepath, $fileType, $themeConfig, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded, $included, $processedFiles, $nextProcessedConfigs, $resolvedFiles);
             }
         }
 
         return $resolvedFiles;
+    }
+
+    /**
+     * Pre-scans a file list and appends any simple @Namespace entries (no slash) to the included list.
+     * The result is passed to recursive resolve() calls so child resolutions know what is already planned.
+     *
+     * @param array<int, string> $included
+     *
+     * @return array<int, string>
+     */
+    private function collectNamespaceIncludes(FileCollection $files, array $included): array
+    {
+        foreach ($files as $file) {
+            $filepath = $file->getFilepath();
+            if ($this->isInclude($filepath) && !str_contains($filepath, '/')) {
+                $included[] = $filepath;
+            }
+        }
+
+        return $included;
+    }
+
+    /**
+     * Resolves a bundle-relative path reference (@BundleName/path or @Components/path).
+     *
+     * @param array{bundle: string, path: string} $bundleRelative
+     * @param array<string, bool> $processedFiles
+     */
+    private function processBundleRelativeFile(
+        string $filepath,
+        array $bundleRelative,
+        string $fileType,
+        StorefrontPluginConfiguration $themeConfig,
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        FileCollection $resolvedFiles,
+        array &$processedFiles
+    ): void {
+        if (str_starts_with($bundleRelative['bundle'], 'Components')) {
+            $resolvedComponentFile = $this->resolveComponentSingleFile($filepath, $fileType);
+
+            if ($resolvedComponentFile === null) {
+                throw ThemeException::themeCompileException(
+                    $themeConfig->getTechnicalName(),
+                    \sprintf('Unable to resolve file "%s". File does not exist.', $filepath)
+                );
+            }
+
+            $componentPath = $resolvedComponentFile->getFilepath();
+            if (!isset($processedFiles[$componentPath])) {
+                $processedFiles[$componentPath] = true;
+                $resolvedFiles->add($resolvedComponentFile);
+            }
+
+            return;
+        }
+
+        $bundleConfig = $configurationCollection->getByTechnicalName($bundleRelative['bundle']);
+        if (!$bundleConfig) {
+            throw ThemeException::couldNotFindThemeByName($bundleRelative['bundle']);
+        }
+
+        $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($bundleConfig);
+        if ($fs->has('Resources', $bundleRelative['path'])) {
+            $absolutePath = $fs->realpath('Resources', $bundleRelative['path']);
+
+            if (!isset($processedFiles[$absolutePath])) {
+                $processedFiles[$absolutePath] = true;
+                $resolvedFiles->add(new File($absolutePath, [], $bundleConfig->getAssetName()));
+            }
+        } else {
+            throw ThemeException::themeCompileException(
+                $themeConfig->getTechnicalName(),
+                \sprintf('Unable to resolve file "%s". File does not exist.', $filepath)
+            );
+        }
+    }
+
+    /**
+     * Resolves a direct (non-@) file path reference.
+     * Silently skips files that match the old pre-async JS bundle structure.
+     * Throws when a file is missing and does not match that structure.
+     *
+     * @param array<string, bool> $processedFiles
+     */
+    private function processDirectFile(
+        File $file,
+        string $filepath,
+        StorefrontPluginConfiguration $themeConfig,
+        FileCollection $resolvedFiles,
+        array &$processedFiles
+    ): void {
+        if (\is_file($filepath)) {
+            if (!isset($processedFiles[$filepath])) {
+                $processedFiles[$filepath] = true;
+                $resolvedFiles->add($file);
+            }
+
+            return;
+        }
+
+        // removes file with old js structure (before async changes) from collection
+        if (!str_ends_with($filepath, $file->assetName . '/' . basename($filepath))) {
+            return;
+        }
+
+        throw ThemeException::themeCompileException(
+            $themeConfig->getTechnicalName(),
+            \sprintf(
+                'Unable to resolve file "Resources/%s". %s',
+                $filepath,
+                'Did you forget to build the theme? Try running ./bin/build-storefront.sh'
+            )
+        );
+    }
+
+    /**
+     * Dispatches a @Namespace reference to the appropriate handler after deduplication.
+     *
+     * @param array<int, string> $nextIncluded Already-known includes for this level (passed to recursive calls)
+     * @param array<int, string> $included Tracks which namespaces have been processed in the current loop
+     * @param array<string, bool> $processedFiles
+     * @param array<string, bool> $nextProcessedConfigs
+     */
+    private function processNamespaceReference(
+        string $filepath,
+        string $fileType,
+        StorefrontPluginConfiguration $themeConfig,
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        bool $onlySourceFiles,
+        callable $configFileResolver,
+        array $nextIncluded,
+        array &$included,
+        array &$processedFiles,
+        array $nextProcessedConfigs,
+        FileCollection $resolvedFiles
+    ): void {
+        if (\in_array($filepath, $included, true)) {
+            return;
+        }
+        $included[] = $filepath;
+
+        if ($filepath === '@Plugins') {
+            $this->addFilesFromPlugins($fileType, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded, $processedFiles, $nextProcessedConfigs, $resolvedFiles);
+
+            return;
+        }
+
+        if ($filepath === '@Components') {
+            $this->addFilesFromComponents($fileType, $processedFiles, $resolvedFiles);
+
+            return;
+        }
+
+        if ($filepath === '@StorefrontBootstrap') {
+            $this->addStorefrontBootstrapFile($processedFiles, $resolvedFiles);
+
+            return;
+        }
+
+        $this->addFilesFromTheme($filepath, $fileType, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded, $processedFiles, $nextProcessedConfigs, $resolvedFiles, $themeConfig);
+    }
+
+    /**
+     * Resolves all non-theme plugins and appends their files.
+     *
+     * @param array<int, string> $nextIncluded
+     * @param array<string, bool> $processedFiles
+     * @param array<string, bool> $nextProcessedConfigs
+     */
+    private function addFilesFromPlugins(
+        string $fileType,
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        bool $onlySourceFiles,
+        callable $configFileResolver,
+        array $nextIncluded,
+        array &$processedFiles,
+        array $nextProcessedConfigs,
+        FileCollection $resolvedFiles
+    ): void {
+        foreach ($configurationCollection->getNoneThemes() as $plugin) {
+            $items = $this->resolve($fileType, $plugin, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded, $processedFiles, $nextProcessedConfigs);
+            $this->addResolvedItems($items, $resolvedFiles, $processedFiles);
+        }
+    }
+
+    /**
+     * Resolves all registered Twig components and appends their script or style files.
+     *
+     * @param array<string, bool> $processedFiles
+     */
+    private function addFilesFromComponents(string $fileType, array &$processedFiles, FileCollection $resolvedFiles): void
+    {
+        foreach ($this->twigComponentHelper->getComponents() as $component) {
+            $componentPath = $fileType === self::SCRIPT_FILES
+                ? $component->getScriptPath()
+                : $component->getStylePath();
+
+            if ($this->localFilesystem->exists($componentPath) && !isset($processedFiles[$componentPath])) {
+                $processedFiles[$componentPath] = true;
+                $namespaceDir = $component->getRelativeNamespaceDirectory();
+                $resolvedFiles->add(new File($componentPath, [], $namespaceDir !== '' ? $namespaceDir : null));
+            }
+        }
+    }
+
+    /**
+     * Appends the Storefront bootstrap SCSS entry point with its vendor mapping.
+     *
+     * @param array<string, bool> $processedFiles
+     */
+    private function addStorefrontBootstrapFile(array &$processedFiles, FileCollection $resolvedFiles): void
+    {
+        $bootstrapPath = __DIR__ . '/../Resources/app/storefront/src/scss/base.scss';
+        if (!isset($processedFiles[$bootstrapPath])) {
+            $processedFiles[$bootstrapPath] = true;
+            $resolvedFiles->add(new File(
+                $bootstrapPath,
+                ['vendor' => __DIR__ . '/../Resources/app/storefront/vendor']
+            ));
+        }
+    }
+
+    /**
+     * Recursively resolves a named @ThemeName reference and appends its files.
+     *
+     * @param array<int, string> $nextIncluded
+     * @param array<string, bool> $processedFiles
+     * @param array<string, bool> $nextProcessedConfigs
+     */
+    private function addFilesFromTheme(
+        string $filepath,
+        string $fileType,
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        bool $onlySourceFiles,
+        callable $configFileResolver,
+        array $nextIncluded,
+        array &$processedFiles,
+        array $nextProcessedConfigs,
+        FileCollection $resolvedFiles,
+        StorefrontPluginConfiguration $themeConfig
+    ): void {
+        $name = mb_substr($filepath, 1);
+        $configuration = $configurationCollection->getByTechnicalName($name);
+        if (!$configuration) {
+            throw ThemeException::couldNotFindThemeByName($name);
+        }
+
+        $items = $this->resolve($fileType, $configuration, $configurationCollection, $onlySourceFiles, $configFileResolver, $nextIncluded, $processedFiles, $nextProcessedConfigs);
+        $this->addResolvedItems($items, $resolvedFiles, $processedFiles);
+    }
+
+    /**
+     * Adds items from a resolved FileCollection into $resolvedFiles, skipping already-processed paths.
+     *
+     * @param array<string, bool> $processedFiles
+     */
+    private function addResolvedItems(FileCollection $items, FileCollection $resolvedFiles, array &$processedFiles): void
+    {
+        foreach ($items as $item) {
+            $itemPath = $item->getFilepath();
+            if (!isset($processedFiles[$itemPath])) {
+                $processedFiles[$itemPath] = true;
+                $resolvedFiles->add($item);
+            }
+        }
     }
 
     private function resolveComponentSingleFile(string $filepath, string $fileType): ?File
@@ -389,7 +480,7 @@ class ThemeFileResolver
                     $componentFilePath = $component->getStylePath();
                 }
 
-                $bundleRelativeComponentPath = $component->namespace . '/'. TwigComponentHelper::COMPONENT_DIRECTORY . $requestedRelativePath;
+                $bundleRelativeComponentPath = $component->namespace . '/' . TwigComponentHelper::COMPONENT_DIRECTORY . $requestedRelativePath;
 
                 if ($componentFilePath !== null && $this->localFilesystem->exists($componentFilePath) && str_ends_with($componentFilePath, $bundleRelativeComponentPath)) {
                     $namespaceDir = $component->getRelativeNamespaceDirectory();

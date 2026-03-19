@@ -96,7 +96,7 @@ class TwigComponentHelper
                 // original SplFileInfo::getRealPath() behaviour used in getStylePath() etc.
                 $component = new TwigComponent($componentName, '/' . $filePath, $namespace);
 
-                $components[$component->name] = $component;
+                $components[$component->getTag()] = $component;
             }
         }
 

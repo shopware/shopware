@@ -5,12 +5,15 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Util\Filesystem as UtilFilesystem;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
+use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -820,9 +823,149 @@ class ThemeFileResolverTest extends TestCase
         $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
         $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
 
-        $this->expectException(\Shopware\Storefront\Theme\Exception\ThemeCompileException::class);
+        $this->expectException(ThemeCompileException::class);
 
         $resolver->resolveStyleFiles($config, $configCollection, false);
+    }
+
+    public function testStorefrontBootstrapNamespaceResolvesToBaseScssWithVendorMapping(): void
+    {
+        $config = new StorefrontPluginConfiguration('TestTheme');
+        $config->setStyleFiles(FileCollection::createFromArray(['@StorefrontBootstrap']));
+        $config->setScriptFiles(new FileCollection());
+
+        $configCollection = new StorefrontPluginConfigurationCollection([$config]);
+
+        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+
+        $result = $resolver->resolveStyleFiles($config, $configCollection, false);
+
+        static::assertCount(1, $result);
+        $file = $result->first();
+        static::assertNotNull($file);
+        static::assertStringEndsWith('Resources/app/storefront/src/scss/base.scss', $file->getFilepath());
+        static::assertArrayHasKey('vendor', $file->getResolveMapping());
+        static::assertStringEndsWith('Resources/app/storefront/vendor', $file->getResolveMapping()['vendor']);
+    }
+
+    public function testDirectFileMissingMatchingOldJsStructureThrowsException(): void
+    {
+        $config = new StorefrontPluginConfiguration('TestTheme');
+
+        // Path ends with "test-plugin/test-plugin.css" — matches the old-JS-structure pattern → throw
+        $file = new File('/nonexistent/test-plugin/test-plugin.css', [], 'test-plugin');
+        $fileCollection = new FileCollection();
+        $fileCollection->add($file);
+        $config->setStyleFiles($fileCollection);
+        $config->setScriptFiles(new FileCollection());
+
+        $configCollection = new StorefrontPluginConfigurationCollection([$config]);
+
+        $utilFs = $this->createMock(UtilFilesystem::class);
+        $utilFs->method('has')->willReturn(false);
+
+        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn($utilFs);
+
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+
+        $this->expectException(ThemeCompileException::class);
+        $resolver->resolveStyleFiles($config, $configCollection, false);
+    }
+
+    public function testDirectFileMissingNotMatchingOldJsStructureIsSilentlySkipped(): void
+    {
+        $config = new StorefrontPluginConfiguration('TestTheme');
+
+        // assetName is 'test-plugin', but file is 'other-file.css' — no old-JS-structure match → silent skip
+        $file = new File('/nonexistent/other-file.css', [], 'test-plugin');
+        $fileCollection = new FileCollection();
+        $fileCollection->add($file);
+        $config->setStyleFiles($fileCollection);
+        $config->setScriptFiles(new FileCollection());
+
+        $configCollection = new StorefrontPluginConfigurationCollection([$config]);
+
+        $utilFs = $this->createMock(UtilFilesystem::class);
+        $utilFs->method('has')->willReturn(false);
+
+        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn($utilFs);
+
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+
+        $result = $resolver->resolveStyleFiles($config, $configCollection, false);
+
+        static::assertCount(0, $result, 'Missing file with non-matching path structure should be silently skipped');
+    }
+
+    public function testPluginsNamespaceExpandsAllNonThemePlugins(): void
+    {
+        $pluginBundle = new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin');
+
+        $sourceResolver = new StaticSourceResolver([]);
+        $factory = new StorefrontPluginConfigurationFactory(
+            $this->createMock(KernelPluginLoader::class),
+            $sourceResolver,
+            new Filesystem(),
+        );
+
+        // Theme that directly declares @Plugins — no @MockStorefront indirection
+        $themeConfig = new StorefrontPluginConfiguration('TestTheme');
+        $themeConfig->setIsTheme(true);
+        $themeConfig->setStyleFiles(FileCollection::createFromArray(['@Plugins']));
+        $themeConfig->setScriptFiles(new FileCollection());
+
+        $plugin = $factory->createFromBundle($pluginBundle);
+
+        $configCollection = new StorefrontPluginConfigurationCollection([$themeConfig, $plugin]);
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->expects($this->any())->method('getBundles')->willReturn([
+            'SimplePlugin' => $pluginBundle,
+        ]);
+        $kernel->expects($this->any())->method('getBundle')->willReturnMap([
+            ['SimplePlugin', $pluginBundle],
+        ]);
+
+        $themeFilesystemResolver = new ThemeFilesystemResolver($sourceResolver, $kernel);
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+
+        $result = (new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper))
+            ->resolveStyleFiles($themeConfig, $configCollection, false);
+
+        $paths = $result->getFilepaths();
+        $pluginStyleIncluded = false;
+        foreach ($paths as $path) {
+            if (mb_stripos((string) $path, 'SimplePlugin') !== false) {
+                $pluginStyleIncluded = true;
+                break;
+            }
+        }
+
+        static::assertTrue($pluginStyleIncluded, '@Plugins should include style files from non-theme plugins');
+    }
+
+    public function testDuplicateNamespaceReferenceIsExpandedOnlyOnce(): void
+    {
+        $config = new StorefrontPluginConfiguration('TestTheme');
+        // @StorefrontBootstrap listed twice — base.scss should still appear exactly once
+        $config->setStyleFiles(FileCollection::createFromArray(['@StorefrontBootstrap', '@StorefrontBootstrap']));
+        $config->setScriptFiles(new FileCollection());
+
+        $configCollection = new StorefrontPluginConfigurationCollection([$config]);
+
+        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
+
+        $result = $resolver->resolveStyleFiles($config, $configCollection, false);
+
+        static::assertCount(1, $result, 'Duplicate @Namespace reference should be expanded only once');
     }
 
     public function testResolveComponentSingleFileForScriptFilesType(): void

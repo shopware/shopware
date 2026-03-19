@@ -44,7 +44,7 @@ readonly class LoginConfigService
 
     public function getConfig(): ?LoginConfig
     {
-        if (\count($this->rawConfig) === 0) {
+        if ($this->rawConfig === []) {
             return null;
         }
 
@@ -146,13 +146,13 @@ readonly class LoginConfigService
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Url(message: $invalidUrlMessage, requireTld: true),
+                    new Url(message: $invalidUrlMessage),
                 ],
                 'base_url' => [
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Url(message: $invalidUrlMessage, requireTld: true),
+                    new Url(message: $invalidUrlMessage),
                     new Regex('/\w+(?!\/)$/', 'should not end with "/"'),
                 ],
                 'authorize_path' => [
@@ -182,7 +182,7 @@ readonly class LoginConfigService
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Url(message: $invalidUrlMessage, requireTld: true),
+                    new Url(message: $invalidUrlMessage),
                 ],
             ],
             allowExtraFields: true,

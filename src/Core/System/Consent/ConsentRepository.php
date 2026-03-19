@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Consent\DTO\ConsentState;
 use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 
 /**
@@ -31,7 +30,7 @@ class ConsentRepository
         );
 
         return array_map(
-            fn (array $row) => new ConsentStateRecord(
+            static fn (array $row) => new ConsentStateRecord(
                 $row['name'],
                 $row['identifier'],
                 ConsentStatus::from($row['state']),
@@ -49,7 +48,11 @@ class ConsentRepository
         ConsentStatus $state,
         string $actorId,
         ?string $revision = null,
-    ): ConsentState {
+    ): void {
+        if ($state !== ConsentStatus::ACCEPTED) {
+            $revision = null;
+        }
+
         $now = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $actor = $this->connection->executeQuery('SELECT username from user WHERE id = :id', [
@@ -62,9 +65,9 @@ class ConsentRepository
 
         $this->connection->executeStatement('
         INSERT INTO consent_state (id, name, identifier, state, actor, revision, updated_at)
-        VALUES (:id, :consentName, :identifier, :state, :actor, :revision, :updatedAt)
+        VALUES (:id, :consentName, :identifier, :insertState, :actor, :revision, :updatedAt)
         ON DUPLICATE KEY UPDATE
-            state = :state,
+            state = CASE WHEN state = "declined" AND :state = "revoked" THEN "declined" ELSE :state END,
             actor = :actor,
             revision = :revision,
             updated_at = :updatedAt
@@ -72,21 +75,11 @@ class ConsentRepository
             'id' => Uuid::randomBytes(),
             'consentName' => $consent->getName(),
             'identifier' => $scopeIdentifier,
+            'insertState' => $state === ConsentStatus::REVOKED ? ConsentStatus::DECLINED->value : $state->value,
             'state' => $state->value,
             'actor' => $actor,
             'revision' => $revision,
             'updatedAt' => $now,
         ], ['id' => 'binary']);
-
-        return new ConsentState(
-            $consent->getName(),
-            $consent->getScopeName(),
-            $scopeIdentifier,
-            $state,
-            $actor,
-            $now,
-            $revision,
-            $consent->getLatestRevision(),
-        );
     }
 }

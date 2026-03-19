@@ -73,7 +73,7 @@ class OrderService
         $isDownloadLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_DIGITAL);
 
         if (!Feature::isActive('v6.8.0.0')) {
-            Feature::callSilentIfInactive('v6.8.0.0', function () use ($cart, &$isDownloadLineItem): void {
+            Feature::callSilentIfInactive('v6.8.0.0', static function () use ($cart, &$isDownloadLineItem): void {
                 $isDownloadLineItem = $isDownloadLineItem || $cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD);
             });
         }
@@ -94,14 +94,16 @@ class OrderService
         ParameterBag $data,
         Context $context
     ): StateMachineStateEntity {
-        $stateFieldName = $data->get('stateFieldName', 'stateId');
+        $stateFieldName = $data->getString('stateFieldName', 'stateId');
+        $internalComment = $data->getString('internalComment') ?: null;
 
         $stateMachineStates = $this->stateMachineRegistry->transition(
             new Transition(
                 'order',
                 $orderId,
                 $transition,
-                $stateFieldName
+                $stateFieldName,
+                $internalComment,
             ),
             $context
         );
@@ -128,14 +130,16 @@ class OrderService
         ParameterBag $data,
         Context $context
     ): StateMachineStateEntity {
-        $stateFieldName = $data->get('stateFieldName', 'stateId');
+        $stateFieldName = $data->getString('stateFieldName', 'stateId');
+        $internalComment = $data->getString('internalComment') ?: null;
 
         $stateMachineStates = $this->stateMachineRegistry->transition(
             new Transition(
                 'order_transaction',
                 $orderTransactionId,
                 $transition,
-                $stateFieldName
+                $stateFieldName,
+                $internalComment,
             ),
             $context
         );
@@ -162,14 +166,16 @@ class OrderService
         ParameterBag $data,
         Context $context
     ): StateMachineStateEntity {
-        $stateFieldName = $data->get('stateFieldName', 'stateId');
+        $stateFieldName = $data->getString('stateFieldName', 'stateId');
+        $internalComment = $data->getString('internalComment') ?: null;
 
         $stateMachineStates = $this->stateMachineRegistry->transition(
             new Transition(
                 'order_delivery',
                 $orderDeliveryId,
                 $transition,
-                $stateFieldName
+                $stateFieldName,
+                $internalComment,
             ),
             $context
         );

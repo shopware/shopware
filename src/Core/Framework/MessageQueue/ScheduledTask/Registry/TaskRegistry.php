@@ -55,7 +55,7 @@ class TaskRegistry
 
         $deletionPayload = $this->getDeletionPayload($alreadyRegisteredTasks);
 
-        if (\count($deletionPayload) > 0) {
+        if ($deletionPayload !== []) {
             $this->scheduledTaskRepository->delete($deletionPayload, $context);
         }
     }
@@ -117,7 +117,7 @@ class TaskRegistry
         }
 
         $updates = array_values(array_filter($updates));
-        if (\count($updates) > 0) {
+        if ($updates !== []) {
             $this->scheduledTaskRepository->update($updates, $context);
         }
     }
@@ -147,7 +147,7 @@ class TaskRegistry
         ScheduledTask $task
     ): ?ScheduledTaskEntity {
         return $alreadyScheduledTasks
-                ->filter(fn (ScheduledTaskEntity $registeredTask) => $registeredTask->getScheduledTaskClass() === $task::class)
+                ->filter(static fn (ScheduledTaskEntity $registeredTask) => $registeredTask->getScheduledTaskClass() === $task::class)
                 ->first();
     }
 

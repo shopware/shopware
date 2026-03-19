@@ -40,7 +40,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
 
         $value = $data->getValue() ?? $field->getDefault();
 
-        if ($value !== null && !empty($field->getPropertyMapping())) {
+        if ($value !== null && $field->getPropertyMapping() !== []) {
             $value = $this->validateMapping($field, $value, $parameters);
         }
 
@@ -63,7 +63,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
 
         $raw = json_decode((string) $value, true);
         $decoded = $raw;
-        if (empty($field->getPropertyMapping())) {
+        if ($field->getPropertyMapping() === []) {
             return $raw;
         }
 
@@ -115,12 +115,12 @@ class JsonFieldSerializer extends AbstractFieldSerializer
         $existence = EntityExistence::createEmpty();
         $fieldPath = $parameters->getPath() . '/' . $field->getPropertyName();
 
-        $propertyKeys = array_map(fn (Field $field) => $field->getPropertyName(), $field->getPropertyMapping());
+        $propertyKeys = array_map(static fn (Field $field) => $field->getPropertyName(), $field->getPropertyMapping());
 
         // If a mapping is defined, you should not send properties that are undefined.
         // Sending undefined fields will throw an UnexpectedFieldException
         $keyDiff = array_diff(array_keys($data), $propertyKeys);
-        if (\count($keyDiff)) {
+        if ($keyDiff !== []) {
             foreach ($keyDiff as $fieldName) {
                 $parameters->getContext()->getExceptions()->add(
                     new UnexpectedFieldException($fieldPath . '/' . $fieldName, (string) $fieldName)
@@ -155,7 +155,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
              * This also allows directly storing non-array values like strings.
              * But all fields extending JsonField be properly validated.
              */
-            if ($nestedField::class === JsonField::class && empty($nestedField->getPropertyMapping())) {
+            if ($nestedField::class === JsonField::class && $nestedField->getPropertyMapping() === []) {
                 // Validate required flag manually
                 if ($nestedField->is(Required::class)) {
                     $this->validate([new NotNull()], $kvPair, $nestedParams->getPath());

@@ -7,6 +7,7 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -24,12 +25,12 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
 
     public function __construct(private readonly Connection $connection, private readonly LoggerInterface $logger, ?\Closure $debug = null)
     {
-        $this->debug = $debug ?? (fn () => null)(...);
+        $this->debug = $debug ?? (static fn () => null)(...);
     }
 
     public function store(array $tags): void
     {
-        if (empty($tags)) {
+        if ($tags === []) {
             return;
         }
 
@@ -37,14 +38,14 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
         $insertQueue->addInserts(
             self::TABLE_NAME,
             array_map(
-                fn (string $tag) => ['id' => Uuid::randomBytes(), 'tag' => $tag],
+                static fn (string $tag) => ['id' => Uuid::randomBytes(), 'tag' => $tag],
                 array_values($tags)
             )
         );
 
         // we execute in read committed isolation so that row gap locks are not applied when inserting
         // this helps us prevent locks when trying to insert duplicate tags.
-        $this->readCommittedIsolation(fn () => $insertQueue->execute());
+        $this->readCommittedIsolation(static fn () => $insertQueue->execute());
     }
 
     /**
@@ -76,7 +77,7 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
 
         ($this->debug)($this, $rows);
 
-        if (empty($rows)) {
+        if ($rows === []) {
             return [];
         }
 
@@ -109,7 +110,7 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
         $this->connection->setTransactionIsolation(TransactionIsolationLevel::READ_COMMITTED);
 
         try {
-            return $this->connection->transactional($callback);
+            return RetryableTransaction::transactional($this->connection, $callback);
         } finally {
             // restore original isolation mode
             $this->connection->setTransactionIsolation($transactionIsolation);

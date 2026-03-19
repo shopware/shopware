@@ -70,7 +70,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
                 }
             }
 
-            if (empty($ids)) {
+            if ($ids === []) {
                 return;
             }
 
@@ -100,7 +100,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
     {
         Profiler::trace('cart::delivery::process', function () use ($data, $original, $toCalculate, $context, $behavior): void {
             if ($behavior->hasPermission(self::SKIP_DELIVERY_PRICE_RECALCULATION)) {
-                $deliveries = $original->getDeliveries()->filter(function (Delivery $delivery) {
+                $deliveries = $original->getDeliveries()->filter(static function (Delivery $delivery) {
                     return $delivery->getShippingCosts()->getTotalPrice() >= 0;
                 });
 

@@ -4,20 +4,18 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity as AdminUiEntity;
-use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityConfigurationException;
 use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Entity;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
 #[CoversClass(CustomEntityEnrichmentService::class)]
-#[CoversClass(CustomEntityConfigurationException::class)]
 class CustomEntityEnrichmentServiceTest extends TestCase
 {
     private const FIXTURE_PATH = '%s/../../_fixtures/CustomEntityEnrichmentServiceTest/%s';
@@ -429,20 +427,11 @@ class CustomEntityEnrichmentServiceTest extends TestCase
 
     public function testThatEntityNotGivenInAdminUiIsThrown(): void
     {
-        try {
-            $this->customEntityEnrichmentService->enrich(
-                $this->entitySchema,
-                $this->getAdminUiXmlSchema('admin-ui.entity_not_given_exception.xml')
-            );
-            static::fail('no Exception was thrown');
-        } catch (CustomEntityConfigurationException $exception) {
-            static::assertSame(
-                'The entities ce_not_defined0, ce_not_defined1 are not given in the entities.xml but are configured in admin-ui.xml',
-                $exception->getMessage()
-            );
-            static::assertSame(CustomEntityConfigurationException::ENTITY_NOT_GIVEN_CODE, $exception->getErrorCode());
-            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
-        }
+        $this->expectExceptionObject(CustomEntityException::entityNotGiven('admin-ui.xml', ['ce_not_defined0', 'ce_not_defined1']));
+        $this->customEntityEnrichmentService->enrich(
+            $this->entitySchema,
+            $this->getAdminUiXmlSchema('admin-ui.entity_not_given_exception.xml')
+        );
     }
 
     private function getCustomEntities(): CustomEntityXmlSchema

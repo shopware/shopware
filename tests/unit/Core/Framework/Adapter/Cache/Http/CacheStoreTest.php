@@ -256,8 +256,10 @@ class CacheStoreTest extends TestCase
         $request = new Request();
         $response = new Response();
         $response->headers->set('date', date('Y-m-d H:i:s'));
+        $response->setSharedMaxAge(7200);
 
-        $cache = new TagAwareAdapter(new ArrayAdapter());
+        $arrayAdapter = new ArrayAdapter();
+        $cache = new TagAwareAdapter($arrayAdapter);
 
         $stateValidator = $this->createMock(CacheStateValidator::class);
         $stateValidator->expects($this->never())->method('isValid');
@@ -287,6 +289,11 @@ class CacheStoreTest extends TestCase
         // Verify the cache item was stored correctly
         $cacheItem = $cache->getItem($key);
         static::assertTrue($cacheItem->isHit());
+
+        $expiry = \Closure::bind(function (string $key): float {
+            return $this->expiries[$key];
+        }, $arrayAdapter, $arrayAdapter)($key);
+        static::assertEqualsWithDelta(microtime(true) + 7200, $expiry, 1);
 
         $cacheData = CacheCompressor::uncompress($cacheItem);
         static::assertInstanceOf(Response::class, $cacheData);

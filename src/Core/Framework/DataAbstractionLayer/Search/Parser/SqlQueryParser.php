@@ -228,7 +228,7 @@ class SqlQueryParser
             $value[] = $v;
         }
         if ($field instanceof IdField || $field instanceof FkField) {
-            $value = array_filter(array_map(fn (bool|float|int|string $id): string => Uuid::fromHexToBytes((string) $id), $value));
+            $value = array_filter(array_map(static fn (bool|float|int|string $id): string => Uuid::fromHexToBytes((string) $id), $value));
         }
 
         $result->addParameter($key, $value, ArrayParameterType::STRING);
@@ -293,7 +293,7 @@ class SqlQueryParser
         $result->resetWheres();
 
         $glue = ' ' . $query->getOperator() . ' ';
-        if (!empty($wheres)) {
+        if ($wheres !== []) {
             $result->addWhere('(' . implode($glue, $wheres) . ')');
         }
 
@@ -310,7 +310,7 @@ class SqlQueryParser
 
         $glue = ' ' . $query->getOperator() . ' ';
 
-        if (!empty($wheres)) {
+        if ($wheres !== []) {
             $result->addWhere('NOT (' . implode($glue, $wheres) . ')');
         }
 

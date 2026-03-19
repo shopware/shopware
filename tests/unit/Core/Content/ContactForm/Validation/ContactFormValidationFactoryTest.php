@@ -45,7 +45,7 @@ class ContactFormValidationFactoryTest extends TestCase
     {
         yield 'is required' => [
             true,
-            function (DataValidationDefinition $definition, SalesChannelContext $context): void {
+            static function (DataValidationDefinition $definition, SalesChannelContext $context): void {
                 static::assertEquals($definition->getProperties(), [
                     'salutationId' => [
                         new NotBlank(),
@@ -69,7 +69,7 @@ class ContactFormValidationFactoryTest extends TestCase
 
         yield 'is not required' => [
             false,
-            function (DataValidationDefinition $definition, SalesChannelContext $context): void {
+            static function (DataValidationDefinition $definition, SalesChannelContext $context): void {
                 static::assertEquals($definition->getProperties(), [
                     'salutationId' => [
                         new NotBlank(),

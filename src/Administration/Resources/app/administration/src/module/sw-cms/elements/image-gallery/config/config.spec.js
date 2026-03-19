@@ -32,6 +32,11 @@ async function createWrapper(activeTab = 'content') {
                     repositoryFactory: {
                         create: () => {
                             return {
+                                get: (id) =>
+                                    Promise.resolve({
+                                        id,
+                                        url: `http://shopware.com/${id}.jpg`,
+                                    }),
                                 search: () => Promise.resolve(mediaDataMock),
                             };
                         },
@@ -54,7 +59,6 @@ async function createWrapper(activeTab = 'content') {
                     'sw-field': true,
 
                     'sw-select-field': {
-                        // eslint-disable-next-line max-len
                         template:
                             '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
                         props: [
@@ -193,6 +197,17 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
         expect(mappingPreview.exists()).toBeFalsy();
     });
 
+    it('should have upload listener with auto-upload', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const uploadListener = wrapper.find('sw-upload-listener-stub');
+
+        expect(uploadListener.exists()).toBeTruthy();
+        expect(uploadListener.attributes('upload-tag')).toBe(wrapper.vm.uploadTag);
+        expect(uploadListener.attributes('auto-upload')).toBeDefined();
+    });
+
     it('should mapping value and preview mapping if sliderItems config source is mapped', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -261,6 +276,22 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
         expect(items.at(3).text()).toBe('3');
     });
 
+    it('should resolve media upload payloads via repository', async () => {
+        const wrapper = await createWrapper('content');
+        await flushPromises();
+
+        await wrapper.vm.onImageUpload({ targetId: 'uploaded-id' });
+
+        expect(wrapper.vm.element.config.sliderItems.value).toEqual([
+            {
+                mediaId: 'uploaded-id',
+                mediaUrl: 'http://shopware.com/uploaded-id.jpg',
+                newTab: false,
+                url: null,
+            },
+        ]);
+    });
+
     it('should remove previous mediaItem if it already exists after upload', async () => {
         const wrapper = await createWrapper('content');
         await flushPromises();
@@ -269,12 +300,12 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
         expect(wrapper.vm.element.config.sliderItems.value).toHaveLength(0);
 
         // Simulate the upload of the first media item
-        wrapper.vm.onImageUpload(mediaDataMock[0].media);
+        await wrapper.vm.onImageUpload(mediaDataMock[0].media);
         expect(wrapper.vm.element.config.sliderItems.value).toHaveLength(1);
         expect(wrapper.vm.element.config.sliderItems.value[0].mediaUrl).toBe('http://shopware.com/image1.jpg');
 
         // Simulate the upload of the same media item with different URL (replacement)
-        wrapper.vm.onImageUpload({
+        await wrapper.vm.onImageUpload({
             ...mediaDataMock[0].media,
             url: 'http://shopware.com/image1-updated.jpg',
         });

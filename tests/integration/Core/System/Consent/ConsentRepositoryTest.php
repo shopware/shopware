@@ -31,7 +31,7 @@ class ConsentRepositoryTest extends TestCase
         $productAnalytics = new ProductAnalytics();
 
         $userId = $this->createUser('test-user');
-        $updatedState = $this->repository->updateConsentState($productAnalytics, $userId, ConsentStatus::ACCEPTED, $userId);
+        $this->repository->updateConsentState($productAnalytics, $userId, ConsentStatus::ACCEPTED, $userId, '2026-02-01');
 
         $states = $this->repository->fetchAllConsentStates();
 
@@ -41,12 +41,7 @@ class ConsentRepositoryTest extends TestCase
         static::assertSame($userId, $states[0]->identifier);
         static::assertSame(ConsentStatus::ACCEPTED, $states[0]->status);
         static::assertSame($productAnalytics->getName(), $states[0]->name);
-
-        static::assertSame($productAnalytics->getName(), $updatedState->name);
-        static::assertSame($productAnalytics->getScopeName(), $updatedState->scopeName);
-        static::assertSame('test-user', $updatedState->actor);
-        static::assertEquals(ConsentStatus::ACCEPTED, $updatedState->status);
-        static::assertSame($userId, $updatedState->identifier);
+        static::assertSame('2026-02-01', $states[0]->revision);
     }
 
     public function testUpdateSystemConsentState(): void
@@ -71,7 +66,7 @@ class ConsentRepositoryTest extends TestCase
         $tracking = new ProductAnalytics();
 
         $userId = $this->createUser('test-user');
-        $this->repository->updateConsentState($tracking, $userId, ConsentStatus::ACCEPTED, $userId);
+        $this->repository->updateConsentState($tracking, $userId, ConsentStatus::ACCEPTED, $userId, '1.0.0');
 
         $states = $this->repository->fetchAllConsentStates();
 
@@ -80,7 +75,73 @@ class ConsentRepositoryTest extends TestCase
         static::assertSame('test-user', $states[0]->actor);
         static::assertSame($userId, $states[0]->identifier);
         static::assertSame(ConsentStatus::ACCEPTED, $states[0]->status);
+        static::assertSame('1.0.0', $states[0]->revision);
 
+        $this->repository->updateConsentState($tracking, $userId, ConsentStatus::REVOKED, $userId);
+
+        $states = $this->repository->fetchAllConsentStates();
+
+        static::assertCount(1, $states);
+
+        static::assertSame('test-user', $states[0]->actor);
+        static::assertSame($userId, $states[0]->identifier);
+        static::assertSame(ConsentStatus::REVOKED, $states[0]->status);
+        static::assertNull($states[0]->revision);
+    }
+
+    public function testRevokeConsentStateClearsPassedRevision(): void
+    {
+        $tracking = new ProductAnalytics();
+
+        $userId = $this->createUser('test-user');
+        $this->repository->updateConsentState($tracking, $userId, ConsentStatus::REVOKED, $userId, '2.0.0');
+
+        $states = $this->repository->fetchAllConsentStates();
+
+        static::assertCount(1, $states);
+        static::assertSame(ConsentStatus::DECLINED, $states[0]->status);
+        static::assertNull($states[0]->revision);
+    }
+
+    public function testInitializesRevokedConsentsWithDeclinedState(): void
+    {
+        $tracking = new ProductAnalytics();
+
+        $userId = $this->createUser('test-user');
+        $this->repository->updateConsentState($tracking, $userId, ConsentStatus::REVOKED, $userId);
+
+        $states = $this->repository->fetchAllConsentStates();
+
+        static::assertCount(1, $states);
+
+        static::assertSame('test-user', $states[0]->actor);
+        static::assertSame($userId, $states[0]->identifier);
+        static::assertSame(ConsentStatus::DECLINED, $states[0]->status);
+    }
+
+    public function testDoesNotOverrideDeclinedStateWithRevokedState(): void
+    {
+        $tracking = new ProductAnalytics();
+
+        $userId = $this->createUser('test-user');
+        $this->repository->updateConsentState($tracking, $userId, ConsentStatus::REVOKED, $userId);
+        $this->repository->updateConsentState($tracking, $userId, ConsentStatus::REVOKED, $userId);
+
+        $states = $this->repository->fetchAllConsentStates();
+
+        static::assertCount(1, $states);
+
+        static::assertSame('test-user', $states[0]->actor);
+        static::assertSame($userId, $states[0]->identifier);
+        static::assertSame(ConsentStatus::DECLINED, $states[0]->status);
+    }
+
+    public function testSetsRevokedStateIfStateWasAccepted(): void
+    {
+        $tracking = new ProductAnalytics();
+
+        $userId = $this->createUser('test-user');
+        $this->repository->updateConsentState($tracking, $userId, ConsentStatus::ACCEPTED, $userId);
         $this->repository->updateConsentState($tracking, $userId, ConsentStatus::REVOKED, $userId);
 
         $states = $this->repository->fetchAllConsentStates();
@@ -116,7 +177,7 @@ class ConsentRepositoryTest extends TestCase
         static::assertSame($productAnalytics->getName(), $result[1]->name);
         static::assertSame($user2, $result[1]->identifier);
         static::assertSame('second-user', $result[1]->actor);
-        static::assertSame(ConsentStatus::REVOKED, $result[1]->status);
+        static::assertSame(ConsentStatus::DECLINED, $result[1]->status);
     }
 
     private function createUser(string $name): string

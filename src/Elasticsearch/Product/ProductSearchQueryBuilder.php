@@ -49,11 +49,11 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
         $tokens = $this->tokenizer->tokenize($originalTerm, $searchConfig[0]['min_search_length'] ?? null);
         $tokens = $this->tokenFilter->filter($tokens, $context);
 
-        if (empty(array_filter($tokens))) {
+        if (array_filter($tokens) === []) {
             throw ElasticsearchException::emptyQuery();
         }
 
-        $configs = array_map(function (array $item): SearchFieldConfig {
+        $configs = array_map(static function (array $item): SearchFieldConfig {
             return new SearchFieldConfig(
                 $item['field'],
                 $item['ranking'],
@@ -81,7 +81,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
             }
         }
 
-        if (empty($queries)) {
+        if ($queries === []) {
             throw ElasticsearchException::emptyQuery();
         }
 

@@ -48,7 +48,9 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         };
     });
 
-    beforeAll(() => {
+    beforeEach(() => {
+        // Setup the spy before each test since restoreMocks: true in jest.config.js
+        // automatically restores mocks after each test
         jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockImplementation((entityName) => {
             if (entityName === 'not-existing-entity') {
                 return undefined;
@@ -65,10 +67,7 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
                 create: createMockMethod,
             };
         });
-    });
 
-    beforeEach(() => {
-        Shopware.Service('repositoryFactory').create.mockClear();
         searchMockMethod.mockClear();
         getMockMethod.mockClear();
         saveMockMethod.mockClear();

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Extension;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -21,12 +22,14 @@ class CartExtension extends Struct
 
     /**
      * @var array<string>
+     *
+     * @deprecated tag:v6.8.0 - Will be removed without replacement. Automatic promotions can no longer be removed.
      */
     protected array $blockedPromotionIds = [];
 
     public function addCode(string $code): void
     {
-        if (empty($code)) {
+        if ($code === '') {
             return;
         }
 
@@ -42,7 +45,7 @@ class CartExtension extends Struct
 
     public function removeCode(string $code): void
     {
-        if (empty($code)) {
+        if ($code === '') {
             return;
         }
 
@@ -65,9 +68,18 @@ class CartExtension extends Struct
         return $this->addedCodes;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement. Automatic promotions can no longer be removed.
+     */
     public function blockPromotion(string $id): void
     {
-        if (empty($id)) {
+        Feature::triggerDeprecationOrThrow('PERMANENT_AUTOMATIC_PROMOTIONS', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+
+        if (Feature::isActive('PERMANENT_AUTOMATIC_PROMOTIONS')) {
+            return;
+        }
+
+        if ($id === '') {
             return;
         }
 
@@ -76,16 +88,33 @@ class CartExtension extends Struct
         }
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement. Automatic promotions can no longer be removed.
+     */
     public function isPromotionBlocked(string $id): bool
     {
+        Feature::triggerDeprecationOrThrow('PERMANENT_AUTOMATIC_PROMOTIONS', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+
+        if (Feature::isActive('PERMANENT_AUTOMATIC_PROMOTIONS')) {
+            return false;
+        }
+
         return \in_array($id, $this->blockedPromotionIds, true);
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement. Automatic promotions can no longer be removed.
+     *
      * @return array<string>
      */
     public function getBlockedPromotions(): array
     {
+        Feature::triggerDeprecationOrThrow('PERMANENT_AUTOMATIC_PROMOTIONS', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+
+        if (Feature::isActive('PERMANENT_AUTOMATIC_PROMOTIONS')) {
+            return [];
+        }
+
         return $this->blockedPromotionIds;
     }
 
@@ -97,9 +126,11 @@ class CartExtension extends Struct
             $new->addCode($code);
         }
 
-        foreach ($extension->getBlockedPromotions() as $id) {
-            $new->blockPromotion($id);
-        }
+        Feature::callSilentIfInactive('PERMANENT_AUTOMATIC_PROMOTIONS', static function () use ($extension, $new): void {
+            foreach ($extension->getBlockedPromotions() as $id) {
+                $new->blockPromotion($id);
+            }
+        });
 
         return $new;
     }

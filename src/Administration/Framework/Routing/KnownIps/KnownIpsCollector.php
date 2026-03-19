@@ -9,6 +9,21 @@ use Symfony\Component\HttpFoundation\Request;
 class KnownIpsCollector implements KnownIpsCollectorInterface
 {
     /**
+     * @var callable(): bool
+     */
+    private $ipv6SupportChecker;
+
+    /**
+     * @internal
+     *
+     * @param callable(): bool $ipv6SupportChecker
+     */
+    public function __construct(?callable $ipv6SupportChecker = null)
+    {
+        $this->ipv6SupportChecker = $ipv6SupportChecker ?? $this->defaultIpv6SupportChecker(...);
+    }
+
+    /**
      * The result is mapped as ip => name|snippet-key. So by default it will look like this:
      * <code>
      *     [
@@ -31,19 +46,18 @@ class KnownIpsCollector implements KnownIpsCollectorInterface
 
         $result[$clientIp] = 'global.sw-multi-tag-ip-select.knownIps.you';
 
-        $isIpV6 = \str_contains($clientIp, ':') && \filter_var($clientIp, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6);
-        if (!$isIpV6) {
+        $clientIp = \filter_var($clientIp, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6);
+        if (!\is_string($clientIp)) {
             return $result;
         }
 
-        if (!$this->isIPv6SupportAvailable()) {
+        if (!($this->ipv6SupportChecker)()) {
             return $result;
         }
 
+        // FILTER_VALIDATE_IP with FILTER_FLAG_IPV6 guarantees inet_pton never returns false here
         $packedInAddrRepresentation = \inet_pton($clientIp);
-        if (!\is_string($packedInAddrRepresentation)) {
-            return $result;
-        }
+        \assert(\is_string($packedInAddrRepresentation));
 
         $binaryRepresentation64 = \hex2bin(\substr(\bin2hex($packedInAddrRepresentation), 0, 16) . \str_repeat('0', 16));
         $binaryRepresentation56 = \hex2bin(\substr(\bin2hex($packedInAddrRepresentation), 0, 14) . \str_repeat('0', 18));
@@ -62,12 +76,8 @@ class KnownIpsCollector implements KnownIpsCollectorInterface
         return $result;
     }
 
-    private function isIPv6SupportAvailable(): bool
+    private function defaultIpv6SupportChecker(): bool
     {
-        if (!((\extension_loaded('sockets') && \defined('AF_INET6')) || @\inet_pton('::1'))) {
-            return false;
-        }
-
-        return true;
+        return (\extension_loaded('sockets') && \defined('AF_INET6')) || (bool) @\inet_pton('::1');
     }
 }

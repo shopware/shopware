@@ -46,7 +46,7 @@ class ContextTest extends TestCase
 
         static::assertSame(Context::SYSTEM_SCOPE, $context->getScope());
 
-        $context->scope('foo', function (Context $context): void {
+        $context->scope('foo', static function (Context $context): void {
             static::assertSame('foo', $context->getScope());
         });
 
@@ -113,7 +113,8 @@ class ContextTest extends TestCase
 
         $context->addExtension('foo', new ArrayEntity());
 
-        $deserialized = unserialize(serialize($context));
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $deserialized = \unserialize(serialize($context));
 
         static::assertInstanceOf(Context::class, $deserialized);
 

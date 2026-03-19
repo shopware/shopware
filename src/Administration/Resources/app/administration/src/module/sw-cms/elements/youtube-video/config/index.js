@@ -162,7 +162,7 @@ export default {
                     default:
                         return link;
                 }
-            } catch (error) {
+            } catch (_error) {
                 // If URL construction fails, assume it's already a video ID
                 return link;
             }

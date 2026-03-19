@@ -66,7 +66,7 @@ class SitemapFileRoute
             'Content-Type' => 'application/octet-stream',
         ];
 
-        return new StreamedResponse(function () use ($file): void {
+        return new StreamedResponse(static function () use ($file): void {
             fpassthru($file);
         }, Response::HTTP_OK, $headers);
     }

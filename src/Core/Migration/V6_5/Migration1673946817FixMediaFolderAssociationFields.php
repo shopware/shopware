@@ -27,7 +27,7 @@ class Migration1673946817FixMediaFolderAssociationFields extends MigrationStep
 
         $fields = \json_decode((string) $data['association_fields'], true);
 
-        if (!\is_array($fields) || empty($fields)) {
+        if (!\is_array($fields) || $fields === []) {
             return;
         }
 

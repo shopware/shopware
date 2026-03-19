@@ -95,7 +95,7 @@ class ServiceDefinitionTest extends TestCase
         $command->setApplication(new Application(KernelLifecycleManager::getKernel()));
         $commandTester = new CommandTester($command);
 
-        set_error_handler(fn (): bool => true, \E_USER_DEPRECATED);
+        set_error_handler(static fn (): bool => true, \E_USER_DEPRECATED);
         $commandTester->execute([]);
         restore_error_handler();
 
@@ -119,7 +119,7 @@ class ServiceDefinitionTest extends TestCase
             \PREG_OFFSET_CAPTURE | \PREG_SET_ORDER
         );
 
-        if (!$result || empty($matches)) {
+        if (!$result || $matches === []) {
             return [];
         }
 
@@ -152,7 +152,7 @@ class ServiceDefinitionTest extends TestCase
         );
 
         // only continue if a Shopware service definition doesn't start with class followed by id
-        if (!$result || empty($matches)) {
+        if (!$result || $matches === []) {
             return [];
         }
 

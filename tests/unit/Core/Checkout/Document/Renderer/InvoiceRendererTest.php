@@ -96,7 +96,7 @@ class InvoiceRendererTest extends TestCase
 
         $validator = $this->createMock(ValidatorInterface::class);
         if (isset($orderSettings['shouldCheckVatIdPattern']) && $orderSettings['shouldCheckVatIdPattern']) {
-            $validator->method('validate')->willReturnCallback(function () use ($orderSettings) {
+            $validator->method('validate')->willReturnCallback(static function () use ($orderSettings) {
                 if ($orderSettings['validVat'] ?? false) {
                     return new ConstraintViolationList();
                 }
@@ -186,7 +186,7 @@ class InvoiceRendererTest extends TestCase
         $userCallCount = 0;
 
         $orderRepositoryMock = $this->createMock(EntityRepository::class);
-        $orderRepositoryMock->method('search')->willReturnCallback(function (Criteria $criteria, Context $context) use (&$userCallCount, $DELanguageId, $orderSearchResult) {
+        $orderRepositoryMock->method('search')->willReturnCallback(static function (Criteria $criteria, Context $context) use (&$userCallCount, $DELanguageId, $orderSearchResult) {
             ++$userCallCount;
 
             switch ($userCallCount) {
@@ -479,7 +479,6 @@ class InvoiceRendererTest extends TestCase
             $address = new OrderAddressEntity();
             $address->setCountry($country);
             $country->setCheckVatIdPattern($orderSettings['shouldCheckVatIdPattern'] ?? false);
-            $address->setVatId('VAT123');
             $delivery->setShippingOrderAddress($address);
         }
 

@@ -40,12 +40,6 @@ class TableHelperTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = self::getContainer()->get(Connection::class);
-        TableHelper::resetSchemaManager();
-    }
-
-    protected function tearDown(): void
-    {
-        TableHelper::resetSchemaManager();
     }
 
     public function testTableExists(): void
@@ -320,18 +314,6 @@ class TableHelperTest extends TestCase
             ProductDefinition::ENTITY_NAME,
             ['id', 'version_id'],
         );
-    }
-
-    public function testResetSchemaManager(): void
-    {
-        static::assertTrue(TableHelper::tableExists($this->connection, ProductDefinition::ENTITY_NAME));
-        // Invalid connection would normally cause an exception while getting the SchemaManager, but it is cached as static class property
-        static::assertTrue(TableHelper::tableExists($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME));
-
-        TableHelper::resetSchemaManager();
-
-        $this->expectExceptionObject($this->createUtilExceptionForInvalidConnection());
-        static::assertTrue(TableHelper::tableExists($this->getInvalidConnection(), ProductDefinition::ENTITY_NAME));
     }
 
     private function getInvalidConnection(): Connection

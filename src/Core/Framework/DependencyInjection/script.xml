@@ -26,6 +26,8 @@
             <argument type="service" id="twig.extension.debug"/>
             <argument type="tagged_iterator" tag="shopware.app_script.twig.extension"/>
             <argument>%kernel.shopware_version%</argument>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\Script\ScriptDefinition">

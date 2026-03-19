@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\PurchaseLimit;
 
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -46,7 +47,7 @@ class ProductPurchaseLimitRoute extends AbstractProductPurchaseLimitRoute
         $ids = $request->query->all('ids');
 
         if (empty($ids)) {
-            return new ProductPurchaseLimitRouteResponse(new ProductPurchaseLimitCollection());
+            throw ProductException::missingRequestParameter('ids');
         }
 
         $criteria = new Criteria($ids);

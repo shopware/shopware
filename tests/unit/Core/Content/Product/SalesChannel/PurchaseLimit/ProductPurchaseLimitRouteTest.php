@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -132,15 +133,15 @@ class ProductPurchaseLimitRouteTest extends TestCase
         static::assertCount(0, $results);
     }
 
-    public function testLoadReturnsEmptyCollectionForEmptyIds(): void
+    public function testLoadThrowsForEmptyIds(): void
     {
         $context = Generator::generateSalesChannelContext();
 
         $this->productRepository->expects($this->never())->method('search');
 
-        $results = $this->route->readProductsPurchaseLimit(new Request(), $context)->getResult();
+        $this->expectException(ProductException::class);
 
-        static::assertCount(0, $results);
+        $this->route->readProductsPurchaseLimit(new Request(), $context);
     }
 
     public function testGetDecoratedThrows(): void

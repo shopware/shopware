@@ -3,13 +3,12 @@
 namespace Shopware\Storefront\Framework\Twig\Components;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\FileAttributes;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
-use Symfony\UX\TwigComponent\ComponentFactory;
 
 /**
  * @internal
@@ -18,7 +17,6 @@ use Symfony\UX\TwigComponent\ComponentFactory;
 class TwigComponentHelper
 {
     public const COMPONENT_DIRECTORY = 'Resources/views/components/';
-    private const MAIN_NAMESPACE = 'Storefront';
 
     /**
      * @param array<string, array{path: string}> $bundlesMetadata
@@ -28,9 +26,10 @@ class TwigComponentHelper
     public function __construct(
         private array $bundlesMetadata,
         private readonly NamespaceHierarchyBuilder $namespaceHierarchyBuilder,
-        private readonly ComponentFactory $componentFactory,
+        private readonly ComponentMetadataProviderInterface $componentMetadataProvider,
         private readonly Connection $connection,
         private readonly SourceResolver $sourceResolver,
+        private readonly FilesystemOperator $localFilesystem,
     ) {
     }
 
@@ -40,7 +39,7 @@ class TwigComponentHelper
 
         foreach ($this->findComponentsByTemplate() as $component) {
             if ($includeMetadata) {
-                $componentMetadata = $this->componentFactory->metadataFor($component->name);
+                $componentMetadata = $this->componentMetadataProvider->metadataFor($component->name);
                 $component->metadata = $componentMetadata;
             }
 
@@ -48,19 +47,6 @@ class TwigComponentHelper
         }
 
         return $components;
-    }
-
-    private function getComponentFromTemplate(SplFileInfo $template, string $componentNamespace): TwigComponent
-    {
-        $componentName = $this->getComponentNameFromPath($template->getRelativePathname());
-
-        $component = new TwigComponent(
-            $componentName,
-            $template->getRealPath(),
-            $componentNamespace
-        );
-
-        return $component;
     }
 
     /**
@@ -74,44 +60,47 @@ class TwigComponentHelper
         );
 
         $components = [];
-        $finderTemplates = new Finder();
-        $finderTemplates->files()
-            ->in(array_keys($dirs))
-            ->notPath('/_')
-            ->name('*.html.twig')
-        ;
 
-        foreach ($finderTemplates as $template) {
-            $componentNamespace = $this->getComponentNamespace($template->getRealPath(), $dirs);
-            $component = $this->getComponentFromTemplate($template, $componentNamespace);
+        foreach ($dirs as $componentDir => $namespace) {
+            // Flysystem paths must not start with /
+            $normalizedDir = ltrim($componentDir, '/');
 
-            $components[$component->name] = $component;
-        }
+            try {
+                $items = $this->localFilesystem->listContents($normalizedDir, true);
+            } catch (\Throwable) {
+                continue;
+            }
 
-        return $components;
-    }
+            foreach ($items as $item) {
+                if (!$item instanceof FileAttributes) {
+                    continue;
+                }
 
-    /**
-     * @param array<string, string> $dirs
-     */
-    private function getComponentNamespace(string $templatePath, array $dirs): string
-    {
-        // Find the closest matching parent directory.
-        $templateDir = Path::getDirectory($templatePath);
+                $filePath = $item->path();
 
-        // Check for exact match first.
-        if (isset($dirs[$templateDir])) {
-            return $dirs[$templateDir];
-        }
+                if (!str_ends_with($filePath, '.html.twig')) {
+                    continue;
+                }
 
-        // Check if template is under any of the registered bundle directories.
-        foreach ($dirs as $dir => $namespace) {
-            if (str_starts_with($templateDir, $dir)) {
-                return $namespace;
+                $prefix = rtrim($normalizedDir, '/') . '/';
+                $relativePath = substr($filePath, \strlen($prefix));
+
+                // Equivalent of Finder::notPath('/_') – skip files inside underscore-prefixed directories
+                if (str_contains('/' . $relativePath, '/_')) {
+                    continue;
+                }
+
+                $componentName = $this->getComponentNameFromPath($relativePath);
+
+                // Restore the leading slash stripped by Flysystem to keep parity with the
+                // original SplFileInfo::getRealPath() behaviour used in getStylePath() etc.
+                $component = new TwigComponent($componentName, '/' . $filePath, $namespace);
+
+                $components[$component->name] = $component;
             }
         }
 
-        return self::MAIN_NAMESPACE;
+        return $components;
     }
 
     /**
@@ -132,7 +121,7 @@ class TwigComponentHelper
             $path = $this->bundlesMetadata[$namespace]['path'];
             $componentDir = Path::join($path, self::COMPONENT_DIRECTORY);
 
-            if (!is_dir($componentDir)) {
+            if (!$this->localFilesystem->directoryExists(ltrim($componentDir, '/'))) {
                 continue;
             }
 

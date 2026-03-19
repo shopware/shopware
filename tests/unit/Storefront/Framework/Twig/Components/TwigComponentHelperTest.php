@@ -3,13 +3,16 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Components;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\Filesystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\App\Source\SourceResolver;
-use Shopware\Core\Framework\Util\Filesystem;
+use Shopware\Core\Framework\Util\Filesystem as UtilFilesystem;
+use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
+use Shopware\Storefront\Framework\Twig\Components\ComponentMetadataProviderInterface;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
-use Symfony\UX\TwigComponent\ComponentFactory;
 use Symfony\UX\TwigComponent\ComponentMetadata;
 
 /**
@@ -18,77 +21,48 @@ use Symfony\UX\TwigComponent\ComponentMetadata;
 #[CoversClass(TwigComponentHelper::class)]
 class TwigComponentHelperTest extends TestCase
 {
-    private string $tempDir;
+    private Filesystem $filesystem;
 
     protected function setUp(): void
     {
-        $this->tempDir = sys_get_temp_dir() . '/twig_component_helper_test_' . uniqid();
-        mkdir($this->tempDir, 0777, true);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->removeTempDir($this->tempDir);
+        $this->filesystem = new Filesystem(new MemoryFilesystemAdapter());
     }
 
     public function testGetComponentsReturnsEmptyCollectionWhenNoBundlesOrApps(): void
     {
-        $bundlePath = $this->tempDir . '/EmptyBundle';
-        $componentDir = $bundlePath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
-        mkdir($componentDir, 0777, true);
+        // Write a placeholder so directoryExists() returns true but no .html.twig files exist
+        $this->filesystem->write('EmptyBundle/Resources/views/components/.gitkeep', '');
 
         $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
-        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn([
-            'EmptyBundle' => [],
-        ]);
-
-        $componentFactory = $this->createComponentFactory();
-
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([]);
+        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn(['EmptyBundle' => []]);
 
         $helper = new TwigComponentHelper(
-            [
-                'EmptyBundle' => ['path' => $bundlePath],
-            ],
+            ['EmptyBundle' => ['path' => '/EmptyBundle']],
             $namespaceHierarchyBuilder,
-            $componentFactory,
-            $connection,
-            $this->createMock(SourceResolver::class)
+            $this->createComponentMetadataProvider(),
+            $this->createConnectionMock(),
+            $this->createMock(SourceResolver::class),
+            $this->filesystem,
         );
 
-        $components = $helper->getComponents();
-
-        static::assertCount(0, $components);
+        static::assertCount(0, $helper->getComponents());
     }
 
     public function testGetComponentsFindsComponentsFromBundles(): void
     {
-        $bundlePath = $this->tempDir . '/TestBundle';
-        $componentDir = $bundlePath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
-        mkdir($componentDir, 0777, true);
-
-        file_put_contents($componentDir . '/Button.html.twig', '<button>{{ label }}</button>');
-        file_put_contents($componentDir . '/Card.html.twig', '<div>Card</div>');
+        $this->filesystem->write('TestBundle/Resources/views/components/Button.html.twig', '<button>{{ label }}</button>');
+        $this->filesystem->write('TestBundle/Resources/views/components/Card.html.twig', '<div>Card</div>');
 
         $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
-        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn([
-            'TestBundle' => [],
-        ]);
-
-        $componentFactory = $this->createComponentFactory();
-
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([]);
+        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn(['TestBundle' => []]);
 
         $helper = new TwigComponentHelper(
-            [
-                'TestBundle' => ['path' => $bundlePath],
-            ],
+            ['TestBundle' => ['path' => '/TestBundle']],
             $namespaceHierarchyBuilder,
-            $componentFactory,
-            $connection,
-            $this->createMock(SourceResolver::class)
+            $this->createComponentMetadataProvider(),
+            $this->createConnectionMock(),
+            $this->createMock(SourceResolver::class),
+            $this->filesystem,
         );
 
         $components = $helper->getComponents();
@@ -100,31 +74,18 @@ class TwigComponentHelperTest extends TestCase
 
     public function testGetComponentsFindsNestedComponents(): void
     {
-        $bundlePath = $this->tempDir . '/TestBundle';
-        $componentDir = $bundlePath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
-        $nestedDir = $componentDir . '/Forms/Input';
-        mkdir($nestedDir, 0777, true);
-
-        file_put_contents($nestedDir . '/Text.html.twig', '<input type="text" />');
+        $this->filesystem->write('TestBundle/Resources/views/components/Forms/Input/Text.html.twig', '<input type="text" />');
 
         $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
-        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn([
-            'TestBundle' => [],
-        ]);
-
-        $componentFactory = $this->createComponentFactory();
-
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([]);
+        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn(['TestBundle' => []]);
 
         $helper = new TwigComponentHelper(
-            [
-                'TestBundle' => ['path' => $bundlePath],
-            ],
+            ['TestBundle' => ['path' => '/TestBundle']],
             $namespaceHierarchyBuilder,
-            $componentFactory,
-            $connection,
-            $this->createMock(SourceResolver::class)
+            $this->createComponentMetadataProvider(),
+            $this->createConnectionMock(),
+            $this->createMock(SourceResolver::class),
+            $this->filesystem,
         );
 
         $components = $helper->getComponents();
@@ -133,39 +94,26 @@ class TwigComponentHelperTest extends TestCase
         static::assertTrue($components->has('TestBundle:Forms:Input:Text'));
 
         $component = $components->get('TestBundle:Forms:Input:Text');
+        static::assertNotNull($component);
         static::assertSame('Forms:Input:Text', $component->name);
         static::assertSame('TestBundle', $component->namespace);
     }
 
     public function testGetComponentsExcludesFilesInUnderscoreDirectories(): void
     {
-        $bundlePath = $this->tempDir . '/TestBundle';
-        $componentDir = $bundlePath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
-        $normalDir = $componentDir . '/ui';
-        $privateDir = $normalDir . '/_private';
-        mkdir($privateDir, 0777, true);
-
-        file_put_contents($componentDir . '/Button.html.twig', '<button>{{ label }}</button>');
-        file_put_contents($privateDir . '/Internal.html.twig', '<div>Internal</div>');
+        $this->filesystem->write('TestBundle/Resources/views/components/Button.html.twig', '<button>{{ label }}</button>');
+        $this->filesystem->write('TestBundle/Resources/views/components/ui/_private/Internal.html.twig', '<div>Internal</div>');
 
         $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
-        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn([
-            'TestBundle' => [],
-        ]);
-
-        $componentFactory = $this->createComponentFactory();
-
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([]);
+        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn(['TestBundle' => []]);
 
         $helper = new TwigComponentHelper(
-            [
-                'TestBundle' => ['path' => $bundlePath],
-            ],
+            ['TestBundle' => ['path' => '/TestBundle']],
             $namespaceHierarchyBuilder,
-            $componentFactory,
-            $connection,
-            $this->createMock(SourceResolver::class)
+            $this->createComponentMetadataProvider(),
+            $this->createConnectionMock(),
+            $this->createMock(SourceResolver::class),
+            $this->filesystem,
         );
 
         $components = $helper->getComponents();
@@ -177,16 +125,10 @@ class TwigComponentHelperTest extends TestCase
 
     public function testGetComponentsIncludesMetadataWhenRequested(): void
     {
-        $bundlePath = $this->tempDir . '/TestBundle';
-        $componentDir = $bundlePath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
-        mkdir($componentDir, 0777, true);
-
-        file_put_contents($componentDir . '/Button.html.twig', '<button>{{ label }}</button>');
+        $this->filesystem->write('TestBundle/Resources/views/components/Button.html.twig', '<button>{{ label }}</button>');
 
         $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
-        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn([
-            'TestBundle' => [],
-        ]);
+        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn(['TestBundle' => []]);
 
         $metadata = new ComponentMetadata([
             'key' => 'Button',
@@ -195,19 +137,13 @@ class TwigComponentHelperTest extends TestCase
             'service_id' => 'app.component.button',
         ]);
 
-        $componentFactory = $this->createComponentFactory($metadata);
-
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([]);
-
         $helper = new TwigComponentHelper(
-            [
-                'TestBundle' => ['path' => $bundlePath],
-            ],
+            ['TestBundle' => ['path' => '/TestBundle']],
             $namespaceHierarchyBuilder,
-            $componentFactory,
-            $connection,
-            $this->createMock(SourceResolver::class)
+            $this->createComponentMetadataProvider($metadata),
+            $this->createConnectionMock(),
+            $this->createMock(SourceResolver::class),
+            $this->filesystem,
         );
 
         $components = $helper->getComponents(includeMetadata: true);
@@ -224,30 +160,18 @@ class TwigComponentHelperTest extends TestCase
 
     public function testGetComponentsDoesNotIncludeMetadataByDefault(): void
     {
-        $bundlePath = $this->tempDir . '/TestBundle';
-        $componentDir = $bundlePath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
-        mkdir($componentDir, 0777, true);
-
-        file_put_contents($componentDir . '/Button.html.twig', '<button>{{ label }}</button>');
+        $this->filesystem->write('TestBundle/Resources/views/components/Button.html.twig', '<button>{{ label }}</button>');
 
         $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
-        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn([
-            'TestBundle' => [],
-        ]);
-
-        $componentFactory = $this->createComponentFactory();
-
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([]);
+        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn(['TestBundle' => []]);
 
         $helper = new TwigComponentHelper(
-            [
-                'TestBundle' => ['path' => $bundlePath],
-            ],
+            ['TestBundle' => ['path' => '/TestBundle']],
             $namespaceHierarchyBuilder,
-            $componentFactory,
-            $connection,
-            $this->createMock(SourceResolver::class)
+            $this->createComponentMetadataProvider(),
+            $this->createConnectionMock(),
+            $this->createMock(SourceResolver::class),
+            $this->filesystem,
         );
 
         $components = $helper->getComponents();
@@ -263,74 +187,60 @@ class TwigComponentHelperTest extends TestCase
      */
     public function testGetComponentsFromAppInSubdirectoryHasCorrectComponentName(): void
     {
-        $appRelPath = 'TestApp';
-        $componentDir = $this->tempDir . '/' . $appRelPath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
-        $customDir = $componentDir . '/Custom';
-        mkdir($customDir, 0777, true);
-        file_put_contents($customDir . '/Test.html.twig', '<div>Test</div>');
+        // StaticFilesystem uses '/app-root' as its location, so path('Resources/views/components/')
+        // returns '/app-root/Resources/views/components' – write virtual files there accordingly.
+        $this->filesystem->write('app-root/Resources/views/components/Custom/Test.html.twig', '<div>Test</div>');
 
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['namespace' => 'TestApp'],
-        ]);
+        $connection->method('fetchAllAssociative')->willReturn([['namespace' => 'TestApp']]);
 
         $sourceResolver = $this->createMock(SourceResolver::class);
         $sourceResolver->method('filesystemForAppName')
             ->with('TestApp')
-            ->willReturn(new Filesystem($this->tempDir . '/' . $appRelPath));
+            ->willReturn(new StaticFilesystem(['Resources/views/components' => '']));
 
         $helper = new TwigComponentHelper(
             [],
             $this->createMock(NamespaceHierarchyBuilder::class),
-            $this->createComponentFactory(),
+            $this->createComponentMetadataProvider(),
             $connection,
-            $sourceResolver
+            $sourceResolver,
+            $this->filesystem,
         );
 
         $components = $helper->getComponents();
 
         static::assertCount(1, $components);
-
-        // Name must include the 'Custom' subdirectory segment.
         static::assertTrue($components->has('TestApp:Custom:Test'), 'Component should be named "Custom:Test", not just "Test"');
         static::assertFalse($components->has('TestApp:Test'), 'Component must not be named without its subdirectory');
 
         $component = $components->get('TestApp:Custom:Test');
+        static::assertNotNull($component);
         static::assertSame('Custom:Test', $component->name);
         static::assertSame('TestApp', $component->namespace);
-
-        // getRelativeNamespaceDirectory() must include 'Custom' subdirectory
         static::assertSame('TestApp/Custom', $component->getRelativeNamespaceDirectory());
     }
 
     public function testGetComponentsFromAppWithMultipleTemplatesRegistersRootDirOnce(): void
     {
-        // Two templates in different subdirectories from the same app should both
-        // be found when the root components/ dir is used as the Finder base.
-        $appRelPath = 'MultiTemplateApp';
-        $componentDir = $this->tempDir . '/' . $appRelPath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
-        mkdir($componentDir . '/Custom', 0777, true);
-        mkdir($componentDir . '/Other', 0777, true);
-        file_put_contents($componentDir . '/Custom/Test.html.twig', '<div>Test</div>');
-        file_put_contents($componentDir . '/Other/Widget.html.twig', '<div>Widget</div>');
+        $this->filesystem->write('app-root/Resources/views/components/Custom/Test.html.twig', '<div>Test</div>');
+        $this->filesystem->write('app-root/Resources/views/components/Other/Widget.html.twig', '<div>Widget</div>');
 
         $connection = $this->createMock(Connection::class);
-        // DISTINCT in the query means both templates produce one row per app.
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['namespace' => 'MultiTemplateApp'],
-        ]);
+        $connection->method('fetchAllAssociative')->willReturn([['namespace' => 'MultiTemplateApp']]);
 
         $sourceResolver = $this->createMock(SourceResolver::class);
         $sourceResolver->method('filesystemForAppName')
             ->with('MultiTemplateApp')
-            ->willReturn(new Filesystem($this->tempDir . '/' . $appRelPath));
+            ->willReturn(new StaticFilesystem(['Resources/views/components' => '']));
 
         $helper = new TwigComponentHelper(
             [],
             $this->createMock(NamespaceHierarchyBuilder::class),
-            $this->createComponentFactory(),
+            $this->createComponentMetadataProvider(),
             $connection,
-            $sourceResolver
+            $sourceResolver,
+            $this->filesystem,
         );
 
         $components = $helper->getComponents();
@@ -342,15 +252,8 @@ class TwigComponentHelperTest extends TestCase
 
     public function testGetComponentsHandlesMultipleBundles(): void
     {
-        $bundle1Path = $this->tempDir . '/Bundle1';
-        $component1Dir = $bundle1Path . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
-        mkdir($component1Dir, 0777, true);
-        file_put_contents($component1Dir . '/Button.html.twig', '<button>Bundle1</button>');
-
-        $bundle2Path = $this->tempDir . '/Bundle2';
-        $component2Dir = $bundle2Path . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
-        mkdir($component2Dir, 0777, true);
-        file_put_contents($component2Dir . '/Card.html.twig', '<div>Bundle2</div>');
+        $this->filesystem->write('Bundle1/Resources/views/components/Button.html.twig', '<button>Bundle1</button>');
+        $this->filesystem->write('Bundle2/Resources/views/components/Card.html.twig', '<div>Bundle2</div>');
 
         $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
         $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn([
@@ -358,20 +261,16 @@ class TwigComponentHelperTest extends TestCase
             'Bundle2' => [],
         ]);
 
-        $componentFactory = $this->createComponentFactory();
-
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([]);
-
         $helper = new TwigComponentHelper(
             [
-                'Bundle1' => ['path' => $bundle1Path],
-                'Bundle2' => ['path' => $bundle2Path],
+                'Bundle1' => ['path' => '/Bundle1'],
+                'Bundle2' => ['path' => '/Bundle2'],
             ],
             $namespaceHierarchyBuilder,
-            $componentFactory,
-            $connection,
-            $this->createMock(SourceResolver::class)
+            $this->createComponentMetadataProvider(),
+            $this->createConnectionMock(),
+            $this->createMock(SourceResolver::class),
+            $this->filesystem,
         );
 
         $components = $helper->getComponents();
@@ -383,13 +282,8 @@ class TwigComponentHelperTest extends TestCase
 
     public function testGetComponentsSkipsBundlesWithoutComponentDirectory(): void
     {
-        $bundle1Path = $this->tempDir . '/Bundle1';
-        $component1Dir = $bundle1Path . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
-        mkdir($component1Dir, 0777, true);
-        file_put_contents($component1Dir . '/Button.html.twig', '<button>Bundle1</button>');
-
-        $bundle2Path = $this->tempDir . '/Bundle2';
-        mkdir($bundle2Path, 0777, true);
+        $this->filesystem->write('Bundle1/Resources/views/components/Button.html.twig', '<button>Bundle1</button>');
+        // Nothing written for Bundle2 – directoryExists() returns false and the bundle is skipped
 
         $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
         $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn([
@@ -397,20 +291,16 @@ class TwigComponentHelperTest extends TestCase
             'Bundle2' => [],
         ]);
 
-        $componentFactory = $this->createComponentFactory();
-
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([]);
-
         $helper = new TwigComponentHelper(
             [
-                'Bundle1' => ['path' => $bundle1Path],
-                'Bundle2' => ['path' => $bundle2Path],
+                'Bundle1' => ['path' => '/Bundle1'],
+                'Bundle2' => ['path' => '/Bundle2'],
             ],
             $namespaceHierarchyBuilder,
-            $componentFactory,
-            $connection,
-            $this->createMock(SourceResolver::class)
+            $this->createComponentMetadataProvider(),
+            $this->createConnectionMock(),
+            $this->createMock(SourceResolver::class),
+            $this->filesystem,
         );
 
         $components = $helper->getComponents();
@@ -422,29 +312,18 @@ class TwigComponentHelperTest extends TestCase
 
     public function testGetComponentsHandlesStorefrontNamespace(): void
     {
-        $storefrontPath = $this->tempDir . '/Storefront';
-        $componentDir = $storefrontPath . '/' . TwigComponentHelper::COMPONENT_DIRECTORY;
-        mkdir($componentDir, 0777, true);
-        file_put_contents($componentDir . '/Button.html.twig', '<button>Storefront</button>');
+        $this->filesystem->write('Storefront/Resources/views/components/Button.html.twig', '<button>Storefront</button>');
 
         $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
-        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn([
-            'Storefront' => [],
-        ]);
-
-        $componentFactory = $this->createComponentFactory();
-
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([]);
+        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn(['Storefront' => []]);
 
         $helper = new TwigComponentHelper(
-            [
-                'Storefront' => ['path' => $storefrontPath],
-            ],
+            ['Storefront' => ['path' => '/Storefront']],
             $namespaceHierarchyBuilder,
-            $componentFactory,
-            $connection,
-            $this->createMock(SourceResolver::class)
+            $this->createComponentMetadataProvider(),
+            $this->createConnectionMock(),
+            $this->createMock(SourceResolver::class),
+            $this->filesystem,
         );
 
         $components = $helper->getComponents();
@@ -456,19 +335,8 @@ class TwigComponentHelperTest extends TestCase
 
     public function testGetComponentsSkipsAppWhenFilesystemThrows(): void
     {
-        // A valid bundle dir is required so Finder->in() has at least one directory
-        $bundleDir = $this->tempDir . '/BundleForAppTest/' . TwigComponentHelper::COMPONENT_DIRECTORY;
-        mkdir($bundleDir, 0777, true);
-
-        $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
-        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn([
-            'BundleForAppTest' => [],
-        ]);
-
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['namespace' => 'BrokenApp'],
-        ]);
+        $connection->method('fetchAllAssociative')->willReturn([['namespace' => 'BrokenApp']]);
 
         $sourceResolver = $this->createMock(SourceResolver::class);
         $sourceResolver->method('filesystemForAppName')
@@ -476,89 +344,58 @@ class TwigComponentHelperTest extends TestCase
             ->willThrowException(new \RuntimeException('Filesystem unavailable'));
 
         $helper = new TwigComponentHelper(
-            ['BundleForAppTest' => ['path' => $this->tempDir . '/BundleForAppTest']],
-            $namespaceHierarchyBuilder,
-            $this->createComponentFactory(),
+            [],
+            $this->createMock(NamespaceHierarchyBuilder::class),
+            $this->createComponentMetadataProvider(),
             $connection,
-            $sourceResolver
+            $sourceResolver,
+            $this->filesystem,
         );
 
-        // Exception from filesystemForAppName must be caught and the app skipped
-        $components = $helper->getComponents();
-
-        static::assertCount(0, $components);
+        static::assertCount(0, $helper->getComponents());
     }
 
     public function testGetComponentsSkipsAppWhenComponentDirDoesNotExist(): void
     {
-        // A valid bundle dir is required so Finder->in() has at least one directory
-        $bundleDir = $this->tempDir . '/BundleForAppTest2/' . TwigComponentHelper::COMPONENT_DIRECTORY;
-        mkdir($bundleDir, 0777, true);
-
-        $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
-        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn([
-            'BundleForAppTest2' => [],
-        ]);
+        $appFilesystem = $this->createMock(UtilFilesystem::class);
+        $appFilesystem->method('has')->willReturn(false);
 
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['namespace' => 'AppWithNoComponents'],
-        ]);
-
-        $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->method('has')->willReturn(false);
+        $connection->method('fetchAllAssociative')->willReturn([['namespace' => 'AppWithNoComponents']]);
 
         $sourceResolver = $this->createMock(SourceResolver::class);
         $sourceResolver->method('filesystemForAppName')
             ->with('AppWithNoComponents')
-            ->willReturn($filesystem);
+            ->willReturn($appFilesystem);
 
         $helper = new TwigComponentHelper(
-            ['BundleForAppTest2' => ['path' => $this->tempDir . '/BundleForAppTest2']],
-            $namespaceHierarchyBuilder,
-            $this->createComponentFactory(),
+            [],
+            $this->createMock(NamespaceHierarchyBuilder::class),
+            $this->createComponentMetadataProvider(),
             $connection,
-            $sourceResolver
+            $sourceResolver,
+            $this->filesystem,
         );
 
-        $components = $helper->getComponents();
-
-        static::assertCount(0, $components);
+        static::assertCount(0, $helper->getComponents());
     }
 
-    private function createComponentFactory(?ComponentMetadata $metadata = null): ComponentFactory
+    private function createComponentMetadataProvider(?ComponentMetadata $metadata = null): ComponentMetadataProviderInterface
     {
-        // ComponentFactory is final, so we use reflection to create a stub instance
-        $reflectionClass = new \ReflectionClass(ComponentFactory::class);
-        $instance = $reflectionClass->newInstanceWithoutConstructor();
+        $provider = $this->createMock(ComponentMetadataProviderInterface::class);
 
-        // If metadata is provided, inject it so metadataFor() can return it
         if ($metadata !== null) {
-            $configProperty = $reflectionClass->getProperty('config');
-            $configProperty->setValue($instance, [
-                $metadata->getName() => [
-                    'key' => $metadata->getName(),
-                    'template' => $metadata->getTemplate(),
-                    'class' => $metadata->getClass(),
-                    'service_id' => $metadata->getServiceId(),
-                ],
-            ]);
+            $provider->method('metadataFor')->willReturn($metadata);
         }
 
-        return $instance;
+        return $provider;
     }
 
-    private function removeTempDir(string $dir): void
+    private function createConnectionMock(): Connection
     {
-        if (!is_dir($dir)) {
-            return;
-        }
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([]);
 
-        $files = array_diff(scandir($dir), ['.', '..']);
-        foreach ($files as $file) {
-            $path = $dir . '/' . $file;
-            is_dir($path) ? $this->removeTempDir($path) : unlink($path);
-        }
-        rmdir($dir);
+        return $connection;
     }
 }

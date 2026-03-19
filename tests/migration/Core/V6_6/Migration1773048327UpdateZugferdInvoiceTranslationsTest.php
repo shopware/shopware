@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_7\Migration1773048327UpdateZugferdInvoiceTranslations;
+use Shopware\Core\Migration\V6_6\Migration1773048327UpdateZugferdInvoiceTranslations;
 
 /**
  * @internal
@@ -72,7 +72,7 @@ class Migration1773048327UpdateZugferdInvoiceTranslationsTest extends TestCase
                 'ZUGFeRD Invoice',
                 'ZUGFeRD Invoice (embedded)',
                 'ZUGFeRD Rechnung',
-                'ZUGFeRD Rechnung (embedded)',
+                'ZUGFeRD Rechnung (eingebettet)',
             ],
             $translations,
         );

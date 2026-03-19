@@ -311,9 +311,6 @@ export default {
             });
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed without replacement
-         */
         documentTypeAvailable(documentType) {
             return (
                 (documentType.technicalName !== DOCUMENT_TYPES.CANCELLATION_INVOICE &&
@@ -324,9 +321,6 @@ export default {
             );
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed without replacement
-         */
         invoiceExists() {
             return this.documents.some((document) => {
                 return (

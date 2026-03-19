@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Document\Renderer\ZugferdCancellationInvoiceRenderer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_7\Migration1773047964AddZugferdCancellationInvoice;
+use Shopware\Core\Migration\V6_6\Migration1773047964AddZugferdCancellationInvoice;
 
 /**
  * @internal

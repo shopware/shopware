@@ -236,8 +236,6 @@ class ThumbnailExtensionTest extends TestCase
             $scopeDetector,
         );
 
-        $packages = $this->createMock(Packages::class);
-
         // Needed for the ConfigExtension, so the theme_config('breakpoint.sm') calls return the actual breakpoints.
         $templateConfigAccessor = new TemplateConfigAccessor(
             $this->createMock(SystemConfigService::class),
@@ -245,8 +243,8 @@ class ThumbnailExtensionTest extends TestCase
                 $this->createMock(AbstractResolvedConfigLoader::class),
                 $this->createMock(CacheTagCollector::class)
             ),
-            $this->createMock(ThemeScripts::class),
-            $packages,
+            static::createStub(ThemeScripts::class),
+            static::createStub(Packages::class),
         );
 
         $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));

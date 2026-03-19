@@ -225,7 +225,7 @@
                                                         {% for calculatedTax in order.price.calculatedTaxes %}
                                                             {% block page_account_order_item_detail_vat_label %}
                                                                 <dt class="col-6 col-md-8">
-                                                                    {{ 'checkout.summaryTax'|trans({
+                                                                    {{ 'checkout.summaryTaxInclude'|trans({
                                                                         '%rate%':  calculatedTax.taxRate
                                                                     })|sw_sanitize }}
                                                                 </dt>

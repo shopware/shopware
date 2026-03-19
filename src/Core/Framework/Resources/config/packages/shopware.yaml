@@ -352,6 +352,11 @@ shopware:
                 limits:
                     -   domain: 'core.cart.lineItemAddLimit'
                         interval: '60 seconds'
+            app_shop_verify:
+                enabled: true
+                policy: 'sliding_window'
+                limit: 60
+                interval: '60 minutes'
 
     admin_worker:
         enable_admin_worker: true

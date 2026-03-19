@@ -66,6 +66,7 @@ class AppException extends HttpException
     final public const APP_URL_NOT_CONFIGURED = 'FRAMEWORK__APP_URL_NOT_CONFIGURED';
     final public const INVALID_SHOP_ID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION';
     final public const SHOP_ID_CHANGE_STRATEGY_NOT_FOUND = 'FRAMEWORK__APP_SHOP_ID_CHANGE_STRATEGY_NOT_FOUND';
+    final public const APP_URL_INVALID = 'FRAMEWORK__APP_URL_INVALID';
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
 
     /**
@@ -546,6 +547,15 @@ class AppException extends HttpException
     public static function shopIdChangeResolveStrategyNotFound(string $strategy): self
     {
         return new ShopIdChangeStrategyNotFoundException($strategy);
+    }
+
+    public static function invalidAppUrl(string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::APP_URL_INVALID,
+            'APP_URL is invalid: ' . $reason
+        );
     }
 
     public static function manifestNotFound(string $path): self

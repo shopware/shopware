@@ -48,9 +48,9 @@ Both of the above structures produces the component `Sw:Button`.
 
 ## Using a PHP class for the component
 
-Besides the anonymous components, which only require a Twig template, you can also define your component via a PHP class which offers the possiblity to add additional businsess logic to your component. You can have a look at the [offical documentation](https://symfony.com/bundles/ux-twig-component/current/index.html) for all the details.
+Besides the anonymous components, which only require a Twig template, you can also define your component via a PHP class which offers the possibility to add additional business logic to your component. You can have a look at the [official documentation](https://symfony.com/bundles/ux-twig-component/current/index.html) for all the details.
 
-In Shopware we decided that these PHP classes should be placed right where your component template and other files of your component are located. This provides the epxerience of a real comopnent system and you have all component related files in one place. Therefore you can simply add the PHP class to the described directory structure.
+In Shopware we decided that these PHP classes should be placed right where your component template and other files of your component are located. This provides the experience of a real component system and you have all component related files in one place. Therefore you can simply add the PHP class to the described directory structure.
 
 **Important Note:** If you use a PHP class for your component, you cannot use the anonymous component naming feature using `index.html.twig` for your component. The PHP class and the component template should have matching names.
 
@@ -91,7 +91,7 @@ The only thing you have to do though is to register your component class as a se
 
 Now your component is all set up and ready to go. You can directly access it in the template under the given name and namespace.
 
-**Note:** Be careful with adding too much business logic inside component classes. At Shopware we mostly implement anonymous components that are pure frontend representaions which get passed all necessary data via properties.
+**Note:** Be careful with adding too much business logic inside component classes. At Shopware we typically implement anonymous components that are pure frontend representations which get passed all necessary data via properties.
 
 
 ## Adding components via Shopware extension
@@ -99,7 +99,7 @@ Now your component is all set up and ready to go. You can directly access it in 
 New components can easily be added by Shopware apps and plugins.
 
 ### Anonymous Components
-The anonymous components work right of the box and you dont't have to do anything else than putting a template file under `<your-plugin>/src/Resources/views/components`. Both, apps and plugins can provide anonymous components in any distribution form of Shopware. Your components will automatically be prefixed with the bundle name of your app or plugin.
+The anonymous components work right of the box and you don't have to do anything else than putting a template file under `<your-plugin>/src/Resources/views/components`. Both, apps and plugins can provide anonymous components in any distribution form of Shopware. Your components will automatically be prefixed with the bundle name of your app or plugin.
 
 **Example structure:**
 
@@ -179,7 +179,7 @@ Now you can use your component in the template.
 <twig:MyPlugin:Button:Primary />
 ```
 
-To learn what kind of possibilities the PHP implementation of your component offers, you can just refer to the [offical documentation](https://symfony.com/bundles/ux-twig-component/current/index.html).
+To learn what kind of possibilities the PHP implementation of your component offers, you can just refer to the [official documentation](https://symfony.com/bundles/ux-twig-component/current/index.html).
 
 
 ## Best Practices
@@ -240,7 +240,7 @@ To learn what kind of possibilities the PHP implementation of your component off
 ### Component APIs and extensibility
 
 A UX component can offer several APIs to allow extension. Extension means that the APIs of a component can be used to configure or modify a component during its usage.
-The APIs of a component are "Props", "Blocks", "Attributes" and "Slots". Slots are an additional feature in shopware to allow component extension using the CMS.
+The APIs of a component are "Props", "Blocks", "Attributes" and "Slots". Slots are an additional feature in Shopware to allow component extension using the CMS.
 
 | API             | Description                                                                                                                              | Twig UX standard | Public API  |
 |-----------------|------------------------------------------------------------------------------------------------------------------------------------------|------------------|-------------|
@@ -441,7 +441,7 @@ The APIs of a component are "Props", "Blocks", "Attributes" and "Slots". Slots a
 
 ### Attributes and CVA
 
-* A component should make attributes extendable using the attributes feature of symfony UX.
+* A component should make attributes extendable using the attributes feature of Symfony UX.
 * Attributes must not be hardcoded in the HTML elements.
 * Use nested attributes for child-elements.
 * A component should also use CVA to make the CSS-classes configurable.
@@ -477,7 +477,7 @@ The APIs of a component are "Props", "Blocks", "Attributes" and "Slots". Slots a
 * A component must not rely on its parent component in order to function correctly.
 * A component must not rely on global variables or state internally in order to function correctly.
 * If a global setting is needed e.g. `config('core.listing.allowBuyInListing')` it should be able to be passed as a prop from outside.
-* A component can use symfony translation internally.
+* A component can use Symfony translation internally.
 
 ```twig
 {# ProductCard.html.twig #}
@@ -588,4 +588,4 @@ components/Alert
 
 You can add a corresponding JS file for your component. This file is automatically loaded within the template if your component is used on the site. This JS will be integrated as it is, without a bundling process or similar. You can use it for any form of JavaScript to add frontend business logic to your component. It can be plain JS or you can make use of a new component system that we added as an alternative to the current JS plugin system, which can help you create simple encapsulated logic for your component.
 
-For more information you can have a look at the README.md file in `app/storefron/src/component-system/`.
+For more information you can have a look at the [README.md](../../app/storefront/src/component-system/README.md).

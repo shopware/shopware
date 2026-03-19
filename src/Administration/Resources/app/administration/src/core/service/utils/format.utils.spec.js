@@ -101,7 +101,6 @@ describe('src/core/service/utils/format.utils.js', () => {
 
         it('should convert the date correctly with timezone Pacific/Pago_Pago', async () => {
             setTimeZone('Pacific/Samoa');
-            // eslint-disable-next-line no-shadow
             const date = new Date(2000, 1, 1, 11, 13, 37);
 
             expect(dateWithUserTimezone(date).toString()).toBe(
@@ -111,7 +110,6 @@ describe('src/core/service/utils/format.utils.js', () => {
 
         it('should convert the date correctly with timezone UTC as fallback', async () => {
             setTimeZone(null);
-            // eslint-disable-next-line no-shadow
             const date = new Date(2000, 1, 1, 0, 13, 37);
 
             expect(dateWithUserTimezone(date).toString()).toBe(

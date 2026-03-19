@@ -262,9 +262,9 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             Shopware.Utils.EventBus.emit(
                 'consent',
                 new ConsentEvent('consent_modal_viewed', {
-                    option: [
+                    consents_shown: [
                         'backend_data',
-                        'user_tracking',
+                        'product_analytics',
                     ],
                 }),
             );
@@ -278,21 +278,24 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        events: [
-                            {
-                                event_type: 'consent_modal_viewed',
-                                event_properties: {
-                                    option: [
-                                        'backend_data',
-                                        'user_tracking',
-                                    ],
-                                },
-                            },
-                        ],
-                    }),
+                    body: expect.any(String),
                 }),
             );
+
+            expect(JSON.parse(global.fetch.mock.calls[0][1].body)).toEqual({
+                events: [
+                    {
+                        event_type: 'consent_modal_viewed',
+                        event_properties: {
+                            consents_shown: [
+                                'backend_data',
+                                'product_analytics',
+                            ],
+                        },
+                        time: expect.any(Number),
+                    },
+                ],
+            });
             expect(track).not.toHaveBeenCalledWith('consent_modal_viewed', expect.anything());
         });
 
@@ -304,9 +307,9 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             Shopware.Utils.EventBus.emit(
                 'consent',
                 new ConsentEvent('consent_modal_viewed', {
-                    option: [
+                    consents_shown: [
                         'backend_data',
-                        'user_tracking',
+                        'product_analytics',
                     ],
                 }),
             );
@@ -314,21 +317,24 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             expect(global.fetch).toHaveBeenCalledWith(
                 'https://gateway.example/event/anonymous',
                 expect.objectContaining({
-                    body: JSON.stringify({
-                        events: [
-                            {
-                                event_type: 'consent_modal_viewed',
-                                event_properties: {
-                                    option: [
-                                        'backend_data',
-                                        'user_tracking',
-                                    ],
-                                },
-                            },
-                        ],
-                    }),
+                    body: expect.any(String),
                 }),
             );
+
+            expect(JSON.parse(global.fetch.mock.calls[0][1].body)).toEqual({
+                events: [
+                    {
+                        event_type: 'consent_modal_viewed',
+                        event_properties: {
+                            consents_shown: [
+                                'backend_data',
+                                'product_analytics',
+                            ],
+                        },
+                        time: expect.any(Number),
+                    },
+                ],
+            });
         });
 
         it('stops telemetry after consent is revoked during runtime', async () => {
@@ -492,7 +498,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                 new ConsentEvent('consent_modal_viewed', {
                     option: [
                         'backend_data',
-                        'user_tracking',
+                        'product_analytics',
                     ],
                 }),
             );
@@ -601,6 +607,8 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             Shopware.Utils.EventBus.emit('telemetry', resetEvent);
 
             expect(amplitude.track).toHaveBeenCalledWith('logout');
+            expect(amplitude.flush).not.toHaveBeenCalled();
+            expect(amplitude.reset).not.toHaveBeenCalled();
         });
 
         it('should flush telemetry amplitude on logout listener execution', async () => {

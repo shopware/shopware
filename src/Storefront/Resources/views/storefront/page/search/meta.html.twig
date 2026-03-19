@@ -1,0 +1,15 @@
+{% sw_extends '@Storefront/storefront/layout/meta.html.twig' %}
+
+{% block layout_head_json_ld %}
+    {% if feature('JSON_LD_DATA') %}
+        {% set jsonLdWebPageType = 'SearchResultsPage' %}
+        {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-webpage.html.twig' %}
+        {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {
+            categoryId: shopware.navigation.id
+        } only %}
+
+        {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-item-list.html.twig' with {
+            searchResult: page.listing
+        } only %}
+    {% endif %}
+{% endblock %}

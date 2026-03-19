@@ -3,10 +3,10 @@
  */
 import './acl';
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-salutation-list', () => import('./page/sw-settings-salutation-list'));
 Shopware.Component.register('sw-settings-salutation-detail', () => import('./page/sw-settings-salutation-detail'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 

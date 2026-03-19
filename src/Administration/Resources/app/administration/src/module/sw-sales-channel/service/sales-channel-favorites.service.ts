@@ -10,7 +10,6 @@ const { Application } = Shopware;
 class SalesChannelFavoritesService extends UserConfigClass {
     static USER_CONFIG_KEY = 'sales-channel-favorites';
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     private state: { favorites: string[] } = reactive({
         favorites: [],
     });

@@ -13,7 +13,7 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register(
     'sw-sales-channel-defaults-select',
     () => import('./component/sw-sales-channel-defaults-select'),
@@ -68,7 +68,7 @@ Shopware.Component.register(
 Shopware.Component.register('sw-sales-channel-menu', () => import('./component/structure/sw-sales-channel-menu'));
 
 Shopware.Component.register('sw-sales-channel-measurement', () => import('./component/sw-sales-channel-measurement'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-sales-channel', {

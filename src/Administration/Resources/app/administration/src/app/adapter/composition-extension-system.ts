@@ -1,7 +1,16 @@
 import type { ComputedRef, Reactive, Ref, ToRefs } from 'vue';
-import { computed, getCurrentInstance, isReactive, isReadonly, isRef, reactive, toRefs, watch } from 'vue';
+import {
+    computed,
+    getCurrentInstance as vueGetCurrentInstance,
+    isReactive,
+    isReadonly,
+    isRef,
+    reactive,
+    toRefs,
+    watch,
+} from 'vue';
 import { syncRef } from '@vueuse/core';
-import type { SetupContext, PublicProps } from '@vue/runtime-core';
+import type { ComponentInternalInstance, SetupContext, PublicProps } from '@vue/runtime-core';
 import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from './options-composition-shim';
 import type { OverrideFn } from './options-composition-shim';
 
@@ -53,6 +62,23 @@ declare global {
 }
 
 /**
+ * Extends Vue's ComponentInternalInstance with the setupContext property,
+ * which is available at runtime during the setup function but not exposed in Vue's public types.
+ */
+type ComponentInstanceWithSetupContext = ComponentInternalInstance & {
+    setupContext: SetupContext;
+};
+
+/**
+ * Typed wrapper around Vue's getCurrentInstance that includes the setupContext property.
+ * Use this instead of Vue's getCurrentInstance when you need access to setupContext.
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function getCurrentInstance(): ComponentInstanceWithSetupContext | null {
+    return vueGetCurrentInstance() as ComponentInstanceWithSetupContext | null;
+}
+
+/**
  * @private
  * Create a reactive map to store overrides for each component
  */
@@ -64,14 +90,17 @@ export const _overridesMap: {
  * @private
  * Function to check if the new structure contains at least all keys of the old structure (nested)
  */
-const checkNestedStructure = ({
+const checkNestedStructure = <
+    TOld extends Record<string, unknown>,
+    TNew extends Partial<Record<keyof TOld, unknown>> & Record<string, unknown>,
+>({
     oldObj,
     newObj,
     path = '',
     componentName,
 }: {
-    oldObj: Record<string, unknown>;
-    newObj: Record<string, unknown>;
+    oldObj: TOld;
+    newObj: TNew;
     path?: string;
     componentName: string;
 }): {
@@ -120,13 +149,9 @@ const checkNestedStructure = ({
 };
 
 const getComponentContext = (): SetupContext => {
-    // Get the component instance
     const instance = getCurrentInstance();
 
-    // Construct a context object
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return (
-        // @ts-expect-error - "setupContext" is available in the instance when using the setup function
         instance?.setupContext ??
         ({
             attrs: instance?.attrs,

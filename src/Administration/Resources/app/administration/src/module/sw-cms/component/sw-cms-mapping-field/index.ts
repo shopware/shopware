@@ -36,7 +36,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         entity: {
-            type: String,
+            type: String as PropType<Extract<keyof EntitySchema.Entities, string> | null>,
             required: false,
             default: null,
         },

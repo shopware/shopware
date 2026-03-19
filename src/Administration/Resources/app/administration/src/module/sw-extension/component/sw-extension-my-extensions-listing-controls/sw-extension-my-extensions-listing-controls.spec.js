@@ -12,7 +12,6 @@ async function createWrapper() {
 /**
  * @sw-package checkout
  */
-// eslint-disable-next-line max-len
 describe('src/module/sw-extension/component/sw-extension-my-extensions-listing-controls', () => {
     it('should emit an event when clicking the switch', async () => {
         const wrapper = await createWrapper();

@@ -58,7 +58,6 @@ export default {
         showCoverLabel: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },

@@ -209,7 +209,7 @@ describe('AddToCartPlugin tests', () => {
 
         expect(() => {
             new AddToCartPlugin(document.querySelector('[data-add-to-cart]'));
-        }).toThrowError('No form found for the plugin: AddToCartPlugin');
+        }).toThrow('No form found for the plugin: AddToCartPlugin');
     });
 
     test('should init plugin when element is wrapped by form', () => {

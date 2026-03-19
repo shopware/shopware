@@ -301,31 +301,37 @@ class ProductPriceCalculatorTest extends TestCase
     public static function advancedPricesWillBeCalculatedProvider(): \Generator
     {
         yield 'Prices will not be calculated when not loaded' => [
-            (new PartialEntity())->assign(['prices' => null]),
+            (new PartialEntity())->assign(['id' => Uuid::randomHex(), 'prices' => null]),
             [],
         ];
 
-        yield 'Only product price collection can be calculated' => [
+        yield 'Partial entity price collection will be calculated' => [
             (new PartialEntity())->assign([
+                'id' => Uuid::randomHex(),
+                'taxId' => Uuid::randomHex(),
                 'prices' => new EntityCollection([
-                    (new ProductPriceEntity())->assign([
+                    (new PartialEntity())->assign([
+                        'id' => Uuid::randomHex(),
                         '_uniqueIdentifier' => Uuid::randomHex(),
+                        'ruleId' => Defaults::CURRENCY,
                         'price' => new PriceCollection([
                             new Price(Defaults::CURRENCY, 1, 1, false),
                         ]),
                         'quantityStart' => 1,
-                        'quantityEnd' => 2,
+                        'quantityEnd' => null,
                     ]),
                 ]),
             ]),
-            [],
+            [1.0],
         ];
 
         yield 'Only matching rule ids will be calculated' => [
             (new PartialEntity())->assign([
+                'id' => Uuid::randomHex(),
                 'taxId' => Uuid::randomHex(),
                 'prices' => new ProductPriceCollection([
                     (new ProductPriceEntity())->assign([
+                        'id' => Uuid::randomHex(),
                         '_uniqueIdentifier' => Uuid::randomHex(),
                         // not inside the context (see above inside mock)
                         'ruleId' => Defaults::SALES_CHANNEL_TYPE_API,
@@ -342,9 +348,11 @@ class ProductPriceCalculatorTest extends TestCase
 
         yield 'Product will be calculated when price collection loaded' => [
             (new PartialEntity())->assign([
+                'id' => Uuid::randomHex(),
                 'taxId' => Uuid::randomHex(),
                 'prices' => new ProductPriceCollection([
                     (new ProductPriceEntity())->assign([
+                        'id' => Uuid::randomHex(),
                         '_uniqueIdentifier' => Uuid::randomHex(),
                         'ruleId' => Defaults::CURRENCY,
                         'price' => new PriceCollection([

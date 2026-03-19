@@ -24,7 +24,6 @@ export default {
         },
         showDescription: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -40,7 +39,6 @@ export default {
         },
         absolute: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },

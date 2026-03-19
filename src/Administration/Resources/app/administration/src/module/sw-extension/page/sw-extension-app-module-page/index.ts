@@ -132,7 +132,7 @@ export default Shopware.Component.wrapComponentConfig({
             try {
                 const url = new URL(this.entryPoint);
                 return url.origin;
-            } catch (e) {
+            } catch (_e) {
                 return null;
             }
         },

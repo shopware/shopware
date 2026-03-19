@@ -45,7 +45,12 @@ export function addDefaultShopwarePropertiesPlugin(amplitude: AmplitudeModule, d
  */
 export async function getDefaultLanguageName(): Promise<string> {
     const languageRepository = Shopware.Service('repositoryFactory').create('language');
-    const defaultLanguage = await languageRepository.get(Shopware.Context.api.systemLanguageId!);
 
-    return defaultLanguage!.name;
+    try {
+        const defaultLanguage = await languageRepository.get(Shopware.Context.api.systemLanguageId!);
+
+        return defaultLanguage!.name;
+    } catch {
+        return 'N/A';
+    }
 }

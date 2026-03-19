@@ -114,7 +114,6 @@ export default {
         searchable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -155,7 +154,6 @@ export default {
         disableContextMenu: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -164,7 +162,6 @@ export default {
         bindItemsToFolder: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -173,7 +170,6 @@ export default {
         sortable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -182,7 +178,6 @@ export default {
         checkItemsInitial: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -191,7 +186,6 @@ export default {
         allowDeleteCategories: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -200,7 +194,6 @@ export default {
         allowCreateCategories: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -209,7 +202,6 @@ export default {
         initiallyExpandedRoot: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -231,7 +223,6 @@ export default {
             contextItem: null,
             currentEditMode: null,
             addElementPosition: null,
-            // eslint-disable-next-line vue/no-reserved-keys
             _eventFromEdit: null,
             createdItem: null,
             checkedElements: {},

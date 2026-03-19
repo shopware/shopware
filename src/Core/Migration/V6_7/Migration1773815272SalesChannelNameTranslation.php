@@ -4,7 +4,6 @@ namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
@@ -80,15 +79,12 @@ SQL;
      */
     private function updateMailTemplateTranslationRow(array $row, Connection $connection): void
     {
-        $row['updated_at'] = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-
         $sql = <<<SQL
 UPDATE mail_template_translation 
 SET sender_name = :sender_name, 
     subject = :subject, 
     content_html = :content_html, 
-    content_plain = :content_plain,
-    updated_at = :updated_at
+    content_plain = :content_plain
 WHERE mail_template_id = :mail_template_id 
   AND language_id = :language_id
 SQL;

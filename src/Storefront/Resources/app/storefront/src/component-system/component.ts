@@ -38,7 +38,7 @@ class ShopwareComponent {
     private observer: MutationObserver;
 
     // The default settings for the mutation observer.
-    private observerSettings = { childList: false, subtree: false, attributes: false }
+    private observerSettings = { childList: false, subtree: false, attributes: false };
 
     constructor(
         element: Node,
@@ -46,7 +46,7 @@ class ShopwareComponent {
         componentName: string = '',
     ) {
         if (!(element instanceof Node)) {
-            throw('Provided element is not a valid node.');
+            throw new Error('Provided element is not a valid node.');
         }
 
         this.el = element;
@@ -86,6 +86,7 @@ class ShopwareComponent {
      * @param mutationRecords
      * @param observer
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private observerCallback(mutationRecords: MutationRecord[], observer: MutationObserver): void {
         mutationRecords.forEach(mutationRecord => {
             if (mutationRecord.type === 'childList' && this.observerSettings.childList) {
@@ -125,13 +126,13 @@ class ShopwareComponent {
             return dataAttributeOptions;
         }
 
-        const optionsAttribute = this.el.getAttribute(`data-component-options`);
+        const optionsAttribute = this.el.getAttribute('data-component-options');
 
         if (optionsAttribute) {
             try {
-                dataAttributeOptions = JSON.parse(optionsAttribute);
+                dataAttributeOptions = JSON.parse(optionsAttribute) as Record<string, unknown>;
             } catch (error) {
-                console.error(`The data attribute "data-component-options" could not be parsed to json.`);
+                console.error('The data attribute "data-component-options" could not be parsed to json.');
             }
         }
 
@@ -159,7 +160,7 @@ class ShopwareComponent {
     dispatchEvent(
         eventName: string,
         detail: Record<string, unknown>,
-        options: EventOptions = { cancelable: true, bubbles: true, composed: false }
+        options: EventOptions = { cancelable: true, bubbles: true, composed: false },
     ): void {
         this.el.dispatchEvent(new CustomEvent(eventName, {
             detail,
@@ -171,16 +172,16 @@ class ShopwareComponent {
      * Helper method to debounce a function.
      * Use it for heavy events like user input, resize, scroll, etc.
      */
-    debounce(callback: () => void, delay = 400, immediate = false) {
+    debounce(callback: (...args: unknown[]) => void, delay = 400, immediate = false) {
         let timeout: number;
 
-        return (...args: any[]) => {
+        return (...args: unknown[]) => {
             if (immediate && !timeout) {
-                window.setTimeout(callback.bind(callback, ...args), 0);
+                window.setTimeout(() => callback(...args), 0);
             }
 
             window.clearTimeout(timeout);
-            timeout = window.setTimeout(callback.bind(callback, ...args), delay);
+            timeout = window.setTimeout(() => callback(...args), delay);
         };
     }
 
@@ -190,6 +191,7 @@ class ShopwareComponent {
      *
      * @param mutationRecord - The mutation record.
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     onContentUpdate(mutationRecord: MutationRecord): void {}
 
     /**
@@ -198,6 +200,7 @@ class ShopwareComponent {
      *
      * @param mutationRecord - The mutation record.
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     onAttributeUpdate(mutationRecord: MutationRecord): void {}
 }
 

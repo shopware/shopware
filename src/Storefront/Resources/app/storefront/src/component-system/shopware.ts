@@ -14,7 +14,7 @@ type ComponentRegistryEntry = {
 }
 
 type InterceptionRegistryEntry = {
-    callback: (data: Record<string, any>) => Record<string, any>;
+    callback: (data: Record<string, unknown>) => Record<string, unknown>;
     priority?: number;
 }
 
@@ -47,7 +47,7 @@ class Shopware extends EventEmitter {
     constructor() {
         super();
 
-        this.setMaxListeners(50)
+        this.setMaxListeners(50);
 
         this.componentRegistry = new Map();
         this.instanceRegistry = [];
@@ -58,7 +58,7 @@ class Shopware extends EventEmitter {
         this.observer.observe(document.body, { childList: true, subtree: true });
 
         document.addEventListener('DOMContentLoaded', () => {
-            this.initializeComponents();
+            void this.initializeComponents();
         });
 
         // Singleton
@@ -90,7 +90,7 @@ class Shopware extends EventEmitter {
              * This import has to be ignored by webpack.
              * It is used for true native ES modules.
              */
-            const module = await import(/* webpackIgnore: true */ componentName);
+            const module = await import(/* webpackIgnore: true */ componentName) as { default?: typeof ShopwareComponent };
             component = module.default;
         } catch (error) {
             console.error(`Failed to import component ${componentName}:`, error);
@@ -191,7 +191,7 @@ class Shopware extends EventEmitter {
      * @param eventName - The name of the event.
      * @param args - The event arguments passed via the event.
      */
-    public emitQueued(eventName: string, ...args: any[]): void {
+    public emitQueued(eventName: string, ...args: unknown[]): void {
         window.queueMicrotask(() => {
             this.emit(eventName, ...args);
         });
@@ -204,7 +204,7 @@ class Shopware extends EventEmitter {
      * @param callback - The callback function.
      * @param priority - The priority of the event.
      */
-    public intercept(eventName: string, callback: (data: Record<string, any>) => Record<string, any>, priority = 0): void {
+    public intercept(eventName: string, callback: (data: Record<string, unknown>) => Record<string, unknown>, priority = 0): void {
         if (!this.interceptionRegistry.has(eventName)) {
             this.interceptionRegistry.set(eventName, []);
         }
@@ -219,7 +219,7 @@ class Shopware extends EventEmitter {
      * @param data - The event data passed via the event.
      * @returns The arguments.
      */
-    public emitInterception(eventName: string, data: Record<string, any>): Record<string, any> {
+    public emitInterception(eventName: string, data: Record<string, unknown>): Record<string, unknown> {
         const interceptors = this.interceptionRegistry.get(eventName);
         if (!interceptors) {
             return data;
@@ -240,13 +240,13 @@ class Shopware extends EventEmitter {
      * @param methodName - The name of the method.
      * @param args - The arguments.
      */
-    public callMethod(componentName: string | RegExp, methodName: string, ...args: any[]): void {
+    public callMethod(componentName: string | RegExp, methodName: string, ...args: unknown[]): void {
         const componentInstances = this.getComponentInstances(componentName);
 
         componentInstances.forEach(instance => {
             if (instance[methodName as keyof ShopwareComponent] &&
                 typeof instance[methodName as keyof ShopwareComponent] === 'function') {
-                (instance[methodName as keyof ShopwareComponent] as Function).call(instance, ...args);
+                (instance[methodName as keyof ShopwareComponent] as (...fnArgs: unknown[]) => void).call(instance, ...args);
             }
         });
     }
@@ -271,9 +271,9 @@ class Shopware extends EventEmitter {
      * @param form - The form element.
      * @returns The serialized form.
      */
-    public serializeFormJson(form: HTMLFormElement): Record<string, any> {
+    public serializeFormJson(form: HTMLFormElement): Record<string, FormDataEntryValue> {
         const formData = this.serializeForm(form);
-        const json: Record<string, any> = {};
+        const json: Record<string, FormDataEntryValue> = {};
 
         if (formData instanceof FormData) {
             for (const [key, value] of Array.from(formData.entries())) {
@@ -303,17 +303,16 @@ class Shopware extends EventEmitter {
                 continue;
             }
 
-            const loadComponent = new Promise(async (resolve, reject) => {
+            const loadComponent = (async () => {
                 const component = await this.getComponent(componentName);
                 if (!component) {
-                    reject(new Error(`Component ${componentName} not found.`));
-                    return;
+                    throw new Error(`Component ${componentName} not found.`);
                 }
 
                 components.set(componentName, component);
 
-                resolve(component);
-            });
+                return component;
+            })();
 
             componentQueue.set(componentName, loadComponent);
         }
@@ -343,9 +342,10 @@ class Shopware extends EventEmitter {
      * @param mutationRecords - The mutation records.
      * @param observer - The observer.
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private observerCallback(mutationRecords: MutationRecord[], observer: MutationObserver): void {
         mutationRecords.forEach(mutationRecord => {
-            this.handleAddedNodes(mutationRecord.addedNodes);
+            void this.handleAddedNodes(mutationRecord.addedNodes);
             this.handleRemovedNodes(mutationRecord.removedNodes);
         });
     }
@@ -375,7 +375,7 @@ class Shopware extends EventEmitter {
              * For nested elements, we need to handle them recursively.
              */
             if (element.childNodes && element.childNodes.length > 0) {
-                this.handleAddedNodes(element.childNodes);
+                void this.handleAddedNodes(element.childNodes);
             }
         }
     }

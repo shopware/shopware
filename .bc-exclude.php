@@ -64,5 +64,31 @@ return [
         // Was not intended to be extended, declared as final
         'Class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity became final',
         'Parameter hydratorClass was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Entity',
+
+        'Parameter a11yMediaId was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentIdStruct',
+
+        // Changing from Exception to Throwable|null is widening and no problem
+        'The parameter \\$previous of Shopware\\\\Core\\\\Framework\\\\Migration\\\\Exception\\\\MigrateException\\#__construct\(\) changed',
+
+        // changing constructor in a safe way as long as you don't extend the hook
+        'Parameter salesChannelId was added to Method __construct\(\) of class Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Event\\\\SystemConfigChangedHook',
+
+        // revert deprecated return value
+        'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException::customerNotLoggedIn\(\) changed from self|Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\GuestNotAuthenticatedException to Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\GuestNotAuthenticatedException',
+        'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException::guestNotAuthenticated\(\) changed from self|Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\GuestNotAuthenticatedException to Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\GuestNotAuthenticatedException',
+        'The return type of Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentException::wrongGuestCredentials\(\) changed from self|Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\WrongGuestCredentialsException to Shopware\\\\Core\\\\Checkout\\\\Order\\\\Exception\\\\WrongGuestCredentialsException',
+
+        // Fix to make promotions work with order recalculation
+        'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',
+
+        'ADDED: Parameter visibility was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Plugin\\\\CopyBatchInput',
+
+        // Added runtime parameter to Field attribute
+        'ADDED: Parameter runtime was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Attribute\\\\Field',
+
+        // The "parts" arrays of these events could contain values that are not correctly represented in the getter and add methods. Those are necessary fixes, otherwise type errors will occur.
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent#get() changed from string', '/'),
+        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent#get() changed from string|null', '/'),
+        preg_quote('CHANGED: The parameter $value of Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheCookieEvent#add() changed from string', '/'),
     ],
 ];

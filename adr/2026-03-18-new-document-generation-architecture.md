@@ -34,7 +34,7 @@ A document with a single document number and represented by one or more files in
 (e.g. invoice number 1001, available in PDF and HTML).
 All associated document files are based on the same order (version) data and document number.
 
-## Fundamental concepts
+## Concepts
 
 ### Entity relations
 
@@ -91,7 +91,7 @@ public function generate(
     string $docType,
     array $formats,
     Context $context,
-    string $documentNumber = null
+    ?string $docNumber = null,
 ): DocumentEntity
 ```
 

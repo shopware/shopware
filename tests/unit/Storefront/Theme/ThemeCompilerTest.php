@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
+use League\Flysystem\Config;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use League\Flysystem\Visibility;
@@ -13,10 +14,12 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
@@ -711,7 +714,7 @@ class ThemeCompilerTest extends TestCase
     {
         $this->setupBasicFileResolution();
 
-        $component = new \Shopware\Storefront\Framework\Twig\Components\TwigComponent(
+        $component = new TwigComponent(
             'Sw:Button',
             '/some/path/Sw/Button.html.twig',
             'Storefront'
@@ -721,7 +724,25 @@ class ThemeCompilerTest extends TestCase
         $this->twigComponentHelper->method('getComponents')
             ->willReturn(new TwigComponentCollection([$component]));
 
+        // Recreate the mock so exists() returns true without conflicts from setUp's willReturn(false).
+        $this->localFilesystem = $this->createMock(LocalFilesystem::class);
         $this->localFilesystem->method('exists')->willReturn(true);
+
+        // Replace the filesystem adapter with one that also implements WriteBatchInterface.
+        // CopyBatch::copy detects this and calls writeBatch() instead of fopen() on the
+        // source path, so no real file is needed on disk.
+        $this->filesystem = new Filesystem(
+            new class extends InMemoryFilesystemAdapter implements WriteBatchInterface {
+                public function writeBatch(CopyBatchInput ...$files): void
+                {
+                    foreach ($files as $file) {
+                        foreach ($file->getTargetFiles() as $target) {
+                            $this->write($target, '', new Config());
+                        }
+                    }
+                }
+            }
+        );
 
         $compiler = $this->createThemeCompiler();
 
@@ -744,7 +765,7 @@ class ThemeCompilerTest extends TestCase
     {
         $this->setupBasicFileResolution();
 
-        $component = new \Shopware\Storefront\Framework\Twig\Components\TwigComponent(
+        $component = new TwigComponent(
             'Sw:Badge',
             '/some/path/Sw/Badge.html.twig',
             'Storefront'

@@ -15,6 +15,8 @@ use Symfony\Component\Finder\Finder;
 #[Package('after-sales')]
 class SalesChannelTranslatedNameTest extends TestCase
 {
+    public const SALES_CHANNEL_NAME_SEARCH_REGEX = '/^.*(salesChannel.name)+.*$/m';
+
     public function testMailTemplateContentCollectionFile(): void
     {
         $fileSystem = new Filesystem();
@@ -34,14 +36,8 @@ class SalesChannelTranslatedNameTest extends TestCase
         $baseDirectory = realpath(__DIR__ . '/../../src/Core/Migration/Fixtures/mails');
         static::assertIsString($baseDirectory);
 
-        $finder = new Finder();
-
         $result = [];
-        $files = $finder->files()
-            ->depth('1')
-            ->in($baseDirectory)
-            ->contains('/^.*(\{\{ salesChannel.name \}\})+.*$/m')
-            ->sortByCaseInsensitiveName();
+        $files = $this->findFiles($baseDirectory);
 
         foreach ($files as $file) {
             $result[] = $file->getRealPath();
@@ -58,7 +54,6 @@ class SalesChannelTranslatedNameTest extends TestCase
     public function testMigrationFiles(): void
     {
         $fileSystem = new Filesystem();
-        $finder = new Finder();
 
         $baseDirectory = realpath(__DIR__ . '/../../src/Core/Migration');
         static::assertIsString($baseDirectory);
@@ -72,13 +67,7 @@ class SalesChannelTranslatedNameTest extends TestCase
         );
 
         $fileList = [];
-        $files = $finder
-            ->files()
-            ->depth('1')
-            ->in($baseDirectory)
-            ->contains('/^.*(\{\{ salesChannel.name \}\})+.*$/m')
-            ->sortByCaseInsensitiveName()
-            ->getIterator();
+        $files = $this->findFiles($baseDirectory);
 
         foreach ($files as $file) {
             $fileList[] = $file->getFilename();
@@ -86,7 +75,7 @@ class SalesChannelTranslatedNameTest extends TestCase
 
         $fileList = \array_values(array_unique($fileList));
         // to ensure find the allowed 22 files. (Old migrations)
-        static::assertGreaterThan(21, \count($fileList));
+        static::assertGreaterThanOrEqual(22, \count($fileList));
 
         foreach ($fileList as $fileName) {
             $index = array_search($fileName, $result, true);
@@ -104,5 +93,16 @@ class SalesChannelTranslatedNameTest extends TestCase
         }
 
         static::assertCount(0, $result, $message);
+    }
+
+    private function findFiles(string $baseDirectory): \Iterator
+    {
+        return (new Finder())
+            ->files()
+            ->depth('1')
+            ->in($baseDirectory)
+            ->contains(self::SALES_CHANNEL_NAME_SEARCH_REGEX)
+            ->sortByCaseInsensitiveName()
+            ->getIterator();
     }
 }

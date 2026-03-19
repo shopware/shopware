@@ -13,7 +13,7 @@ function createLivePlugin({ url = '/product/pid/purchase-limit', withAlertTempla
     document.body.innerHTML = `
         <form>
             <div class="input-group" data-quantity-selector="true"
-                 ${url ? `data-quantity-selector-options='{"purchaseLimitUrl": "${url}"}'` : ''}>
+                 ${url ? `data-quantity-selector-plugin-options='{"purchaseLimitUrl": "${url}"}'` : ''}>
                 <button type="button" class="js-btn-minus">-</button>
                 <input type="number" class="js-quantity-selector" min="1" max="10" step="1" value="${inputValue}">
                 <button type="button" class="js-btn-plus">+</button>

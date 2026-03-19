@@ -149,7 +149,7 @@ custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
 
 The buy-widget quantity selector now fetches live `minPurchase`, `purchaseSteps`, and `maxPurchase` values for closeout products (internally uses new Store API endpoint `GET /store-api/product/purchase-limit`) on first user interaction (focus or click). This ensures the selector reflects actual stock even when the PDP HTML is served from HTTP cache.
 
-The fetch is triggered by the `QuantitySelectorPlugin` when a `data-live-purchase-limit-url` attribute is present on the quantity selector element. If you override `buy_widget_buy_container` or related blocks in `buy-widget-form.html.twig`, preserve the `data-live-purchase-limit-url` attribute and the `js-quantity-stock-adjusted-template` `<template>` element to use this functionality.
+The fetch is triggered by the `QuantitySelectorPlugin` when a `purchaseLimitUrl` option is set on the quantity selector element. This is injected via `data-quantity-selector-options` by `buy-widget-form.html.twig` for closeout products. If you override `buy_widget_buy_container` or related blocks in `buy-widget-form.html.twig`, preserve the `data-quantity-selector-options` attribute with a `purchaseLimitUrl` key and the `js-quantity-stock-adjusted-template` `<template>` element to use this functionality.
 
 ### Block renaming
 

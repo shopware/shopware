@@ -144,11 +144,9 @@
                                         }
                                     },
                                     "templateData": {
-                                        "description": "A collection of available data that is used to fill the mail template.",
-                                        "type": "array",
-                                        "items": {
-                                            "type": "mixed"
-                                        },
+                                        "description": "A map of available data that is used to fill the mail template.",
+                                        "type": "object",
+                                        "additionalProperties": true,
                                         "example": {
                                             "salesChannel": {
                                                 "name": "Storefront"
@@ -333,6 +331,7 @@
                                     "templateData": {
                                         "description": "A map of template data that should be used additionally during rendering.",
                                         "type": "object",
+                                        "additionalProperties": true,
                                         "example": {
                                             "salesChannel": {
                                                 "name": "Storefront"
@@ -615,6 +614,7 @@
                                     "templateData": {
                                         "description": "A map of template data that should be used additionally during rendering.",
                                         "type": "object",
+                                        "additionalProperties": true,
                                         "example": {
                                             "salesChannel": {
                                                 "name": "Storefront"
@@ -699,6 +699,7 @@
                                     "templateData": {
                                         "description": "A map of template data whose keys can be used as variables.",
                                         "type": "object",
+                                        "additionalProperties": true,
                                         "example": {
                                             "salesChannel": {
                                                 "name": "Storefront"
@@ -734,7 +735,7 @@
                                             },
                                             "hasChildren": {
                                                 "description": "Shows if behind the variable are more nested variables which can be accessed by another request to this endpoint with the updated field path: `<fieldPath>.<fieldName>`",
-                                                "type": "bool",
+                                                "type": "boolean",
                                                 "example": true
                                             }
                                         }

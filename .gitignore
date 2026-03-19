@@ -190,7 +190,3 @@ danger.phar
 # Vite deps
 **/.tmp/vite/*
 
-# DevForge workbench (auto-generated)
-.cursor/mcp.json
-.mcp-shopware.json
-.shopware/

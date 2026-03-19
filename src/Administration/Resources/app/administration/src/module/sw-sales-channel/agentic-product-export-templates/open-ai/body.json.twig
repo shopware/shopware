@@ -4,28 +4,67 @@
 {% if product.calculatedPrices.count > 0 %}
     {% set price = product.calculatedPrices.last %}
 {% endif %}
+{% set unitPrice = price.unitPrice %}
+{% set regularPriceValue = unitPrice %}
+{% set salePriceValue = null %}
+{% if price.listPrice is defined and price.listPrice %}
+    {% set regularPriceValue = price.listPrice.price %}
+    {% if price.listPrice.price > unitPrice %}
+        {% set salePriceValue = unitPrice %}
+    {% endif %}
+{% endif %}
 {% set imageUrl = '' %}
 {% if product.cover is defined and product.cover and product.cover.media is defined and product.cover.media %}
     {% set imageUrl = product.cover.media.url %}
 {% endif %}
+{% set additionalImageUrls = [] %}
+{% if product.media is defined and product.media %}
+    {% for productMedia in product.media %}
+        {% if productMedia.media is defined and productMedia.media and productMedia.media.url and productMedia.id != product.coverId %}
+            {% set additionalImageUrls = additionalImageUrls|merge([productMedia.media.url]) %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% set feedRow = {
+    'is_eligible_search': provider.isEligibleSearch,
+    'is_eligible_checkout': provider.isEligibleCheckout,
+    'item_id': product.productNumber ? product.productNumber : product.id,
+    'title': title,
+    'description': description,
+    'url': seoUrl('frontend.detail.page', {'productId': product.id}),
+    'image_url': imageUrl,
+    'price': (regularPriceValue|number_format(context.currency.itemRounding.decimals, '.', '')) ~ ' ' ~ context.currency.isoCode,
+    'availability': product.available ? 'in_stock' : (product.restockTime ? 'backorder' : 'out_of_stock'),
+    'brand': (product.manufacturer is defined and product.manufacturer) ? product.manufacturer.translated.name : provider.sellerName,
+    'condition': 'new',
+    'group_id': product.parentId ? product.parentId : product.id,
+    'listing_has_variations': product.parentId or product.childCount > 0,
+    'seller_name': provider.sellerName,
+    'seller_url': provider.sellerUrl,
+    'return_policy': provider.returnPolicyUrl,
+    'target_countries': provider.targetCountries,
+    'store_country': provider.storeCountry,
+    'gtin': product.ean|default(''),
+    'mpn': product.manufacturerNumber|default(''),
+    'item_group_title': title,
+    'is_digital': product.downloads is defined and product.downloads|length > 0
+} %}
+{% if additionalImageUrls is not empty %}
+    {% set feedRow = feedRow|merge({
+        'additional_image_urls': additionalImageUrls|join(',')
+    }) %}
+{% endif %}
+{% if salePriceValue is not null %}
+    {% set feedRow = feedRow|merge({
+        'sale_price': (salePriceValue|number_format(context.currency.itemRounding.decimals, '.', '')) ~ ' ' ~ context.currency.isoCode
+    }) %}
+{% endif %}
 {% if title and imageUrl and price %}
-{
-    "item_id": {{ (product.productNumber ? product.productNumber : product.id)|json_encode|raw }},
-    "title": {{ title|json_encode|raw }},
-    "description": {{ description|json_encode|raw }},
-    "url": {{ seoUrl('frontend.detail.page', {'productId': product.id})|json_encode|raw }},
-    "image_url": {{ imageUrl|json_encode|raw }},
-    "price": {{ ((price.unitPrice|number_format(context.currency.itemRounding.decimals, '.', '')) ~ ' ' ~ context.currency.isoCode)|json_encode|raw }},
-    "availability": {{ (product.available ? 'in_stock' : (product.restockTime ? 'backorder' : 'out_of_stock'))|json_encode|raw }},
-    "brand": {{ ((product.manufacturer is defined and product.manufacturer) ? product.manufacturer.translated.name : provider.sellerName)|json_encode|raw }},
-    "condition": "new",
-    "group_id": {{ (product.parentId ? product.parentId : product.id)|json_encode|raw }},
-    "listing_has_variations": {{ (product.parentId or product.childCount > 0) ? 'true' : 'false' }},
-    "store_country": {{ provider.storeCountry|json_encode|raw }},
-    "target_countries": {{ provider.targetCountries|json_encode|raw }},
-    "gtin": {{ product.ean|default('')|json_encode|raw }},
-    "mpn": {{ product.manufacturerNumber|default('')|json_encode|raw }},
-    "seller_name": {{ provider.sellerName|json_encode|raw }},
-    "seller_url": {{ provider.sellerUrl|json_encode|raw }}
-}
+    {# Property-mapped candidates for a future mapping layer:
+       material, age_group, variant_dict, color, size, size_system, gender,
+       custom_variant1_category/custom_variant1_option,
+       custom_variant2_category/custom_variant2_option,
+       custom_variant3_category/custom_variant3_option
+    #}
+{{ feedRow|json_encode|raw }}
 {% endif %}

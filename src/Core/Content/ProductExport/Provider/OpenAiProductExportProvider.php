@@ -31,10 +31,13 @@ class OpenAiProductExportProvider extends AbstractProductExportProvider
 
         $renderContext['provider'] = new ArrayStruct([
             'name' => $this->getTechnicalName(),
-            'storeCountry' => $countryIso,
-            'targetCountries' => [$countryIso],
+            'storeCountry' => $countryIso, // todo: update it with actual store country
+            'targetCountries' => [$countryIso], // todo: update it with actual target countries
             'sellerName' => $sellerName,
             'sellerUrl' => $sellerUrl,
+            'returnPolicyUrl' => $sellerUrl, // todo: update it with actual return policy url
+            'isEligibleSearch' => true,
+            'isEligibleCheckout' => false,
         ]);
 
         return $renderContext;

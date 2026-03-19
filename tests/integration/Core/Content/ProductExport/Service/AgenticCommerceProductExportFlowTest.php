@@ -93,6 +93,8 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         $exportedProduct = json_decode($lines[0], true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame($product['productNumber'], $exportedProduct['item_id']);
+        static::assertTrue($exportedProduct['is_eligible_search']);
+        static::assertFalse($exportedProduct['is_eligible_checkout']);
         static::assertSame('OpenAI Feed Product', $exportedProduct['title']);
         static::assertSame('Feed description', $exportedProduct['description']);
         static::assertSame('10.99 EUR', $exportedProduct['price']);
@@ -101,12 +103,15 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         static::assertSame('new', $exportedProduct['condition']);
         static::assertSame($product['id'], $exportedProduct['group_id']);
         static::assertFalse($exportedProduct['listing_has_variations']);
+        static::assertSame('OpenAI Feed Product', $exportedProduct['item_group_title']);
+        static::assertFalse($exportedProduct['is_digital']);
         static::assertSame('DE', $exportedProduct['store_country']);
         static::assertSame(['DE'], $exportedProduct['target_countries']);
         static::assertSame('1234567890123', $exportedProduct['gtin']);
         static::assertSame('MPN-123', $exportedProduct['mpn']);
         static::assertSame($productExport->getStorefrontSalesChannel()?->getName(), $exportedProduct['seller_name']);
         static::assertSame($productExport->getSalesChannelDomain()?->getUrl(), $exportedProduct['seller_url']);
+        static::assertSame($productExport->getSalesChannelDomain()?->getUrl(), $exportedProduct['return_policy']);
         static::assertStringContainsString((string) $productExport->getSalesChannelDomain()?->getUrl(), $exportedProduct['url']);
         static::assertStringStartsWith('https://example.com/images/openai-feed-product.jpg', $exportedProduct['image_url']);
     }

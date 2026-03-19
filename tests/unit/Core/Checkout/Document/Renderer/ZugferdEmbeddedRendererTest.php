@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
@@ -26,7 +27,10 @@ class ZugferdEmbeddedRendererTest extends TestCase
         $renderer = new ZugferdEmbeddedRenderer(
             $this->createMock(AbstractDocumentRenderer::class),
             $this->createMock(AbstractDocumentRenderer::class),
-            new ZugferdEmbeddedService('version')
+            new ZugferdEmbeddedService(
+                'version',
+                $this->createMock(DocumentFileRendererRegistry::class),
+            )
         );
 
         static::assertSame('zugferd_embedded_invoice', $renderer->supports());
@@ -59,7 +63,10 @@ class ZugferdEmbeddedRendererTest extends TestCase
         $renderer = new ZugferdEmbeddedRenderer(
             $invoiceRenderer,
             $electronicRenderer,
-            new ZugferdEmbeddedService('version')
+            new ZugferdEmbeddedService(
+                'version',
+                $this->createMock(DocumentFileRendererRegistry::class),
+            )
         );
 
         $result = $renderer->render(

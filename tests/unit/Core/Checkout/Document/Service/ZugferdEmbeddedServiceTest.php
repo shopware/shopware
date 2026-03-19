@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
+use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
@@ -25,7 +26,10 @@ class ZugferdEmbeddedServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->service = new ZugferdEmbeddedService('version');
+        $this->service = new ZugferdEmbeddedService(
+            'version',
+            $this->createMock(DocumentFileRendererRegistry::class),
+        );
     }
 
     public function testEmbedWithFullSuccess(): void

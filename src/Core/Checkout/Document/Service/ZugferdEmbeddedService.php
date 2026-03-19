@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -28,7 +29,8 @@ final class ZugferdEmbeddedService
     private const PDF_GENERATION_ERROR = 'Error during PDF generation';
 
     public function __construct(
-        private readonly string $shopwareVersion
+        private readonly string $shopwareVersion,
+        private readonly DocumentFileRendererRegistry $fileRendererRegistry,
     ) {
     }
 
@@ -59,6 +61,10 @@ final class ZugferdEmbeddedService
                 ));
 
                 continue;
+            }
+
+            if (!Feature::isActive('v6.7.0.0') && $pdfDocument->getContent() === '') {
+                $pdfDocument->setContent($this->fileRendererRegistry->render($pdfDocument));
             }
 
             $electronicDoc = $electronicDocument->getOrderSuccess($orderId);

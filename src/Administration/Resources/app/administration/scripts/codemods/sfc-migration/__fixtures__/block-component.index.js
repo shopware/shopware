@@ -5,17 +5,32 @@ Shopware.Component.register('sw-block-card', {
 
     inject: ['acl'],
 
+    props: {
+        initialCount: {
+            type: Number,
+            required: false,
+            default: 0,
+        },
+        readOnly: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
+
+    emits: ['action', 'reset'],
+
     data() {
         return {
             title: 'Block Card',
             description: 'A card with extensible blocks',
-            count: 0,
+            count: this.initialCount,
         };
     },
 
     computed: {
         canEdit() {
-            return this.acl.can('product.editor');
+            return !this.readOnly && this.acl.can('product.editor');
         },
 
         label: {
@@ -34,6 +49,12 @@ Shopware.Component.register('sw-block-card', {
                 this.title = 'Limit reached';
             }
         },
+
+        readOnly(newVal) {
+            if (newVal) {
+                this.title = 'Read-only mode';
+            }
+        },
     },
 
     methods: {
@@ -41,9 +62,16 @@ Shopware.Component.register('sw-block-card', {
             this.count += 1;
             this.$emit('action', this.count);
         },
+
+        onReset() {
+            this.count = this.initialCount;
+            this.title = 'Block Card';
+            this.$refs.cardWrapper.focus();
+            this.$emit('reset');
+        },
     },
 
     mounted() {
-        this.count = 0;
+        this.count = this.initialCount;
     },
 });

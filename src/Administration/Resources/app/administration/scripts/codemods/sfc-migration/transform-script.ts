@@ -23,11 +23,18 @@ export interface TransformScriptResult {
 // Vue Composition API lifecycle-hook mapping
 // ---------------------------------------------------------------------------
 
+/**
+ * Maps Options API lifecycle names to their Composition API equivalents.
+ * `created` is intentionally absent — its body is emitted directly in setup()
+ * (synchronous setup code is the Composition API equivalent of created()).
+ */
 const LIFECYCLE_MAP: Record<string, string> = {
     mounted: 'onMounted',
-    // `created` has no direct equivalent; onMounted is the closest approximation
-    created: 'onMounted',
     beforeMount: 'onBeforeMount',
+    // Vue 3 names
+    beforeUnmount: 'onBeforeUnmount',
+    unmounted: 'onUnmounted',
+    // Vue 2 legacy names (kept for components that haven't fully adopted Vue 3 naming)
     beforeDestroy: 'onBeforeUnmount',
     destroyed: 'onUnmounted',
     updated: 'onUpdated',
@@ -66,8 +73,27 @@ interface MethodProp {
 
 interface LifecycleHook {
     hookName: string;
-    compositionName: string;
+    /** null means "run directly in setup" (i.e. created) */
+    compositionName: string | null;
     bodyText: string;
+}
+
+interface RewriteContext {
+    propNames: Set<string>;
+    dataNames: Set<string>;
+    computedNames: Set<string>;
+    methodNames: Set<string>;
+    /** inject() keys — accessed as plain identifiers in Composition API */
+    injectNames: Set<string>;
+}
+
+interface UsedComposables {
+    needsRouter: boolean;
+    needsRoute: boolean;
+    needsNextTick: boolean;
+    needsSlots: boolean;
+    needsI18n: boolean;
+    needsEmit: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -278,6 +304,9 @@ function extractMethodProps(optionsObj: ObjectLiteralExpression): MethodProp[] {
 /**
  * Finds lifecycle hooks that are shorthand method declarations at the top level
  * of the options object (e.g. `mounted() {…}`).
+ *
+ * `created` is returned with `compositionName: null` to signal that its body
+ * should be emitted directly in setup() rather than wrapped in a hook call.
  */
 function extractLifecycleHooks(optionsObj: ObjectLiteralExpression): LifecycleHook[] {
     const result: LifecycleHook[] = [];
@@ -287,14 +316,204 @@ function extractLifecycleHooks(optionsObj: ObjectLiteralExpression): LifecycleHo
 
         const method = prop.asKindOrThrow(SyntaxKind.MethodDeclaration);
         const hookName = method.getName();
-        const compositionName = LIFECYCLE_MAP[hookName];
 
+        if (hookName === 'created') {
+            result.push({ hookName, compositionName: null, bodyText: method.getBodyText() ?? '' });
+            continue;
+        }
+
+        const compositionName = LIFECYCLE_MAP[hookName];
         if (compositionName) {
             result.push({ hookName, compositionName, bodyText: method.getBodyText() ?? '' });
         }
     }
 
     return result;
+}
+
+/**
+ * Returns the raw source text of `props: { … }` value for use in `defineProps()`.
+ * Returns `null` when no props are defined.
+ */
+function extractPropsText(optionsObj: ObjectLiteralExpression): string | null {
+    const prop = optionsObj.getProperty('props');
+    if (!prop?.isKind(SyntaxKind.PropertyAssignment)) return null;
+
+    const initializer = prop.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer();
+    return initializer?.getText() ?? null;
+}
+
+/**
+ * Returns the list of event names from `emits: ['event1', 'event2']`.
+ * Returns an empty array when the property is absent.
+ */
+function extractEmitsKeys(optionsObj: ObjectLiteralExpression): string[] {
+    const prop = optionsObj.getProperty('emits');
+    if (!prop?.isKind(SyntaxKind.PropertyAssignment)) return [];
+
+    const initializer = prop
+        .asKindOrThrow(SyntaxKind.PropertyAssignment)
+        .getInitializerIfKind(SyntaxKind.ArrayLiteralExpression);
+
+    return (
+        initializer
+            ?.getElements()
+            .filter((el) => el.isKind(SyntaxKind.StringLiteral))
+            .map((el) => el.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue()) ?? []
+    );
+}
+
+/**
+ * Returns `true` when `inheritAttrs: false` is explicitly set in the options.
+ */
+function extractInheritAttrs(optionsObj: ObjectLiteralExpression): boolean {
+    const prop = optionsObj.getProperty('inheritAttrs');
+    if (!prop?.isKind(SyntaxKind.PropertyAssignment)) return true;
+
+    const initializer = prop.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer();
+    return initializer?.getText() !== 'false';
+}
+
+/**
+ * Collects module-level code that appears before the `Shopware.Component.register()`
+ * call, excluding the `import template from '…'` import.
+ *
+ * This preserves side-effect imports (e.g. `import './sw-avatar.scss'`) and
+ * module-level variable declarations (e.g. `const { cloneDeep } = …`, `const colors = […]`).
+ */
+function extractModuleLevelCode(sourceFile: SourceFile): string {
+    const registerCall = findRegisterCall(sourceFile);
+    if (!registerCall) return '';
+
+    const registerPos = registerCall.getStart();
+    const lines: string[] = [];
+
+    for (const stmt of sourceFile.getStatements()) {
+        if (stmt.getStart() >= registerPos) break;
+
+        // Drop `import template from '…'`
+        if (stmt.isKind(SyntaxKind.ImportDeclaration)) {
+            const imp = stmt.asKindOrThrow(SyntaxKind.ImportDeclaration);
+            const defaultImport = imp.getDefaultImport()?.getText();
+            if (defaultImport === 'template') continue;
+        }
+
+        lines.push(stmt.getText());
+    }
+
+    return lines.join('\n');
+}
+
+/**
+ * Scans a list of code snippets for `this.$refs.NAME` patterns and returns the
+ * unique ref names. These need a `const NAME = ref(null)` declaration in setup.
+ */
+function collectThisRefNames(bodies: string[]): string[] {
+    const names = new Set<string>();
+    const RE = /\bthis\.\$refs\.(\w+)/g;
+
+    for (const body of bodies) {
+        let match: RegExpExecArray | null;
+        RE.lastIndex = 0;
+        while ((match = RE.exec(body)) !== null) {
+            names.add(match[1]);
+        }
+    }
+
+    return [...names];
+}
+
+/**
+ * Inspects a list of code snippets and reports which Vue Router / I18n / DOM
+ * composables are needed (based on `this.$xxx` patterns found).
+ */
+function detectUsedComposables(bodies: string[]): UsedComposables {
+    const combined = bodies.join('\n');
+    return {
+        needsRouter: /\bthis\.\$router\b/.test(combined),
+        needsRoute: /\bthis\.\$route\b/.test(combined),
+        needsNextTick: /\bthis\.\$nextTick\b/.test(combined),
+        needsSlots: /\bthis\.\$slots\b/.test(combined),
+        needsI18n: /\bthis\.\$tc\b|\bthis\.\$t\b/.test(combined),
+        needsEmit: /\bthis\.\$emit\b/.test(combined),
+    };
+}
+
+/**
+ * Scans method bodies for `this.$emit('eventName', …)` patterns and returns the
+ * unique event name strings. Used to auto-populate `defineEmits` when the
+ * Options API component did not declare an explicit `emits: […]` array.
+ */
+function collectEmittedEventNames(bodies: string[]): string[] {
+    const names = new Set<string>();
+    const RE = /\bthis\.\$emit\(\s*['"]([^'"]+)['"]/g;
+
+    for (const body of bodies) {
+        let match: RegExpExecArray | null;
+        RE.lastIndex = 0;
+        while ((match = RE.exec(body)) !== null) {
+            names.add(match[1]);
+        }
+    }
+
+    return [...names];
+}
+
+/**
+ * Rewrites `this.xxx` references in a method/computed/watch/lifecycle body so
+ * they are valid in a `<script setup>` Composition API context.
+ *
+ * Replacement order matters: special `$`-prefixed properties are handled first
+ * to avoid conflicts with the named lookup loop that follows.
+ */
+function rewriteThisInBody(bodyText: string, ctx: RewriteContext): string {
+    let result = bodyText;
+
+    // `this.$refs.NAME` → `NAME.value`  (must come before generic $refs handling)
+    result = result.replace(/\bthis\.\$refs\.(\w+)/g, (_, name) => `${name}.value`);
+
+    // Special Vue instance properties
+    result = result.replace(/\bthis\.\$emit\b/g, 'emit');
+    result = result.replace(/\bthis\.\$router\b/g, 'router');
+    result = result.replace(/\bthis\.\$route\b/g, 'route');
+    result = result.replace(/\bthis\.\$nextTick\b/g, 'nextTick');
+    result = result.replace(/\bthis\.\$slots\b/g, 'slots');
+    result = result.replace(/\bthis\.\$props\b/g, 'props');
+    result = result.replace(/\bthis\.\$tc\b/g, 'tc');
+    result = result.replace(/\bthis\.\$t\b/g, 't');
+    // `this.$el` has no clean composition-API equivalent; mark for manual follow-up
+    result = result.replace(/\bthis\.\$el\b/g, '/* TODO: $el */ getCurrentInstance()?.proxy?.$el');
+
+    // Named props → `props.NAME`
+    for (const name of ctx.propNames) {
+        result = result.replace(new RegExp(`\\bthis\\.${escapeRegExp(name)}\\b`, 'g'), `props.${name}`);
+    }
+
+    // Named data refs → `NAME.value`
+    for (const name of ctx.dataNames) {
+        result = result.replace(new RegExp(`\\bthis\\.${escapeRegExp(name)}\\b`, 'g'), `${name}.value`);
+    }
+
+    // Named computed refs → `NAME.value`
+    for (const name of ctx.computedNames) {
+        result = result.replace(new RegExp(`\\bthis\\.${escapeRegExp(name)}\\b`, 'g'), `${name}.value`);
+    }
+
+    // Named methods → plain `NAME` (no `.value`)
+    for (const name of ctx.methodNames) {
+        result = result.replace(new RegExp(`\\bthis\\.${escapeRegExp(name)}\\b`, 'g'), name);
+    }
+
+    // Inject keys → plain `NAME` (they are regular constants in Composition API)
+    for (const name of ctx.injectNames) {
+        result = result.replace(new RegExp(`\\bthis\\.${escapeRegExp(name)}\\b`, 'g'), name);
+    }
+
+    return result;
+}
+
+function escapeRegExp(s: string): string {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /**
@@ -319,23 +538,63 @@ function detectBlockers(optionsObj: ObjectLiteralExpression, sourceFile: SourceF
 // Code generators
 // ---------------------------------------------------------------------------
 
-function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componentName: string): string {
+function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componentName: string, sourceFile: SourceFile): string {
     const injectKeys = extractInjectKeys(optionsObj);
     const dataProps = extractDataProps(optionsObj);
     const computedProps = extractComputedProps(optionsObj);
     const watchProps = extractWatchProps(optionsObj);
     const methodProps = extractMethodProps(optionsObj);
     const lifecycleHooks = extractLifecycleHooks(optionsObj);
+    const propsText = extractPropsText(optionsObj);
+    const emitsKeys = extractEmitsKeys(optionsObj);
+    const inheritAttrs = extractInheritAttrs(optionsObj);
+    const moduleLevelCode = extractModuleLevelCode(sourceFile);
+
+    const propNames = new Set(propsText ? extractPropNamesFromText(optionsObj) : []);
+    const dataNames = new Set(dataProps.map((p) => p.name));
+    const computedNames = new Set(computedProps.map((p) => p.name));
+    const methodNames = new Set(methodProps.map((p) => p.name));
+    const injectNames = new Set(injectKeys);
+
+    const ctx: RewriteContext = { propNames, dataNames, computedNames, methodNames, injectNames };
+
+    // Collect all body texts to scan for composable usage and template refs
+    const allBodies = [
+        ...dataProps.map((p) => p.valueText),
+        ...computedProps.map((p) =>
+            p.kind === 'getter' ? p.bodyText : p.getterBodyText + '\n' + p.setterBodyText,
+        ),
+        ...watchProps.map((p) => p.bodyText),
+        ...methodProps.map((p) => p.bodyText),
+        ...lifecycleHooks.map((h) => h.bodyText),
+    ];
+
+    const usedComposables = detectUsedComposables(allBodies);
+    const templateRefNames = collectThisRefNames(allBodies);
+
+    // Determine the final emits list: prefer explicit `emits: [...]`, fall back to
+    // scanning method bodies for `this.$emit('eventName', ...)` calls.
+    const effectiveEmitsKeys =
+        emitsKeys.length > 0 ? emitsKeys : collectEmittedEventNames(allBodies);
 
     // Determine which Vue composables are actually needed
     const vueImports: string[] = [];
-    if (dataProps.length > 0) vueImports.push('ref');
+    if (dataProps.length > 0 || templateRefNames.length > 0) vueImports.push('ref');
     if (computedProps.length > 0) vueImports.push('computed');
     if (injectKeys.length > 0) vueImports.push('inject');
     if (watchProps.length > 0) vueImports.push('watch');
-    vueImports.push(...new Set(lifecycleHooks.map((h) => h.compositionName)));
+    if (usedComposables.needsNextTick) vueImports.push('nextTick');
+    if (usedComposables.needsSlots) vueImports.push('useSlots');
+    // Check whether we need getCurrentInstance for $el handling
+    const needsGetCurrentInstance = allBodies.some((b) => /\bthis\.\$el\b/.test(b));
+    if (needsGetCurrentInstance) vueImports.push('getCurrentInstance');
 
-    // All names exposed to the template via the `public:` return + top-level destructuring
+    const regularHooks = lifecycleHooks.filter((h) => h.compositionName !== null);
+    vueImports.push(...new Set(regularHooks.map((h) => h.compositionName as string)));
+
+    // All names exposed to the template via the `public:` return + top-level destructuring.
+    // Template refs are declared outside createExtendableSetup as module-level refs so they
+    // do not need to be in publicNames — the template can access them directly.
     const publicNames = [
         ...injectKeys,
         ...dataProps.map((p) => p.name),
@@ -345,12 +604,72 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
 
     const lines: string[] = [];
 
+    // ── module-level code (scss imports, cloneDeep, colors, etc.) ────────────
+    if (moduleLevelCode) {
+        lines.push(moduleLevelCode);
+        lines.push('');
+    }
+
+    // ── Vue compiler macros (defineOptions, defineProps, defineEmits) ─────────
+    if (!inheritAttrs) {
+        lines.push(`defineOptions({ inheritAttrs: false });`);
+        lines.push('');
+    }
+
+    if (propsText) {
+        lines.push(`const props = defineProps(${propsText});`);
+    } else {
+        lines.push(`const props = defineProps({});`);
+    }
+
+    if (effectiveEmitsKeys.length > 0) {
+        const emitsList = effectiveEmitsKeys.map((k) => `'${k}'`).join(', ');
+        lines.push(`const emit = defineEmits([${emitsList}]);`);
+    } else if (usedComposables.needsEmit) {
+        // $emit is used somewhere but no events could be statically detected;
+        // generate an empty defineEmits so the identifier is at least valid.
+        lines.push(`const emit = defineEmits([]);`);
+    }
+    lines.push('');
+
     // ── imports ──────────────────────────────────────────────────────────────
     lines.push(`import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';`);
     if (vueImports.length > 0) {
-        lines.push(`import { ${vueImports.join(', ')} } from 'vue';`);
+        lines.push(`import { ${[...new Set(vueImports)].join(', ')} } from 'vue';`);
+    }
+
+    // Vue Router composable imports (useRouter, useRoute are from 'vue-router')
+    const routerImports: string[] = [];
+    if (usedComposables.needsRouter) routerImports.push('useRouter');
+    if (usedComposables.needsRoute) routerImports.push('useRoute');
+    if (routerImports.length > 0) {
+        lines.push(`import { ${routerImports.join(', ')} } from 'vue-router';`);
+    }
+    // useSlots is from 'vue', add it to vueImports instead
+    if (usedComposables.needsI18n) {
+        lines.push(`import { useI18n } from 'vue-i18n';`);
     }
     lines.push('');
+
+    // ── composable declarations ───────────────────────────────────────────────
+    if (usedComposables.needsRouter) lines.push(`const router = useRouter();`);
+    if (usedComposables.needsRoute) lines.push(`const route = useRoute();`);
+    if (usedComposables.needsSlots) lines.push(`const slots = useSlots();`);
+    if (usedComposables.needsI18n) lines.push(`const { t, tc } = useI18n();`);
+    const hasComposableDeclarations =
+        usedComposables.needsRouter ||
+        usedComposables.needsRoute ||
+        usedComposables.needsSlots ||
+        usedComposables.needsI18n;
+    if (hasComposableDeclarations) {
+        lines.push('');
+    }
+
+    // ── template ref declarations ─────────────────────────────────────────────
+    for (const refName of templateRefNames) {
+        lines.push(`const ${refName} = ref(null);`);
+    }
+    if (templateRefNames.length > 0) lines.push('');
 
     // ── createExtendableSetup call + destructuring ────────────────────────────
     if (publicNames.length > 0) {
@@ -375,44 +694,75 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
 
     // ── data → ref() ─────────────────────────────────────────────────────────
     dataProps.forEach(({ name, valueText }) => {
-        lines.push(`        const ${name} = ref(${valueText});`);
+        // Data initializers may reference props via `this.propName` — rewrite those
+        const rewrittenValue = rewriteThisInBody(valueText, ctx);
+        lines.push(`        const ${name} = ref(${rewrittenValue});`);
     });
     if (dataProps.length > 0) lines.push('');
 
     // ── computed ──────────────────────────────────────────────────────────────
     computedProps.forEach((prop) => {
         if (prop.kind === 'getter') {
-            lines.push(`        const ${prop.name} = computed(() => {${prop.bodyText}});`);
+            const body = rewriteThisInBody(prop.bodyText, ctx);
+            lines.push(`        const ${prop.name} = computed(() => {`);
+            lines.push(indentBlock(body, 12));
+            lines.push(`        });`);
         } else {
+            const getterBody = rewriteThisInBody(prop.getterBodyText, ctx);
+            const setterBody = rewriteThisInBody(prop.setterBodyText, ctx);
             lines.push(`        const ${prop.name} = computed({`);
-            lines.push(`            get: () => {${prop.getterBodyText}},`);
-            lines.push(`            set: (${prop.setterParam}) => {${prop.setterBodyText}},`);
-            lines.push('        });');
+            lines.push(`            get: () => {`);
+            lines.push(indentBlock(getterBody, 16));
+            lines.push(`            },`);
+            lines.push(`            set: (${prop.setterParam}) => {`);
+            lines.push(indentBlock(setterBody, 16));
+            lines.push(`            },`);
+            lines.push(`        });`);
         }
     });
     if (computedProps.length > 0) lines.push('');
 
     // ── watch ─────────────────────────────────────────────────────────────────
     watchProps.forEach(({ name, paramName, bodyText }) => {
-        lines.push(`        watch(() => ${name}.value, (${paramName}) => {${bodyText}});`);
+        // Use `props.name` for watched props, `name.value` for watched data/computed refs
+        const source = propNames.has(name) ? `props.${name}` : `${name}.value`;
+        const body = rewriteThisInBody(bodyText, ctx);
+        const paramPart = paramName ? `(${paramName}) => {` : `() => {`;
+        lines.push(`        watch(() => ${source}, ${paramPart}`);
+        lines.push(indentBlock(body, 12));
+        lines.push(`        });`);
     });
     if (watchProps.length > 0) lines.push('');
 
     // ── methods ───────────────────────────────────────────────────────────────
     methodProps.forEach(({ name, paramsText, bodyText, isAsync }) => {
         const asyncKw = isAsync ? 'async ' : '';
-        lines.push(`        const ${name} = ${asyncKw}(${paramsText}) => {${bodyText}};`);
+        const body = rewriteThisInBody(bodyText, ctx);
+        lines.push(`        const ${name} = ${asyncKw}(${paramsText}) => {`);
+        lines.push(indentBlock(body, 12));
+        lines.push(`        };`);
     });
     if (methodProps.length > 0) lines.push('');
 
-    // ── lifecycle hooks ───────────────────────────────────────────────────────
-    lifecycleHooks.forEach(({ compositionName, hookName, bodyText }) => {
-        if (hookName === 'created') {
-            lines.push(`        // NOTE: 'created' has no direct Composition API equivalent — mapped to onMounted`);
+    // ── created() body runs synchronously inside setup, giving it access to
+    //    inject values. This is the Composition API equivalent of created().
+    const createdHooks = lifecycleHooks.filter((h) => h.compositionName === null);
+    if (createdHooks.length > 0) {
+        for (const hook of createdHooks) {
+            const body = rewriteThisInBody(hook.bodyText, ctx);
+            lines.push(indentBlock(body.trim(), 8));
         }
-        lines.push(`        ${compositionName}(() => {${bodyText}});`);
-    });
-    if (lifecycleHooks.length > 0) lines.push('');
+        lines.push('');
+    }
+
+    // ── lifecycle hooks (excluding created, which ran directly above) ─────────
+    for (const { compositionName, bodyText } of regularHooks) {
+        const body = rewriteThisInBody(bodyText, ctx);
+        lines.push(`        ${compositionName}(() => {`);
+        lines.push(indentBlock(body, 12));
+        lines.push(`        });`);
+    }
+    if (regularHooks.length > 0) lines.push('');
 
     // ── public return ─────────────────────────────────────────────────────────
     lines.push('        return {');
@@ -424,6 +774,46 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     lines.push(');');
 
     return lines.join('\n');
+}
+
+/**
+ * Indents each non-empty line in `block` by `spaces` spaces.
+ * Preserves blank lines without adding trailing whitespace.
+ */
+function indentBlock(block: string, spaces: number): string {
+    const pad = ' '.repeat(spaces);
+    return block
+        .split('\n')
+        .map((line) => (line.trim() === '' ? '' : pad + line))
+        .join('\n');
+}
+
+/**
+ * Extracts the prop names from the options object's `props` property.
+ * Used to build the `propNames` set for `this` rewriting.
+ */
+function extractPropNamesFromText(optionsObj: ObjectLiteralExpression): string[] {
+    const prop = optionsObj.getProperty('props');
+    if (!prop?.isKind(SyntaxKind.PropertyAssignment)) return [];
+
+    const initializer = prop
+        .asKindOrThrow(SyntaxKind.PropertyAssignment)
+        .getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
+
+    return (
+        initializer
+            ?.getProperties()
+            .filter(
+                (p) =>
+                    p.isKind(SyntaxKind.PropertyAssignment) || p.isKind(SyntaxKind.MethodDeclaration),
+            )
+            .map((p) => {
+                if (p.isKind(SyntaxKind.PropertyAssignment)) {
+                    return p.asKindOrThrow(SyntaxKind.PropertyAssignment).getName();
+                }
+                return p.asKindOrThrow(SyntaxKind.MethodDeclaration).getName();
+            }) ?? []
+    );
 }
 
 /**
@@ -483,7 +873,7 @@ export function transformScript(jsContent: string): TransformScriptResult {
     }
 
     return {
-        script: buildCompositionApiScript(optionsObj, componentName),
+        script: buildCompositionApiScript(optionsObj, componentName, sourceFile),
         scriptType: 'setup',
         status: 'fully-migratable',
         blockers: [],

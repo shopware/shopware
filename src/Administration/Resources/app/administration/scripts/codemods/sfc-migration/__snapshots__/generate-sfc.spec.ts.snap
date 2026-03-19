@@ -28,8 +28,24 @@ exports[`scripts/codemods/sfc-migration/generate-sfc block-component: fully migr
 </template>
 
 <script setup>
+const props = defineProps({
+        initialCount: {
+            type: Number,
+            required: false,
+            default: 0,
+        },
+        readOnly: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    });
+const emit = defineEmits(['action', 'reset']);
+
 import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
 import { ref, computed, inject, watch, onMounted } from 'vue';
+
+const cardWrapper = ref(null);
 
 const {
     acl,
@@ -39,6 +55,7 @@ const {
     canEdit,
     label,
     onAction,
+    onReset,
 } = createExtendableSetup(
     {
         name: 'sw-block-card',
@@ -49,22 +66,45 @@ const {
 
         const title = ref('Block Card');
         const description = ref('A card with extensible blocks');
-        const count = ref(0);
+        const count = ref(props.initialCount);
 
-        const canEdit = computed(() => {return this.acl.can('product.editor');});
+        const canEdit = computed(() => {
+            return !props.readOnly && acl.can('product.editor');
+        });
         const label = computed({
-            get: () => {return this.title;},
-            set: (val) => {this.title = val;},
+            get: () => {
+                return title.value;
+            },
+            set: (val) => {
+                title.value = val;
+            },
         });
 
-        watch(() => count.value, (newVal) => {if (newVal > 10) {
-    this.title = 'Limit reached';
-}});
+        watch(() => count.value, (newVal) => {
+            if (newVal > 10) {
+                title.value = 'Limit reached';
+            }
+        });
+        watch(() => props.readOnly, (newVal) => {
+            if (newVal) {
+                title.value = 'Read-only mode';
+            }
+        });
 
-        const onAction = () => {this.count += 1;
-this.$emit('action', this.count);};
+        const onAction = () => {
+            count.value += 1;
+            emit('action', count.value);
+        };
+        const onReset = () => {
+            count.value = props.initialCount;
+            title.value = 'Block Card';
+            cardWrapper.value.focus();
+            emit('reset');
+        };
 
-        onMounted(() => {this.count = 0;});
+        onMounted(() => {
+            count.value = props.initialCount;
+        });
 
         return {
             public: {
@@ -75,6 +115,7 @@ this.$emit('action', this.count);};
                 canEdit,
                 label,
                 onAction,
+                onReset,
             },
         };
     },
@@ -140,6 +181,9 @@ exports[`scripts/codemods/sfc-migration/generate-sfc simple-component: fully mig
 </template>
 
 <script setup>
+const props = defineProps({});
+const emit = defineEmits(['save']);
+
 import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
 import { ref, computed, inject } from 'vue';
 
@@ -160,10 +204,14 @@ const {
         const title = ref('Default Title');
         const isLoading = ref(false);
 
-        const description = computed(() => {return \`This is: \${this.title}\`;});
+        const description = computed(() => {
+            return \`This is: \${title.value}\`;
+        });
 
-        const onSave = () => {this.isLoading = true;
-this.$emit('save', this.title);};
+        const onSave = () => {
+            isLoading.value = true;
+            emit('save', title.value);
+        };
 
         return {
             public: {

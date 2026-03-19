@@ -1,8 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`scripts/codemods/sfc-migration/transform-script block-component: fully converts inject, data, computed getter+setter, watch, methods, and lifecycle hook matches the complete converted script snapshot 1`] = `
-"import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+exports[`scripts/codemods/sfc-migration/transform-script block-component: converts props, emits, data init from prop, computed, watch (prop+data), methods with $emit and $refs, and lifecycle matches the complete converted script snapshot 1`] = `
+"const props = defineProps({
+        initialCount: {
+            type: Number,
+            required: false,
+            default: 0,
+        },
+        readOnly: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    });
+const emit = defineEmits(['action', 'reset']);
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
 import { ref, computed, inject, watch, onMounted } from 'vue';
+
+const cardWrapper = ref(null);
 
 const {
     acl,
@@ -12,6 +28,7 @@ const {
     canEdit,
     label,
     onAction,
+    onReset,
 } = createExtendableSetup(
     {
         name: 'sw-block-card',
@@ -22,22 +39,45 @@ const {
 
         const title = ref('Block Card');
         const description = ref('A card with extensible blocks');
-        const count = ref(0);
+        const count = ref(props.initialCount);
 
-        const canEdit = computed(() => {return this.acl.can('product.editor');});
+        const canEdit = computed(() => {
+            return !props.readOnly && acl.can('product.editor');
+        });
         const label = computed({
-            get: () => {return this.title;},
-            set: (val) => {this.title = val;},
+            get: () => {
+                return title.value;
+            },
+            set: (val) => {
+                title.value = val;
+            },
         });
 
-        watch(() => count.value, (newVal) => {if (newVal > 10) {
-    this.title = 'Limit reached';
-}});
+        watch(() => count.value, (newVal) => {
+            if (newVal > 10) {
+                title.value = 'Limit reached';
+            }
+        });
+        watch(() => props.readOnly, (newVal) => {
+            if (newVal) {
+                title.value = 'Read-only mode';
+            }
+        });
 
-        const onAction = () => {this.count += 1;
-this.$emit('action', this.count);};
+        const onAction = () => {
+            count.value += 1;
+            emit('action', count.value);
+        };
+        const onReset = () => {
+            count.value = props.initialCount;
+            title.value = 'Block Card';
+            cardWrapper.value.focus();
+            emit('reset');
+        };
 
-        onMounted(() => {this.count = 0;});
+        onMounted(() => {
+            count.value = props.initialCount;
+        });
 
         return {
             public: {
@@ -48,6 +88,62 @@ this.$emit('action', this.count);};
                 canEdit,
                 label,
                 onAction,
+                onReset,
+            },
+        };
+    },
+);"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-script created-component: created() runs as direct setup code; beforeUnmount/unmounted use correct hooks matches the complete converted script snapshot 1`] = `
+"const props = defineProps({
+        selector: {
+            type: String,
+            required: false,
+            default: 'body',
+        },
+    });
+const emit = defineEmits(['ready']);
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { ref, inject, onMounted, onBeforeUnmount, onUnmounted } from 'vue';
+
+const {
+    shortcutService,
+    initialized,
+    reset,
+} = createExtendableSetup(
+    {
+        name: 'sw-created-demo',
+        props,
+    },
+    () => {
+        const shortcutService = inject('shortcutService');
+
+        const initialized = ref(false);
+
+        const reset = () => {
+            initialized.value = false;
+        };
+
+        shortcutService.stopEventListener();
+        emit('ready');
+
+        onMounted(() => {
+            initialized.value = true;
+        });
+        onBeforeUnmount(() => {
+            shortcutService.startEventListener();
+        });
+        onUnmounted(() => {
+            initialized.value = false;
+        });
+
+        return {
+            public: {
+                shortcutService,
+                initialized,
+                reset,
             },
         };
     },
@@ -95,8 +191,57 @@ Shopware.Component.register('sw-mixin-list', {
 });"
 `;
 
+exports[`scripts/codemods/sfc-migration/transform-script module-level-component: preserves module-level code (scss import, const declarations) matches the complete converted script snapshot 1`] = `
+"import './module-level-component.scss';
+const { cloneDeep } = Shopware.Utils.object;
+const COLORS = ['#FF0000', '#00FF00', '#0000FF'];
+
+const props = defineProps({
+        name: {
+            type: String,
+            required: true,
+        },
+        items: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
+    });
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { computed } from 'vue';
+
+const {
+    clonedItems,
+    nameColor,
+} = createExtendableSetup(
+    {
+        name: 'sw-module-level',
+        props,
+    },
+    () => {
+        const clonedItems = computed(() => {
+            return cloneDeep(props.items);
+        });
+        const nameColor = computed(() => {
+            return COLORS[props.name.length % COLORS.length];
+        });
+
+        return {
+            public: {
+                clonedItems,
+                nameColor,
+            },
+        };
+    },
+);"
+`;
+
 exports[`scripts/codemods/sfc-migration/transform-script simple-component: fully converts inject, data, computed, and methods to Composition API matches the complete converted script snapshot 1`] = `
-"import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+"const props = defineProps({});
+const emit = defineEmits(['save']);
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
 import { ref, computed, inject } from 'vue';
 
 const {
@@ -116,10 +261,14 @@ const {
         const title = ref('Default Title');
         const isLoading = ref(false);
 
-        const description = computed(() => {return \`This is: \${this.title}\`;});
+        const description = computed(() => {
+            return \`This is: \${title.value}\`;
+        });
 
-        const onSave = () => {this.isLoading = true;
-this.$emit('save', this.title);};
+        const onSave = () => {
+            isLoading.value = true;
+            emit('save', title.value);
+        };
 
         return {
             public: {

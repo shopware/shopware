@@ -38,3 +38,18 @@ exports[`scripts/codemods/sfc-migration/transform-template simple-component: pla
 
 </template>"
 `;
+
+exports[`scripts/codemods/sfc-migration/transform-template twig-comments: converts {# ... #} Twig comments to HTML comments matches the complete transformed template snapshot 1`] = `
+"<template>
+<!-- @deprecated tag:v6.8.0 - Use mt-button instead -->
+<sw-block name="sw_demo" :data="$dataScope">
+<div class="sw-demo">
+    <!-- This is an inline comment -->
+    <span>Hello</span>
+    <!-- Multi-word comment with special chars: & < > -->
+    <button @click="onClick">Click</button>
+</div>
+</sw-block>
+
+</template>"
+`;

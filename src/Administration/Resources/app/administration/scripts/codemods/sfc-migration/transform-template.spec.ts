@@ -93,4 +93,43 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
             expect(result).toMatchSnapshot();
         });
     });
+
+    describe('twig-comments: converts {# ... #} Twig comments to HTML comments', () => {
+        let result: string;
+
+        beforeAll(() => {
+            result = transformTemplate(readFixture('twig-comments.html.twig'));
+        });
+
+        it('wraps the output in a <template> tag', () => {
+            expect(result.trimStart().startsWith('<template>')).toBe(true);
+            expect(result.trimEnd().endsWith('</template>')).toBe(true);
+        });
+
+        it('converts a single-line Twig comment to an HTML comment', () => {
+            expect(result).toContain('<!-- @deprecated tag:v6.8.0 - Use mt-button instead -->');
+        });
+
+        it('converts inline Twig comments to HTML comments', () => {
+            expect(result).toContain('<!-- This is an inline comment -->');
+        });
+
+        it('converts Twig comments with special characters to HTML comments', () => {
+            expect(result).toContain('<!-- Multi-word comment with special chars: & < > -->');
+        });
+
+        it('contains no remaining Twig comment delimiters {# or #}', () => {
+            expect(result).not.toContain('{#');
+            expect(result).not.toContain('#}');
+        });
+
+        it('still converts Twig blocks correctly alongside comments', () => {
+            expect(result).toContain('<sw-block name="sw_demo" :data="$dataScope">');
+            expect(result).toContain('</sw-block>');
+        });
+
+        it('matches the complete transformed template snapshot', () => {
+            expect(result).toMatchSnapshot();
+        });
+    });
 });

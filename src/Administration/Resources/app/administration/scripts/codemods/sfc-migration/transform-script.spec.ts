@@ -11,14 +11,12 @@ function readFixture(name: string): string {
 /**
  * Integrative tests for transformScript().
  *
- * Each test provides a complete index.js file and asserts that the entire
- * resulting script block is correct — every Options API section (inject, data,
- * computed, methods, watch, lifecycle) is correctly converted in one pass.
- *
- * Migrated components wrap all state in createExtendableSetup() so they remain
- * extensible via overrideComponentSetup() after migration.
+ * Each test suite provides a complete index.js file and asserts that the entire
+ * resulting script block is correct — covering defineProps, defineEmits,
+ * this-rewriting, watch sources, lifecycle hooks, and module-level code.
  */
 describe('scripts/codemods/sfc-migration/transform-script', () => {
+    // -------------------------------------------------------------------------
     describe('simple-component: fully converts inject, data, computed, and methods to Composition API', () => {
         let result: ReturnType<typeof transformScript>;
 
@@ -72,12 +70,17 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).toMatch(/const\s*\{[^}]*\}\s*=\s*createExtendableSetup\s*\(/);
         });
 
+        it('does not contain any this. references', () => {
+            expect(result.script).not.toMatch(/\bthis\./);
+        });
+
         it('matches the complete converted script snapshot', () => {
             expect(result.script).toMatchSnapshot();
         });
     });
 
-    describe('block-component: fully converts inject, data, computed getter+setter, watch, methods, and lifecycle hook', () => {
+    // -------------------------------------------------------------------------
+    describe('block-component: converts props, emits, data init from prop, computed, watch (prop+data), methods with $emit and $refs, and lifecycle', () => {
         let result: ReturnType<typeof transformScript>;
 
         beforeAll(() => {
@@ -93,36 +96,77 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.scriptType).toBe('setup');
         });
 
-        it('imports createExtendableSetup from the composition extension system', () => {
-            expect(result.script).toContain(
-                "import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';",
-            );
+        it('emits defineProps with the correct prop names', () => {
+            expect(result.script).toContain('const props = defineProps(');
+            expect(result.script).toContain('initialCount');
+            expect(result.script).toContain('readOnly');
         });
 
-        it('passes the component name "sw-block-card" to createExtendableSetup', () => {
-            expect(result.script).toContain("name: 'sw-block-card'");
+        it('emits defineEmits with the action and reset events', () => {
+            expect(result.script).toContain("const emit = defineEmits([");
+            expect(result.script).toContain("'action'");
+            expect(result.script).toContain("'reset'");
         });
 
-        it('declares all state inside the createExtendableSetup callback — inject, three data refs, two computed, watch, method, and lifecycle hook', () => {
-            const setupCallbackStart = result.script.indexOf('createExtendableSetup(');
-
-            expect(result.script.indexOf("inject('acl')")).toBeGreaterThan(setupCallbackStart);
-            expect(result.script.indexOf("ref('Block Card')")).toBeGreaterThan(setupCallbackStart);
-            expect(result.script.indexOf("ref('A card with extensible blocks')")).toBeGreaterThan(setupCallbackStart);
-            expect(result.script.indexOf('ref(0)')).toBeGreaterThan(setupCallbackStart);
-            expect(result.script.indexOf('computed(')).toBeGreaterThan(setupCallbackStart);
-            expect(result.script.indexOf('watch(')).toBeGreaterThan(setupCallbackStart);
-            expect(result.script.indexOf('onMounted(')).toBeGreaterThan(setupCallbackStart);
+        it('rewrites data initializer this.initialCount → props.initialCount', () => {
+            expect(result.script).toContain('ref(props.initialCount)');
         });
 
-        it('exposes the getter+setter computed (label) as computed({ get, set }) in the public return', () => {
+        it('rewrites this.$emit → emit in methods', () => {
+            expect(result.script).toContain("emit('action'");
+            expect(result.script).toContain("emit('reset'");
+            expect(result.script).not.toMatch(/\bthis\.\$emit\b/);
+        });
+
+        it('rewrites this.$refs.cardWrapper → cardWrapper.value', () => {
+            expect(result.script).toContain('cardWrapper.value.focus()');
+            expect(result.script).not.toMatch(/\bthis\.\$refs\b/);
+        });
+
+        it('declares a template ref for cardWrapper', () => {
+            expect(result.script).toContain('const cardWrapper = ref(null)');
+        });
+
+        it('uses props.readOnly as watch source for a prop watcher', () => {
+            expect(result.script).toContain('watch(() => props.readOnly,');
+        });
+
+        it('uses count.value as watch source for a data ref watcher', () => {
+            expect(result.script).toContain('watch(() => count.value,');
+        });
+
+        it('rewrites this.count → count.value inside method and watch bodies', () => {
+            expect(result.script).toContain('count.value += 1');
+            expect(result.script).not.toMatch(/\bthis\.count\b/);
+        });
+
+        it('rewrites this.initialCount → props.initialCount inside method body', () => {
+            expect(result.script).toMatch(/props\.initialCount/);
+            expect(result.script).not.toMatch(/\bthis\.initialCount\b/);
+        });
+
+        it('rewrites this.readOnly → props.readOnly in computed body', () => {
+            expect(result.script).toContain('props.readOnly');
+            expect(result.script).not.toMatch(/\bthis\.readOnly\b/);
+        });
+
+        it('exposes the getter+setter computed (label) as computed({ get, set })', () => {
             expect(result.script).toContain('const label = computed({');
             expect(result.script).toContain('get:');
             expect(result.script).toContain('set:');
         });
 
-        it('returns all state under the public: key', () => {
-            expect(result.script).toContain('public:');
+        it('rewrites this.title → title.value in getter/setter bodies', () => {
+            expect(result.script).toContain('return title.value');
+            expect(result.script).toContain('title.value = val');
+        });
+
+        it('wires mounted() to onMounted()', () => {
+            expect(result.script).toContain('onMounted(');
+        });
+
+        it('does not contain any this. references in the output', () => {
+            expect(result.script).not.toMatch(/\bthis\./);
         });
 
         it('matches the complete converted script snapshot', () => {
@@ -130,6 +174,98 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });
     });
 
+    // -------------------------------------------------------------------------
+    describe('created-component: created() runs as direct setup code; beforeUnmount/unmounted use correct hooks', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('created-component.index.js'));
+        });
+
+        it('reports status fully-migratable', () => {
+            expect(result.status).toBe('fully-migratable');
+        });
+
+        it('emits defineProps and defineEmits', () => {
+            expect(result.script).toContain('const props = defineProps(');
+            expect(result.script).toContain("const emit = defineEmits([");
+            expect(result.script).toContain("'ready'");
+        });
+
+        it('places the created() body inside createExtendableSetup callback (before onMounted), giving it access to inject values', () => {
+            // The shortcutService.stopEventListener() call should appear inside
+            // the createExtendableSetup() callback, before the onMounted call
+            const stopListenerPos = result.script.indexOf('shortcutService.stopEventListener()');
+            const onMountedPos = result.script.indexOf('onMounted(');
+            expect(stopListenerPos).toBeGreaterThan(-1);
+            expect(stopListenerPos).toBeLessThan(onMountedPos);
+        });
+
+        it('does NOT wrap the created() body in onMounted()', () => {
+            // onMounted should only appear for the actual mounted() hook
+            const onMountedCount = (result.script.match(/onMounted\(/g) ?? []).length;
+            expect(onMountedCount).toBe(1);
+        });
+
+        it('maps mounted() to onMounted()', () => {
+            expect(result.script).toContain('onMounted(');
+        });
+
+        it('maps beforeUnmount() to onBeforeUnmount()', () => {
+            expect(result.script).toContain('onBeforeUnmount(');
+        });
+
+        it('maps unmounted() to onUnmounted()', () => {
+            expect(result.script).toContain('onUnmounted(');
+        });
+
+        it('does not contain any this. references', () => {
+            expect(result.script).not.toMatch(/\bthis\./);
+        });
+
+        it('matches the complete converted script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('module-level-component: preserves module-level code (scss import, const declarations)', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('module-level-component.index.js'));
+        });
+
+        it('reports status fully-migratable', () => {
+            expect(result.status).toBe('fully-migratable');
+        });
+
+        it('includes the scss side-effect import', () => {
+            expect(result.script).toContain("import './module-level-component.scss'");
+        });
+
+        it('includes the cloneDeep destructure declaration', () => {
+            expect(result.script).toContain('const { cloneDeep } = Shopware.Utils.object');
+        });
+
+        it('includes the COLORS array declaration', () => {
+            expect(result.script).toContain('const COLORS =');
+        });
+
+        it('does NOT include the template import', () => {
+            expect(result.script).not.toContain("import template from");
+        });
+
+        it('does not contain any this. references', () => {
+            expect(result.script).not.toMatch(/\bthis\./);
+        });
+
+        it('matches the complete converted script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
+        });
+    });
+
+    // -------------------------------------------------------------------------
     describe('mixin-component: detects mixins as a blocker and falls back to Options API', () => {
         let result: ReturnType<typeof transformScript>;
 
@@ -158,6 +294,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });
     });
 
+    // -------------------------------------------------------------------------
     describe('render-component: detects render() as a hard blocker and marks as not-migratable', () => {
         let result: ReturnType<typeof transformScript>;
 

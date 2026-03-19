@@ -2408,8 +2408,8 @@ describe('src/app/adapter/options-composition-shim', () => {
     });
 
     describe('Error recovery:', () => {
-        it('should still apply subsequent overrides when an earlier override throws in created', async () => {
-            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+        it('should propagate errors thrown in created without catching them, and still apply subsequent overrides', async () => {
+            const capturedErrors: unknown[] = [];
 
             const originalComponent = defineComponent({
                 template: '<div class="count">{{ count }}</div>',
@@ -2420,9 +2420,18 @@ describe('src/app/adapter/options-composition-shim', () => {
                     }),
             });
 
-            const wrapper = mount(originalComponent);
+            const wrapper = mount(originalComponent, {
+                global: {
+                    config: {
+                        errorHandler: (err: unknown) => {
+                            capturedErrors.push(err);
+                        },
+                    },
+                },
+            });
 
-            // Override that sets data successfully but throws in created
+            // Override that throws in created - matching Vue's native behavior, the error
+            // must propagate and the override must not be applied (count stays at 0).
             const failingOverride = convertWithSilencedWarning('originalComponent', {
                 data() {
                     return { count: 50 };
@@ -2436,13 +2445,14 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             await flushPromises();
 
-            expect(consoleError).toHaveBeenCalledWith(
-                '[Options API Shim] Error in lifecycle hook "created":',
-                expect.any(Error),
-            );
-            expect(wrapper.find('.count').text()).toBe('50');
+            expect(capturedErrors).toHaveLength(1);
+            expect(capturedErrors[0]).toBeInstanceOf(Error);
+            expect((capturedErrors[0] as Error).message).toBe('Simulated error in created hook');
 
-            // Second override should still apply despite the first one throwing in created
+            // Override data must not be applied because the override function threw before returning
+            expect(wrapper.find('.count').text()).toBe('0');
+
+            // Subsequent overrides must still apply — the failing one is marked as done to prevent retries
             const successOverride = convertWithSilencedWarning('originalComponent', {
                 data() {
                     return { count: 100 };
@@ -2454,8 +2464,6 @@ describe('src/app/adapter/options-composition-shim', () => {
             await flushPromises();
 
             expect(wrapper.find('.count').text()).toBe('100');
-
-            consoleError.mockRestore();
         });
     });
 

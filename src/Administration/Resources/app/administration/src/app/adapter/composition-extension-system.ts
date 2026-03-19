@@ -323,7 +323,15 @@ export function createExtendableSetup<
             }, {} as PRIVATE_SETUP_RESULT);
 
             // Apply the override with a destructured copy of the wrapped state to prevent calling himself
-            const overrideResult = override({ ...previousStateResultForExtensions }, options.props, componentContext);
+            let overrideResult: ReturnType<typeof override>;
+            try {
+                overrideResult = override({ ...previousStateResultForExtensions }, options.props, componentContext);
+            } catch (e) {
+                // Mark as applied to prevent infinite retry loops when subsequent overrides are added,
+                // then re-throw so Vue's error handling (onErrorCaptured / app.config.errorHandler) takes over.
+                appliedOverrides.push(override);
+                throw e;
+            }
 
             // Process each property in the override result
             Object.keys(overrideResult).forEach((key) => {

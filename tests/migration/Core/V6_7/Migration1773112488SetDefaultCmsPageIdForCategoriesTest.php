@@ -4,6 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -20,10 +21,13 @@ class Migration1773112488SetDefaultCmsPageIdForCategoriesTest extends TestCase
 
     private Connection $connection;
 
+    private string $originalDefaultCmsPageId;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->connection = KernelLifecycleManager::getConnection();
+        $this->originalDefaultCmsPageId = $this->getDefaultCmsPageId();
     }
 
     public function testGetCreationTimestamp(): void
@@ -34,8 +38,6 @@ class Migration1773112488SetDefaultCmsPageIdForCategoriesTest extends TestCase
 
     public function testMigrationDoesNothingIfNoDefaultCmsPageIdIsConfigured(): void
     {
-        $originalConfig = $this->getOriginalSystemConfig();
-
         // delete the current default cms page id
         $this->connection->delete('system_config', [
             'configuration_key' => 'core.cms.default_category_cms_page',
@@ -66,17 +68,14 @@ class Migration1773112488SetDefaultCmsPageIdForCategoriesTest extends TestCase
 
         static::assertNull($result);
 
-        if ($originalConfig) {
-            $this->connection->insert('system_config', $originalConfig);
-        }
+        $this->restoreOriginalSystemConfig();
     }
 
-    public function testMigrationDoesNothingIfReturnedCmsPageIdIsEmpty(): void
+    #[DataProvider('dataProviderForTestMigrationDoesNothingIfReturnedCmsPageIdIsInvalid')]
+    public function testMigrationDoesNothingIfReturnedCmsPageIdIsInvalid(mixed $cmsPageId): void
     {
-        $originalConfig = $this->getOriginalSystemConfig();
-
         $this->connection->update('system_config', [
-            'configuration_value' => json_encode(['_value' => '']),
+            'configuration_value' => json_encode(['_value' => $cmsPageId]),
         ], [
             'configuration_key' => 'core.cms.default_category_cms_page',
             'sales_channel_id' => null,
@@ -108,23 +107,18 @@ class Migration1773112488SetDefaultCmsPageIdForCategoriesTest extends TestCase
 
         static::assertNull($result);
 
-        if ($originalConfig) {
-            $this->connection->update('system_config', [
-                'configuration_value' => json_encode(['_value' => $originalConfig['configuration_value']]),
-            ], [
-                'configuration_key' => 'core.cms.default_category_cms_page',
-                'sales_channel_id' => null,
-            ]);
-        }
+        $this->restoreOriginalSystemConfig();
+    }
+
+    public static function dataProviderForTestMigrationDoesNothingIfReturnedCmsPageIdIsInvalid(): \Generator
+    {
+        yield 'not a string' => [123];
+        yield 'empty string' => [''];
     }
 
     public function testMigrationDoesNotOverwriteExistingCmsPageId(): void
     {
         $existingCmsPageId = $this->getAnyCmsPageId();
-        if ($existingCmsPageId === null) {
-            static::markTestSkipped('No product list CMS page available');
-        }
-
         $categoryId = Uuid::randomBytes();
         $versionId = Uuid::fromHexToBytes('0fa91ce3e96a4bc2be4bd9ce752c3425');
 
@@ -160,10 +154,7 @@ class Migration1773112488SetDefaultCmsPageIdForCategoriesTest extends TestCase
             'SELECT COUNT(*) FROM `category` WHERE `cms_page_id` IS NULL'
         );
 
-        $defaultCmsPageId = $this->getDefaultCmsPageId();
-        if ($defaultCmsPageId !== null) {
-            static::assertSame(0, $nullCount);
-        }
+        static::assertSame(0, $nullCount);
     }
 
     private function migrate(): void
@@ -171,15 +162,7 @@ class Migration1773112488SetDefaultCmsPageIdForCategoriesTest extends TestCase
         (new Migration1773112488SetDefaultCmsPageIdForCategories())->update($this->connection);
     }
 
-    private function getOriginalSystemConfig(): ?array
-    {
-        return $this->connection->fetchAssociative(
-            'SELECT * FROM `system_config` WHERE `configuration_key` = :key AND `sales_channel_id` IS NULL',
-            ['key' => 'core.cms.default_category_cms_page']
-        );
-    }
-
-    private function getDefaultCmsPageId(): ?string
+    private function getDefaultCmsPageId(): string
     {
         $result = $this->connection->fetchOne(
             'SELECT `configuration_value` FROM `system_config` WHERE `configuration_key` = :key AND `sales_channel_id` IS NULL',
@@ -187,18 +170,44 @@ class Migration1773112488SetDefaultCmsPageIdForCategoriesTest extends TestCase
         );
 
         if ($result === false) {
-            return null;
+            $anyCmsPageId = $this->getAnyCmsPageId();
+            $this->originalDefaultCmsPageId = $anyCmsPageId;
+            $this->restoreOriginalSystemConfig();
+
+            return $anyCmsPageId;
         }
 
         $decoded = json_decode((string) $result, true);
 
-        return $decoded['_value'] ?? null;
+        return $decoded['_value'] ?? $this->getAnyCmsPageId();
     }
 
-    private function getAnyCmsPageId(): ?string
+    private function getAnyCmsPageId(): string
     {
         $result = $this->connection->fetchOne('SELECT LOWER(HEX(`id`)) FROM `cms_page` LIMIT 1');
 
-        return $result ?: null;
+        if ($result === false) {
+            $cmsPageId = Uuid::randomBytes();
+
+            $this->connection->insert('cms_page', [
+                'id' => $cmsPageId,
+                'type' => 'page',
+                'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+            ]);
+
+            return Uuid::fromBytesToHex($cmsPageId);
+        }
+
+        return $result;
+    }
+
+    private function restoreOriginalSystemConfig(): void
+    {
+        $this->connection->update('system_config', [
+            'configuration_value' => json_encode(['_value' => $this->originalDefaultCmsPageId]),
+        ], [
+            'configuration_key' => 'core.cms.default_category_cms_page',
+            'sales_channel_id' => null,
+        ]);
     }
 }

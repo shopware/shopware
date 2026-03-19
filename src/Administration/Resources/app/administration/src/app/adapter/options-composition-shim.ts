@@ -82,6 +82,21 @@ export type OverrideFn<COMPONENT_NAME extends keyof ComponentPublicApiMapping & 
     context?: unknown,
 ) => ComponentState<COMPONENT_NAME>;
 
+/**
+ * Typed representation of the `this` proxy returned by {@link createThisProxy}.
+ * Exposes all component state properties and a `$super` method whose parameter
+ * and return types are inferred from the component's public API mapping.
+ */
+type ThisProxy<COMPONENT_NAME extends keyof ComponentPublicApiMapping & string = string> =
+    ComponentState<COMPONENT_NAME> & {
+        $super: <K extends keyof ComponentState<COMPONENT_NAME> & string>(
+            methodName: K,
+            ...args: ComponentState<COMPONENT_NAME>[K] extends AnyFn ? Parameters<ComponentState<COMPONENT_NAME>[K]> : []
+        ) => ComponentState<COMPONENT_NAME>[K] extends AnyFn
+            ? ReturnType<ComponentState<COMPONENT_NAME>[K]>
+            : unknown;
+    };
+
 // ─── Lifecycle hook registry ─────────────────────────────────────────────────
 
 /**
@@ -428,7 +443,7 @@ function createThisProxy<COMPONENT_NAME extends keyof ComponentPublicApiMapping 
     props: ComponentState<COMPONENT_NAME>,
     localState: ComponentState<COMPONENT_NAME>,
     injectedValues: ComponentState<COMPONENT_NAME> = {} as ComponentState<COMPONENT_NAME>,
-): object {
+): ThisProxy<COMPONENT_NAME> {
     const componentInstance = getCurrentInstance();
 
     return new Proxy(
@@ -441,7 +456,7 @@ function createThisProxy<COMPONENT_NAME extends keyof ComponentPublicApiMapping 
 
                 // Handle $super calls
                 if (prop === '$super') {
-                    return (methodName: string, ...args: unknown[]): unknown => {
+                    return (methodName: keyof ComponentState<COMPONENT_NAME> & string, ...args: unknown[]): unknown => {
                         if (previousState[methodName] && typeof previousState[methodName] === 'function') {
                             return (previousState[methodName] as AnyFn)(...args);
                         }
@@ -527,7 +542,7 @@ function createThisProxy<COMPONENT_NAME extends keyof ComponentPublicApiMapping 
                 return false;
             },
         },
-    );
+    ) as ThisProxy<COMPONENT_NAME>;
 }
 
 /**

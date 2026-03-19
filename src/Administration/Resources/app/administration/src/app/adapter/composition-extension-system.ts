@@ -303,25 +303,24 @@ export function createExtendableSetup<
                 _private: PRIVATE_SETUP_RESULT;
             };
 
-            const previousStateResultForExtensions: previousStateResultForExtensionsType = Object.keys(wrappedState).reduce(
+            const wrappedStateAsRecord = wrappedState as Record<string, unknown>;
+            const publicStateKeys = Object.keys(originalSetupResultPublic);
+
+            const previousStateResultForExtensions = Object.keys(wrappedState).reduce<previousStateResultForExtensionsType>(
                 (acc, key) => {
-                    if (Object.keys(originalSetupResultPublic).includes(key)) {
-                        // @ts-expect-error - key is a string
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                        acc[key] = wrappedState[key];
+                    if (publicStateKeys.includes(key)) {
+                        (acc as Record<string, unknown>)[key] = wrappedStateAsRecord[key];
                     }
                     return acc;
                 },
-                { _private: {} },
-            ) as previousStateResultForExtensionsType;
-            previousStateResultForExtensions._private = Object.keys(wrappedState).reduce((acc, key) => {
-                if (!Object.keys(originalSetupResultPublic).includes(key)) {
-                    // @ts-expect-error - key is a string
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    acc[key] = wrappedState[key];
+                { _private: {} as PRIVATE_SETUP_RESULT } as previousStateResultForExtensionsType,
+            );
+            previousStateResultForExtensions._private = Object.keys(wrappedState).reduce<PRIVATE_SETUP_RESULT>((acc, key) => {
+                if (!publicStateKeys.includes(key)) {
+                    (acc as Record<string, unknown>)[key] = wrappedStateAsRecord[key];
                 }
                 return acc;
-            }, {}) as PRIVATE_SETUP_RESULT;
+            }, {} as PRIVATE_SETUP_RESULT);
 
             // Apply the override with a destructured copy of the wrapped state to prevent calling himself
             const overrideResult = override({ ...previousStateResultForExtensions }, options.props, componentContext);
@@ -427,15 +426,14 @@ export function overrideComponentSetup<ORIGINAL_COMPONENT>() {
             previousState: ComponentPublicApiMapping[COMPONENT_NAME],
             props: ExtractedProps<ORIGINAL_COMPONENT>,
             context: SetupContext,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ) => any,
+        ) => ReturnType<OverrideFn>,
     ): void {
         // Initialize the overrides array for this component if it doesn't exist
         if (!_overridesMap[componentName]) {
             _overridesMap[componentName] = reactive([]);
         }
 
-        // Add the new override to the array (cast required: typed generics → internal OverrideFn)
+        // Cast required: typed generics → internal OverrideFn (parameter types are contravariant)
         _overridesMap[componentName].push(override as unknown as OverrideFn);
     };
 }

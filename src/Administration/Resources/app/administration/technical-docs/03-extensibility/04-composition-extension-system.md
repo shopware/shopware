@@ -161,13 +161,9 @@ Plugin authors use this function to register a Composition API override for a sp
 ### Signature
 
 ```typescript
-function overrideComponentSetup<ORIGINAL_COMPONENT>(): (
+function overrideComponentSetup(): (
     componentName: keyof ComponentPublicApiMapping,
-    override: (
-        previousState: ComponentPublicApiMapping[componentName] & { _private: object },
-        props: ExtractedProps<ORIGINAL_COMPONENT>,
-        context: SetupContext,
-    ) => Record<string, any>,
+    override: OverrideFn,
 ) => void
 ```
 
@@ -177,17 +173,6 @@ function overrideComponentSetup<ORIGINAL_COMPONENT>(): (
 Shopware.Component.overrideComponentSetup()('sw-my-component', (previousState, props, context) => {
     // ... return overrides
 });
-```
-
-The generic `ORIGINAL_COMPONENT` parameter is used only for inferring prop types. Pass it when working in TypeScript:
-
-```typescript
-import type SwMyComponent from './sw-my-component';
-
-Shopware.Component.overrideComponentSetup<typeof SwMyComponent>()(
-    'sw-my-component',
-    (previousState, props, context) => { /* ... */ },
-);
 ```
 
 ### Override function arguments
@@ -390,18 +375,6 @@ Shopware.Component.overrideComponentSetup()('sw-my-component', (previousState) =
     // previousState.count is ComputedRef<number>
     // previousState.save is () => Promise<void>
     // previousState._private is the private state object
-});
-```
-
-### Typing props in overrides
-
-Pass the component constructor as the generic parameter to `overrideComponentSetup` to infer prop types:
-
-```typescript
-import type SwMyComponent from 'src/module/sw-my/page/sw-my-component';
-
-Shopware.Component.overrideComponentSetup<typeof SwMyComponent>()('sw-my-component', (previousState, props) => {
-    // props is typed as the component's declared props
 });
 ```
 

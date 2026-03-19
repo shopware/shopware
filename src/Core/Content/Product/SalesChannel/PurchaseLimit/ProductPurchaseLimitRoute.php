@@ -40,7 +40,7 @@ class ProductPurchaseLimitRoute extends AbstractProductPurchaseLimitRoute
         methods: [Request::METHOD_GET],
         priority: 1, // keeping priority higher than in \Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute
     )]
-    public function load(Request $request, SalesChannelContext $context): ProductPurchaseLimitRouteResponse
+    public function readProductsPurchaseLimit(Request $request, SalesChannelContext $context): ProductPurchaseLimitRouteResponse
     {
         /** @var array<string> $ids */
         $ids = $request->query->all('ids');

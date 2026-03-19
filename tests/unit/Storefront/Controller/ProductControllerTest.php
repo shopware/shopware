@@ -338,7 +338,7 @@ class ProductControllerTest extends TestCase
         ]);
 
         $this->productPurchaseLimitRouteMock
-            ->method('load')
+            ->method('readProductsPurchaseLimit')
             ->willReturn(new ProductPurchaseLimitRouteResponse($collection));
 
         $response = $this->controller->purchaseLimit(
@@ -362,7 +362,7 @@ class ProductControllerTest extends TestCase
     public function testPurchaseLimit404WhenProductNotFound(): void
     {
         $this->productPurchaseLimitRouteMock
-            ->method('load')
+            ->method('readProductsPurchaseLimit')
             ->willReturn(new ProductPurchaseLimitRouteResponse(new ProductPurchaseLimitCollection()));
 
         $response = $this->controller->purchaseLimit(

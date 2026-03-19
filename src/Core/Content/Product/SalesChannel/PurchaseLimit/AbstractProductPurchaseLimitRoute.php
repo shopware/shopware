@@ -11,5 +11,5 @@ abstract class AbstractProductPurchaseLimitRoute
 {
     abstract public function getDecorated(): AbstractProductPurchaseLimitRoute;
 
-    abstract public function load(Request $request, SalesChannelContext $context): ProductPurchaseLimitRouteResponse;
+    abstract public function readProductsPurchaseLimit(Request $request, SalesChannelContext $context): ProductPurchaseLimitRouteResponse;
 }

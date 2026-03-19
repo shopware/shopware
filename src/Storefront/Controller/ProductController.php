@@ -240,7 +240,7 @@ class ProductController extends StorefrontController
     {
         $purchaseLimitRequest = $request->duplicate(['ids' => [$productId]]);
 
-        $result = $this->productPurchaseLimitRoute->load($purchaseLimitRequest, $context)->getResult()->first();
+        $result = $this->productPurchaseLimitRoute->readProductsPurchaseLimit($purchaseLimitRequest, $context)->getResult()->first();
 
         if ($result === null) {
             return new JsonResponse(null, Response::HTTP_NOT_FOUND);

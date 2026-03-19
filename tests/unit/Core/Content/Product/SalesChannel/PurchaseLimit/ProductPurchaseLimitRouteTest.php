@@ -74,7 +74,7 @@ class ProductPurchaseLimitRouteTest extends TestCase
         ]);
 
         $request = new Request(['ids' => [$productIdA, $productIdB]]);
-        $results = $this->route->load($request, $context)->getResult();
+        $results = $this->route->readProductsPurchaseLimit($request, $context)->getResult();
 
         static::assertCount(2, $results);
 
@@ -109,7 +109,7 @@ class ProductPurchaseLimitRouteTest extends TestCase
         $this->maxPurchaseCalculator->method('calculate')->willReturn(5);
 
         $request = new Request(['ids' => [$productId]]);
-        $result = $this->route->load($request, $context)->getResult()->first();
+        $result = $this->route->readProductsPurchaseLimit($request, $context)->getResult()->first();
 
         static::assertNotNull($result);
         static::assertSame(1, $result->getMinPurchase());
@@ -127,7 +127,7 @@ class ProductPurchaseLimitRouteTest extends TestCase
         );
 
         $request = new Request(['ids' => [$productId]]);
-        $results = $this->route->load($request, $context)->getResult();
+        $results = $this->route->readProductsPurchaseLimit($request, $context)->getResult();
 
         static::assertCount(0, $results);
     }
@@ -138,7 +138,7 @@ class ProductPurchaseLimitRouteTest extends TestCase
 
         $this->productRepository->expects($this->never())->method('search');
 
-        $results = $this->route->load(new Request(), $context)->getResult();
+        $results = $this->route->readProductsPurchaseLimit(new Request(), $context)->getResult();
 
         static::assertCount(0, $results);
     }

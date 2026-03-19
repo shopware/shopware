@@ -118,21 +118,6 @@ class ConsentService implements ResetInterface
         return $updatedState;
     }
 
-    private function resolveAcceptedRevision(ConsentDefinition $consent, ?string $revision): ?string
-    {
-        $latestRevision = $consent->getLatestRevision();
-
-        if ($revision === null) {
-            return $latestRevision;
-        }
-
-        if ($latestRevision === null || $revision !== $latestRevision) {
-            throw ConsentException::invalidRevision($consent->getName(), $revision, $latestRevision);
-        }
-
-        return $latestRevision;
-    }
-
     public function revokeConsent(string $name, Context $context): ConsentState
     {
         $updatedState = $this->updateState($name, ConsentStatus::REVOKED, $context);
@@ -146,6 +131,21 @@ class ConsentService implements ResetInterface
     public function reset(): void
     {
         $this->invalidateState();
+    }
+
+    private function resolveAcceptedRevision(ConsentDefinition $consent, ?string $revision): ?string
+    {
+        $latestRevision = $consent->getLatestRevision();
+
+        if ($revision === null) {
+            return $latestRevision;
+        }
+
+        if ($latestRevision === null || $revision !== $latestRevision) {
+            throw ConsentException::invalidRevision($consent->getName(), $revision, $latestRevision);
+        }
+
+        return $latestRevision;
     }
 
     private function getConsentDefinition(string $name): ConsentDefinition

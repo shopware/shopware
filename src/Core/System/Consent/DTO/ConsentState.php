@@ -11,6 +11,7 @@ use Shopware\Core\System\Consent\ConsentStatus;
 class ConsentState
 {
     public readonly ?string $acceptedUntil;
+
     public readonly ?string $acceptedRevision;
 
     public function __construct(

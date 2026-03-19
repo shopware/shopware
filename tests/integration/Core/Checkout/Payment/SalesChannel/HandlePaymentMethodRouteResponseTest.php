@@ -72,7 +72,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertSame('FRAMEWORK__ROUTING_CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
+        static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
     }
 
     public function testRequestRandomOrderId(): void

@@ -69,20 +69,39 @@ describe('src/core/telemetry/amplitude/amplitude.shopware-properties.ts', () => 
         );
     });
 
-    it('loads the default language name from the language repository', async () => {
-        const get = jest.fn(() => Promise.resolve({ name: 'English' }));
-        const create = jest.fn(() => ({ get }));
+    describe('getDefaultLanguageName', () => {
+        it('loads the default language name from the language repository', async () => {
+            const get = jest.fn(() => Promise.resolve({ name: 'English' }));
+            const create = jest.fn(() => ({ get }));
 
-        Shopware.Service = jest.fn((serviceName) => {
-            if (serviceName === 'repositoryFactory') {
-                return { create };
-            }
+            Shopware.Service = jest.fn((serviceName) => {
+                if (serviceName === 'repositoryFactory') {
+                    return { create };
+                }
 
-            return undefined;
+                return undefined;
+            });
+
+            await expect(getDefaultLanguageName()).resolves.toBe('English');
+            expect(create).toHaveBeenCalledWith('language');
+            expect(get).toHaveBeenCalledWith('language-id');
         });
 
-        await expect(getDefaultLanguageName()).resolves.toBe('English');
-        expect(create).toHaveBeenCalledWith('language');
-        expect(get).toHaveBeenCalledWith('language-id');
+        it('returns N/A on failure', async () => {
+            const get = jest.fn(() => Promise.reject(new Error('shopware server down.')));
+            const create = jest.fn(() => ({ get }));
+
+            Shopware.Service = jest.fn((serviceName) => {
+                if (serviceName === 'repositoryFactory') {
+                    return { create };
+                }
+
+                return undefined;
+            });
+
+            await expect(getDefaultLanguageName()).resolves.toBe('N/A');
+            expect(create).toHaveBeenCalledWith('language');
+            expect(get).toHaveBeenCalledWith('language-id');
+        });
     });
 });

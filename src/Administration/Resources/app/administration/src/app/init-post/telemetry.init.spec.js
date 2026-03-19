@@ -1,6 +1,6 @@
-import initProductAnalytics from './product-analytics.init';
+import initProductAnalytics from './telemetry.init';
 
-describe('src/app/init-post/product-analytics.init.ts', () => {
+describe('src/app/init-post/telemetry.init.ts', () => {
     it('calls Telemetry.init', async () => {
         jest.spyOn(Shopware.Telemetry, 'initialize');
 

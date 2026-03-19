@@ -56,6 +56,16 @@ export class Telemetry {
         this.dispatchEvent('programmatic', eventData);
     }
 
+    identify() {
+        const sessionStore = Shopware.Store.get('session');
+
+        this.dispatchEvent('identify', {
+            userId: sessionStore.currentUser?.id || null,
+            locale: sessionStore.currentLocale,
+            isAdmin: sessionStore.currentUser?.admin || null,
+        });
+    }
+
     private initializePageChanges(): void {
         void Shopware.Application.viewInitialized.then(() => {
             // @ts-expect-error router is available after viewInitialized is fulfilled
@@ -79,13 +89,7 @@ export class Telemetry {
         const loginService = Shopware.Service('loginService');
 
         loginService.addOnLoginListener(() => {
-            const currentUser = Shopware.Store.get('session').currentUser;
-
-            this.dispatchEvent('identify', {
-                userId: currentUser?.id || null,
-                locale: null,
-                isAdmin: currentUser?.admin || null,
-            });
+            this.identify();
         });
 
         loginService.addOnLogoutListener(() => {

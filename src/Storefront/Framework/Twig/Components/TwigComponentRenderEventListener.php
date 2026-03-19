@@ -34,29 +34,31 @@ class TwigComponentRenderEventListener
         // Get the current attributes
         $attributes = $variables[$attributesVar] ?? null;
 
-        if ($attributes instanceof ComponentAttributes) {
-            $additionalAttributes = [
-                'data-component-name' => $metadata->getName(),
-            ];
-
-            // If env = DEV add addtional attributes to the component
-            if ($this->environment === 'dev') {
-                $additionalAttributes['data-component-template'] = $metadata->getTemplate();
-
-                if ($mountedComponent->hasExtraMetadata('hostTemplate')) {
-                    $hostTemplate = $mountedComponent->getExtraMetadata('hostTemplate');
-                    $additionalAttributes['data-component-parent'] = $this->pathToComponentName($hostTemplate);
-                    $additionalAttributes['data-component-parent-template'] = $hostTemplate;
-                }
-            }
-
-            // Add additional attributes using defaults()
-            $newAttributes = $attributes->defaults($additionalAttributes);
-
-            // Update the variables with the new attributes
-            $variables[$attributesVar] = $newAttributes;
-            $event->setVariables($variables);
+        if (!$attributes instanceof ComponentAttributes) {
+            return;
         }
+
+        $additionalAttributes = [
+            'data-component-name' => $metadata->getName(),
+        ];
+
+        // If env = DEV add addtional attributes to the component
+        if ($this->environment === 'dev') {
+            $additionalAttributes['data-component-template'] = $metadata->getTemplate();
+
+            if ($mountedComponent->hasExtraMetadata('hostTemplate')) {
+                $hostTemplate = $mountedComponent->getExtraMetadata('hostTemplate');
+                $additionalAttributes['data-component-parent'] = $this->pathToComponentName($hostTemplate);
+                $additionalAttributes['data-component-parent-template'] = $hostTemplate;
+            }
+        }
+
+        // Add additional attributes using defaults()
+        $newAttributes = $attributes->defaults($additionalAttributes);
+
+        // Update the variables with the new attributes
+        $variables[$attributesVar] = $newAttributes;
+        $event->setVariables($variables);
     }
 
     /**
@@ -70,10 +72,9 @@ class TwigComponentRenderEventListener
      */
     private function pathToComponentName(string $path): string
     {
-        $path = preg_replace('#^components/#', '', $path) ?? $path;
-        $path = preg_replace('#\.html\.twig$#', '', $path) ?? $path;
-        $parts = explode('/', $path);
+        $path = str_starts_with($path, 'components/') ? substr($path, \strlen('components/')) : $path;
+        $path = str_ends_with($path, '.html.twig') ? substr($path, 0, -\strlen('.html.twig')) : $path;
 
-        return implode(':', $parts);
+        return str_replace('/', ':', $path);
     }
 }

@@ -13,13 +13,18 @@ type GatewayEvent = {
     time: number;
 };
 
-/**
- * @private
- */
-export default function createAnonymousGatewayClient(analyticsGatewayUrl: string): TrackClient {
+function createAnonymousGatewayClient(analyticsGatewayUrl: string): TrackClient {
+    return createGatewayClient(analyticsGatewayUrl, '/event/anonymous');
+}
+
+function createDeleteUserGateWayClient(analyticsGatewayUrl: string): TrackClient {
+    return createGatewayClient(analyticsGatewayUrl, '/delete-user');
+}
+
+function createGatewayClient(analyticsGatewayUrl: string, endpoint: string): TrackClient {
     return {
         track(eventName, eventProperties, time) {
-            void postGatewayEvents(`${analyticsGatewayUrl}/event/anonymous`, [
+            void postGatewayEvents(`${analyticsGatewayUrl}${endpoint}`, [
                 {
                     event_type: eventName,
                     event_properties: eventProperties,
@@ -45,3 +50,8 @@ async function postGatewayEvents(url: string, events: GatewayEvent[]): Promise<v
         // best-effort anonymous and privacy requests must not affect the admin runtime
     }
 }
+
+/**
+ * @private
+ */
+export { createAnonymousGatewayClient, createDeleteUserGateWayClient };

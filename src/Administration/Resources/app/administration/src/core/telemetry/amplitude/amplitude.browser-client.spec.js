@@ -1,5 +1,4 @@
 import {
-    createPrivacyAmplitudeClient,
     getAmplitudeBrowserApiKeyPrefix,
     initTelemetryAmplitude,
     registerTelemetryLogoutListener,
@@ -182,25 +181,6 @@ describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
                 },
             }),
         );
-    });
-
-    it('creates a privacy amplitude client for delete-user requests', () => {
-        const privacyAmplitude = {
-            init: jest.fn(),
-        };
-        const createInstance = jest.fn(() => privacyAmplitude);
-
-        const result = createPrivacyAmplitudeClient({ createInstance }, 'https://gateway.example');
-
-        expect(createInstance).toHaveBeenCalled();
-        expect(privacyAmplitude.init).toHaveBeenCalledWith(
-            'placeholder-apikey',
-            undefined,
-            expect.objectContaining({
-                serverUrl: 'https://gateway.example/delete-user',
-            }),
-        );
-        expect(result).toBe(privacyAmplitude);
     });
 
     it('returns the browser api key prefix used for cookie cleanup', () => {

@@ -4,12 +4,14 @@
 import createConsentEventHandler from 'src/core/consent/handlers';
 import useConsentStore from 'src/core/consent/consent.store';
 import {
-    createPrivacyAmplitudeClient,
     initTelemetryAmplitude,
     registerTelemetryLogoutListener,
 } from 'src/core/telemetry/amplitude/amplitude.browser-client';
 import clearAmplitudeCookies from 'src/core/telemetry/amplitude/amplitude.browser-storage';
-import createAnonymousGatewayClient from 'src/core/telemetry/amplitude/amplitude.gateway-client';
+import {
+    createAnonymousGatewayClient,
+    createDeleteUserGateWayClient,
+} from 'src/core/telemetry/amplitude/amplitude.gateway-client';
 import {
     addDefaultShopwarePropertiesPlugin,
     getDefaultLanguageName,
@@ -93,13 +95,16 @@ function deleteUser(amplitudeModule: AmplitudeModule, analyticsGatewayUrl: strin
     const userId = Shopware.Store.get('session').currentUser?.id;
 
     if (typeof userId === 'string') {
-        const privacyAmplitude = createPrivacyAmplitudeClient(amplitudeModule, analyticsGatewayUrl);
+        const client = createDeleteUserGateWayClient(analyticsGatewayUrl);
 
-        privacyAmplitude.track('delete_user', {
-            shop_id: shopId,
-            user_id: userId,
-            amplitude_user_id: `${shopId}:${userId}`,
-        });
-        privacyAmplitude.flush();
+        client.track(
+            'delete_user',
+            {
+                shop_id: shopId,
+                user_id: userId,
+                amplitude_user_id: `${shopId}:${userId}`,
+            },
+            new Date().getTime(),
+        );
     }
 }

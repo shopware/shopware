@@ -4,7 +4,6 @@
 import type * as AmplitudeClient from '@amplitude/analytics-browser';
 
 type AmplitudeModule = typeof AmplitudeClient;
-type PrivacyAmplitudeClient = ReturnType<AmplitudeModule['createInstance']>;
 
 const AMPLITUDE_BROWSER_API_KEY = 'placeholder-apikey';
 const AMPLITUDE_MAX_RETRIES = 2;
@@ -33,25 +32,6 @@ export function registerTelemetryLogoutListener(amplitude: AmplitudeModule, anal
 export function initTelemetryAmplitude(amplitude: AmplitudeModule, analyticsGatewayUrl: string): void {
     // The real key will be added by the gateway
     amplitude.init(AMPLITUDE_BROWSER_API_KEY, undefined, createAmplitudeInitOptions(`${analyticsGatewayUrl}/event`));
-}
-
-/**
- * @private
- */
-export function createPrivacyAmplitudeClient(
-    amplitude: AmplitudeModule,
-    analyticsGatewayUrl: string,
-): PrivacyAmplitudeClient {
-    const privacyAmplitude = amplitude.createInstance();
-
-    // The real key will be added by the gateway
-    privacyAmplitude.init(
-        AMPLITUDE_BROWSER_API_KEY,
-        undefined,
-        createAmplitudeInitOptions(`${analyticsGatewayUrl}/delete-user`),
-    );
-
-    return privacyAmplitude;
 }
 
 /**

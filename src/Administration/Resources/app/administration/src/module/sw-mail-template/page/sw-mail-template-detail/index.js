@@ -495,33 +495,21 @@ export default {
                             contentHtml: this.mailTemplate.contentHtml,
                             contentPlain: this.mailTemplate.contentPlain,
                         },
+                        true,
                         this.triggerEvent.class,
                     )
                     .then((response) => {
-                        response.contentPlain.content = response.contentPlain.content.replace(/\n/g, '<br/>');
+                        Object.keys(response).forEach((key) => {
+                            const entry = response[key];
 
-                        this.mailPreview = Object.entries(response)
-                            .map(
-                                ([
-                                    key,
-                                    value,
-                                ]) => {
-                                    return [
-                                        this.translateTemplateField(key),
-                                        value,
-                                    ];
-                                },
-                            )
-                            .reduce(
-                                (
-                                    result,
-                                    [
-                                        key,
-                                        value,
-                                    ],
-                                ) => `${result}<h2>${key}:</h2><br/>${value.content}<br/><br/><hr/><br/>`,
-                                '',
-                            );
+                            if (entry.type === 'error') {
+                                entry.errorTitle = entry.content.substring(0, entry.content.search(': '));
+                                entry.errorMessage = entry.content.substring(entry.content.search(': ') + 2);
+                                entry.content = undefined;
+                            }
+                        });
+
+                        this.mailPreview = response;
                     })
                     .catch(() => {
                         this.mailPreview = null;
@@ -746,7 +734,7 @@ export default {
 
         loadAvailableVariables(variable, variableEntitySchema) {
             if (Feature.isActive('v6.8.0.0')) {
-                this.mailService.loadAvailableVariables(this.triggerEvent.class, variable).then((response) => {
+                this.mailService.loadAvailableVariables(variable, this.triggerEvent.class).then((response) => {
                     Object.values(response)
                         .sort((a, b) => a.fieldName.localeCompare(b.fieldName))
                         .forEach((value) => {
@@ -837,7 +825,7 @@ export default {
                     return;
                 }
 
-                this.mailService.loadAvailableVariables(this.triggerEvent.class, '').then((response) => {
+                this.mailService.loadAvailableVariables('', this.triggerEvent.class).then((response) => {
                     Object.values(response)
                         .sort((a, b) => a.fieldName.localeCompare(b.fieldName))
                         .forEach((value) => {

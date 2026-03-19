@@ -85,3 +85,23 @@
         border-radius: var(--border-radius-xs);
     }
 }
+
+.sw-mail-template-preview-modal {
+    .sw-modal__body {
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-32);
+    }
+
+    &__subject-title,
+    &__sender-name-title,
+    &__plain-text-title,
+    &__html-title {
+        font-weight: var(--font-weight-semi-bold);
+        margin-bottom: var(--scale-size-4);
+    }
+
+    &__plain-text-content {
+        font-family: var(--font-family-default);
+    }
+}

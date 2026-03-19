@@ -311,6 +311,10 @@
                                         "pattern": "^[0-9a-f]{32}$",
                                         "example": "b3c4d5e6f7a8b90a1b2c3d4e5f678906"
                                     },
+                                    "strict": {
+                                        "description": "Enables strict checking during the mail template and enables errors on e.g. unknown variables.",
+                                        "type": "boolean"
+                                    },
                                     "flowEventClass":{
                                         "description": "The class of the flow trigger event that provides the available variables.",
                                         "type": "string",

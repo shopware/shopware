@@ -179,7 +179,7 @@ class MailApiService extends ApiService {
             });
     }
 
-    buildMailTemplate(mailTemplateContent, flowEventClass = null, entities = {}, templateData = {}) {
+    buildMailTemplate(mailTemplateContent, strict = false, flowEventClass = null, entities = {}, templateData = {}) {
         if (!Shopware.Feature.isActive('v6.8.0.0')) {
             // eslint-disable-next-line prefer-promise-reject-errors
             return Promise.reject('Method only supports >=v6.8.0.0');
@@ -192,6 +192,7 @@ class MailApiService extends ApiService {
                 apiRoute,
                 {
                     mailTemplateContent,
+                    strict,
                     flowEventClass,
                     entities,
                     templateData,

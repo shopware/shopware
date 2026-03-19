@@ -110,10 +110,13 @@ class MailActionController extends AbstractController
             \assert($templateDataDataBag instanceof DataBag);
             $templateData = $templateDataDataBag->all();
 
+            $strict = $post->get('strict', false);
+            \assert(\is_bool($strict));
+
             $renderedTemplate = $this->mailTemplateService->preview(
                 $mailTemplateContent,
                 $context,
-                false,
+                $strict,
                 $flowEventClass,
                 $entities,
                 $templateData,
@@ -167,10 +170,13 @@ class MailActionController extends AbstractController
         \assert($templateDataDataBag instanceof DataBag);
         $templateData = $templateDataDataBag->all();
 
+        $strict = $post->get('strict', false);
+        \assert(\is_bool($strict));
+
         $renderedTemplate = $this->mailTemplateService->preview(
             $templateContent,
             $context,
-            true,
+            $strict,
             $flowEventClass,
             $entities,
             $templateData

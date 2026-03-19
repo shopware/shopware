@@ -36,7 +36,8 @@ import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 
 type LifecycleHookFn = (...args: unknown[]) => void;
 type AnyFn = (...args: unknown[]) => unknown;
-type ComponentState = Record<string, unknown>;
+type ComponentState<COMPONENT_NAME extends keyof ComponentPublicApiMapping & string = string> =
+    ComponentPublicApiMapping[COMPONENT_NAME];
 
 interface ComputedObjectDefinition {
     get?: () => unknown;
@@ -57,7 +58,11 @@ type WatchDefinition = SingleWatchDefinition | SingleWatchDefinition[];
 type ExtendedComponentConfig = ComponentConfig & Record<string, unknown>;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type OverrideFn = (previousState: ComponentState, props: ComponentState, context?: unknown) => ComponentState;
+export type OverrideFn<COMPONENT_NAME extends keyof ComponentPublicApiMapping & string = string> = (
+    previousState: ComponentState<COMPONENT_NAME>,
+    props: ComponentState<COMPONENT_NAME>,
+    context?: unknown,
+) => ComponentState<COMPONENT_NAME>;
 
 // ─── Lifecycle hook registry ─────────────────────────────────────────────────
 
@@ -128,15 +133,18 @@ export function shouldActivateShim(overrideConfig: ComponentConfig): boolean {
  * @param optionsConfig - Options API configuration object
  * @returns Composition API override function
  */
-export function convertOptionsApiOverrideToCompositionApi(
-    componentName: string,
+export function convertOptionsApiOverrideToCompositionApi<
+    COMPONENT_NAME extends keyof ComponentPublicApiMapping & string = string,
+>(
+    componentName: COMPONENT_NAME,
     optionsConfig: ComponentConfig,
-): OverrideFn {
+): OverrideFn<COMPONENT_NAME> {
     logDeprecationWarning(componentName);
     checkUnsupportedFeatures(componentName, optionsConfig);
 
-    return (previousState: ComponentState, props: ComponentState): ComponentState => {
-        const result: ComponentState = {};
+    return (previousState: ComponentState<COMPONENT_NAME>, props: ComponentState<COMPONENT_NAME>): ComponentState<COMPONENT_NAME> => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const result: ComponentState<COMPONENT_NAME> = {} as ComponentState<COMPONENT_NAME>;
 
         const mergedConfig = mergeMixins(optionsConfig);
 
@@ -202,6 +210,7 @@ function resolveInject(injectConfig: ComponentConfig['inject']): ComponentState 
 
     if (Array.isArray(injectConfig)) {
         injectConfig.forEach((key: string) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             resolved[key] = vueInject(key);
         });
     } else {
@@ -213,13 +222,16 @@ function resolveInject(injectConfig: ComponentConfig['inject']): ComponentState 
             ]) => {
                 if (typeof spec === 'string') {
                     // { localKey: 'provideKey' }
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     resolved[localKey] = vueInject(spec);
                 } else if (spec && typeof spec === 'object') {
                     // { localKey: { from: 'provideKey', default: fallback } }
                     const from = spec.from ?? localKey;
                     const hasDefault = Object.hasOwn(spec, 'default');
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     resolved[localKey] = hasDefault ? vueInject(from, spec.default) : vueInject(from);
                 } else {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     resolved[localKey] = vueInject(localKey);
                 }
             },
@@ -395,11 +407,11 @@ function convertMethods(methods: Record<string, AnyFn>, thisProxy: object): Comp
  * Vue instance properties ($emit, $t, $route, etc.) remain available
  * even when accessed outside the setup() context (e.g. in event handlers).
  */
-function createThisProxy(
-    previousState: ComponentState,
-    props: ComponentState,
-    localState: ComponentState,
-    injectedValues: ComponentState = {},
+function createThisProxy<COMPONENT_NAME extends keyof ComponentPublicApiMapping & string = string>(
+    previousState: ComponentState<COMPONENT_NAME>,
+    props: ComponentState<COMPONENT_NAME>,
+    localState: ComponentState<COMPONENT_NAME>,
+    injectedValues: ComponentState<COMPONENT_NAME> = {} as ComponentState<COMPONENT_NAME>,
 ): object {
     const componentInstance = getCurrentInstance();
 
@@ -475,7 +487,7 @@ function createThisProxy(
                         (localState[prop] as Ref).value = value;
                         return true;
                     }
-                    localState[prop] = value;
+                    (localState as Record<string, unknown>)[prop] = value;
                     return true;
                 }
 

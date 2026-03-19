@@ -206,7 +206,7 @@ function flattenMixins(mixin: ComponentConfig): ComponentConfig[] {
  * Supports all three Vue inject forms: array, object-with-string, object-with-options.
  * Must be called during component setup() to have access to the provide/inject chain.
  */
-function resolveInject(injectConfig: ComponentConfig['inject']): ComponentState {
+function resolveInject(injectConfig: InjectConfig): ComponentState {
     const resolved: ComponentState = {};
 
     if (!injectConfig) {

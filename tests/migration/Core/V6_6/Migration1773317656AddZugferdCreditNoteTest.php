@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_7;
+namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Document\Renderer\ZugferdCreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedCreditNoteRenderer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_7\Migration1773317656AddZugferdCreditNote;
+use Shopware\Core\Migration\V6_6\Migration1773317656AddZugferdCreditNote;
 
 /**
  * @internal

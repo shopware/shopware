@@ -3,9 +3,16 @@
 namespace Shopware\Tests\Migration;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @internal
+ *
+ * @phpstan-ignore shopware.testCovers (No specific class affected)
+ */
+#[Package('after-sales')]
 class SalesChannelTranslatedNameTest extends TestCase
 {
     public function testMailTemplateContentCollectionFile(): void
@@ -25,6 +32,8 @@ class SalesChannelTranslatedNameTest extends TestCase
     public function testMailTemplateFiles(): void
     {
         $baseDirectory = realpath(__DIR__ . '/../../src/Core/Migration/Fixtures/mails');
+        static::assertIsString($baseDirectory);
+
         $finder = new Finder();
 
         $result = [];
@@ -52,6 +61,7 @@ class SalesChannelTranslatedNameTest extends TestCase
         $finder = new Finder();
 
         $baseDirectory = realpath(__DIR__ . '/../../src/Core/Migration');
+        static::assertIsString($baseDirectory);
         static::assertDirectoryExists($baseDirectory);
 
         $result = \json_decode(
@@ -85,7 +95,7 @@ class SalesChannelTranslatedNameTest extends TestCase
                 continue;
             }
 
-            $result[] = $file->getFilename();
+            $result[] = $fileName;
         }
 
         $message = 'Do not use the twig tag "{{ salesChannel.name }}" for mail templates and it translations. Use "{{ salesChannel.translated.name }}" instead.';

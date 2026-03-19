@@ -127,7 +127,7 @@ SQL;
     }
 
     /**
-     * @return array{mail_template_id: string, language_id: string, sender_name: string, subject: string, content_html: string, content_plain: string}|false
+     * @return array<string, mixed>|false
      */
     private function getTestTranslation(): array|false
     {
@@ -182,7 +182,7 @@ SQL;
     }
 
     /**
-     * @return List<array{mail_template_id: string, language_id: string, sender_name: string, subject: string, content_html: string, content_plain: string}>
+     * @return List<array<string, mixed>>
      */
     private function getMailTemplateTranslations(): array
     {

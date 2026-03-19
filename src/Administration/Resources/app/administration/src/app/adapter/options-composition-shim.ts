@@ -635,6 +635,10 @@ function registerSingleWatcher(source: () => unknown, handler: SingleWatchDefini
             const proxyAsState = thisProxy as ComponentState;
             if (proxyAsState[methodName] && typeof proxyAsState[methodName] === 'function') {
                 (proxyAsState[methodName] as AnyFn)(newVal, oldVal);
+            } else {
+                console.error(
+                    `[Options API Shim] Watch handler "${methodName}" is not a function or does not exist on the component.`,
+                );
             }
         });
     }

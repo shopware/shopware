@@ -7,7 +7,6 @@ use horstoeko\zugferd\codelists\ZugferdInvoiceType;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
-use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\Event\ZugferdCancellationInvoiceOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
@@ -181,19 +180,6 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
             ],
         ]);
 
-        if ($operation->isStatic()) {
-            $doc = new RenderedDocument(
-                $number,
-                $config->buildName(),
-                $operation->getFileType(),
-                $config->jsonSerialize()
-            );
-
-            $renderResult->addSuccess($order->getId(), $doc);
-
-            return;
-        }
-
         $content = $this->documentBuilder->buildDocument(
             $order,
             $config,
@@ -205,6 +191,7 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
         $renderResult->addSuccess(
             $order->getId(),
             new RenderedDocument(
+                '',
                 $number,
                 $config->buildName(),
                 ZugferdRenderer::FILE_EXTENSION,
@@ -237,14 +224,6 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
             $rendererConfig->deepLinkCode,
             self::TYPE
         );
-
-        $this->eventDispatcher->dispatch(new DocumentOrderCriteriaEvent(
-            $criteria,
-            $context,
-            [$operation->getOrderId() => $operation],
-            $rendererConfig,
-            self::TYPE
-        ));
 
         $order = $this->orderRepository->search($criteria, $versionContext)
             ->getEntities()

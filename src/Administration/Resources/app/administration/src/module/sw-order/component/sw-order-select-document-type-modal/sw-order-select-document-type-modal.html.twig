@@ -1,7 +1,7 @@
 {% block sw_order_select_document_type_modal %}
 <sw-modal
     v-bind="$attrs"
-    :title="$t('sw-order.components.selectDocumentTypeModal.title')"
+    :title="$tc('sw-order.components.selectDocumentTypeModal.title')"
     variant="small"
     class="sw-order-select-document-type-modal"
     @modal-close="$emit('modal-close', false)"
@@ -9,7 +9,7 @@
     <sw-switch-field
         :model-value="showZugferd"
         class="sw-order-select-document-type-modal__type-switch"
-        :label="$t('sw-order.components.selectDocumentTypeModal.showZugferd')"
+        :label="$tc('sw-order.components.selectDocumentTypeModal.showZugferd')"
         @update:value="onChangeShowZugferd"
     />
 
@@ -30,7 +30,7 @@
         <sw-button
             @click="$emit('modal-close', false)"
         >
-            {{ $t('global.default.cancel') }}
+            {{ $tc('global.default.cancel') }}
         </sw-button>
         {% endblock %}
 
@@ -39,7 +39,7 @@
             variant="primary"
             @click="$emit('modal-close', true)"
         >
-            {{ $t('sw-order.components.selectDocumentTypeModal.primaryAction') }}
+            {{ $tc('sw-order.components.selectDocumentTypeModal.primaryAction') }}
         </sw-button>
         {% endblock %}
     </template>

@@ -147,13 +147,13 @@ You should rework you extensions to also work with enabled cache for logged in c
 To modify the default behaviour there are several extension points you can hook into, for a detailed explanation please take a look at the [caching docs](https://developer.shopware.com/docs/guides/plugins/plugins/framework/caching/#manipulating-the-cache-key).
 
 The following classes and constants were removed as they are no longer used:
-* `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
-* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
-* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
-* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
-* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
-* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
-* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
+  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
+  * `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
+  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
+  * `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
 
 Additionally, the following configuration was removed:
 * `shopware.cache.invalidation.http_cache`
@@ -278,14 +278,14 @@ foreach ($entities as $entity) {
 The translation of the import/export profile label has been removed.
 Profiles are now identified and displayed only by their technical name.
 - The `$label` property and the following methods in `Shopware\Core\Content\ImportExport\ImportExportProfileEntity` have been removed:
-    - `getLabel()`
-    - `setLabel()`
-    - `getTranslations()`
-    - `setTranslations()`
+  - `getLabel()`
+  - `setLabel()`
+  - `getTranslations()`
+  - `setTranslations()`
 - The following classes have been removed:
-    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection`
-    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition`
-    - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationEntity`
+  - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationCollection`
+  - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationDefinition`
+  - `Shopware\Core\Content\ImportExport\ImportExportProfileTranslationEntity`
 - `createLog()` and `getConfig()` in `Shopware\Core\Content\ImportExport\Service\ImportExportService` now use `$technicalName` instead of `$label` when generating filenames.
 - `generateFilename()` in `Shopware\Core\Content\ImportExport\Service\FileService` now uses `$technicalName` instead of `$label` as profile name.
 
@@ -300,7 +300,7 @@ Profiles are now identified and displayed only by their technical name.
 The unused exceptions
 * `\Shopware\Core\Content\ImportExport\Exception\LogNotWritableException`
 * `\Shopware\Core\Content\ImportExport\Exception\MappingException`
-  were removed.
+were removed.
 
 ## Removed SystemConfig exceptions
 
@@ -308,8 +308,8 @@ The exceptions
 * `\Shopware\Core\System\SystemConfig\Exception\InvalidDomainException`,
 * `\Shopware\Core\System\SystemConfig\Exception\InvalidKeyException`, and
 * `\Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException`
-  were removed.
-  Use the respective factory methods in `\Shopware\Core\System\SystemConfig\SystemConfigException` instead.
+were removed.
+Use the respective factory methods in `\Shopware\Core\System\SystemConfig\SystemConfigException` instead.
 
 ## Deprecated SystemConfigService tracing methods
 

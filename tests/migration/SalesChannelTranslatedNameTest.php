@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * @internal
@@ -40,6 +41,7 @@ class SalesChannelTranslatedNameTest extends TestCase
         $files = $this->findFiles($baseDirectory);
 
         foreach ($files as $file) {
+            static::assertInstanceOf(SplFileInfo::class, $file);
             $result[] = $file->getRealPath();
         }
 
@@ -70,6 +72,7 @@ class SalesChannelTranslatedNameTest extends TestCase
         $files = $this->findFiles($baseDirectory);
 
         foreach ($files as $file) {
+            static::assertInstanceOf(SplFileInfo::class, $file);
             $fileList[] = $file->getFilename();
         }
 

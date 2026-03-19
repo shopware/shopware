@@ -28,8 +28,7 @@ function initVuexState(state: FullState) {
 }
 
 function registerProperties(state: FullState, store: Store<VuexRootState>) {
-    // eslint-disable-next-line max-len
-    /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, max-len */
+    /* eslint-disable @typescript-eslint/no-unsafe-return */
     state._registerPrivateProperty('_store', store);
     state._registerProperty('list', () => Object.keys(store.state));
     state._registerProperty('get', <N extends keyof VuexRootState | 'cmsPage'>(name: N) => {
@@ -52,7 +51,7 @@ function registerProperties(state: FullState, store: Store<VuexRootState>) {
     state._registerProperty('unregisterModule', (...args: Parameters<typeof store.unregisterModule>) =>
         store.unregisterModule(...args),
     );
-    /* eslint-enable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, max-len */
+    /* eslint-enable @typescript-eslint/no-unsafe-return */
 }
 
 function initVuexModules(

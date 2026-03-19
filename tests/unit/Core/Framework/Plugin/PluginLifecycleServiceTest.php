@@ -62,7 +62,9 @@ class PluginLifecycleServiceTest extends TestCase
 {
     private PluginLifecycleService $pluginLifecycleService;
 
-    /** @var MockObject&EntityRepository<PluginCollection> */
+    /**
+     * @var MockObject&EntityRepository<PluginCollection>
+     */
     private MockObject&EntityRepository $pluginRepoMock;
 
     private MockObject&KernelPluginCollection $kernelPluginCollectionMock;
@@ -613,7 +615,7 @@ class PluginLifecycleServiceTest extends TestCase
         $containerMock->method('getParameter')->with('kernel.plugin_dir')->willReturn('tmp');
         $containerMock->method('get')->willReturn($this->eventDispatcher);
         $matcher = $this->exactly(2);
-        $kernelMock->expects($matcher)->method('getContainer')->willReturnCallback(function () use ($matcher, $containerMock): Container {
+        $kernelMock->expects($matcher)->method('getContainer')->willReturnCallback(static function () use ($matcher, $containerMock): Container {
             if ($matcher->numberOfInvocations() === 1) {
                 return $containerMock;
             }
@@ -846,6 +848,7 @@ class PluginLifecycleServiceTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
+        // Do not declare closure as static
         \Closure::bind(function () use ($context): void {
             $plugin = (new PluginEntity())->assign(['name' => 'MockPlugin', 'composerName' => 'MockPluginComposerName']);
 
@@ -900,10 +903,10 @@ class PluginLifecycleServiceTest extends TestCase
 
         // Validate that session is saved (to release session locks) before kernel reboot (long operation)
         $sessionSaved = false;
-        $sessionMock->expects($this->once())->method('save')->willReturnCallback(function () use (&$sessionSaved): void {
+        $sessionMock->expects($this->once())->method('save')->willReturnCallback(static function () use (&$sessionSaved): void {
             $sessionSaved = true;
         });
-        $kernelMock->expects($this->once())->method('reboot')->willReturnCallback(function () use (&$sessionSaved): void {
+        $kernelMock->expects($this->once())->method('reboot')->willReturnCallback(static function () use (&$sessionSaved): void {
             static::assertTrue($sessionSaved, 'Session must be saved before kernel reboot to prevent session lock issues');
         });
 

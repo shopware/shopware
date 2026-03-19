@@ -55,7 +55,6 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         invalidPromotionCodes(): PromotionCodeTag[] {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             return Store.get('swOrder').invalidPromotionCodes;
         },
 

@@ -22,7 +22,6 @@ const DevtoolHelperPlugin: Plugin = {
             beforeUnmount() {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 if (this.$options.extensionApiDevtoolInformation) {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,max-len
                     window._sw_extension_component_collection = window._sw_extension_component_collection.filter(
                         (component) => component !== this,
                     );

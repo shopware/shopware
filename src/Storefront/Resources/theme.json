@@ -19,6 +19,7 @@
         }
       }
     },
+    "@Components",
     "@Plugins"
   ],
   "script": [

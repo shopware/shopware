@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\Test\Generator;
@@ -250,7 +251,7 @@ class StorybookServiceTest extends TestCase
     {
         return new IdSearchResult(
             1,
-            [['primaryKey' => $salesChannelId, 'data' => []]],
+            [$salesChannelId => ['primaryKey' => $salesChannelId, 'data' => []]],
             new Criteria(),
             Context::createDefaultContext()
         );

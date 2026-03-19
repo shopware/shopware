@@ -29,6 +29,7 @@ class StorefrontTest extends TestCase
 {
     public function testImplementsThemeInterface(): void
     {
+        // @phpstan-ignore staticMethod.alreadyNarrowedType
         static::assertInstanceOf(ThemeInterface::class, new Storefront());
     }
 
@@ -98,10 +99,12 @@ class StorefrontTest extends TestCase
             {
             }
 
+            /** @throws void */
             public function load(array $configs, ContainerBuilder $container): void
             {
             }
 
+            /** @throws void */
             public function getAlias(): string
             {
                 return $this->alias;

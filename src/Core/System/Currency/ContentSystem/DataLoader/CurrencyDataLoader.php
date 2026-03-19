@@ -8,6 +8,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +22,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  *
  * @final
+ *
+ * @extends AbstractContentDataLoader<CurrencyCollection>
  */
 #[Package('framework')]
 class CurrencyDataLoader extends AbstractContentDataLoader

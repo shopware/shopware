@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\ContentSystem\DataLoader;
 
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
+use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
@@ -18,6 +19,8 @@ use function Symfony\Component\String\u;
  * @internal
  *
  * @final
+ *
+ * @extends AbstractContentDataLoader<CrossSellingElementCollection>
  */
 #[Package('inventory')]
 class CrossSellingDataLoader extends AbstractContentDataLoader

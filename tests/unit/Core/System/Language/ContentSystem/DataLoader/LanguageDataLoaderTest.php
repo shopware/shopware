@@ -41,6 +41,15 @@ class LanguageDataLoaderTest extends TestCase
         static::assertSame('language', LanguageDataLoader::getRequirementType());
     }
 
+    #[TestDox('resolves provided data type from annotation')]
+    public function testGetProvidedDataResolvesExpectedType(): void
+    {
+        $descriptor = LanguageDataLoader::getProvidedData();
+
+        static::assertSame(LanguageCollection::class, $descriptor->className);
+        static::assertSame([], $descriptor->genericParameters);
+    }
+
     #[TestDox('loads languages and returns cachedExternally result with correct request, context and empty criteria')]
     public function testLoadWithDefaultConfig(): void
     {

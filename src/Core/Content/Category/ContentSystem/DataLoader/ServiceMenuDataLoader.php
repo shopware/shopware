@@ -19,6 +19,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  *
  * @final
+ *
+ * @extends AbstractContentDataLoader<CategoryCollection>
  */
 #[Package('framework')]
 class ServiceMenuDataLoader extends AbstractContentDataLoader

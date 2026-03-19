@@ -6,9 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * Result object from content data loaders.
- *
- * Contains loaded data and cache tag information:
+ * Cache tag semantics:
  * - cacheTags = null  → Loader is not cache-aware, page must not be cached
  * - cacheTags = []    → Cache-aware, no tags needed (e.g., data already tagged elsewhere)
  * - cacheTags = [...] → Cache-aware with specific invalidation tags
@@ -17,11 +15,10 @@ use Shopware\Core\Framework\Struct\Struct;
 final class ContentDataLoaderResult
 {
     /**
-     * @param Struct|array<Struct>|null $data
      * @param list<string>|null $cacheTags
      */
     private function __construct(
-        public readonly Struct|array|null $data,
+        public readonly ?Struct $data,
         private readonly ?array $cacheTags = null,
     ) {
     }
@@ -39,7 +36,7 @@ final class ContentDataLoaderResult
      * Data loaded but cannot be cache-tracked.
      * Page will not be cached.
      */
-    public static function uncacheable(mixed $data): self
+    public static function uncacheable(Struct $data): self
     {
         return new self(data: $data, cacheTags: null);
     }
@@ -47,7 +44,7 @@ final class ContentDataLoaderResult
     /**
      * Data loaded and cache-trackable with specific tags.
      */
-    public static function cached(mixed $data, string ...$tags): self
+    public static function cached(Struct $data, string ...$tags): self
     {
         return new self(data: $data, cacheTags: array_values($tags));
     }
@@ -56,7 +53,7 @@ final class ContentDataLoaderResult
      * Data loaded, cache-aware, but tags already collected elsewhere.
      * Use when delegating to routes that handle their own cache tags.
      */
-    public static function cachedExternally(mixed $data): self
+    public static function cachedExternally(Struct $data): self
     {
         return new self(data: $data, cacheTags: []);
     }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\ContentSystem\DataLoader;
 
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoader
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,6 +22,8 @@ use function Symfony\Component\String\u;
  * @internal
  *
  * @final
+ *
+ * @extends AbstractContentDataLoader<EntitySearchResult<ProductReviewCollection>>
  */
 #[Package('after-sales')]
 class ProductReviewDataLoader extends AbstractContentDataLoader

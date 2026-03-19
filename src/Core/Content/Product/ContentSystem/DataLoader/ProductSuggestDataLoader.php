@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\ContentSystem\DataLoader;
 
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\AbstractProductSuggestRoute;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
@@ -16,6 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  *
  * @final
+ *
+ * @extends AbstractContentDataLoader<ProductListingResult>
  */
 #[Package('discovery')]
 class ProductSuggestDataLoader extends AbstractContentDataLoader

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityColle
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -24,6 +26,8 @@ use function Symfony\Component\String\u;
  * @internal
  *
  * @final
+ *
+ * @extends AbstractContentDataLoader<EntityCollection<Entity>>
  */
 #[Package('framework')]
 class EntityCollectionLoader extends AbstractContentDataLoader
@@ -42,6 +46,24 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         return self::SOURCE;
     }
 
+    /**
+     * @param list<ContentSystemDataLoaderTypeDescriptor> $types
+     */
+    public function overrideProvidedTypes(array &$types): void
+    {
+        $types = [];
+        foreach ($this->definitionRegistry->getDefinitions() as $definition) {
+            $collectionClass = $definition->getCollectionClass();
+
+            if ($collectionClass === EntityCollection::class) {
+                continue;
+            }
+
+            /** @var class-string<Struct> $collectionClass */
+            $types[] = new ContentSystemDataLoaderTypeDescriptor($collectionClass);
+        }
+    }
+
     public function load(
         ContentElement $element,
         DataRequirement $requirement,
@@ -58,7 +80,7 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         $entityIds = $element->getProperty($propertyName);
 
         if ($entityIds === null) {
-            return ContentDataLoaderResult::cached([]);
+            return $this->emptyCollectionResult($config->entity);
         }
 
         if (!\is_array($entityIds)) {
@@ -70,7 +92,7 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         $entityIds = \array_values($entityIds);
 
         if ($entityIds === []) {
-            return ContentDataLoaderResult::cached([]);
+            return $this->emptyCollectionResult($config->entity);
         }
 
         $entities = $this->loadEntities($config->entity, $entityIds, $config->associations, $context);
@@ -89,6 +111,15 @@ class EntityCollectionLoader extends AbstractContentDataLoader
         }
 
         return ContentDataLoaderResult::cached($entities, ...$tags);
+    }
+
+    private function emptyCollectionResult(string $entityName): ContentDataLoaderResult
+    {
+        $definition = $this->definitionRegistry->getByEntityName($entityName);
+        /** @var class-string<EntityCollection<Entity>> $collectionClass */
+        $collectionClass = $definition->getCollectionClass();
+
+        return ContentDataLoaderResult::cached(new $collectionClass());
     }
 
     /**

@@ -42,6 +42,15 @@ class ProductSearchDataLoaderTest extends TestCase
         static::assertSame('product_search', ProductSearchDataLoader::getRequirementType());
     }
 
+    #[TestDox('resolves provided data type from annotation')]
+    public function testGetProvidedDataResolvesExpectedType(): void
+    {
+        $descriptor = ProductSearchDataLoader::getProvidedData();
+
+        static::assertSame(ProductListingResult::class, $descriptor->className);
+        static::assertSame([], $descriptor->genericParameters);
+    }
+
     #[TestDox('returns search listing result as data and marks result as cache-aware with no tags')]
     public function testLoadReturnsCachedExternallyResultWithSearchData(): void
     {

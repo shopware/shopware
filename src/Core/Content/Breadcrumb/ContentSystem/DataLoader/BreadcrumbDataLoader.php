@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Breadcrumb\ContentSystem\DataLoader;
 
 use Shopware\Core\Content\Breadcrumb\SalesChannel\AbstractBreadcrumbRoute;
+use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
@@ -17,6 +18,8 @@ use function Symfony\Component\String\u;
  * @internal
  *
  * @final
+ *
+ * @extends AbstractContentDataLoader<BreadcrumbCollection>
  */
 #[Package('inventory')]
 class BreadcrumbDataLoader extends AbstractContentDataLoader

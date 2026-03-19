@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewLoaderConfig;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
@@ -43,6 +44,15 @@ class ProductReviewDataLoaderTest extends TestCase
     public function testGetRequirementTypeReturnsProductReviewString(): void
     {
         static::assertSame('product_review', ProductReviewDataLoader::getRequirementType());
+    }
+
+    #[TestDox('resolves provided data type from annotation')]
+    public function testGetProvidedDataResolvesExpectedType(): void
+    {
+        $descriptor = ProductReviewDataLoader::getProvidedData();
+
+        static::assertSame(EntitySearchResult::class, $descriptor->className);
+        static::assertSame([ProductReviewCollection::class], $descriptor->genericParameters);
     }
 
     #[TestDox('returns review search result as data and marks result as cache-aware with no tags')]

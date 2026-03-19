@@ -7,4 +7,6 @@
 - Each loader needs a config class + serializer pair (config serializer tag: `content_system.config_serializer`)
 - Domain loaders registered in their owning module's DI, not in `content-system.xml`
 - Use `$context->getContext()` for entity repository queries
-- Built-in sources: `entity`, `entity_collection`, `product_listing`, `navigation`, `language`, `currency`, `payment_method`, `shipping_method`
+- Built-in sources: `entity`, `entity_collection`, `product_listing`, `navigation`, `service_menu`, `cross_selling`, `product_review`, `product_search`, `product_suggest`, `breadcrumb`, `language`, `currency`, `payment_method`, `shipping_method`
+- `@extends AbstractContentDataLoader<T>` PHPDoc annotation required — `ContentSystemDataLoaderTypeCompilerPass` calls `getProvidedData()` at container build time; missing annotation fails the build
+- `overrideProvidedTypes(array &$types)` mutates pre-populated type list at runtime — override in wildcard loaders, default is no-op

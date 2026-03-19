@@ -41,6 +41,15 @@ class PaymentMethodDataLoaderTest extends TestCase
         static::assertSame('payment_method', PaymentMethodDataLoader::getRequirementType());
     }
 
+    #[TestDox('resolves provided data type from annotation')]
+    public function testGetProvidedDataResolvesExpectedType(): void
+    {
+        $descriptor = PaymentMethodDataLoader::getProvidedData();
+
+        static::assertSame(PaymentMethodCollection::class, $descriptor->className);
+        static::assertSame([], $descriptor->genericParameters);
+    }
+
     #[TestDox('returns cachedExternally result with payment method collection')]
     public function testLoadReturnsCachedExternallyResult(): void
     {

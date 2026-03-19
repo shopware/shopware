@@ -43,6 +43,15 @@ class CrossSellingDataLoaderTest extends TestCase
         static::assertSame('cross_selling', CrossSellingDataLoader::getRequirementType());
     }
 
+    #[TestDox('resolves provided data type from annotation')]
+    public function testGetProvidedDataResolvesExpectedType(): void
+    {
+        $descriptor = CrossSellingDataLoader::getProvidedData();
+
+        static::assertSame(CrossSellingElementCollection::class, $descriptor->className);
+        static::assertSame([], $descriptor->genericParameters);
+    }
+
     #[TestDox('returns cross-selling collection as data and marks result as cache-aware with no tags')]
     public function testLoadReturnsCachedExternallyResultWithCrossSellingData(): void
     {

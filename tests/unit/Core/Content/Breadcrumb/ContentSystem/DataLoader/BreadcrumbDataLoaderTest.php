@@ -42,6 +42,15 @@ class BreadcrumbDataLoaderTest extends TestCase
         static::assertSame('breadcrumb', BreadcrumbDataLoader::getRequirementType());
     }
 
+    #[TestDox('resolves provided data type from annotation')]
+    public function testGetProvidedDataResolvesExpectedType(): void
+    {
+        $descriptor = BreadcrumbDataLoader::getProvidedData();
+
+        static::assertSame(BreadcrumbCollection::class, $descriptor->className);
+        static::assertSame([], $descriptor->genericParameters);
+    }
+
     #[TestDox('returns breadcrumb collection as data and marks result as cache-aware with no tags')]
     public function testLoadReturnsCachedExternallyResultWithBreadcrumbData(): void
     {

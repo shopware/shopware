@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Category\ContentSystem\DataLoader;
 
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
+use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\NavigationAliasResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
@@ -23,6 +24,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  *
  * @final
+ *
+ * @extends AbstractContentDataLoader<Tree>
  */
 #[Package('framework')]
 class NavigationDataLoader extends AbstractContentDataLoader

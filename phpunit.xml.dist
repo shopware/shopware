@@ -138,6 +138,7 @@
             <file>src/Core/Framework/ContentSystem/SalesChannel/ContentDataRouteResponse.php</file>
             <file>src/Core/Framework/ContentSystem/SalesChannel/ContentDecomposedRouteResponse.php</file>
             <file>src/Core/Framework/ContentSystem/SalesChannel/ContentSkeletonRouteResponse.php</file>
+            <file>src/Core/Framework/ContentSystem/Hydration/DataLoader/ContentSystemDataLoaderTypeDescriptor.php</file>
             <directory suffix="LoaderConfig.php">src/Core/Framework/ContentSystem/Hydration/DataLoader/</directory>
             <directory suffix="LoaderConfig.php">src/Core/Content/Breadcrumb/ContentSystem/DataLoader/</directory>
             <directory suffix="LoaderConfig.php">src/Core/Content/Category/ContentSystem/DataLoader/</directory>

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Validator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\Error\ErrorCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
@@ -9,7 +10,11 @@ use Shopware\Core\Content\ProductExport\Validator\JsonlRowParser;
 use Shopware\Core\Content\ProductExport\Validator\OpenAiProductExportValidator;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @internal
+ */
 #[Package('discovery')]
+#[CoversClass(OpenAiProductExportValidator::class)]
 class OpenAiProductExportValidatorTest extends TestCase
 {
     public function testValidateAddsErrorForMissingRequiredUrlField(): void
@@ -43,7 +48,10 @@ class OpenAiProductExportValidatorTest extends TestCase
         (new OpenAiProductExportValidator(new JsonlRowParser()))->validate($entity, $content, $errors);
 
         static::assertCount(1, $errors);
-        static::assertSame('provider-validation-failed', $errors->first()?->getMessageKey());
-        static::assertSame('return_policy', $errors->first()?->getParameters()['field']);
+        $firstError = $errors->first();
+
+        static::assertNotNull($firstError);
+        static::assertSame('provider-validation-failed', $firstError->getMessageKey());
+        static::assertSame('return_policy', $firstError->getParameters()['field']);
     }
 }

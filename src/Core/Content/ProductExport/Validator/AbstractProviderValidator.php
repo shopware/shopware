@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ProductExport\Validator;
 
 use Shopware\Core\Content\ProductExport\Error\ErrorCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -33,9 +34,9 @@ abstract class AbstractProviderValidator implements ValidatorInterface
     abstract protected function validateProviderExport(ProductExportEntity $productExportEntity, string $productExportContent, ErrorCollection $errors): void;
 
     /**
-     * @return list<array{line:int, row:array<string, mixed>}>
+     * @throws ProductExportException
      *
-     * @throws JsonlParsingException
+     * @return list<array{line:int, row:array<string, mixed>}>
      */
     protected function parseJsonlRows(string $productExportContent): array
     {

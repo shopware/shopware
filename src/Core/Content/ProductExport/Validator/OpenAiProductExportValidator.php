@@ -6,6 +6,7 @@ use Shopware\Core\Content\ProductExport\Error\ErrorCollection;
 use Shopware\Core\Content\ProductExport\Error\JsonlValidationError;
 use Shopware\Core\Content\ProductExport\Error\ProviderValidationError;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -46,11 +47,11 @@ class OpenAiProductExportValidator extends AbstractProviderValidator
 
         try {
             $rows = $this->parseJsonlRows($productExportContent);
-        } catch (JsonlParsingException $exception) {
+        } catch (ProductExportException $exception) {
             $errors->add(new JsonlValidationError(
                 $productExportEntity->getId(),
                 $exception->getMessage(),
-                $exception->getLineNumber()
+                (int) ($exception->getParameter('line') ?? 1)
             ));
 
             return;

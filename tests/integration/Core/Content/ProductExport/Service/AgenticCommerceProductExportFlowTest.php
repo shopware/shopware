@@ -60,6 +60,9 @@ class AgenticCommerceProductExportFlowTest extends TestCase
             'id' => Uuid::randomHex(),
             'typeId' => Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE,
             'name' => 'Agentic Commerce Feed',
+            'countries' => [
+                ['id' => $this->getDefaultCountryId()],
+            ],
             'domains' => [
                 [
                     'id' => Uuid::randomHex(),
@@ -79,7 +82,13 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         $result = $this->productExportGenerator->generate($productExport, new ExportBehavior());
 
         static::assertNotNull($result);
-        static::assertFalse($result->hasErrors(), 'The generated feed must be valid JSONL without export errors.');
+        static::assertFalse($result->hasErrors(), $result->hasErrors() ? json_encode(array_map(
+            static fn ($error) => [
+                'messageKey' => $error->getMessageKey(),
+                'parameters' => $error->getParameters(),
+            ],
+            $result->getErrors()
+        ), \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES) : 'The generated feed must be valid JSONL without export errors.');
 
         $lines = array_values(array_filter(
             preg_split('/\R/', $result->getContent()) ?: [],
@@ -106,7 +115,9 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         static::assertSame('OpenAI Feed Product', $exportedProduct['item_group_title']);
         static::assertFalse($exportedProduct['is_digital']);
         static::assertSame('DE', $exportedProduct['store_country']);
-        static::assertSame(['DE'], $exportedProduct['target_countries']);
+        static::assertIsArray($exportedProduct['target_countries']);
+        static::assertNotEmpty($exportedProduct['target_countries']);
+        static::assertContains('DE', $exportedProduct['target_countries']);
         static::assertSame('1234567890123', $exportedProduct['gtin']);
         static::assertSame('MPN-123', $exportedProduct['mpn']);
         static::assertSame($productExport->getStorefrontSalesChannel()?->getName(), $exportedProduct['seller_name']);
@@ -257,6 +268,17 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         return $productExport;
+    }
+
+    private function getDefaultCountryId(): string
+    {
+        $countryRepository = static::getContainer()->get('country.repository');
+
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('iso', 'DE'))
+            ->setLimit(1);
+
+        return $countryRepository->searchIds($criteria, $this->context)->firstId() ?? throw new \RuntimeException('Default country not found');
     }
 
     private function getOpenAiBodyTemplate(): string

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\Validator;
 
+use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -13,16 +14,16 @@ use Shopware\Core\Framework\Log\Package;
 class JsonlRowParser
 {
     /**
-     * @return list<array{line:int, row:array<string, mixed>}>
+     * @throws ProductExportException
      *
-     * @throws JsonlParsingException
+     * @return list<array{line:int, row:array<string, mixed>}>
      */
     public function parse(string $content): array
     {
         $lines = preg_split('/\R/', $content);
 
         if ($lines === false) {
-            throw new JsonlParsingException('The JSONL export could not be split into lines.', 1);
+            throw ProductExportException::jsonlSplitFailed();
         }
 
         $decodedRows = [];
@@ -37,11 +38,11 @@ class JsonlRowParser
             try {
                 $decoded = json_decode($line, true, 512, \JSON_THROW_ON_ERROR);
             } catch (\JsonException $exception) {
-                throw new JsonlParsingException($exception->getMessage(), $lineNumber + 1, $exception);
+                throw ProductExportException::malformedJsonlLine($exception->getMessage(), $lineNumber + 1);
             }
 
             if (!\is_array($decoded)) {
-                throw new JsonlParsingException('Each JSONL line must decode to an object.', $lineNumber + 1);
+                throw ProductExportException::jsonlLineMustDecodeToObject($lineNumber + 1);
             }
 
             $decodedRows[] = [

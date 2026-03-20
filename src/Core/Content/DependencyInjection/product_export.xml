@@ -116,6 +116,7 @@
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Provider\OpenAiProductExportProvider">
+            <argument type="service" id="sales_channel.repository"/>
             <tag name="shopware.product_export.provider"/>
         </service>
 

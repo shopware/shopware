@@ -3,8 +3,13 @@
 namespace Shopware\Core\Content\ProductExport\Provider;
 
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -15,6 +20,16 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('discovery')]
 class OpenAiProductExportProvider extends AbstractProductExportProvider
 {
+    /**
+     * @internal
+     *
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
+     */
+    public function __construct(
+        private readonly EntityRepository $salesChannelRepository
+    ) {
+    }
+
     public function getTechnicalName(): string
     {
         return 'open-ai';
@@ -25,14 +40,15 @@ class OpenAiProductExportProvider extends AbstractProductExportProvider
         SalesChannelContext $salesChannelContext,
         array $renderContext
     ): array {
-        $countryIso = $salesChannelContext->getShippingLocation()->getCountry()->getIso() ?? '';
-        $sellerUrl = $productExport->getSalesChannelDomain()?->getUrl() ?? '';
-        $sellerName = $salesChannelContext->getSalesChannel()->getName() ?? '';
+        $storeCountry = $salesChannelContext->getShippingLocation()->getCountry()->getIso();
+        $targetCountries = $this->resolveTargetCountries($salesChannelContext);
+        $sellerUrl = $productExport->getSalesChannelDomain()?->getUrl();
+        $sellerName = $salesChannelContext->getSalesChannel()->getName();
 
         $renderContext['provider'] = new ArrayStruct([
             'name' => $this->getTechnicalName(),
-            'storeCountry' => $countryIso, // todo: update it with actual store country
-            'targetCountries' => [$countryIso], // todo: update it with actual target countries
+            'storeCountry' => $storeCountry,
+            'targetCountries' => $targetCountries,
             'sellerName' => $sellerName,
             'sellerUrl' => $sellerUrl,
             'returnPolicyUrl' => $sellerUrl, // todo: update it with actual return policy url
@@ -41,5 +57,56 @@ class OpenAiProductExportProvider extends AbstractProductExportProvider
         ]);
 
         return $renderContext;
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    private function resolveTargetCountries(SalesChannelContext $salesChannelContext): ?array
+    {
+        $countries = $salesChannelContext->getSalesChannel()->getCountries();
+        $targetCountries = $this->extractCountryIsoCodes($countries);
+
+        if ($targetCountries !== []) {
+            return $targetCountries;
+        }
+
+        $criteria = (new Criteria([$salesChannelContext->getSalesChannelId()]))
+            ->addAssociation('countries');
+
+        $salesChannel = $this->salesChannelRepository->search($criteria, $salesChannelContext->getContext())->first();
+
+        if ($salesChannel === null) {
+            return null;
+        }
+
+        $targetCountries = $this->extractCountryIsoCodes($salesChannel->getCountries());
+
+        return $targetCountries !== [] ? $targetCountries : null;
+    }
+
+    /**
+     * @param CountryCollection<CountryEntity>|null $countries
+     *
+     * @return list<string>
+     */
+    private function extractCountryIsoCodes(?iterable $countries): array
+    {
+        if ($countries === null) {
+            return [];
+        }
+
+        $isoCodes = [];
+        foreach ($countries as $country) {
+            $iso = $country->getIso();
+
+            if (!$iso) {
+                continue;
+            }
+
+            $isoCodes[] = $iso;
+        }
+
+        return $isoCodes;
     }
 }

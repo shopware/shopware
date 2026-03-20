@@ -41,13 +41,17 @@
     'seller_name': provider.sellerName,
     'seller_url': provider.sellerUrl,
     'return_policy': provider.returnPolicyUrl,
-    'target_countries': provider.targetCountries,
     'store_country': provider.storeCountry,
     'gtin': product.ean|default(''),
     'mpn': product.manufacturerNumber|default(''),
     'item_group_title': title,
     'is_digital': product.downloads is defined and product.downloads|length > 0
 } %}
+{% if provider.targetCountries is not null %}
+    {% set feedRow = feedRow|merge({
+        'target_countries': provider.targetCountries
+    }) %}
+{% endif %}
 {% if additionalImageUrls is not empty %}
     {% set feedRow = feedRow|merge({
         'additional_image_urls': additionalImageUrls|join(',')

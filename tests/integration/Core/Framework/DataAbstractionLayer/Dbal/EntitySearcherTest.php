@@ -335,29 +335,35 @@ class EntitySearcherTest extends TestCase
     public function testScoreRankingPicksHighestScoredRowPerGroup(): void
     {
         $ids = new IdsCollection();
-        $productBuilder1 = $this->buildProduct(
-            defaultTranslation: 'Sport Bottle Green',
-            productNumber: 'score-group-1',
-            ids: $ids,
-        );
-        $productBuilder2 = $this->buildProduct(
-            defaultTranslation: 'Sport Bottle Blue',
-            productNumber: 'score-group-2',
-            ids: $ids,
-        );
+
+        // Group A: "Sport Bottle" variants — all share a displayGroup via parent-a
+        $parentA = (new ProductBuilder($ids, 'parent-a'))->price(100)
+            ->name('Parent A');
+        $a1 = (new ProductBuilder($ids, 'a1'))->parent('parent-a')->tax(null)
+            ->name('Sport Bottle Blue');
+        $a2 = (new ProductBuilder($ids, 'a2'))->parent('parent-a')->tax(null)
+            ->name('Sport Bottle Red');
+        $a3 = (new ProductBuilder($ids, 'a3'))->parent('parent-a')->tax(null)
+            ->name('Sport Bottle Green');
+
+        // Group B: "Sport Gear" variants — all share a displayGroup via parent-b
+        $parentB = (new ProductBuilder($ids, 'parent-b'))->price(100)
+            ->name('Parent B');
+        $b1 = (new ProductBuilder($ids, 'b1'))->parent('parent-b')->tax(null)
+            ->name('Sport Gear Standard');
+        $b2 = (new ProductBuilder($ids, 'b2'))->parent('parent-b')->tax(null)
+            ->name('Sport Gear Premium Green');
 
         static::getContainer()->get('product.repository')->create(
-            [
-                $productBuilder1->build(),
-                $productBuilder2->build(),
-            ],
+            [$parentA->build(), $a1->build(), $a2->build(), $a3->build(), $parentB->build(), $b1->build(), $b2->build()],
             Context::createDefaultContext(),
         );
 
         $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_FIND_BEST_VARIANT);
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport Bottle Green'), score: 500));
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport Bottle'), score: 100));
+        $criteria->addState(Criteria::STATE_SCORE_RANKED_GROUPING);
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport'), score: 100));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Premium'), score: 300));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Green'), score: 500));
         $criteria->addGroupField(new FieldGrouping('displayGroup'));
 
         $result = $this->entitySearcher->search(
@@ -366,9 +372,11 @@ class EntitySearcherTest extends TestCase
             Context::createDefaultContext(),
         );
 
-        $resultIds = $result->getIds();
+        $resultIds = array_values($result->getIds());
 
-        static::assertContains($ids->get('score-group-1'), $resultIds, 'Higher-scored "Sport Bottle Green" should be selected for its group');
+        static::assertCount(2, $resultIds);
+        static::assertSame($ids->get('b2'), $resultIds[0], 'Highest overall score (Sport Gear Premium Green) should be first');
+        static::assertSame($ids->get('a3'), $resultIds[1], 'Highest score in Group A (Sport Bottle Green) should be second');
     }
 
     /**

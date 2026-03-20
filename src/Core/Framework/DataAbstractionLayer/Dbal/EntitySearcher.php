@@ -75,7 +75,7 @@ class EntitySearcher implements EntitySearcherInterface
             $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
 
-        if ($query->hasState('_score') && $criteria->hasState(Criteria::STATE_FIND_BEST_VARIANT) && $criteria->getGroupFields() !== []) {
+        if ($query->hasState(Criteria::SCORE_FIELD) && $criteria->hasState(Criteria::STATE_SCORE_RANKED_GROUPING) && $criteria->getGroupFields() !== []) {
             $query = $this->buildScoreRankedQuery($query, $definition, $criteria, $context, $table);
         } else {
             $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);

@@ -270,7 +270,7 @@ class ProductListingLoader
             'core.listing.findBestVariant',
             $context->getSalesChannelId()
         )) {
-            $criteria->addState(Criteria::STATE_FIND_BEST_VARIANT);
+            $criteria->addState(Criteria::STATE_SCORE_RANKED_GROUPING);
         }
 
         if ($this->systemConfigService->getBool(

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
@@ -23,13 +22,11 @@ use Shopware\Storefront\Theme\ScssPhpCompiler;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\Subscriber\ThemeCompilerEnrichScssVarSubscriber;
-use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimplePlugin\SimplePlugin;
 
 /**
  * @internal
  */
-#[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerPluginConfigurationTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -31,7 +30,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerEventSubscriberTest extends TestCase
 {
     use KernelTestBehaviour;

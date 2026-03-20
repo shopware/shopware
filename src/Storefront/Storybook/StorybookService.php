@@ -65,11 +65,11 @@ class StorybookService
     {
         $themes = $this->themeLoader->load($salesChannelId);
 
-        if ($themes !== []) {
-            return $this->themeRuntimeConfigStorage->getThemeIdByTechnicalName($themes[0]);
+        if ($themes === []) {
+            return null;
         }
 
-        return null;
+        return $this->themeRuntimeConfigStorage->getThemeIdByTechnicalName($themes[0]);
     }
 
     /**

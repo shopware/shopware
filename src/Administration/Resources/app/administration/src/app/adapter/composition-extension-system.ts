@@ -40,7 +40,7 @@ import type { OverrideFn } from './options-composition-shim';
  */
 
 // Disable ESLint rules for this file due to the use of 'any' types and potentially unsafe operations
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment */
 declare global {
     /**
      * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
@@ -57,7 +57,7 @@ declare global {
             title: Ref<string, string>;
         };
         // Fallback for untyped components
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         [componentName: string]: { [key: string]: any };
     }
 }
@@ -201,7 +201,6 @@ export function createExtendableSetup<
     // Stop execution and throw an error if the original setup function does not return a public or private property
     if (!originalSetupResultRaw.public && !originalSetupResultRaw.private) {
         throw new Error(
-            // eslint-disable-next-line max-len
             `[${options.name}] The original setup function for the originalComponent component must return at least one public or private property.`,
         );
     }
@@ -259,7 +258,6 @@ export function createExtendableSetup<
                     pendingOverrides.map(async (pendingOverride) => {
                         const resolvedConfig = await pendingOverride.config();
                         if (typeof resolvedConfig !== 'boolean' && shouldActivateShim(resolvedConfig)) {
-                            // eslint-disable-next-line max-len
                             const compositionOverride = convertOptionsApiOverrideToCompositionApi(
                                 options.name as string,
                                 resolvedConfig,
@@ -311,12 +309,15 @@ export function createExtendableSetup<
                 },
                 { _private: {} as PRIVATE_SETUP_RESULT } as previousStateResultForExtensionsType,
             );
-            previousStateResultForExtensions._private = Object.keys(wrappedState).reduce<PRIVATE_SETUP_RESULT>((acc, key) => {
-                if (!publicStateKeys.includes(key)) {
-                    (acc as Record<string, unknown>)[key] = wrappedStateAsRecord[key];
-                }
-                return acc;
-            }, {} as PRIVATE_SETUP_RESULT);
+            previousStateResultForExtensions._private = Object.keys(wrappedState).reduce<PRIVATE_SETUP_RESULT>(
+                (acc, key) => {
+                    if (!publicStateKeys.includes(key)) {
+                        (acc as Record<string, unknown>)[key] = wrappedStateAsRecord[key];
+                    }
+                    return acc;
+                },
+                {} as PRIVATE_SETUP_RESULT,
+            );
 
             // Apply the override with a destructured copy of the wrapped state to prevent calling himself
             let overrideResult: ReturnType<typeof override>;

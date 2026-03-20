@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, max-len, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unused-vars */
 
 import { createExtendableSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
 import { shouldActivateShim, convertOptionsApiOverrideToCompositionApi } from 'src/app/adapter/options-composition-shim';
@@ -1219,7 +1219,6 @@ describe('src/app/adapter/options-composition-shim', () => {
 
             const baseComponent = { methods: { base() {} } };
             convertOptionsApiOverrideToCompositionApi('originalComponent', {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
                 extends: baseComponent as any,
                 methods: { foo() {} },
             });

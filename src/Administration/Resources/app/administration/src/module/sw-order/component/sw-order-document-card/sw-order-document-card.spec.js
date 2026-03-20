@@ -144,7 +144,7 @@ async function createWrapper(props = defaultProps) {
                 ),
                 'sw-order-document-settings-storno-modal': await wrapTestComponent(
                     'sw-order-document-settings-storno-modal',
-                    { sync: true }
+                    { sync: true },
                 ),
                 'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
                 'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),

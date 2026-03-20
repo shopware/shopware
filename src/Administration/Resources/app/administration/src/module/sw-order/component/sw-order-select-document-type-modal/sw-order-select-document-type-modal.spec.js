@@ -206,7 +206,6 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
         expect(wrapper.findAll('sw-help-text-stub')).toHaveLength(2);
         expect(wrapper.findAll('.is--disabled')).toHaveLength(2);
 
-        console.log(wrapper.html());
         await wrapper.find('.sw-order-select-document-type-modal__type-switch input').setChecked(true);
 
         expect(wrapper.findAll('sw-help-text-stub')).toHaveLength(4);

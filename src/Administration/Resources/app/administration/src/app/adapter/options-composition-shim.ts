@@ -9,8 +9,6 @@
  * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
  */
 
-/* eslint-disable max-len */
-
 import {
     ref,
     computed,
@@ -55,7 +53,6 @@ type SingleWatchDefinition = ((newVal: unknown, oldVal: unknown) => void) | Watc
 type WatchDefinition = SingleWatchDefinition | SingleWatchDefinition[];
 
 type InjectConfig = ComponentConfig['inject'];
-type ObjectInjectConfig = Exclude<NonNullable<InjectConfig>, string[]>;
 
 type LifecycleHookName =
     | 'beforeCreate'
@@ -162,11 +159,7 @@ export function convertOptionsApiOverrideToCompositionApi<
     logDeprecationWarning(componentName);
     checkUnsupportedFeatures(componentName, optionsConfig);
 
-    return (
-        previousState: ComponentState,
-        props: ComponentState,
-    ): ComponentState => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    return (previousState: ComponentState, props: ComponentState): ComponentState => {
         const result: ComponentState<COMPONENT_NAME> = {} as ComponentState<COMPONENT_NAME>;
 
         const mergedConfig = mergeMixins(optionsConfig);
@@ -234,7 +227,7 @@ function resolveInject(injectConfig: InjectConfig): ComponentState {
             resolved[key] = vueInject(key);
         });
     } else {
-        const objectConfig = injectConfig as ObjectInjectConfig;
+        const objectConfig = injectConfig;
         Object.entries(objectConfig).forEach(
             ([
                 localKey,
@@ -620,6 +613,10 @@ function registerSingleWatcher(source: () => unknown, handler: SingleWatchDefini
             const proxyAsState = thisProxy as ComponentState;
             if (proxyAsState[methodName] && typeof proxyAsState[methodName] === 'function') {
                 (proxyAsState[methodName] as AnyFn)(newVal, oldVal);
+            } else {
+                console.error(
+                    `[Options API Shim] Watch handler "${methodName}" is not a function or does not exist on the component.`,
+                );
             }
         });
     }

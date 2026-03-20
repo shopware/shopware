@@ -93,6 +93,6 @@
     "@babel/runtime": "7.28.6",
     "ajv@^8": "8.18.0",
     "follow-redirects": "1.15.11",
-    "flatted": "3.4.1"
+    "flatted": "3.4.2"
   }
 }

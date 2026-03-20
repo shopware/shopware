@@ -4,21 +4,6 @@ import { ConsentEvent } from 'src/core/consent/events';
 import useConsentStore from 'src/core/consent/consent.store';
 import initAmplitude from './amplitude.init';
 
-const amplitudeCookieName = 'AMP_placeholde';
-const amplitudeMarketingCookieName = 'AMP_MKTG_placeholde';
-
-jest.mock('@amplitude/analytics-browser', () => ({
-    add: jest.fn(),
-    init: jest.fn(),
-    track: jest.fn(),
-    setUserId: jest.fn(),
-    getUserId: jest.fn(),
-    setOptOut: jest.fn(),
-    setTransport: jest.fn(),
-    flush: jest.fn(),
-    reset: jest.fn(),
-}));
-
 const mockTrackConsentMetric = jest.fn();
 const mockDeleteUser = jest.fn();
 
@@ -27,6 +12,12 @@ jest.mock('src/core/telemetry/product-analytics/gateway-client', () => {
         GatewayClient: jest.fn().mockImplementation(() => ({
             trackConsentMetric: mockTrackConsentMetric,
             deleteUser: mockDeleteUser,
+            isInitialized: false,
+            init: jest.fn(function init() {
+                this.isInitialized = true;
+            }),
+            flush: jest.fn(),
+            clearStorage: jest.fn(),
         })),
     };
 });

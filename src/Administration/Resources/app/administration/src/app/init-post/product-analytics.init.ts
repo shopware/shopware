@@ -1,21 +1,13 @@
 /**
  * @sw-package framework
  */
-import * as amplitude from '@amplitude/analytics-browser';
 import { computed, watch, type WatchHandle } from 'vue';
 import useConsentStore from 'src/core/consent/consent.store';
 import { GatewayClient } from 'src/core/telemetry/product-analytics/gateway-client';
+import { AmplitudeAdapter } from 'src/core/telemetry/product-analytics/amplitude-adapter';
 import createConsentEventHandler from 'src/core/telemetry/product-analytics/consent-event-handler';
-import {
-    initTelemetryAmplitude,
-    registerTelemetryLogoutListener,
-} from 'src/core/telemetry/amplitude/amplitude.browser-client';
-import clearAmplitudeCookies from 'src/core/telemetry/amplitude/amplitude.browser-storage';
-import {
-    addDefaultShopwarePropertiesPlugin,
-    getDefaultLanguageName,
-} from 'src/core/telemetry/amplitude/amplitude.shopware-properties';
-import createTelemetryEventHandler from 'src/core/telemetry/amplitude/amplitude.telemetry-handlers';
+import createTelemetryEventHandler from 'src/core/telemetry/product-analytics/telemetry-event-handler';
+import { registerAmplitudeLogoutListener } from 'src/core/telemetry/product-analytics/amplitude-logout-listener';
 
 /**
  * @private
@@ -30,7 +22,17 @@ export default async function (): Promise<WatchHandle | undefined> {
     /*
      * register consent event handler
      */
-    const gatewayClient = new GatewayClient(analyticsGatewayUrl);
+    const basePath = Shopware.Store.get('context').api.basePath ?? '';
+
+    const amplitudeAdapter = new AmplitudeAdapter(
+        analyticsGatewayUrl,
+        await getDefaultLanguageName(),
+        basePath,
+        Shopware.Service('loginService').getStorage(),
+    );
+
+    const gatewayClient = new GatewayClient(analyticsGatewayUrl, amplitudeAdapter);
+
     const pushConsentEventToAmplitude = createConsentEventHandler(gatewayClient);
 
     // eslint-disable-next-line listeners/no-missing-remove-event-listener
@@ -48,37 +50,35 @@ export default async function (): Promise<WatchHandle | undefined> {
     /*
      * initialize product analytics
      */
-    let isAmplitudeInitialized = false;
-    amplitude.setOptOut(true);
-    addDefaultShopwarePropertiesPlugin(amplitude, await getDefaultLanguageName());
-    registerTelemetryLogoutListener(amplitude, analyticsGatewayUrl);
-    const eventHandlers = createTelemetryEventHandler(amplitude);
+    amplitudeAdapter.setOptOut(true);
+    registerAmplitudeLogoutListener(amplitudeAdapter, analyticsGatewayUrl);
+
+    const eventHandlers = createTelemetryEventHandler(gatewayClient);
 
     return watch(
         isTelemetryConsentAccepted,
         (newValue: boolean) => {
             if (newValue) {
-                if (!isAmplitudeInitialized) {
-                    initTelemetryAmplitude(amplitude, analyticsGatewayUrl);
-                    isAmplitudeInitialized = true;
+                if (!gatewayClient.isInitialized) {
+                    gatewayClient.init();
                 }
 
-                amplitude.setOptOut(false);
+                amplitudeAdapter.setOptOut(false);
                 Shopware.Utils.EventBus.on('telemetry', eventHandlers);
 
                 Shopware.Telemetry.identify();
             } else {
-                if (!isAmplitudeInitialized) {
+                if (!gatewayClient.isInitialized) {
                     return;
                 }
 
-                amplitude.setOptOut(true);
+                amplitudeAdapter.setOptOut(true);
                 Shopware.Utils.EventBus.off('telemetry', eventHandlers);
 
                 deleteUser(gatewayClient);
 
-                amplitude.flush();
-                setTimeout(() => clearAmplitudeCookies(), 0);
+                gatewayClient.flush();
+                setTimeout(() => gatewayClient.clearStorage(), 0);
             }
         },
         { immediate: true },
@@ -91,5 +91,17 @@ function deleteUser(client: GatewayClient) {
 
     if (userId !== null && shopId !== null) {
         client.deleteUser(shopId, userId);
+    }
+}
+
+async function getDefaultLanguageName(): Promise<string> {
+    const languageRepository = Shopware.Service('repositoryFactory').create('language');
+
+    try {
+        const defaultLanguage = await languageRepository.get(Shopware.Context.api.systemLanguageId!);
+
+        return defaultLanguage!.name;
+    } catch {
+        return 'N/A';
     }
 }

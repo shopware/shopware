@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Migration\Core\V6_7;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;

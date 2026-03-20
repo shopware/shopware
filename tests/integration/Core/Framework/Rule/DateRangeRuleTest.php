@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\DateRangeRule;
+use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -265,5 +267,39 @@ class DateRangeRuleTest extends TestCase
 
         $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
         $this->conditionRepository->delete([['id' => $id]], $this->context);
+    }
+
+    #[DataProvider('useTimeProvider')]
+    public function testMatchWithTimeZoneAndBorderTimeEdgeCase(bool $useTime): void
+    {
+        $fromDate = '2026-03-02T00:00:00';
+        $toDate = '2026-03-12T23:59:59';
+        $now = '2026-03-01T23:50:00';
+
+        $scope = $this->createMock(RuleScope::class);
+        $scope->expects($this->once())->method('getCurrentTime')->willReturn(new \DateTimeImmutable($now));
+
+        $dateRangeRule = new DateRangeRule(
+            $fromDate,
+            $toDate,
+            $useTime,
+            'Europe/Berlin',
+        );
+
+        $dateRangeRule->__wakeup();
+        $result = $dateRangeRule->match($scope);
+
+        static::assertFalse($result);
+    }
+
+    /**
+     * @return array<array<string, bool>>
+     */
+    public static function useTimeProvider(): array
+    {
+        return [
+            'use time is true' => ['useTime' => true],
+            'use time is false' => ['useTime' => false],
+        ];
     }
 }

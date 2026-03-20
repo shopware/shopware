@@ -1,7 +1,6 @@
 /**
  * @sw-package inventory
  */
-// eslint-disable-next-line max-len
 import FeatureGridTranslationService from 'src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service';
 import template from './sw-settings-product-feature-sets-list.html.twig';
 
@@ -56,7 +55,6 @@ export default {
 
         featureGridTranslationService() {
             if (this.translationService === null) {
-                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                 this.translationService = new FeatureGridTranslationService(
                     this,
                     this.propertyGroupRepository,

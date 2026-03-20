@@ -90,7 +90,7 @@ describe('listing-pagination.plugin', () => {
         await new Promise(process.nextTick);
 
         // Ensure correct page is communicated to listing plugin
-        expect(listingPaginationPlugin.getValues).toReturnWith({ 'p': '3' });
+        expect(listingPaginationPlugin.getValues).toHaveReturnedWith({ 'p': '3' });
         expect(getValuesSpy).toHaveBeenCalledTimes(1);
         expect(changeListingSpy).toHaveBeenCalledTimes(1);
     });

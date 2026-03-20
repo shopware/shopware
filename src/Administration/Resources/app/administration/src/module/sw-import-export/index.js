@@ -21,7 +21,7 @@ Shopware.Service().register('importExportUpdateByMapping', () => {
     return new ImportExportProfileUpdateByService(Shopware.EntityDefinition);
 });
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-import-export', () => import('./page/sw-import-export'));
 Shopware.Component.register('sw-import-export-exporter', () => import('./component/sw-import-export-exporter'));
 Shopware.Component.register('sw-import-export-importer', () => import('./component/sw-import-export-importer'));
@@ -82,7 +82,7 @@ Shopware.Component.register('sw-import-export-view-import', () => import('./view
 Shopware.Component.register('sw-import-export-view-export', () => import('./view/sw-import-export-view-export'));
 Shopware.Component.register('sw-import-export-view-profiles', () => import('./view/sw-import-export-view-profiles'));
 Shopware.Component.register('sw-import-export-progress', () => import('./component/sw-import-export-progress'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-import-export', {

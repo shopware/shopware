@@ -14,7 +14,6 @@ async function createWrapper(props) {
             },
             stubs: {
                 'sw-modal': {
-                    // eslint-disable-next-line max-len
                     template:
                         '<div class="sw-modal"><p class="title">{{ title }}</p><slot></slot><slot name="modal-footer"></slot></div>',
                     props: ['title'],

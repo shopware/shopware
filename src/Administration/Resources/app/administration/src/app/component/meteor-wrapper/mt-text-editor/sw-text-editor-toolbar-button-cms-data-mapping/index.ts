@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-len
 import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbar';
 
 /**

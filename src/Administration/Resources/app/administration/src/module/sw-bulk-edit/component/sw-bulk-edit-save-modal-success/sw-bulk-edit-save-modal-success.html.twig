@@ -38,7 +38,7 @@
             <mt-button
                 class="action"
                 size="small"
-                :disabled="document[selectedDocumentType.technicalName].isDownloading"
+                :disabled="document[selectedDocumentType.technicalName]?.isDownloading ?? false"
                 variant="secondary"
                 @click="downloadDocument(selectedDocumentType.technicalName)"
             >

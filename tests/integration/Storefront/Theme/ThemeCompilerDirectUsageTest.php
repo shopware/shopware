@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -12,7 +11,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection;
@@ -32,10 +30,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerDirectUsageTest extends TestCase
 {
-    use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
     private ThemeCompiler $themeCompiler;

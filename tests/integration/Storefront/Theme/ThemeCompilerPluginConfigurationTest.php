@@ -10,7 +10,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
@@ -26,7 +25,6 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\Subscriber\ThemeCompilerEnrichScssVarSubscriber;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimplePlugin\SimplePlugin;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -34,17 +32,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerPluginConfigurationTest extends TestCase
 {
-    use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
-    }
 
     // ===================================
     // Plugin Configuration Integration Tests
@@ -59,33 +47,14 @@ class ThemeCompilerPluginConfigurationTest extends TestCase
 }
 SCSS;
 
-        $configService = $this->getConfigurationService([
-            new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
-        ]);
+        $result = static::getContainer()->get(ScssPhpCompiler::class)->compileString(
+            new CompilerConfiguration([]),
+            '$simple-plugin-backgroundcolor: #ffffff; $simple-plugin-fontcolor: #000000; ' . $testScss
+        );
 
-        $storefrontPluginRegistry = $this->getStorefrontPluginRegistry([
-            new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
-        ]);
-
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
-        $this->eventDispatcher->addSubscriber($subscriber);
-
-        $sysConfigService = static::getContainer()->get(SystemConfigService::class);
-        $sysConfigService->set('SimplePlugin.config.simplePluginBackgroundcolor', '#ffffff');
-        $sysConfigService->set('SimplePlugin.config.simplePluginFontcolor', '#000000');
-
-        try {
-            $result = static::getContainer()->get(ScssPhpCompiler::class)->compileString(
-                new CompilerConfiguration([]),
-                '$simple-plugin-backgroundcolor: #ffffff; $simple-plugin-fontcolor: #000000; ' . $testScss
-            );
-
-            static::assertStringContainsString('.test-selector-plugin', $result);
-            static::assertStringContainsString('#ffffff', $result);
-            static::assertStringContainsString('#000000', $result);
-        } finally {
-            $this->eventDispatcher->removeSubscriber($subscriber);
-        }
+        static::assertStringContainsString('.test-selector-plugin', $result);
+        static::assertStringContainsString('#ffffff', $result);
+        static::assertStringContainsString('#000000', $result);
     }
 
     public function testCompilesWithAppScssVariables(): void
@@ -97,33 +66,14 @@ SCSS;
 }
 SCSS;
 
-        $configService = $this->getConfigurationService([
-            new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
-        ]);
+        $result = static::getContainer()->get(ScssPhpCompiler::class)->compileString(
+            new CompilerConfiguration([]),
+            '$no-theme-custom-css-backgroundcolor: #aabbcc; $no-theme-custom-css-fontcolor: #ddeeff; ' . $testScss
+        );
 
-        $storefrontPluginRegistry = $this->getStorefrontPluginRegistry([
-            new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
-        ]);
-
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
-        $this->eventDispatcher->addSubscriber($subscriber);
-
-        $sysConfigService = static::getContainer()->get(SystemConfigService::class);
-        $sysConfigService->set('SwagNoThemeCustomCss.config.noThemeCustomCssBackGroundcolor', '#aabbcc');
-        $sysConfigService->set('SwagNoThemeCustomCss.config.noThemeCustomCssFontcolor', '#ddeeff');
-
-        try {
-            $result = static::getContainer()->get(ScssPhpCompiler::class)->compileString(
-                new CompilerConfiguration([]),
-                '$no-theme-custom-css-backgroundcolor: #aabbcc; $no-theme-custom-css-fontcolor: #ddeeff; ' . $testScss
-            );
-
-            static::assertStringContainsString('.test-selector-app', $result);
-            static::assertStringContainsString('#aabbcc', $result);
-            static::assertStringContainsString('#ddeeff', $result);
-        } finally {
-            $this->eventDispatcher->removeSubscriber($subscriber);
-        }
+        static::assertStringContainsString('.test-selector-app', $result);
+        static::assertStringContainsString('#aabbcc', $result);
+        static::assertStringContainsString('#ddeeff', $result);
     }
 
     public function testCompilesPluginAndAppCssWithNullValueHandling(): void
@@ -141,56 +91,32 @@ SCSS;
 }
 SCSS;
 
-        $configService = $this->getConfigurationService([
-            new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
-        ]);
+        // Build variables with nulls — border variables intentionally null
+        $variables = '$simple-plugin-backgroundcolor: #fff; ';
+        $variables .= '$simple-plugin-fontcolor: #eee; ';
+        $variables .= '$simple-plugin-bordercolor: null; ';
+        $variables .= '$no-theme-custom-css-backgroundcolor: #aaa; ';
+        $variables .= '$no-theme-custom-css-fontcolor: #eee; ';
+        $variables .= '$no-theme-custom-css-bordercolor: null; ';
 
-        $storefrontPluginRegistry = $this->getStorefrontPluginRegistry([
-            new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
-        ]);
+        $result = static::getContainer()->get(ScssPhpCompiler::class)->compileString(
+            new CompilerConfiguration([]),
+            $variables . $testScss
+        );
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
-        $this->eventDispatcher->addSubscriber($subscriber);
+        static::assertStringContainsString('.test-selector-plugin', $result);
+        static::assertStringContainsString('background:#fff', str_replace(' ', '', $result));
+        static::assertStringContainsString('color:#eee', str_replace(' ', '', $result));
 
-        $sysConfigService = static::getContainer()->get(SystemConfigService::class);
-        $sysConfigService->set('SimplePlugin.config.simplePluginBackgroundcolor', '#fff');
-        $sysConfigService->set('SwagNoThemeCustomCss.config.noThemeCustomCssBackGroundcolor', '#aaa');
-        // Note: bordercolor and fontcolor are intentionally NOT set to test null value handling
+        static::assertStringContainsString('.test-selector-app', $result);
+        static::assertStringContainsString('background:#aaa', str_replace(' ', '', $result));
 
-        try {
-            // Build variables with nulls
-            $variables = '$simple-plugin-backgroundcolor: #fff; ';
-            $variables .= '$simple-plugin-fontcolor: #eee; ';
-            $variables .= '$simple-plugin-bordercolor: null; ';
-            $variables .= '$no-theme-custom-css-backgroundcolor: #aaa; ';
-            $variables .= '$no-theme-custom-css-fontcolor: #eee; ';
-            $variables .= '$no-theme-custom-css-bordercolor: null; ';
-
-            $result = static::getContainer()->get(ScssPhpCompiler::class)->compileString(
-                new CompilerConfiguration([]),
-                $variables . $testScss
-            );
-
-            // Verify plugin selector with values
-            static::assertStringContainsString('.test-selector-plugin', $result);
-            static::assertStringContainsString('background:#fff', str_replace(' ', '', $result));
-            static::assertStringContainsString('color:#eee', str_replace(' ', '', $result));
-
-            // Verify app selector with values
-            static::assertStringContainsString('.test-selector-app', $result);
-            static::assertStringContainsString('background:#aaa', str_replace(' ', '', $result));
-
-            // IMPORTANT: Verify that border properties with null values are omitted
-            // SCSS omits property definitions when variables have null value
-            $normalizedResult = str_replace([' ', "\n", "\r"], '', strtolower($result));
-            static::assertStringNotContainsString(
-                'border:',
-                $normalizedResult,
-                'Border properties should be omitted when variable value is null'
-            );
-        } finally {
-            $this->eventDispatcher->removeSubscriber($subscriber);
-        }
+        $normalizedResult = str_replace([' ', "\n", "\r"], '', strtolower($result));
+        static::assertStringNotContainsString(
+            'border:',
+            $normalizedResult,
+            'Border properties should be omitted when variable value is null'
+        );
     }
 
     // ===================================
@@ -215,31 +141,14 @@ SCSS;
 
         $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
 
-        // Should not throw exception
         $subscriber->enrichExtensionVars($event);
 
-        // No variables should be added when a DB exception occurs
         static::assertEmpty($event->getVariables());
     }
 
     // ===================================
     // Helper Methods
     // ===================================
-
-    /**
-     * @param array<int, Plugin> $plugins
-     */
-    private function getConfigurationService(array $plugins): ConfigurationService
-    {
-        return new ConfigurationService(
-            $plugins,
-            new ConfigReader(),
-            static::getContainer()->get(AppConfigReader::class),
-            static::getContainer()->get('app.repository'),
-            static::getContainer()->get(SystemConfigService::class),
-            static::getContainer()->get(LoggerInterface::class)
-        );
-    }
 
     /**
      * @param array<int, Plugin> $plugins

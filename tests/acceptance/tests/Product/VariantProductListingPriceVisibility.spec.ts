@@ -12,14 +12,16 @@ test(
         StorefrontProductDetail,
         SalesChannelBaseConfig,
     }) => {
+        const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
+
         const prices = [
             {
-                currencyId: SalesChannelBaseConfig.defaultCurrencyId,
+                currencyId: currency.id,
                 gross: 10,
                 linked: false,
                 net: 8.4,
                 listPrice: {
-                    currencyId: SalesChannelBaseConfig.defaultCurrencyId,
+                    currencyId: currency.id,
                     gross: 20,
                     linked: false,
                     net: 16.8,

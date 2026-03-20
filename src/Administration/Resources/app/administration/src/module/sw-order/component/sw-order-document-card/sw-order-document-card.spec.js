@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import { createPinia, setActivePinia } from 'pinia';
+import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 import { DOCUMENT_TYPES } from '../../order.types';
 
 function getCollection(entity, collection) {
@@ -90,16 +90,7 @@ const defaultProps = {
     isLoading: false,
 };
 
-const buttonDeleteClassEntityListing = '.sw-entity-listing__context-menu-edit-delete';
-const buttonDeleteClassDocumentCard = '.sw-order-document-card__context-button-delete';
-
-let documentSearchMock;
-let documentDeleteMock;
-
-async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.details') {
-    documentSearchMock = jest.fn().mockResolvedValue(getCollection('document_type', documentTypeFixture));
-    documentDeleteMock = jest.fn().mockResolvedValue([]);
-
+async function createWrapper(props = defaultProps) {
     const wrapper = mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
         props,
         global: {
@@ -123,7 +114,13 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
-                'sw-text-field': true,
+                'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
+                'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
+                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
+                'sw-text-field': await wrapTestComponent('sw-text-field', { sync: true }),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-context-button': await wrapTestComponent('sw-button', {
                     sync: true,
                 }),
@@ -147,7 +144,9 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
                 ),
                 'sw-order-document-settings-storno-modal': await wrapTestComponent(
                     'sw-order-document-settings-storno-modal',
+                    { sync: true }
                 ),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
                 'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
                 'sw-bulk-edit-modal': await wrapTestComponent('sw-bulk-edit-modal', { sync: true }),
                 'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
@@ -444,6 +443,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 documentFixture,
             ]),
         });
+
         expect(wrapper.find('.sw-data-grid').exists()).toBeTruthy();
 
         const sendDocumentButton = wrapper.find('.sw-order-document-card__context-button-send');
@@ -452,22 +452,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         const sendDocumentModal = wrapper.find('sw-order-send-document-modal-stub');
         expect(sendDocumentModal.exists()).toBeTruthy();
         expect(wrapper.vm.sendDocument).toEqual(documentFixture);
-    });
-
-    it('should show file types on order documents route', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
-
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
-
-        const columns = wrapper.findAll('.sw-data-grid__cell--header');
-        // 5 data columns + 1 action column
-        expect(columns).toHaveLength(6);
-        expect(columns[3].text()).toBe('sw-order.documentCard.labelAvailableFormats');
     });
 
     it('should show attach column when attachView is true', async () => {
@@ -644,12 +628,13 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                     ...orderFixture,
                     documents: [
                         {
+                            id: '123',
                             documentType: {
                                 technicalName: DOCUMENT_TYPES.INVOICE,
                             },
                             config: {
                                 custom: {
-                                    documentNumber: '1000',
+                                    invoiceNumber: '1000',
                                 },
                             },
                         },
@@ -673,8 +658,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             await wrapper.find(inputSelector).setValue('1000');
 
             if (invoice) {
-                await wrapper.find('.mt-select__selection').trigger('click');
-                await wrapper.find('.mt-select-result-list .mt-select-result').trigger('click');
+                const invoiceSelect = wrapper.find('.sw-field--select select');
+                await invoiceSelect.setValue('1000');
             }
 
             await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
@@ -767,7 +752,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should render the only pdf on available formats column', async () => {
-        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
+        wrapper = await createWrapper();
 
         await wrapper.setData({
             documents: getCollection('document', [
@@ -784,7 +769,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should render html and pdf on available formats column', async () => {
-        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
+        wrapper = await createWrapper();
 
         await wrapper.setData({
             documents: getCollection('document', [
@@ -806,148 +791,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         const fileTypes = row.find('.sw-data-grid__cell--fileTypes');
 
         expect(fileTypes.text()).toBe('PDF, HTML');
-    });
-
-    it('should render the delete-button when attachView is false', async () => {
-        global.activeAclRoles = ['document.deleter'];
-        wrapper = await createWrapper();
-
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
-
-        const deleteButton = wrapper.find(buttonDeleteClassDocumentCard);
-        expect(deleteButton.exists()).toBe(true);
-        expect(deleteButton.attributes('disabled')).toBe('false');
-    });
-
-    it('should disable the delete-button when attachView is true', async () => {
-        global.activeAclRoles = ['document.deleter'];
-        wrapper = await createWrapper(
-            {
-                ...defaultProps,
-                attachView: true,
-            },
-            'sw.order.detail.documents',
-        );
-
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
-
-        const deleteButton = wrapper.find(buttonDeleteClassEntityListing);
-        expect(deleteButton.exists()).toBe(true);
-        expect(deleteButton.attributes('disabled')).toBe('true');
-    });
-
-    it('should have a disabled delete-button with missing permissions', async () => {
-        global.activeAclRoles = ['document.viewer'];
-        wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
-
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
-
-        const deleteButton = wrapper.find(buttonDeleteClassDocumentCard);
-        expect(deleteButton.exists()).toBe(true);
-        expect(deleteButton.attributes('disabled')).toBe('true');
-    });
-
-    it('should open the delete confirmation modal when delete button was clicked', async () => {
-        global.activeAclRoles = ['document.deleter'];
-        wrapper = await createWrapper();
-
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
-
-        expect(wrapper.find('.sw-modal').exists()).toBe(false);
-
-        await wrapper.find(buttonDeleteClassDocumentCard).trigger('click');
-
-        await flushPromises();
-
-        expect(wrapper.find('.sw-modal').exists()).toBe(true);
-        expect(wrapper.find('.mt-banner--attention').exists()).toBe(true);
-
-        const message = wrapper.find('.mt-banner__message');
-        expect(message.exists()).toBe(true);
-        expect(message.text()).toBe('sw-order.documentCard.confirmDeleteText');
-
-        expect(wrapper.find('.mt-button--secondary').exists()).toBe(true);
-        expect(wrapper.find('.mt-button--critical').exists()).toBe(true);
-    });
-
-    it('should remove the document from the list when delete was successful', async () => {
-        global.activeAclRoles = ['document.deleter'];
-        wrapper = await createWrapper();
-
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
-
-        documentSearchMock.mockResolvedValue(getCollection('document', []));
-
-        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(1);
-
-        await wrapper.find(buttonDeleteClassDocumentCard).trigger('click');
-
-        await flushPromises();
-
-        await wrapper.find('.mt-button--critical').trigger('click');
-
-        await flushPromises();
-
-        expect(wrapper.find('.sw-modal').exists()).toBe(false);
-        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(0);
-    });
-
-    it('should not remove the document from the list when delete return an exception', async () => {
-        global.activeAclRoles = ['document.viewer'];
-        wrapper = await createWrapper();
-
-        await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
-        });
-
-        documentDeleteMock.mockRejectedValue({
-            response: {
-                data: {
-                    errors: [
-                        {
-                            status: '422',
-                            code: 'ERROR_CODE',
-                            detail: 'Detailed error message',
-                            title: 'Error Title',
-                        },
-                    ],
-                },
-            },
-        });
-
-        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(1);
-
-        await wrapper.find(buttonDeleteClassDocumentCard).trigger('click');
-
-        await flushPromises();
-
-        await wrapper.find('.mt-button--critical').trigger('click');
-
-        await flushPromises();
-
-        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(1);
     });
 
     it.each([

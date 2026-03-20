@@ -87,6 +87,8 @@ async function createWrapper(props = defaultProps) {
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-button': await wrapTestComponent('sw-button'),
                     'sw-button-deprecated': await wrapTestComponent('sw-button-deprecated'),
+                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                    'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated'),
                     'sw-field-error': true,
                     'sw-help-text': true,
                     'router-link': true,
@@ -204,6 +206,7 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
         expect(wrapper.findAll('sw-help-text-stub')).toHaveLength(2);
         expect(wrapper.findAll('.is--disabled')).toHaveLength(2);
 
+        console.log(wrapper.html());
         await wrapper.find('.sw-order-select-document-type-modal__type-switch input').setChecked(true);
 
         expect(wrapper.findAll('sw-help-text-stub')).toHaveLength(4);

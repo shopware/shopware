@@ -57,6 +57,13 @@ export default {
                 );
             });
         },
+
+        invoiceOptions() {
+            return this.invoices.map((invoice) => ({
+                label: invoice.config.custom.invoiceNumber,
+                id: invoice.config.custom.invoiceNumber,
+            }));
+        },
     },
 
     created() {

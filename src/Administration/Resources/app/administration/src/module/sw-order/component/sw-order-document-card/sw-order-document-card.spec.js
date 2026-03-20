@@ -166,6 +166,10 @@ async function createWrapper(props = defaultProps) {
                 'sw-icon': true,
                 'sw-textarea-field': true,
                 'sw-switch-field': true,
+                'sw-field-copyable': true,
+                'sw-field-error': true,
+                'sw-help-text': true,
+                'sw-inheritance-switch': true,
                 'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
                 'sw-loader': true,
                 'sw-extension-component-section': true,
@@ -199,7 +203,7 @@ async function createWrapper(props = defaultProps) {
                         }),
                 },
                 numberRangeService: {
-                    reserve: () => Promise.resolve({ number: 1000 }),
+                    reserve: () => Promise.resolve({ number: '1000' }),
                 },
                 repositoryFactory: {
                     create: (entity) => ({

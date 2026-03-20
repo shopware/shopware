@@ -36,7 +36,7 @@ export default {
                     stornoNumber: '',
                     invoiceNumber: '',
                 },
-                documentNumber: 0,
+                documentNumber: '0',
                 documentComment: '',
                 documentDate: '',
             },

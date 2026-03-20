@@ -47,12 +47,15 @@ class StorybookController extends AbstractController
         name: 'storybook.component',
         defaults: ['auth_required' => false],
         methods: [Request::METHOD_GET],
-        condition: 'request.headers.get("Origin") === "http://localhost:6006"'
     )]
     public function storybook(string $component, Request $request): Response
     {
         // Only allow in development environment
         if ($this->environment !== 'dev') {
+            throw new NotFoundHttpException();
+        }
+
+        if ($request->headers->get('Origin') !== 'http://localhost:6006') {
             throw new NotFoundHttpException();
         }
 

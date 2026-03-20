@@ -21,8 +21,7 @@ class PropertyGroupSorter extends AbstractPropertyGroupSorter
     }
 
     /**
-     * @deprecated tag:v6.8.0 Use sortUsingLocaleCode() instead.
-     * Starting with v6.8.0, the method will be required to have a locale code parameter. This method will be removed.
+     * @deprecated tag:v6.8.0 - Will be removed in v6.8.0. Use sortUsingLocaleCode() instead.
      */
     public function sort(EntityCollection $options): PropertyGroupCollection
     {

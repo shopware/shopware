@@ -25,6 +25,7 @@ class TwigComponentHelper
      */
     public function __construct(
         private array $bundlesMetadata,
+        private readonly string $projectDir,
         private readonly NamespaceHierarchyBuilder $namespaceHierarchyBuilder,
         private readonly ComponentMetadataProviderInterface $componentMetadataProvider,
         private readonly Connection $connection,
@@ -61,10 +62,7 @@ class TwigComponentHelper
 
         $components = [];
 
-        foreach ($dirs as $componentDir => $namespace) {
-            // Flysystem paths must not start with /
-            $normalizedDir = ltrim($componentDir, '/');
-
+        foreach ($dirs as $normalizedDir => $namespace) {
             try {
                 $items = $this->localFilesystem->listContents($normalizedDir, true);
             } catch (\Throwable) {
@@ -92,9 +90,8 @@ class TwigComponentHelper
 
                 $componentName = $this->getComponentNameFromPath($relativePath);
 
-                // Restore the leading slash stripped by Flysystem to keep parity with the
-                // original SplFileInfo::getRealPath() behaviour used in getStylePath() etc.
-                $component = new TwigComponent($componentName, '/' . $filePath, $namespace);
+                $absolutePath = Path::canonicalize(Path::join($this->projectDir, $filePath));
+                $component = new TwigComponent($componentName, $absolutePath, $namespace);
 
                 $components[$component->getTag()] = $component;
             }
@@ -121,11 +118,12 @@ class TwigComponentHelper
             $path = $this->bundlesMetadata[$namespace]['path'];
             $componentDir = Path::join($path, self::COMPONENT_DIRECTORY);
 
-            if (!$this->localFilesystem->directoryExists(ltrim($componentDir, '/'))) {
+            $relativeDir = $this->toProjectRelativePath($componentDir);
+            if ($relativeDir === null || !$this->localFilesystem->directoryExists($relativeDir)) {
                 continue;
             }
 
-            $dirs[$componentDir] = $namespace;
+            $dirs[$relativeDir] = $namespace;
         }
 
         return $dirs;
@@ -158,10 +156,32 @@ class TwigComponentHelper
                 continue;
             }
 
-            $dirs[$filesystem->path(self::COMPONENT_DIRECTORY)] = $app['namespace'];
+            $relativeDir = $this->toProjectRelativePath($filesystem->path(self::COMPONENT_DIRECTORY));
+            if ($relativeDir === null || !$this->localFilesystem->directoryExists($relativeDir)) {
+                continue;
+            }
+
+            $dirs[$relativeDir] = $app['namespace'];
         }
 
         return $dirs;
+    }
+
+    /**
+     * @return non-empty-string|null Path relative to project dir, using forward slashes (Flysystem)
+     */
+    private function toProjectRelativePath(string $absolutePath): ?string
+    {
+        $projectRoot = Path::canonicalize($this->projectDir);
+        $target = Path::canonicalize($absolutePath);
+
+        $relative = Path::makeRelative($target, $projectRoot);
+
+        if ($relative === '' || $relative === '.' || str_starts_with($relative, '..')) {
+            return null;
+        }
+
+        return str_replace('\\', '/', $relative);
     }
 
     private function getComponentNameFromPath(string $templateRelativePath): string

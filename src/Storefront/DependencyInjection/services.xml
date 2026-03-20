@@ -581,13 +581,14 @@
             <argument type="collection">
                 <argument key="type">local</argument>
                 <argument key="config" type="collection">
-                    <argument key="root">/</argument>
+                    <argument key="root">%kernel.project_dir%</argument>
                 </argument>
             </argument>
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper">
             <argument>%kernel.bundles_metadata%</argument>
+            <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
             <argument type="service" id="Shopware\Storefront\Framework\Twig\Components\ComponentMetadataProviderAdapter"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>

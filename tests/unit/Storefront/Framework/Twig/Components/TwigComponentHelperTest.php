@@ -10,9 +10,9 @@ use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Util\Filesystem as UtilFilesystem;
-use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Storefront\Framework\Twig\Components\ComponentMetadataProviderInterface;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
+use Symfony\Component\Filesystem\Path;
 use Symfony\UX\TwigComponent\ComponentMetadata;
 
 /**
@@ -21,6 +21,8 @@ use Symfony\UX\TwigComponent\ComponentMetadata;
 #[CoversClass(TwigComponentHelper::class)]
 class TwigComponentHelperTest extends TestCase
 {
+    private const PROJECT_DIR = '/project';
+
     private Filesystem $filesystem;
 
     protected function setUp(): void
@@ -37,7 +39,8 @@ class TwigComponentHelperTest extends TestCase
         $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn(['EmptyBundle' => []]);
 
         $helper = new TwigComponentHelper(
-            ['EmptyBundle' => ['path' => '/EmptyBundle']],
+            ['EmptyBundle' => ['path' => self::PROJECT_DIR . '/EmptyBundle']],
+            self::PROJECT_DIR,
             $namespaceHierarchyBuilder,
             $this->createComponentMetadataProvider(),
             $this->createConnectionMock(),
@@ -57,7 +60,8 @@ class TwigComponentHelperTest extends TestCase
         $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn(['TestBundle' => []]);
 
         $helper = new TwigComponentHelper(
-            ['TestBundle' => ['path' => '/TestBundle']],
+            ['TestBundle' => ['path' => self::PROJECT_DIR . '/TestBundle']],
+            self::PROJECT_DIR,
             $namespaceHierarchyBuilder,
             $this->createComponentMetadataProvider(),
             $this->createConnectionMock(),
@@ -80,7 +84,8 @@ class TwigComponentHelperTest extends TestCase
         $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn(['TestBundle' => []]);
 
         $helper = new TwigComponentHelper(
-            ['TestBundle' => ['path' => '/TestBundle']],
+            ['TestBundle' => ['path' => self::PROJECT_DIR . '/TestBundle']],
+            self::PROJECT_DIR,
             $namespaceHierarchyBuilder,
             $this->createComponentMetadataProvider(),
             $this->createConnectionMock(),
@@ -108,7 +113,8 @@ class TwigComponentHelperTest extends TestCase
         $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn(['TestBundle' => []]);
 
         $helper = new TwigComponentHelper(
-            ['TestBundle' => ['path' => '/TestBundle']],
+            ['TestBundle' => ['path' => self::PROJECT_DIR . '/TestBundle']],
+            self::PROJECT_DIR,
             $namespaceHierarchyBuilder,
             $this->createComponentMetadataProvider(),
             $this->createConnectionMock(),
@@ -138,7 +144,8 @@ class TwigComponentHelperTest extends TestCase
         ]);
 
         $helper = new TwigComponentHelper(
-            ['TestBundle' => ['path' => '/TestBundle']],
+            ['TestBundle' => ['path' => self::PROJECT_DIR . '/TestBundle']],
+            self::PROJECT_DIR,
             $namespaceHierarchyBuilder,
             $this->createComponentMetadataProvider($metadata),
             $this->createConnectionMock(),
@@ -166,7 +173,8 @@ class TwigComponentHelperTest extends TestCase
         $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn(['TestBundle' => []]);
 
         $helper = new TwigComponentHelper(
-            ['TestBundle' => ['path' => '/TestBundle']],
+            ['TestBundle' => ['path' => self::PROJECT_DIR . '/TestBundle']],
+            self::PROJECT_DIR,
             $namespaceHierarchyBuilder,
             $this->createComponentMetadataProvider(),
             $this->createConnectionMock(),
@@ -187,20 +195,25 @@ class TwigComponentHelperTest extends TestCase
      */
     public function testGetComponentsFromAppInSubdirectoryHasCorrectComponentName(): void
     {
-        // StaticFilesystem uses '/app-root' as its location, so path('Resources/views/components/')
-        // returns '/app-root/Resources/views/components' – write virtual files there accordingly.
         $this->filesystem->write('app-root/Resources/views/components/Custom/Test.html.twig', '<div>Test</div>');
 
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([['namespace' => 'TestApp']]);
 
+        $appFilesystem = $this->createMock(UtilFilesystem::class);
+        $appFilesystem->method('has')->with(TwigComponentHelper::COMPONENT_DIRECTORY)->willReturn(true);
+        $appFilesystem->method('path')->with(TwigComponentHelper::COMPONENT_DIRECTORY)->willReturn(
+            Path::join(self::PROJECT_DIR, 'app-root', TwigComponentHelper::COMPONENT_DIRECTORY)
+        );
+
         $sourceResolver = $this->createMock(SourceResolver::class);
         $sourceResolver->method('filesystemForAppName')
             ->with('TestApp')
-            ->willReturn(new StaticFilesystem(['Resources/views/components' => '']));
+            ->willReturn($appFilesystem);
 
         $helper = new TwigComponentHelper(
             [],
+            self::PROJECT_DIR,
             $this->createMock(NamespaceHierarchyBuilder::class),
             $this->createComponentMetadataProvider(),
             $connection,
@@ -229,13 +242,20 @@ class TwigComponentHelperTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([['namespace' => 'MultiTemplateApp']]);
 
+        $appFilesystem = $this->createMock(UtilFilesystem::class);
+        $appFilesystem->method('has')->with(TwigComponentHelper::COMPONENT_DIRECTORY)->willReturn(true);
+        $appFilesystem->method('path')->with(TwigComponentHelper::COMPONENT_DIRECTORY)->willReturn(
+            Path::join(self::PROJECT_DIR, 'app-root', TwigComponentHelper::COMPONENT_DIRECTORY)
+        );
+
         $sourceResolver = $this->createMock(SourceResolver::class);
         $sourceResolver->method('filesystemForAppName')
             ->with('MultiTemplateApp')
-            ->willReturn(new StaticFilesystem(['Resources/views/components' => '']));
+            ->willReturn($appFilesystem);
 
         $helper = new TwigComponentHelper(
             [],
+            self::PROJECT_DIR,
             $this->createMock(NamespaceHierarchyBuilder::class),
             $this->createComponentMetadataProvider(),
             $connection,
@@ -263,9 +283,10 @@ class TwigComponentHelperTest extends TestCase
 
         $helper = new TwigComponentHelper(
             [
-                'Bundle1' => ['path' => '/Bundle1'],
-                'Bundle2' => ['path' => '/Bundle2'],
+                'Bundle1' => ['path' => self::PROJECT_DIR . '/Bundle1'],
+                'Bundle2' => ['path' => self::PROJECT_DIR . '/Bundle2'],
             ],
+            self::PROJECT_DIR,
             $namespaceHierarchyBuilder,
             $this->createComponentMetadataProvider(),
             $this->createConnectionMock(),
@@ -293,9 +314,10 @@ class TwigComponentHelperTest extends TestCase
 
         $helper = new TwigComponentHelper(
             [
-                'Bundle1' => ['path' => '/Bundle1'],
-                'Bundle2' => ['path' => '/Bundle2'],
+                'Bundle1' => ['path' => self::PROJECT_DIR . '/Bundle1'],
+                'Bundle2' => ['path' => self::PROJECT_DIR . '/Bundle2'],
             ],
+            self::PROJECT_DIR,
             $namespaceHierarchyBuilder,
             $this->createComponentMetadataProvider(),
             $this->createConnectionMock(),
@@ -318,7 +340,8 @@ class TwigComponentHelperTest extends TestCase
         $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn(['Storefront' => []]);
 
         $helper = new TwigComponentHelper(
-            ['Storefront' => ['path' => '/Storefront']],
+            ['Storefront' => ['path' => self::PROJECT_DIR . '/Storefront']],
+            self::PROJECT_DIR,
             $namespaceHierarchyBuilder,
             $this->createComponentMetadataProvider(),
             $this->createConnectionMock(),
@@ -345,6 +368,7 @@ class TwigComponentHelperTest extends TestCase
 
         $helper = new TwigComponentHelper(
             [],
+            self::PROJECT_DIR,
             $this->createMock(NamespaceHierarchyBuilder::class),
             $this->createComponentMetadataProvider(),
             $connection,
@@ -370,6 +394,7 @@ class TwigComponentHelperTest extends TestCase
 
         $helper = new TwigComponentHelper(
             [],
+            self::PROJECT_DIR,
             $this->createMock(NamespaceHierarchyBuilder::class),
             $this->createComponentMetadataProvider(),
             $connection,

@@ -7,7 +7,7 @@
       "ProductPurchaseLimit": {
         "type": "object",
         "description": "Current quantity purchase limits for a product.",
-        "required": ["productId", "minPurchase", "purchaseSteps", "maxPurchase", "apiAlias"],
+        "required": ["productId", "minPurchase", "purchaseSteps", "maxPurchase", "stock", "apiAlias"],
         "properties": {
           "productId": {
             "type": "string",

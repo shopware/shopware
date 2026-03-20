@@ -31,7 +31,7 @@ export type TwigToken = {
          * `extendTag({ type: 'parent' })`, this is `'parent'`. For built-in
          * Twig logic tags the value is `'Twig.logic.type.<tag>'`.
          */
-        type?: string;
+        type?: 'parent' | (string & {});
         /**
          * Present on `{% block name %}` tokens — contains the block's name.
          * This is how template.factory.js identifies block tokens.
@@ -42,15 +42,13 @@ export type TwigToken = {
 };
 
 /**
- * Reconstructs the inner Vue-compatible template string from a TwigJS token array.
+ * Stringifies a TwigJS token array into a Vue-compatible HTML fragment: `{% parent %}`
+ * becomes `<sw-block-parent />`, supported `raw` content is preserved, and unsupported
+ * Twig constructs (e.g. `{% if %}`, `{% for %}`) are dropped — see module doc above.
  *
- * - `raw` tokens pass through verbatim (HTML, Vue directives, {{ }} interpolation).
- * - `logic` tokens with `token.type === 'parent'` become `<sw-block-parent />`.
- *   (The `{% parent %}` custom tag is registered with `type: 'parent'` via
- *   `Twig.extendTag` in `template.factory.js`; TwigJS stores this type verbatim.)
- * - `logic` tokens that have a `blockName` property are nested `{% block %}` tags;
- *   recurse into their `output` array.
- * - All other logic tokens (if, for, set, …) collapse to `''` (known limitation).
+ * The result is the **body** that belongs inside an existing `<sw-block name="…">`
+ * slot at the call site; do not wrap it in another `<sw-block>` here — the defining
+ * block tag in the source template already provides that boundary.
  *
  * @private
  */
@@ -62,10 +60,13 @@ export default function reconstructInnerTemplate(tokens: TwigToken[]): string {
             }
 
             if (token.type === 'logic') {
+                // `{% parent %}` is registered in template.factory.js via Twig.extendTag
+                // with `type: 'parent'`; TwigJS stores that literal on the logic token.
                 if (token.token?.type === 'parent') {
                     return '<sw-block-parent />';
                 }
 
+                // TwigJS nests inner `{% block %}` bodies under token.blockName + output.
                 if (token.token?.blockName !== undefined) {
                     return reconstructInnerTemplate(token.token.output ?? []);
                 }

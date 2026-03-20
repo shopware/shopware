@@ -5,6 +5,7 @@
 import { mount } from '@vue/test-utils';
 import ComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
+import { hasBlockEntries, resetBlockIndex } from 'src/core/factory/twig-block-index';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 
 function createComponentMatrix(components) {
@@ -107,6 +108,7 @@ describe('core/factory/async-component.factory.ts', () => {
         TemplateFactory.getNormalizedTemplateRegistry().clear();
         TemplateFactory.disableTwigCache();
         ComponentFactory.markComponentTemplatesAsNotResolved();
+        resetBlockIndex();
     });
 
     it('test the component matrix', async () => {
@@ -218,6 +220,28 @@ describe('core/factory/async-component.factory.ts', () => {
                 testCase: 'ASYNC ASYNC ASYNC ',
             },
         ]);
+    });
+
+    describe('override() Twig block indexing (sync vs async)', () => {
+        it('indexes {% block %} synchronously when override config is a plain object with a template string', () => {
+            ComponentFactory.register('twig-index-base', { template: '<div class="root"></div>' });
+            ComponentFactory.override('twig-index-base', {
+                template: '{% block twig_index_sync %}<span class="sync"></span>{% endblock %}',
+            });
+            expect(hasBlockEntries('twig_index_sync')).toBe(true);
+        });
+
+        it('indexes {% block %} only after the async override config resolves', async () => {
+            ComponentFactory.register('twig-index-base-async', { template: '<div class="root"></div>' });
+            const resolveOverride = ComponentFactory.override('twig-index-base-async', () =>
+                Promise.resolve({
+                    template: '{% block twig_index_async %}<span class="async"></span>{% endblock %}',
+                }),
+            );
+            expect(hasBlockEntries('twig_index_async')).toBe(false);
+            await resolveOverride();
+            expect(hasBlockEntries('twig_index_async')).toBe(true);
+        });
     });
 
     describe('should register a component and it should be registered in the component registry', () => {

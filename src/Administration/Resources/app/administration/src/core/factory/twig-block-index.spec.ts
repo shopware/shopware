@@ -39,27 +39,16 @@ describe('core/factory/twig-block-index.ts', () => {
             expect(hasBlockEntries('block_b')).toBe(true);
         });
 
-        it('stores the component name in each block entry', () => {
+        it('stores the component name and reconstructed inner template on the block entry', () => {
             indexTwigBlocksFromTemplate(
                 'sw-product-detail',
                 `
-                {% block comp_name_block %}<div></div>{% endblock %}
+                {% block comp_name_block %}<div class="inner"></div>{% endblock %}
             `,
             );
 
             const [entry] = getBlockEntries('comp_name_block');
             expect(entry.componentName).toBe('sw-product-detail');
-        });
-
-        it('stores a non-empty inner template for a block with HTML content', () => {
-            indexTwigBlocksFromTemplate(
-                'sw-product-detail',
-                `
-                {% block inner_tmpl_block %}<div class="inner"></div>{% endblock %}
-            `,
-            );
-
-            const [entry] = getBlockEntries('inner_tmpl_block');
             expect(entry.innerTemplate).toContain('class="inner"');
         });
 
@@ -83,7 +72,9 @@ describe('core/factory/twig-block-index.ts', () => {
             expect(entries[1].componentName).toBe('sw-plugin-b');
         });
 
-        it('silently ignores malformed Twig templates without throwing', () => {
+        // Intentionally no console.warn: parse failures cover malformed Twig and plain
+        // non-Twig template strings; warning every override would be extremely noisy.
+        it('skips indexing when TwigJS cannot parse the template without throwing', () => {
             expect(() => {
                 indexTwigBlocksFromTemplate('sw-product-detail', '{% block unclosed <div {{ ');
             }).not.toThrow();
@@ -114,12 +105,6 @@ describe('core/factory/twig-block-index.ts', () => {
     describe('hasBlockEntries', () => {
         it('returns false for a block name that has not been indexed', () => {
             expect(hasBlockEntries('unknown_block')).toBe(false);
-        });
-
-        it('returns true after a block with that name has been indexed', () => {
-            indexTwigBlocksFromTemplate('sw-product-detail', `{% block known_block %}<div></div>{% endblock %}`);
-
-            expect(hasBlockEntries('known_block')).toBe(true);
         });
     });
 

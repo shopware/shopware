@@ -42,12 +42,12 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
         components: { 'sw-block-parent': swBlockParent },
     };
 
-    const dataScopeRef = shallowRef<Record<string | symbol, unknown> | null>(null);
-
     // A stable object reference is required so Vue's VDOM diff recognises the
     // same component type across slot calls and reuses the instance. Creating a
     // new object on every call (e.g. via spread) causes unmount + remount,
     // which destroys focus on every keystroke.
+    const dataScopeRef = shallowRef<Record<string | symbol, unknown> | null>(null);
+
     const shimComponent = {
         ...def,
         setup: () => buildSetupContext(dataScopeRef.value),

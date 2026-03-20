@@ -151,11 +151,11 @@ A plugin uses `Component.override()` and only redefines the blocks it wants to c
 Shopware.Component.override('sw-product-detail', {
     template: `
 {% block sw_product_detail_content_tabs %}
-    {% parent %}
+{% parent %}
 
-    <sw-card title="Custom Tab">
-        <my-custom-component :product="product" />
-    </sw-card>
+<sw-card title="Custom Tab">
+    <my-custom-component :product="product" />
+</sw-card>
 {% endblock %}
 `,
 });
@@ -194,7 +194,7 @@ The `TemplateFactory` (`template.factory.js`) drives the entire process:
 5. Vue compiles HTML          → reactive component rendered in browser
 ```
 
-Multiple overrides can target the same component; they are applied in registration order by index.
+Multiple overrides can target the same component. Each one carries an **override index**—the third argument to `registerTemplateOverride` in step 2 (the same value as the optional third argument to `Shopware.Component.override`). Overrides are sorted by that number in ascending order and then applied; call order only matters when two overrides share the same index.
 
 ---
 
@@ -244,7 +244,7 @@ All of the above must use Vue equivalents instead:
 <div v-for="item in items" :key="item.id">...</div>
 ```
 
-> **Note:** Vue interpolation (`{{ }}`) does work in the final rendered HTML — it is only the Twig `{{ }}` token that is stripped. After TwigJS resolves the blocks, the output HTML string is handed to Vue, which then processes its own `{{ }}` syntax normally.
+> **Note:** Vue interpolation (`{{ }}`) does work in the final rendered HTML — it is only the Twig `{{ }}` token that is ignored. After TwigJS resolves the blocks, the output HTML string is handed to Vue, which then processes its own `{{ }}` syntax normally.
 
 ---
 

@@ -4,16 +4,10 @@ import { ConsentEvent } from 'src/core/consent/events';
 import useConsentStore from 'src/core/consent/consent.store';
 import initAmplitude from './amplitude.init';
 
-const mockDeleteUserAmplitudeClient = {
-    init: jest.fn(),
-    track: jest.fn(),
-    flush: jest.fn(),
-};
 const amplitudeCookieName = 'AMP_placeholde';
 const amplitudeMarketingCookieName = 'AMP_MKTG_placeholde';
 
 jest.mock('@amplitude/analytics-browser', () => ({
-    createInstance: jest.fn(() => mockDeleteUserAmplitudeClient),
     add: jest.fn(),
     init: jest.fn(),
     track: jest.fn(),
@@ -24,6 +18,18 @@ jest.mock('@amplitude/analytics-browser', () => ({
     flush: jest.fn(),
     reset: jest.fn(),
 }));
+
+const mockTrackConsentMetric = jest.fn();
+const mockDeleteUser = jest.fn();
+
+jest.mock('src/core/telemetry/product-analytics/gateway-client', () => {
+    return {
+        GatewayClient: jest.fn().mockImplementation(() => ({
+            trackConsentMetric: mockTrackConsentMetric,
+            deleteUser: mockDeleteUser,
+        })),
+    };
+});
 
 describe('src/app/post-init/amplitude.init.ts', () => {
     const testShopId = 'knneBsx7LiKySnUq';
@@ -51,12 +57,7 @@ describe('src/app/post-init/amplitude.init.ts', () => {
 
         watchHandle?.();
         Shopware.Utils.EventBus.all?.clear();
-        const { createInstance } = jest.requireMock('@amplitude/analytics-browser');
-        createInstance.mockReset();
-        createInstance.mockImplementation(() => mockDeleteUserAmplitudeClient);
-        mockDeleteUserAmplitudeClient.init.mockClear();
-        mockDeleteUserAmplitudeClient.track.mockClear();
-        mockDeleteUserAmplitudeClient.flush.mockClear();
+
         global.fetch = jest.fn(() => Promise.resolve({ ok: true }));
         document.cookie = `${amplitudeCookieName}=test-value`;
         document.cookie = `${amplitudeMarketingCookieName}=test-value`;
@@ -248,8 +249,6 @@ describe('src/app/post-init/amplitude.init.ts', () => {
         });
 
         it('routes consent events to the anonymous gateway client', async () => {
-            const { track } = await import('@amplitude/analytics-browser');
-
             watchHandle = await initAmplitude();
 
             Shopware.Utils.EventBus.emit(
@@ -262,34 +261,17 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                 }),
             );
 
-            expect(global.fetch).toHaveBeenCalledWith(
-                'https://gateway.example/event/anonymous',
-                expect.objectContaining({
-                    method: 'POST',
-                    credentials: 'omit',
-                    keepalive: true,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: expect.any(String),
-                }),
+            expect(mockTrackConsentMetric).toHaveBeenCalled();
+            expect(mockTrackConsentMetric).toHaveBeenCalledWith(
+                'consent_modal_viewed',
+                {
+                    consents_shown: [
+                        'backend_data',
+                        'product_analytics',
+                    ],
+                },
+                expect.any(Number),
             );
-
-            expect(JSON.parse(global.fetch.mock.calls[0][1].body)).toEqual({
-                events: [
-                    {
-                        event_type: 'consent_modal_viewed',
-                        event_properties: {
-                            consents_shown: [
-                                'backend_data',
-                                'product_analytics',
-                            ],
-                        },
-                        time: expect.any(Number),
-                    },
-                ],
-            });
-            expect(track).not.toHaveBeenCalledWith('consent_modal_viewed', expect.anything());
         });
 
         it('routes consent events even without product analytics consent', async () => {
@@ -307,32 +289,22 @@ describe('src/app/post-init/amplitude.init.ts', () => {
                 }),
             );
 
-            expect(global.fetch).toHaveBeenCalledWith(
-                'https://gateway.example/event/anonymous',
-                expect.objectContaining({
-                    body: expect.any(String),
-                }),
+            expect(mockTrackConsentMetric).toHaveBeenCalled();
+            expect(mockTrackConsentMetric).toHaveBeenCalledWith(
+                'consent_modal_viewed',
+                {
+                    consents_shown: [
+                        'backend_data',
+                        'product_analytics',
+                    ],
+                },
+                expect.any(Number),
             );
-
-            expect(JSON.parse(global.fetch.mock.calls[0][1].body)).toEqual({
-                events: [
-                    {
-                        event_type: 'consent_modal_viewed',
-                        event_properties: {
-                            consents_shown: [
-                                'backend_data',
-                                'product_analytics',
-                            ],
-                        },
-                        time: expect.any(Number),
-                    },
-                ],
-            });
         });
 
         it('stops telemetry after consent is revoked during runtime', async () => {
             jest.useFakeTimers();
-            const { createInstance, setOptOut } = await import('@amplitude/analytics-browser');
+            const { setOptOut } = await import('@amplitude/analytics-browser');
             const consentStore = useConsentStore();
             const eventBusOffSpy = jest.spyOn(Shopware.Utils.EventBus, 'off');
 
@@ -354,20 +326,10 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             jest.runAllTimers();
 
             expect(eventBusOffSpy).toHaveBeenCalledWith('telemetry', expect.any(Function));
-            expect(createInstance).toHaveBeenCalledTimes(1);
-            expect(mockDeleteUserAmplitudeClient.init).toHaveBeenCalledWith(
-                expect.any(String),
-                undefined,
-                expect.objectContaining({
-                    serverUrl: 'https://gateway.example/delete-user',
-                }),
-            );
-            expect(mockDeleteUserAmplitudeClient.track).toHaveBeenCalledWith('delete_user', {
-                shop_id: testShopId,
-                user_id: testUserId,
-                amplitude_user_id: `${testShopId}:${testUserId}`,
-            });
-            expect(mockDeleteUserAmplitudeClient.flush).toHaveBeenCalledTimes(1);
+
+            expect(mockDeleteUser).toHaveBeenCalled();
+            expect(mockDeleteUser).toHaveBeenCalledWith(testShopId, testUserId);
+
             expect(setOptOut).toHaveBeenCalledWith(true);
             expect(document.cookie).not.toContain(`${amplitudeCookieName}=`);
             expect(document.cookie).not.toContain(`${amplitudeMarketingCookieName}=`);

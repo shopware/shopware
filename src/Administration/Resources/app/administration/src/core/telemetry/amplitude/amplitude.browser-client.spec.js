@@ -167,7 +167,7 @@ describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
             'placeholder-apikey',
             undefined,
             expect.objectContaining({
-                serverUrl: 'https://gateway.example/event',
+                serverUrl: 'https://gateway.example/v1/event',
                 appVersion: '6.7.0.0',
                 autocapture: false,
                 serverZone: 'EU',

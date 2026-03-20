@@ -1,26 +1,21 @@
 /**
  * @sw-package framework
  */
-import createConsentEventHandler from 'src/core/consent/handlers';
+import * as amplitude from '@amplitude/analytics-browser';
+import { computed, watch, type WatchHandle } from 'vue';
 import useConsentStore from 'src/core/consent/consent.store';
+import { GatewayClient } from 'src/core/telemetry/product-analytics/gateway-client';
+import createConsentEventHandler from 'src/core/telemetry/product-analytics/consent-event-handler';
 import {
     initTelemetryAmplitude,
     registerTelemetryLogoutListener,
 } from 'src/core/telemetry/amplitude/amplitude.browser-client';
 import clearAmplitudeCookies from 'src/core/telemetry/amplitude/amplitude.browser-storage';
 import {
-    createAnonymousGatewayClient,
-    createDeleteUserGateWayClient,
-} from 'src/core/telemetry/amplitude/amplitude.gateway-client';
-import {
     addDefaultShopwarePropertiesPlugin,
     getDefaultLanguageName,
 } from 'src/core/telemetry/amplitude/amplitude.shopware-properties';
 import createTelemetryEventHandler from 'src/core/telemetry/amplitude/amplitude.telemetry-handlers';
-import * as amplitude from '@amplitude/analytics-browser';
-import { computed, watch, type WatchHandle } from 'vue';
-
-type AmplitudeModule = typeof amplitude;
 
 /**
  * @private
@@ -35,8 +30,8 @@ export default async function (): Promise<WatchHandle | undefined> {
     /*
      * register consent event handler
      */
-    const anonymousGatewayClient = createAnonymousGatewayClient(analyticsGatewayUrl);
-    const pushConsentEventToAmplitude = createConsentEventHandler(anonymousGatewayClient);
+    const gatewayClient = new GatewayClient(analyticsGatewayUrl);
+    const pushConsentEventToAmplitude = createConsentEventHandler(gatewayClient);
 
     // eslint-disable-next-line listeners/no-missing-remove-event-listener
     Shopware.Utils.EventBus.on('consent', pushConsentEventToAmplitude);
@@ -80,7 +75,7 @@ export default async function (): Promise<WatchHandle | undefined> {
                 amplitude.setOptOut(true);
                 Shopware.Utils.EventBus.off('telemetry', eventHandlers);
 
-                deleteUser(amplitude, analyticsGatewayUrl);
+                deleteUser(gatewayClient);
 
                 amplitude.flush();
                 setTimeout(() => clearAmplitudeCookies(), 0);
@@ -90,21 +85,11 @@ export default async function (): Promise<WatchHandle | undefined> {
     );
 }
 
-function deleteUser(amplitudeModule: AmplitudeModule, analyticsGatewayUrl: string) {
+function deleteUser(client: GatewayClient) {
     const shopId = Shopware.Store.get('context').app.config.shopId;
-    const userId = Shopware.Store.get('session').currentUser?.id;
+    const userId = Shopware.Store.get('session').currentUser?.id ?? null;
 
-    if (typeof userId === 'string') {
-        const client = createDeleteUserGateWayClient(analyticsGatewayUrl);
-
-        client.track(
-            'delete_user',
-            {
-                shop_id: shopId,
-                user_id: userId,
-                amplitude_user_id: `${shopId}:${userId}`,
-            },
-            new Date().getTime(),
-        );
+    if (userId !== null && shopId !== null) {
+        client.deleteUser(shopId, userId);
     }
 }

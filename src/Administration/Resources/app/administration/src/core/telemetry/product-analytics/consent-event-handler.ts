@@ -1,25 +1,22 @@
 /**
  * @sw-package framework
  */
-import { isConsentEvent, isConsentEventType, type TrackableType } from './events';
-
-type TrackClient = {
-    track: (eventName: string, eventProperties: Record<string, TrackableType>, time: number) => void;
-};
+import { isConsentEvent, isConsentEventType, type TrackableType } from 'src/core/consent/events';
+import type { GatewayClient } from './gateway-client';
 
 type EventPayload = Record<string, TrackableType>;
 
 /**
  * @private
  */
-export default function createConsentEventHandler(anonymousAmplitude: TrackClient): (consentEvent: unknown) => void {
+export default function createConsentEventHandler(client: GatewayClient): (consentEvent: unknown) => void {
     return (consentEvent: unknown) => {
         if (!isConsentEvent(consentEvent)) {
             return;
         }
 
         if (isConsentEventType(consentEvent, 'consent_modal_viewed')) {
-            anonymousAmplitude.track(
+            client.trackConsentMetric(
                 consentEvent.eventName,
                 {
                     consents_shown: consentEvent.eventProperties.consents_shown,
@@ -42,7 +39,7 @@ export default function createConsentEventHandler(anonymousAmplitude: TrackClien
                 eventProps.backend_data_changed = consentEvent.eventProperties.backend_data.changed;
             }
 
-            anonymousAmplitude.track(consentEvent.eventName, eventProps, consentEvent.timestamp.getTime());
+            client.trackConsentMetric(consentEvent.eventName, eventProps, consentEvent.timestamp.getTime());
             return;
         }
 
@@ -54,7 +51,7 @@ export default function createConsentEventHandler(anonymousAmplitude: TrackClien
                 return;
             }
 
-            anonymousAmplitude.track(
+            client.trackConsentMetric(
                 consentEvent.eventName,
                 {
                     consent: consentEvent.eventProperties.name,
@@ -67,7 +64,7 @@ export default function createConsentEventHandler(anonymousAmplitude: TrackClien
         }
 
         if (isConsentEventType(consentEvent, 'consent_legal_link_clicked')) {
-            anonymousAmplitude.track(
+            client.trackConsentMetric(
                 consentEvent.eventName,
                 {
                     link_target: consentEvent.eventProperties.link_target,

@@ -31,7 +31,7 @@ export function registerTelemetryLogoutListener(amplitude: AmplitudeModule, anal
  */
 export function initTelemetryAmplitude(amplitude: AmplitudeModule, analyticsGatewayUrl: string): void {
     // The real key will be added by the gateway
-    amplitude.init(AMPLITUDE_BROWSER_API_KEY, undefined, createAmplitudeInitOptions(`${analyticsGatewayUrl}/event`));
+    amplitude.init(AMPLITUDE_BROWSER_API_KEY, undefined, createAmplitudeInitOptions(`${analyticsGatewayUrl}/v1/event`));
 }
 
 /**

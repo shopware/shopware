@@ -21,11 +21,9 @@ export interface LoginConfig {
 }
 
 interface TokenResponse {
-    /* eslint-disable camelcase */
     access_token: string;
     refresh_token: string;
     expires_in: number;
-    /* eslint-enable camelcase */
 }
 
 interface RetryBackoffOptions {
@@ -44,6 +42,7 @@ export interface LoginService {
     setBearerAuthentication: ({ access, refresh, expiry }: AuthObject) => AuthObject;
     restartAutoTokenRefresh: (expiryTimestamp: number) => void;
     logout: (isInactivityLogout?: boolean, shouldRedirect?: boolean) => boolean;
+    logoutSso: () => Promise<void>;
     forwardLogout(isInactivityLogout: boolean, shouldRedirect: boolean): void;
     isLoggedIn: () => boolean;
     addOnTokenChangedListener: (listener: (auth?: AuthObject) => void) => void;
@@ -57,6 +56,8 @@ export interface LoginService {
     getLoginTemplateConfig: () => Promise<LoginConfig>;
     subscribeToTokenRefresh: (successCallback: (token: string) => void, errorCallback: (error: Error) => void) => void;
     isRefreshing: () => Promise<boolean>;
+    /** @internal */
+    _navigateTo: (url: string) => void;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -84,6 +85,13 @@ export default function createLoginService(
     const refreshSubscribers: Array<(token: string) => void> = [];
     const refreshErrorSubscribers: Array<(error: Error) => void> = [];
 
+    // Wraps window.location.href assignment to enable test mocking (JSDOM
+    // marks window.location as non-configurable). Mirrors the upstream
+    // _navigateTo pattern used in sw-login-login component.
+    let navigateToFn = (url: string): void => {
+        window.location.href = url;
+    };
+
     return {
         loginByUsername,
         verifyUserByUsername,
@@ -93,6 +101,7 @@ export default function createLoginService(
         setBearerAuthentication,
         restartAutoTokenRefresh,
         logout,
+        logoutSso,
         forwardLogout,
         isLoggedIn,
         addOnTokenChangedListener,
@@ -106,13 +115,20 @@ export default function createLoginService(
         getLoginTemplateConfig,
         subscribeToTokenRefresh,
         isRefreshing,
+
+        /** @internal */
+        get _navigateTo() {
+            return navigateToFn;
+        },
+        set _navigateTo(fn: (url: string) => void) {
+            navigateToFn = fn;
+        },
     };
 
     /**
      * Helper function to receive a logged in user token
      */
     function verifyUserToken(password: string): Promise<string> {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         return verifyUserByUsername(Shopware.Store.get('session').currentUser?.username ?? '', password)
             .then(({ access }) => {
                 if (Shopware.Utils.types.isString(access)) {
@@ -141,7 +157,6 @@ export default function createLoginService(
                     password: pass,
                 },
                 {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     baseURL: context.apiPath!,
                 },
             )
@@ -374,7 +389,6 @@ export default function createLoginService(
                     password: pass,
                 },
                 {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     baseURL: context.apiPath!,
                 },
             )
@@ -534,7 +548,6 @@ export default function createLoginService(
      */
     function getBearerAuthentication<K extends keyof AuthObject>(section?: K): AuthObject[K];
 
-    // eslint-disable-next-line max-len
     function getBearerAuthentication<K extends keyof AuthObject>(
         section: K | null = null,
     ): false | AuthObject | AuthObject[K] {
@@ -560,9 +573,10 @@ export default function createLoginService(
     }
 
     /**
-     * Clears the cookie stored bearer authentication object.
+     * Clears local authentication state: cookies, context token, bearer cache,
+     * remember-me flag, and auto-refresh timer. Shared by logout() and logoutSso().
      */
-    function logout(isInactivityLogout = false, shouldRedirect = true): boolean {
+    function clearAuthState(): void {
         if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
             cookieStorage.removeItem(storageKey, { path: context.basePath });
             cookieStorage.removeItem(storageKey);
@@ -576,10 +590,60 @@ export default function createLoginService(
             clearTimeout(autoRefreshTokenTimeoutId);
             autoRefreshTokenTimeoutId = undefined;
         }
+    }
 
+    /**
+     * Clears the cookie stored bearer authentication object.
+     */
+    function logout(isInactivityLogout = false, shouldRedirect = true): boolean {
+        clearAuthState();
         forwardLogout(isInactivityLogout, shouldRedirect);
 
         return true;
+    }
+
+    /**
+     * Revokes server-side tokens, clears local auth state, and redirects to
+     * the SSO provider with prompt=login when the session was established via SSO.
+     * Falls back to regular logout if the SSO configuration cannot be loaded.
+     */
+    async function logoutSso(): Promise<void> {
+        let loginConfig: LoginConfig;
+
+        try {
+            loginConfig = await getLoginTemplateConfig();
+        } catch {
+            logout();
+            return;
+        }
+
+        if (!loginConfig.url) {
+            logout();
+            return;
+        }
+
+        const token = getToken();
+
+        try {
+            // Use native fetch to bypass Axios interceptors — the refresh-token
+            // interceptor would otherwise attempt a token refresh during logout.
+            await fetch(`${context.apiPath}/_action/user/logout`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+        } catch {
+            // Best-effort: continue even if server-side revocation fails
+        }
+
+        const isSsoSession = !!sessionStorage.getItem('sw-sso-session');
+        sessionStorage.removeItem('sw-sso-session');
+
+        clearAuthState();
+        notifyOnLogoutListener();
+
+        if (!loginConfig.useDefault || isSsoSession) {
+            navigateToFn(`${loginConfig.url}&usePromptLogin=1`);
+        }
     }
 
     /**
@@ -589,7 +653,6 @@ export default function createLoginService(
         notifyOnLogoutListener();
 
         // @ts-expect-error
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const router = Shopware.Application.view.router as null | Router;
         if (router) {
             const id = Shopware.Utils.createId();
@@ -623,7 +686,7 @@ export default function createLoginService(
                     .then((canvas) => {
                         try {
                             sessionStorage.setItem(`inactivityBackground_${id}`, canvas.toDataURL('image/jpeg'));
-                        } catch (e) {
+                        } catch (_e) {
                             // empty catch intended
                             // Calling toDataURL on a canvas with images from a different origin or css rules
                             // that contain urls to images from a different origin will throw a security error in Safari.
@@ -695,7 +758,6 @@ export default function createLoginService(
      * Returns a CookieStorage instance with the right domain and path from the context.
      */
     function cookieStorageFactory(): CookieStorage {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const path = context.basePath! + context.pathInfo!;
 
         // Set default cookie values

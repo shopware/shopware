@@ -1,0 +1,27 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "\/_action\/user\/logout": {
+            "post": {
+                "tags": [
+                    "Authorization & Authentication"
+                ],
+                "summary": "Logout the current user",
+                "description": "Revokes all server-side refresh tokens for the currently authenticated administration user and returns a no content response.",
+                "operationId": "userLogout",
+                "responses": {
+                    "204": {
+                        "description": "Tokens have been revoked successfully."
+                    },
+                    "401": {
+                        "description": "Unauthorized - the access token is missing or invalid."
+                    },
+                    "403": {
+                        "description": "The authenticated source does not have a user ID associated."
+                    }
+                }
+            }
+        }
+    }
+}

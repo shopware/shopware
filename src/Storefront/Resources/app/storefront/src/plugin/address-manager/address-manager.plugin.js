@@ -121,7 +121,7 @@ export default class AddressManagerPlugin extends Plugin {
         const modal = pseudoModal.getModal();
         modal.children[0].classList.add(
             this.options.addressModalDialogScrollableClass,
-            this.options.addressModalDialogSelectorClass
+            this.options.addressModalDialogSelectorClass,
         );
 
         if (this.options.initialTab === BILLING) {

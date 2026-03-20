@@ -82,7 +82,6 @@ describe('src/app/component/base/sw-chart-card', () => {
         expect(wrapper.emitted()[expectedEvent][0][0]).toBe(expectedValue);
     });
 
-    // eslint-disable-next-line max-len
     it('should emit "sw-chart-card-range-update" with current value of selectedRange property with non-default availableRanges', async () => {
         const expectedEvent = 'sw-chart-card-range-update';
         const expectedRange = extendedRanges[2];

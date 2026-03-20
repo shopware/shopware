@@ -50,13 +50,18 @@ export default Component.wrapComponentConfig({
 
         if (refreshAfterLogout) {
             sessionStorage.removeItem('refresh-after-logout');
-            window.location.reload();
+            this._reloadPage();
         } else {
             this.shouldRenderDOM = true;
         }
     },
 
     methods: {
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
         setLoading(val: boolean) {
             this.isLoading = val;
         },

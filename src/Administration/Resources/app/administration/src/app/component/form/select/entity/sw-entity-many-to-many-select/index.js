@@ -64,7 +64,6 @@ export default {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         placeholder: {
@@ -208,7 +207,6 @@ export default {
 
             collection.forEach((item) => {
                 if (!this.entityCollection.has(item.id)) {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.entityCollection.push(item);
                 }
             });

@@ -610,9 +610,15 @@ class Configuration implements ConfigurationInterface
                 ->defaultValue('mysql')
                 ->end()
             ->arrayNode('config')
+                ->addDefaultsIfNotSet()
                 ->children()
                     ->scalarNode('connection')->defaultValue(null)->end()
                 ->end()
+            ->end()
+            ->end()
+            ->validate()
+                ->ifTrue(static fn (array $v) => $v['increment_storage'] === 'redis' && ($v['config']['connection'] ?? null) === null)
+                ->thenInvalid('The "config.connection" option is required when "increment_storage" is set to "redis".')
             ->end();
 
         return $rootNode;

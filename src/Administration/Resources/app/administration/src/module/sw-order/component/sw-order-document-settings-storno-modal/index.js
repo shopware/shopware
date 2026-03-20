@@ -59,10 +59,14 @@ export default {
         },
 
         invoiceOptions() {
-            return this.invoices.map((invoice) => ({
-                label: invoice.config.custom.invoiceNumber,
-                id: invoice.config.custom.invoiceNumber,
-            }));
+            return this.invoices.map((invoice) => {
+                const invoiceNumber = invoice.config.custom.invoiceNumber;
+
+                return {
+                    id: invoiceNumber,
+                    name: invoiceNumber,
+                };
+            });
         },
     },
 

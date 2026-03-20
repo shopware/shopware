@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Migration\V6_7;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -59,19 +58,19 @@ class Migration1773815272SalesChannelNameTranslation extends MigrationStep
     private function getMailTemplateTranslations(Connection $connection): array
     {
         $sql = <<<SQL
-SELECT id 
-FROM mail_template 
-WHERE system_default = 1;
+SELECT
+    mtt.mail_template_id,
+    mtt.language_id,
+    mtt.sender_name,
+    mtt.subject,
+    mtt.content_html,
+    mtt.content_plain
+FROM mail_template_translation AS mtt
+INNER JOIN mail_template AS mt ON mt.id = mtt.mail_template_id
+WHERE mt.system_default = 1
 SQL;
-        $mailTemplateIds = $connection->fetchFirstColumn($sql);
 
-        $sql = <<<SQL
-SELECT mail_template_id, language_id, sender_name, subject, content_html, content_plain
-FROM mail_template_translation
-WHERE mail_template_id IN (:mailTemplateIds)
-SQL;
-
-        return $connection->fetchAllAssociative($sql, ['mailTemplateIds' => $mailTemplateIds], ['mailTemplateIds' => ArrayParameterType::BINARY]);
+        return $connection->fetchAllAssociative($sql);
     }
 
     /**

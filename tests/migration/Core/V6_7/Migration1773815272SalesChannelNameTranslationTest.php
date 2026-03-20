@@ -187,18 +187,18 @@ SQL;
     private function getMailTemplateTranslations(): array
     {
         $sql = <<<SQL
-SELECT id 
-FROM mail_template 
-WHERE system_default = 1;
+SELECT
+    mtt.mail_template_id,
+    mtt.language_id,
+    mtt.sender_name,
+    mtt.subject,
+    mtt.content_html,
+    mtt.content_plain
+FROM mail_template_translation AS mtt
+INNER JOIN mail_template AS mt ON mt.id = mtt.mail_template_id
+WHERE mt.system_default = 1
 SQL;
-        $mailTemplateIds = $this->connection->fetchFirstColumn($sql);
 
-        $sql = <<<SQL
-SELECT mail_template_id, language_id, sender_name, subject, content_html, content_plain
-FROM mail_template_translation
-WHERE mail_template_id IN (:mailTemplateIds)
-SQL;
-
-        return $this->connection->fetchAllAssociative($sql, ['mailTemplateIds' => $mailTemplateIds], ['mailTemplateIds' => ArrayParameterType::BINARY]);
+        return $this->connection->fetchAllAssociative($sql);
     }
 }

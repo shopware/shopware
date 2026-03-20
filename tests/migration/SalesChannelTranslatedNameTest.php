@@ -38,7 +38,7 @@ class SalesChannelTranslatedNameTest extends TestCase
         static::assertIsString($baseDirectory);
 
         $result = [];
-        $files = $this->findFiles($baseDirectory);
+        $files = $this->findFilesWithTwigTag($baseDirectory);
 
         foreach ($files as $file) {
             static::assertInstanceOf(SplFileInfo::class, $file);
@@ -69,7 +69,7 @@ class SalesChannelTranslatedNameTest extends TestCase
         );
 
         $fileList = [];
-        $files = $this->findFiles($baseDirectory);
+        $files = $this->findFilesWithTwigTag($baseDirectory);
 
         foreach ($files as $file) {
             static::assertInstanceOf(SplFileInfo::class, $file);
@@ -98,7 +98,7 @@ class SalesChannelTranslatedNameTest extends TestCase
         static::assertCount(0, $result, $message);
     }
 
-    private function findFiles(string $baseDirectory): \Iterator
+    private function findFilesWithTwigTag(string $baseDirectory): \Iterator
     {
         return (new Finder())
             ->files()

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_8;
+namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -10,7 +10,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_8\Migration1773829001MigrateProductStreamProductStatesFilter;
+use Shopware\Core\Migration\V6_7\Migration1773829001MigrateProductStreamProductStatesFilter;
 
 /**
  * @internal
@@ -20,23 +20,38 @@ class Migration1773829001MigrateProductStreamProductStatesFilterTest extends Tes
 {
     private Connection $connection;
 
+    private string $streamId;
+
+    private string $simpleFilterId;
+
+    private string $qualifiedFilterId;
+
+    private string $fallbackFilterId;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->connection = KernelLifecycleManager::getConnection();
+        $this->streamId = Uuid::randomBytes();
+        $this->simpleFilterId = Uuid::randomBytes();
+        $this->qualifiedFilterId = Uuid::randomBytes();
+        $this->fallbackFilterId = Uuid::randomBytes();
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        $migration = new Migration1773829001MigrateProductStreamProductStatesFilter();
+
+        static::assertSame(1773829001, $migration->getCreationTimestamp());
     }
 
     public function testMigration(): void
     {
         $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $streamId = Uuid::randomBytes();
-        $simpleFilterId = Uuid::randomBytes();
-        $qualifiedFilterId = Uuid::randomBytes();
-        $fallbackFilterId = Uuid::randomBytes();
 
         $this->connection->insert('product_stream', [
-            'id' => $streamId,
+            'id' => $this->streamId,
             'api_filter' => null,
             'invalid' => 0,
             'created_at' => $createdAt,
@@ -44,8 +59,8 @@ class Migration1773829001MigrateProductStreamProductStatesFilterTest extends Tes
         ]);
 
         $this->connection->insert('product_stream_filter', [
-            'id' => $simpleFilterId,
-            'product_stream_id' => $streamId,
+            'id' => $this->simpleFilterId,
+            'product_stream_id' => $this->streamId,
             'parent_id' => null,
             'type' => 'equalsAny',
             'field' => 'states',
@@ -59,8 +74,8 @@ class Migration1773829001MigrateProductStreamProductStatesFilterTest extends Tes
         ]);
 
         $this->connection->insert('product_stream_filter', [
-            'id' => $qualifiedFilterId,
-            'product_stream_id' => $streamId,
+            'id' => $this->qualifiedFilterId,
+            'product_stream_id' => $this->streamId,
             'parent_id' => null,
             'type' => 'equalsAny',
             'field' => 'product.states',
@@ -74,8 +89,8 @@ class Migration1773829001MigrateProductStreamProductStatesFilterTest extends Tes
         ]);
 
         $this->connection->insert('product_stream_filter', [
-            'id' => $fallbackFilterId,
-            'product_stream_id' => $streamId,
+            'id' => $this->fallbackFilterId,
+            'product_stream_id' => $this->streamId,
             'parent_id' => null,
             'type' => 'equalsAny',
             'field' => 'states',
@@ -96,7 +111,7 @@ class Migration1773829001MigrateProductStreamProductStatesFilterTest extends Tes
 
         $simpleFilter = $this->connection->fetchAssociative(
             'SELECT `field`, `value` FROM `product_stream_filter` WHERE `id` = :id',
-            ['id' => $simpleFilterId]
+            ['id' => $this->simpleFilterId]
         );
 
         static::assertIsArray($simpleFilter);
@@ -105,32 +120,42 @@ class Migration1773829001MigrateProductStreamProductStatesFilterTest extends Tes
 
         $qualifiedFilter = $this->connection->fetchAssociative(
             'SELECT `field`, `value` FROM `product_stream_filter` WHERE `id` = :id',
-            ['id' => $qualifiedFilterId]
+            ['id' => $this->qualifiedFilterId]
         );
 
         static::assertIsArray($qualifiedFilter);
-        static::assertSame('product.type', $qualifiedFilter['field']);
-        static::assertSame('physical', $qualifiedFilter['value']);
+        static::assertSame('product.states', $qualifiedFilter['field']);
+        static::assertSame('is-physical|is-legacy', $qualifiedFilter['value']);
 
         $fallbackFilter = $this->connection->fetchAssociative(
             'SELECT `field`, `value` FROM `product_stream_filter` WHERE `id` = :id',
-            ['id' => $fallbackFilterId]
+            ['id' => $this->fallbackFilterId]
         );
 
         static::assertIsArray($fallbackFilter);
-        static::assertSame('type', $fallbackFilter['field']);
-        static::assertSame('physical', $fallbackFilter['value']);
+        static::assertSame('states', $fallbackFilter['field']);
+        static::assertSame('is-legacy-only', $fallbackFilter['value']);
 
         static::assertSame(
-            '0',
+            '2',
             (string) $this->connection->fetchOne(
                 'SELECT COUNT(*) FROM `product_stream_filter` WHERE `product_stream_id` = :streamId AND `field` IN (:fields)',
-                ['streamId' => $streamId, 'fields' => ['states', 'product.states']],
+                ['streamId' => $this->streamId, 'fields' => ['states', 'product.states']],
                 ['fields' => ArrayParameterType::STRING]
             )
         );
 
         $indexers = (new IndexerQueuer($this->connection))->getIndexers();
         static::assertArrayHasKey('product_stream.indexer', $indexers);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->connection->delete('product_stream_filter', ['id' => $this->simpleFilterId]);
+        $this->connection->delete('product_stream_filter', ['id' => $this->qualifiedFilterId]);
+        $this->connection->delete('product_stream_filter', ['id' => $this->fallbackFilterId]);
+        $this->connection->delete('product_stream', ['id' => $this->streamId]);
+
+        parent::tearDown();
     }
 }

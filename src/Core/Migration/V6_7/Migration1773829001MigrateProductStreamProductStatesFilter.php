@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_8;
+namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -35,11 +35,17 @@ class Migration1773829001MigrateProductStreamProductStatesFilter extends Migrati
             return;
         }
 
+        $migrated = false;
+
         foreach ($filters as $filter) {
             $field = (string) $filter['field'];
             $targetField = $field === 'product.states' ? 'product.type' : 'type';
             $value = $filter['value'];
-            $targetValue = \is_string($value) ? $this->mapLegacyStateValues($value) : $value;
+            $targetValue = \is_string($value) ? $this->mapLegacyStateValues($value) : null;
+
+            if ($targetValue === null) {
+                continue;
+            }
 
             $connection->update(
                 'product_stream_filter',
@@ -49,26 +55,39 @@ class Migration1773829001MigrateProductStreamProductStatesFilter extends Migrati
                 ],
                 ['id' => $filter['id']]
             );
+
+            $migrated = true;
         }
 
-        $this->registerIndexer($connection, 'product_stream.indexer');
+        if ($migrated) {
+            $this->registerIndexer($connection, 'product_stream.indexer');
+        }
     }
 
     public function updateDestructive(Connection $connection): void
     {
     }
 
-    private function mapLegacyStateValues(string $value): string
+    private function mapLegacyStateValues(string $value): ?string
     {
         $values = explode('|', $value);
-
         $mappedValues = [];
 
         foreach ($values as $state) {
-            // In case of an unknown state, we want to default to physical to prevent products from being excluded from the stream.
-            $mappedValues[] = self::LEGACY_PRODUCT_STATE_TO_TYPE_MAP[$state] ?? 'physical';
+            if (!isset(self::LEGACY_PRODUCT_STATE_TO_TYPE_MAP[$state])) {
+                return null;
+            }
+
+            $mappedValues[] = self::LEGACY_PRODUCT_STATE_TO_TYPE_MAP[$state];
         }
 
-        return implode('|', array_values(array_unique($mappedValues)));
+        $mappedValues = array_values(array_unique($mappedValues));
+
+        if ($mappedValues === []) {
+            return null;
+        }
+
+        return implode('|', $mappedValues);
     }
 }
+

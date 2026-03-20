@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_8;
+namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -9,7 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_8\Migration1773829000MigrateLineItemProductStatesRuleCondition;
+use Shopware\Core\Migration\V6_7\Migration1773829000MigrateLineItemProductStatesRuleCondition;
 
 /**
  * @internal
@@ -19,24 +19,39 @@ class Migration1773829000MigrateLineItemProductStatesRuleConditionTest extends T
 {
     private Connection $connection;
 
+    private string $ruleId;
+
+    private string $digitalConditionId;
+
+    private string $legacyConditionId;
+
+    private string $noProductStateConditionId;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->connection = KernelLifecycleManager::getConnection();
+
+        $this->ruleId = Uuid::randomBytes();
+        $this->digitalConditionId = Uuid::randomBytes();
+        $this->legacyConditionId = Uuid::randomBytes();
+        $this->noProductStateConditionId = Uuid::randomBytes();
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        $migration = new Migration1773829000MigrateLineItemProductStatesRuleCondition();
+
+        static::assertSame(1773829000, $migration->getCreationTimestamp());
     }
 
     public function testMigration(): void
     {
         $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-        $ruleId = Uuid::randomBytes();
-        $digitalConditionId = Uuid::randomBytes();
-        $legacyConditionId = Uuid::randomBytes();
-        $noProductStateConditionId = Uuid::randomBytes();
-
         $this->connection->insert('rule', [
-            'id' => $ruleId,
+            'id' => $this->ruleId,
             'name' => 'legacy product states rule',
             'priority' => 1,
             'payload' => '{"legacy":true}',
@@ -48,8 +63,8 @@ class Migration1773829000MigrateLineItemProductStatesRuleConditionTest extends T
         ]);
 
         $this->connection->insert('rule_condition', [
-            'id' => $digitalConditionId,
-            'rule_id' => $ruleId,
+            'id' => $this->digitalConditionId,
+            'rule_id' => $this->ruleId,
             'parent_id' => null,
             'type' => 'cartLineItemProductStates',
             'value' => json_encode([
@@ -63,8 +78,8 @@ class Migration1773829000MigrateLineItemProductStatesRuleConditionTest extends T
         ]);
 
         $this->connection->insert('rule_condition', [
-            'id' => $legacyConditionId,
-            'rule_id' => $ruleId,
+            'id' => $this->legacyConditionId,
+            'rule_id' => $this->ruleId,
             'parent_id' => null,
             'type' => 'cartLineItemProductStates',
             'value' => json_encode([
@@ -78,8 +93,8 @@ class Migration1773829000MigrateLineItemProductStatesRuleConditionTest extends T
         ]);
 
         $this->connection->insert('rule_condition', [
-            'id' => $noProductStateConditionId,
-            'rule_id' => $ruleId,
+            'id' => $this->noProductStateConditionId,
+            'rule_id' => $this->ruleId,
             'parent_id' => null,
             'type' => 'cartLineItemProductStates',
             'value' => json_encode([
@@ -100,7 +115,7 @@ class Migration1773829000MigrateLineItemProductStatesRuleConditionTest extends T
 
         $digitalCondition = $this->connection->fetchAssociative(
             'SELECT `type`, `value` FROM `rule_condition` WHERE `id` = :id',
-            ['id' => $digitalConditionId]
+            ['id' => $this->digitalConditionId]
         );
 
         static::assertIsArray($digitalCondition);
@@ -116,53 +131,47 @@ class Migration1773829000MigrateLineItemProductStatesRuleConditionTest extends T
 
         $legacyCondition = $this->connection->fetchAssociative(
             'SELECT `type`, `value` FROM `rule_condition` WHERE `id` = :id',
-            ['id' => $legacyConditionId]
+            ['id' => $this->legacyConditionId]
         );
 
         static::assertIsArray($legacyCondition);
-        static::assertSame('cartLineItemProductType', $legacyCondition['type']);
-        static::assertIsString($legacyCondition['value']);
-        static::assertSame(
-            [
-                'operator' => '=',
-                'productType' => 'physical',
-            ],
-            json_decode($legacyCondition['value'], true, 512, \JSON_THROW_ON_ERROR)
-        );
+        static::assertSame('cartLineItemProductStates', $legacyCondition['type']);
 
         $noProductStateCondition = $this->connection->fetchAssociative(
             'SELECT `type`, `value` FROM `rule_condition` WHERE `id` = :id',
-            ['id' => $noProductStateConditionId]
+            ['id' => $this->noProductStateConditionId]
         );
 
         static::assertIsArray($noProductStateCondition);
-        static::assertSame('cartLineItemProductType', $noProductStateCondition['type']);
-        static::assertIsString($noProductStateCondition['value']);
-        static::assertSame(
-            [
-                'operator' => '=',
-                'productType' => 'physical',
-            ],
-            json_decode($noProductStateCondition['value'], true, 512, \JSON_THROW_ON_ERROR)
-        );
+        static::assertSame('cartLineItemProductStates', $noProductStateCondition['type']);
 
         static::assertSame(
             '{"legacy":true}',
             $this->connection->fetchOne(
                 'SELECT `payload` FROM `rule` WHERE `id` = :id',
-                ['id' => $ruleId]
+                ['id' => $this->ruleId]
             )
         );
 
         static::assertSame(
-            '0',
+            '2',
             (string) $this->connection->fetchOne(
                 'SELECT COUNT(*) FROM `rule_condition` WHERE `rule_id` = :ruleId AND `type` = :type',
-                ['ruleId' => $ruleId, 'type' => 'cartLineItemProductStates']
+                ['ruleId' => $this->ruleId, 'type' => 'cartLineItemProductStates']
             )
         );
 
         $indexers = (new IndexerQueuer($this->connection))->getIndexers();
         static::assertArrayHasKey('rule.indexer', $indexers);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->connection->delete('rule_condition', ['id' => $this->digitalConditionId]);
+        $this->connection->delete('rule_condition', ['id' => $this->legacyConditionId]);
+        $this->connection->delete('rule_condition', ['id' => $this->noProductStateConditionId]);
+        $this->connection->delete('rule', ['id' => $this->ruleId]);
+
+        parent::tearDown();
     }
 }

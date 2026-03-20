@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_8;
+namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
@@ -25,7 +25,7 @@ class Migration1773829000MigrateLineItemProductStatesRuleCondition extends Migra
     public function update(Connection $connection): void
     {
         $conditions = $connection->fetchAllAssociative(
-            'SELECT `id`, `rule_id`, `value` FROM `rule_condition` WHERE `type` = :legacyType',
+            'SELECT `id`, `value` FROM `rule_condition` WHERE `type` = :legacyType',
             ['legacyType' => 'cartLineItemProductStates']
         );
 
@@ -33,8 +33,14 @@ class Migration1773829000MigrateLineItemProductStatesRuleCondition extends Migra
             return;
         }
 
+        $migrated = false;
+
         foreach ($conditions as $condition) {
             $newValue = $this->conditionPayload($condition['value']);
+
+            if ($newValue === null) {
+                continue;
+            }
 
             $connection->update(
                 'rule_condition',
@@ -44,38 +50,41 @@ class Migration1773829000MigrateLineItemProductStatesRuleCondition extends Migra
                 ],
                 ['id' => $condition['id']]
             );
+
+            $migrated = true;
         }
 
-        $this->registerIndexer($connection, 'rule.indexer');
+        if ($migrated) {
+            $this->registerIndexer($connection, 'rule.indexer');
+        }
     }
 
     public function updateDestructive(Connection $connection): void
     {
     }
 
-    private function conditionPayload(mixed $value): string
+    private function conditionPayload(mixed $value): ?string
     {
-        $defaultOperator = '=';
-        $defaultType = 'physical';
-
         if (!\is_string($value)) {
-            return json_encode(['operator' => $defaultOperator, 'productType' => $defaultType], \JSON_THROW_ON_ERROR);
+            return null;
         }
 
         $decoded = json_decode($value, true);
 
         if (!\is_array($decoded)) {
-            return json_encode(['operator' => $defaultOperator, 'productType' => $defaultType], \JSON_THROW_ON_ERROR);
+            return null;
         }
 
-        $operator = \is_string($decoded['operator'] ?? null) ? $decoded['operator'] : $defaultOperator;
         $productState = $decoded['productState'] ?? null;
-        $productType = $defaultType;
 
-        if (\is_string($productState) && isset(self::LEGACY_PRODUCT_STATE_TO_TYPE_MAP[$productState])) {
-            $productType = self::LEGACY_PRODUCT_STATE_TO_TYPE_MAP[$productState];
+        if (!\is_string($productState) || !isset(self::LEGACY_PRODUCT_STATE_TO_TYPE_MAP[$productState])) {
+            return null;
         }
+
+        $operator = \is_string($decoded['operator'] ?? null) ? $decoded['operator'] : '=';
+        $productType = self::LEGACY_PRODUCT_STATE_TO_TYPE_MAP[$productState];
 
         return json_encode(['operator' => $operator, 'productType' => $productType], \JSON_THROW_ON_ERROR);
     }
 }
+

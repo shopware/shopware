@@ -27,7 +27,6 @@ use Shopware\Core\Framework\Event\LanguageAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;

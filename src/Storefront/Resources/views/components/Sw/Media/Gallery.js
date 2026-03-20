@@ -2,6 +2,7 @@ export default class MediaGallery extends ShopwareComponent {
     static options = {
         showMagnifier: true,
         thumbnailNavigationPosition: 'left',
+        thumbnailNavShowsMediaOnHover: true,
         showNavigationArrows: true,
         showFullScreenGallery: true,
         zoomScale: 2.5,
@@ -44,6 +45,10 @@ export default class MediaGallery extends ShopwareComponent {
     }
 
     initNavigationArrows() {
+        if (!this.backwardBtn || !this.forwardBtn) {
+            return;
+        }
+
         this.onBackwardClick = () => this.scrollToIndex(this.getCurrentIndex() - 1);
         this.onForwardClick = () => this.scrollToIndex(this.getCurrentIndex() + 1);
         this.backwardBtn.addEventListener('click', this.onBackwardClick);
@@ -78,8 +83,6 @@ export default class MediaGallery extends ShopwareComponent {
     }
 
     initLightboxClickZoom() {
-        // const previewItems = this.el.querySelectorAll('.sw-media-gallery__preview-item');
-
         if (!this.previewItems.length) {
             return;
         }
@@ -92,6 +95,12 @@ export default class MediaGallery extends ShopwareComponent {
 
     toggleClickZoom(event) {
         const container = event.currentTarget;
+        const imageEl = container.querySelector(':scope > img');
+
+        // Only enable click zoom when container has an image
+        if (!imageEl) {
+            return;
+        }
 
         // Suppress the click that fires after a drag ends
         if (container._dragOccurred) {
@@ -105,6 +114,9 @@ export default class MediaGallery extends ShopwareComponent {
         }
 
         container.classList.add('is--zoomed');
+
+        // Load original image
+        imageEl.removeAttribute('srcset');
 
         // Only attach drag listeners once per container
         if (container._dragListenersAdded) {
@@ -170,10 +182,17 @@ export default class MediaGallery extends ShopwareComponent {
 
     initThumbnailNav() {
         this.thumbnailButtons.forEach((button) => {
-            button.addEventListener('mouseover', () => {
-                const index = parseInt(button.dataset.target, 10) - 1;
-                this.scrollToIndex(index, 'instant');
+            const index = parseInt(button.dataset.target, 10) - 1;
+
+            button.addEventListener('click', () => {
+                this.scrollToIndex(index, 'smooth');
             });
+
+            if (this.options.thumbnailNavShowsMediaOnHover) {
+                button.addEventListener('mouseover', () => {
+                    this.scrollToIndex(index, 'instant');
+                });
+            }
         });
     }
 
@@ -203,36 +222,38 @@ export default class MediaGallery extends ShopwareComponent {
             return;
         }
 
-        this.previewItems.forEach((img) => {
-            img.style.transform = 'scale(1) translate(0px, 0px)';
-            img.style.transformOrigin = '0px 0px 0px';
+        this.previewItems.forEach((preview) => {
+            preview.style.transform = 'scale(1) translate(0px, 0px)';
+            preview.style.transformOrigin = '0px 0px 0px';
         });
 
         const getVisiblePreview = () => {
             const index = Math.round(this.previewsContainer.scrollLeft / this.previewsContainer.clientWidth);
-            return this.previewItems[index] ?? null;
+            // Only allow zoom when image is direct child of the preview item
+            const preview = this.previewItems[index] ?? null;
+            return preview?.querySelector(':scope > img') ? preview : null;
         };
 
         // Always reset zoom when container is scrolled
         this.previewsContainer.addEventListener('scroll', () => {
-            const img = getVisiblePreview();
-            if (img) {
-                img.style.transform = 'scale(1) translate(0px, 0px)';
-                img.style.cursor = 'default';
+            const preview = getVisiblePreview();
+            if (preview) {
+                preview.style.transform = 'scale(1) translate(0px, 0px)';
+                preview.style.cursor = 'default';
             }
         });
 
         this.previewsContainer.addEventListener('mouseenter', () => {
-            const img = getVisiblePreview();
-            if (img) {
-                img.style.transform = `scale(${scale}) translate(0px, 0px)`;
-                img.style.cursor = 'zoom-in';
+            const preview = getVisiblePreview();
+            if (preview) {
+                preview.style.transform = `scale(${scale}) translate(0px, 0px)`;
+                preview.style.cursor = 'zoom-in';
             }
         });
 
         this.previewsContainer.addEventListener('mousemove', (e) => {
-            const img = getVisiblePreview();
-            if (!img) {
+            const preview = getVisiblePreview();
+            if (!preview) {
                 return;
             }
             const rect = this.previewsContainer.getBoundingClientRect();
@@ -240,14 +261,14 @@ export default class MediaGallery extends ShopwareComponent {
             const y = e.clientY - rect.top;
             const tx = -x * (scale - 1) / scale;
             const ty = -y * (scale - 1) / scale;
-            img.style.transform = `scale(${scale}) translate(${tx}px, ${ty}px)`;
+            preview.style.transform = `scale(${scale}) translate(${tx}px, ${ty}px)`;
         });
 
         this.previewsContainer.addEventListener('mouseleave', () => {
-            const img = getVisiblePreview();
-            if (img) {
-                img.style.transform = 'scale(1) translate(0px, 0px)';
-                img.style.cursor = 'default';
+            const preview = getVisiblePreview();
+            if (preview) {
+                preview.style.transform = 'scale(1) translate(0px, 0px)';
+                preview.style.cursor = 'default';
             }
         });
     }
@@ -281,8 +302,13 @@ export default class MediaGallery extends ShopwareComponent {
     }
 
     destroy() {
-        this.backwardBtn.removeEventListener('click', this.onBackwardClick);
-        this.forwardBtn.removeEventListener('click', this.onForwardClick);
+        if (this.backwardBtn) {
+            this.backwardBtn.removeEventListener('click', this.onBackwardClick);
+        }
+
+        if (this.forwardBtn) {
+            this.forwardBtn.removeEventListener('click', this.onForwardClick);
+        }
 
         if (this.modalElement) {
             this.modalElement.removeEventListener('shown.bs.modal', this.onSetLightboxScrollPosition);

@@ -1,0 +1,39 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    media,
+    mediaHeight = 240,
+    lightIntensity = config('core.media.defaultLightIntensity'),
+    previewMode = false,
+%}
+
+{% set spatialGalleryViewerOptions = {
+    modelUrl: media.url,
+    lightIntensity: config('core.media.defaultLightIntensity'),
+    sliderPosition: 0,
+} %}
+
+{% set defaultAttributes = {
+    class: 'sw-media-spatial',
+    'data-component': 'Sw:Media:Spatial',
+    'data-component-options': spatialGalleryViewerOptions|json_encode,
+} %}
+
+{% if not previewMode %}
+    {% set defaultAttributes = defaultAttributes|merge({
+        style: 'height: 240px;',
+    }) %}
+{% endif %}
+
+<div {{ attributes.defaults(defaultAttributes) }}>
+    {% if previewMode %}
+        <div class="sw-media-spatial__preview-overlay">
+            3D
+        </div>
+    {% else %}
+        {# data-spatial-gallery-slider-viewer="true" #}
+        <canvas></canvas>
+    {% endif %}
+</div>

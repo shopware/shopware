@@ -16,6 +16,7 @@
 {% props
     mediaItems,
     displayMode = 'auto',
+    maxHeight = null,
     thumbnailSize = 70,
     thumbnailNavigationPosition = 'left',
     showNavigationArrows = true,
@@ -62,6 +63,12 @@
     'data-component-options': mediaGalleryOptions|json_encode,
 } %}
 
+{% if displayMode == 'fixedHeight' and maxHeight is not null %}
+    {% set defaultAttributes = defaultAttributes|merge({
+        style: "--sw-media-gallery-max-height: #{maxHeight}px;",
+    }) %}
+{% endif %}
+
 <div {{ attributes.defaults(defaultAttributes) }}>
     {% if mediaItems|length > 1 %}
         <twig:Sw:Media:ThumbnailNav
@@ -92,6 +99,7 @@
                         :title="null"
                         class="sw-media-gallery__preview"
                         :itemprop="useSchemaMarkup ? ('image' ~ (loop.first ? ' primaryImageOfPage' : '')) : null"
+                        :autoplay="true"
                     />
                 </div>
             {% endfor %}

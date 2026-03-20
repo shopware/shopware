@@ -24,6 +24,7 @@
 
 .sw-thumbnail-nav__media {
     display: block;
+    max-height: 100%;
 }
 
 .sw-thumbnail-nav__button {
@@ -38,6 +39,9 @@
     font-size: 0;
     line-height: 0;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:hover,
     &.is--active {

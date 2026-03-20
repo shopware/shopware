@@ -1,6 +1,8 @@
 .sw-media-gallery {
     --sw-media-thumbnail-border-color: var(--bs-gray-300);
     --sw-media-thumbnail-hover-border-color: var(--bs-primary);
+    /* Fallback value for fixed height mode */
+    --sw-media-gallery-max-height: 450px;
 
     display: grid;
     grid-template-columns: max-content 1fr;
@@ -28,6 +30,22 @@
         align-items: center;
         justify-content: center;
         overflow: hidden;
+    }
+
+    .sw-media-gallery__preview {
+        max-height: 100%;
+    }
+}
+
+.sw-media-gallery--display-mode-fixed-height {
+    .sw-media-gallery__previews {
+        max-height: var(--sw-media-gallery-max-height);
+    }
+
+    .sw-media-gallery__preview-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .sw-media-gallery__preview {

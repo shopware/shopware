@@ -56,9 +56,9 @@ class IncrementSqlStorage extends AbstractIncrementStorage
         );
         $lastNumber = $result->fetchOne();
 
-        $start = $config['start'] ?? 1;
+        $start = (int) ($config['start'] ?? 1);
 
-        if (!$lastNumber || (int) $lastNumber < $start) {
+        if ($lastNumber === false || (int) $lastNumber < $start) {
             $nextNumber = $start;
         } else {
             $nextNumber = $lastNumber + 1;

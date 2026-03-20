@@ -120,7 +120,7 @@ jobs:
         working-directory: tests/acceptance
         run: npx playwright test --project=${{ matrix.name }} ${{ matrix.name == 'Install' && '--trace=on' || '' }}
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report-${{ matrix.name }}-php${{ matrix.php-version }}-${{ matrix.accessibility == 'accessibility' && '-accessibility' || '' }}
@@ -378,7 +378,7 @@ jobs:
         working-directory: new-shopware/tests/acceptance
         run: npx playwright test --project=Update --trace=on
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report-update-${{ matrix.update.version }}

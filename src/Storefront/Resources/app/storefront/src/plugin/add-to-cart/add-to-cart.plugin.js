@@ -18,7 +18,9 @@ export default class AddToCartPlugin extends Plugin {
         alertDismissDelay: 3000,
         stockAlertTemplateSelector: '.js-quantity-stock-adjusted-template',
         stockAlertClass: 'quantity-stock-adjusted-alert',
-        buyButtonSelector: 'button[type="submit"]',
+        stockAdjustedText: null,
+        outOfStockText: null,
+        buyButtonSelector: 'button[type="submit"].btn-buy',
     };
 
     init() {
@@ -68,8 +70,8 @@ export default class AddToCartPlugin extends Plugin {
 
     _registerEvents() {
         this.el.addEventListener('submit', this._formSubmit.bind(this));
-        this._form.addEventListener('quantitySelectorStockAdjusted', this._handleStockAdjusted.bind(this));
-        this._form.addEventListener('quantitySelectorOutOfStock', this._handleOutOfStock.bind(this));
+        this._form.addEventListener('QuantitySelector/StockAdjusted', this._handleStockAdjusted.bind(this));
+        this._form.addEventListener('QuantitySelector/OutOfStock', this._handleOutOfStock.bind(this));
     }
 
     /**
@@ -202,7 +204,9 @@ export default class AddToCartPlugin extends Plugin {
      * @private
      */
     _handleStockAdjusted(event) {
-        this._showStockAlert('stockAdjustedText', event.detail.quantity);
+        let text = this.options.stockAdjustedText || '';
+        text = text.replace('%quantity%', event.detail.quantity);
+        this._showStockAlert(text);
     }
 
     /**
@@ -212,7 +216,7 @@ export default class AddToCartPlugin extends Plugin {
      * @private
      */
     _handleOutOfStock() {
-        this._showStockAlert('outOfStockText');
+        this._showStockAlert(this.options.outOfStockText || '');
 
         const buyButton = this._form.querySelector(this.options.buyButtonSelector);
         if (buyButton) {
@@ -221,14 +225,12 @@ export default class AddToCartPlugin extends Plugin {
     }
 
     /**
-     * Render a stock alert from the template element.
-     * The text is read from a data attribute matching the given key.
+     * Render a stock alert by cloning the template and filling in the text.
      *
-     * @param {string} textDataKey - dataset key on the template (e.g. 'stockAdjustedText' or 'outOfStockText')
-     * @param {number|null} quantity - optional quantity to interpolate into the message
+     * @param {string} text
      * @private
      */
-    _showStockAlert(textDataKey, quantity = null) {
+    _showStockAlert(text) {
         const template = this._form.querySelector(this.options.stockAlertTemplateSelector);
 
         if (!template) {
@@ -243,12 +245,8 @@ export default class AddToCartPlugin extends Plugin {
         const alert = template.content.firstElementChild.cloneNode(true);
         alert.classList.add(this.options.stockAlertClass);
 
-        const textEl = alert.querySelector('.js-stock-adjusted-text');
+        const textEl = alert.querySelector('.alert-content-container');
         if (textEl) {
-            let text = template.dataset[textDataKey] || '';
-            if (quantity !== null) {
-                text = text.replace('%quantity%', quantity);
-            }
             textEl.textContent = text;
         }
 

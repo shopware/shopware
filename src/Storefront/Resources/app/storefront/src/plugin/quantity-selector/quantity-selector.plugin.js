@@ -231,7 +231,7 @@ export default class QuantitySelectorPlugin extends Plugin {
 
         if (max <= 0) {
             this._disableControls();
-            this._dispatchFormEvent('quantitySelectorOutOfStock');
+            this._dispatchFormEvent('QuantitySelector/OutOfStock');
             return;
         }
 
@@ -249,7 +249,7 @@ export default class QuantitySelectorPlugin extends Plugin {
         if (steppedValue !== currentValue) {
             this._input.value = steppedValue;
             this._triggerChange();
-            this._dispatchFormEvent('quantitySelectorStockAdjusted', { quantity: steppedValue });
+            this._dispatchFormEvent('QuantitySelector/StockAdjusted', { quantity: steppedValue });
         }
     }
 

@@ -24,7 +24,7 @@ describe('AddToCartPlugin tests', () => {
                     <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
                     <input type="hidden" name="redirectParameters" data-redirect-parameters="true" value="{ productId: '36250993b62e49319546ba869b84da77' }" disabled>
 
-                    <button type="submit">Add to shopping cart</button>
+                    <button type="submit" class="btn-buy">Add to shopping cart</button>
                 </form>
             </div>
             <template class="js-add-to-cart-alert-template">
@@ -239,60 +239,61 @@ describe('AddToCartPlugin tests', () => {
         expect(alert).toBeNull();
     });
 
-    test('shows stock-adjusted alert on quantitySelectorStockAdjusted event', () => {
+    test('shows stock-adjusted alert on QuantitySelector/StockAdjusted event', () => {
         const form = document.querySelector('form');
         form.insertAdjacentHTML('beforeend', `
-            <template class="js-quantity-stock-adjusted-template"
-                      data-stock-adjusted-text="Your quantity has been updated to %quantity%.">
-                <div class="alert alert-warning"><div class="js-stock-adjusted-text"></div></div>
+            <template class="js-quantity-stock-adjusted-template">
+                <div class="alert alert-warning"><div class="alert-content-container"></div></div>
             </template>
         `);
+        pluginInstance.options.stockAdjustedText = 'Your quantity has been updated to %quantity%.';
 
-        form.dispatchEvent(new CustomEvent('quantitySelectorStockAdjusted', { detail: { quantity: 3 } }));
+        form.dispatchEvent(new CustomEvent('QuantitySelector/StockAdjusted', { detail: { quantity: 3 } }));
 
         const alert = document.querySelector('.quantity-stock-adjusted-alert');
         expect(alert).not.toBeNull();
-        expect(alert.querySelector('.js-stock-adjusted-text').textContent).toBe('Your quantity has been updated to 3.');
+        expect(alert.querySelector('.alert-content-container').textContent).toBe('Your quantity has been updated to 3.');
     });
 
-    test('shows out-of-stock alert and disables buy button on quantitySelectorOutOfStock event', () => {
+    test('shows out-of-stock alert and disables buy button on QuantitySelector/OutOfStock event', () => {
         const form = document.querySelector('form');
         form.insertAdjacentHTML('beforeend', `
-            <template class="js-quantity-stock-adjusted-template"
-                      data-stock-adjusted-text="Your quantity has been updated to %quantity%."
-                      data-out-of-stock-text="The product is no longer available.">
-                <div class="alert alert-warning"><div class="js-stock-adjusted-text"></div></div>
+            <template class="js-quantity-stock-adjusted-template">
+                <div class="alert alert-warning"><div class="alert-content-container"></div></div>
             </template>
         `);
+        pluginInstance.options.outOfStockText = 'The product is no longer available.';
 
-        form.dispatchEvent(new CustomEvent('quantitySelectorOutOfStock'));
+        form.dispatchEvent(new CustomEvent('QuantitySelector/OutOfStock'));
 
         const alert = document.querySelector('.quantity-stock-adjusted-alert');
         expect(alert).not.toBeNull();
-        expect(alert.querySelector('.js-stock-adjusted-text').textContent).toBe('The product is no longer available.');
-        expect(form.querySelector('button[type="submit"]').disabled).toBe(true);
+        expect(alert.querySelector('.alert-content-container').textContent).toBe('The product is no longer available.');
+        expect(form.querySelector('button[type="submit"].btn-buy').disabled).toBe(true);
     });
 
     test('replaces existing stock alert when new event fires', () => {
         const form = document.querySelector('form');
         form.insertAdjacentHTML('beforeend', `
-            <template class="js-quantity-stock-adjusted-template"
-                      data-stock-adjusted-text="Your quantity has been updated to %quantity%.">
-                <div class="alert alert-warning"><div class="js-stock-adjusted-text"></div></div>
+            <template class="js-quantity-stock-adjusted-template">
+                <div class="alert alert-warning"><div class="alert-content-container"></div></div>
             </template>
         `);
+        pluginInstance.options.stockAdjustedText = 'Your quantity has been updated to %quantity%.';
 
-        form.dispatchEvent(new CustomEvent('quantitySelectorStockAdjusted', { detail: { quantity: 5 } }));
-        form.dispatchEvent(new CustomEvent('quantitySelectorStockAdjusted', { detail: { quantity: 3 } }));
+        form.dispatchEvent(new CustomEvent('QuantitySelector/StockAdjusted', { detail: { quantity: 5 } }));
+        form.dispatchEvent(new CustomEvent('QuantitySelector/StockAdjusted', { detail: { quantity: 3 } }));
 
         const alerts = document.querySelectorAll('.quantity-stock-adjusted-alert');
         expect(alerts.length).toBe(1);
-        expect(alerts[0].querySelector('.js-stock-adjusted-text').textContent).toBe('Your quantity has been updated to 3.');
+        expect(alerts[0].querySelector('.alert-content-container').textContent).toBe('Your quantity has been updated to 3.');
     });
 
     test('does not show stock alert when stock template is missing', () => {
         const form = document.querySelector('form');
-        form.dispatchEvent(new CustomEvent('quantitySelectorStockAdjusted', { detail: { quantity: 3 } }));
+        pluginInstance.options.stockAdjustedText = 'Your quantity has been updated to %quantity%.';
+
+        form.dispatchEvent(new CustomEvent('QuantitySelector/StockAdjusted', { detail: { quantity: 3 } }));
 
         expect(document.querySelector('.quantity-stock-adjusted-alert')).toBeNull();
     });

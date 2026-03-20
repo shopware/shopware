@@ -237,7 +237,7 @@ describe('QuantitySelectorPlugin tests', () => {
 
         const form = document.querySelector('form');
         const eventSpy = jest.fn();
-        form.addEventListener('quantitySelectorStockAdjusted', eventSpy);
+        form.addEventListener('QuantitySelector/StockAdjusted', eventSpy);
 
         document.querySelector('.js-quantity-selector').dispatchEvent(new Event('focus'));
         await new Promise(process.nextTick);
@@ -254,8 +254,8 @@ describe('QuantitySelectorPlugin tests', () => {
 
         const form = document.querySelector('form');
         const eventSpy = jest.fn();
-        form.addEventListener('quantitySelectorStockAdjusted', eventSpy);
-        form.addEventListener('quantitySelectorOutOfStock', eventSpy);
+        form.addEventListener('QuantitySelector/StockAdjusted', eventSpy);
+        form.addEventListener('QuantitySelector/OutOfStock', eventSpy);
 
         document.querySelector('.js-quantity-selector').dispatchEvent(new Event('focus'));
         await new Promise(process.nextTick);
@@ -270,7 +270,7 @@ describe('QuantitySelectorPlugin tests', () => {
 
         const form = document.querySelector('form');
         const eventSpy = jest.fn();
-        form.addEventListener('quantitySelectorOutOfStock', eventSpy);
+        form.addEventListener('QuantitySelector/OutOfStock', eventSpy);
 
         document.querySelector('.js-quantity-selector').dispatchEvent(new Event('focus'));
         await new Promise(process.nextTick);

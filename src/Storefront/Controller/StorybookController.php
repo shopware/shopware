@@ -40,7 +40,7 @@ class StorybookController extends AbstractController
     }
 
     /**
-     * @phpstan-ignore shopware.routeScope
+     * @phpstan-ignore shopware.routeScope (Not a real Storefront controller, only used in dev envs)
      */
     #[Route(
         path: '/storybook/{component}',

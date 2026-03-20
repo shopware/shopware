@@ -110,6 +110,7 @@ class StorybookService
         $parameters = [];
 
         foreach ($request->query->all() as $key => $value) {
+            // Only allow alphanumeric keys starting with a letter or underscore
             if (!\is_string($key) || !preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $key)) {
                 continue;
             }

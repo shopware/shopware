@@ -439,7 +439,7 @@ The APIs of a component are "Props", "Blocks", "Attributes" and "Slots". Slots a
 </div>
 ```
 
-### Attributes and CVA
+### Attributes and CVA (Class Variance Authority)
 
 * A component should make attributes extendable using the attributes feature of Symfony UX.
 * Attributes must not be hardcoded in the HTML elements.

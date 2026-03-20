@@ -5,9 +5,9 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
-use Shopware\Core\Framework\Util\Filesystem as UtilFilesystem;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
+use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
@@ -863,11 +863,8 @@ class ThemeFileResolverTest extends TestCase
 
         $configCollection = new StorefrontPluginConfigurationCollection([$config]);
 
-        $utilFs = $this->createMock(UtilFilesystem::class);
-        $utilFs->method('has')->willReturn(false);
-
         $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
-        $themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn($utilFs);
+        $themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem([]));
 
         $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
         $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
@@ -889,11 +886,8 @@ class ThemeFileResolverTest extends TestCase
 
         $configCollection = new StorefrontPluginConfigurationCollection([$config]);
 
-        $utilFs = $this->createMock(UtilFilesystem::class);
-        $utilFs->method('has')->willReturn(false);
-
         $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
-        $themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn($utilFs);
+        $themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem([]));
 
         $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
         $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);

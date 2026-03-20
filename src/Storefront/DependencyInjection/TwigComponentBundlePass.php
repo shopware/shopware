@@ -8,6 +8,7 @@ use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Automatically registers Twig component namespaces for all bundles that have a components directory.
@@ -53,7 +54,7 @@ class TwigComponentBundlePass implements CompilerPassInterface
                 continue;
             }
 
-            $componentDir = rtrim($meta['path'] . '/' . TwigComponentHelper::COMPONENT_DIRECTORY, '/');
+            $componentDir = Path::join($meta['path'], TwigComponentHelper::COMPONENT_DIRECTORY);
 
             if (!$this->filesystem->exists($componentDir)) {
                 continue;

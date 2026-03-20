@@ -26,6 +26,7 @@ use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Filesystem as LocalFilesystem;
 
 /**
  * @internal
@@ -703,13 +704,15 @@ SCSS;
         // Create test component JavaScript content
         $componentJs = 'console.log("test component");';
 
-        // Create temp directory structure for the component
+        // Source paths must exist on the real filesystem: ThemeCompiler uses LocalFilesystem
+        // and CopyBatchInput(file path) for component scripts, not the injected Flysystem operators.
+        $localFilesystem = new LocalFilesystem();
         $tempDir = sys_get_temp_dir() . '/test-component-' . uniqid();
-        mkdir($tempDir);
+        $localFilesystem->mkdir($tempDir);
         $tempTemplateFile = $tempDir . '/button.html.twig';
         $tempScriptFile = $tempDir . '/button.js';
-        file_put_contents($tempTemplateFile, '<div>Button</div>');
-        file_put_contents($tempScriptFile, $componentJs);
+        $localFilesystem->dumpFile($tempTemplateFile, '<div>Button</div>');
+        $localFilesystem->dumpFile($tempScriptFile, $componentJs);
 
         // Create real component with script file
         $mockComponent = new TwigComponent(
@@ -768,16 +771,7 @@ SCSS;
             $jsContent = $this->filesystem->read($componentJsPath);
             static::assertStringContainsString('console.log("test component")', $jsContent);
         } finally {
-            // Clean up temp directory
-            if (is_file($tempScriptFile)) {
-                unlink($tempScriptFile);
-            }
-            if (is_file($tempTemplateFile)) {
-                unlink($tempTemplateFile);
-            }
-            if (is_dir($tempDir)) {
-                rmdir($tempDir);
-            }
+            $localFilesystem->remove($tempDir);
         }
     }
 

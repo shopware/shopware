@@ -318,13 +318,14 @@ class ZugferdBuilderTest extends TestCase
     {
         if ($lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {
             $quantity = number_format($lineItem->getQuantity(), 2, '.', '');
+            $basisQuantity = number_format($lineItem->getProduct()?->getPurchaseUnit() ?? 1, 2, '.', '');
             $unitPrice = number_format($lineItem->getUnitPrice() / 1.19, 2, '.', '');
             $totalPrice = number_format($lineItem->getTotalPrice() / 1.19, 2, '.', '');
 
             static::assertStringContainsString("LineID>{$this->getPosition($lineItem)}<", $xmlContent);
             static::assertStringContainsString("Name>{$lineItem->getLabel()}<", $xmlContent);
             static::assertStringContainsString("ChargeAmount>$unitPrice<", $xmlContent);
-            static::assertStringContainsString("BasisQuantity unitCode=\"H87\">$quantity<", $xmlContent);
+            static::assertStringContainsString("BasisQuantity unitCode=\"H87\">$basisQuantity<", $xmlContent);
             static::assertStringContainsString("BilledQuantity unitCode=\"H87\">$quantity<", $xmlContent);
             static::assertStringContainsString("LineTotalAmount>$totalPrice<", $xmlContent);
             static::assertStringContainsString("Name>{$lineItem->getLabel()}<", $xmlContent);

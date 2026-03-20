@@ -1,4 +1,5 @@
 import { test, PropertyGroup, getCurrencyCodeFromLocale, formatPrice } from '@fixtures/AcceptanceTest';
+import {Currency, Product} from "@shopware-ag/acceptance-test-suite";
 
 test(
     'As a customer, I should see the correct listing price and normal price for variant products with differing prices.',
@@ -14,7 +15,7 @@ test(
     }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
 
-        const prices = [
+        const prices: Currency[] = [
             {
                 currencyId: currency.id,
                 gross: 10,
@@ -32,6 +33,17 @@ test(
                 },
             },
         ];
+
+        // if the currency we check in storefront is not the default currency we need to add dummy price for default currency as well
+        // eslint-disable-next-line playwright/no-conditional-in-test
+        if (currency.id !== SalesChannelBaseConfig.defaultCurrencyId) {
+            prices.push({
+                currencyId: SalesChannelBaseConfig.defaultCurrencyId,
+                gross: 10,
+                linked: false,
+                net: 8.4,
+            });
+        }
 
         const parentProduct = await TestDataService.createBasicProduct({
             price: prices,

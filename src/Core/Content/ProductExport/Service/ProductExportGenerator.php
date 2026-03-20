@@ -267,7 +267,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         try {
             $decoded = json_decode($renderedBody, true, 512, \JSON_THROW_ON_ERROR);
 
-            return (string) json_encode($decoded, \JSON_THROW_ON_ERROR);
+            return (string) json_encode($decoded, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES);
         } catch (\JsonException $exception) {
             throw ProductExportException::renderProductException(
                 'The JSONL row for product export "' . $productExport->getId() . '" could not be normalized: ' . $exception->getMessage()

@@ -100,11 +100,14 @@
             <argument type="tagged_iterator" tag="shopware.product_export.validator"/>
         </service>
 
+        <service id="Shopware\Core\Content\ProductExport\Validator\JsonlRowParser"/>
+
         <service id="Shopware\Core\Content\ProductExport\Validator\XmlValidator">
             <tag name="shopware.product_export.validator"/>
         </service>
 
-        <service id="Shopware\Core\Content\ProductExport\Validator\JsonlValidator">
+        <service id="Shopware\Core\Content\ProductExport\Validator\OpenAiProductExportValidator">
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Validator\JsonlRowParser"/>
             <tag name="shopware.product_export.validator"/>
         </service>
 

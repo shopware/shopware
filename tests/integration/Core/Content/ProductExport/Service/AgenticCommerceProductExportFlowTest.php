@@ -100,7 +100,7 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         static::assertSame('10.99 EUR', $exportedProduct['price']);
         static::assertSame('in_stock', $exportedProduct['availability']);
         static::assertSame('ACME', $exportedProduct['brand']);
-        static::assertSame('new', $exportedProduct['condition']);
+        static::assertArrayNotHasKey('condition', $exportedProduct);
         static::assertSame($product['id'], $exportedProduct['group_id']);
         static::assertFalse($exportedProduct['listing_has_variations']);
         static::assertSame('OpenAI Feed Product', $exportedProduct['item_group_title']);

@@ -36,7 +36,6 @@
     'price': (regularPriceValue|number_format(context.currency.itemRounding.decimals, '.', '')) ~ ' ' ~ context.currency.isoCode,
     'availability': product.available ? 'in_stock' : (product.restockTime ? 'backorder' : 'out_of_stock'),
     'brand': (product.manufacturer is defined and product.manufacturer) ? product.manufacturer.translated.name : provider.sellerName,
-    'condition': 'new',
     'group_id': product.parentId ? product.parentId : product.id,
     'listing_has_variations': product.parentId or product.childCount > 0,
     'seller_name': provider.sellerName,
@@ -66,5 +65,5 @@
        custom_variant2_category/custom_variant2_option,
        custom_variant3_category/custom_variant3_option
     #}
-{{ feedRow|json_encode|raw }}
+{{ feedRow|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }}
 {% endif %}

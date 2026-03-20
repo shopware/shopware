@@ -396,6 +396,12 @@ function refreshTokenInterceptor(client) {
             }
 
             if (status === 401) {
+                if (error.response?.data?.errors?.[0]?.code === 'SSO_LOGIN__TOKEN_NOT_FOUND') {
+                    // 401 errors because of SSO errors won't be fixed by obtaining a new token,
+                    // so we should reject immediately to avoid infinite loops of retrying original request & token refresh attempts
+                    return Promise.reject(error);
+                }
+
                 const loginService = Shopware.Service('loginService');
 
                 // Intentionally ignore refresh token errors here; they are handled via subscribeToTokenRefresh.

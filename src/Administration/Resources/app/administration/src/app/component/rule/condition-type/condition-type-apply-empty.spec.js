@@ -4,7 +4,6 @@
  */
 import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
-// eslint-disable-next-line
 import path from 'path';
 
 const conditionTypesRootPath = 'src/app/component/rule/condition-type/';

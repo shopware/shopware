@@ -25,7 +25,6 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -139,7 +138,6 @@ export default {
         },
 
         'product.id': {
-            // eslint-disable-next-line func-names
             handler: function (value) {
                 if (!value) {
                     return;

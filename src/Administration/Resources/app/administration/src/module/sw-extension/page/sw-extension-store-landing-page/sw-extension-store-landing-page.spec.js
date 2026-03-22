@@ -34,14 +34,11 @@ async function createWrapper() {
  */
 describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
     beforeAll(() => {
-        delete window.location;
-        window.location = { reload: jest.fn() };
         Shopware.Utils.debug.error = jest.fn();
     });
 
     beforeEach(async () => {
         successfulActivation = true;
-        window.location.reload.mockClear();
         Shopware.Utils.debug.error.mockClear();
     });
 
@@ -54,7 +51,7 @@ describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
     it('should go through a successful activation', async () => {
         const wrapper = await createWrapper();
 
-        expect(window.location.reload).not.toHaveBeenCalled();
+        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
 
         // trigger activation
         const activationButton = wrapper.find('.sw-extension-store-landing-page__activate_button');
@@ -65,7 +62,7 @@ describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
         expect(loadingWrapper.isVisible()).toBe(true);
 
         // expect reload on success
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(wrapper.vm._reloadPage).toHaveBeenCalled();
 
         // wait for rerender
         await wrapper.vm.$nextTick();
@@ -81,7 +78,7 @@ describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
 
         successfulActivation = false;
 
-        expect(window.location.reload).not.toHaveBeenCalled();
+        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
 
         // trigger activation
         const activationButton = wrapper.find('.sw-extension-store-landing-page__activate_button');
@@ -92,7 +89,7 @@ describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
         expect(loadingWrapper.isVisible()).toBe(true);
 
         // expect no reload on failure
-        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(wrapper.vm._reloadPage).not.toHaveBeenCalled();
 
         // wait for rerender
         await wrapper.vm.$nextTick();

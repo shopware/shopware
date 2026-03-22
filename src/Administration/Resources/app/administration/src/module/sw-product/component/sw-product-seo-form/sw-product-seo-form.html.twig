@@ -170,6 +170,7 @@
                     :allow-multi-select="false"
                     :disabled="props.isInherited || !allowEdit"
                     :caption="$tc('sw-product.seoForm.labelOpenGraphImage')"
+                    file-accept="image/*"
                     @media-upload-sidebar-open="onOpenOgMediaModal"
                     @media-upload-remove-image="onRemoveOgMedia(props.updateCurrentValue)"
                 />

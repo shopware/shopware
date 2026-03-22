@@ -24,9 +24,17 @@ class Migration1773500000AddProductOpenGraphFieldsTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testCreationTimestamp(): void
+    {
+        $migration = new Migration1773500000AddProductOpenGraphFields();
+
+        static::assertSame(1773500000, $migration->getCreationTimestamp());
+    }
+
     public function testColumnsAndForeignKeyAreCreated(): void
     {
         $migration = new Migration1773500000AddProductOpenGraphFields();
+        $migration->update($this->connection);
         $migration->update($this->connection);
 
         static::assertTrue(TableHelper::columnExists($this->connection, 'product', 'open_graph_media_id'));
@@ -35,15 +43,21 @@ class Migration1773500000AddProductOpenGraphFieldsTest extends TestCase
         static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'fk.product.open_graph_media_id'));
     }
 
-    public function testMigrationIsIdempotent(): void
+    public function testForeignKeyIsCreatedWhenMissing(): void
     {
         $migration = new Migration1773500000AddProductOpenGraphFields();
         $migration->update($this->connection);
+
+        if (TableHelper::foreignKeyExists($this->connection, 'product', 'fk.product.open_graph_media_id')) {
+            $this->connection->executeStatement('ALTER TABLE `product` DROP FOREIGN KEY `fk.product.open_graph_media_id`');
+        }
+
+        if (TableHelper::indexExists($this->connection, 'product', 'fk.product.open_graph_media_id')) {
+            $this->connection->executeStatement('ALTER TABLE `product` DROP INDEX `fk.product.open_graph_media_id`');
+        }
+
         $migration->update($this->connection);
 
-        static::assertTrue(TableHelper::columnExists($this->connection, 'product', 'open_graph_media_id'));
-        static::assertTrue(TableHelper::columnExists($this->connection, 'product_translation', 'og_title'));
-        static::assertTrue(TableHelper::columnExists($this->connection, 'product_translation', 'og_description'));
         static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'fk.product.open_graph_media_id'));
     }
 }

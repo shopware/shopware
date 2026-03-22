@@ -40,6 +40,7 @@ export default {
             selectValue: null,
             showOgMediaModal: false,
             openGraphMediaItem: null,
+            openGraphMediaUploadTag: `sw-product-seo-form-og-image-${createId().substring(0, 8)}`,
         };
     },
 
@@ -109,10 +110,6 @@ export default {
 
         mediaRepository() {
             return this.repositoryFactory.create('media');
-        },
-
-        openGraphMediaUploadTag() {
-            return `sw-product-seo-form-og-image-${createId().substring(0, 8)}`;
         },
 
         ...mapPropertyErrors('product', [

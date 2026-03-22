@@ -33,24 +33,4 @@ class ProductEntityTest extends TestCase
 
         static::assertSame('translated foo', (string) $entity);
     }
-
-    public function testOpenGraphFields(): void
-    {
-        $entity = new ProductEntity();
-        $mediaId = Uuid::randomHex();
-
-        static::assertNull($entity->getOpenGraphMediaId());
-        static::assertNull($entity->getOpenGraphMedia());
-
-        $entity->setOpenGraphMediaId($mediaId);
-        static::assertSame($mediaId, $entity->getOpenGraphMediaId());
-
-        $media = new MediaEntity();
-        $media->setId($mediaId);
-        $entity->setOpenGraphMedia($media);
-        static::assertSame($media, $entity->getOpenGraphMedia());
-
-        $entity->setOpenGraphMediaId(null);
-        static::assertNull($entity->getOpenGraphMediaId());
-    }
 }

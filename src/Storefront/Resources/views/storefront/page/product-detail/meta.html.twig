@@ -17,8 +17,8 @@
     <meta property="og:description"
           content="{{ ogDescription }}">
 
-    {% if ogMedia %}
-        <meta property="og:{{ ogMedia.getMediaType().getName() === 'VIDEO' ? 'video' : 'image' }}"
+    {% if ogMedia.url is defined %}
+        <meta property="og:image"
               content="{{ ogMedia.url }}">
     {% endif %}
 

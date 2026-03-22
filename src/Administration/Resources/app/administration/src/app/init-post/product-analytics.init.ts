@@ -33,11 +33,14 @@ export default async function (): Promise<WatchHandle | undefined> {
 
     const gatewayClient = new GatewayClient(analyticsGatewayUrl, amplitudeAdapter);
 
-    const pushConsentEventToAmplitude = createConsentEventHandler(gatewayClient);
+    const consentEventHandler = createConsentEventHandler(gatewayClient);
 
     // eslint-disable-next-line listeners/no-missing-remove-event-listener
-    Shopware.Utils.EventBus.on('consent', pushConsentEventToAmplitude);
+    Shopware.Utils.EventBus.on('consent', consentEventHandler);
 
+    /*
+     * initialize product analytics
+     */
     const consentStore = useConsentStore();
     const isTelemetryConsentAccepted = computed((): boolean => {
         try {
@@ -47,9 +50,6 @@ export default async function (): Promise<WatchHandle | undefined> {
         }
     });
 
-    /*
-     * initialize product analytics
-     */
     amplitudeAdapter.setOptOut(true);
     registerAmplitudeLogoutListener(amplitudeAdapter, analyticsGatewayUrl);
 

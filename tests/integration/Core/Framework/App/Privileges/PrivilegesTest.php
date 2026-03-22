@@ -388,8 +388,8 @@ class PrivilegesTest extends TestCase
 
         static::assertCount(1, $privileges);
 
-        static::assertSame($expectedPrivileges, json_decode($privileges[0]['privileges'], true, 512, \JSON_THROW_ON_ERROR));
-        static::assertSame($expectedRequestedPrivileges, json_decode($privileges[0]['requested_privileges'], true, 512, \JSON_THROW_ON_ERROR));
+        static::assertSame($expectedPrivileges, json_decode($privileges[0]['privileges'], true, flags: \JSON_THROW_ON_ERROR));
+        static::assertSame($expectedRequestedPrivileges, json_decode($privileges[0]['requested_privileges'], true, flags: \JSON_THROW_ON_ERROR));
     }
 
     private function createApp(string $name = 'TestApp'): string

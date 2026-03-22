@@ -1,6 +1,6 @@
 import { amplitudePluginShopwareProperties } from './amplitude-plugin-shopware-properties';
 
-describe('src/core/telemetry/product-analytics', () => {
+describe('src/core/telemetry/product-analytics/amplitude-plugin-shopware-properties', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         Shopware.Store.get('context').app.config.version = '6.7.0.0';

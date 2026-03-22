@@ -1,5 +1,4 @@
 import { AmplitudeAdapter } from './amplitude-adapter';
-import { CookieStorage } from 'cookie-storage';
 jest.mock('@amplitude/analytics-browser', () => ({
     createInstance: jest.fn().mockReturnValue({
         add: jest.fn(),
@@ -16,12 +15,6 @@ jest.mock('@amplitude/analytics-browser', () => ({
 }));
 
 describe('src/core/telemetry/product-analytics/amplitude-adapter', () => {
-    const cookieStorage = new CookieStorage({
-        path: '/',
-        domain: null,
-        secure: false,
-        sameSite: 'Lax',
-    });
     let mockInstance;
 
     beforeEach(async () => {
@@ -38,7 +31,7 @@ describe('src/core/telemetry/product-analytics/amplitude-adapter', () => {
     });
 
     it('initializes amplitude instance only once and passes serverUrl and appVersion', () => {
-        const adapter = new AmplitudeAdapter('https://my.server', 'en', '/base', cookieStorage);
+        const adapter = new AmplitudeAdapter('https://my.server', 'en');
 
         adapter.init();
         adapter.init(); // second call should be no-op
@@ -62,7 +55,7 @@ describe('src/core/telemetry/product-analytics/amplitude-adapter', () => {
     });
 
     it('identifies and returns user id', () => {
-        const adapter = new AmplitudeAdapter('https://s', 'en', '/', cookieStorage);
+        const adapter = new AmplitudeAdapter('https://s', 'en');
 
         adapter.identify('user-123');
         expect(mockInstance.setUserId).toHaveBeenCalledWith('user-123');
@@ -75,7 +68,7 @@ describe('src/core/telemetry/product-analytics/amplitude-adapter', () => {
     });
 
     it('forwards track and other controls to amplitude instance', () => {
-        const adapter = new AmplitudeAdapter('https://s', 'en', '/', cookieStorage);
+        const adapter = new AmplitudeAdapter('https://s', 'en');
 
         adapter.reset();
         expect(mockInstance.reset).toHaveBeenCalled();
@@ -91,7 +84,7 @@ describe('src/core/telemetry/product-analytics/amplitude-adapter', () => {
     });
 
     it('tracks events only when initialized', () => {
-        const adapter = new AmplitudeAdapter('https://s', 'en', '/', cookieStorage);
+        const adapter = new AmplitudeAdapter('https://s', 'en');
 
         adapter.track('evt', { a: 1 });
         expect(mockInstance.track).not.toHaveBeenCalled();
@@ -107,14 +100,12 @@ describe('src/core/telemetry/product-analytics/amplitude-adapter', () => {
         document.cookie = 'AMP_MKTG_placeholde=test-value';
         document.cookie = 'other-cookie=test-value';
 
-        const adapter = new AmplitudeAdapter('https://s', 'en', '/', cookieStorage);
+        const adapter = new AmplitudeAdapter('https://s', 'en');
 
         adapter.clearStorage();
 
         expect(document.cookie).not.toContain('AMP_placeholde=');
         expect(document.cookie).not.toContain('AMP_MKTG_placeholde=');
         expect(document.cookie).toContain('other-cookie=test-value');
-
-        adapter.clearStorage();
     });
 });

@@ -1,4 +1,3 @@
-import { CookieStorage } from 'cookie-storage';
 import useConsentStore from 'src/core/consent/consent.store';
 import consentEventHandler from 'src/core/telemetry/product-analytics/consent-event-handler';
 import telemetryEventHandler from 'src/core/telemetry/product-analytics/telemetry-event-handler';
@@ -37,16 +36,8 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
 
     beforeAll(() => {
         Shopware.Service().register('loginService', () => {
-            const storage = new CookieStorage({
-                path: '/',
-                domain: null,
-                secure: false,
-                sameSite: 'Lax',
-            });
-
             return {
                 addOnLogoutListener: jest.fn(),
-                getStorage: jest.fn(() => storage),
             };
         });
     });

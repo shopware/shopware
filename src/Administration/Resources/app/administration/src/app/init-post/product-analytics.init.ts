@@ -22,14 +22,8 @@ export default async function (): Promise<WatchHandle | undefined> {
     /*
      * register consent event handler
      */
-    const basePath = Shopware.Store.get('context').api.basePath ?? '';
 
-    const amplitudeAdapter = new AmplitudeAdapter(
-        analyticsGatewayUrl,
-        await getDefaultLanguageName(),
-        basePath,
-        Shopware.Service('loginService').getStorage(),
-    );
+    const amplitudeAdapter = new AmplitudeAdapter(analyticsGatewayUrl, await getDefaultLanguageName());
 
     const gatewayClient = new GatewayClient(analyticsGatewayUrl, amplitudeAdapter);
 
@@ -89,7 +83,7 @@ function deleteUser(client: GatewayClient) {
     const shopId = Shopware.Store.get('context').app.config.shopId;
     const userId = Shopware.Store.get('session').currentUser?.id ?? null;
 
-    if (userId !== null && shopId !== null) {
+    if (typeof shopId === 'string' && typeof userId === 'string') {
         client.deleteUser(shopId, userId);
     }
 }

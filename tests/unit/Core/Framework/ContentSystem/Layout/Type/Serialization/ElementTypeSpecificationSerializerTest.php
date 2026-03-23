@@ -212,6 +212,33 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         static::assertSame([], $dto->slots);
     }
 
+    #[TestDox('includes enum, default, adminUI in normalized property and allowList in normalized slot')]
+    public function testNormalizesOptionalPropertyAndSlotFields(): void
+    {
+        $dto = new ElementTypeSpecificationDto(
+            'Sw:Content:Text',
+            'Text',
+            'Text.',
+            'shopware AG',
+            null,
+            null,
+            new CopilotSpecificationDto('', []),
+            [
+                'layout' => new PropertySpecificationDto('layout', 'string', false, false, 'Layout', 'Variant.', ['box', 'list'], 'box', ['component' => 'select']),
+            ],
+            [
+                new SlotSpecificationDto('media', null, ['Sw:Media:Image'], ''),
+            ],
+        );
+
+        $normalized = $this->serializer->normalize($dto);
+
+        static::assertSame(['box', 'list'], $normalized['properties']['layout']['enum']);
+        static::assertSame('box', $normalized['properties']['layout']['default']);
+        static::assertSame(['component' => 'select'], $normalized['properties']['layout']['adminUI']);
+        static::assertSame(['Sw:Media:Image'], $normalized['slots'][0]['allowList']);
+    }
+
     #[TestDox('omits optional fields from normalized output when values are defaults')]
     public function testOmitsDefaultValuesFromNormalizedOutput(): void
     {

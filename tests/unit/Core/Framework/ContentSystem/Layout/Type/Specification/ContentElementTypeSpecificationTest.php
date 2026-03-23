@@ -17,6 +17,14 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecific
 #[CoversClass(ContentElementTypeSpecification::class)]
 class ContentElementTypeSpecificationTest extends TestCase
 {
+    #[TestDox('returns element type name')]
+    public function testNameReturnsTypeName(): void
+    {
+        $spec = $this->createSpecification('card', 'commerce');
+
+        static::assertSame('Sw:Product:Card', $spec->name());
+    }
+
     #[TestDox('includes all top-level scalar fields in schema')]
     public function testToSchemaIncludesTopLevelScalarFields(): void
     {

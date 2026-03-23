@@ -7,8 +7,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\PropertySpecificationDto;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ValidPropertyConstraints;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ValidPropertyConstraintsValidator;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -67,6 +71,29 @@ class ValidPropertyConstraintsValidatorTest extends TestCase
             new PropertySpecificationDto('layout', 'string', false, false, 'Layout', 'Layout.', ['a' => 'b'], null, null), // @phpstan-ignore argument.type (intentionally invalid: associative array instead of list)
             'enum',
         ];
+    }
+
+    #[TestDox('throws UnexpectedTypeException when constraint type is wrong')]
+    public function testThrowsOnWrongConstraintType(): void
+    {
+        $validator = new ValidPropertyConstraintsValidator();
+        $validator->initialize(static::createStub(ExecutionContextInterface::class));
+
+        $this->expectException(UnexpectedTypeException::class);
+        $validator->validate(
+            new PropertySpecificationDto('x', 'string', false, false, 'X', 'X.', null, null, null),
+            new NotBlank(),
+        );
+    }
+
+    #[TestDox('throws UnexpectedTypeException when value type is wrong')]
+    public function testThrowsOnWrongValueType(): void
+    {
+        $validator = new ValidPropertyConstraintsValidator();
+        $validator->initialize(static::createStub(ExecutionContextInterface::class));
+
+        $this->expectException(UnexpectedTypeException::class);
+        $validator->validate('not-a-dto', new ValidPropertyConstraints());
     }
 
     private function validate(PropertySpecificationDto $dto): ConstraintViolationListInterface

@@ -1,15 +1,13 @@
 /**
- * @sw-package framework
+ * @sw-package data-services
  */
-import type * as AmplitudeClient from '@amplitude/analytics-browser';
-
-type AmplitudeModule = typeof AmplitudeClient;
+import type { Plugin } from '@amplitude/analytics-core';
 
 /**
  * @private
  */
-export function addDefaultShopwarePropertiesPlugin(amplitude: AmplitudeModule, defaultLanguageName: string): void {
-    amplitude.add({
+export function amplitudePluginShopwareProperties(defaultLanguageName: string): Plugin {
+    return {
         name: 'DefaultShopwareProperties',
         execute: (amplitudeEvent) => {
             const route = Shopware.Application.view?.router?.currentRoute
@@ -37,20 +35,5 @@ export function addDefaultShopwarePropertiesPlugin(amplitude: AmplitudeModule, d
 
             return Promise.resolve(amplitudeEvent);
         },
-    });
-}
-
-/**
- * @private
- */
-export async function getDefaultLanguageName(): Promise<string> {
-    const languageRepository = Shopware.Service('repositoryFactory').create('language');
-
-    try {
-        const defaultLanguage = await languageRepository.get(Shopware.Context.api.systemLanguageId!);
-
-        return defaultLanguage!.name;
-    } catch {
-        return 'N/A';
-    }
+    };
 }

@@ -9,14 +9,14 @@ import initLanguage from './language.init';
 import initWorker from './worker.init';
 import initUsageData from './usage-data.init';
 import initTelemetry from './telemetry.init';
-import initAmplitude from './amplitude.init';
+import initProductAnalytics from './product-analytics.init';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     language: initLanguage,
     userInformation: initUserInformation,
     worker: initWorker,
-    productAnalytics: initTelemetry,
-    amplitude: initAmplitude,
+    telemetry: initTelemetry,
+    productAnalytics: initProductAnalytics,
     usageData: initUsageData,
 };

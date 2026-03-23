@@ -6,8 +6,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\NumberRange\Exception\NoConfigurationException;
 use Shopware\Core\System\NumberRange\NumberRangeEvents;
+use Shopware\Core\System\NumberRange\NumberRangeException;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -77,12 +77,12 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
     }
 
     /**
-     * @return array{id: string, pattern: string, start: ?int}
+     * @return array{id: string, pattern: string, start: int}
      */
     private function getConfiguration(string $definition, ?string $salesChannelId): array
     {
         if ($salesChannelId) {
-            /** @var array{id: string, pattern: string, start: ?int}|false $config */
+            /** @var array{id: string, pattern: string, start: int}|false $config */
             $config = $this->connection->fetchAssociative('
                 SELECT LOWER(HEX(`number_range`.`id`)) AS `id`, `number_range`.`pattern`, `number_range`.`start`
                 FROM number_range
@@ -94,7 +94,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
                 ORDER BY number_range.global ASC, number_range_type.global ASC
             ', ['typeName' => $definition, 'salesChannelId' => Uuid::fromHexToBytes($salesChannelId)]);
         } else {
-            /** @var array{id: string, pattern: string, start: ?int}|false $config */
+            /** @var array{id: string, pattern: string, start: int}|false $config */
             $config = $this->connection->fetchAssociative('
                 SELECT LOWER(HEX(`number_range`.`id`)) AS `id`, `number_range`.`pattern`, `number_range`.`start`
                 FROM number_range
@@ -105,12 +105,10 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         }
 
         if (!$config) {
-            throw new NoConfigurationException($definition, $salesChannelId);
+            throw NumberRangeException::noConfigurationForEntity($definition, $salesChannelId);
         }
 
-        if ($config['start']) {
-            $config['start'] = (int) $config['start'];
-        }
+        $config['start'] = (int) $config['start'];
 
         return $config;
     }

@@ -536,7 +536,7 @@ Instead of using the `link` property of the `manufacturer` entity directly, the 
 
 The increment-based message queue statistics system (displayed indexing progress notifications in the Administration) has been removed.
 
-### Removed deprecated `TemplateGroup` class
+## Removed deprecated `TemplateGroup` class
 
 The deprecated class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been removed.
 
@@ -556,6 +556,12 @@ shopware:
         increment_name:
           type: 'mysql'
 ```
+
+### Changed Exception Classes towards domain exceptions
+
+The following exception classes were removed and replaced by domain exceptions:
+* `\Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException` -> `\Shopware\Core\System\NumberRange\Exception\NumberRangeException::incrementStorageNotFound()`
+* `\Shopware\Core\System\NumberRange\Exception\NoConfigurationException` -> `\Shopware\Core\System\NumberRange\NumberRangeException::noConfigurationForEntity()`
 
 </details>
 

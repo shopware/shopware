@@ -56,11 +56,8 @@ export default Shopware.Component.wrapComponentConfig({
             try {
                 if (newValue) {
                     await consentStore.accept('backend_data');
-                    dispatchConsentEvent('consent_option_changed', { option: 'backend_data', state: 'enabled' });
                 } else {
                     await consentStore.revoke('backend_data');
-                    dispatchConsentEvent('consent_option_changed', { option: 'backend_data', state: 'disabled' });
-                    dispatchConsentEvent('consent_revoked', { accepted_options: [], declined_options: ['backend_data'] });
                 }
             } catch {
                 Shopware.Store.get('notification').createNotification({

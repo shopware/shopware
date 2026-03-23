@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
+use horstoeko\zugferd\codelists\ZugferdInvoiceType;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
@@ -115,7 +116,12 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         $operation->setOrderVersionId($this->orderRepository->createVersion($order->getId(), $context, 'document'));
 
         try {
-            $content = $this->documentBuilder->buildDocument($order, $config, $context);
+            $content = $this->documentBuilder->buildDocumentWithType(
+                $order,
+                $config,
+                $context,
+                ZugferdInvoiceType::INVOICE,
+            );
 
             $renderResult->addSuccess(
                 $order->getId(),

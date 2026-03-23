@@ -52,7 +52,7 @@ class SearchKeywordUpdater implements ResetInterface
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $productRepository,
         private readonly ProductSearchKeywordAnalyzerInterface $analyzer,
-        private readonly bool $indexingEnabled = true,
+        private readonly bool $searchKeywordIndexingEnabled = true,
     ) {
     }
 
@@ -61,7 +61,7 @@ class SearchKeywordUpdater implements ResetInterface
      */
     public function update(array $ids, Context $context): void
     {
-        if (!$this->indexingEnabled) {
+        if (!$this->searchKeywordIndexingEnabled) {
             return;
         }
 

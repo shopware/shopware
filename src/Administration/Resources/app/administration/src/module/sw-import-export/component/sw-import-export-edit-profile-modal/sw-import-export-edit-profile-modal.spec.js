@@ -72,7 +72,7 @@ async function createWrapper(
                     'sw-modal': await wrapTestComponent('sw-modal'),
                     'sw-import-export-edit-profile-general': true,
                     'sw-import-export-edit-profile-field-indicators': true,
-                    'sw-import-exp()ort-edit-profile-import-settings': true,
+                    'sw-import-export-edit-profile-import-settings': true,
                     'sw-import-export-edit-profile-modal-mapping': true,
                     'sw-import-export-edit-profile-modal-identifiers': true,
                 },

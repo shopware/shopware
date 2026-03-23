@@ -765,5 +765,38 @@
 
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\Framework\App\Url\AppUrlVerifier">
+            <argument>%kernel.environment%</argument>
+            <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="cache.app"/>
+            <argument type="service" id="Symfony\Contracts\HttpClient\HttpClientInterface"/>
+            <argument type="service" id="lock.factory"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Url\AppUrlVerificationPrinter">
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\AppUrlVerificationStatusCommand">
+            <argument type="service" id="Shopware\Core\Framework\App\Url\AppUrlVerifier"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Url\AppUrlVerificationPrinter"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\AppUrlVerifyCommand">
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Url\AppUrlVerifier"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Url\AppUrlVerificationPrinter"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Api\VerifyShopController" public="true">
+            <argument type="service" id="shopware.rate_limiter"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Url\AppUrlVerifier"/>
+        </service>
     </services>
 </container>

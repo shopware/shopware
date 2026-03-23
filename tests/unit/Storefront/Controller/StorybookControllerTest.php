@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\StorybookController;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
@@ -23,6 +24,8 @@ use Twig\TemplateWrapper;
 #[CoversClass(StorybookController::class)]
 class StorybookControllerTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     private const STORYBOOK_ORIGIN = 'http://localhost:6006';
 
     private StorybookTwigEnvironment $twig;
@@ -206,46 +209,37 @@ class StorybookControllerTest extends TestCase
     public function testStorybookUsesCustomDomainFromEnvVariable(): void
     {
         $customDomain = 'http://my-dev-store.example.com:6006';
-        $_SERVER['STORYBOOK_DOMAIN'] = $customDomain;
+        $this->setEnvVars(['STORYBOOK_DOMAIN' => $customDomain]);
 
-        try {
-            $salesChannelContext = Generator::generateSalesChannelContext();
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
-            $this->twigComponentHelper->method('getComponents')
-                ->willReturn($this->createCollectionWithComponent('my-button'));
+        $this->twigComponentHelper->method('getComponents')
+            ->willReturn($this->createCollectionWithComponent('my-button'));
 
-            $this->storybookService->method('createSalesChannelContext')
-                ->willReturn($salesChannelContext);
+        $this->storybookService->method('createSalesChannelContext')
+            ->willReturn($salesChannelContext);
 
-            $this->storybookService->method('getThemeId')->willReturn(null);
-            $this->storybookService->method('resolveComponentProps')->willReturn([]);
+        $this->storybookService->method('getThemeId')->willReturn(null);
+        $this->storybookService->method('resolveComponentProps')->willReturn([]);
 
-            $request = new Request();
-            $request->headers->set('Origin', $customDomain);
+        $request = new Request();
+        $request->headers->set('Origin', $customDomain);
 
-            $response = $this->createController('dev')->storybook('my-button', $request);
+        $response = $this->createController('dev')->storybook('my-button', $request);
 
-            static::assertSame(200, $response->getStatusCode());
-            static::assertSame($customDomain, $response->headers->get('Access-Control-Allow-Origin'));
-        } finally {
-            unset($_SERVER['STORYBOOK_DOMAIN']);
-        }
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame($customDomain, $response->headers->get('Access-Control-Allow-Origin'));
     }
 
     public function testStorybookRejectsRequestWhenOriginDoesNotMatchCustomDomain(): void
     {
-        $customDomain = 'http://my-dev-store.example.com:6006';
-        $_SERVER['STORYBOOK_DOMAIN'] = $customDomain;
+        $this->setEnvVars(['STORYBOOK_DOMAIN' => 'http://my-dev-store.example.com:6006']);
 
-        try {
-            $controller = $this->createController('dev');
+        $controller = $this->createController('dev');
 
-            $this->expectException(NotFoundHttpException::class);
+        $this->expectException(NotFoundHttpException::class);
 
-            $controller->storybook('my-button', $this->createStorybookRequest());
-        } finally {
-            unset($_SERVER['STORYBOOK_DOMAIN']);
-        }
+        $controller->storybook('my-button', $this->createStorybookRequest());
     }
 
     private function createStorybookRequest(): Request

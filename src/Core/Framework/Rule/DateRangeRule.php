@@ -52,31 +52,29 @@ class DateRangeRule extends Rule
         if (\is_string($this->toDate) || \is_string($this->fromDate) || \is_string($this->timezone)) {
             throw RuleException::invalidDateRangeUsage('fromDate, toDate and timezone cannot be a string at this point');
         }
-        $toDate = $this->toDate;
+
         $fromDate = $this->fromDate;
+        $toDate = $this->toDate;
         $timezone = $this->timezone;
-        $now = $scope->getCurrentTime();
+        $now = new \DateTime($scope->getCurrentTime()->format('Y-m-d H:i:s'), $timezone);
 
-        if ($timezone) {
-            if ($fromDate) {
-                $fromDate = new \DateTime($fromDate->format('Y-m-d H:i:s'), $timezone);
-            }
-            if ($toDate) {
-                $toDate = new \DateTime($toDate->format('Y-m-d H:i:s'), $timezone);
+        if ($fromDate instanceof \DateTimeInterface) {
+            $fromDate = new \DateTime($fromDate->format('Y-m-d H:i:s'), $timezone);
+
+            if (!$this->useTime) {
+                $fromDate
+                    ->setTime(0, 0);
             }
         }
 
-        if (!$this->useTime && $fromDate) {
-            $fromDate = (new \DateTime())
-                ->setTimestamp($fromDate->getTimestamp())
-                ->setTime(0, 0);
-        }
+        if ($toDate instanceof \DateTimeInterface) {
+            $toDate = new \DateTime($toDate->format('Y-m-d H:i:s'), $timezone);
 
-        if (!$this->useTime && $toDate) {
-            $toDate = (new \DateTime())
-                ->setTimestamp($toDate->getTimestamp())
-                ->add(new \DateInterval('P1D'))
-                ->setTime(0, 0);
+            if (!$this->useTime) {
+                $toDate
+                    ->add(new \DateInterval('P1D'))
+                    ->setTime(0, 0);
+            }
         }
 
         if ($fromDate && $fromDate > $now) {

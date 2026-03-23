@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -55,7 +56,9 @@ class StorybookController extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        if ($request->headers->get('Origin') !== 'http://localhost:6006') {
+        $storybookDomain = (string) EnvironmentHelper::getVariable('STORYBOOK_DOMAIN', 'http://localhost:6006');
+
+        if ($request->headers->get('Origin') !== $storybookDomain) {
             throw new NotFoundHttpException();
         }
 
@@ -93,7 +96,7 @@ class StorybookController extends AbstractController
             );
         }
 
-        $response->headers->set('Access-Control-Allow-Origin', 'http://localhost:6006');
+        $response->headers->set('Access-Control-Allow-Origin', $storybookDomain);
 
         return $response;
     }

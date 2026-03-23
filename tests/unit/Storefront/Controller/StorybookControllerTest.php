@@ -203,6 +203,51 @@ class StorybookControllerTest extends TestCase
         static::assertSame($expectedProps, $capturedProps);
     }
 
+    public function testStorybookUsesCustomDomainFromEnvVariable(): void
+    {
+        $customDomain = 'http://my-dev-store.example.com:6006';
+        $_SERVER['STORYBOOK_DOMAIN'] = $customDomain;
+
+        try {
+            $salesChannelContext = Generator::generateSalesChannelContext();
+
+            $this->twigComponentHelper->method('getComponents')
+                ->willReturn($this->createCollectionWithComponent('my-button'));
+
+            $this->storybookService->method('createSalesChannelContext')
+                ->willReturn($salesChannelContext);
+
+            $this->storybookService->method('getThemeId')->willReturn(null);
+            $this->storybookService->method('resolveComponentProps')->willReturn([]);
+
+            $request = new Request();
+            $request->headers->set('Origin', $customDomain);
+
+            $response = $this->createController('dev')->storybook('my-button', $request);
+
+            static::assertSame(200, $response->getStatusCode());
+            static::assertSame($customDomain, $response->headers->get('Access-Control-Allow-Origin'));
+        } finally {
+            unset($_SERVER['STORYBOOK_DOMAIN']);
+        }
+    }
+
+    public function testStorybookRejectsRequestWhenOriginDoesNotMatchCustomDomain(): void
+    {
+        $customDomain = 'http://my-dev-store.example.com:6006';
+        $_SERVER['STORYBOOK_DOMAIN'] = $customDomain;
+
+        try {
+            $controller = $this->createController('dev');
+
+            $this->expectException(NotFoundHttpException::class);
+
+            $controller->storybook('my-button', $this->createStorybookRequest());
+        } finally {
+            unset($_SERVER['STORYBOOK_DOMAIN']);
+        }
+    }
+
     private function createStorybookRequest(): Request
     {
         $request = new Request();

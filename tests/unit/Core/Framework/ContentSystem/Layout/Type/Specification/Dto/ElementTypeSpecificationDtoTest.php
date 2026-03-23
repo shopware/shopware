@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\CopilotSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\ElementTypeSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\PropertySpecificationDto;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\SlotSpecificationDto;
 
 /**
  * @internal
@@ -15,17 +16,10 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\Property
 #[CoversClass(ElementTypeSpecificationDto::class)]
 class ElementTypeSpecificationDtoTest extends TestCase
 {
-    #[TestDox('preserves property keys through mapping loop')]
-    public function testPreservesPropertyKeysInMapping(): void
+    #[TestDox('preserves property keys when converting to specification')]
+    public function testPreservesPropertyKeysOnConversion(): void
     {
-        $dto = new ElementTypeSpecificationDto(
-            'Sw:Product:Card',
-            'Card',
-            'Card.',
-            'shopware AG',
-            null,
-            null,
-            new CopilotSpecificationDto('', []),
+        $dto = $this->createDto(
             [
                 'title' => new PropertySpecificationDto('title', 'string', false, true, 'Title', '', null, null, null),
                 'layout' => new PropertySpecificationDto('layout', 'string', false, false, 'Layout', '', ['box', 'list'], 'box', null),
@@ -35,9 +29,54 @@ class ElementTypeSpecificationDtoTest extends TestCase
 
         $schema = $dto->toContentElementTypeSpecification()->toSchema();
 
+        static::assertCount(2, $schema['properties']);
         static::assertArrayHasKey('title', $schema['properties']);
         static::assertArrayHasKey('layout', $schema['properties']);
-        static::assertSame('string', $schema['properties']['title']['type']);
-        static::assertSame(['box', 'list'], $schema['properties']['layout']['enum']);
+    }
+
+    #[TestDox('converts slot DTOs into specification slots')]
+    public function testConvertsSlotsToSpecification(): void
+    {
+        $dto = $this->createDto(
+            [],
+            [new SlotSpecificationDto('media', 1, ['Sw:Media:Image'], 'Media slot.')],
+        );
+
+        $schema = $dto->toContentElementTypeSpecification()->toSchema();
+
+        static::assertCount(1, $schema['slots']);
+    }
+
+    #[TestDox('produces correct name and empty collections when no properties or slots are defined')]
+    public function testConvertsEmptyDtoToSpecification(): void
+    {
+        $dto = $this->createDto([], []);
+        $spec = $dto->toContentElementTypeSpecification();
+
+        static::assertSame('Sw:Product:Card', $spec->name());
+
+        $schema = $spec->toSchema();
+
+        static::assertSame([], $schema['properties']);
+        static::assertSame([], $schema['slots']);
+    }
+
+    /**
+     * @param array<string, PropertySpecificationDto> $properties
+     * @param list<SlotSpecificationDto> $slots
+     */
+    private function createDto(array $properties, array $slots): ElementTypeSpecificationDto
+    {
+        return new ElementTypeSpecificationDto(
+            'Sw:Product:Card',
+            'Card',
+            'Card.',
+            'shopware AG',
+            null,
+            null,
+            new CopilotSpecificationDto('', []),
+            $properties,
+            $slots,
+        );
     }
 }

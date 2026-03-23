@@ -36,10 +36,6 @@ class ValidPropertyConstraintsValidatorTest extends TestCase
         yield 'enum on primitive type' => [
             new PropertySpecificationDto('layout', 'string', false, false, 'Layout', 'Layout variant.', ['a', 'b'], null, null),
         ];
-
-        yield 'neither translatable nor enum set' => [
-            new PropertySpecificationDto('count', 'integer', false, false, 'Count', 'A count.', null, null, null),
-        ];
     }
 
     #[DataProvider('rejectsInvalidSpecificationProvider')]

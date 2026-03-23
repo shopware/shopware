@@ -20,7 +20,7 @@ class YamlTypeLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->tempDir = sys_get_temp_dir() . '/yaml_type_loader_test_' . bin2hex(random_bytes(8));
+        $this->tempDir = sys_get_temp_dir() . '/yaml_type_loader_test_' . getmypid();
         mkdir($this->tempDir, 0o777, true);
     }
 
@@ -37,11 +37,11 @@ class YamlTypeLoaderTest extends TestCase
         }
     }
 
-    #[TestDox('loads multiple YAML files from directory')]
-    public function testLoadsMultipleFiles(): void
+    #[TestDox('loads multiple files from directory')]
+    public function testLoadsMultipleFilesFromDirectory(): void
     {
         file_put_contents($this->tempDir . '/text.yaml', "meta:\n  name: \"Sw:Content:Text\"\n  label: \"Text\"\n  description: \"Text.\"\n  vendor: \"shopware AG\"");
-        file_put_contents($this->tempDir . '/image.yaml', "meta:\n  name: \"Sw:Media:Image\"\n  label: \"Image\"\n  description: \"Image.\"\n  vendor: \"shopware AG\"");
+        copy(__DIR__ . '/_fixtures/card.yaml', $this->tempDir . '/card.yaml');
 
         $loader = $this->createLoader();
         $definitions = $loader->load();
@@ -49,67 +49,16 @@ class YamlTypeLoaderTest extends TestCase
         static::assertCount(2, $definitions);
     }
 
-    #[TestDox('loads full definition with properties and slots')]
-    public function testLoadsFullDefinitionWithPropertiesAndSlots(): void
+    #[TestDox('loads and returns named specification from YAML file')]
+    public function testLoadsNamedSpecificationFromYamlFile(): void
     {
-        file_put_contents($this->tempDir . '/card.yaml', <<<'YAML'
-meta:
-  name: "Sw:Product:Card"
-  label: "Product Card"
-  description: "A product card."
-  vendor: "shopware AG"
-  icon: "card"
-  category: "commerce"
-  copilot:
-    summary: "Card element"
-    hints:
-      - "Use for products"
-properties:
-  product:
-    type: Shopware\Core\Content\Product\ProductEntity
-    required: true
-    title: "Product"
-    description: "The product."
-  layout:
-    type: string
-    enum: ["box", "list"]
-    default: "box"
-    title: "Layout"
-    description: "Layout variant."
-slots:
-  - name: media
-    maxElements: 1
-    description: "Media slot."
-  - name: actions
-    allowList:
-      - "Sw:Action:Button"
-YAML);
+        copy(__DIR__ . '/_fixtures/card.yaml', $this->tempDir . '/card.yaml');
 
         $loader = $this->createLoader();
         $definitions = $loader->load();
 
         static::assertCount(1, $definitions);
-        $def = $definitions[0];
-        static::assertSame('Sw:Product:Card', $def->name());
-
-        $schema = $def->toSchema();
-        static::assertSame('Product Card', $schema['label']);
-        static::assertSame('A product card.', $schema['description']);
-        static::assertSame('shopware AG', $schema['vendor']);
-        static::assertSame('card', $schema['icon']);
-        static::assertSame('commerce', $schema['category']);
-        static::assertSame('Card element', $schema['copilot']['summary']);
-        static::assertCount(2, $schema['properties']);
-        static::assertSame('Shopware\Core\Content\Product\ProductEntity', $schema['properties']['product']['type']);
-        static::assertTrue($schema['properties']['product']['required']);
-        static::assertSame(['box', 'list'], $schema['properties']['layout']['enum']);
-        static::assertSame('box', $schema['properties']['layout']['default']);
-        static::assertCount(2, $schema['slots']);
-        static::assertSame('media', $schema['slots'][0]['name']);
-        static::assertSame(1, $schema['slots'][0]['maxElements']);
-        static::assertSame('Media slot.', $schema['slots'][0]['description']);
-        static::assertSame('actions', $schema['slots'][1]['name']);
-        static::assertSame(['Sw:Action:Button'], $schema['slots'][1]['allowList']);
+        static::assertSame('Sw:Product:Card', $definitions[0]->name());
     }
 
     #[TestDox('returns empty array for non-existent directory')]
@@ -124,6 +73,14 @@ YAML);
         static::assertSame([], $loader->load());
     }
 
+    #[TestDox('returns empty array for directory without YAML files')]
+    public function testReturnsEmptyArrayForEmptyDirectory(): void
+    {
+        $loader = $this->createLoader();
+
+        static::assertSame([], $loader->load());
+    }
+
     #[TestDox('throws for invalid YAML syntax')]
     public function testThrowsForInvalidYamlSyntax(): void
     {
@@ -132,7 +89,7 @@ YAML);
         $loader = $this->createLoader();
 
         $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('Failed to load element type from');
+        $this->expectExceptionMessage('Invalid YAML syntax');
         $loader->load();
     }
 

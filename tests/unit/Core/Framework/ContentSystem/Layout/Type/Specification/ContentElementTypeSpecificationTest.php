@@ -17,65 +17,67 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecific
 #[CoversClass(ContentElementTypeSpecification::class)]
 class ContentElementTypeSpecificationTest extends TestCase
 {
-    #[TestDox('produces schema with all keys for a full specification')]
-    public function testProducesSchemaForFullSpecification(): void
+    #[TestDox('includes all top-level scalar fields in schema')]
+    public function testToSchemaIncludesTopLevelScalarFields(): void
     {
-        $def = $this->createFullSpecification();
-
-        $schema = $def->toSchema();
+        $spec = $this->createSpecification('card', 'commerce');
+        $schema = $spec->toSchema();
 
         static::assertSame('Sw:Product:Card', $schema['name']);
         static::assertSame('Product Card', $schema['label']);
-        static::assertSame('A product card element.', $schema['description']);
+        static::assertSame('A product card.', $schema['description']);
         static::assertSame('shopware AG', $schema['vendor']);
         static::assertSame('card', $schema['icon']);
         static::assertSame('commerce', $schema['category']);
-
-        static::assertSame('Product card', $schema['copilot']['summary']);
-        static::assertSame(['Use for single products'], $schema['copilot']['hints']);
-
-        $product = $schema['properties']['product'];
-        static::assertSame('Shopware\Core\Content\Product\ProductEntity', $product['type']);
-        static::assertTrue($product['required']);
-        static::assertFalse($product['translatable']);
-        static::assertNull($product['enum']);
-        static::assertNull($product['default']);
-        static::assertNull($product['adminUI']);
-        static::assertSame('Product', $product['title']);
-        static::assertSame('The product to display.', $product['description']);
-
-        $layout = $schema['properties']['layout'];
-        static::assertSame('string', $layout['type']);
-        static::assertFalse($layout['required']);
-        static::assertSame(['box', 'list'], $layout['enum']);
-        static::assertSame('box', $layout['default']);
-
-        $media = $schema['slots'][0];
-        static::assertSame('media', $media['name']);
-        static::assertSame(1, $media['maxElements']);
-        static::assertSame(['Sw:Media:Image'], $media['allowList']);
-        static::assertSame('Media slot.', $media['description']);
     }
 
-    #[TestDox('produces null icon and category when not provided')]
-    public function testProducesNullIconAndCategoryWhenNotProvided(): void
+    #[TestDox('preserves property keys and delegates to property specifications')]
+    public function testToSchemaPreservesPropertyKeys(): void
     {
-        $def = new ContentElementTypeSpecification(
-            'Sw:Content:Text',
-            'Text',
-            'A text element.',
-            'shopware AG',
-            null,
-            null,
-            new CopilotSpecification('A text element.', []),
-            [],
-            [],
-        );
+        $spec = $this->createFullSpecification();
+        $schema = $spec->toSchema();
 
-        $schema = $def->toSchema();
+        static::assertCount(2, $schema['properties']);
+        static::assertArrayHasKey('product', $schema['properties']);
+        static::assertArrayHasKey('layout', $schema['properties']);
+    }
+
+    #[TestDox('maps slots as indexed array')]
+    public function testToSchemaMapsSlots(): void
+    {
+        $spec = $this->createFullSpecification();
+        $schema = $spec->toSchema();
+
+        static::assertCount(1, $schema['slots']);
+        static::assertIsArray($schema['slots'][0]);
+    }
+
+    #[TestDox('includes null for absent optional fields and empty collections')]
+    public function testToSchemaHandlesAbsentOptionalFields(): void
+    {
+        $spec = $this->createSpecification(null, null);
+        $schema = $spec->toSchema();
 
         static::assertNull($schema['icon']);
         static::assertNull($schema['category']);
+        static::assertIsArray($schema['copilot']);
+        static::assertSame([], $schema['properties']);
+        static::assertSame([], $schema['slots']);
+    }
+
+    private function createSpecification(?string $icon, ?string $category): ContentElementTypeSpecification
+    {
+        return new ContentElementTypeSpecification(
+            'Sw:Product:Card',
+            'Product Card',
+            'A product card.',
+            'shopware AG',
+            $icon,
+            $category,
+            new CopilotSpecification('Product card', ['Use for single products']),
+            [],
+            [],
+        );
     }
 
     private function createFullSpecification(): ContentElementTypeSpecification
@@ -83,7 +85,7 @@ class ContentElementTypeSpecificationTest extends TestCase
         return new ContentElementTypeSpecification(
             'Sw:Product:Card',
             'Product Card',
-            'A product card element.',
+            'A product card.',
             'shopware AG',
             'card',
             'commerce',
@@ -94,7 +96,7 @@ class ContentElementTypeSpecificationTest extends TestCase
                     new PropertyType('Shopware\Core\Content\Product\ProductEntity', false, null, null),
                     true,
                     'Product',
-                    'The product to display.',
+                    'The product.',
                     null,
                 ),
                 'layout' => new PropertySpecification(

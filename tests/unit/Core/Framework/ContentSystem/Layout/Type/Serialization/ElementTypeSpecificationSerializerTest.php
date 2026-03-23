@@ -24,8 +24,8 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         $this->serializer = new ElementTypeSpecificationSerializer();
     }
 
-    #[TestDox('populates all meta fields from input')]
-    public function testDenormalizePopulatesMetaFields(): void
+    #[TestDox('populates all meta scalar fields from input')]
+    public function testMapsAllMetaScalarFieldsFromInput(): void
     {
         $data = [
             'meta' => [
@@ -35,10 +35,6 @@ class ElementTypeSpecificationSerializerTest extends TestCase
                 'vendor' => 'shopware AG',
                 'icon' => 'card',
                 'category' => 'commerce',
-                'copilot' => [
-                    'summary' => 'Product card element.',
-                    'hints' => ['Use for products.'],
-                ],
             ],
         ];
 
@@ -50,12 +46,10 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         static::assertSame('shopware AG', $dto->vendor);
         static::assertSame('card', $dto->icon);
         static::assertSame('commerce', $dto->category);
-        static::assertSame('Product card element.', $dto->copilot->summary);
-        static::assertSame(['Use for products.'], $dto->copilot->hints);
     }
 
-    #[TestDox('maps property fields from input')]
-    public function testDenormalizePopulatesProperties(): void
+    #[TestDox('populates copilot from explicit copilot block')]
+    public function testMapsCopilotFromExplicitBlock(): void
     {
         $data = [
             'meta' => [
@@ -63,7 +57,24 @@ class ElementTypeSpecificationSerializerTest extends TestCase
                 'label' => 'Product Card',
                 'description' => 'A product card.',
                 'vendor' => 'shopware AG',
+                'copilot' => [
+                    'summary' => 'Product card element.',
+                    'hints' => ['Use for products.'],
+                ],
             ],
+        ];
+
+        $dto = $this->serializer->denormalize($data);
+
+        static::assertSame('Product card element.', $dto->copilot->summary);
+        static::assertSame(['Use for products.'], $dto->copilot->hints);
+    }
+
+    #[TestDox('maps property fields from input')]
+    public function testMapsPropertyFieldsFromInput(): void
+    {
+        $data = [
+            'meta' => $this->buildMinimalMeta(),
             'properties' => [
                 'product' => [
                     'type' => 'Shopware\Core\Content\Product\ProductEntity',
@@ -91,15 +102,10 @@ class ElementTypeSpecificationSerializerTest extends TestCase
     }
 
     #[TestDox('maps slot fields from input')]
-    public function testDenormalizePopulatesSlots(): void
+    public function testMapsSlotFieldsFromInput(): void
     {
         $data = [
-            'meta' => [
-                'name' => 'Sw:Product:Card',
-                'label' => 'Product Card',
-                'description' => 'A product card.',
-                'vendor' => 'shopware AG',
-            ],
+            'meta' => $this->buildMinimalMeta(),
             'slots' => [
                 ['name' => 'media', 'maxElements' => 1, 'allowList' => ['Sw:Media:Image'], 'description' => 'Media slot.'],
             ],
@@ -113,60 +119,8 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         static::assertSame(['Sw:Media:Image'], $dto->slots[0]->allowList);
     }
 
-    #[TestDox('applies defaults and uses description as copilot summary when optional fields are absent')]
-    public function testDenormalizeAppliesDefaults(): void
-    {
-        $data = [
-            'meta' => [
-                'name' => 'Sw:Content:Text',
-                'label' => 'Text',
-                'description' => 'A text element.',
-                'vendor' => 'shopware AG',
-            ],
-        ];
-
-        $dto = $this->serializer->denormalize($data);
-
-        static::assertSame('Sw:Content:Text', $dto->name);
-        static::assertNull($dto->icon);
-        static::assertNull($dto->category);
-        static::assertSame('A text element.', $dto->copilot->summary);
-        static::assertSame([], $dto->copilot->hints);
-        static::assertSame([], $dto->properties);
-        static::assertSame([], $dto->slots);
-    }
-
-    #[TestDox('applies property defaults when optional property fields are absent')]
-    public function testDenormalizeAppliesPropertyDefaults(): void
-    {
-        $data = [
-            'meta' => [
-                'name' => 'Sw:Content:Text',
-                'label' => 'Text',
-                'description' => 'Text.',
-                'vendor' => 'shopware AG',
-            ],
-            'properties' => [
-                'text' => ['type' => 'string'],
-            ],
-        ];
-
-        $dto = $this->serializer->denormalize($data);
-        $prop = $dto->properties['text'];
-
-        static::assertSame('text', $prop->name);
-        static::assertSame('string', $prop->type);
-        static::assertFalse($prop->required);
-        static::assertFalse($prop->translatable);
-        static::assertSame('', $prop->title);
-        static::assertSame('', $prop->description);
-        static::assertNull($prop->enum);
-        static::assertNull($prop->default);
-        static::assertNull($prop->adminUI);
-    }
-
     #[TestDox('preserves all fields through normalize round trip')]
-    public function testNormalizeRoundTrip(): void
+    public function testPreservesAllFieldsThroughRoundTrip(): void
     {
         $dto = new ElementTypeSpecificationDto(
             'Sw:Product:Card',
@@ -205,26 +159,101 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         static::assertSame('media', $normalized['slots'][0]['name']);
     }
 
-    #[TestDox('omits optional fields from normalized output when values are defaults')]
-    public function testNormalizeOmitsDefaults(): void
+    #[TestDox('includes translatable flag in normalized property output')]
+    public function testIncludesTranslatableFlagInNormalizedOutput(): void
     {
-        $dto = new ElementTypeSpecificationDto(
+        $dto = $this->buildMinimalDto([
+            'text' => new PropertySpecificationDto('text', 'string', false, true, 'Text', 'Content.', null, null, null),
+        ]);
+
+        $normalized = $this->serializer->normalize($dto);
+
+        static::assertTrue($normalized['properties']['text']['translatable']);
+    }
+
+    #[TestDox('applies property defaults when optional property fields are absent')]
+    public function testAppliesPropertyDefaultsForAbsentFields(): void
+    {
+        $data = [
+            'meta' => $this->buildMinimalMeta(),
+            'properties' => [
+                'text' => ['type' => 'string'],
+            ],
+        ];
+
+        $dto = $this->serializer->denormalize($data);
+        $prop = $dto->properties['text'];
+
+        static::assertSame('text', $prop->name);
+        static::assertSame('string', $prop->type);
+        static::assertFalse($prop->required);
+        static::assertFalse($prop->translatable);
+        static::assertSame('', $prop->title);
+        static::assertSame('', $prop->description);
+        static::assertNull($prop->enum);
+        static::assertNull($prop->default);
+        static::assertNull($prop->adminUI);
+    }
+
+    #[TestDox('sets optional fields to defaults and uses description as copilot summary when not provided')]
+    public function testFallsBackToDefaultsWhenOptionalFieldsAbsent(): void
+    {
+        $data = [
+            'meta' => $this->buildMinimalMeta(),
+        ];
+
+        $dto = $this->serializer->denormalize($data);
+
+        static::assertNull($dto->icon);
+        static::assertNull($dto->category);
+        static::assertSame('A text element.', $dto->copilot->summary);
+        static::assertSame([], $dto->copilot->hints);
+        static::assertSame([], $dto->properties);
+        static::assertSame([], $dto->slots);
+    }
+
+    #[TestDox('omits optional fields from normalized output when values are defaults')]
+    public function testOmitsDefaultValuesFromNormalizedOutput(): void
+    {
+        $dto = $this->buildMinimalDto();
+
+        $normalized = $this->serializer->normalize($dto);
+
+        static::assertArrayNotHasKey('icon', $normalized['meta']);
+        static::assertArrayNotHasKey('category', $normalized['meta']);
+        static::assertArrayNotHasKey('copilot', $normalized['meta']);
+        static::assertArrayNotHasKey('properties', $normalized);
+        static::assertArrayNotHasKey('slots', $normalized);
+    }
+
+    /**
+     * @return array{name: string, label: string, description: string, vendor: string}
+     */
+    private function buildMinimalMeta(): array
+    {
+        return [
+            'name' => 'Sw:Content:Text',
+            'label' => 'Text',
+            'description' => 'A text element.',
+            'vendor' => 'shopware AG',
+        ];
+    }
+
+    /**
+     * @param array<string, PropertySpecificationDto> $properties
+     */
+    private function buildMinimalDto(array $properties = []): ElementTypeSpecificationDto
+    {
+        return new ElementTypeSpecificationDto(
             'Sw:Content:Text',
             'Text',
             'Text.',
             'shopware AG',
             null,
             null,
-            new CopilotSpecificationDto('Text.', []),
-            [],
+            new CopilotSpecificationDto('', []),
+            $properties,
             [],
         );
-
-        $normalized = $this->serializer->normalize($dto);
-
-        static::assertArrayNotHasKey('icon', $normalized['meta']);
-        static::assertArrayNotHasKey('category', $normalized['meta']);
-        static::assertArrayNotHasKey('properties', $normalized);
-        static::assertArrayNotHasKey('slots', $normalized);
     }
 }

@@ -28,6 +28,20 @@ class ContentElementTypeRegistryTest extends TestCase
         static::assertArrayHasKey('Sw:Content:Text', $all);
     }
 
+    #[TestDox('returns both compiled and runtime specifications after loading')]
+    public function testAllReturnsBothCompiledAndRuntimeSpecifications(): void
+    {
+        $compiled = $this->createSpec('Sw:Content:Text', 'Text');
+        $runtime = $this->createSpec('App:Demo:Hero', 'Hero');
+
+        $loader = static::createStub(AbstractContentElementTypeLoader::class);
+        $loader->method('load')->willReturn([$runtime]);
+
+        $registry = new ContentElementTypeRegistry([$compiled], [$loader]);
+
+        static::assertCount(2, $registry->all());
+    }
+
     #[TestDox('returns true for a registered type')]
     public function testHasReturnsTrueForRegisteredType(): void
     {
@@ -54,22 +68,30 @@ class ContentElementTypeRegistryTest extends TestCase
         static::assertSame($def, $registry->get('Sw:Content:Text'));
     }
 
-    #[TestDox('returns both compiled and runtime specifications after loading')]
-    public function testAllReturnsBothCompiledAndRuntimeSpecifications(): void
+    #[TestDox('throws for unknown type on get')]
+    public function testGetThrowsForUnknownType(): void
     {
-        $compiled = $this->createSpec('Sw:Content:Text', 'Text');
-        $runtime = $this->createSpec('App:Demo:Hero', 'Hero');
+        $registry = new ContentElementTypeRegistry([], []);
 
-        $loader = static::createStub(AbstractContentElementTypeLoader::class);
-        $loader->method('load')->willReturn([$runtime]);
-
-        $registry = new ContentElementTypeRegistry([$compiled], [$loader]);
-
-        static::assertCount(2, $registry->all());
+        $this->expectExceptionObject(ContentSystemException::elementTypeNotFound('Sw:Unknown:Type'));
+        $registry->get('Sw:Unknown:Type');
     }
 
-    #[TestDox('loads runtime specifications lazily on first query')]
-    public function testLoadsRuntimeSpecificationsLazilyOnFirstQuery(): void
+    #[TestDox('loads runtime specifications on first query')]
+    public function testLoadsRuntimeSpecificationsOnFirstQuery(): void
+    {
+        $runtimeDef = $this->createSpec('App:Demo:Hero', 'Hero');
+
+        $loader = static::createStub(AbstractContentElementTypeLoader::class);
+        $loader->method('load')->willReturn([$runtimeDef]);
+
+        $registry = new ContentElementTypeRegistry([], [$loader]);
+
+        static::assertTrue($registry->has('App:Demo:Hero'));
+    }
+
+    #[TestDox('does not reload runtime specifications on subsequent queries')]
+    public function testDoesNotReloadOnSubsequentQueries(): void
     {
         $runtimeDef = $this->createSpec('App:Demo:Hero', 'Hero');
 
@@ -77,10 +99,8 @@ class ContentElementTypeRegistryTest extends TestCase
         $loader->expects($this->once())->method('load')->willReturn([$runtimeDef]);
 
         $registry = new ContentElementTypeRegistry([], [$loader]);
-
-        static::assertTrue($registry->has('App:Demo:Hero'));
-        // Second call should not call load() again
-        static::assertTrue($registry->has('App:Demo:Hero'));
+        $registry->has('App:Demo:Hero');
+        $registry->has('App:Demo:Hero');
     }
 
     #[TestDox('preserves compiled specifications after reset')]
@@ -93,19 +113,24 @@ class ContentElementTypeRegistryTest extends TestCase
         $loader->method('load')->willReturn([$runtime]);
 
         $registry = new ContentElementTypeRegistry([$compiled], [$loader]);
-        $registry->all(); // trigger runtime loading
+        $registry->all();
         $registry->reset();
 
         static::assertTrue($registry->has('Sw:Content:Text'));
     }
 
-    #[TestDox('throws for unknown type on get')]
-    public function testGetThrowsForUnknownType(): void
+    #[TestDox('reloads runtime specifications from loaders after reset')]
+    public function testResetTriggersReloadFromLoaders(): void
     {
-        $registry = new ContentElementTypeRegistry([], []);
+        $runtime = $this->createSpec('App:Demo:Hero', 'Hero');
 
-        $this->expectExceptionObject(ContentSystemException::elementTypeNotFound('Sw:Unknown:Type'));
-        $registry->get('Sw:Unknown:Type');
+        $loader = $this->createMock(AbstractContentElementTypeLoader::class);
+        $loader->expects($this->exactly(2))->method('load')->willReturn([$runtime]);
+
+        $registry = new ContentElementTypeRegistry([], [$loader]);
+        $registry->all();
+        $registry->reset();
+        $registry->all();
     }
 
     #[TestDox('throws for duplicate registration in compiled specifications')]

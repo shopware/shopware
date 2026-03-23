@@ -9,7 +9,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -34,7 +36,9 @@ class DatabaseTypeLoaderTest extends TestCase
             ['name' => 'App:Demo:Hero', 'schema' => $schema, 'app_name' => 'DemoApp'],
         ]);
 
-        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+        $validator = static::createStub(ValidatorInterface::class);
+        $validator->method('validate')->willReturn(new ConstraintViolationList());
+
         $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), $validator, $connection, 'prod');
         $definitions = $loader->load();
 
@@ -48,7 +52,7 @@ class DatabaseTypeLoaderTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())->method('fetchAllAssociative');
 
-        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+        $validator = static::createStub(ValidatorInterface::class);
         $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), $validator, $connection, 'dev');
 
         static::assertEmpty($loader->load());
@@ -75,6 +79,7 @@ class DatabaseTypeLoaderTest extends TestCase
         $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), $validator, $connection, 'prod');
 
         $this->expectException(ContentSystemException::class);
+        $this->expectExceptionMessage('Element type "<unknown>" is invalid: name:');
         $loader->load();
     }
 }

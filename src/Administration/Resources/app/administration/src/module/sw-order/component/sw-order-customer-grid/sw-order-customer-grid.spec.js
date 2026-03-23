@@ -470,6 +470,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         await flushPromises();
 
         const handleSelectCustomerSpy = jest.spyOn(wrapper.vm, 'handleSelectCustomer');
+        const checkContextLanguageSpy = jest.spyOn(wrapper.vm, 'checkContextLanguage');
 
         const firstRow = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
         await firstRow.find('.sw-field__radio-input input').setChecked(true);
@@ -494,6 +495,9 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         await buttonSelect.trigger('click');
 
         expect(handleSelectCustomerSpy).toHaveBeenCalled();
+
+        // First call on customer select, second call after sales channel select
+        expect(checkContextLanguageSpy).toHaveBeenCalledTimes(2);
     });
 
     it('should show sales channel select modal when customer sales channel is not in the allowed list and has no bound sales channel', async () => {

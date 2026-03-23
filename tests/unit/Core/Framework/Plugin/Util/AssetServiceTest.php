@@ -133,10 +133,12 @@ class AssetServiceTest extends TestCase
             [
                 [
                     'name' => 'ExampleBundle',
+                    'version' => '1.0.0',
                     'baseClass' => ExampleBundle::class,
                     'path' => __DIR__ . '/_fixtures/ExampleBundle',
                     'active' => true,
                     'managedByComposer' => false,
+                    'composerName' => 'Swag\ExampleBundle',
                     'autoload' => [
                         'psr-4' => [
                             'ExampleBundle' => '',

@@ -185,8 +185,8 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param SearchFieldConfig[] $config
-     * @param array{string: mixed} $expected
+     * @param list<SearchFieldConfig> $config
+     * @param array<string, mixed> $expected
      */
     #[DataProvider('buildSingleLanguageProvider')]
     public function testBuildSingleLanguage(array $config, string $term, array $expected): void
@@ -203,8 +203,8 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param SearchFieldConfig[] $config
-     * @param array{string: mixed} $expected
+     * @param list<SearchFieldConfig> $config
+     * @param array<string, mixed> $expected
      */
     #[DataProvider('buildMultipleLanguageProvider')]
     public function testBuildMultipleLanguages(array $config, string $term, array $expected): void
@@ -221,9 +221,9 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<array-key, array{config: SearchFieldConfig[], term: string, expected: array<string, mixed>}>
+     * @return \Generator<array{config: list<SearchFieldConfig>, term: string, expected: array<string, mixed>}>
      */
-    public static function buildSingleLanguageProvider(): iterable
+    public static function buildSingleLanguageProvider(): \Generator
     {
         $prefix = 'customFields.' . Defaults::LANGUAGE_SYSTEM . '.';
 
@@ -333,7 +333,7 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<array-key, array{config: SearchFieldConfig[], term: string, expected: array<string, mixed>}>
+     * @return iterable<array-key, array{config: list<SearchFieldConfig>, term: string, expected: array<string, mixed>}>
      */
     public static function buildMultipleLanguageProvider(): iterable
     {

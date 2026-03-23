@@ -532,12 +532,12 @@ export default {
 
         templateSelectOptions() {
             return this.templateOptions
-                .filter((template) => {
+                .filter((exportTemplate) => {
                     if (this.isAgenticAi) {
-                        return template.salesChannelTypeId === Defaults.agenticAiTypeId;
+                        return exportTemplate.salesChannelTypeId === Defaults.agenticAiTypeId;
                     }
 
-                    return !template.salesChannelTypeId;
+                    return !exportTemplate.salesChannelTypeId;
                 })
                 .map((templateOption) => {
                     return {

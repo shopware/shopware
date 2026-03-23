@@ -20,7 +20,9 @@ class CollectionHasSpecifyingExtensionTest extends TypeInferenceTestCase
             // because of the autoload issue we can not use data providers as phpstan does itself,
             // therefore we need to rely on this hacks
             $assertType = array_shift($args);
+            static::assertIsString($assertType);
             $file = array_shift($args);
+            static::assertIsString($file);
 
             $this->assertFileAsserts($assertType, $file, ...$args);
         }

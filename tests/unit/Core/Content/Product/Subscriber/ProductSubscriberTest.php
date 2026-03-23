@@ -20,6 +20,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\ProductVariationBuilder;
+use Shopware\Core\Content\Product\PropertyGroupSorter;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -206,8 +207,7 @@ class ProductSubscriberTest extends TestCase
         $productVariationBuilder = $this->createMock(ProductVariationBuilder::class);
         $productVariationBuilder->expects($this->once())->method('build');
 
-        $propertyGroupSorter = $this->createMock(AbstractPropertyGroupSorter::class);
-        $propertyGroupSorter->expects($this->once())->method('sort');
+        $propertyGroupSorter = new PropertyGroupSorter();
 
         $subscriber = new ProductSubscriber(
             $productVariationBuilder,
@@ -371,7 +371,7 @@ class ProductSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<string, float> $productDimensions
+     * @param array<string, float|string|null> $productDimensions
      * @param array<string, string> $headers
      * @param array<string, ConvertedUnit> $expectedFinalValues
      */
@@ -721,7 +721,7 @@ class ProductSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<string, float> $payload
+     * @param array<string, float|string> $payload
      * @param array<string, string> $headers
      * @param array<string, bool> $hasFieldReturns
      * @param array<string, float> $expectedConversions

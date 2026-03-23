@@ -101,7 +101,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     /**
      * @param array{array{and_logic: string, field: string, tokenize: int, ranking: float}} $config
-     * @param array{string: mixed} $expected
+     * @param array<string, mixed> $expected
      */
     #[DataProvider('buildSingleLanguageProvider')]
     public function testBuildSingleLanguage(array $config, string $term, array $expected): void
@@ -117,8 +117,8 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array{array{and_logic: string, field: string, tokenize: int, ranking: int}} $config
-     * @param array{string: mixed} $expected
+     * @param array{array{and_logic: string, field: string, tokenize: int, ranking: int|float}} $config
+     * @param array<string, mixed> $expected
      */
     #[DataProvider('buildMultipleLanguageProvider')]
     public function testBuildMultipleLanguages(array $config, string $term, array $expected): void
@@ -502,7 +502,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array{array{and_logic: string, field: string, tokenize: int, ranking: float}}|null $config
+     * @param array{array{and_logic: string, field: string, tokenize: int, ranking: int|float}}|null $config
      */
     private function getBuilder(?array $config): ProductSearchQueryBuilder
     {

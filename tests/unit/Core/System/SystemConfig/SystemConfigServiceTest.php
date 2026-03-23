@@ -141,21 +141,4 @@ class SystemConfigServiceTest extends TestCase
         static::assertInstanceOf(SystemConfigChangedHook::class, $dispatchedHook);
         static::assertFalse($dispatchedHook->silent);
     }
-
-    public static function provideTracingExamples(): \Generator
-    {
-        yield 'disabled' => [
-            false,
-            [
-                'global.system.config',
-            ],
-        ];
-
-        yield 'enabled' => [
-            true,
-            [
-                'config.test',
-            ],
-        ];
-    }
 }

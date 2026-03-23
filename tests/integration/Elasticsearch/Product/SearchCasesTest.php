@@ -55,7 +55,9 @@ class SearchCasesTest extends TestCase
 
         $scores = [];
         foreach ($result->getData() as $item) {
-            $scores[self::$ids->getKey((string) $item['id'])] = $item['_score'];
+            $key = self::$ids->getKey((string) $item['id']);
+            static::assertNotNull($key);
+            $scores[$key] = $item['_score'];
         }
 
         static::assertSame(

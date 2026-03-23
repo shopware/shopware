@@ -323,7 +323,7 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @param EqualsAnyFilterType $filter
+     * @param array{type: 'equalsAll', field?: string, value?: mixed} $filter
      */
     #[DataProvider('equalsAllFilterDataProvider')]
     public function testEqualsAllFilter(array $filter, ?Filter $expectedFilter, bool $expectException): void
@@ -337,6 +337,9 @@ class QueryStringParserTest extends TestCase
         static::assertEquals($expectedFilter, $result);
     }
 
+    /**
+     * @return \Generator<string, array{array{type: 'equalsAll', field?: string, value?: mixed}, Filter|null, bool}>
+     */
     public static function equalsAllFilterDataProvider(): \Generator
     {
         yield 'With empty value' => [['type' => 'equalsAll', 'field' => 'foo', 'value' => ''], null, true];

@@ -72,7 +72,7 @@ class Migration1768545319RevocationRequestMailTemplateTest extends TestCase
         $this->delete('mail_template_type', $mailTemplateTypeId);
     }
 
-    private function delete(string $table, ?string $id, ?string $identifier = 'id'): void
+    private function delete(string $table, ?string $id, string $identifier = 'id'): void
     {
         if (!\is_string($id)) {
             return;

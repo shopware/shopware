@@ -390,7 +390,7 @@ class DateRangeRuleTest extends TestCase
     }
 
     /**
-     * @param array<string, string|bool|\DateTime> $options
+     * @param array<string, string|bool|\DateTime|null> $options
      */
     #[DataProvider('provideInvalidDateAndTimezoneFormats')]
     public function testAssignPreservesInvalidFormatsForValidators(array $options): void

@@ -6,16 +6,16 @@ For Twig components that have to implement interactive functionality via JavaScr
 
 ### Major differences between plugin and component system.
 
-1. **Automatic initialization**  
+1. **Automatic initialization**
     If the component is implemented properly it will automatically be initialized on the corresponding elements. Even if the DOM tree changes and elements are added or removed, the component will automatically be initialized on added elements or destroyed for removed elements. No more manual re-initialization of plugins that have to work in conjunction after dynamic DOM changes.
 
-2. **No registration needed**  
+2. **No registration needed**
     The component system uses native ES module loading that does everything for you, if you follow the conventions. The script will automatically be loaded and initialized on corresponding elements just based on the component's name.
 
-3. **Better events instead of overrides**  
+3. **Better events instead of overrides**
     The current override technique of the plugin system was not reintroduced to the component system, as it showed some major flaws, as overrides could only happen once which can lead to conflicts between different Shopware extensions. Instead there is a central event system which is easier to use and offers a more robust public interface. In addition, it offers special interception events, for example, to manipulate request data before it is sent.
 
-4. **No imports**  
+4. **No imports**
     We decided to make everything related to the component system available via global scope. This means it is available at the `window` object level and can directly be used in plain JavaScript. No imports or bundling is necessary. You can still use the bundling as it is available today or use your own build processes if desired, but the component scripts target for plain JavaScript that don't need to be build in conjunction with our core files.
 
 ## Overview
@@ -90,7 +90,7 @@ export default class MyComponent extends ShopwareComponent {
 
 ### Automatic Initialization
 
-Components don't have to be registered manually. If the script file of your component follows the rules of the Twig component directory structure, they are automatically loaded via ES module loading. 
+Components don't have to be registered manually. If the script file of your component follows the rules of the Twig component directory structure, they are automatically loaded via ES module loading.
 
 Shopware generates an importmap for all components based on the Twig component tag name. On initialization, Shopware will search for all elements with a `data-component` attribute and will try to load the corresponding script file, if necessary. Just make sure to add the data attribute, including the tag name of your Twig component, to the root element of your component.
 
@@ -109,11 +109,11 @@ Components can be configured through a data attribute named `data-component-opti
 ```Twig
 
 {% set componentOptions = {
-    foo: "bar" 
+    foo: "bar"
     test: true
 } %}
 
-<div data-component="MyComponentNamespace:MyComponent" 
+<div data-component="MyComponentNamespace:MyComponent"
      data-component-options="{{ componentOptions|json_encode }}">
 </div>
 ```
@@ -147,7 +147,7 @@ views/
             index.scss
 ```
 
-Both of the above described structures will still result in a component which can be called with: 
+Both of the above described structures will still result in a component which can be called with:
 
 ```Twig
 <twig:MyComponentNamespace:MyComponent>
@@ -235,7 +235,7 @@ Of course, you can also register to events from anywhere else, also from outside
 
 ### Event Interception
 
-In addition to the normal asynchronous events, there is a separate event type which expects a return value that gets further processed within the component. These events make it even easier to extend a components logic and offers a bunch of different use cases, like manipulating request data before it gets send. 
+In addition to the normal asynchronous events, there is a separate event type which expects a return value that gets further processed within the component. These events make it even easier to extend a components logic and offers a bunch of different use cases, like manipulating request data before it gets send.
 
 For example the BuyButton component offers an event `BuyButton:PreSubmit` which is interceptable, as it is called via `emitInterception()`. It is triggered when a user clicks the buy button of a product.
 
@@ -256,7 +256,7 @@ export default class BuyButton extends ShopwareComponent {
 
         window.Shopware.emit('BuyButton:Submit', requestUrl, formData);
 
-        window.Shopware.callPluginMethod('OffCanvasCart', 'openOffCanvas', requestUrl, formData);
+        window.PluginManager.callPluginMethod('OffCanvasCart', 'openOffCanvas', requestUrl, formData);
     }
 }
 ```
@@ -273,14 +273,14 @@ window.Shopware.intercept('BuyButton:PreSubmit', (data) => {
 });
 ```
 
-Don't forget to return the data again, so the component logic can work with it. 
+Don't forget to return the data again, so the component logic can work with it.
 
 There can be multiple subscribers to a single event. They will all be executed in the order as they are registered. You can change the order by passing a priority parameter as an optional third option, when registering an event. By default all subscribers have the priority `0`. The higher the priority the earlier the subscriber is called in the chain. Also negative values are possible to move a subscriber further down the chain.
 
 ```javascript
 // Another interceptor to the buy button event
 window.Shopware.intercept('BuyButton:PreSubmit', (data) => {
-    
+
     data.formData.delete('foo');
     data.formData.append('bar', 'baz')
 

@@ -47,6 +47,8 @@ use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomField\CustomFieldSetPersister;
+use Shopware\Core\System\CustomField\CustomFieldXmlLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -98,6 +100,7 @@ class PluginLifecycleService
         private readonly VersionSanitizer $versionSanitizer,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly RequestStack $requestStack,
+        private readonly CustomFieldSetPersister $customFieldSetPersister,
     ) {
         $this->originalEventDispatcher = $eventDispatcher;
     }
@@ -153,6 +156,8 @@ class PluginLifecycleService
             $pluginBaseClass->install($installContext);
 
             $this->runMigrations($installContext);
+
+            $this->syncPluginCustomFields($pluginBaseClass, $shopwareContext);
 
             $installDate = new \DateTime();
             $pluginData['installedAt'] = $installDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -241,6 +246,7 @@ class PluginLifecycleService
 
         if (!$uninstallContext->keepUserData()) {
             $this->removeCustomEntities($plugin->getId());
+            $this->removePluginCustomFields($pluginBaseClass, $shopwareContext);
         }
 
         if ($pluginBaseClass->executeComposerCommands()) {
@@ -312,6 +318,8 @@ class PluginLifecycleService
         }
 
         $this->runMigrations($updateContext);
+
+        $this->syncPluginCustomFields($pluginBaseClass, $shopwareContext);
 
         $updateVersion = $updateContext->getUpdatePluginVersion();
         $updateDate = new \DateTime();
@@ -539,6 +547,36 @@ class PluginLifecycleService
 
         // running composer require may have consequences for other plugins, when they are required by the plugin being uninstalled
         $this->pluginService->refreshPlugins($context, new NullIO());
+    }
+
+    private function syncPluginCustomFields(Plugin $pluginBaseClass, Context $context): void
+    {
+        $xmlFile = $pluginBaseClass->getPath() . '/Resources/custom-fields.xml';
+
+        if (!is_file($xmlFile)) {
+            return;
+        }
+
+        $customFields = CustomFieldXmlLoader::load($xmlFile);
+
+        $this->customFieldSetPersister->sync($customFields, null, $context);
+    }
+
+    private function removePluginCustomFields(Plugin $pluginBaseClass, Context $context): void
+    {
+        $xmlFile = $pluginBaseClass->getPath() . '/Resources/custom-fields.xml';
+
+        if (!is_file($xmlFile)) {
+            return;
+        }
+
+        $customFields = CustomFieldXmlLoader::load($xmlFile);
+        $setNames = array_map(
+            static fn ($set) => $set->getName(),
+            $customFields->getCustomFieldSets()
+        );
+
+        $this->customFieldSetPersister->removeByNames($setNames, $context);
     }
 
     private function removeCustomEntities(string $pluginId): void

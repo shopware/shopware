@@ -323,6 +323,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
+            $this->container->get(\Shopware\Core\System\CustomField\CustomFieldSetPersister::class),
         );
 
         $context = Context::createDefaultContext();
@@ -860,6 +861,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
+            $this->container->get(\Shopware\Core\System\CustomField\CustomFieldSetPersister::class),
         );
     }
 

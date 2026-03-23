@@ -393,6 +393,7 @@ class KernelPluginIntegrationTest extends TestCase
             $this->createMock(VersionSanitizer::class),
             $this->createMock(DefinitionInstanceRegistry::class),
             new RequestStack(),
+            $this->createMock(\Shopware\Core\System\CustomField\CustomFieldSetPersister::class),
         );
     }
 

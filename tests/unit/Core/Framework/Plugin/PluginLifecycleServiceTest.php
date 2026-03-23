@@ -126,6 +126,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->createMock(VersionSanitizer::class),
             $this->createMock(DefinitionInstanceRegistry::class),
             $this->requestStackMock,
+            $this->createMock(\Shopware\Core\System\CustomField\CustomFieldSetPersister::class),
         );
     }
 
@@ -423,6 +424,7 @@ class PluginLifecycleServiceTest extends TestCase
                 $this->createMock(VersionSanitizer::class),
                 $this->createMock(DefinitionInstanceRegistry::class),
                 $this->requestStackMock,
+                $this->createMock(\Shopware\Core\System\CustomField\CustomFieldSetPersister::class),
             ])
             ->onlyMethods(['isCLI'])
             ->getMock();

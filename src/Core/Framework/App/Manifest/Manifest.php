@@ -8,7 +8,6 @@ use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
 use Shopware\Core\Framework\App\Manifest\Xml\AllowedHost\AllowedHosts;
 use Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFields;
 use Shopware\Core\Framework\App\Manifest\Xml\Gateway\Gateways;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\Payments;
@@ -20,6 +19,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Storefront\Storefront;
 use Shopware\Core\Framework\App\Manifest\Xml\Tax\Tax;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhooks;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomField\Xml\CustomFields;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**

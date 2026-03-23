@@ -119,6 +119,25 @@ The same `thumbnails` payload shape is accepted by `POST /api/_action/media/{id}
 It is now possible to use libraries like [`doctrine-mysql-come-back`](https://github.com/facile-it/doctrine-mysql-come-back), which wrap the default DBAL connection.
 More information on how to set up, can be found here: https://developer.shopware.com/docs/guides/hosting/infrastructure/database.html#setup-for-long-running-environments
 
+### System config overrides in staging mode
+
+The `system:setup:staging` command now supports pre-configuring system config keys during staging setup. Both global and sales channel-specific values can be set, following the same YAML structure used for [static system configuration](https://developer.shopware.com/docs/guides/hosting/configurations/shopware/static-system-config.md).
+
+Use `default` for global config values and sales channel IDs for channel-specific overrides:
+
+```yaml
+shopware:
+  staging:
+    system_config:
+      default:
+        core.mailerSettings.smtpHost: "smtp.staging.local"
+        core.listing.allowBuyInListing: false
+      0188da12724970b9b4a708298259b171:
+        core.mailerSettings.smtpHost: "smtp.other.staging.local"
+```
+
+When `bin/console system:setup:staging` is executed, the configured keys are written to the database via `SystemConfigService`.
+
 ## API
 
 ### Deprecation of newsletter route methods

@@ -139,6 +139,14 @@
             <file>src/Core/Framework/ContentSystem/SalesChannel/ContentDecomposedRouteResponse.php</file>
             <file>src/Core/Framework/ContentSystem/SalesChannel/ContentSkeletonRouteResponse.php</file>
             <file>src/Core/Framework/ContentSystem/Hydration/DataLoader/ContentSystemDataLoaderTypeDescriptor.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/CopilotSpecification.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/PropertySpecification.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/PropertyType.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/SlotSpecification.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/Dto/CopilotSpecificationDto.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/Dto/PropertySpecificationDto.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Specification/Dto/SlotSpecificationDto.php</file>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Validation/ValidPropertyConstraints.php</file>
             <directory suffix="LoaderConfig.php">src/Core/Framework/ContentSystem/Hydration/DataLoader/</directory>
             <directory suffix="LoaderConfig.php">src/Core/Content/Breadcrumb/ContentSystem/DataLoader/</directory>
             <directory suffix="LoaderConfig.php">src/Core/Content/Category/ContentSystem/DataLoader/</directory>

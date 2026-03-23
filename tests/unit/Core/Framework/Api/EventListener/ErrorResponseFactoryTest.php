@@ -9,7 +9,7 @@ use PHPUnit\Metadata\Api\DataProvider as DataProviderObject;
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Shopware\Core\System\NumberRange\Exception\NoConfigurationException;
+use Shopware\Core\System\NumberRange\NumberRangeException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -77,7 +77,7 @@ class ErrorResponseFactoryTest extends TestCase
 
         yield 'exception' => [new \Exception($message)];
         yield 'http exception' => [new HttpException(500)];
-        yield 'shopware http exception' => [new NoConfigurationException($message)];
+        yield 'domain exception' => [NumberRangeException::noConfigurationForEntity($message)];
     }
 
     public function testItTransformsRegularExceptionsToJson(): void

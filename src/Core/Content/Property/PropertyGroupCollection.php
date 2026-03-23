@@ -93,8 +93,7 @@ class PropertyGroupCollection extends EntityCollection
             array_multisort(...$sortArgs);
 
             $sortedOptions = new PropertyGroupOptionCollection();
-            // Bypass expected class validation for performance optimization
-            $sortedOptions->fillOptions($elements);
+            $sortedOptions->fill($elements);
 
             $group->setOptions($sortedOptions);
         }

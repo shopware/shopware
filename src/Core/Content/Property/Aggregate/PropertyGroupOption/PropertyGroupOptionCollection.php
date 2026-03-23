@@ -4,9 +4,7 @@ namespace Shopware\Core\Content\Property\Aggregate\PropertyGroupOption;
 
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
-use Shopware\Core\Content\Property\PropertyPartialNormalizer;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -72,23 +70,6 @@ class PropertyGroupOptionCollection extends EntityCollection
         }
 
         return $groups;
-    }
-
-    /**
-     * @internal
-     * Performance optimization: By design this skips the expected class validation,
-     * should only be used internally, when we need to add a lot of entities, that are already validated.
-     *
-     * Also, adds support for PartialEntity to be added.
-     *
-     * @param array<PropertyGroupOptionEntity|PartialEntity> $options
-     */
-    public function fillOptions(array $options): void
-    {
-        foreach ($options as $option) {
-            $normalized = PropertyPartialNormalizer::normalizeOption($option);
-            $this->elements[$normalized->getUniqueIdentifier()] = $normalized;
-        }
     }
 
     public function getApiAlias(): string

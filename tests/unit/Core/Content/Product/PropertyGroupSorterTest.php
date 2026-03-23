@@ -10,7 +10,6 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
-use Shopware\Core\Content\Property\PropertyPartialNormalizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
@@ -21,7 +20,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[CoversClass(PropertyGroupSorter::class)]
-#[CoversClass(PropertyPartialNormalizer::class)]
 class PropertyGroupSorterTest extends TestCase
 {
     public function testGetDecoratedThrowsDecorationPatternException(): void
@@ -160,6 +158,35 @@ class PropertyGroupSorterTest extends TestCase
         $optionsB = $resultB->get('options');
         static::assertInstanceOf(PropertyGroupOptionCollection::class, $optionsB);
         static::assertSame(['large'], $this->extractOptionNames($optionsB));
+    }
+
+    /**
+     * @param class-string<PropertyGroupOptionEntity|PartialEntity> $entityType
+     */
+    #[DataProvider('optionEntityTypeProvider')]
+    public function testNormalizedOptionsHaveGroupReference(string $entityType, bool $partialGroups): void
+    {
+        $groupId = Uuid::randomHex();
+        $group = $this->createGroup($groupId, PropertyGroupDefinition::SORTING_TYPE_POSITION, true, $partialGroups);
+
+        $options = $this->createOptionsCollection(
+            $this->createOption($entityType, $groupId, 'red', 1, $group),
+        );
+
+        $sorter = new PropertyGroupSorter();
+        $result = $sorter->sortUsingLocaleCode($options, 'en-GB');
+
+        $sortedGroup = $result->first();
+        static::assertNotNull($sortedGroup);
+
+        $groupOptions = $sortedGroup->getOptions();
+        static::assertInstanceOf(PropertyGroupOptionCollection::class, $groupOptions);
+        static::assertCount(1, $groupOptions);
+
+        $normalizedOption = $groupOptions->first();
+        static::assertNotNull($normalizedOption);
+        static::assertSame($groupId, $normalizedOption->getGroupId());
+        static::assertSame($sortedGroup, $normalizedOption->getGroup());
     }
 
     private function createGroup(string $id, string $sortingType, bool $visibleOnProductDetailPage, bool $partial = false): Entity

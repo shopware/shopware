@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Framework\Twig\Components;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
-use Symfony\UX\TwigComponent\ComponentMetadata;
 
 /**
  * @internal
@@ -18,7 +17,6 @@ class TwigComponent
         public string $name,
         public string $path,
         public string $namespace,
-        public ?ComponentMetadata $metadata = null,
     ) {
     }
 

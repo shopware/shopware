@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
-use Symfony\UX\TwigComponent\ComponentMetadata;
 
 /**
  * @internal
@@ -277,15 +276,6 @@ class TwigComponentTest extends TestCase
 
         $component->namespace = 'CustomPlugin';
         static::assertSame('CustomPlugin', $component->namespace);
-
-        static::assertNull($component->metadata);
-
-        // ComponentMetadata is final, so we create a real instance using reflection
-        $reflectionClass = new \ReflectionClass(ComponentMetadata::class);
-        $metadata = $reflectionClass->newInstanceWithoutConstructor();
-
-        $component->metadata = $metadata;
-        static::assertSame($metadata, $component->metadata);
     }
 
     public function testNestedComponentWithMultipleColons(): void

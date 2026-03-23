@@ -10,10 +10,8 @@ use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Util\Filesystem as UtilFilesystem;
-use Shopware\Storefront\Framework\Twig\Components\ComponentMetadataProviderInterface;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Symfony\Component\Filesystem\Path;
-use Symfony\UX\TwigComponent\ComponentMetadata;
 
 /**
  * @internal
@@ -42,7 +40,6 @@ class TwigComponentHelperTest extends TestCase
             ['EmptyBundle' => ['path' => self::PROJECT_DIR . '/EmptyBundle']],
             self::PROJECT_DIR,
             $namespaceHierarchyBuilder,
-            $this->createComponentMetadataProvider(),
             $this->createConnectionMock(),
             $this->createMock(SourceResolver::class),
             $this->filesystem,
@@ -63,7 +60,6 @@ class TwigComponentHelperTest extends TestCase
             ['TestBundle' => ['path' => self::PROJECT_DIR . '/TestBundle']],
             self::PROJECT_DIR,
             $namespaceHierarchyBuilder,
-            $this->createComponentMetadataProvider(),
             $this->createConnectionMock(),
             $this->createMock(SourceResolver::class),
             $this->filesystem,
@@ -87,7 +83,6 @@ class TwigComponentHelperTest extends TestCase
             ['TestBundle' => ['path' => self::PROJECT_DIR . '/TestBundle']],
             self::PROJECT_DIR,
             $namespaceHierarchyBuilder,
-            $this->createComponentMetadataProvider(),
             $this->createConnectionMock(),
             $this->createMock(SourceResolver::class),
             $this->filesystem,
@@ -116,7 +111,6 @@ class TwigComponentHelperTest extends TestCase
             ['TestBundle' => ['path' => self::PROJECT_DIR . '/TestBundle']],
             self::PROJECT_DIR,
             $namespaceHierarchyBuilder,
-            $this->createComponentMetadataProvider(),
             $this->createConnectionMock(),
             $this->createMock(SourceResolver::class),
             $this->filesystem,
@@ -127,67 +121,6 @@ class TwigComponentHelperTest extends TestCase
         static::assertCount(1, $components);
         static::assertTrue($components->has('TestBundle:Button'));
         static::assertFalse($components->has('TestBundle:ui:_private:Internal'));
-    }
-
-    public function testGetComponentsIncludesMetadataWhenRequested(): void
-    {
-        $this->filesystem->write('TestBundle/Resources/views/components/Button.html.twig', '<button>{{ label }}</button>');
-
-        $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
-        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn(['TestBundle' => []]);
-
-        $metadata = new ComponentMetadata([
-            'key' => 'Button',
-            'template' => 'components/Button.html.twig',
-            'class' => 'App\\Component\\Button',
-            'service_id' => 'app.component.button',
-        ]);
-
-        $helper = new TwigComponentHelper(
-            ['TestBundle' => ['path' => self::PROJECT_DIR . '/TestBundle']],
-            self::PROJECT_DIR,
-            $namespaceHierarchyBuilder,
-            $this->createComponentMetadataProvider($metadata),
-            $this->createConnectionMock(),
-            $this->createMock(SourceResolver::class),
-            $this->filesystem,
-        );
-
-        $components = $helper->getComponents(includeMetadata: true);
-
-        static::assertCount(1, $components);
-        $component = $components->get('TestBundle:Button');
-        static::assertNotNull($component);
-
-        $componentMetadata = $component->metadata;
-        static::assertNotNull($componentMetadata);
-        static::assertSame('Button', $componentMetadata->getName());
-        static::assertSame('components/Button.html.twig', $componentMetadata->getTemplate());
-    }
-
-    public function testGetComponentsDoesNotIncludeMetadataByDefault(): void
-    {
-        $this->filesystem->write('TestBundle/Resources/views/components/Button.html.twig', '<button>{{ label }}</button>');
-
-        $namespaceHierarchyBuilder = $this->createMock(NamespaceHierarchyBuilder::class);
-        $namespaceHierarchyBuilder->method('buildHierarchy')->willReturn(['TestBundle' => []]);
-
-        $helper = new TwigComponentHelper(
-            ['TestBundle' => ['path' => self::PROJECT_DIR . '/TestBundle']],
-            self::PROJECT_DIR,
-            $namespaceHierarchyBuilder,
-            $this->createComponentMetadataProvider(),
-            $this->createConnectionMock(),
-            $this->createMock(SourceResolver::class),
-            $this->filesystem,
-        );
-
-        $components = $helper->getComponents();
-
-        static::assertCount(1, $components);
-        $component = $components->get('TestBundle:Button');
-        static::assertNotNull($component);
-        static::assertNull($component->metadata);
     }
 
     /**
@@ -215,7 +148,6 @@ class TwigComponentHelperTest extends TestCase
             [],
             self::PROJECT_DIR,
             $this->createMock(NamespaceHierarchyBuilder::class),
-            $this->createComponentMetadataProvider(),
             $connection,
             $sourceResolver,
             $this->filesystem,
@@ -257,7 +189,6 @@ class TwigComponentHelperTest extends TestCase
             [],
             self::PROJECT_DIR,
             $this->createMock(NamespaceHierarchyBuilder::class),
-            $this->createComponentMetadataProvider(),
             $connection,
             $sourceResolver,
             $this->filesystem,
@@ -288,7 +219,6 @@ class TwigComponentHelperTest extends TestCase
             ],
             self::PROJECT_DIR,
             $namespaceHierarchyBuilder,
-            $this->createComponentMetadataProvider(),
             $this->createConnectionMock(),
             $this->createMock(SourceResolver::class),
             $this->filesystem,
@@ -319,7 +249,6 @@ class TwigComponentHelperTest extends TestCase
             ],
             self::PROJECT_DIR,
             $namespaceHierarchyBuilder,
-            $this->createComponentMetadataProvider(),
             $this->createConnectionMock(),
             $this->createMock(SourceResolver::class),
             $this->filesystem,
@@ -343,7 +272,6 @@ class TwigComponentHelperTest extends TestCase
             ['Storefront' => ['path' => self::PROJECT_DIR . '/Storefront']],
             self::PROJECT_DIR,
             $namespaceHierarchyBuilder,
-            $this->createComponentMetadataProvider(),
             $this->createConnectionMock(),
             $this->createMock(SourceResolver::class),
             $this->filesystem,
@@ -370,7 +298,6 @@ class TwigComponentHelperTest extends TestCase
             [],
             self::PROJECT_DIR,
             $this->createMock(NamespaceHierarchyBuilder::class),
-            $this->createComponentMetadataProvider(),
             $connection,
             $sourceResolver,
             $this->filesystem,
@@ -396,24 +323,12 @@ class TwigComponentHelperTest extends TestCase
             [],
             self::PROJECT_DIR,
             $this->createMock(NamespaceHierarchyBuilder::class),
-            $this->createComponentMetadataProvider(),
             $connection,
             $sourceResolver,
             $this->filesystem,
         );
 
         static::assertCount(0, $helper->getComponents());
-    }
-
-    private function createComponentMetadataProvider(?ComponentMetadata $metadata = null): ComponentMetadataProviderInterface
-    {
-        $provider = $this->createMock(ComponentMetadataProviderInterface::class);
-
-        if ($metadata !== null) {
-            $provider->method('metadataFor')->willReturn($metadata);
-        }
-
-        return $provider;
     }
 
     private function createConnectionMock(): Connection

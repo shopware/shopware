@@ -27,23 +27,17 @@ class TwigComponentHelper
         private array $bundlesMetadata,
         private readonly string $projectDir,
         private readonly NamespaceHierarchyBuilder $namespaceHierarchyBuilder,
-        private readonly ComponentMetadataProviderInterface $componentMetadataProvider,
         private readonly Connection $connection,
         private readonly SourceResolver $sourceResolver,
         private readonly FilesystemOperator $localFilesystem,
     ) {
     }
 
-    public function getComponents(bool $includeMetadata = false): TwigComponentCollection
+    public function getComponents(): TwigComponentCollection
     {
         $components = new TwigComponentCollection();
 
         foreach ($this->findComponentsByTemplate() as $component) {
-            if ($includeMetadata) {
-                $componentMetadata = $this->componentMetadataProvider->metadataFor($component->name);
-                $component->metadata = $componentMetadata;
-            }
-
             $components->add($component);
         }
 

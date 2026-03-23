@@ -164,10 +164,12 @@ async function createWrapper() {
                                     {
                                         id: '1234',
                                         name: 'Lazada',
+                                        languageId: '8888',
                                     },
                                     {
                                         id: '123456',
                                         name: 'Tiki',
+                                        languageId: '5678',
                                     },
                                 ]);
                             }
@@ -470,7 +472,6 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         await flushPromises();
 
         const handleSelectCustomerSpy = jest.spyOn(wrapper.vm, 'handleSelectCustomer');
-        const checkContextLanguageSpy = jest.spyOn(wrapper.vm, 'checkContextLanguage');
 
         const firstRow = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
         await firstRow.find('.sw-field__radio-input input').setChecked(true);
@@ -497,7 +498,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         expect(handleSelectCustomerSpy).toHaveBeenCalled();
 
         // First call on customer select, second call after sales channel select
-        expect(checkContextLanguageSpy).toHaveBeenCalledTimes(2);
+        expect(Shopware.Store.get('context').api.languageId).toBe('8888');
     });
 
     it('should show sales channel select modal when customer sales channel is not in the allowed list and has no bound sales channel', async () => {

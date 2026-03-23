@@ -158,7 +158,7 @@ export default Component.wrapComponentConfig({
 
         salesChannelCriteria(): CriteriaType {
             const criteria = new Criteria();
-            criteria.addAssociation('languages')
+            criteria.addAssociation('languages');
             criteria.addFilter(Criteria.equals('active', true));
 
             if (this.customer?.boundSalesChannelId) {

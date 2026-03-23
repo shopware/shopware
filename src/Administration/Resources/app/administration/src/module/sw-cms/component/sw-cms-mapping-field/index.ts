@@ -161,7 +161,7 @@ export default Shopware.Component.wrapComponentConfig({
         onMappingSelect(property: string) {
             this.config.source = 'mapped';
             this.config.value = property;
-            this.demoValue = this.getDemoValue(property);
+            void this.updateDemoValue();
         },
 
         onMappingRemove() {

@@ -82,6 +82,10 @@
     }
 
     .sw-entity-multi-select {
+        .sw-select-selection-list {
+            width: 100%;
+        }
+
         .sw-select-selection-list__load-more {
             margin-top: 0;
 

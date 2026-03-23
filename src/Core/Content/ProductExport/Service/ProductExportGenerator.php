@@ -225,7 +225,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         array $baseContext,
         ExportBehavior $exportBehavior
     ): string {
-        $rows = [];
+        $content = '';
 
         while ($productResult = $iterator->fetch()) {
             foreach ($productResult->getEntities() as $product) {
@@ -247,7 +247,13 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                     continue;
                 }
 
-                $rows[] = $this->normalizeJsonlRow($productExport, $renderedBody);
+                $normalizedRow = $this->normalizeJsonlRow($productExport, $renderedBody);
+
+                if ($content !== '') {
+                    $content .= \PHP_EOL;
+                }
+
+                $content .= $normalizedRow;
             }
 
             if ($exportBehavior->batchMode()) {
@@ -255,11 +261,11 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             }
         }
 
-        if ($rows === []) {
+        if ($content === '') {
             return '';
         }
 
-        return implode(\PHP_EOL, $rows) . \PHP_EOL;
+        return $content . \PHP_EOL;
     }
 
     private function normalizeJsonlRow(ProductExportEntity $productExport, string $renderedBody): string

@@ -12,6 +12,11 @@ use Shopware\Core\Framework\Struct\Collection;
 class FileCollection extends Collection
 {
     /**
+     * Path fragment used to detect Twig UX component files inside bundle resources.
+     */
+    private const COMPONENT_DIRECTORY = 'Resources/views/components/';
+
+    /**
      * @param array<string> $files
      *
      * @return self
@@ -40,9 +45,21 @@ class FileCollection extends Collection
     public function getPublicPaths(string $prefix): array
     {
         return array_values(array_filter($this->map(static function (File $element) use ($prefix) {
+            // Handle Twig UX components
+            if (str_contains($element->getFilepath(), self::COMPONENT_DIRECTORY)) {
+                // Build path - handle empty assetName (for root namespace components)
+                $componentPath = $element->assetName !== null && $element->assetName !== ''
+                    ? $element->assetName . '/' . basename($element->getFilepath())
+                    : basename($element->getFilepath());
+
+                return $prefix . '/components/' . $componentPath;
+            }
+
+            // For non-component files, assetName must be set
             if ($element->assetName === null) {
                 return null;
             }
+
             // removes file with old js structure (before async changes) from collection
             if (!str_ends_with($element->getFilepath(), $element->assetName . '/' . basename($element->getFilepath()))) {
                 return null;

@@ -313,7 +313,7 @@ valid-functions = [
     "config",
     "theme_config",
     "theme_scripts",
-    "component_import_map",
+    "import_map",
     "sw_icon_cache_enable",
     "sw_icon_cache_disable",
     "preg_match",

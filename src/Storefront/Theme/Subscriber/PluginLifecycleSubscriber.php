@@ -14,10 +14,12 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
+use Shopware\Storefront\Framework\Component\ComponentPublisher;
 use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeLifecycleHandler;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
@@ -37,7 +39,8 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         private readonly string $projectDirectory,
         private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
         private readonly ThemeLifecycleHandler $themeLifecycleHandler,
-        private readonly ThemeLifecycleService $themeLifecycleService
+        private readonly ThemeLifecycleService $themeLifecycleService,
+        private readonly ComponentPublisher $componentPublisher,
     ) {
     }
 
@@ -74,7 +77,16 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         }
 
         $pluginName = $event->getPlugin()->getName();
+        $pluginPath = $event->getPlugin()->getPath() ?? '';
+
+        $componentManifestChanged = false;
+        if ($event->getPlugin()->getActive() && $pluginPath !== '') {
+            $componentManifestChanged = $this->componentPublisher->publishBundle($pluginPath, $pluginName);
+        }
+
         $config = $this->storefrontPluginRegistry->getConfigurations()->getByTechnicalName($pluginName);
+        $context = $event->getContext()->getContext();
+        $storefrontPluginConfigurations = $this->storefrontPluginRegistry->getConfigurations();
 
         if (!$config) {
             return;
@@ -82,8 +94,14 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
 
         $this->themeLifecycleHandler->handleThemeInstallOrUpdate(
             $config,
-            $this->storefrontPluginRegistry->getConfigurations(),
-            $event->getContext()->getContext()
+            $storefrontPluginConfigurations,
+            $context
+        );
+
+        $this->refreshActiveThemeImportMaps(
+            $componentManifestChanged,
+            $context,
+            $storefrontPluginConfigurations,
         );
     }
 
@@ -113,19 +131,43 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         }
 
         $pluginName = $event->getPlugin()->getName();
-        $config = $this->storefrontPluginRegistry->getConfigurations()->getByTechnicalName($pluginName);
+        $context = $event->getContext()->getContext();
+        $storefrontPluginConfigurations = $this->storefrontPluginRegistry->getConfigurations();
+
+        $config = $storefrontPluginConfigurations->getByTechnicalName($pluginName);
 
         if (!$config) {
+            $componentManifestChanged = $this->componentPublisher->unpublish($pluginName);
+            $this->refreshActiveThemeImportMaps(
+                $componentManifestChanged,
+                $context,
+                $storefrontPluginConfigurations
+            );
+
             return;
         }
 
         if ($config->hasAdditionalBundles()) {
-            $this->themeLifecycleHandler->deactivateTheme($config, $event->getContext()->getContext());
+            $this->themeLifecycleHandler->deactivateTheme($config, $context);
+
+            $componentManifestChanged = $this->componentPublisher->unpublish($pluginName);
+            $this->refreshActiveThemeImportMaps(
+                $componentManifestChanged,
+                $context,
+                $storefrontPluginConfigurations
+            );
 
             return;
         }
 
-        $this->themeLifecycleHandler->handleThemeUninstall($config, $event->getContext()->getContext());
+        $this->themeLifecycleHandler->handleThemeUninstall($config, $context);
+
+        $componentManifestChanged = $this->componentPublisher->unpublish($pluginName);
+        $this->refreshActiveThemeImportMaps(
+            $componentManifestChanged,
+            $context,
+            $storefrontPluginConfigurations
+        );
     }
 
     public function pluginPostUninstall(PluginPostUninstallEvent $event): void
@@ -176,15 +218,41 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         $configurationCollection = clone $this->storefrontPluginRegistry->getConfigurations();
         $configurationCollection->add($storefrontPluginConfig);
 
+        $pluginPath = $event->getPlugin()->getPath() ?? '';
+        $context = $event->getContext()->getContext();
+
+        $componentManifestChanged = false;
+        if ($pluginPath !== '') {
+            $componentManifestChanged = $this->componentPublisher->publishBundle($pluginPath, $event->getPlugin()->getName());
+        }
+
         $this->themeLifecycleHandler->handleThemeInstallOrUpdate(
             $storefrontPluginConfig,
             $configurationCollection,
-            $event->getContext()->getContext()
+            $context
+        );
+
+        $this->refreshActiveThemeImportMaps(
+            $componentManifestChanged,
+            $context,
+            $configurationCollection,
         );
     }
 
     private function skipCompile(Context $context): bool
     {
         return $context->hasState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+    }
+
+    private function refreshActiveThemeImportMaps(
+        bool $componentManifestChanged,
+        Context $context,
+        StorefrontPluginConfigurationCollection $configurationCollection
+    ): void {
+        if (!$componentManifestChanged) {
+            return;
+        }
+
+        $this->themeLifecycleHandler->refreshAllActiveThemeImportMaps($context, $configurationCollection);
     }
 }

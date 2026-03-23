@@ -68,6 +68,10 @@ class ThemeServiceTest extends TestCase
 
     private ThemeMergedConfigBuilder&MockObject $mergedConfigBuilderMock;
 
+    private DatabaseConfigLoader&MockObject $databaseConfigLoaderMock;
+
+    private ThemeRuntimeConfigService&MockObject $runtimeConfigServiceMock;
+
     private ThemeService $themeService;
 
     private Context $context;
@@ -86,12 +90,13 @@ class ThemeServiceTest extends TestCase
         $this->themeSalesChannelRepositoryMock = $this->createMock(EntityRepository::class);
         $this->themeCompilerMock = $this->createMock(ThemeCompiler::class);
         $this->eventDispatcherMock = $this->createMock(EventDispatcher::class);
-        $databaseConfigLoaderMock = $this->createMock(DatabaseConfigLoader::class);
+        $this->databaseConfigLoaderMock = $this->createMock(DatabaseConfigLoader::class);
         $this->context = Context::createDefaultContext();
         $this->systemConfigMock = $this->createMock(SystemConfigService::class);
         $this->messageBusMock = $this->createMock(MessageBus::class);
         $this->mergedConfigBuilderMock = $this->createMock(ThemeMergedConfigBuilder::class);
         $this->scssCompilerMock = static::createStub(ScssPhpCompiler::class);
+        $this->runtimeConfigServiceMock = $this->createMock(ThemeRuntimeConfigService::class);
 
         $this->themeService = new ThemeService(
             $this->storefrontPluginRegistryMock,
@@ -100,13 +105,13 @@ class ThemeServiceTest extends TestCase
             $this->themeCompilerMock,
             $this->scssCompilerMock,
             $this->eventDispatcherMock,
-            $databaseConfigLoaderMock,
+            $this->databaseConfigLoaderMock,
             $this->connectionMock,
             $this->systemConfigMock,
             $this->messageBusMock,
             $this->createMock(NotificationService::class),
             $this->mergedConfigBuilderMock,
-            $this->createMock(ThemeRuntimeConfigService::class),
+            $this->runtimeConfigServiceMock,
         );
     }
 
@@ -265,6 +270,45 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context, null, false);
+    }
+
+    public function testRefreshThemeImportMap(): void
+    {
+        $themeId = Uuid::randomHex();
+        $storefrontConfig = new \Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration('Storefront');
+        $configurationCollection = new StorefrontPluginConfigurationCollection();
+        $importMap = ['imports' => ['shopware' => '/theme/shopware.js']];
+
+        $this->databaseConfigLoaderMock
+            ->expects($this->once())
+            ->method('load')
+            ->with($themeId, $this->context)
+            ->willReturn($storefrontConfig);
+
+        $this->themeCompilerMock
+            ->expects($this->once())
+            ->method('buildComponentImportMap')
+            ->with(TestDefaults::SALES_CHANNEL, $themeId)
+            ->willReturn($importMap);
+
+        $this->runtimeConfigServiceMock
+            ->expects($this->once())
+            ->method('refreshRuntimeConfig')
+            ->with(
+                $themeId,
+                $storefrontConfig,
+                $this->context,
+                false,
+                $configurationCollection,
+                $importMap
+            );
+
+        $this->themeService->refreshThemeImportMap(
+            TestDefaults::SALES_CHANNEL,
+            $themeId,
+            $this->context,
+            $configurationCollection
+        );
     }
 
     public function testCompileThemeById(): void

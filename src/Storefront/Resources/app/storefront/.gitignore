@@ -1,0 +1,3 @@
+# Vite ES module build output — lives in dist-es/ to keep it separate from webpack's
+# dist/ territory. Extensions commit their own dist/ so assets:install can copy them.
+dist-es/

@@ -98,13 +98,18 @@ class ThemeRuntimeConfigService
 
     /**
      * Refreshes the whole ThemeRuntimeConfig object.
+     *
+     * @param array{imports: array<string, string>, scopes?: array<string, array<string, string>>}|null $importMap
+     *                                                                                                         Pre-built import map.
+     *                                                                                                                      When null (non-compile refresh) the existing stored value is preserved.
      */
     public function refreshRuntimeConfig(
         string $themeId,
         StorefrontPluginConfiguration $themeConfig,
         Context $context,
         bool $failOnFileResolveError = false,
-        ?StorefrontPluginConfigurationCollection $configCollection = null
+        ?StorefrontPluginConfigurationCollection $configCollection = null,
+        ?array $importMap = null,
     ): ThemeRuntimeConfig {
         if ($configCollection === null) {
             $configCollection = $this->pluginRegistry->getConfigurations();
@@ -120,6 +125,11 @@ class ThemeRuntimeConfigService
             }
         }
 
+        // On a non-compile refresh preserve the existing importMap from the database.
+        if ($importMap === null) {
+            $importMap = $this->storage->getById($themeId)?->importMap;
+        }
+
         $runtimeConfig = ThemeRuntimeConfig::fromArray([
             'themeId' => $themeId,
             'technicalName' => $themeConfig->getTechnicalName(),
@@ -127,6 +137,7 @@ class ThemeRuntimeConfigService
             'viewInheritance' => $themeConfig->getViewInheritance(),
             'scriptFiles' => $scriptFiles,
             'iconSets' => $this->prepareIconSets($themeConfig),
+            'importMap' => $importMap,
             'updatedAt' => new \DateTime(),
         ]);
 

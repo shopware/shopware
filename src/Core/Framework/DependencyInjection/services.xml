@@ -404,6 +404,10 @@ frame-ancestors 'none';
             <tag name="twig.extension"/>
         </service>
 
+        <service class="Twig\Extra\Html\HtmlExtension" id="twig.extension.html">
+            <tag name="twig.extension"/>
+        </service>
+
         <service class="Twig\Extra\String\StringExtension" id="twig.extension.string">
             <tag name="twig.extension"/>
         </service>

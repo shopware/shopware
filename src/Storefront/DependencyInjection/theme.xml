@@ -35,6 +35,8 @@
             <argument type="service" id="Psr\Log\LoggerInterface"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
+            <argument>%storefrontRoot%/Resources/app/storefront</argument>
+            <argument type="service" id="Shopware\Storefront\Framework\Component\ComponentPublisher"/>
             <argument>%storefront.theme.allowed_scss_values%</argument>
             <argument>%storefront.theme.validate_on_compile%</argument>
             <argument>%shopware.filesystem.theme.visibility%</argument>
@@ -63,6 +65,7 @@
         <service id="Shopware\Storefront\Theme\ThemeScripts">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
+            <argument type="service" id="shopware.filesystem.temp"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeMergedConfigBuilder">
@@ -110,11 +113,12 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-
         <service id="Shopware\Storefront\Theme\ThemeAppLifecycleHandler">
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleHandler"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Component\ComponentPublisher"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -302,6 +306,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleHandler"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleService"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Component\ComponentPublisher"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

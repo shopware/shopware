@@ -6,8 +6,11 @@ use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppChangedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Framework\Component\ComponentPublisher;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -22,7 +25,9 @@ class ThemeAppLifecycleHandler implements EventSubscriberInterface
     public function __construct(
         private readonly StorefrontPluginRegistry $themeRegistry,
         private readonly AbstractStorefrontPluginConfigurationFactory $themeConfigFactory,
-        private readonly ThemeLifecycleHandler $themeLifecycleHandler
+        private readonly ThemeLifecycleHandler $themeLifecycleHandler,
+        private readonly ComponentPublisher $componentPublisher,
+        private readonly SourceResolver $sourceResolver,
     ) {
     }
 
@@ -51,21 +56,46 @@ class ThemeAppLifecycleHandler implements EventSubscriberInterface
             $configurationCollection->add($config);
         }
 
+        $componentManifestChanged = false;
+
+        $appPath = $this->sourceResolver->filesystemForApp($app)->path();
+        if ($appPath !== '') {
+            $componentManifestChanged = $this->componentPublisher->publishBundle($appPath, $app->getName());
+        }
+
         $this->themeLifecycleHandler->handleThemeInstallOrUpdate(
             $config,
             $configurationCollection,
             $event->getContext()
         );
+
+        if ($componentManifestChanged) {
+            $this->themeLifecycleHandler->refreshAllActiveThemeImportMaps($event->getContext(), $configurationCollection);
+        }
     }
 
     public function handleUninstall(AppDeactivatedEvent $event): void
     {
-        $config = $this->themeRegistry->getConfigurations()->getByTechnicalName($event->getApp()->getName());
+        $appName = $event->getApp()->getName();
+        $config = $this->themeRegistry->getConfigurations()->getByTechnicalName($appName);
+        $configurationCollection = $this->themeRegistry
+            ->getConfigurations()
+            ->filter(static fn (StorefrontPluginConfiguration $registeredConfig): bool => $registeredConfig->getTechnicalName() !== $appName);
+
+        $componentManifestChanged = $this->componentPublisher->unpublish($appName);
 
         if (!$config) {
+            if ($componentManifestChanged) {
+                $this->themeLifecycleHandler->refreshAllActiveThemeImportMaps($event->getContext(), $configurationCollection);
+            }
+
             return;
         }
 
         $this->themeLifecycleHandler->handleThemeUninstall($config, $event->getContext());
+
+        if ($componentManifestChanged) {
+            $this->themeLifecycleHandler->refreshAllActiveThemeImportMaps($event->getContext(), $configurationCollection);
+        }
     }
 }

@@ -7,9 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Services\InstanceService;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\Event\ConsentAcceptedEvent;
+use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
 use Shopware\Core\System\UsageData\Consent\ConsentReporter;
-use Shopware\Core\System\UsageData\Consent\ConsentState;
-use Shopware\Core\System\UsageData\Consent\ConsentStateChangedEvent;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpClient\Exception\TransportException;
@@ -27,11 +28,12 @@ class ConsentReporterTest extends TestCase
     public function testSubscribedEvents(): void
     {
         static::assertSame([
-            ConsentStateChangedEvent::class => 'reportConsent',
+            ConsentAcceptedEvent::class => 'reportAcceptedConsent',
+            ConsentRevokedEvent::class => 'reportRevokedConsent',
         ], ConsentReporter::getSubscribedEvents());
     }
 
-    public function testReportConsentAddsShopIdHeader(): void
+    public function testReportAcceptedConsentAddsShopIdHeader(): void
     {
         $httpClient = new MockHttpClient([
             static function ($method, $url, $options): MockResponse {
@@ -53,10 +55,10 @@ class ConsentReporterTest extends TestCase
             'APP_URL',
         );
 
-        $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
+        $reporter->reportAcceptedConsent(new ConsentAcceptedEvent(BackendData::NAME, 'system', 'system', 'actor'));
     }
 
-    public function testReportConsentAddsShopIdToPayload(): void
+    public function testReportAcceptedConsentAddsShopIdToPayload(): void
     {
         $httpClient = new MockHttpClient([
             static function ($method, $url, $options): MockResponse {
@@ -78,14 +80,14 @@ class ConsentReporterTest extends TestCase
             'APP_URL',
         );
 
-        $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
+        $reporter->reportAcceptedConsent(new ConsentAcceptedEvent(BackendData::NAME, 'system', 'system', 'actor'));
     }
 
-    public function testReportConsentAddsContentStateToPayload(): void
+    public function testReportAcceptedConsentAddsConsentStateToPayload(): void
     {
         $httpClient = new MockHttpClient([
             static function ($method, $url, $options): MockResponse {
-                self::assertPayloadContains('consent_state', ConsentState::REQUESTED->value, $options['body']);
+                self::assertPayloadContains('consent_state', 'accepted', $options['body']);
 
                 return new MockResponse('', ['http_code' => 204]);
             },
@@ -99,7 +101,28 @@ class ConsentReporterTest extends TestCase
             'APP_URL',
         );
 
-        $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
+        $reporter->reportAcceptedConsent(new ConsentAcceptedEvent(BackendData::NAME, 'system', 'system', 'actor'));
+    }
+
+    public function testReportRevokedConsentAddsConsentStateToPayload(): void
+    {
+        $httpClient = new MockHttpClient([
+            static function ($method, $url, $options): MockResponse {
+                self::assertPayloadContains('consent_state', 'revoked', $options['body']);
+
+                return new MockResponse('', ['http_code' => 204]);
+            },
+        ]);
+
+        $reporter = new ConsentReporter(
+            $httpClient,
+            $this->createMock(ShopIdProvider::class),
+            new StaticSystemConfigService(),
+            $this->createMock(InstanceService::class),
+            'APP_URL',
+        );
+
+        $reporter->reportRevokedConsent(new ConsentRevokedEvent(BackendData::NAME, 'system', 'system', 'actor'));
     }
 
     public function testReportConsentAddsShopwareVersionToPayload(): void
@@ -124,7 +147,7 @@ class ConsentReporterTest extends TestCase
             'APP_URL',
         );
 
-        $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
+        $reporter->reportAcceptedConsent(new ConsentAcceptedEvent(BackendData::NAME, 'system', 'system', 'actor'));
     }
 
     public function testReportConsentAddsLicenseHostToPayload(): void
@@ -147,7 +170,7 @@ class ConsentReporterTest extends TestCase
             'APP_URL',
         );
 
-        $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
+        $reporter->reportAcceptedConsent(new ConsentAcceptedEvent(BackendData::NAME, 'system', 'system', 'actor'));
     }
 
     public function testReportConsentDoesNotThrowExceptionIfGatewayIsNotAvailable(): void
@@ -169,12 +192,29 @@ class ConsentReporterTest extends TestCase
             'APP_URL',
         );
 
-        $reporter->reportConsent(new ConsentStateChangedEvent(ConsentState::REQUESTED));
+        $reporter->reportAcceptedConsent(new ConsentAcceptedEvent(BackendData::NAME, 'system', 'system', 'actor'));
+    }
+
+    public function testIgnoresNonBackendDataConsent(): void
+    {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient->expects($this->never())->method('request');
+
+        $reporter = new ConsentReporter(
+            $httpClient,
+            $this->createMock(ShopIdProvider::class),
+            new StaticSystemConfigService(),
+            $this->createMock(InstanceService::class),
+            'APP_URL',
+        );
+
+        $reporter->reportAcceptedConsent(new ConsentAcceptedEvent('other-consent', 'system', 'system', 'actor'));
+        $reporter->reportRevokedConsent(new ConsentRevokedEvent('other-consent', 'system', 'system', 'actor'));
     }
 
     private static function assertPayloadContains(string $key, mixed $value, string $body): void
     {
-        $payload = json_decode($body, true, \JSON_THROW_ON_ERROR);
+        $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
 
         static::assertIsArray($payload);
         static::assertArrayHasKey($key, $payload);

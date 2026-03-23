@@ -10,6 +10,8 @@ use Shopware\Elasticsearch\Migration\Traits\ElasticsearchTriggerTrait;
 
 /**
  * @internal
+ *
+ * @phpstan-ignore classConstant.deprecatedTrait
  */
 #[CoversClass(ElasticsearchTriggerTrait::class)]
 class ElasticsearchTriggerTraitTest extends TestCase

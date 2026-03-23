@@ -61,7 +61,7 @@ class ProductSearchTermInterpreterTest extends TestCase
         $keywordLoader = static::createMock(KeywordLoader::class);
 
         $keywordLoader->expects($this->once())->method('fetch')
-            ->with(static::callback(function ($tokenSlops) use ($term) {
+            ->with(static::callback(static function ($tokenSlops) use ($term) {
                 $tokens = [
                     ...$tokenSlops[$term]['reversed'],
                     ...$tokenSlops[$term]['normal'],
@@ -97,7 +97,7 @@ class ProductSearchTermInterpreterTest extends TestCase
         $term = 'Aerodynamic Aluminum Chambermaid Placemats';
         $keywordLoader = static::createMock(KeywordLoader::class);
         $keywordLoader->expects($this->once())->method('fetch')
-            ->willReturnCallback(function ($tokenSlops) {
+            ->willReturnCallback(static function ($tokenSlops) {
                 return [
                     ['aerodynamic', '1', '0', '0', '0'],
                     ['alumimagic', '0', '1', '0', '0'],

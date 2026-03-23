@@ -386,7 +386,8 @@
       },
       "info": {
         "DOCUMENT__NUMBER_WAS_CHANGED": "Duplicate document number. A consecutive number has automatically been drawn from the respective number range."
-      }
+      },
+      "confirmDeleteText": "This document is part of an order and may be relevant for tax purposes. Deleting it may affect the traceability of your accounting records. Please ensure that deletion is legally permitted. This action cannot be undone."
     },
     "generalTab": {
       "info": {
@@ -436,6 +437,7 @@
       "selectInvoiceNumber": "Select invoice",
       "labelDeliveryNoteNumber": "Delivery note number",
       "labelDocumentComment": "Comment",
+      "labelCreateDownload": "Create and download",
       "labelCreateDownloadPdf": "Create and download PDF",
       "labelCreateSend": "Create and send",
       "labelCreate": "Create",
@@ -623,9 +625,14 @@
       "selectDocumentTypeModal": {
         "title": "Create document",
         "primaryAction": "Create document",
+        "showZugferd": "Show ZUGFeRD variants",
         "helpText": {
           "storno": "A cancellation invoice can't be created without an invoice.",
-          "credit_note": "To create a credit note, add a credit item first."
+          "credit_note": "To create a credit note, an invoice and at least one credit item are required.",
+          "zugferd_cancellation_invoice": "A ZUGFeRD cancellation invoice can't be created without an invoice.",
+          "zugferd_embedded_cancellation_invoice": "An embedded ZUGFeRD cancellation invoice can't be created without an invoice.",
+          "zugferd_credit_note": "To create a ZUGFeRD credit note, an invoice and at least one credit item are required.",
+          "zugferd_embedded_credit_note": "To create an embedded ZUGFeRD credit note, an invoice and at least one credit item are required."
         }
       }
     }

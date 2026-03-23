@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
@@ -83,6 +84,36 @@ class NetPriceCalculatorTest extends TestCase
         yield 'test calculation with reference price' => [
             100,
             new RegulationPrice(100),
+        ];
+    }
+
+    #[DataProvider('listPriceCalculationProvider')]
+    public function testListPriceCalculation(?float $listPriceValue, ?ListPrice $expected): void
+    {
+        $definition = new QuantityPriceDefinition(100, new TaxRuleCollection(), 1);
+        $definition->setListPrice($listPriceValue);
+
+        $calculator = new NetPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+
+        static::assertEquals($expected, $price->getListPrice());
+    }
+
+    public static function listPriceCalculationProvider(): \Generator
+    {
+        yield 'test calculation without list price' => [
+            null,
+            null,
+        ];
+
+        yield 'test calculation with zero list price' => [
+            0.0,
+            null,
+        ];
+
+        yield 'test calculation with valid list price' => [
+            200.0,
+            ListPrice::createFromUnitPrice(100, 200),
         ];
     }
 

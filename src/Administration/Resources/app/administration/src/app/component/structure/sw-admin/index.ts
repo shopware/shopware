@@ -70,7 +70,6 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
             const currentRouteName = this.$router.currentRoute.value.name as string;
             const routeBlocklist = [
                 'sw.inactivity.login.index',

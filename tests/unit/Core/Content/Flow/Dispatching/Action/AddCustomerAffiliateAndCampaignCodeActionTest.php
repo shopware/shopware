@@ -25,7 +25,9 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
 {
     private Connection&MockObject $connection;
 
-    /** @var MockObject&EntityRepository<CustomerCollection> */
+    /**
+     * @var MockObject&EntityRepository<CustomerCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private AddCustomerAffiliateAndCampaignCodeAction $action;

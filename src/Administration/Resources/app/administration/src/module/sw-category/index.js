@@ -7,7 +7,7 @@ import './page/sw-category-detail/store';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-category-tree', () => import('./component/sw-category-tree'));
 Shopware.Component.register('sw-landing-page-tree', () => import('./component/sw-landing-page-tree'));
 Shopware.Component.register('sw-landing-page-view', () => import('./component/sw-landing-page-view'));
@@ -35,7 +35,7 @@ Shopware.Component.register('sw-landing-page-detail-base', () => import('./view/
 Shopware.Component.register('sw-landing-page-detail-cms', () => import('./view/sw-landing-page-detail-cms'));
 Shopware.Component.register('sw-category-detail-products', () => import('./view/sw-category-detail-products'));
 Shopware.Component.register('sw-category-detail-seo', () => import('./view/sw-category-detail-seo'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-category', {

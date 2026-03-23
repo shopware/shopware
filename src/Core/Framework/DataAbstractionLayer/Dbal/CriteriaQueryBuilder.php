@@ -50,7 +50,7 @@ class CriteriaQueryBuilder
         }
 
         if ($criteria->getTerm()) {
-            $pattern = $this->interpreter->interpret($criteria->getTerm(), $context);
+            $pattern = $this->interpreter->interpret($criteria->getTerm());
             $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition->getEntityName(), $context);
             $criteria->addQuery(...$queries);
         }
@@ -90,7 +90,7 @@ class CriteriaQueryBuilder
 
         $parsed = $this->parser->parse($filter, $definition, $context);
 
-        if (empty($parsed->getWheres())) {
+        if ($parsed->getWheres() === []) {
             return;
         }
 
@@ -162,7 +162,7 @@ class CriteriaQueryBuilder
             $context
         );
 
-        if (empty($queries->getWheres())) {
+        if ($queries->getWheres() === []) {
             return;
         }
 
@@ -202,7 +202,7 @@ class CriteriaQueryBuilder
 
         $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ') / ' . \sprintf('COUNT(%s.%s)', $definition->getEntityName(), $primary->getStorageName());
 
-        if (!empty($distincts)) {
+        if ($distincts !== []) {
             $select .= ' * (' . implode(' + ', $distincts) . ')';
         }
 
@@ -214,8 +214,8 @@ class CriteriaQueryBuilder
             $criteria->addSorting(new FieldSorting('_score', FieldSorting::DESCENDING));
         }
 
-        $minScore = array_map(fn (ScoreQuery $query) => $query->getScore(), $criteria->getQueries());
-        \assert(!empty($minScore));
+        $minScore = array_map(static fn (ScoreQuery $query) => $query->getScore(), $criteria->getQueries());
+        \assert($minScore !== []);
 
         $minScore = min($minScore);
 
@@ -237,7 +237,7 @@ class CriteriaQueryBuilder
         foreach ($queries as $scoreQuery) {
             $parsed = $this->parser->parse($scoreQuery->getQuery(), $definition, $context);
 
-            if (empty($parsed->getWheres())) {
+            if ($parsed->getWheres() === []) {
                 continue;
             }
 
@@ -248,7 +248,7 @@ class CriteriaQueryBuilder
             }
         }
 
-        if (empty($conditions)) {
+        if ($conditions === []) {
             return;
         }
 
@@ -262,7 +262,7 @@ class CriteriaQueryBuilder
             return false;
         }
 
-        return $query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN) || !empty($criteria->getGroupFields());
+        return $query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN) || $criteria->getGroupFields() !== [];
     }
 
     /**
@@ -300,7 +300,7 @@ class CriteriaQueryBuilder
 
     private function hasQueriesOrTerm(Criteria $criteria): bool
     {
-        return !empty($criteria->getQueries()) || $criteria->getTerm();
+        return $criteria->getQueries() !== [] || $criteria->getTerm();
     }
 
     private function validateSortingDirection(string $direction): void

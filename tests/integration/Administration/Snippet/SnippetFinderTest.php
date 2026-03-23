@@ -197,7 +197,7 @@ class SnippetFinderTest extends TestCase
             ->ignoreUnreadableDirs()
             ->name($namePattern);
 
-        $fileArray = array_map(fn (SplFileInfo $file) => $file->getRealPath(), \iterator_to_array($finder->getIterator()));
+        $fileArray = array_map(static fn (SplFileInfo $file) => $file->getRealPath(), \iterator_to_array($finder->getIterator()));
         $fileArray = $this->ensureFileOrder(\array_values($fileArray));
 
         $files = new SnippetPathCollection();

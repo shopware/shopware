@@ -83,6 +83,24 @@ class ConsentServiceTest extends TestCase
         $service->list($context);
     }
 
+    public function testResetClearsCachedStates(): void
+    {
+        $service = $this->createService(null, [
+            new TestDefinition('consent-1', ConsentScope\System::NAME),
+        ]);
+
+        $this->consentRepository
+            ->expects($this->exactly(2))
+            ->method('fetchAllConsentStates')
+            ->willReturn([]);
+
+        $context = Context::createDefaultContext(new AdminApiSource('user-123'));
+
+        $service->list($context);
+        $service->reset();
+        $service->list($context);
+    }
+
     public function testGetConsentStatusThrowsExceptionWhenNoIdentifierGivenForAdminScope(): void
     {
         self::expectExceptionObject(ConsentException::cannotResolveScope(AdminUser::NAME));
@@ -183,30 +201,38 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $this->consentRepository
-            ->expects($this->once())
             ->method('fetchAllConsentStates')
-            ->willReturn([]);
+            ->willReturnOnConsecutiveCalls([], [new ConsentStateRecord(
+                'consent-1',
+                'system',
+                ConsentStatus::ACCEPTED,
+                'user-123',
+                '2026-01-26 00:00:00'
+            )]);
 
         $this->consentRepository
             ->expects($this->once())
             ->method('updateConsentState')
             ->with(
-                static::callback(fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
+                static::callback(static fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
                 'system',
                 ConsentStatus::ACCEPTED,
                 'user-123'
-            )
-            ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00'));
+            );
 
         $source = new AdminApiSource('user-123');
         $context = Context::createDefaultContext($source);
 
         $updatedState = $service->acceptConsent('consent-1', $context);
 
-        static::assertEquals(
-            new ConsentState('consent-1', 'system', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00'),
-            $updatedState
-        );
+        static::assertSame('consent-1', $updatedState->name);
+        static::assertSame('system', $updatedState->scopeName);
+        static::assertSame('system', $updatedState->identifier);
+        static::assertSame(ConsentStatus::ACCEPTED, $updatedState->status);
+        static::assertSame('user-123', $updatedState->actor);
+        static::assertSame('2026-01-26 00:00:00', $updatedState->updatedAt);
+        static::assertIsString($updatedState->acceptedUntil);
+        static::assertEqualsWithDelta((new \DateTimeImmutable())->getTimestamp(), (new \DateTimeImmutable($updatedState->acceptedUntil))->getTimestamp(), 1);
     }
 
     public function testAcceptConsentThrowsExceptionWhenConsentNotFound(): void
@@ -243,6 +269,27 @@ class ConsentServiceTest extends TestCase
         $service->revokeConsent('consent-1', $context);
     }
 
+    public function testRevokeConsentIsNoopWhenConsentWasDeclined(): void
+    {
+        $service = $this->createService(null, [
+            new TestDefinition('consent-1', ConsentScope\System::NAME),
+        ]);
+
+        $this->consentRepository
+            ->expects($this->once())
+            ->method('fetchAllConsentStates')
+            ->willReturn([new ConsentStateRecord('consent-1', 'system', ConsentStatus::DECLINED, 'user-123', '2026-01-26 00:00:00')]);
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('updateConsentState');
+
+        $source = new AdminApiSource('user-123');
+        $context = Context::createDefaultContext($source);
+
+        $service->revokeConsent('consent-1', $context);
+    }
+
     public function testRevokeConsent(): void
     {
         $eventDispatcher = new AssertingEventDispatcher($this, [
@@ -254,20 +301,24 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $this->consentRepository
-            ->expects($this->once())
             ->method('fetchAllConsentStates')
-            ->willReturn([]);
+            ->willReturnOnConsecutiveCalls([], [new ConsentStateRecord(
+                'consent-1',
+                'system',
+                ConsentStatus::REVOKED,
+                'user-456',
+                '2026-01-26 00:00:00'
+            )]);
 
         $this->consentRepository
             ->expects($this->once())
             ->method('updateConsentState')
             ->with(
-                static::callback(fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
+                static::callback(static fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
                 'system',
                 ConsentStatus::REVOKED,
                 'user-456'
-            )
-            ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::REVOKED, 'user-456', '2026-01-26 00:00:00'));
+            );
 
         $source = new AdminApiSource('user-456');
         $context = Context::createDefaultContext($source);
@@ -320,20 +371,24 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $this->consentRepository
-            ->expects($this->once())
             ->method('fetchAllConsentStates')
-            ->willReturn([]);
+            ->willReturnOnConsecutiveCalls([], [new ConsentStateRecord(
+                'consent-1',
+                'system',
+                ConsentStatus::ACCEPTED,
+                'user-123',
+                '2026-01-26 00:00:00'
+            )]);
 
         $this->consentRepository
             ->expects($this->once())
             ->method('updateConsentState')
             ->with(
-                static::callback(fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
+                static::callback(static fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
                 'system',
                 ConsentStatus::ACCEPTED,
                 'user-123'
-            )
-            ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00'));
+            );
 
         $source = new AdminApiSource('user-123');
         $source->setIsAdmin(true);
@@ -341,10 +396,9 @@ class ConsentServiceTest extends TestCase
 
         $updatedState = $service->acceptConsent('consent-1', $context);
 
-        static::assertEquals(
-            new ConsentState('consent-1', 'system', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00'),
-            $updatedState
-        );
+        static::assertSame('consent-1', $updatedState->name);
+        static::assertSame(ConsentStatus::ACCEPTED, $updatedState->status);
+        static::assertSame('2026-01-26 00:00:00', $updatedState->updatedAt);
     }
 
     public function testConsentWithPermissions(): void
@@ -358,20 +412,24 @@ class ConsentServiceTest extends TestCase
         ]);
 
         $this->consentRepository
-            ->expects($this->once())
             ->method('fetchAllConsentStates')
-            ->willReturn([]);
+            ->willReturnOnConsecutiveCalls([], [new ConsentStateRecord(
+                'consent-1',
+                'system',
+                ConsentStatus::REVOKED,
+                'user-456',
+                '2026-01-26 00:00:00'
+            )]);
 
         $this->consentRepository
             ->expects($this->once())
             ->method('updateConsentState')
             ->with(
-                static::callback(fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
+                static::callback(static fn (ConsentDefinition $consent) => $consent->getName() === 'consent-1'),
                 'system',
                 ConsentStatus::REVOKED,
                 'user-456'
-            )
-            ->willReturn(new ConsentState('consent-1', 'system', 'system', ConsentStatus::REVOKED, 'user-456', '2026-01-26 00:00:00'));
+            );
 
         $source = new AdminApiSource('user-456');
         $source->setPermissions(['permission-1']);
@@ -379,10 +437,9 @@ class ConsentServiceTest extends TestCase
 
         $updatedState = $service->revokeConsent('consent-1', $context);
 
-        static::assertEquals(
-            new ConsentState('consent-1', 'system', 'system', ConsentStatus::REVOKED, 'user-456', '2026-01-26 00:00:00'),
-            $updatedState
-        );
+        static::assertSame('consent-1', $updatedState->name);
+        static::assertSame(ConsentStatus::REVOKED, $updatedState->status);
+        static::assertSame('2026-01-26 00:00:00', $updatedState->updatedAt);
     }
 
     /**

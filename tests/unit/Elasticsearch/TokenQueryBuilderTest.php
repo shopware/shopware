@@ -104,7 +104,7 @@ class TokenQueryBuilderTest extends TestCase
         $nameQuery = self::disMax([
             self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
             self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, $expectedFuzziness, 'or', $expectedMaxExpansions),
-            self::prefix('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 0.4),
+            self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
         ], 1000);
 
         $nameQuery['dis_max']['_name'] = json_encode([
@@ -116,7 +116,7 @@ class TokenQueryBuilderTest extends TestCase
         $tagQuery = self::disMax([
             self::term('tags.name', 'foo', 1),
             self::match('tags.name.search', 'foo', 0.8, $expectedFuzziness, 'or', $expectedMaxExpansions),
-            self::prefix('tags.name', 'foo', 0.4),
+            self::prefix('tags.name.search', 'foo', 0.4),
         ], 500);
 
         $expected = self::bool([
@@ -168,7 +168,7 @@ class TokenQueryBuilderTest extends TestCase
             self::disMax([
                 self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
                 self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, $expectedFuzziness, 'or', $expectedMaxExpansions),
-                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 0.4),
+                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
             ], 1000),
             self::disMax([
                 self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
@@ -177,7 +177,7 @@ class TokenQueryBuilderTest extends TestCase
             self::nested('tags', self::disMax([
                 self::term('tags.name', 'foo', 1),
                 self::match('tags.name.search', 'foo', 0.8, $expectedFuzziness, 'or', $expectedMaxExpansions),
-                self::prefix('tags.name', 'foo', 0.4),
+                self::prefix('tags.name.search', 'foo', 0.4),
             ], 500)),
         ]);
 
@@ -185,8 +185,8 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param SearchFieldConfig[] $config
-     * @param array{string: mixed} $expected
+     * @param list<SearchFieldConfig> $config
+     * @param array<string, mixed> $expected
      */
     #[DataProvider('buildSingleLanguageProvider')]
     public function testBuildSingleLanguage(array $config, string $term, array $expected): void
@@ -203,8 +203,8 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param SearchFieldConfig[] $config
-     * @param array{string: mixed} $expected
+     * @param list<SearchFieldConfig> $config
+     * @param array<string, mixed> $expected
      */
     #[DataProvider('buildMultipleLanguageProvider')]
     public function testBuildMultipleLanguages(array $config, string $term, array $expected): void
@@ -221,9 +221,9 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<array-key, array{config: SearchFieldConfig[], term: string, expected: array<string, mixed>}>
+     * @return \Generator<array{config: list<SearchFieldConfig>, term: string, expected: array<string, mixed>}>
      */
-    public static function buildSingleLanguageProvider(): iterable
+    public static function buildSingleLanguageProvider(): \Generator
     {
         $prefix = 'customFields.' . Defaults::LANGUAGE_SYSTEM . '.';
 
@@ -237,12 +237,12 @@ class TokenQueryBuilderTest extends TestCase
                 self::disMax([
                     self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
                     self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
-                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 0.4),
+                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
                 ], 1000),
                 self::nested('tags', self::disMax([
                     self::term('tags.name', 'foo', 1),
                     self::match('tags.name.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
-                    self::prefix('tags.name', 'foo', 0.4),
+                    self::prefix('tags.name.search', 'foo', 0.4),
                 ], 500)),
             ]),
         ];
@@ -255,7 +255,7 @@ class TokenQueryBuilderTest extends TestCase
             'expected' => self::disMax([
                 self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
                 self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
-                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 0.4),
+                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
             ], 1000),
         ];
 
@@ -279,7 +279,7 @@ class TokenQueryBuilderTest extends TestCase
             'expected' => self::disMax([
                 self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foooooooooo', 1),
                 self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foooooooooo', 0.8, 'AUTO:3,8', 'or', 20),
-                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM, 'foooooooooo', 0.4),
+                self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foooooooooo', 0.4),
                 self::matchSimple('name.' . Defaults::LANGUAGE_SYSTEM . '.ngram', 'foooooooooo', 0.4),
             ], 1000),
         ];
@@ -323,7 +323,7 @@ class TokenQueryBuilderTest extends TestCase
                 self::disMax([
                     self::term($prefix . 'evolvesText', '2023', 1),
                     self::match($prefix . 'evolvesText.search', '2023', 0.8, 0, 'and', 10),
-                    self::prefix($prefix . 'evolvesText', '2023', 0.4),
+                    self::prefix($prefix . 'evolvesText.search', '2023', 0.4),
                 ], 500),
                 self::term($prefix . 'evolvesInt', 2023, 400),
                 self::term($prefix . 'evolvesFloat', 2023.0, 500),
@@ -333,7 +333,7 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<array-key, array{config: SearchFieldConfig[], term: string, expected: array<string, mixed>}>
+     * @return iterable<array-key, array{config: list<SearchFieldConfig>, term: string, expected: array<string, mixed>}>
      */
     public static function buildMultipleLanguageProvider(): iterable
     {
@@ -351,23 +351,23 @@ class TokenQueryBuilderTest extends TestCase
                 self::disMax([
                     self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
                     self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
-                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 0.4),
+                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
                 ], 1000),
                 self::nested('tags', self::disMax([
                     self::term('tags.name', 'foo', 1),
                     self::match('tags.name.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
-                    self::prefix('tags.name', 'foo', 0.4),
+                    self::prefix('tags.name.search', 'foo', 0.4),
                 ], 500)),
                 self::nested('categories', self::disMax([
                     self::disMax([
                         self::term('categories.name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
                         self::match('categories.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
-                        self::prefix('categories.name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 0.4),
+                        self::prefix('categories.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
                     ], 200),
                     self::disMax([
                         self::term('categories.name.' . self::SECOND_LANGUAGE_ID, 'foo', 1),
                         self::match('categories.name.' . self::SECOND_LANGUAGE_ID . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
-                        self::prefix('categories.name.' . self::SECOND_LANGUAGE_ID, 'foo', 0.4),
+                        self::prefix('categories.name.' . self::SECOND_LANGUAGE_ID . '.search', 'foo', 0.4),
                     ], 160),
                 ])),
             ]),
@@ -413,12 +413,12 @@ class TokenQueryBuilderTest extends TestCase
                     self::disMax([
                         self::term($prefixCfLang1 . 'evolvesText', '2023', 1),
                         self::match($prefixCfLang1 . 'evolvesText.search', '2023', 0.8, 0, 'and', 10),
-                        self::prefix($prefixCfLang1 . 'evolvesText', '2023', 0.4),
+                        self::prefix($prefixCfLang1 . 'evolvesText.search', '2023', 0.4),
                     ], 500),
                     self::disMax([
                         self::term($prefixCfLang2 . 'evolvesText', '2023', 1),
                         self::match($prefixCfLang2 . 'evolvesText.search', '2023', 0.8, 0, 'and', 10),
-                        self::prefix($prefixCfLang2 . 'evolvesText', '2023', 0.4),
+                        self::prefix($prefixCfLang2 . 'evolvesText.search', '2023', 0.4),
                     ], 400),
                 ]),
                 self::disMax([
@@ -445,12 +445,12 @@ class TokenQueryBuilderTest extends TestCase
                 self::disMax([
                     self::term($prefixCfLang1 . 'evolvesText', 'foo', 1),
                     self::match($prefixCfLang1 . 'evolvesText.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
-                    self::prefix($prefixCfLang1 . 'evolvesText', 'foo', 0.4),
+                    self::prefix($prefixCfLang1 . 'evolvesText.search', 'foo', 0.4),
                 ], 500),
                 self::disMax([
                     self::term($prefixCfLang2 . 'evolvesText', 'foo', 1),
                     self::match($prefixCfLang2 . 'evolvesText.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
-                    self::prefix($prefixCfLang2 . 'evolvesText', 'foo', 0.4),
+                    self::prefix($prefixCfLang2 . 'evolvesText.search', 'foo', 0.4),
                 ], 400),
             ]),
         ];

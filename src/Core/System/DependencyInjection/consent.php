@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Reference;
 
-return function (ContainerConfigurator $container): void {
+return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
     $services->set(ConsentController::class)
@@ -35,7 +35,8 @@ return function (ContainerConfigurator $container): void {
             new TaggedIteratorArgument('shopware.consent.definition'),
             new Reference(ConsentRepository::class),
             new Reference('event_dispatcher'),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(ConsentScope\System::class)
         ->tag('shopware.consent.scope');

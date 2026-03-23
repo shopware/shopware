@@ -108,8 +108,8 @@ class EntityReader implements EntityReaderInterface
         array $fieldsForPartialLoading,
         bool $isPartialLoading,
     ): EntityCollection {
-        $hasFilters = !empty($criteria->getFilters()) || !empty($criteria->getPostFilters());
-        $hasIds = !empty($criteria->getIds());
+        $hasFilters = $criteria->getFilters() !== [] || $criteria->getPostFilters() !== [];
+        $hasIds = $criteria->getIds() !== [];
 
         if (!$performEmptySearch && !$hasFilters && !$hasIds) {
             return $collection;
@@ -118,7 +118,7 @@ class EntityReader implements EntityReaderInterface
         // Do not re-use `$isPartialLoading` here, as this method could be called for associations
         // and only the initial call is relevant for marking the whole read as partial
         if ($fieldsForPartialLoading !== []) {
-            $fields = $definition->getFields()->filter(function (Field $field) use (&$fieldsForPartialLoading) {
+            $fields = $definition->getFields()->filter(static function (Field $field) use (&$fieldsForPartialLoading) {
                 if ($field->getFlag(PrimaryKey::class)) {
                     $fieldsForPartialLoading[$field->getPropertyName()] = [];
 
@@ -158,8 +158,8 @@ class EntityReader implements EntityReaderInterface
             $isPartialLoading,
         );
 
-        $hasIds = !empty($criteria->getIds());
-        if ($hasIds && empty($criteria->getSorting())) {
+        $hasIds = $criteria->getIds() !== [];
+        if ($hasIds && $criteria->getSorting() === []) {
             $collection->sortByIdArray($criteria->getIds());
         }
 
@@ -368,7 +368,7 @@ class EntityReader implements EntityReaderInterface
             $fieldsForPartialLoading,
         );
 
-        if (!empty($criteria->getIds())) {
+        if ($criteria->getIds() !== []) {
             $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
 
@@ -583,7 +583,7 @@ class EntityReader implements EntityReaderInterface
         $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
 
         if ($isInheritanceAware) {
-            $parentIds = array_values(\array_filter($collection->map(fn (Entity $entity) => $entity->get('parentId'))));
+            $parentIds = array_values(\array_filter($collection->map(static fn (Entity $entity) => $entity->get('parentId'))));
 
             $ids = array_unique([...$ids, ...$parentIds]);
         }
@@ -697,7 +697,7 @@ class EntityReader implements EntityReaderInterface
         $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
 
         if ($isInheritanceAware) {
-            $parentIds = array_values(\array_filter($collection->map(fn (Entity $entity) => $entity->get('parentId'))));
+            $parentIds = array_values(\array_filter($collection->map(static fn (Entity $entity) => $entity->get('parentId'))));
 
             $ids = array_unique([...$ids, ...$parentIds]);
         }
@@ -713,7 +713,8 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        if (\count($filteredIds = \array_filter($ids)) !== 0) {
+        $filteredIds = \array_filter($ids);
+        if ($filteredIds !== []) {
             $fieldCriteria->setIds($filteredIds);
         }
 
@@ -797,24 +798,26 @@ class EntityReader implements EntityReaderInterface
         // collect all ids of many-to-many association which already stored inside the struct instances
         $ids = $this->collectManyToManyIds($collection, $association);
 
-        if (\count($ids) !== 0) {
-            $criteria->setIds($ids);
-        }
-
         $referenceClass = $association->getToManyReferenceDefinition();
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
 
-        $data = $this->_read(
-            $criteria,
-            $referenceClass,
-            $context,
-            new $collectionClass(),
-            $referenceClass->getFields()->getBasicFields(),
-            false,
-            $fieldsForPartialLoading,
-            $isPartialLoading,
-        );
+        if ($ids !== []) {
+            $criteria->setIds($ids);
+
+            $data = $this->_read(
+                $criteria,
+                $referenceClass,
+                $context,
+                new $collectionClass(),
+                $referenceClass->getFields()->getBasicFields(),
+                false,
+                $fieldsForPartialLoading,
+                $isPartialLoading,
+            );
+        } else {
+            $data = new $collectionClass();
+        }
 
         foreach ($collection as $struct) {
             $extension = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);
@@ -944,7 +947,7 @@ class EntityReader implements EntityReaderInterface
 
         $orderBy = '';
         $parts = $query->getOrderByParts();
-        if (!empty($parts)) {
+        if ($parts !== []) {
             $orderBy = ' ORDER BY ' . implode(', ', $parts);
             $query->resetOrderBy();
         }
@@ -999,7 +1002,7 @@ class EntityReader implements EntityReaderInterface
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
 
-        if (\count($ids) !== 0) {
+        if ($ids !== []) {
             // only read data when we have found mapped IDs
             // otherwise we would load the whole reference table
             $fieldCriteria->setIds($ids);
@@ -1139,7 +1142,7 @@ class EntityReader implements EntityReaderInterface
         $wrapper->andWhere($root . '.id IN (:rootIds)');
 
         $bytes = $collection->map(
-            fn (Entity $entity) => Uuid::fromHexToBytes($entity->getUniqueIdentifier())
+            static fn (Entity $entity) => Uuid::fromHexToBytes($entity->getUniqueIdentifier())
         );
 
         if ($definition->isInheritanceAware() && $context->considerInheritance()) {
@@ -1251,9 +1254,9 @@ class EntityReader implements EntityReaderInterface
 
         return $fieldCriteria->getOffset() !== null
             || $fieldCriteria->getLimit() !== null
-            || !empty($fieldCriteria->getSorting())
-            || !empty($fieldCriteria->getFilters())
-            || !empty($fieldCriteria->getPostFilters())
+            || $fieldCriteria->getSorting() !== []
+            || $fieldCriteria->getFilters() !== []
+            || $fieldCriteria->getPostFilters() !== []
         ;
     }
 
@@ -1309,7 +1312,7 @@ class EntityReader implements EntityReaderInterface
             );
         }
 
-        $related = \array_filter($collection->map(function (Entity $entity) use ($association) {
+        $related = \array_filter($collection->map(static function (Entity $entity) use ($association) {
             if ($association->is(Extension::class)) {
                 return $entity->getExtension($association->getPropertyName());
             }

@@ -38,14 +38,33 @@ class ErrorResponseFactoryTest extends TestCase
             ? $data['errors'][0]['trace']
             : $data['errors'][0]['meta']['trace'];
 
-        static::assertSame(self::class, $stack[0]['class']);
-        static::assertSame('getResponseFromExceptionProvider', $stack[0]['function']);
 
-        static::assertSame(DataProviderObject::class, $stack[1]['class']);
-        static::assertSame('dataProvidedByMethods', $stack[1]['function']);
+        $expectedStackTrace = [
+            [
+                'class' => self::class,
+                'function' => 'getResponseFromExceptionProvider',
+            ],
+            [
+                'class' => DataProviderObject::class,
+                'function' => 'dataProvidedByMethods',
+            ],
+            [
+                'class' => DataProviderObject::class,
+                'function' => 'providedData',
+            ],
+        ];
 
-        static::assertSame(DataProviderObject::class, $stack[2]['class']);
-        static::assertSame('providedData', $stack[2]['function']);
+        if ($exception instanceof ShopwareHttpException) {
+            array_unshift($expectedStackTrace, [
+                'class' => NumberRangeException::class,
+                'function' => 'noConfigurationForEntity',
+            ]);
+        }
+
+        foreach ($expectedStackTrace as $index => $trace) {
+            static::assertSame($trace['class'], $stack[$index]['class']);
+            static::assertSame($trace['function'], $stack[$index]['function']);
+        }
     }
 
     #[DataProvider('getResponseFromExceptionProvider')]

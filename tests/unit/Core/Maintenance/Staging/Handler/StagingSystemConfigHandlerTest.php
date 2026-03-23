@@ -38,7 +38,7 @@ class StagingSystemConfigHandlerTest extends TestCase
         $handler = new StagingSystemConfigHandler($config);
 
         $io = $this->createMock(SymfonyStyle::class);
-        $io->expects(static::exactly(2))->method('info');
+        $io->expects($this->exactly(2))->method('info');
 
         $handler(new SetupStagingEvent(
             Context::createDefaultContext(),
@@ -64,7 +64,7 @@ class StagingSystemConfigHandlerTest extends TestCase
         $handler = new StagingSystemConfigHandler($config);
 
         $io = $this->createMock(SymfonyStyle::class);
-        $io->expects(static::exactly(2))->method('info');
+        $io->expects($this->exactly(2))->method('info');
 
         $salesChannelId = 'a1b2c3d4e5f6';
 
@@ -92,7 +92,7 @@ class StagingSystemConfigHandlerTest extends TestCase
         $handler = new StagingSystemConfigHandler($config);
 
         $io = $this->createMock(SymfonyStyle::class);
-        $io->expects(static::exactly(3))->method('info');
+        $io->expects($this->exactly(3))->method('info');
 
         $salesChannelId = 'a1b2c3d4e5f6';
 
@@ -124,7 +124,7 @@ class StagingSystemConfigHandlerTest extends TestCase
         $handler = new StagingSystemConfigHandler($config);
 
         $io = $this->createMock(SymfonyStyle::class);
-        $io->expects(static::exactly(4))->method('info');
+        $io->expects($this->exactly(4))->method('info');
 
         $channelOne = 'a1b2c3d4e5f6';
         $channelTwo = 'f6e5d4c3b2a1';

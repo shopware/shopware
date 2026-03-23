@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Log;
 /**
  * @internal
  *
- * @phpstan-type PackageString 'inventory'|'checkout'|'after-sales'|'framework'|'data-services'|'innovation'|'discovery'|'b2b'|'fundamentals@framework'|'fundamentals@discovery'|'fundamentals@checkout'|'fundamentals@after-sales'
+ * @phpstan-type PackageString 'inventory'|'checkout'|'after-sales'|'framework'|'data-services'|'innovation'|'discovery'|'b2b'|'fundamentals@framework'|'fundamentals@discovery'|'fundamentals@checkout'|'fundamentals@after-sales'|'saas-infrastructure'
  *
  * # Important
  * if the above valid types / domains are changed, please also update them here:
@@ -52,7 +52,7 @@ final class Package
 
         $attrs = $reflection->getAttributes(Package::class);
 
-        if (!empty($attrs)) {
+        if ($attrs !== []) {
             return $attrs[0]->getArguments()[0] ?? null;
         }
 

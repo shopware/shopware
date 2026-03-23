@@ -135,7 +135,10 @@ class AccountOrderEditPageLoaderTest extends TestCase
                 new ErrorCollection(),
             ));
 
-        $page = $this->pageLoader->load(new Request(), Generator::generateSalesChannelContext());
+        $request = new Request();
+        $request->attributes->set('orderId', $order->getId());
+
+        $page = $this->pageLoader->load($request, Generator::generateSalesChannelContext());
 
         static::assertSame($order, $page->getOrder());
         $metaInformation = $page->getMetaInformation();
@@ -190,7 +193,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $this->cartService
             ->expects($this->once())
             ->method('setCart')
-            ->with(static::callback(function (Cart $cart) use ($orderContext) {
+            ->with(static::callback(static function (Cart $cart) use ($orderContext) {
                 return $cart->getToken() === $orderContext->getToken();
             }));
 
@@ -206,6 +209,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
             ->willReturn($orderContext);
 
         $request = new Request();
+        $request->attributes->set('orderId', $order->getId());
         $request->query->set('onlyAvailable', 1);
         $this->checkoutGatewayRoute
             ->expects($this->once())
@@ -217,7 +221,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
                 new ErrorCollection(),
             ));
 
-        $this->pageLoader->load(new Request(), Generator::generateSalesChannelContext());
+        $this->pageLoader->load($request, Generator::generateSalesChannelContext());
     }
 
     public function testLoadCancelled(): void
@@ -257,6 +261,10 @@ class AccountOrderEditPageLoaderTest extends TestCase
             ->willReturn($page);
 
         static::expectException(OrderException::class);
-        $page = $this->pageLoader->load(new Request(), Generator::generateSalesChannelContext());
+
+        $request = new Request();
+        $request->attributes->set('orderId', $order->getId());
+
+        $page = $this->pageLoader->load($request, Generator::generateSalesChannelContext());
     }
 }

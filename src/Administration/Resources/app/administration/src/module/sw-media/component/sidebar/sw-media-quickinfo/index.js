@@ -63,7 +63,7 @@ export default {
             defaultArPlacement: 'horizontal',
             arPlacementOptions: [],
             showCoverSelectionModal: false,
-            showModelViewerModal: false,
+            showModelEditorModal: false,
         };
     },
 
@@ -254,7 +254,7 @@ export default {
                     this.createNotificationSuccess({
                         message: this.$t('sw-media.general.notification.urlCopied.message'),
                     });
-                } catch (err) {
+                } catch (_err) {
                     this.createNotificationError({
                         message: this.$t('global.sw-field.notification.notificationCopyFailureMessage'),
                     });
@@ -420,12 +420,12 @@ export default {
             });
         },
 
-        openModelViewerModal() {
-            this.showModelViewerModal = true;
+        openModelEditorModal() {
+            this.showModelEditorModal = true;
         },
 
-        closeModelViewerModal() {
-            this.showModelViewerModal = false;
+        closeModelEditorModal() {
+            this.showModelEditorModal = false;
         },
     },
 };

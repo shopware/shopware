@@ -7,6 +7,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoaderInterface;
+use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\CategoryTreePathResolver;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -77,7 +78,7 @@ class NavigationRoute extends AbstractNavigationRoute
         SalesChannelContext $context,
         Criteria $criteria
     ): NavigationRouteResponse {
-        $depth = $request->query->getInt('depth', $request->request->getInt('depth', 2));
+        $depth = $request->query->getInt('depth', $request->request->getInt('depth', NavigationLoaderInterface::DEFAULT_DEPTH));
 
         $metaInfo = $this->getCategoryMetaInfo($activeId, $rootId);
 

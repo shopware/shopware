@@ -36,6 +36,7 @@ const stateHistoryFixture = [
             username: 'admin',
         },
         createdAt: '2022-10-12T10:01:28.535+00:00',
+        internalComment: 'Order delivery internal comment',
     },
     {
         entityName: 'order_transaction',
@@ -56,6 +57,7 @@ const stateHistoryFixture = [
         },
         createdAt: '2022-10-12T10:01:33.815+00:00',
         referencedId: '2',
+        internalComment: 'Order transaction internal comment',
     },
 ];
 
@@ -136,6 +138,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
                     'sw-select-field': true,
                     'sw-loader': true,
                     'sw-provide': { template: `<slot/>`, inheritAttrs: false },
+                    'mt-icon': true,
                 },
                 provide: {
                     stateStyleDataProviderService: {
@@ -149,7 +152,6 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
                         create: () => ({
                             search: () => {
                                 if (options.error) {
-                                    // eslint-disable-next-line prefer-promise-reject-errors
                                     return Promise.reject({
                                         response: {
                                             data: {
@@ -199,6 +201,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         expect(firstRow.find('.sw-data-grid__cell--delivery').text()).toBe('Open');
         expect(firstRow.find('.sw-data-grid__cell--transaction').text()).toBe('Open');
         expect(firstRow.find('.sw-data-grid__cell--order').text()).toBe('Open');
+        expect(firstRow.find('.sw-data-grid__cell--internalComment').find('mt-icon-stub').exists()).toBe(false);
 
         const secondRow = stateHistoryRows.at(1);
         expect(secondRow.find('.sw-data-grid__cell--entity').text()).toBe('global.entities.order_delivery');
@@ -206,6 +209,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         expect(secondRow.find('.sw-data-grid__cell--delivery').text()).toBe('Shipped');
         expect(secondRow.find('.sw-data-grid__cell--transaction').text()).toBe('Open');
         expect(secondRow.find('.sw-data-grid__cell--order').text()).toBe('Open');
+        expect(secondRow.find('.sw-data-grid__cell--internalComment').find('mt-icon-stub').exists()).toBe(true);
 
         const thirdRow = stateHistoryRows.at(2);
         expect(thirdRow.find('.sw-data-grid__cell--entity').text()).toBe('global.entities.order_transaction 1');
@@ -213,6 +217,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         expect(thirdRow.find('.sw-data-grid__cell--delivery').text()).toBe('Shipped');
         expect(thirdRow.find('.sw-data-grid__cell--transaction').text()).toBe('In progress');
         expect(thirdRow.find('.sw-data-grid__cell--order').text()).toBe('Open');
+        expect(thirdRow.find('.sw-data-grid__cell--internalComment').find('mt-icon-stub').exists()).toBe(true);
 
         const fourthRow = stateHistoryRows.at(3);
         expect(fourthRow.find('.sw-data-grid__cell--entity').text()).toBe('global.entities.order_transaction 2');
@@ -220,6 +225,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         expect(fourthRow.find('.sw-data-grid__cell--delivery').text()).toBe('Shipped');
         expect(fourthRow.find('.sw-data-grid__cell--transaction').text()).toBe('Open');
         expect(fourthRow.find('.sw-data-grid__cell--order').text()).toBe('Open');
+        expect(fourthRow.find('.sw-data-grid__cell--internalComment').find('mt-icon-stub').exists()).toBe(false);
     });
 
     it('should error notification if loading state history failed', async () => {

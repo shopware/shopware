@@ -91,7 +91,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             // find products in original cart which requires data from gateway
             $ids = $this->getNotCompleted($data, $items, $hash);
 
-            if (!empty($ids)) {
+            if ($ids !== []) {
                 // fetch missing data over gateway
                 $products = $this->productGateway->get($ids, $context);
 
@@ -159,7 +159,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 $isDownloadLineItem = $item->isProductType(ProductDefinition::TYPE_DIGITAL);
 
                 if (!Feature::isActive('v6.8.0.0')) {
-                    Feature::callSilentIfInactive('v6.8.0.0', function () use ($item, &$isDownloadLineItem): void {
+                    Feature::callSilentIfInactive('v6.8.0.0', static function () use ($item, &$isDownloadLineItem): void {
                         $isDownloadLineItem = $isDownloadLineItem || $item->hasState(State::IS_DOWNLOAD);
                     });
                 }
@@ -340,7 +340,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $isPhysicalLineItem = $lineItem->isProductType(ProductDefinition::TYPE_PHYSICAL);
 
         if (!Feature::isActive('v6.8.0.0')) {
-            Feature::callSilentIfInactive('v6.8.0.0', function () use ($lineItem, $product, &$isPhysicalLineItem): void {
+            Feature::callSilentIfInactive('v6.8.0.0', static function () use ($lineItem, $product, &$isPhysicalLineItem): void {
                 $lineItem->setStates($product->getStates());
                 $isPhysicalLineItem = $isPhysicalLineItem || $lineItem->hasState(State::IS_PHYSICAL);
             });
@@ -506,7 +506,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             $changes[$id] = $lineItem->getDataTimestamp()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         }
 
-        if (empty($changes)) {
+        if ($changes === []) {
             return $ids;
         }
 
@@ -603,7 +603,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         // Check if the price has to be updated
-        if (empty($affected)) {
+        if ($affected === []) {
             return;
         }
 

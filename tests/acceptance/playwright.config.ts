@@ -64,7 +64,7 @@ export default defineConfig({
     use: {
         /* Base URL to use in actions like `await page.goto('/')`. */
         baseURL: process.env['APP_URL'],
-        trace: 'on-first-retry',
+        trace: 'retain-on-failure',
         video: 'off',
         ignoreHTTPSErrors,
     },
@@ -118,6 +118,7 @@ export default defineConfig({
             name: 'Visual',
             use: {
                 ...devices['Desktop Chrome'],
+                channel: 'chromium',
             },
             dependencies: [],
             grep: /@Visual/,

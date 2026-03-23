@@ -31,17 +31,17 @@ class RepositorySearchDetector
         }
 
         // group by is only supported by entity searcher
-        if (\count($criteria->getGroupFields())) {
+        if ($criteria->getGroupFields() !== []) {
             return true;
         }
 
         // sortings are only supported by entity searcher
-        if (\count($criteria->getSorting())) {
+        if ($criteria->getSorting() !== []) {
             return true;
         }
 
         // queries can only be handled in entity searcher
-        if (\count($criteria->getQueries())) {
+        if ($criteria->getQueries() !== []) {
             return true;
         }
 

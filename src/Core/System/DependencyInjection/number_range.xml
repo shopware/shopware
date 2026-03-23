@@ -56,7 +56,7 @@
         </service>
 
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry">
-            <argument type="tagged_iterator" tag="shopware.value_generator_connector" index-by="storage"/>
+            <argument type="tagged_locator" tag="shopware.value_generator_connector" index-by="storage"/>
             <argument>%shopware.number_range.increment_storage%</argument>
         </service>
 

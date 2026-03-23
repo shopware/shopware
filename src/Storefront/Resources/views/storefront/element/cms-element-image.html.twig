@@ -1,17 +1,40 @@
 {% block element_image %}
     {% set config = element.fieldConfig.elements %}
-    {% set isCover = element.translated.config.displayMode.value == 'cover' %}
+    {% set displayMode = element.translated.config.displayMode.value %}
+    {% set isCover = displayMode == 'cover' %}
+    {% set wrapperClasses = ['cms-element-' ~ element.type, 'is-' ~ displayMode] %}
 
-    <div class="cms-element-{{ element.type }}{% if config.verticalAlign.value and not isCover %} d-flex has-vertical-alignment{% endif %}{% if config.horizontalAlign.value == "center" and not isCover %} justify-content-center{% elseif config.horizontalAlign.value == "flex-end" and not isCover %} justify-content-end{% else %} justify-content-start{% endif %}">
+    {% if config.verticalAlign.value and not isCover %}
+        {% set wrapperClasses = wrapperClasses|merge(['d-flex', 'has-vertical-alignment']) %}
+    {% endif %}
+
+    {% if not isCover %}
+        {% if config.horizontalAlign.value == 'center' %}
+            {% set wrapperClasses = wrapperClasses|merge(['justify-content-center']) %}
+        {% elseif config.horizontalAlign.value == 'flex-end' %}
+            {% set wrapperClasses = wrapperClasses|merge(['justify-content-end']) %}
+        {% else %}
+            {% set wrapperClasses = wrapperClasses|merge(['justify-content-start']) %}
+        {% endif %}
+    {% endif %}
+
+    {% set alignmentClass = 'align-self-start' %}
+    {% if config.verticalAlign.value == 'center' %}
+        {% set alignmentClass = 'align-self-center' %}
+    {% elseif config.verticalAlign.value == 'flex-end' %}
+        {% set alignmentClass = 'align-self-end' %}
+    {% endif %}
+
+    <div class="{{ wrapperClasses|join(' ') }}">
         {% block element_product_slider_alignment %}
             {% if config.verticalAlign.value and not isCover %}
-                <div class="cms-element-alignment{% if config.verticalAlign.value == "center" %} align-self-center{% elseif config.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+                <div class="cms-element-alignment {{ alignmentClass }}">
             {% endif %}
             {% block element_image_inner %}
                 {% set imageElement %}
                     {% block element_image_container %}
                         {% if element.data.media.url %}
-                            <div class="w-100 cms-image-container is-{{ element.translated.config.displayMode.value }}"
+                            <div class="w-100 cms-image-container is-{{ displayMode }}"
                                 {% if element.translated.config.minHeight.value and isCover %} style="min-height: {{ element.translated.config.minHeight.value }};"{% endif %}>
                                 {% block element_image_media %}
                                     {% set attributes = {
@@ -30,9 +53,16 @@
                                         {% set attributes = attributes|merge({ 'loading': 'lazy' }) %}
                                     {% endif %}
 
-                                    {% sw_thumbnails 'cms-image-thumbnails' with {
-                                        media: element.data.media
-                                    } %}
+                                    {% if displayMode == 'standard' and element.data.media.metaData.width is defined %}
+                                        {% sw_thumbnails 'cms-image-thumbnails' with {
+                                            media: element.data.media,
+                                            sizes: { default: element.data.media.metaData.width ~ 'px' }
+                                        } %}
+                                    {% else %}
+                                        {% sw_thumbnails 'cms-image-thumbnails' with {
+                                            media: element.data.media
+                                        } %}
+                                    {% endif %}
                                 {% endblock %}
                             </div>
                         {% endif %}
@@ -40,10 +70,12 @@
                 {% endset %}
 
                 {% if element.translated.config.url.value %}
-                    <a href="{{ element.translated.config.url.value }}"
-                       class="cms-image-link"
-                       {% if element.translated.config.ariaLabel.value %}aria-label="{{ element.translated.config.ariaLabel.value }}"{% endif %}
-                       {% if element.translated.config.newTab.value %}target="_blank" rel="noopener"{% endif %}>
+                    <a
+                        href="{{ element.translated.config.url.value }}"
+                        class="cms-image-link"
+                        {% if element.translated.config.ariaLabel.value %}aria-label="{{ element.translated.config.ariaLabel.value }}"{% endif %}
+                        {% if element.translated.config.newTab.value %}target="_blank" rel="noopener"{% endif %}
+                    >
                         {{ imageElement }}
                     </a>
                 {% else %}

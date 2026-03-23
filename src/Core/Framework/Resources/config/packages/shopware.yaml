@@ -1,6 +1,7 @@
 parameters:
     default_cdn_strategy: "id"
     env(APP_URL): ''
+    env(PRODUCT_ANALYTICS_GATEWAY_URL): 'https://product-analytics-gateway.services.shopware.io'
     APP_URL: "%env(string:APP_URL)%"
     env(REDIS_PREFIX): ''
 
@@ -214,6 +215,7 @@ shopware:
             #     config:
             #         url: 'redis://localhost'
 
+        # @deprecated tag:v6.8.0, will be removed
         message_queue:
             type: 'mysql'
 
@@ -299,6 +301,17 @@ shopware:
                       interval: '60 seconds'
                     - limit: 10
                       interval: '90 seconds'
+            revocation_request_form:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 3
+                      interval: '30 seconds'
+                    - limit: 5
+                      interval: '60 seconds'
+                    - limit: 10
+                      interval: '90 seconds'
             notification:
                 enabled: true
                 policy: 'time_backoff'
@@ -321,6 +334,17 @@ shopware:
                       interval: '60 seconds'
                     - limit: 10
                       interval: '90 seconds'
+            newsletter_unsubscribe_form:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 3
+                      interval: '30 seconds'
+                    - limit: 5
+                      interval: '60 seconds'
+                    - limit: 10
+                      interval: '90 seconds'
             cart_add_line_item:
                 enabled: true
                 policy: 'system_config'
@@ -328,6 +352,11 @@ shopware:
                 limits:
                     -   domain: 'core.cart.lineItemAddLimit'
                         interval: '60 seconds'
+            app_shop_verify:
+                enabled: true
+                policy: 'sliding_window'
+                limit: 60
+                interval: '60 minutes'
 
     admin_worker:
         enable_admin_worker: true
@@ -619,3 +648,7 @@ shopware:
         allowed_types:
           - physical
           - digital
+
+    webhook:
+        #@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation
+        failure_strategy: disable_on_threshold

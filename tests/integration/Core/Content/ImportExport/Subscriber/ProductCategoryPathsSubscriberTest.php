@@ -35,7 +35,12 @@ class ProductCategoryPathsSubscriberTest extends TestCase
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, array{
+     *     categoriesToWrite: list<array<string, mixed>>,
+     *     record: array{categories: array{}|list<array{id: string}>},
+     *     row: array<string, string>,
+     *     assertion: list<array<string, string>>
+     * }>
      */
     public static function provideCategoryPaths(): array
     {
@@ -267,10 +272,10 @@ class ProductCategoryPathsSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<array<string, mixed|null>> $categoriesToWrite
-     * @param array<array<string, mixed|null>> $record
-     * @param array<array<string>> $row
-     * @param array<array<string>> $assertion
+     * @param list<array<string, mixed>> $categoriesToWrite
+     * @param array{categories: array{}|list<array{id: string}>} $record
+     * @param array<string, string> $row
+     * @param list<array<string, string>> $assertion
      */
     #[DataProvider('provideCategoryPaths')]
     public function testCategoryPathToAssignment(array $categoriesToWrite, array $record, array $row, array $assertion): void

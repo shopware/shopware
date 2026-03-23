@@ -21,11 +21,15 @@ export interface LoginConfig {
 }
 
 interface TokenResponse {
-    /* eslint-disable camelcase */
     access_token: string;
     refresh_token: string;
     expires_in: number;
-    /* eslint-enable camelcase */
+}
+
+interface RetryBackoffOptions {
+    maxRetries?: number;
+    initialDelay?: number;
+    factor?: number;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -38,6 +42,7 @@ export interface LoginService {
     setBearerAuthentication: ({ access, refresh, expiry }: AuthObject) => AuthObject;
     restartAutoTokenRefresh: (expiryTimestamp: number) => void;
     logout: (isInactivityLogout?: boolean, shouldRedirect?: boolean) => boolean;
+    logoutSso: () => Promise<void>;
     forwardLogout(isInactivityLogout: boolean, shouldRedirect: boolean): void;
     isLoggedIn: () => boolean;
     addOnTokenChangedListener: (listener: (auth?: AuthObject) => void) => void;
@@ -49,6 +54,10 @@ export interface LoginService {
     getStorage: () => CookieStorage;
     setRememberMe: (active?: boolean) => void;
     getLoginTemplateConfig: () => Promise<LoginConfig>;
+    subscribeToTokenRefresh: (successCallback: (token: string) => void, errorCallback: (error: Error) => void) => void;
+    isRefreshing: () => Promise<boolean>;
+    /** @internal */
+    _navigateTo: (url: string) => void;
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -65,6 +74,24 @@ export default function createLoginService(
     const cookieStorage = cookieStorageFactory();
     let autoRefreshTokenTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
+    /**
+     * Tracks an in-flight token refresh request so that concurrent calls
+     * to the refresh logic can share the same promise and avoid duplicate
+     * network requests.
+     */
+    let refreshPromise: Promise<string> | null = null;
+
+    // Subscriber pattern for token refresh events
+    const refreshSubscribers: Array<(token: string) => void> = [];
+    const refreshErrorSubscribers: Array<(error: Error) => void> = [];
+
+    // Wraps window.location.href assignment to enable test mocking (JSDOM
+    // marks window.location as non-configurable). Mirrors the upstream
+    // _navigateTo pattern used in sw-login-login component.
+    let navigateToFn = (url: string): void => {
+        window.location.href = url;
+    };
+
     return {
         loginByUsername,
         verifyUserByUsername,
@@ -74,6 +101,7 @@ export default function createLoginService(
         setBearerAuthentication,
         restartAutoTokenRefresh,
         logout,
+        logoutSso,
         forwardLogout,
         isLoggedIn,
         addOnTokenChangedListener,
@@ -85,13 +113,22 @@ export default function createLoginService(
         getStorage,
         setRememberMe,
         getLoginTemplateConfig,
+        subscribeToTokenRefresh,
+        isRefreshing,
+
+        /** @internal */
+        get _navigateTo() {
+            return navigateToFn;
+        },
+        set _navigateTo(fn: (url: string) => void) {
+            navigateToFn = fn;
+        },
     };
 
     /**
      * Helper function to receive a logged in user token
      */
     function verifyUserToken(password: string): Promise<string> {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         return verifyUserByUsername(Shopware.Store.get('session').currentUser?.username ?? '', password)
             .then(({ access }) => {
                 if (Shopware.Utils.types.isString(access)) {
@@ -120,7 +157,6 @@ export default function createLoginService(
                     password: pass,
                 },
                 {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     baseURL: context.apiPath!,
                 },
             )
@@ -140,40 +176,205 @@ export default function createLoginService(
     }
 
     /**
-     * Sends an AJAX request to the authentication end point and retries to refresh the token.
+     * Refreshes the access token with retry/backoff and cross-tab synchronization.
+     *
+     * Uses the Web Locks API to coordinate token refresh across browser tabs.
+     * Only one tab at a time will perform the actual HTTP request; other tabs
+     * wait for the lock and then re-check whether the token was already refreshed.
      */
     function refreshToken(): Promise<AuthObject['access']> {
-        const token = getRefreshToken();
+        // Avoid parallel refresh requests within the same tab by reusing the in-flight promise.
+        if (refreshPromise) {
+            return refreshPromise;
+        }
 
-        if (!token || !token.length) {
+        const refreshTokenValue = getRefreshToken();
+        if (!refreshTokenValue || !refreshTokenValue.length) {
             return Promise.reject(new Error('No refresh token found.'));
         }
 
-        return httpClient
-            .post<TokenResponse>(
-                '/oauth/token',
-                {
-                    grant_type: 'refresh_token',
-                    client_id: 'administration',
-                    scope: 'write',
-                    refresh_token: token,
-                },
-                {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    baseURL: context.apiPath!,
-                },
-            )
+        // Capture the current access token before requesting the lock,
+        // so we can detect whether another tab refreshed it while we were waiting.
+        const accessTokenBeforeLock = getToken();
+
+        refreshPromise = synchronizedTokenRefresh(async () => {
+            // Another tab may already have refreshed the token while we were waiting for the lock.
+            const currentAccessToken = getToken();
+            if (currentAccessToken && currentAccessToken !== accessTokenBeforeLock) {
+                notifyRefreshSubscribers(currentAccessToken);
+                return currentAccessToken;
+            }
+
+            return retryRefreshWithBackoff(refreshTokenValue);
+        })
+            .catch((error) => {
+                throw error instanceof Error ? error : new Error(String(error));
+            })
+            .finally(() => {
+                refreshPromise = null;
+            });
+
+        return refreshPromise;
+    }
+
+    /**
+     * Executes refresh logic under a cross-tab lock when the Web Locks API is available.
+     */
+    async function synchronizedTokenRefresh<T>(fn: () => Promise<T>): Promise<T> {
+        if (typeof navigator === 'undefined' || typeof navigator.locks?.request !== 'function') {
+            return fn();
+        }
+
+        const result = await (navigator.locks.request('sw-admin-token-refresh', fn) as Promise<T>);
+
+        return result;
+    }
+
+    /**
+     * Performs the token refresh HTTP request with exponential backoff retry logic.
+     *
+     * On success: updates authentication and notifies subscribers.
+     * On failure after all retries: triggers an inactivity logout and notifies error subscribers.
+     *
+     * @private
+     */
+    function retryRefreshWithBackoff(token: string): Promise<string> {
+        return retryPromiseWithBackoff(
+            () => {
+                return httpClient.post<TokenResponse>(
+                    '/oauth/token',
+                    {
+                        grant_type: 'refresh_token',
+                        client_id: 'administration',
+                        scope: 'write',
+                        refresh_token: token,
+                    },
+                    {
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        baseURL: context.apiPath!,
+                    },
+                );
+            },
+            {
+                maxRetries: 2,
+                initialDelay: 500,
+                factor: 2,
+            },
+        )
             .then((response) => {
                 const expiry = response.data.expires_in;
+                const newToken = response.data.access_token;
 
                 setBearerAuthentication({
-                    access: response.data.access_token,
+                    access: newToken,
                     expiry: expiry,
                     refresh: response.data.refresh_token,
                 });
 
-                return response.data.access_token;
+                notifyRefreshSubscribers(newToken);
+
+                return newToken;
+            })
+            .catch((error) => {
+                logout(true);
+
+                // Notify all error subscribers
+                const errorObj = error instanceof Error ? error : new Error(String(error));
+                refreshErrorSubscribers.forEach((callback) => {
+                    callback(errorObj);
+                });
+                refreshSubscribers.length = 0;
+                refreshErrorSubscribers.length = 0;
+
+                return Promise.reject(errorObj);
             });
+    }
+
+    /**
+     * Retries a promise-returning function with exponential backoff.
+     *
+     * @param fn - Function that returns the promise to execute
+     * @param options - Retry and backoff configuration
+     */
+    function retryPromiseWithBackoff<T>(fn: () => Promise<T>, options: RetryBackoffOptions = {}): Promise<T> {
+        const { maxRetries = 3, initialDelay = 1000, factor = 2 } = options;
+
+        return new Promise<T>((resolve, reject) => {
+            let attempt = 0;
+
+            const execute = (): void => {
+                Promise.resolve()
+                    .then(fn)
+                    .then(resolve)
+                    .catch((error) => {
+                        if (attempt >= maxRetries) {
+                            const errorObj = error instanceof Error ? error : new Error(String(error));
+                            reject(errorObj);
+                            return;
+                        }
+
+                        const delay = initialDelay * factor ** attempt;
+                        attempt += 1;
+
+                        setTimeout(execute, delay);
+                    });
+            };
+
+            execute();
+        });
+    }
+
+    /**
+     * Notifies all refresh subscribers with the latest token and clears all refresh subscriber queues.
+     *
+     * @param token - The refreshed access token
+     */
+    function notifyRefreshSubscribers(token: string): void {
+        refreshSubscribers.forEach((callback) => {
+            callback(token);
+        });
+        refreshSubscribers.length = 0;
+        refreshErrorSubscribers.length = 0;
+    }
+
+    /**
+     * Subscribe to token refresh events. Callbacks will be called when token refresh succeeds or fails.
+     *
+     * @param successCallback - Called with the new token when refresh succeeds
+     * @param errorCallback - Called with the error when refresh fails
+     */
+    function subscribeToTokenRefresh(successCallback: (token: string) => void, errorCallback: (error: Error) => void): void {
+        refreshSubscribers.push(successCallback);
+        refreshErrorSubscribers.push(errorCallback);
+    }
+
+    /**
+     * Returns whether a token refresh is currently in progress.
+     *
+     * Checks both this tab's in-flight refresh promise and, where supported,
+     * the shared Web Lock used for cross-tab refresh synchronization.
+     */
+    async function isRefreshing(): Promise<boolean> {
+        if (refreshPromise !== null) {
+            return true;
+        }
+
+        if (typeof navigator === 'undefined' || typeof navigator.locks?.query !== 'function') {
+            return false;
+        }
+
+        try {
+            const lockState = await navigator.locks.query();
+            const heldLocks = lockState.held ?? [];
+            const pendingLocks = lockState.pending ?? [];
+
+            return (
+                heldLocks.some((lock) => lock.name === 'sw-admin-token-refresh') ||
+                pendingLocks.some((lock) => lock.name === 'sw-admin-token-refresh')
+            );
+        } catch {
+            return false;
+        }
     }
 
     function verifyUserByUsername(user: string, pass: string): Promise<AuthObject> {
@@ -188,7 +389,6 @@ export default function createLoginService(
                     password: pass,
                 },
                 {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     baseURL: context.apiPath!,
                 },
             )
@@ -348,7 +548,6 @@ export default function createLoginService(
      */
     function getBearerAuthentication<K extends keyof AuthObject>(section?: K): AuthObject[K];
 
-    // eslint-disable-next-line max-len
     function getBearerAuthentication<K extends keyof AuthObject>(
         section: K | null = null,
     ): false | AuthObject | AuthObject[K] {
@@ -374,9 +573,10 @@ export default function createLoginService(
     }
 
     /**
-     * Clears the cookie stored bearer authentication object.
+     * Clears local authentication state: cookies, context token, bearer cache,
+     * remember-me flag, and auto-refresh timer. Shared by logout() and logoutSso().
      */
-    function logout(isInactivityLogout = false, shouldRedirect = true): boolean {
+    function clearAuthState(): void {
         if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
             cookieStorage.removeItem(storageKey, { path: context.basePath });
             cookieStorage.removeItem(storageKey);
@@ -390,10 +590,60 @@ export default function createLoginService(
             clearTimeout(autoRefreshTokenTimeoutId);
             autoRefreshTokenTimeoutId = undefined;
         }
+    }
 
+    /**
+     * Clears the cookie stored bearer authentication object.
+     */
+    function logout(isInactivityLogout = false, shouldRedirect = true): boolean {
+        clearAuthState();
         forwardLogout(isInactivityLogout, shouldRedirect);
 
         return true;
+    }
+
+    /**
+     * Revokes server-side tokens, clears local auth state, and redirects to
+     * the SSO provider with prompt=login when the session was established via SSO.
+     * Falls back to regular logout if the SSO configuration cannot be loaded.
+     */
+    async function logoutSso(): Promise<void> {
+        let loginConfig: LoginConfig;
+
+        try {
+            loginConfig = await getLoginTemplateConfig();
+        } catch {
+            logout();
+            return;
+        }
+
+        if (!loginConfig.url) {
+            logout();
+            return;
+        }
+
+        const token = getToken();
+
+        try {
+            // Use native fetch to bypass Axios interceptors — the refresh-token
+            // interceptor would otherwise attempt a token refresh during logout.
+            await fetch(`${context.apiPath}/_action/user/logout`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+        } catch {
+            // Best-effort: continue even if server-side revocation fails
+        }
+
+        const isSsoSession = !!sessionStorage.getItem('sw-sso-session');
+        sessionStorage.removeItem('sw-sso-session');
+
+        clearAuthState();
+        notifyOnLogoutListener();
+
+        if (!loginConfig.useDefault || isSsoSession) {
+            navigateToFn(`${loginConfig.url}&usePromptLogin=1`);
+        }
     }
 
     /**
@@ -403,7 +653,6 @@ export default function createLoginService(
         notifyOnLogoutListener();
 
         // @ts-expect-error
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const router = Shopware.Application.view.router as null | Router;
         if (router) {
             const id = Shopware.Utils.createId();
@@ -437,7 +686,7 @@ export default function createLoginService(
                     .then((canvas) => {
                         try {
                             sessionStorage.setItem(`inactivityBackground_${id}`, canvas.toDataURL('image/jpeg'));
-                        } catch (e) {
+                        } catch (_e) {
                             // empty catch intended
                             // Calling toDataURL on a canvas with images from a different origin or css rules
                             // that contain urls to images from a different origin will throw a security error in Safari.
@@ -509,7 +758,6 @@ export default function createLoginService(
      * Returns a CookieStorage instance with the right domain and path from the context.
      */
     function cookieStorageFactory(): CookieStorage {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const path = context.basePath! + context.pathInfo!;
 
         // Set default cookie values

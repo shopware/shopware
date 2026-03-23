@@ -31,7 +31,7 @@ class ChildCountUpdater
     {
         $definition = $this->registry->getByEntityName($entity);
 
-        if (empty($parentIds)) {
+        if ($parentIds === []) {
             return;
         }
 

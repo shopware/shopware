@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\CustomEntity\Xml\Config;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator;
 use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareFields;
@@ -54,7 +55,7 @@ class CustomEntityEnrichmentService
     private function enrichAdminUi(CustomEntityXmlSchema $customEntityXmlSchema, AdminUiXmlSchema $adminUiXmlSchema): CustomEntityXmlSchema
     {
         $adminUiEntitiesConfig = $adminUiXmlSchema->getAdminUi()->getEntities();
-        if ($adminUiEntitiesConfig === null) {
+        if ($adminUiEntitiesConfig === []) {
             return $customEntityXmlSchema;
         }
 
@@ -74,8 +75,8 @@ class CustomEntityEnrichmentService
             unset($adminUiEntitiesConfig[$entity->getName()]);
         }
 
-        if (!empty($adminUiEntitiesConfig)) {
-            throw CustomEntityConfigurationException::entityNotGiven(
+        if ($adminUiEntitiesConfig !== []) {
+            throw CustomEntityException::entityNotGiven(
                 AdminUiXmlSchema::FILENAME,
                 array_keys($adminUiEntitiesConfig)
             );

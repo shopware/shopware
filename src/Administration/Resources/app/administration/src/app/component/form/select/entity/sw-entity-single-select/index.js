@@ -34,14 +34,12 @@ export default {
     ],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         placeholder: {
@@ -159,7 +157,6 @@ export default {
         disabled: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
         label: {
@@ -176,6 +173,11 @@ export default {
             type: Array,
             required: false,
             default: () => [],
+        },
+        autocomplete: {
+            type: String,
+            required: false,
+            default: undefined,
         },
     },
 

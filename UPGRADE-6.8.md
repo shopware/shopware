@@ -4,6 +4,12 @@
 
 <details>
 
+## Default CMS page ID now persisted for categories
+
+The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.
+
+The runtime-only field `cmsPageIdSwitched` on `CategoryDefinition` was removed without replacement.
+
 ## Tax Calculation for percentage discounts / surcharges, e.g. promotions
 
 Taxes of percentage prices are not recalculated anymore, but use the existing tax calculation of the referenced line items.
@@ -24,18 +30,54 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 </details>
 
 # API
+
+<details>
+
 ## Changed returned status code for `/store-api/document/download/` when no documents are found
+
 The Store API route `/store-api/document/download` returns now a standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested mime type, instead of returning a `204` status code.
+
+## Removal of `/api/_info/queue.json` endpoint
+
+The `/api/_info/queue.json` endpoint has been removed. You may `/api/_info/message-stats.json` as alternative to get statistics for message queues.
+
+## Newsletter route methods removed and response changed
+
+The following methods have been removed:
+
+- `AbstractNewsletterSubscribeRoute::subscribe()`
+- `AbstractNewsletterConfirmRoute::confirm()`
+- `AbstractNewsletterUnsubscribeRoute::unsubscribe()`
+
+The following methods are now abstract and must be implemented by extensions. Their return types have been narrowed from `StoreApiResponse` to their explicit types:
+
+- `subscribeWithResponse()` returns `NewsletterSubscribeRouteResponse`
+- `confirmWithResponse()` returns `SuccessResponse`
+- `unsubscribeWithResponse()` returns `SuccessResponse`
+
+</details>
 
 # Core
 
 <details>
 
+## Changed behaviour of default fields in EntityDefinition
+
+From now on, the defined fields of an EntityDefinition are applied after the default fields.
+This makes it possible to properly overwrite the current default fields `createdAt` and `updatedAt`.
+Check your EntityDefinitions if your entities still behave like intended. (Only applicable if you manually add `CreatedAtField` and/or `UpdatedAtField`)
+
 ## Multiple payment finalize calls allowed
+
 Multiple calls to the `/payment-finalize` endpoint using the same payment token are now allowed.
 If the token has already been consumed, the user is redirected to the finish page without triggering a PaymentException.
 To support this behavior, a new `consumed` flag has been added to the payment token struct, which indicates if the token has already been processed.
 Since tokens are no longer deleted after use, a new scheduled task runs daily to remove all expired tokens and keep the system clean.
+
+## Automatic promotions are no longer removable
+
+Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
+The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
 
 ## Removal of `$options` parameter in custom validator's constraints
 
@@ -64,7 +106,7 @@ Affected constraints are:
 
 ## Removal of `StoreApiRouteCacheKeyEvent` and `StoreApiRouteCacheTagsEvent` and all it's child classes
 
-With the removal of the separate Store-API caching layer with shopware 6.7, those events where not used and emitted anymore, therefore we are removing them now without any replacement.
+With the removal of the separate Store-API caching layer with Shopware 6.7, those events where not used and emitted anymore, therefore we are removing them now without any replacement.
 
 The concrete events being removed:
 - `\Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheKeyEvent`
@@ -122,7 +164,10 @@ It allows filtering of `RuleIdAware` objects in either arrays or collections.
 
 ## Added `primaryOrderDelivery` and `primaryOrderTransaction`
 
-Currently, there are multiple order deliveries and multiple order transactions per order. If only one, the "primary", order delivery and order transaction is displayed and used in the administration, there is now an easy way in version 6.8 using the `primaryOrderDelivery` and `primaryOrderTransaction`. All existing orders will be updated with a migration so that they also have the primary values.
+Currently, there are multiple order deliveries and multiple order transactions per order.
+If only one, the "primary", order delivery and order transaction is displayed and used in the administration.
+There is now an easy way to make use of this by using the `primaryOrderDelivery` and `primaryOrderTransaction` properties.
+All existing orders will be updated with a migration so that they also have the primary values.
 From now on, the `OrderTransactionStatusRule::match` will always use the `primaryOrderTransaction` instead of the most recently successful transaction.
 
 ### Use `primaryOrderDelivery`
@@ -149,9 +194,11 @@ Instead of `\Doctrine\DBAL\Exception\TableNotFoundException`, a `\Shopware\Core\
 ## Cache improvements
 
 ### Only rules relevant for product prices are considered in the `sw-cache-hash`
+
 In the default Shopware setup the `sw-cache-hash` cookie will only contain rule ids which are used to alter product prices, in contrast to previous all active rules, which might only be used for a promotion.
 
-If the Storefront content changes depending on a rule, the corresponding rule ids should be added using the extension `Shopware\Core\Framework\Adapter\Cache\Http\Extension\ResolveCacheRelevantRuleIdsExtension`. In the extension it is either possible to add specific rule ids directly or add them to the `ResolveCacheRelevantRuleIdsExtension::ruleAreas` array directly, i.e.
+If the Storefront content changes depending on a rule, the corresponding rule ids should be added using the extension `Shopware\Core\Framework\Adapter\Cache\Http\Extension\ResolveCacheRelevantRuleIdsExtension`.
+In the extension it is either possible to add specific rule ids directly or add them to the `ResolveCacheRelevantRuleIdsExtension::ruleAreas` array directly, i.e.
 
 ```php
 class ResolveRuleIds implements EventSubscriberInterface
@@ -173,13 +220,16 @@ class ResolveRuleIds implements EventSubscriberInterface
 If some custom entity has a relation to a rule, which might alter the storefront, you should add them to either an existing area, or your own are using the DAL flag `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas` on the rule association.
 
 ### Removed unused `RuleAreas` constants
+
 The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas::{CATEGORY_AREA,LANDING_PAGE_AREA}` are not used anymore and will therefore be removed
 
 ### Removed `sw-states` and `sw-currency` cache cookie handling
-The `sw-states` and `sw-currency` cache cookie handling is removed, which means by default the HTTP-Cache is also active for logged in customers or when the cart is filled.
-Due to the rework of the contained rules in the cache hash (see above), this becomes efficiently possible. The complete caching behaviour is now controlled by the `sw-cache-hash` cookie.
 
-You should rework you extensions to also work with enabled cache for logged in customers and when the cart is filled.
+The `sw-states` and `sw-currency` cache cookie handling is removed, which means by default the HTTP-Cache is also active for logged in customers or when the cart is filled.
+Due to the rework of the contained rules in the cache hash (see above), this becomes efficiently possible.
+The complete caching behaviour is now controlled by the `sw-cache-hash` cookie.
+
+You should rework your extensions to also work with enabled cache for logged in customers and when the cart is filled.
 To modify the default behaviour there are several extension points you can hook into, for a detailed explanation please take a look at the [caching docs](https://developer.shopware.com/docs/guides/plugins/plugins/framework/caching/#manipulating-the-cache-key).
 
 The following classes and constants were removed as they are no longer used:
@@ -195,12 +245,15 @@ Additionally, the following configuration was removed:
 * `shopware.cache.invalidation.http_cache`
 
 ## Changed URL generation of `MediaUrlGenerator` to properly encode the file path to produce valid URLs
-* For example media files with spaces in their name now should be properly URL-encoded with `%20` by default, without doing URL-encoding only with the return value of the `MediaUrlGenerator`. Make sure to remove extra URL-encoding (e.g. usage of twig filter `encodeUrl`) on media entities to not accidentally double encode the URLs.
-* Changed twig filter `encodeMediaUrl` in `Storefront/Framework/Twig/Extension/UrlEncodingTwigFilter.php` will now return the URL in its already encoded form and is basically the same as `$media->getUrl()` with some extra checks.
+
+For example media files with spaces in their name now should be properly URL-encoded with `%20` by default, without doing URL-encoding only with the return value of the `MediaUrlGenerator`.
+Make sure to remove extra URL-encoding (e.g. usage of twig filter `encodeUrl`) on media entities to not accidentally double encode the URLs.
+The twig filter `encodeMediaUrl` in `Storefront/Framework/Twig/Extension/UrlEncodingTwigFilter.php` will now return the URL in its already encoded form and is basically the same as `$media->getUrl()` with some extra checks.
 
 ## Removal of properties in `ResolveRemoteThumbnailUrlExtension`
 
-The properties `$mediaPath` and `$mediaUpdatedAt` from `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` were removed. Set the values directly into the `mediaEntity` property.
+The properties `$mediaPath` and `$mediaUpdatedAt` from `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` were removed.
+Set the values directly into the `mediaEntity` property.
 
 ## Improved fetching of language information for SalesChannelContext
 
@@ -213,15 +266,26 @@ which means the `salesChannel` property of the `BaseSalesChannelContext` no long
 The `RequestParamHelper::get` method now ignores the `attribute` bag when fetching parameters from the request.
 It only checks the `query` and `request` bags now.
 When you need to get a value from the request attributes, you should use the `Request::attributes->get()` method directly.
-In case you used to set request attributes to override specific parameters, you should instead overwrite the parametes in the `query` or `request` parameter bags directly.
+In case you used to set request attributes to override specific parameters, you should instead overwrite the parameters in the `query` or `request` parameter bags directly.
 
 ## Removal of `ZugferdDocument::getPrice()`
+
 The method `\Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument::getPrice()` was removed, replace calls to `ZugferdDocument::getPrice()` with `ZugferdDocument::getPriceWithFallback()`.
+
 ## Removed `TaskScheduler::getNextExecutionTime()`
+
 The `\Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler::getNextExecutionTime()` method was not used anymore and was removed.
 
 ## SnippetValidator becomes internal
-The class `Shopware\Core\System\Snippet\SnippetValidator` is now marked as internal and is supposed to be used for internal purposes only. Use on own risk as it may change without prior notice.
+
+The class `Shopware\Core\System\Snippet\SnippetValidator` is now marked as internal and is supposed to be used for internal purposes only.
+Use on own risk as it may change without prior notice.
+
+## Removal of default value for `serializer` parameter in `#[Serialized]`field attribute
+
+The default value for the `serializer` parameter in the `#[Serialized]` field attribute was removed.
+You need to explicitly set the serializer to use for your field.
+Additionally, the `SerializedField` class is now internal, as you should not use it directly in classic `EntityDefinitions`. It's only intended use case is in combination with the `#[Serialized]` attribute in attribute entities.
 
 ## Removal of `EntityDefinition` constructor
 
@@ -283,7 +347,8 @@ The method `\Shopware\Core\Content\Category\SalesChannel\NavigationRoute::buildN
 ## Remove method Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get
 
 The method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get` was removed as it's no longer used because it only returns the first entity found, which can lead to inconsistencies when multiple items share the same entity and identifier.
-A new method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::getAll` was introduced which returns all items with the given entity and identifier. This change ensures that all relevant items are considered, preventing potential seoUrls loss or misrepresentation.
+A new method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::getAll` was introduced which returns all items with the given entity and identifier.
+This change ensures that all relevant items are considered, preventing potential seoUrls loss or misrepresentation.
 If you use the method `get` in your code, you have to use the `getAll` method instead.
 
 Before
@@ -333,28 +398,40 @@ Profiles are now identified and displayed only by their technical name.
 
 ## Removed unused `ImportExport` exceptions
 
-The unused exceptions
+The following unused exceptions were removed:
 * `\Shopware\Core\Content\ImportExport\Exception\LogNotWritableException`
 * `\Shopware\Core\Content\ImportExport\Exception\MappingException`
-were removed.
+
+## SystemConfigService: `$silent` parameter changed default value from `false` to `true`
+
+`SystemConfigService::set()`, `setMultiple()`, and `delete()` changed the default value for the `$silent` parameter from `false` to `true`, meaning config writes **no longer invalidate the HTTP cache** (`system.config-{salesChannelId}` tag) by default. The internal config cache (`system-config`) is always cleared regardless.
+
+If your code writes config values that require immediate cache invalidation (e.g. display settings, feature toggles read via `SystemConfigService::get()` in templates), pass `silent: false` explicitly:
+
+```php
+$this->systemConfigService->set('MyPlugin.config.showBanner', true, $salesChannelId, false);
+```
+
+Please pass `false` only when absolutely necessary, as it leads to invalidation of a huge number of HTTP pages and decreases overall system performance.
 
 ## Removed SystemConfig exceptions
 
-The exceptions
-* `\Shopware\Core\System\SystemConfig\Exception\InvalidDomainException`,
-* `\Shopware\Core\System\SystemConfig\Exception\InvalidKeyException`, and
+The following exceptions were removed:
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidDomainException`
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidKeyException`
 * `\Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException`
-were removed.
+
 Use the respective factory methods in `\Shopware\Core\System\SystemConfig\SystemConfigException` instead.
 
-## Deprecated SystemConfigService tracing methods
+## Removal of SystemConfigService tracing methods
 
 The methods `\Shopware\Core\System\SystemConfig\SystemConfigService::trace()` and `\Shopware\Core\System\SystemConfig\SystemConfigService::getTrace()` were removed.
 The tracing is not needed anymore since the cache rework for 6.7.0.0.
 
 ## Filterable price definitions now require an explicit interface
 
-Previously, a price definition was treated as filterable when it implemented a `getFilter()` method. From now on, price definitions must explicitly implement the
+Previously, a price definition was treated as filterable when it implemented a `getFilter()` method.
+From now on, price definitions must explicitly implement the
 `Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface`, which defines the required `getFilter()` method.
 
 ## Symfony validator is not used to validate the honeypot captcha
@@ -455,11 +532,43 @@ The column `link` of the table `product_manufacturer` was removed.
 
 Instead of using the `link` property of the `manufacturer` entity directly, the property `manufacturer.translated.link` should be used.
 
+## Removal of increment-based message queue statistics
+
+The increment-based message queue statistics system (displayed indexing progress notifications in the Administration) has been removed.
+
+### Removed deprecated `TemplateGroup` class
+
+The deprecated class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been removed.
+
+**Removed components:**
+
+- `IncrementGatewayRegistry::MESSAGE_QUEUE_POOL` constant and related `message_queue` increment
+- `shopware.admin_worker.enable_queue_stats_worker` configuration option
+- `shopware.increment.message_queue` configuration section
+- `enableQueueStatsWorker` property from `/api/_info/config` response
+
+**Migration:**
+
+If you were using `message_queue` increment - you may configure different one:
+```yaml
+shopware:
+    increment:
+        increment_name:
+          type: 'mysql'
+```
+
 </details>
 
 # Administration
 
 <details>
+
+## Removal of `loadConfigSettingGroups()` in `sw-product-detail-variants`
+
+The method `loadConfigSettingGroups()` in the product detail variants view has been removed without replacement since `configSettingGroups` became a computed property.
+
+* If your code called `loadConfigSettingGroups()`, remove that call.
+* `configSettingGroups` is derived automatically from `productEntity.configuratorSettings` and `groups`.
 
 ## Removal of `items` prop in `sw-entity-listing` component
 
@@ -486,7 +595,8 @@ Please use the `dataSource` prop instead to align with the parent `sw-data-grid`
 
 ## Axios v1 is now the default HTTP client
 
-Starting with Shopware 6.8, axios 1.x is the default HTTP client for the Administration, replacing axios 0.30.2. This change addresses the security vulnerability CVE-2023-45857 present in older axios versions.
+Starting with Shopware 6.8, axios 1.x is the default HTTP client for the Administration, replacing axios 0.30.2.
+This change addresses the security vulnerability CVE-2023-45857 present in older axios versions.
 
 ### What changed
 
@@ -558,7 +668,8 @@ This allows plugins to configure both axios versions simultaneously during the m
 
 ### Migration guide
 
-Most code will work without changes. However, if you use request cancellation or depend on specific axios behavior:
+Most code will work without changes.
+However, if you use request cancellation or depend on specific axios behavior:
 
 1. **Update cancellation logic** to use `AbortController` instead of `CancelToken`
 2. **Test your plugin** with axios v1 before the 6.8 release
@@ -576,12 +687,16 @@ httpClient.request({
 
 ### Future removal
 
-Axios 0.30.2 support will be completely removed in a future major release. The `useAxiosV1` flag will be deprecated once axios v1 becomes the sole version. Plan to migrate all code to axios v1 as soon as possible.
+Axios 0.30.2 support will be completely removed in a future major release.
+The `useAxiosV1` flag will be deprecated once axios v1 becomes the sole version.
+Plan to migrate all code to axios v1 as soon as possible.
 
 For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
 
 ## Removal of "sw-empty-state"
-* The old `sw-empty-state` component will be removed in the next major version. Please use the new `mt-empty-state` component instead.
+
+The old `sw-empty-state` component will be removed in the next major version.
+Please use the new `mt-empty-state` component instead.
 
 Before:
 ```html
@@ -706,14 +821,107 @@ Changes in `sw-mail-template-index`:
 * `term` data property was removed
 * `onChangeLanguage` method now only calls `tabContent` ref
 
+## Removal of increment-based message queue notifications
+
+The indexing progress notifications in the Administration notification center have been removed without replacement.
+
+**Removed components:**
+
+- `WorkerNotificationListener` class and its exported constants `POLL_BACKGROUND_INTERVAL`, `POLL_FOREGROUND_INTERVAL` (`src/core/worker/worker-notification-listener.js`)
+- `enableQueueStatsWorker` property from `Shopware.Context.app.config.adminWorker`
+
 </details>
+
+## Document settings changes
+
+We've restructured the document settings to make them more intuitive and user-friendly.
+
+As part of this update, the following administration component parts have been deprecated:
+* `src/module/sw-settings-document/page/sw-settings-document-detail`:
+  * computed `expandButtonClass` was deprecated without replacement
+  * computed `collapseButtonClass` was deprecated without replacement
+  * property `sortBy` was deprecated without replacement
+
+* `src/module/sw-settings-document/page/sw-settings-document-list`
+  * computed `countryRepository` was deprecated without replacement
+  * computed `documentTypeRepository` was deprecated without replacement
+  * computed `documentBaseConfigSalesChannelRepository` was deprecated without replacement
+  * property `selectedType` was deprecated without replacement
+  * property `isSaveSuccessful` was deprecated without replacement
+  * property `isShowCountriesSelect` was deprecated without replacement
+  * method `loadAvailableSalesChannel()` was deprecated without replacement
+  * method `showOption()` was deprecated without replacement
+
+## Deprecated unused methods in `sw-order-document-card`
+
+- deprecated method `documentTypeAvailable()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
+- deprecated method `invoiceExists()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
 
 # Storefront
 
 <details>
 
+## Removal of inline microdata in favour of JSON-LD structured data
+
+All inline microdata attributes (`itemscope`, `itemtype`, `itemprop`) have been removed from Storefront templates. Structured data is now emitted exclusively as JSON-LD via `<script type="application/ld+json">` tags in the document `<head>`.
+
+The following templates no longer contain any microdata attributes:
+
+| Template | What was removed |
+|---|---|
+| `base.html.twig` | `itemscope`/`itemtype="WebPage"` on `<html>` |
+| `layout/meta.html.twig` | `layout_head_meta_tags_schema_webpage` block; `itemprop="name"` on `<title>` |
+| `page/content/product-detail.html.twig` | `itemscope`/`itemtype="Product"` on the CMS wrapper |
+| `component/buy-widget/buy-widget.html.twig` | Brand, dimensions, identifiers, Offer/AggregateOffer |
+| `component/buy-widget/buy-widget-price.html.twig` | Tiered Offer rows |
+| `component/delivery-information.html.twig` | Availability `<link>` tags |
+| `component/wishlist/delivery-information.html.twig` | Availability `<link>` tags |
+| `component/review/review-widget.html.twig` | `AggregateRating` |
+| `component/review/review-item.html.twig` | `Review`, `Person` |
+| `layout/breadcrumb.html.twig` | `BreadcrumbList` and `ListItem` |
+| `layout/navbar/navbar.html.twig`, `categories.html.twig`, `content.html.twig` | `SiteNavigationElement` |
+| `layout/navigation/offcanvas/*.html.twig` (5 files) | `SiteNavigationElement` |
+| `element/cms-element-image-gallery.html.twig` | `itemprop="image"` / `itemprop="video"` |
+| `element/cms-element-product-name.html.twig` | `itemprop="name"` |
+| `component/product/description.html.twig` | `itemprop="description"` |
+| `page/content/single-cms-page.html.twig` | `WebPage` on `<html>` |
+| `page/error/error-maintenance.html.twig` | `WebPage` on `<html>` |
+
+If your plugin or theme adds structured data by extending blocks in the templates above, migrate your overrides to the new JSON-LD template extension points described below.
+
+## New JSON-LD structured data block system
+
+Structured data is now output from a set of dedicated templates under `storefront/layout/structured-data/`. Each template exposes two Twig blocks: an outer block containing the data-building logic, and an inner `_script` block containing the `<script>` tag output. The `JSON_LD_DATA` feature flag, which guarded the rollout, is now permanently active and has been removed.
+
+The `<head>` of every page now includes the following blocks in `layout/meta.html.twig`:
+
+- **`layout_head_json_ld_global`** — always rendered on every page; includes `json-ld-website.html.twig` (`WebSite` + `SearchAction`) and `json-ld-organization.html.twig` (`Organization`)
+- **`layout_head_json_ld`** — page-specific; includes `json-ld-webpage.html.twig` (`WebPage`) and `json-ld-breadcrumb.html.twig` (`BreadcrumbList`) by default. Overridden per page type:
+  - `page/product-detail/meta.html.twig` — adds `json-ld-product.html.twig` (`Product`) and sets `WebPage` type to `ProductPage`
+  - `page/content/meta.html.twig` — adds `json-ld-item-list.html.twig` (`ItemList`) and sets `WebPage` type to `CollectionPage` (or `WebPage` for landing pages)
+  - `page/search/meta.html.twig` — adds `json-ld-item-list.html.twig` and sets `WebPage` type to `SearchResultsPage`
+
+To extend or replace a schema in a plugin or theme, use `sw_extends` on the relevant template and override the `_script` block. The data variable (`productData`, `orgData`, `webPageData`, etc.) built by the outer block is available inside the `_script` block:
+
+```twig
+{# MyPlugin/Resources/views/storefront/layout/structured-data/json-ld-product.html.twig #}
+{% sw_extends '@Storefront/storefront/layout/structured-data/json-ld-product.html.twig' %}
+
+{% block page_product_detail_json_ld_script %}
+    {% set productData = productData|merge({'color': page.product.translated.customFields.my_color ?? null}) %}
+    {{ parent() }}
+{% endblock %}
+```
+
+## Removed block `page_product_detail_product_buy_button_label` from `@Storefront/storefront/component/product/card/action.html.twig`
+
+The block `page_product_detail_product_buy_button_label` has been removed. Use `component_product_box_action_buy_button_label` instead.
+
 ## TOS checkbox position update
 The Terms of Service (TOS) was relocated to the bottom of the order confirmation page. The checkbox is now hidden by default due to not being necessary and replaced with a descriptive label, while its visibility can be controlled using the new configuration option `core.cart.showTosCheckbox`.
+
+## Revocation checkbox position update
+The revocation checkbox for digital products was relotaced to the bottom of the order confirmation page. The checkbox is now below the TOS checkbox
 
 ## Removal of hardcoded language flags
 
@@ -727,9 +935,21 @@ If your plugin or theme relies on the `checkout_progress` event for Google Analy
 
 Migrate to the GA4-compliant events `view_cart`, `add_shipping_info`, and `add_payment_info` instead.
 
-## Deprecated DomAccess Helper
+## Removed exceptions
 
-We deprecated DomAccess Helper, because it does not add much value compared to native browser APIs and to reduce Shopware specific code complexity. You simply replace its usage with the corresponding native methods. Here are some RegEx to help you:
+The following exceptions were removed:
+* `\Shopware\Storefront\Framework\Media\Exception\MediaValidatorMissingException`
+* `\Shopware\Storefront\Theme\Exception\InvalidThemeBundleException`
+
+Use the respective factory methods of the following domain exceptions instead
+* `\Shopware\Storefront\Framework\StorefrontFrameworkException`
+* `\Shopware\Storefront\Theme\Exception\ThemeException`
+
+## Removal of DomAccess Helper
+
+We removed DomAccess Helper, because it does not add much value compared to native browser APIs and to reduce Shopware specific code complexity.
+You simply replace its usage with the corresponding native methods.
+Here are some RegEx to help you:
 
 ### hasAttribute()
 
@@ -783,7 +1003,8 @@ const lastFocusableEl = window.focusHandler.getLastFocusableElement();
 ## Invalid locale codes no longer supported
 
 Passing invalid locale codes (esp non localized two letter codes like "US") to the default `format_number` and `format_currency` twig filters will now throw an error.
-Please use the proper localized codes like "en-US" instead. Additionally, you should use the shopware specific `currency`, instead of the native `format_currency` filter, to already handle configured rounding etc.
+Please use the proper localized codes like "en-US" instead.
+Additionally, you should use the Shopware specific `currency`, instead of the native `format_currency` filter, to already handle configured rounding etc.
 
 ## Remove route `widgets.account.order.detail`
 
@@ -796,14 +1017,16 @@ Remove all references to `@Storefront/storefront/component/checkout/cart-alerts.
 **NOTE:** All the breaking changes described here can be already opted in by activating the `v6.8.0.0` [feature flag](https://developer.shopware.com/docs/resources/references/adr/2022-01-20-feature-flags-for-major-versions.html#activating-the-flag) on previous versions.
 
 ## Removal of deprecated controller variables
-The following will be removed in Shopware 6.8.0:
+
+The following variables were removed:
 * Twig variables `controllerName` and `controllerAction`
 * CSS classes `is-ctl-*` and `is-act-*`
 * JavaScript window properties `window.controllerName` and `window.actionName`
 
 ## Removal of `hasChildren` variable in `item-link.html.twig`
 
-The variable `hasChildren` is not set inside the `@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig` template anymore, as it should be set in the templates which include these templates. In the default templates this is done in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template.
+The variable `hasChildren` is not set inside the `@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig` template anymore, as it should be set in the templates which include these templates.
+In the default templates this is done in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template.
 
 ## Removal of `pathIdList` option in NavbarPlugin
 
@@ -820,9 +1043,9 @@ Use `name` and `description` instead.
 
 ## Removed theme.json translations
 
-We removed properties `label` and `helpText` properties of `theme.json`, which were deprecated in 6.7, to use the snippet system of the administration instead.
+We removed properties `label` and `helpText` properties of `theme.json`, to use the snippet system of the administration instead.
 
-A constructed snippet key was introduced in Shopware 6.7 and will now be required.
+A constructed snippet key is now required.
 This affects `label` and `helpText` properties in the `theme.json`, which are used in the theme manager.
 The snippet keys to be used are constructed as follows.
 The mentioned `themeName` implies the `technicalName` property of the theme, or its respective parent theme name, since snippets are inherited from the parent theme as well.
@@ -845,15 +1068,19 @@ Examples:
 
 ## ThemeEntity::label & ThemeEntity::helpText removal
 
-Both deprecated fields `label` & `helpText` of `Shopware\Storefront\Theme\ThemeEntity` are removed. Please use the snippet keys to be found in `\Shopware\Storefront\Theme\ThemeService::getThemeConfigurationStructuredFields` instead.
+Both deprecated fields `label` & `helpText` of `Shopware\Storefront\Theme\ThemeEntity` are removed.
+Please use the snippet keys to be found in `\Shopware\Storefront\Theme\ThemeService::getThemeConfigurationStructuredFields` instead.
 
 ## Removed `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields`
 
-The `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields` methods have been removed. Use the new `ThemeConfigurationService::getPlainThemeConfiguration` and `ThemeConfigurationService::getThemeConfigurationFieldStructure` methods instead. The new methods return the same data as the old ones, excluding the deprecated fields.
+The `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields` methods have been removed.
+Use the new `ThemeConfigurationService::getPlainThemeConfiguration` and `ThemeConfigurationService::getThemeConfigurationFieldStructure` methods instead.
+The new methods return the same data as the old ones, excluding the deprecated fields.
 
 ## Removed `category_url` and `category_linknewtab` twig functions
 
-The `category_url` and `category_linknewtab` twig functions have been removed. The data is now directly available in the category entities, therefore use `category.seoUrl` or `category.shouldOpenInNewTab` instead.
+The `category_url` and `category_linknewtab` twig functions have been removed.
+The data is now directly available in the category entities, therefore use `category.seoUrl` or `category.shouldOpenInNewTab` instead.
 
 ```diff
 <a class="link"
@@ -909,19 +1136,22 @@ to:
 ```
 
 ## Changed returned status code for route `/account/order/document/{documentId}/{deepLinkCode}`
-The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}` has been updated. Instead of returning `204`, the route now returns `404` (Not Found) when no generated document exists.
+The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}` has been updated.
+Instead of returning `204`, the route now returns `404` (Not Found) when no generated document exists.
 
 ## Changed returned status code for route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}`
-The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}` has been updated. Instead of returning `204`, the route now returns:
+The error handling for the route `/account/order/document/{documentId}/{deepLinkCode}/{fileType}` has been updated.
+Instead of returning `204`, the route now returns:
 - `406` (Not Acceptable) for invalid/unsupported `fileType` values
 - `404` (Not Found) when no generated document exists for the requested `fileType`.
 
 ## Removed block `buy_widget_price_unit` from `@Storefront/storefront/component/buy-widget/buy-widget-price.html.twig`
 
-The block `buy_widget_price_unit` and its childrens has been moved into `@Storefront/storefront/component/buy-widget/buy-widget.html.twig`.
+The block `buy_widget_price_unit` and its children has been moved into `@Storefront/storefront/component/buy-widget/buy-widget.html.twig`.
 Instead of overwriting any of those blocks inside `@Storefront/storefront/component/buy-widget/buy-widget-price.html.twig`, extend the new `@Storefront/storefront/component/buy-widget/buy-widget.html.twig` file using the same blocks.
 
-
+## Removed address book action template
+The unused template `@/Storefront/Resources/views/storefront/page/account/addressbook/address-actions.html.twig` was removed.
 </details>
 
 # App System
@@ -953,18 +1183,22 @@ Use the `sw_macro_function` instead, which is available since v6.6.10.0.
 
 ## CountryStateController supports only GET
 
-The `CountryStateController` route `/country/country-state-data` now supports only GET methods. This change improves compatibility with HTTP caching and aligns with the best practices for data retrieval routes.
+The `CountryStateController` route `/country/country-state-data` now supports only GET methods.
+This change improves compatibility with HTTP caching and aligns with the best practices for data retrieval routes.
 
 ## App scripts methods maxAge() and invalidationState() removed
 
-Method `response.cache.maxAge()` was removed. Use `sharedMaxAge()` to set `s-maxage` instead. The `clientMaxAge()` method is also available for setting `max-age`.
+Method `response.cache.maxAge()` was removed.
+Use `sharedMaxAge()` to set `s-maxage` instead.
+The `clientMaxAge()` method is also available for setting `max-age`.
 
 ```diff
 -{% do response.cache.maxAge(3600) %}
 +{% do response.cache.sharedMaxAge(3600) %}
 ```
 
-Method `response.cache.invalidationState()` was removed. State-based invalidation is not supported anymore.
+Method `response.cache.invalidationState()` was removed.
+State-based invalidation is not supported anymore.
 
 ```diff
 -{% do response.cache.invalidationState('logged-in', 'cart-filled') %}
@@ -976,6 +1210,16 @@ Method `response.cache.invalidationState()` was removed. State-based invalidatio
 # Hosting & Configuration
 
 <details>
+
+## Database: Time zone support required
+
+The database now requires time zone data to be loaded. You can verify whether time zone data is available by running:
+
+```sql
+SELECT CONVERT_TZ(NOW(), 'UTC', 'Europe/Berlin');
+```
+
+If this returns `NULL`, time zone tables are not populated. Refer to the [MariaDB documentation on time zone tables](https://mariadb.com/docs/server/reference/data-types/string-data-types/character-sets/internationalization-and-localization/time-zones#mysql-time-zone-tables) for instructions on how to import them.
 
 ## HTTP Cache Changes
 
@@ -1015,19 +1259,44 @@ The following configuration parameters were removed:
 
 ### CacheControlListener removal
 
-The `CacheControlListener` has been removed. Previously, when no reverse proxy was configured, this listener replaced all Cache-Control headers with `no-cache` before sending responses to clients.
+The `CacheControlListener` has been removed.
+Previously, when no reverse proxy was configured, this listener replaced all Cache-Control headers with `no-cache` before sending responses to clients.
 
 With this change, Cache-Control headers defined by cache policies are sent directly to browsers. This means:
 - Client-side caching (browser cache) now respects your configured policies.
 - Ensure your cache policies are configured appropriately for client exposure: unlike reverse proxies that use tag-based invalidation, browser caches cannot be invalidated on-demand.
 
+### Removed HTTP cache reverse proxy configuration options
+
+The following HTTP cache reverse proxy configuration options have been removed as they had no effect anymore:
+
+- `shopware.http_cache.reverse_proxy.use_varnish_xkey`
+- `shopware.http_cache.reverse_proxy.ban_method`
+- `shopware.http_cache.reverse_proxy.ban_headers`
+- `shopware.http_cache.reverse_proxy.purge_all.ban_method`
+- `shopware.http_cache.reverse_proxy.purge_all.ban_headers`
+- `shopware.http_cache.reverse_proxy.purge_all.urls`
+
+If you are still using any of these options in your configuration, you can safely remove them.
+
 ## Dropped support for OpenSearch 1.x
 
-OpenSearch 1.x reached end of life on 06 May 2025 is no longer supported. Please update OpenSearch to the latest supported Version.
+OpenSearch 1.x reached end of life on 06 May 2025 is no longer supported.
+Please update OpenSearch to the latest supported Version.
+
+## Changed default Elasticsearch shard and replica counts for Admin ES
+
+The default values for `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS` and `SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS` changed from `3` to empty (meaning Elasticsearch defaults are used). If you relied on the previous defaults, set these environment variables explicitly in your `.env` file:
+
+```
+SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS=3
+SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS=3
+```
 
 ## Removed configuration of Filesystem visibility in config array
 
-The visibility of filesystems cannot be configured in the config array anymore. Instead, it should be set on the same level as `type`. For example, instead of:
+The visibility of filesystems cannot be configured in the config array anymore.
+Instead, it should be set on the same level as `type`. For example, instead of:
 
 ```yaml
 filesystems:
@@ -1076,8 +1345,23 @@ Concretely this means the following configuration options are removed:
 
 ## Removal of product's `states` field in favor of `type` field
 
-The `states` field of the `product` entity has been removed. Instead, you must use the `type` field to indicate the product type.
-The `states` field of the `line_item` and `order_line_item` entity has also been removed. Use the `productType` field in the `line_item`.`payload` (or `order_line_item`.`payload`) to indicate the product type of a product line item.
+The `states` field of the `product` entity has been removed.
+Instead, you must use the `type` field to indicate the product type.
+The `states` field of the `line_item` and `order_line_item` entity has also been removed.
+Use the `productType` field in the `line_item`.`payload` (or `order_line_item`.`payload`) to indicate the product type of a product line item.
 Also the rule `LineItemProductStatesRule` has been removed. Use `LineItemProductTypeRule` instead.
+
+## Customer group registration flow events no longer use a SalesChannelContext
+
+For customer group registration events, the event context is no longer restored via `SalesChannelContextRestorer`.
+This affects:
+
+- `customer.group.registration.accepted` (`\Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted`)
+- `customer.group.registration.declined` (`\Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined`)
+
+If your extension relied on a restored `SalesChannelContext` (for example, customer specific rule ids from that restored context), you need to migrate to the event payload and event context:
+
+- Use `getCustomer()` / `getCustomerGroup()` from the event for entity data.
+- Use `getContext()` from the event for framework context data.
 
 </details>

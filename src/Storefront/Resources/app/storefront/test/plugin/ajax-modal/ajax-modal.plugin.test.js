@@ -9,7 +9,7 @@ describe('AjaxModalPlugin tests', () => {
     let ajaxModalPlugin = undefined;
 
     beforeEach(() => {
-        window.PluginManager.initializePlugins = jest.fn();
+        window.PluginManager.initializePluginsInParentElement = jest.fn();
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
@@ -43,7 +43,7 @@ describe('AjaxModalPlugin tests', () => {
             [ 'click', expect.anything() ],
         ]);
 
-        expect(ajaxModalPlugin.el.addEventListener).toBeCalledWith('click', expect.anything());
+        expect(ajaxModalPlugin.el.addEventListener).toHaveBeenCalledWith('click', expect.anything());
     });
 
     test('_onModalOpen will add classes and fire an event', () => {
@@ -56,14 +56,14 @@ describe('AjaxModalPlugin tests', () => {
 
         ajaxModalPlugin._onModalOpen(pseudoModalUtil, classes);
 
-        expect(pseudoModalUtil.getModal).toBeCalled();
+        expect(pseudoModalUtil.getModal).toHaveBeenCalled();
 
         expect(element.classList).toContain('foo');
         expect(element.classList).toContain('bar');
 
-        expect(window.PluginManager.initializePlugins).toBeCalled();
+        expect(window.PluginManager.initializePluginsInParentElement).toHaveBeenCalled();
 
-        expect(ajaxModalPlugin.$emitter.publish).toBeCalledWith('ajaxModalOpen', { modal: element });
+        expect(ajaxModalPlugin.$emitter.publish).toHaveBeenCalledWith('ajaxModalOpen', { modal: element });
     });
 
     test('_openModal will fetch classes and execute _onModalOpen ', () => {
@@ -78,8 +78,8 @@ describe('AjaxModalPlugin tests', () => {
         ajaxModalPlugin.el = element;
         ajaxModalPlugin._openModal(pseudoModalUtil);
 
-        expect(pseudoModalUtil.open).toBeCalled();
-        expect(ajaxModalPlugin._onModalOpen.bind).toBeCalledWith(ajaxModalPlugin, pseudoModalUtil, ['foo', 'bar']);
+        expect(pseudoModalUtil.open).toHaveBeenCalled();
+        expect(ajaxModalPlugin._onModalOpen.bind).toHaveBeenCalledWith(ajaxModalPlugin, pseudoModalUtil, ['foo', 'bar']);
     });
 
     test('_onClickHandleAjaxModal will create a modal window and load its content', () => {
@@ -128,10 +128,10 @@ describe('AjaxModalPlugin tests', () => {
 
         expect(modalBody.classList).toContain('foo');
 
-        expect(event.preventDefault).toBeCalled();
-        expect(event.stopPropagation).toBeCalled();
-        expect(ajaxModalPlugin._openModal).toBeCalled();
-        expect(ajaxModalPlugin._loadModalContent).toBeCalled();
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(event.stopPropagation).toHaveBeenCalled();
+        expect(ajaxModalPlugin._openModal).toHaveBeenCalled();
+        expect(ajaxModalPlugin._loadModalContent).toHaveBeenCalled();
     });
 
     test('_loadModalContent will create a loading indicator and load the actual request', async () => {
@@ -171,8 +171,8 @@ describe('AjaxModalPlugin tests', () => {
 
         ajaxModalPlugin._processResponse(response, loadingIndicatorUtil, pseudoModalUtil, element);
 
-        expect(loadingIndicatorUtil.remove).toBeCalled();
-        expect(pseudoModalUtil.updateContent).toBeCalledWith(response, expect.any(Function));
+        expect(loadingIndicatorUtil.remove).toHaveBeenCalled();
+        expect(pseudoModalUtil.updateContent).toHaveBeenCalledWith(response, expect.any(Function));
         expect(element.classList).not.toContain('text-center');
     });
 

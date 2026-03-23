@@ -92,6 +92,7 @@ class DefinitionValidator
         'admin_elasticsearch_index_task',
         'app_config',
         'cart',
+        'deleted_apps',
         'migration',
         'sales_channel_api_context',
         'elasticsearch_index_task',
@@ -176,8 +177,7 @@ class DefinitionValidator
 
         foreach ($this->registry->getDefinitions() as $definition) {
             $definitionClass = $definition->getClass();
-            // ignore definitions from a test namespace https://regex101.com/r/hpxAVN/1
-            if (preg_match('/.*\\\\Tests?\\\\.*/', $definitionClass) || preg_match('/.*ComposerChild\\\\.*/', $definitionClass)) {
+            if ($this->shouldSkipDefinition($definitionClass)) {
                 continue;
             }
             if (\in_array($definitionClass, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
@@ -187,6 +187,8 @@ class DefinitionValidator
             $violations[$definitionClass] = [];
 
             $violations = array_merge_recursive($violations, $this->validateSchema($definition, $schema));
+
+            $violations = array_merge_recursive($violations, $this->validatePrimaryKeyConsistency($definition, $schema));
 
             $violations = array_merge_recursive($violations, $this->validateColumn($definition, $schema));
 
@@ -237,6 +239,17 @@ class DefinitionValidator
         $violations = array_merge_recursive($violations, $this->findNotRegisteredTables($schema->getTables()));
 
         return array_filter($violations);
+    }
+
+    /**
+     * Check if a definition should be skipped during validation
+     *
+     * @see https://regex101.com/r/hpxAVN/1
+     */
+    protected function shouldSkipDefinition(string $definitionClass): bool
+    {
+        return (bool) preg_match('/.*\\\\Tests?\\\\.*/', $definitionClass)
+            || (bool) preg_match('/.*ComposerChild\\\\.*/', $definitionClass);
     }
 
     /**
@@ -576,12 +589,12 @@ class DefinitionValidator
 
         $parentDefinition = $translationDefinition->getParentDefinition();
         $translationsAssociationFields = $parentDefinition->getFields()
-            ->filter(fn (Field $f) => $f instanceof TranslationsAssociationField && $f->getReferenceDefinition() === $translationDefinition)
+            ->filter(static fn (Field $f) => $f instanceof TranslationsAssociationField && $f->getReferenceDefinition() === $translationDefinition)
             ->getElements();
 
         $parentDefinitionClass = $parentDefinition->getClass();
         $translationDefinitionClass = $translationDefinition->getClass();
-        if (empty($translationsAssociationFields)) {
+        if ($translationsAssociationFields === []) {
             $violations[$parentDefinitionClass] = \sprintf(
                 'The parentDefinition `%s` for `%s` should define a `TranslationsAssociationField for `%s`. The parentDefinition could be wrong too.',
                 $parentDefinitionClass,
@@ -600,7 +613,7 @@ class DefinitionValidator
     {
         $translatedFieldsInParent = array_keys($parentDefinition->getFields()->filterInstance(TranslatedField::class)->getElements());
 
-        $translatedFields = array_keys($translationDefinition->getFields()->filter(fn (Field $f) => !$f->is(PrimaryKey::class)
+        $translatedFields = array_keys($translationDefinition->getFields()->filter(static fn (Field $f) => !$f->is(PrimaryKey::class)
             && !$f instanceof AssociationField
             && !\in_array($f->getPropertyName(), ['createdAt', 'updatedAt'], true))->getElements());
 
@@ -643,7 +656,7 @@ class DefinitionValidator
         $associationViolations = [];
 
         $reverseSide = $reference->getFields()->filter(
-            function (Field $field) use ($association, $definition) {
+            static function (Field $field) use ($association, $definition) {
                 if (!$field instanceof OneToOneAssociationField) {
                     return false;
                 }
@@ -699,7 +712,7 @@ class DefinitionValidator
         $associationViolations = [];
 
         $reverseSide = $reference->getFields()->filter(
-            function (Field $field) use ($association, $definition) {
+            static function (Field $field) use ($association, $definition) {
                 if (!$field instanceof OneToManyAssociationField) {
                     return false;
                 }
@@ -746,7 +759,7 @@ class DefinitionValidator
         $associationViolations = $this->validateSetterIsNotNull($definition, $association, $associationViolations);
 
         $reference->getFields()->filter(
-            function (Field $field) use ($association, $definition) {
+            static function (Field $field) use ($association, $definition) {
                 if (!$field instanceof ManyToOneAssociationField) {
                     return false;
                 }
@@ -836,7 +849,7 @@ class DefinitionValidator
 
         if ($definition->isVersionAware() && $reference->isVersionAware()) {
             $versionField = $mapping->getFields()
-                ->filter(fn (Field $field) => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $definition)->first();
+                ->filter(static fn (Field $field) => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $definition)->first();
 
             if (!$versionField) {
                 $violations[$mapping->getClass()][] = \sprintf(
@@ -847,7 +860,7 @@ class DefinitionValidator
             }
 
             $referenceVersionField = $mapping->getFields()
-                ->filter(fn (Field $field) => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $reference)->first();
+                ->filter(static fn (Field $field) => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $reference)->first();
 
             if (!$referenceVersionField) {
                 $violations[$mapping->getClass()][] = \sprintf(
@@ -860,7 +873,7 @@ class DefinitionValidator
 
         $violations = $this->validateForeignKeyOnDeleteBehaviour($definition, $association, $reference, $violations, $schema);
 
-        $reverse = $reference->getFields()->filter(fn (Field $field) => $field instanceof ManyToManyAssociationField
+        $reverse = $reference->getFields()->filter(static fn (Field $field) => $field instanceof ManyToManyAssociationField
             && $field->getToManyReferenceDefinition() === $definition
             && $field->getMappingDefinition() === $association->getMappingDefinition())->first();
 
@@ -955,6 +968,52 @@ class DefinitionValidator
         }
 
         return [$definition->getClass() => $notices];
+    }
+
+    /**
+     * Validates that PrimaryKey flags in entity definition match the database PRIMARY KEY constraint
+     *
+     * @return array<class-string<EntityDefinition>, list<string>>
+     */
+    private function validatePrimaryKeyConsistency(EntityDefinition $definition, Schema $schema): array
+    {
+        if (!$schema->hasTable($definition->getEntityName())) {
+            return [];
+        }
+
+        $table = $schema->getTable($definition->getEntityName());
+
+        // Get primary key columns from database
+        $primaryKeyConstraint = $table->getPrimaryKeyConstraint();
+        $databasePrimaryKeys = $primaryKeyConstraint ? array_map(
+            static fn ($identifier) => $identifier->toString(),
+            $primaryKeyConstraint->getColumnNames()
+        ) : [];
+
+        // Get primary key fields from entity definition
+        $definitionPkColumns = [];
+
+        foreach ($definition->getPrimaryKeys() as $pkField) {
+            if (!$pkField instanceof StorageAware) {
+                continue;
+            }
+            $definitionPkColumns[] = $pkField->getStorageName();
+        }
+
+        // Sort both arrays for consistent comparison
+        sort($databasePrimaryKeys);
+        sort($definitionPkColumns);
+
+        if ($databasePrimaryKeys !== $definitionPkColumns) {
+            return [$definition->getClass() => [\sprintf(
+                'Primary key mismatch in entity "%s": Table has PRIMARY KEY (%s), but entity definition has PrimaryKey flags on (%s). This causes entity hydration to fail silently. Ensure PrimaryKey flags match the database schema exactly.',
+                $definition->getEntityName(),
+                implode(', ', $databasePrimaryKeys),
+                implode(', ', $definitionPkColumns)
+            )]];
+        }
+
+        return [$definition->getClass() => []];
     }
 
     /**
@@ -1201,13 +1260,13 @@ class DefinitionValidator
 
         // see if this is the owning side
         $owningSide = $definition->getFields()
-            ->filter(fn (Field $field): bool => $field instanceof FkField && $field->getReferenceDefinition() === $reference);
+            ->filter(static fn (Field $field): bool => $field instanceof FkField && $field->getReferenceDefinition() === $reference);
 
         if ($owningSide->count() === 0) {
             return null;
         }
         $referenceVersionFieldForReference = $definition->getFields()
-            ->filter(fn (Field $field): bool => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition()->getClass() === $association->getReferenceDefinition()->getClass());
+            ->filter(static fn (Field $field): bool => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition()->getClass() === $association->getReferenceDefinition()->getClass());
 
         if (\count($referenceVersionFieldForReference) > 0) {
             return null;

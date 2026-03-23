@@ -129,7 +129,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
      */
     public function persistMedia(EntityWrittenEvent $event): void
     {
-        if (empty($this->cacheMediaFiles)) {
+        if ($this->cacheMediaFiles === []) {
             return;
         }
 

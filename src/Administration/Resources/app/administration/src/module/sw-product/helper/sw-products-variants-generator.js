@@ -25,7 +25,62 @@ export default class VariantsGenerator extends EventEmitter {
         this.languageId = null;
     }
 
-    /*
+    /**
+     * Saves configurator settings using the sync API directly.
+     * This approach avoids issues with stale entity origin state that could cause
+     * DELETE requests for settings already cascade-deleted on the server.
+     * Only upserts are performed, no deletions.
+     *
+     * @param {EntityCollection} configuratorSettings - The configurator settings to save
+     * @param {Array} createQueue - Queue of new variants to be created (used to determine truly new options)
+     * @returns {Promise}
+     */
+    saveConfiguratorSettings(configuratorSettings, createQueue = []) {
+        if (!configuratorSettings || configuratorSettings.length === 0) {
+            return Promise.resolve();
+        }
+
+        const newOptionIds = new Set();
+        createQueue.forEach((variant) => {
+            if (variant.options) {
+                variant.options.forEach((option) => {
+                    newOptionIds.add(option.id);
+                });
+            }
+        });
+
+        const payload = configuratorSettings
+            .filter((setting) => {
+                if (!setting.isNew()) {
+                    return true;
+                }
+
+                return newOptionIds.has(setting.optionId);
+            })
+            .map((setting) => {
+                const settingData = deepCopyObject(setting);
+                settingData.productId = this.product.id;
+                return settingData;
+            });
+
+        if (payload.length === 0) {
+            return Promise.resolve();
+        }
+
+        return this.syncService.sync(
+            [
+                {
+                    entity: 'product_configurator_setting',
+                    action: 'upsert',
+                    payload,
+                },
+            ],
+            {},
+            { 'single-operation': 1 },
+        );
+    }
+
+    /**
      * Saves the variants to the database via sync api.
      */
     saveVariants(queues) {
@@ -126,7 +181,6 @@ export default class VariantsGenerator extends EventEmitter {
             const numbers = {};
             const numberMap = {};
 
-            // eslint-disable-next-line
             for (const [
                 key,
                 variant,
@@ -313,19 +367,29 @@ export default class VariantsGenerator extends EventEmitter {
     }
 
     filterRestrictions(createQueue) {
-        const variantRestriction = this.product.variantRestrictions || [];
+        if (!Array.isArray(this.product.variantRestrictions)) {
+            return createQueue;
+        }
+
+        const validRestrictions = this.product.variantRestrictions.filter((restriction) => {
+            return (
+                restriction &&
+                Array.isArray(restriction.values) &&
+                restriction.values.length > 0 &&
+                restriction.values.every((value) => Array.isArray(value.options) && value.options.length > 0)
+            );
+        });
+
+        if (validRestrictions.length === 0) {
+            return createQueue;
+        }
 
         // Filter to get an array with only the restrictions ids with the single option ids
-        const restrictionsOnly = variantRestriction.map((restriction) => {
+        const restrictionsOnly = validRestrictions.map((restriction) => {
             return restriction.values.map((value) => {
                 return value.options;
             });
         });
-
-        // Return the normal create queue when the user does not create restrictions
-        if (restrictionsOnly.length <= 0) {
-            return createQueue;
-        }
 
         /**
          * Go through the whole createQueue and check for each variation,

@@ -236,7 +236,7 @@ class CartLineItemController extends StorefrontController
 
             $data = $this->productListRoute->load($criteria, $context)->getProducts()->getIds();
 
-            if (empty($data)) {
+            if ($data === []) {
                 $this->addFlash(self::DANGER, $this->trans(
                     'error.productNotFound',
                     ['%number%' => $this->htmlSanitizer->sanitize($number, null, true)]
@@ -341,7 +341,7 @@ class CartLineItemController extends StorefrontController
             return false;
         }
 
-        $this->addCartErrors($cart, fn (Error $error) => $error->isPersistent());
+        $this->addCartErrors($cart, static fn (Error $error) => $error->isPersistent());
 
         return true;
     }

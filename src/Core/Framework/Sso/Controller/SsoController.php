@@ -98,7 +98,7 @@ class SsoController extends AbstractController
             return $this->redirect($referer);
         }
 
-        $url = $this->loginConfigService->createRedirectUrl($random);
+        $url = $this->loginConfigService->createRedirectUrl($random, $request->query->getBoolean('usePromptLogin'));
 
         return $this->redirect($url);
     }

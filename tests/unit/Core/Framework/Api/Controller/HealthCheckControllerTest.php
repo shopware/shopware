@@ -30,8 +30,7 @@ class HealthCheckControllerTest extends TestCase
 
     public function testCheck(): void
     {
-        $controller = $this->createHealthCheckController();
-        $response = $controller->check(Context::createDefaultContext());
+        $response = $this->createHealthCheckController()->check(Context::createDefaultContext());
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertFalse($response->isCacheable());
@@ -74,15 +73,14 @@ class HealthCheckControllerTest extends TestCase
                 ],
             ],
         ];
-        static::assertIsString($response->getContent());
-        static::assertIsString(json_encode($expectedResponse));
-        static::assertJsonStringEqualsJsonString(json_encode($expectedResponse), $response->getContent());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertJsonStringEqualsJsonString(json_encode($expectedResponse, \JSON_THROW_ON_ERROR), $content);
     }
 
     public function testEventIsDispatched(): void
     {
-        $controller = $this->createHealthCheckController();
-        $response = $controller->check(Context::createDefaultContext());
+        $response = $this->createHealthCheckController()->check(Context::createDefaultContext());
 
         static::assertCount(1, $this->eventDispatcher->getEvents());
         static::assertInstanceOf(HealthCheckEvent::class, $this->eventDispatcher->getEvents()[0]);
@@ -98,13 +96,13 @@ class HealthCheckControllerTest extends TestCase
         ?string $validBearer = null
     ): void {
         $controller = $this->createHealthCheckController($staticToken, $validBearer);
-        $request = Request::create('', 'GET', []);
+        $request = Request::create('');
         if ($headerValue !== null) {
             $request->headers->set(HealthCheckController::HEADER_AUTHORIZATION, $headerValue);
         }
 
         if ($expectedOAuthServerException) {
-            static::expectException(OAuthServerException::class);
+            $this->expectException(OAuthServerException::class);
         }
 
         $response = $controller->health($request);
@@ -172,7 +170,7 @@ class HealthCheckControllerTest extends TestCase
 
         $tokenValidator = $this->createMock(SymfonyBearerTokenValidator::class);
         $tokenValidator->method('validateAuthorization')->willReturnCallback(
-            function (Request $request) use ($validBearer): void {
+            static function (Request $request) use ($validBearer): void {
                 // simplified mock of original implementation in src/Core/Framework/Api/OAuth/SymfonyBearerTokenValidator.php
                 if ($request->headers->has(HealthCheckController::HEADER_AUTHORIZATION) === false) {
                     throw OAuthServerException::accessDenied('Missing "Authorization" header');
@@ -181,7 +179,7 @@ class HealthCheckControllerTest extends TestCase
                 $header = $request->headers->get(HealthCheckController::HEADER_AUTHORIZATION, '');
                 $jwt = \trim((string) \preg_replace('/^\s*Bearer\s/', '', $header));
 
-                if (empty($validBearer) || $jwt !== $validBearer) {
+                if ($validBearer === null || $validBearer === '' || $jwt !== $validBearer) {
                     throw OAuthServerException::accessDenied('Access token is invalid');
                 }
             }

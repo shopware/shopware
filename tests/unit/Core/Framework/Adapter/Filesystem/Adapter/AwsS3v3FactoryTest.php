@@ -2,12 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem\Adapter;
 
+use AsyncAws\Core\AbstractApi;
 use AsyncAws\S3\S3Client;
+use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
 use League\Flysystem\AsyncAwsS3\PortableVisibilityConverter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AsyncAwsS3WriteBatchAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AwsS3v3Factory;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * @internal
@@ -103,5 +106,26 @@ class AwsS3v3FactoryTest extends TestCase
             $adapter,
             $factory->create($config)
         );
+    }
+
+    public function testCreateWithCustomHttpClient(): void
+    {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+
+        $config = [
+            'bucket' => 'private',
+            'region' => 'local',
+            'root' => 'foobar',
+        ];
+
+        $factory = new AwsS3v3Factory(250, $httpClient);
+        $adapter = $factory->create($config);
+
+        static::assertInstanceOf(AsyncAwsS3WriteBatchAdapter::class, $adapter);
+
+        // Verify the custom HTTP client was forwarded to the underlying S3Client
+        $s3Client = (new \ReflectionProperty(AsyncAwsS3Adapter::class, 'client'))->getValue($adapter);
+        $actualHttpClient = (new \ReflectionProperty(AbstractApi::class, 'httpClient'))->getValue($s3Client);
+        static::assertSame($httpClient, $actualHttpClient);
     }
 }

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
@@ -56,27 +57,36 @@ class HookableBusinessEvent implements Hookable
     }
 
     /**
-     * @param array<mixed> $dataType
+     * @param array<string, mixed> $dataType
      */
     private function checkPermissionsForDataType(array $dataType, AclPrivilegeCollection $permissions): bool
     {
-        if ($dataType['type'] === ObjectType::TYPE && \is_array($dataType['data']) && !empty($dataType['data'])) {
-            foreach ($dataType['data'] as $nested) {
+        $type = $dataType['type'] ?? null;
+        $data = $dataType['data'] ?? null;
+        if ($type === ObjectType::TYPE && \is_array($data) && $data !== []) {
+            foreach ($data as $nested) {
                 if (!$this->checkPermissionsForDataType($nested, $permissions)) {
                     return false;
                 }
             }
         }
 
-        if ($dataType['type'] === ArrayType::TYPE && $dataType['of']) {
-            if (!$this->checkPermissionsForDataType($dataType['of'], $permissions)) {
-                return false;
-            }
+        $of = $dataType['of'] ?? null;
+        if ($type === ArrayType::TYPE && \is_array($of) && $of !== [] && !$this->checkPermissionsForDataType($of, $permissions)) {
+            return false;
         }
 
-        if ($dataType['type'] === EntityType::TYPE || $dataType['type'] === EntityCollectionType::TYPE) {
-            /** @var EntityDefinition $definition */
-            $definition = new $dataType['entityClass']();
+        if ($type === EntityType::TYPE || $type === EntityCollectionType::TYPE) {
+            $entityDefinitionClass = $dataType['entityClass'] ?? null;
+            if (!\is_string($entityDefinitionClass) || !is_a($entityDefinitionClass, EntityDefinition::class, true)) {
+                throw FrameworkException::invalidEventData(\sprintf(
+                    '"entityClass" value of flow event data type "%s" must be a class string of type "%s"',
+                    EntityType::TYPE,
+                    EntityDefinition::class
+                ));
+            }
+
+            $definition = new $entityDefinitionClass();
             if (!$permissions->isAllowed($definition->getEntityName(), AclRoleDefinition::PRIVILEGE_READ)) {
                 return false;
             }

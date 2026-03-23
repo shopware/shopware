@@ -94,7 +94,7 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
                 continue;
             }
 
-            if ($field instanceof JsonField && !empty($field->getPropertyMapping())) {
+            if ($field instanceof JsonField && $field->getPropertyMapping() !== []) {
                 return $this->getField($subPath, $field->getPropertyMapping());
             }
 

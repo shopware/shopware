@@ -6,7 +6,7 @@ import AjaxOffcanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 describe('AjaxOffcanvas tests', () => {
 
     beforeEach(() => {
-        window.PluginManager.initializePlugins = jest.fn();
+        window.PluginManager.initializePluginsInParentElement = jest.fn();
 
         window.focusHandler = {
             saveFocusState: jest.fn(),
@@ -42,8 +42,8 @@ describe('AjaxOffcanvas tests', () => {
         expect(AjaxOffcanvas.exists()).toBe(true);
         expect(document.querySelector('.offcanvas').innerHTML).toBe('<div>Interesting content from POST request</div>');
 
-        // Ensure plugins will be re-initialized
-        expect(window.PluginManager.initializePlugins).toHaveBeenCalledTimes(1);
+        // Ensure plugins will be re-initialized within the offcanvas
+        expect(window.PluginManager.initializePluginsInParentElement).toHaveBeenCalledTimes(1);
     });
 
     it('should open with data from url (GET)', async () => {
@@ -69,8 +69,8 @@ describe('AjaxOffcanvas tests', () => {
         expect(AjaxOffcanvas.exists()).toBe(true);
         expect(document.querySelector('.offcanvas').innerHTML).toBe('<div>Interesting content from GET request</div>');
 
-        // Ensure plugins will be re-initialized
-        expect(window.PluginManager.initializePlugins).toHaveBeenCalledTimes(1);
+        // Ensure plugins will be re-initialized within the offcanvas
+        expect(window.PluginManager.initializePluginsInParentElement).toHaveBeenCalledTimes(1);
     });
 
     it('should execute callback after request', async () => {
@@ -104,11 +104,11 @@ describe('AjaxOffcanvas tests', () => {
 
         AjaxOffcanvas.close();
 
-        // Ensure plugins will be re-initialized
-        expect(window.PluginManager.initializePlugins).toHaveBeenCalledTimes(1);
+        // Ensure plugins will be re-initialized within the offcanvas
+        expect(window.PluginManager.initializePluginsInParentElement).toHaveBeenCalledTimes(1);
     });
 
     it('should throw error when no URL is passed', () => {
-        expect(() => AjaxOffcanvas.open()).toThrowError('A url must be given!');
+        expect(() => AjaxOffcanvas.open()).toThrow('A url must be given!');
     });
 });

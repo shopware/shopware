@@ -49,7 +49,7 @@ class RuleIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -60,7 +60,7 @@ class RuleIndexer extends EntityIndexer
     {
         $updates = $event->getPrimaryKeys(RuleDefinition::ENTITY_NAME);
 
-        if (empty($updates)) {
+        if ($updates === []) {
             return null;
         }
 
@@ -76,8 +76,8 @@ class RuleIndexer extends EntityIndexer
             return;
         }
 
-        $ids = array_unique(array_filter($ids));
-        if (empty($ids)) {
+        $ids = array_values(array_unique(array_filter($ids)));
+        if ($ids === []) {
             return;
         }
 
@@ -89,7 +89,7 @@ class RuleIndexer extends EntityIndexer
             $this->areaUpdater->update($ids);
         }
 
-        $this->eventDispatcher->dispatch(new RuleIndexerEvent($ids, $message->getContext(), $message->getSkip()));
+        $this->eventDispatcher->dispatch(new RuleIndexerEvent($ids, $message->getContext(), array_values($message->getSkip())));
     }
 
     public function getTotal(): int

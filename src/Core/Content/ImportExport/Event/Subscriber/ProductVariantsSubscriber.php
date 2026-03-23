@@ -77,7 +77,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
 
         $variants = $this->parseVariantString($row['variants']);
 
-        $entityWrittenEvent = $entityWrittenEvents->filter(fn ($event) => $event->getEntityName() === ProductDefinition::ENTITY_NAME)->first();
+        $entityWrittenEvent = $entityWrittenEvents->filter(static fn ($event) => $event->getEntityName() === ProductDefinition::ENTITY_NAME)->first();
 
         if (!$entityWrittenEvent instanceof EntityWrittenEvent) {
             return;
@@ -85,7 +85,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
 
         $writeResults = $entityWrittenEvent->getWriteResults();
 
-        if (empty($writeResults)) {
+        if ($writeResults === []) {
             return;
         }
 
@@ -158,11 +158,11 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
             $groupName = trim($groupOptions[0]);
             $options = array_filter(array_map('trim', explode(',', $groupOptions[1])));
 
-            if (empty($groupName) || empty($options)) {
+            if ($groupName === '' || $options === []) {
                 $this->throwExceptionFailedParsingVariants($variantsString);
             }
 
-            $options = array_map(fn ($option) => \sprintf('%s|%s', $groupName, $option), $options);
+            $options = array_map(static fn (string $option): string => \sprintf('%s|%s', $groupName, $option), $options);
 
             $result[] = $options;
         }

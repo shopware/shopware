@@ -171,8 +171,6 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.adminConfig !== null) {
                 this.sortBy = this.adminConfig?.listing?.columns?.[0]?.ref ?? '';
                 // @ts-expect-error
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-non-null-assertion
                 this.$route.meta.$module.icon = this.adminConfig?.icon;
             }
 

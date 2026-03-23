@@ -67,7 +67,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
                 continue;
             }
 
-            $sections->sort(fn (CmsSectionEntity $a, CmsSectionEntity $b) => $a->getPosition() <=> $b->getPosition());
+            $sections->sort(static fn (CmsSectionEntity $a, CmsSectionEntity $b) => $a->getPosition() <=> $b->getPosition());
 
             if (!$resolverContext) {
                 $resolverContext = new ResolverContext($context, $request);
@@ -79,14 +79,14 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
                 if ($blocks === null) {
                     continue;
                 }
-                $blocks->sort(fn (CmsBlockEntity $a, CmsBlockEntity $b) => $a->getPosition() <=> $b->getPosition());
+                $blocks->sort(static fn (CmsBlockEntity $a, CmsBlockEntity $b) => $a->getPosition() <=> $b->getPosition());
 
                 foreach ($blocks as $block) {
                     $slots = $block->getSlots();
                     if ($slots === null) {
                         continue;
                     }
-                    $slots->sort(fn (CmsSlotEntity $a, CmsSlotEntity $b) => $a->getSlot() <=> $b->getSlot());
+                    $slots->sort(static fn (CmsSlotEntity $a, CmsSlotEntity $b) => $a->getSlot() <=> $b->getSlot());
                 }
             }
 
@@ -125,7 +125,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
                 $slot->setConfig($slot->getTranslation('config'));
             }
 
-            if (empty($config)) {
+            if ($config === []) {
                 continue;
             }
 

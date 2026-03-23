@@ -34,10 +34,7 @@ class NumberRangeException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
-    public static function noConfigurationForEntity(string $entity, ?string $salesChannelId): self|NoConfigurationException
+    public static function noConfigurationForEntity(string $entity, ?string $salesChannelId = null): self
     {
         if (!Feature::isActive('v6.8.0.0')) {
             return new NoConfigurationException($entity, $salesChannelId);

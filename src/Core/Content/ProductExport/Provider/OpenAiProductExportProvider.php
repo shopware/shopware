@@ -6,7 +6,6 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -19,7 +18,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * @internal
  */
 #[Package('discovery')]
-class OpenAiProductExportProvider extends AbstractProductExportProvider
+class OpenAiProductExportProvider extends AbstractAgenticCommerceProductExportProvider
 {
     private const SYSTEM_CONFIG_DOMAIN = 'core.openAiProductExport';
 
@@ -39,37 +38,27 @@ class OpenAiProductExportProvider extends AbstractProductExportProvider
         return 'open-ai';
     }
 
-    /**
-     * @param array<string, mixed> $renderContext
-     *
-     * @return array<string, mixed>
-     */
-    public function extendRenderContext(
+    protected function buildProviderContext(
         ProductExportEntity $productExport,
         SalesChannelContext $salesChannelContext,
-        array $renderContext
     ): array {
         $storeCountry = $salesChannelContext->getShippingLocation()->getCountry()->getIso();
         $targetCountries = $this->resolveTargetCountries($salesChannelContext);
         $sellerUrl = $productExport->getSalesChannelDomain()?->getUrl() ?? '';
-        $sellerName = $salesChannelContext->getSalesChannel()->getName() ?? '';
 
         $config = $this->getSystemConfigValues($productExport);
         $returnPolicyUrl = $this->normalizeStringValue($config, 'returnPolicyUrl', $sellerUrl);
 
-        $renderContext['provider'] = new ArrayStruct([
-            'name' => $this->getTechnicalName(),
+        return [
             'storeCountry' => $storeCountry,
             'targetCountries' => $targetCountries,
-            'sellerName' => $sellerName,
+            'sellerName' => $salesChannelContext->getSalesChannel()->getName() ?? '',
             'sellerUrl' => $sellerUrl,
             'returnPolicyUrl' => $returnPolicyUrl,
             'isEligibleSearch' => true,
             'isEligibleCheckout' => false,
             'variantMapping' => $this->getVariantMapping($config),
-        ]);
-
-        return $renderContext;
+        ];
     }
 
     /**

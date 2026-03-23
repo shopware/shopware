@@ -337,6 +337,16 @@
     },
     "sw-sales-channel-defaults-select": {
       "messageError": "The value is in use by this domain: \"{url}\"."
+    },
+    "agenticCommerceTracking": {
+      "cardTitle": "Tracking codes",
+      "description": "Configure the affiliate and campaign codes that will be embedded in product URLs of this channel's feeds. These codes identify orders and customers referred from this Agentic Commerce channel.",
+      "inheritLabel": "Inherit tracking codes from linked storefront",
+      "inheritHelpText": "When enabled, the affiliate and campaign codes configured on this channel's linked storefront sales channel are used in the feed URLs. The codes below will be ignored.",
+      "affiliateCodeLabel": "Affiliate code",
+      "affiliateCodePlaceholder": "open-ai",
+      "campaignCodeLabel": "Campaign code",
+      "campaignCodePlaceholder": "agentic-commerce"
     }
   },
   "sw-privileges": {

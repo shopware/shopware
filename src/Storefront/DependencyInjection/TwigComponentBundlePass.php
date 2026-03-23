@@ -73,9 +73,7 @@ class TwigComponentBundlePass implements CompilerPassInterface
             // Each bundle declares its own namespace via getTwigComponentNamespace(),
             // which can be overridden for non-standard directory structures.
             if ($defaults !== null) {
-                /** @var Bundle $bundle */
-                $bundle = new $bundleClass();
-                $componentNamespace = $bundle->getTwigComponentNamespace();
+                $componentNamespace = $bundleClass::getTwigComponentNamespace();
 
                 if (!isset($defaults[$componentNamespace])) {
                     $defaults[$componentNamespace] = [

@@ -14,11 +14,11 @@ class BundleTest extends TestCase
 {
     public function testGetTwigComponentNamespace(): void
     {
-        $bundle = new class extends Bundle {};
+        $bundleClass = new class extends Bundle {};
 
         static::assertSame(
-            $bundle->getNamespace() . '\\Resources\\views\\components\\',
-            $bundle->getTwigComponentNamespace()
+            $bundleClass::getTwigComponentNamespace(),
+            $bundleClass->getNamespace() . '\\Resources\\views\\components\\'
         );
     }
 }

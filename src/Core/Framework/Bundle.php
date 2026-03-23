@@ -62,9 +62,12 @@ abstract class Bundle extends SymfonyBundle
      * Returns the PHP class namespace used to register Twig components for this bundle with
      * Symfony UX TwigComponent. Override this method to use a different namespace structure.
      */
-    public function getTwigComponentNamespace(): string
+    public static function getTwigComponentNamespace(): string
     {
-        return $this->getNamespace() . '\\Resources\\views\\components\\';
+        $class = static::class;
+        $pos = strrpos($class, '\\');
+
+        return ($pos !== false ? substr($class, 0, $pos) : '') . '\\Resources\\views\\components\\';
     }
 
     final public function getContainerPrefix(): string

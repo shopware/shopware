@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Protection;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ReferenceVersion;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required as RequiredAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ReverseInherited as ReverseInheritedAttr;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\SearchRanking as SearchRankingAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
@@ -47,6 +48,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
@@ -70,7 +72,14 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
- * @phpstan-type FieldArray array{type?: string, name?: string, class: class-string<DalField>, flags: array<string, array<string, array<bool|string|null>|string>|null>, translated: bool, args: list<string|false>}
+ * @phpstan-type FieldArray array{
+ *     type?: string,
+ *     name?: string,
+ *     class: class-string<DalField>,
+ *     flags: array<string, array{class: string, args?: array<string, string|bool|float|null>|list<string>}>,
+ *     translated: bool,
+ *     args: list<string|false>
+ * }
  */
 #[Package('framework')]
 class AttributeEntityCompiler
@@ -108,7 +117,17 @@ class AttributeEntityCompiler
     /**
      * @param class-string<EntityStruct> $class
      *
-     * @return list<array{type: 'entity'|'mapping', since?: string|null, parent: string|null, entity_class: class-string<EntityStruct>, entity_name: string, collection_class?: class-string<EntityCollection<EntityStruct>>, fields: list<FieldArray>, source?: string, reference?: string}>
+     * @return list<array{
+     *     type: 'entity'|'mapping',
+     *     since?: string|null,
+     *     parent: string|null,
+     *     entity_class: class-string<EntityStruct>,
+     *     entity_name: string,
+     *     collection_class?: class-string<EntityCollection<EntityStruct>>,
+     *     fields: list<FieldArray>,
+     *     source?: string,
+     *     reference?: string
+     * }>
      */
     public function compile(string $class): array
     {
@@ -175,7 +194,14 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return array{type: string, name: string, class: class-string<DalField>, flags: array<string, array<string, array<bool|string|null>|string>|null>, translated: bool, args: list<string|false>}|null
+     * @return array{
+     *     type: string,
+     *     name: string,
+     *     class: class-string<DalField>,
+     *     flags: array<string, array{class: string, args?: array<string, string|bool|float|null>|list<string>}>,
+     *     translated: bool,
+     *     args: list<string|false>
+     * }|null
      */
     private function parseField(string $entity, \ReflectionProperty $property): ?array
     {
@@ -277,7 +303,7 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return array<string, array{class: string, args?: array<bool|string|null>}>
+     * @return array<string, array{class: string, args?: array<string, string|bool|float|null>|list<string>}>
      */
     private function getFlags(Field $field, \ReflectionProperty $property): array
     {
@@ -304,7 +330,7 @@ class AttributeEntityCompiler
 
         if ($inherited = $this->getAttribute($property, InheritedAttr::class)) {
             $instance = $inherited->newInstance();
-            $flags[Inherited::class] = ['class' => Inherited::class, 'args' => [$instance->foreignKey]];
+            $flags[Inherited::class] = ['class' => Inherited::class, 'args' => ['foreignKey' => $instance->foreignKey]];
         }
 
         if ($reverseInherited = $this->getAttribute($property, ReverseInheritedAttr::class)) {
@@ -367,6 +393,11 @@ class AttributeEntityCompiler
             }
         }
 
+        if ($searchRanking = $this->getAttribute($property, SearchRankingAttr::class)) {
+            $instance = $searchRanking->newInstance();
+            $flags[SearchRanking::class] = ['class' => SearchRanking::class, 'args' => ['ranking' => $instance->ranking, 'tokenize' => $instance->tokenize]];
+        }
+
         if ($field->type === AutoIncrement::TYPE) {
             unset($flags[Required::class]);
         }
@@ -378,13 +409,21 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return array{type: 'mapping', parent: null, entity_class: class-string<ArrayEntity>, entity_name: string, fields: list<FieldArray>, source: string, reference: string}
+     * @return array{
+     *     type: 'mapping',
+     *     parent: null,
+     *     entity_class: class-string<ArrayEntity>,
+     *     entity_name: string,
+     *     fields: list<FieldArray>,
+     *     source: string,
+     *     reference: string
+     * }
      */
     private function mapping(string $entity, \ReflectionProperty $property): array
     {
         $attribute = $this->getAttribute($property, ManyToMany::class);
 
-        if (!$attribute) {
+        if (!$attribute instanceof \ReflectionAttribute) {
             throw DataAbstractionLayerException::canNotFindAttribute(ManyToMany::class, $property->getName());
         }
         $field = $attribute->newInstance();

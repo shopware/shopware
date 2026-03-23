@@ -1624,5 +1624,7 @@
     "attribute_entity_with_hydrator.createdAt",
     "attribute_entity_with_hydrator.updatedAt",
     "attribute_entity_inheritance.createdAt",
-    "attribute_entity_inheritance.updatedAt"
+    "attribute_entity_inheritance.updatedAt",
+    "attribute_entity_search_ranking.createdAt",
+    "attribute_entity_search_ranking.updatedAt"
 ]

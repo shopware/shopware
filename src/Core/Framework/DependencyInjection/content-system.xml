@@ -237,6 +237,7 @@
 
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer"/>
+            <argument type="service" id="validator"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%kernel.environment%</argument>
             <tag name="content_system.type_loader"/>

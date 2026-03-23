@@ -6,8 +6,10 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -32,7 +34,8 @@ class DatabaseTypeLoaderTest extends TestCase
             ['name' => 'App:Demo:Hero', 'schema' => $schema, 'app_name' => 'DemoApp'],
         ]);
 
-        $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), $connection, 'prod');
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+        $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), $validator, $connection, 'prod');
         $definitions = $loader->load();
 
         static::assertCount(1, $definitions);
@@ -45,8 +48,33 @@ class DatabaseTypeLoaderTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())->method('fetchAllAssociative');
 
-        $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), $connection, 'dev');
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+        $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), $validator, $connection, 'dev');
 
         static::assertEmpty($loader->load());
+    }
+
+    #[TestDox('throws when database contains invalid schema')]
+    public function testThrowsWhenDatabaseContainsInvalidSchema(): void
+    {
+        $schema = json_encode([
+            'meta' => [
+                'name' => '',
+                'label' => '',
+                'description' => '',
+                'vendor' => '',
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['name' => '', 'schema' => $schema, 'app_name' => 'BrokenApp'],
+        ]);
+
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+        $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), $validator, $connection, 'prod');
+
+        $this->expectException(ContentSystemException::class);
+        $loader->load();
     }
 }

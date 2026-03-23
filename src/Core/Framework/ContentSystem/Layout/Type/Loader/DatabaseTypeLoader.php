@@ -3,9 +3,12 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Loader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentElementTypeSpecification;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -15,6 +18,7 @@ final class DatabaseTypeLoader extends AbstractContentElementTypeLoader
 {
     public function __construct(
         private readonly ElementTypeSpecificationSerializer $serializer,
+        private readonly ValidatorInterface $validator,
         private readonly Connection $connection,
         private readonly string $environment,
     ) {
@@ -43,9 +47,28 @@ final class DatabaseTypeLoader extends AbstractContentElementTypeLoader
             $schema = json_decode($row['schema'], true, 512, \JSON_THROW_ON_ERROR);
 
             $dto = $this->serializer->denormalize($schema);
+
+            $violations = $this->validator->validate($dto);
+            if ($violations->count() > 0) {
+                throw ContentSystemException::elementTypeInvalid(
+                    $dto->name ?: '<unknown>',
+                    $this->formatViolations($violations)
+                );
+            }
+
             $definitions[] = $dto->toContentElementTypeSpecification();
         }
 
         return $definitions;
+    }
+
+    private function formatViolations(ConstraintViolationListInterface $violations): string
+    {
+        $messages = [];
+        foreach ($violations as $violation) {
+            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
+        }
+
+        return implode('; ', $messages);
     }
 }

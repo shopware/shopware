@@ -1240,6 +1240,7 @@ class Configuration implements ConfigurationInterface
                         'messenger:stats',
                         'messenger:failed:show',
                         'assets:install',
+                        'app:log:show',
                     ])
                 ->end()
                 ->integerNode('app_tool_timeout')

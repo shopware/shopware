@@ -49,8 +49,7 @@ class ConsoleCommandTool
             $args = [];
         }
 
-        $args['command'] = $command;
-        $args['--no-interaction'] = true;
+        $args = ['command' => $command, '--no-interaction' => true] + $args;
 
         $input = new ArrayInput($args);
         $output = new BufferedOutput();

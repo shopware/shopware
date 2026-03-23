@@ -5,6 +5,7 @@ use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
+use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptDefinition;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Mcp\Authentication\McpAuthenticationListener;
 use Shopware\Core\Framework\Mcp\Authentication\McpExceptionListener;
+use Shopware\Core\Framework\Mcp\Command\AppLogShowCommand;
 use Shopware\Core\Framework\Mcp\Command\DebugMcpCommand;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
@@ -32,7 +34,9 @@ use Shopware\Core\Framework\Mcp\Resource\BusinessEventsResource;
 use Shopware\Core\Framework\Mcp\Resource\CurrencyListResource;
 use Shopware\Core\Framework\Mcp\Resource\EntityListResource;
 use Shopware\Core\Framework\Mcp\Resource\FlowActionsResource;
+use Shopware\Core\Framework\Mcp\Resource\InstanceExtensionsResource;
 use Shopware\Core\Framework\Mcp\Resource\LanguageListResource;
+use Shopware\Core\Framework\Mcp\Resource\OpenApiSchemaResource;
 use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
 use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
 use Shopware\Core\Framework\Mcp\Tool\BestsellerReportTool;
@@ -108,6 +112,11 @@ return static function (ContainerConfigurator $container): void {
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER'])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
+
+    $services->set(AppLogShowCommand::class)
+        ->args([param('kernel.logs_dir')])
+        ->tag('console.command')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 
     $services->set(DebugMcpCommand::class)
         ->args([
@@ -370,6 +379,29 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(StateMachineResource::class)
         ->args([service('state_machine.repository')])
+        ->tag('mcp.resource')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(OpenApiSchemaResource::class)
+        ->args([service(DefinitionService::class)])
+        ->tag('mcp.resource')
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+
+    $services->set(InstanceExtensionsResource::class)
+        ->args([
+            service('Doctrine\DBAL\Connection'),
+            service('kernel'),
+            service('router'),
+            service(DefinitionInstanceRegistry::class),
+            service('event_dispatcher'),
+            tagged_iterator('kernel.event_subscriber'),
+            tagged_iterator('shopware.tax.provider'),
+            tagged_iterator('shopware.payment.method.handler'),
+            tagged_iterator('shopware.rule.definition'),
+            tagged_iterator('flow.action'),
+            tagged_iterator('mcp.tool'),
+            tagged_iterator('mcp.resource'),
+        ])
         ->tag('mcp.resource')
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 

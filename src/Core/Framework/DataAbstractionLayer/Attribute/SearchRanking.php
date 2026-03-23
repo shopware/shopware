@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-class SearchRanking
+final class SearchRanking
 {
     final public const ASSOCIATION_SEARCH_RANKING = SearchRankingFlag::ASSOCIATION_SEARCH_RANKING;
     final public const MIDDLE_SEARCH_RANKING = SearchRankingFlag::MIDDLE_SEARCH_RANKING;

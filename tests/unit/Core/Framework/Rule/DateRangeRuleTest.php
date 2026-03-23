@@ -210,7 +210,7 @@ class DateRangeRuleTest extends TestCase
                 true,
                 'UTC',
                 '2021-01-01 20:00:00 +01:00',
-                true,
+                false,
             ],
             [
                 '2021-01-01 00:00:00',
@@ -218,7 +218,7 @@ class DateRangeRuleTest extends TestCase
                 false,
                 'UTC',
                 '2021-01-02 02:00:00 +04:00',
-                true,
+                false,
             ],
             [
                 '2021-01-02 00:00:00',
@@ -226,7 +226,7 @@ class DateRangeRuleTest extends TestCase
                 false,
                 'Etc/GMT-2',
                 '2021-01-01 22:00:00',
-                true,
+                false,
             ],
             [
                 '2021-01-02 00:00:00',
@@ -234,7 +234,7 @@ class DateRangeRuleTest extends TestCase
                 false,
                 'Etc/GMT-2',
                 '2021-01-01 21:59:59',
-                true,
+                false,
             ],
             // with useTime = true
             [
@@ -243,7 +243,7 @@ class DateRangeRuleTest extends TestCase
                 true,
                 'Etc/GMT-2',
                 '2021-01-01 08:00:00',
-                true,
+                false,
             ],
             [
                 '2021-01-01 10:00:00',
@@ -261,6 +261,64 @@ class DateRangeRuleTest extends TestCase
                 true,
                 null,
                 '2021-01-01 07:59:59',
+                true,
+            ],
+
+            // edge case test with timezone and border time
+            [
+                '2026-03-02T00:00:00',
+                '2026-03-12T23:59:59',
+                true,
+                null,
+                '2026-03-01T23:50:00',
+                false,
+            ],
+            [
+                '2026-03-02T00:00:00',
+                '2026-03-12T23:59:59',
+                false,
+                null,
+                '2026-03-01T23:50:00',
+                false,
+            ],
+            [
+                '2026-03-02T00:00:00',
+                '2026-03-12T23:59:59',
+                false,
+                null,
+                '2026-03-02T00:00:01',
+                true,
+            ],
+            [
+                '2026-03-02T00:00:00',
+                '2026-03-12T23:59:59',
+                false,
+                null,
+                '2026-03-12T23:59:59',
+                true,
+            ],
+            [
+                '2026-03-02T00:00:00',
+                '2026-03-12T23:59:59',
+                true,
+                null,
+                '2026-03-02T00:00:01',
+                true,
+            ],
+            [
+                '2026-03-02T00:00:00',
+                '2026-03-12T23:59:59',
+                true,
+                null,
+                '2026-03-12T23:59:59',
+                false,
+            ],
+            [
+                '2026-03-02T00:00:00',
+                '2026-03-12T23:59:59',
+                true,
+                null,
+                '2026-03-12T23:59:58',
                 true,
             ],
         ];
@@ -319,7 +377,8 @@ class DateRangeRuleTest extends TestCase
             . "s:9:\"\0*\0toDate\";O:8:\"DateTime\":3:{s:4:\"date\";s:26:\"2026-01-16 23:59:59.000000\";s:13:\"timezone_type\";i:3;s:8:\"timezone\";s:3:\"UTC\";}"
             . "s:10:\"\0*\0useTime\";b:0;";
 
-        $unserializedRule = unserialize($legacySerialized . '}');
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $unserializedRule = \unserialize($legacySerialized . '}');
         static::assertInstanceOf(DateRangeRule::class, $unserializedRule);
 
         $timezone = (new \ReflectionProperty(DateRangeRule::class, 'timezone'))->getValue($unserializedRule);

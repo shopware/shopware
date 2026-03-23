@@ -58,9 +58,9 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
 
         $this->registry->index($input->getOption('use-queue'), $skip, $only);
 
-        $skipEntities = array_map(fn ($indexer) => str_replace('.indexer', '', $indexer), $skip);
+        $skipEntities = array_map(static fn ($indexer) => str_replace('.indexer', '', $indexer), $skip);
 
-        $onlyEntities = array_map(fn ($indexer) => str_replace('.indexer', '', $indexer), $only);
+        $onlyEntities = array_map(static fn ($indexer) => str_replace('.indexer', '', $indexer), $only);
 
         $event = new RefreshIndexEvent(!$input->getOption('use-queue'), $skipEntities, $onlyEntities);
         $this->eventDispatcher->dispatch($event);

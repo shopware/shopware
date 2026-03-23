@@ -118,12 +118,12 @@ class MediaGenerator implements DemodataGeneratorInterface
     {
         $tagAssignments = [];
 
-        if (!empty($tags)) {
+        if ($tags !== []) {
             $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit());
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_values(array_map(
-                    fn (string $id) => ['id' => $id],
+                    static fn (string $id) => ['id' => $id],
                     $chosenTags
                 ));
             }
@@ -160,7 +160,7 @@ class MediaGenerator implements DemodataGeneratorInterface
             );
         }
 
-        if (\count($images)) {
+        if ($images !== []) {
             return $images[array_rand($images)]->getPathname();
         }
 

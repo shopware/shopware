@@ -127,7 +127,7 @@ class StorefrontRoutingTest extends TestCase
         ];
         $cases = self::generateCases(array_keys($config), $config);
 
-        return array_map(fn ($params) => [self::createCase($params['https'], $params['host'], $params['subDir'], $params['salesChannel'])], $cases);
+        return array_map(static fn ($params) => [self::createCase($params['https'], $params['host'], $params['subDir'], $params['salesChannel'])], $cases);
     }
 
     private function getContext(Request $request): RequestContext
@@ -170,7 +170,7 @@ class StorefrontRoutingTest extends TestCase
      */
     private static function generateCases(array $keys, array $config): array
     {
-        if (empty($keys)) {
+        if ($keys === []) {
             return [];
         }
 
@@ -183,7 +183,7 @@ class StorefrontRoutingTest extends TestCase
                 $base = array_merge($base, $childResult);
                 $results[] = $base;
             }
-            if (empty($childResults)) {
+            if ($childResults === []) {
                 $results[] = $base;
             }
         }

@@ -168,7 +168,6 @@ export default {
             return Promise.all(
                 chunkedPayload.map(async (item) => {
                     await this.orderDocumentApiService.generate(documentType, item);
-                    // eslint-disable-next-line operator-assignment
                     this.document[documentType].isReached = this.document[documentType].isReached + percentages;
                 }),
             ).then(() => {

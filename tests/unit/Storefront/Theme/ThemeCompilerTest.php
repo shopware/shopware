@@ -41,6 +41,7 @@ use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\TestTheme\TestT
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 
 /**
  * @internal
@@ -139,7 +140,7 @@ class ThemeCompilerTest extends TestCase
         $config = new StorefrontPluginConfiguration('test');
         $config->setName('faultyTheme');
 
-        static::expectExceptionObject(new ThemeCompileException('faultyTheme'));
+        $this->expectExceptionObject(new ThemeCompileException('faultyTheme'));
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
             'test',
@@ -164,7 +165,7 @@ class ThemeCompilerTest extends TestCase
         $config->setName('faultyTheme');
         $config->setAssetPaths(['bla']);
 
-        static::expectExceptionObject(new ThemeCompileException('faultyTheme'));
+        $this->expectExceptionObject(new ThemeCompileException('faultyTheme'));
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
             'test',
@@ -698,11 +699,12 @@ PHP_EOL,
 
         $this->themeFilesystemResolver->expects($this->exactly(\count($filesystems)))
             ->method('getFilesystemForStorefrontConfig')
-            ->willReturnCallback(fn (StorefrontPluginConfiguration $config) => $filesystems[$config->getTechnicalName()]);
+            ->willReturnCallback(static fn (StorefrontPluginConfiguration $config) => $filesystems[$config->getTechnicalName()]);
 
         $configurationFactory = new StorefrontPluginConfigurationFactory(
             $this->createMock(KernelPluginLoader::class),
-            $sourceResolver
+            $sourceResolver,
+            new SymfonyFilesystem(),
         );
 
         $themePluginBundle = new TestTheme();
@@ -755,7 +757,8 @@ PHP_EOL,
 
         $configurationFactory = new StorefrontPluginConfigurationFactory(
             $this->createMock(KernelPluginLoader::class),
-            new StaticSourceResolver([])
+            new StaticSourceResolver([]),
+            new SymfonyFilesystem(),
         );
 
         $themePluginBundle = new TestTheme();

@@ -212,7 +212,7 @@ class SystemLanguageChangedSubscriberTest extends TestCase
     ): void {
         static::assertInstanceOf(
             AppAdministrationSnippetEntity::class,
-            $snippets->filter(fn (AppAdministrationSnippetEntity $snippet) => $snippet->getAppId() === $appId && $snippet->getLocaleId() === $localeId)->first(),
+            $snippets->filter(static fn (AppAdministrationSnippetEntity $snippet) => $snippet->getAppId() === $appId && $snippet->getLocaleId() === $localeId)->first(),
         );
     }
 }

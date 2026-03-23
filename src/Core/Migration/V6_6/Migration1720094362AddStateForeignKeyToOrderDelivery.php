@@ -3,9 +3,9 @@
 namespace Shopware\Core\Migration\V6_6;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -26,12 +26,7 @@ class Migration1720094362AddStateForeignKeyToOrderDelivery extends MigrationStep
             WHERE `state_id` NOT IN (SELECT `id` FROM `state_machine_state` WHERE `state_machine_id` = (SELECT `id` FROM `state_machine` WHERE `technical_name` = 'order_delivery.state'));
         SQL);
 
-        $foreignKeys = $connection->createSchemaManager()->introspectTableForeignKeyConstraintsByUnquotedName('order_delivery');
-
-        if (\array_filter($foreignKeys, static fn (ForeignKeyConstraint $foreignKey) => $foreignKey->getReferencedTableName()->getUnqualifiedName()->getValue() === 'state_machine_state'
-            && $foreignKey->getReferencingColumnNames()[0]->getIdentifier()->getValue() === 'state_id'
-            && $foreignKey->getReferencedColumnNames()[0]->getIdentifier()->getValue() === 'id')
-        ) {
+        if (TableHelper::foreignKeyExistsByColumns($connection, 'order_delivery', ['state_id'], 'state_machine_state', ['id'])) {
             return;
         }
 

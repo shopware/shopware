@@ -12,15 +12,17 @@ elasticsearch:
     administration:
         hosts: "%env(string:ADMIN_OPENSEARCH_URL)%"
         enabled: "%env(bool:SHOPWARE_ADMIN_ES_ENABLED)%"
+        indexing_batch_size: "%env(int:SHOPWARE_ADMIN_ES_INDEXING_BATCH_SIZE)%"
         refresh_indices: "%env(bool:SHOPWARE_ADMIN_ES_REFRESH_INDICES)%"
         index_prefix: "%env(string:SHOPWARE_ADMIN_ES_INDEX_PREFIX)%"
+        throw_exception: "%env(string:SHOPWARE_ADMIN_ES_THROW_EXCEPTION)%"
         search:
             timeout: 5s
             term_max_length: 300
             search_type: "query_then_fetch"
         index_settings:
-            number_of_shards: 3
-            number_of_replicas: 3
+            number_of_shards: '%env(int-or-null:SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS)%'
+            number_of_replicas: '%env(int-or-null:SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS)%'
             'mapping.total_fields.limit': 50000
             'mapping.nested_fields.limit': 500
             'mapping.nested_objects.limit': 1000000
@@ -31,6 +33,10 @@ elasticsearch:
                     type: custom
                     filter: [ 'lowercase' ]
             analyzer:
+                sw_whitespace_analyzer:
+                    type: custom
+                    tokenizer: whitespace
+                    filter: [ 'lowercase' ]
                 sw_ngram_analyzer:
                     type: custom
                     tokenizer: whitespace
@@ -55,8 +61,8 @@ elasticsearch:
     ssl:
         verify_server_cert: true
     index_settings:
-        number_of_shards: null
-        number_of_replicas: null
+        number_of_shards: '%env(int-or-null:SHOPWARE_ES_NUMBER_OF_SHARDS)%'
+        number_of_replicas: '%env(int-or-null:SHOPWARE_ES_NUMBER_OF_REPLICAS)%'
         'mapping.total_fields.limit': 50000
         'mapping.nested_fields.limit': 500
         'mapping.nested_objects.limit': 1000000
@@ -122,8 +128,17 @@ parameters:
     env(ADMIN_OPENSEARCH_URL): ""
     env(SHOPWARE_ADMIN_ES_INDEX_PREFIX): "sw-admin"
     env(SHOPWARE_ADMIN_ES_REFRESH_INDICES): ""
+    env(SHOPWARE_ADMIN_ES_THROW_EXCEPTION): "1"
     env(SHOPWARE_ES_INDEXING_BATCH_SIZE): "100"
+    env(SHOPWARE_ADMIN_ES_INDEXING_BATCH_SIZE): "1000"
     env(SHOPWARE_ES_EXCLUDE_SOURCE): "0"
     env(SHOPWARE_ES_NGRAM_MIN_GRAM): "4"
     env(SHOPWARE_ES_NGRAM_MAX_GRAM): "5"
     env(SHOPWARE_ES_USE_LANGUAGE_ANALYZER): "1"
+    env(SHOPWARE_ES_NUMBER_OF_SHARDS): ""
+    env(SHOPWARE_ES_NUMBER_OF_REPLICAS): ""
+    # @deprecated tag:v6.8.0 - change SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS and SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS to empty string to match regular Elasticsearch of Storefront config
+    env(SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS): "3"
+    env(SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS): "3"
+
+

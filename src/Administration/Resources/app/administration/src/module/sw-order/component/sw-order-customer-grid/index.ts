@@ -20,6 +20,10 @@ interface GridColumn {
     primary?: boolean;
 }
 
+interface CustomerFilterRef {
+    term: string;
+}
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,
@@ -69,14 +73,12 @@ export default Component.wrapComponentConfig({
         },
 
         customerCriteria(): CriteriaType {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('salesChannel');
             criteria.addAssociation('boundSalesChannel');
             criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
 
             if (this.term) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 criteria.setTerm(this.term);
             }
 
@@ -139,7 +141,6 @@ export default Component.wrapComponentConfig({
                 return this.$tc('sw-customer.list.messageEmpty');
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             return this.$t('sw-order.initialModal.customerGrid.textEmptySearch', { name: this.term }, 0);
         },
 
@@ -187,9 +188,14 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            // @ts-expect-error
-            this.$refs.customerFilter.term = this.customerData?.customerNumber;
-            void this.onSearch(this.customerData?.customerNumber);
+            const customerNumber = this.customerData.customerNumber ?? '';
+
+            const customerFilter = this.$refs.customerFilter as CustomerFilterRef | undefined;
+            if (customerFilter) {
+                customerFilter.term = customerNumber;
+            }
+
+            void this.onSearch(customerNumber);
             void this.onCheckCustomer(this.customerData);
         },
 
@@ -231,7 +237,6 @@ export default Component.wrapComponentConfig({
                 Store.get('context').api.languageId = this.customer.salesChannel.languageId;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (isExists && !Store.get('context').isSystemDefaultLanguage) {
                 Store.get('context').resetLanguageToDefault();
             }
@@ -258,7 +263,6 @@ export default Component.wrapComponentConfig({
         },
 
         createCart(salesChannelId: string): Promise<void> {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return Store.get('swOrder').createCart({ salesChannelId });
         },
 
@@ -279,7 +283,6 @@ export default Component.wrapComponentConfig({
 
                 await this.updateCustomerContext();
             } catch {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationError({
                     message: this.$tc('sw-order.create.messageSwitchCustomerError'),
                 });
@@ -310,7 +313,6 @@ export default Component.wrapComponentConfig({
                 })
                 .then((response) => {
                     // Update cart after customer context is updated
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     if (response.status === 200) {
                         void this.getCart();
                     }

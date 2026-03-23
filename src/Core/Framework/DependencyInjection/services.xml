@@ -148,6 +148,10 @@ frame-ancestors 'none';
             <argument type="tagged_iterator" tag="shopware.migration_source"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Migration\MigrationInfo">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Migration\Command\CreateMigrationCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
             <argument>%kernel.shopware_core_dir%</argument>
@@ -357,6 +361,10 @@ frame-ancestors 'none';
                       id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector"/>
 
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\SwTwigFunctionResetter" public="true">
             <tag name="kernel.reset" method="reset"/>
         </service>
 
@@ -626,10 +634,6 @@ frame-ancestors 'none';
             <tag name="kernel.reset" method="reset"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Util\Database\TableHelperResetter">
-            <tag name="kernel.reset" method="reset"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler" decorates="monolog.handler.main" decoration-on-invalid="ignore">
             <argument type="service" id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler.inner"/>
             <argument>%shopware.logger.exclude_exception%</argument>
@@ -713,5 +717,8 @@ frame-ancestors 'none';
 
         <service id="Shopware\Core\Framework\Util\Backtrace\BacktraceCollector"/>
 
+        <service id="Shopware\Core\Framework\Adapter\Kernel\EnvIntOrNullProcessor">
+            <tag name="container.env_var_processor"/>
+        </service>
     </services>
 </container>

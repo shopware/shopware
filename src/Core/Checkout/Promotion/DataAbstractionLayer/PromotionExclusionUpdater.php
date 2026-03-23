@@ -28,7 +28,7 @@ class PromotionExclusionUpdater
     public function update(array $ids): void
     {
         // if there are no ids, we don't have to do anything
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -39,7 +39,7 @@ class PromotionExclusionUpdater
             // create empty array if there are no exclusions
             $promotionExclusions = [];
 
-            if (\count($exclusions) > 0) {
+            if ($exclusions !== []) {
                 $firstResult = array_shift($exclusions);
                 if (\array_key_exists('exclusion_ids', $firstResult)) {
                     // if there are exclusions, set them in array
@@ -109,7 +109,7 @@ class PromotionExclusionUpdater
 
         $types = [];
 
-        if (\count($excludeThisIds) > 0) {
+        if ($excludeThisIds !== []) {
             $sqlStatement .= ' AND id NOT IN (:excludedIds)';
             $params['excludedIds'] = $this->convertHexArrayToByteArray($excludeThisIds);
             $types['excludedIds'] = ArrayParameterType::BINARY;
@@ -117,7 +117,7 @@ class PromotionExclusionUpdater
 
         $results = $this->connection->executeQuery($sqlStatement, $params, $types)->fetchAllAssociative();
 
-        if (\count($results) === 0) {
+        if ($results === []) {
             return [];
         }
 
@@ -176,7 +176,7 @@ class PromotionExclusionUpdater
     private function updateJSON(string $id, array $onlyAddThisExistingIds): void
     {
         $value = '[]';
-        if (\count($onlyAddThisExistingIds) > 0) {
+        if ($onlyAddThisExistingIds !== []) {
             $value = json_encode($onlyAddThisExistingIds, \JSON_THROW_ON_ERROR);
         }
 
@@ -244,17 +244,17 @@ class PromotionExclusionUpdater
      */
     private function convertHexArrayToByteArray(array $hexIds): array
     {
-        if (\count($hexIds) === 0) {
+        if ($hexIds === []) {
             return [];
         }
 
-        $validValues = array_values(array_filter($hexIds, fn ($hexId) => Uuid::isValid($hexId)));
+        $validValues = array_values(array_filter($hexIds, static fn ($hexId) => Uuid::isValid($hexId)));
 
-        if (\count($validValues) === 0) {
+        if ($validValues === []) {
             return [];
         }
 
-        $bytes = array_map(fn (string $id) => Uuid::fromHexToBytes($id), $validValues);
+        $bytes = array_map(static fn (string $id) => Uuid::fromHexToBytes($id), $validValues);
 
         return $bytes;
     }

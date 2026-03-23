@@ -89,7 +89,7 @@ class DownloadResponseGenerator
                 $location = $media->getPath();
 
                 // Apply the path prefix if configured
-                if (!empty($this->privateLocalPathPrefix)) {
+                if ($this->privateLocalPathPrefix !== '') {
                     $location = $this->privateLocalPathPrefix . '/' . ltrim($location, '/');
                 }
 
@@ -122,7 +122,7 @@ class DownloadResponseGenerator
             throw MediaException::fileNotFound($media->getFileName() . '.' . $media->getFileExtension());
         }
 
-        return new StreamedResponse(function () use ($stream): void {
+        return new StreamedResponse(static function () use ($stream): void {
             fpassthru($stream);
         }, Response::HTTP_OK, $this->getStreamHeaders($media));
     }

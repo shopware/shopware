@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Doctrine\Doctrine;
+namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Doctrine;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;
@@ -21,7 +21,7 @@ class RetryableTransactionTest extends TestCase
     public function testRetryableTransactionRetriesOnDeadlock(): void
     {
         $counter = 0;
-        $f = function () use (&$counter): void {
+        $f = static function () use (&$counter): void {
             ++$counter;
             throw new DeadlockException(
                 new Exception('Deadlock detected'),

@@ -4,16 +4,31 @@ CMS elements
 General styling for cms elements
 */
 
-.cms-element-image {
+.cms-element-image,
+.cms-element-video {
     position: relative;
     height: 100%;
 
-    .cms-image {
+    &[tabindex]:focus-visible {
+        outline: 0;
+    }
+
+    &[tabindex]:focus-visible .cms-video-container {
+        box-shadow: 0 0 0 $focus-ring-width $focus-ring-color;
+    }
+
+    .cms-image,
+    .cms-video {
         display: block;
         max-width: 100%;
     }
 
-    .cms-image-container {
+    .cms-video:not([controls]) {
+        cursor: pointer;
+    }
+
+    .cms-image-container,
+    .cms-video-container {
         display: block;
         max-width: 100%;
         position: relative;
@@ -22,7 +37,8 @@ General styling for cms elements
             object-fit: contain;
             height: 100%;
 
-            .cms-image {
+            .cms-image,
+            .cms-video {
                 object-fit: cover;
                 height: 100%;
                 position: absolute;
@@ -35,57 +51,67 @@ General styling for cms elements
 
         &.is-cover,
         &.is-stretch {
-            .cms-image {
+            .cms-image,
+            .cms-video {
                 width: 100%;
             }
+        }
+    }
+
+    .cms-video-play-icon {
+        position: absolute;
+        z-index: 2;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        transform-origin: center;
+        width: 96px;
+        height: 74px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        transition:
+            opacity 220ms ease-out,
+            transform 140ms ease-in;
+        will-change: transform, opacity;
+
+        img {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    &.is-animating {
+        .cms-video-play-icon {
+            animation: cms-video-start 220ms ease-out;
+        }
+    }
+
+    &.is-playing {
+        .cms-video-play-icon {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+
+    &.is-paused {
+        .cms-video-play-icon {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            animation: cms-video-stop 300ms linear;
         }
     }
 
     .cms-image-link {
         display: block;
     }
-}
 
-.cms-element-youtube-video {
-    position: relative;
-    width: 100%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &.is--streched {
-        height: 100%;
-    }
-
-    &::before {
-        display: block;
-        content: '';
-        width: 100%;
-        padding-top: calc((9 / 16) * 100%);
-    }
-
-    &__video,
-    &__placeholder {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        border: 0 none;
-    }
-
-    &__placeholder img {
-        object-fit: cover;
-        height: 100%;
-        width: 100%;
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
+    &.is-stretch {
+        .cms-element-alignment {
+            width: 100%;
+        }
     }
 
     &__backdrop {
@@ -101,6 +127,51 @@ General styling for cms elements
     }
 }
 
+@keyframes cms-video-start {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    60% {
+        transform: translate(-50%, -50%) scale(1.32);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+}
+
+@keyframes cms-video-stop {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+    40% {
+        transform: translate(-50%, -50%) scale(1.32);
+        opacity: 0.2;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+.cms-element-youtube-video {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &.is--streched {
+        height: 100%;
+    }
+
+    &::before {
+        padding-top: calc((9 / 16) * 100%);
+    }
+}
+
+.cms-element-youtube-video,
 .cms-element-vimeo-video {
     position: relative;
     width: 100%;
@@ -146,6 +217,7 @@ General styling for cms elements
             padding: $spacer;
         }
     }
+
     &__container:hover .js-vimeo-link {
         display: block;
     }
@@ -182,11 +254,12 @@ General styling for cms elements
 
 .cms-element-text,
 .cms-element-image,
+.cms-element-video,
 .cms-element-product-box,
 .cms-element-buy-box,
 .cms-element-product-slider,
-.cms-element-image-slider,
 .cms-element-product-description-reviews,
+.cms-element-image-slider,
 .cms-element-image-gallery {
     word-break: break-word;
 

@@ -1,7 +1,6 @@
 /**
  * @sw-package discovery
  */
-/* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 import { MtSwitch, MtUrlField } from '@shopware-ag/meteor-component-library';

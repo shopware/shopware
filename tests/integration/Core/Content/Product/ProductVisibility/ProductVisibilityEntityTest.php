@@ -117,7 +117,7 @@ class ProductVisibilityEntityTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $product);
 
         $ids = $visibilities->map(
-            fn (ProductVisibilityEntity $visibility) => ['id' => $visibility->getId()]
+            static fn (ProductVisibilityEntity $visibility) => ['id' => $visibility->getId()]
         );
 
         $container = $this->visibilityRepository->delete(array_values($ids), $context);

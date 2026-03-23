@@ -54,10 +54,6 @@ async function createWrapper({ props = {} } = {}) {
 
 describe('src/app/component/extension-api/sw-iframe-renderer', () => {
     beforeEach(async () => {
-        // Reset window location search
-        delete window.location;
-        window.location = new URL('https://www.example.com');
-
         // Clear extension store
         Object.keys(Shopware.Store.get('extensions').extensionsState).forEach((key) => {
             delete Shopware.Store.get('extensions').extensionsState[key];
@@ -246,9 +242,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
             active: true,
         });
 
-        window.location = new URL(
-            'https://my-great-extension.com/app/?shop-id=__SHOP_ID&shop-signature=__SIGNED__&location-id=my-great-extension-main-module&search=T-Shirt#/detail/1',
-        );
+        window.history.replaceState({}, '', 'http://localhost/?location-id=my-great-extension-main-module');
 
         await createWrapper({
             props: {
@@ -300,9 +294,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
             active: true,
         });
 
-        window.location = new URL(
-            'https://my-great-extension.com/app/?shop-id=__SHOP_ID&shop-signature=__SIGNED__&location-id=my-great-extension-other-module&search=T-Shirt#/detail/1',
-        );
+        window.history.replaceState({}, '', 'http://localhost/?location-id=other-location-id');
 
         await createWrapper({
             props: {
@@ -370,5 +362,32 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         expect(updatedIframeSrc).toBe(
             'http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-youtube-element&shop-id=__SHOP_ID&shop-signature=__SIGNED__',
         );
+    });
+
+    it('should trigger full page reload when iframe is reloaded after initial load', async () => {
+        Shopware.Store.get('extensions').addExtension({
+            name: 'foo',
+            baseUrl: 'https://example.com',
+            permissions: [],
+            version: '1.0.0',
+            type: 'app',
+            active: true,
+        });
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+        // First load (initial): should not reload the page
+        const iframe = wrapper.find('iframe');
+        expect(iframe.exists()).toBe(true);
+
+        await iframe.trigger('load');
+        expect(wrapper.vm._reloadPage).not.toHaveBeenCalled();
+
+        // Second load (iframe reload): should trigger full page reload
+        await iframe.trigger('load');
+        expect(wrapper.vm._reloadPage).toHaveBeenCalledTimes(1);
     });
 });

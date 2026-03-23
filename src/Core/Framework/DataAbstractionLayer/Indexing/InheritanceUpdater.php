@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -38,21 +39,21 @@ class InheritanceUpdater
     public function update(string $entity, array $ids, Context $context): void
     {
         $ids = array_unique(array_filter($ids));
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
         $definition = $this->registry->getByEntityName($entity);
 
-        $inherited = $definition->getFields()->filter(fn (Field $field) => $field->is(Inherited::class) && $field instanceof AssociationField);
+        $inherited = $definition->getFields()->filter(static fn (Field $field) => $field->is(Inherited::class) && $field instanceof AssociationField);
 
-        $associations = $inherited->filter(fn (Field $field) => $field instanceof OneToManyAssociationField || $field instanceof ManyToManyAssociationField || $field instanceof OneToOneAssociationField);
+        $associations = $inherited->filter(static fn (Field $field) => $field instanceof OneToManyAssociationField || $field instanceof ManyToManyAssociationField || $field instanceof OneToOneAssociationField);
 
         if ($associations->count() > 0) {
             $this->updateToManyAssociations($definition, $ids, $associations, $context);
         }
 
-        $associations = $inherited->filter(fn (Field $field) => $field instanceof ManyToOneAssociationField);
+        $associations = $inherited->filter(static fn (Field $field) => $field instanceof ManyToOneAssociationField);
 
         if ($associations->count() > 0) {
             $this->updateToOneAssociations($definition, $ids, $associations, $context);
@@ -64,7 +65,7 @@ class InheritanceUpdater
      */
     private function updateToManyAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
     {
-        $bytes = array_map(fn ($id) => Uuid::fromHexToBytes($id), $ids);
+        $bytes = array_map(static fn ($id) => Uuid::fromHexToBytes($id), $ids);
 
         /** @var AssociationField $association */
         foreach ($associations as $association) {
@@ -73,7 +74,7 @@ class InheritanceUpdater
             $flag = $association->getFlag(Inherited::class);
 
             if (!$flag instanceof Inherited) {
-                throw new \RuntimeException(\sprintf('Association %s is not marked as inherited', $definition->getEntityName() . '.' . $association->getPropertyName()));
+                throw DataAbstractionLayerException::associationNotInherited($definition->getEntityName() . '.' . $association->getPropertyName());
             }
 
             $foreignKey = $flag->getForeignKey() ?: ($definition->getEntityName() . '_id');
@@ -133,7 +134,7 @@ class InheritanceUpdater
      */
     private function updateToOneAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
     {
-        $bytes = array_map(fn ($id) => Uuid::fromHexToBytes($id), $ids);
+        $bytes = array_map(static fn ($id) => Uuid::fromHexToBytes($id), $ids);
 
         /** @var ManyToOneAssociationField $association */
         foreach ($associations as $association) {

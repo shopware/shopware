@@ -9,12 +9,13 @@ use Shopware\Core\System\Consent\Log\ConsentChangedSubscriber;
 use Shopware\Core\System\Consent\Log\ConsentLogInterface;
 use Shopware\Core\System\Consent\Log\DatabaseLog;
 use Shopware\Core\System\Consent\Service\ConsentService;
+use Shopware\Core\System\Consent\Subscriber\SetupStagingEventSubscriber;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Reference;
 
-return function (ContainerConfigurator $container): void {
+return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
     $services->set(ConsentController::class)
@@ -34,7 +35,8 @@ return function (ContainerConfigurator $container): void {
             new TaggedIteratorArgument('shopware.consent.definition'),
             new Reference(ConsentRepository::class),
             new Reference('event_dispatcher'),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(ConsentScope\System::class)
         ->tag('shopware.consent.scope');
@@ -58,5 +60,11 @@ return function (ContainerConfigurator $container): void {
         ->tag('kernel.event_subscriber')
         ->args([
             new Reference(ConsentLogInterface::class, ContainerInterface::NULL_ON_INVALID_REFERENCE),
+        ]);
+
+    $services->set(SetupStagingEventSubscriber::class)
+        ->tag('kernel.event_subscriber')
+        ->args([
+            new Reference(Connection::class),
         ]);
 };

@@ -56,7 +56,7 @@ class ThemeLifecycleHandler
 
         $configs = $this->storefrontPluginRegistry->getConfigurations();
 
-        $configs = $configs->filter(fn (StorefrontPluginConfiguration $registeredConfig): bool => $registeredConfig->getTechnicalName() !== $config->getTechnicalName());
+        $configs = $configs->filter(static fn (StorefrontPluginConfiguration $registeredConfig): bool => $registeredConfig->getTechnicalName() !== $config->getTechnicalName());
 
         $this->recompileThemesIfNecessary($config, $context, $configs, $themeId);
     }
@@ -166,7 +166,7 @@ class ThemeLifecycleHandler
             ['technicalName' => $technicalName]
         );
 
-        if (empty($themeData)) {
+        if ($themeData === []) {
             return new ThemeDependencies();
         }
 

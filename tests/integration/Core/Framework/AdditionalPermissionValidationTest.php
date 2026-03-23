@@ -59,7 +59,7 @@ class AdditionalPermissionValidationTest extends TestCase
     {
         $additionalPermission = $this->getAdditionalPermissions();
 
-        if (empty($additionalPermission)) {
+        if ($additionalPermission === []) {
             return;
         }
 
@@ -93,7 +93,7 @@ class AdditionalPermissionValidationTest extends TestCase
             }
         }
 
-        if (!empty($regexParts)) {
+        if ($regexParts !== []) {
             static::fail(\sprintf(
                 'Found additional permission privileges not validated: %s',
                 implode(', ', array_keys($regexParts))

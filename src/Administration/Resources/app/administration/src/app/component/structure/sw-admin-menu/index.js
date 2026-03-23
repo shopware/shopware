@@ -104,11 +104,9 @@ export default {
             // Throw an console error if navigation entry is on level 4 or higher. Also remove the navigation entry from menu
             return adminModuleNavigationEntries.filter((entry) => {
                 const levelOneParent = adminModuleNavigationEntries.find((e) => entry.parent && e.id === entry.parent);
-                // eslint-disable-next-line max-len
                 const levelTwoParent = adminModuleNavigationEntries.find(
                     (e) => levelOneParent?.parent && e.id === levelOneParent?.parent,
                 );
-                // eslint-disable-next-line max-len
                 const levelThreeParent = adminModuleNavigationEntries.find(
                     (e) => levelTwoParent?.parent && e.id === levelTwoParent?.parent,
                 );
@@ -395,15 +393,16 @@ The admin menu only supports up to three levels of nesting.`,
             this.isUserActionsActive = false;
         },
 
-        onLogoutUser() {
-            this.loginService.logout();
+        async onLogoutUser() {
+            await this.loginService.logoutSso();
+
             this.adminMenuStore.clearExpandedMenuEntries();
             Shopware.Store.get('session').removeCurrentUser();
             Shopware.Store.get('notification').clearGrowlNotificationsForCurrentUser();
             Shopware.Store.get('notification').clearNotificationsForCurrentUser();
-            this.$router.push({
-                name: 'sw.login.index',
-            });
+
+            // SSO path redirects via window.location.href — this line only runs for non-SSO
+            this.$router.push({ name: 'sw.login.index' });
         },
 
         addScrollbarOffset() {
@@ -562,7 +561,6 @@ The admin menu only supports up to three levels of nesting.`,
             // Inspired by https://github.com/substack/point-in-polygon/blob/master/index.js
             let inside = false;
 
-            // eslint-disable-next-line no-plusplus
             for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
                 const xi = polygon[i][0];
                 const yi = polygon[i][1];

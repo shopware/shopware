@@ -17,6 +17,7 @@ use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Event\AssetUploadEvent;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginException;
@@ -27,7 +28,11 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal with next major. Should then be moved to the `Shopware\Core\Framework\Adapter\Asset` namespace
+ */
 #[Package('framework')]
 class AssetService
 {
@@ -44,7 +49,8 @@ class AssetService
         private readonly KernelPluginLoader $pluginLoader,
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly SourceResolver $sourceResolver,
-        private readonly ParameterBagInterface $parameterBag
+        private readonly ParameterBagInterface $parameterBag,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -116,16 +122,17 @@ class AssetService
     {
         $this->removeAssets($bundleName);
 
+        $bundle = null;
         try {
             $bundle = $this->getBundle($bundleName);
-
-            if ($bundle instanceof Plugin) {
-                foreach ($this->getAdditionalBundles($bundle) as $additionalBundle) {
-                    $this->removeAssets($additionalBundle->getName());
-                }
-            }
         } catch (PluginNotFoundException) {
             // plugin is already unloaded, we cannot find it. Ignore it
+        }
+
+        if ($bundle instanceof Plugin) {
+            foreach ($this->getAdditionalBundles($bundle) as $additionalBundle) {
+                $this->removeAssets($additionalBundle->getName());
+            }
         }
     }
 
@@ -258,15 +265,21 @@ class AssetService
         // as files with changed hashes
         $uploads = array_keys(array_diff_assoc($localManifest, $remoteManifest));
 
-        // diff the opposite way to find files which are present remote, but not locally.
+        // diff the opposite way to find files which are present remotely, but not locally.
         // we use array_diff_key because we don't care about the hash, just the file names
-        foreach (array_keys(array_diff_key($remoteManifest, $localManifest)) as $file) {
-            $this->assetFilesystem->delete(Path::join($targetDirectory, $file));
-        }
+        $filesToDelete = array_keys(array_diff_key($remoteManifest, $localManifest));
+
+        $uploadEvent = $this->eventDispatcher->dispatch(new AssetUploadEvent(
+            $originDir,
+            $targetDirectory,
+            $localManifest,
+            $remoteManifest,
+            $uploads,
+            $filesToDelete,
+        ));
 
         $batches = [];
-
-        foreach ($uploads as $file) {
+        foreach ($uploadEvent->filesToUpload as $file) {
             $batches[] = new CopyBatchInput(
                 Path::join($originDir, $file),
                 [Path::join($targetDirectory, $file)],
@@ -275,6 +288,11 @@ class AssetService
         }
 
         CopyBatch::copy($this->assetFilesystem, ...$batches);
+
+        // Delete remote files, that are not present locally
+        foreach ($uploadEvent->filesToDelete as $file) {
+            $this->assetFilesystem->delete(Path::join($targetDirectory, $file));
+        }
     }
 
     /**
@@ -317,10 +335,6 @@ class AssetService
      */
     private function getManifest(): array
     {
-        if ($this->areAssetsStoredLocally()) {
-            return [];
-        }
-
         $hashes = [];
         try {
             $hashes = json_decode($this->privateFilesystem->read(self::ASSET_MANIFEST_FILENAME), true, flags: \JSON_THROW_ON_ERROR);
@@ -334,21 +348,13 @@ class AssetService
      * @param array<string, array<string, string>> $manifest
      *
      * @throws \JsonException
+     * @throws FilesystemException
      */
     private function writeManifest(array $manifest): void
     {
-        if ($this->areAssetsStoredLocally()) {
-            return;
-        }
-
         $this->privateFilesystem->write(
             self::ASSET_MANIFEST_FILENAME,
             json_encode($manifest, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR)
         );
-    }
-
-    private function areAssetsStoredLocally(): bool
-    {
-        return $this->parameterBag->get('shopware.filesystem.asset.type') === 'local';
     }
 }

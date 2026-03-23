@@ -15,6 +15,15 @@ use Symfony\Component\Filesystem\Filesystem;
 #[CoversClass(TwigComponentBundlePass::class)]
 class TwigComponentBundlePassTest extends TestCase
 {
+    private string $tmpDir = '';
+
+    protected function tearDown(): void
+    {
+        if ($this->tmpDir !== '' && is_dir($this->tmpDir)) {
+            $this->removeDir($this->tmpDir);
+        }
+    }
+
     public function testProcessDoesNothingWhenTwigComponentParameterNotSet(): void
     {
         $container = new ContainerBuilder();
@@ -23,6 +32,7 @@ class TwigComponentBundlePassTest extends TestCase
         (new TwigComponentBundlePass())->process($container);
 
         static::assertFalse($container->hasParameter('ux.twig_component.component_defaults'));
+        static::assertSame([], $container->getParameter('storefront.bundle_components'));
     }
 
     public function testProcessDoesNothingWhenDefaultsIsNotArray(): void
@@ -64,8 +74,7 @@ class TwigComponentBundlePassTest extends TestCase
         $bundlePath = '/some/storefront/path';
 
         $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->expects($this->once())
-            ->method('exists')
+        $filesystem->method('exists')
             ->with($bundlePath . '/Resources/views/components')
             ->willReturn(true);
 
@@ -94,8 +103,7 @@ class TwigComponentBundlePassTest extends TestCase
         $namespace = 'Shopware\\Storefront\\Resources\\views\\components\\';
 
         $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->expects($this->once())
-            ->method('exists')
+        $filesystem->method('exists')
             ->with($bundlePath . '/Resources/views/components')
             ->willReturn(true);
 
@@ -123,6 +131,7 @@ class TwigComponentBundlePassTest extends TestCase
         (new TwigComponentBundlePass())->process($container);
 
         static::assertSame([], $container->getParameter('ux.twig_component.component_defaults'));
+        static::assertSame([], $container->getParameter('storefront.bundle_components'));
     }
 
     public function testProcessSkipsBundleWithoutComponentsDirectory(): void
@@ -145,6 +154,7 @@ class TwigComponentBundlePassTest extends TestCase
         (new TwigComponentBundlePass($filesystem))->process($container);
 
         static::assertSame([], $container->getParameter('ux.twig_component.component_defaults'));
+        static::assertSame([], $container->getParameter('storefront.bundle_components'));
     }
 
     public function testProcessSkipsNonExistentClass(): void
@@ -172,5 +182,135 @@ class TwigComponentBundlePassTest extends TestCase
         (new TwigComponentBundlePass($filesystem))->process($container);
 
         static::assertSame([], $container->getParameter('ux.twig_component.component_defaults'));
+    }
+
+    public function testDiscoversBundleComponentsFromRealDirectory(): void
+    {
+        $this->tmpDir = $this->createTempDir();
+        mkdir($this->tmpDir . '/Resources/views/components/Sw', 0777, true);
+        file_put_contents($this->tmpDir . '/Resources/views/components/Sw/Button.html.twig', '<button>test</button>');
+        file_put_contents($this->tmpDir . '/Resources/views/components/Sw/Card.html.twig', '<div>card</div>');
+
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.bundles', ['Storefront' => Storefront::class]);
+        $container->setParameter('kernel.bundles_metadata', [
+            'Storefront' => ['path' => $this->tmpDir, 'namespace' => 'Shopware\\Storefront'],
+        ]);
+
+        (new TwigComponentBundlePass())->process($container);
+
+        $components = $container->getParameter('storefront.bundle_components');
+        static::assertIsArray($components);
+        static::assertCount(2, $components);
+
+        $names = array_column($components, 'name');
+        static::assertContains('Sw:Button', $names);
+        static::assertContains('Sw:Card', $names);
+
+        foreach ($components as $component) {
+            static::assertSame('Storefront', $component['namespace']);
+            static::assertStringEndsWith('.html.twig', $component['path']);
+        }
+    }
+
+    public function testDiscoversNestedBundleComponents(): void
+    {
+        $this->tmpDir = $this->createTempDir();
+        mkdir($this->tmpDir . '/Resources/views/components/Forms/Input', 0777, true);
+        file_put_contents($this->tmpDir . '/Resources/views/components/Forms/Input/Text.html.twig', '<input>');
+
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.bundles', ['Storefront' => Storefront::class]);
+        $container->setParameter('kernel.bundles_metadata', [
+            'Storefront' => ['path' => $this->tmpDir, 'namespace' => 'Shopware\\Storefront'],
+        ]);
+
+        (new TwigComponentBundlePass())->process($container);
+
+        $components = $container->getParameter('storefront.bundle_components');
+        static::assertCount(1, $components);
+        static::assertSame('Forms:Input:Text', $components[0]['name']);
+        static::assertSame('Storefront', $components[0]['namespace']);
+    }
+
+    public function testExcludesFilesInUnderscorePrefixedDirectories(): void
+    {
+        $this->tmpDir = $this->createTempDir();
+        mkdir($this->tmpDir . '/Resources/views/components/Sw', 0777, true);
+        mkdir($this->tmpDir . '/Resources/views/components/_private', 0777, true);
+        file_put_contents($this->tmpDir . '/Resources/views/components/Sw/Button.html.twig', '<button>');
+        file_put_contents($this->tmpDir . '/Resources/views/components/_private/Helper.html.twig', '<div>');
+
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.bundles', ['Storefront' => Storefront::class]);
+        $container->setParameter('kernel.bundles_metadata', [
+            'Storefront' => ['path' => $this->tmpDir, 'namespace' => 'Shopware\\Storefront'],
+        ]);
+
+        (new TwigComponentBundlePass())->process($container);
+
+        $components = $container->getParameter('storefront.bundle_components');
+        static::assertCount(1, $components);
+        static::assertSame('Sw:Button', $components[0]['name']);
+    }
+
+    public function testDiscoversBundleComponentsFromMultipleBundles(): void
+    {
+        $this->tmpDir = $this->createTempDir();
+        mkdir($this->tmpDir . '/Bundle1/Resources/views/components', 0777, true);
+        mkdir($this->tmpDir . '/Bundle2/Resources/views/components', 0777, true);
+        file_put_contents($this->tmpDir . '/Bundle1/Resources/views/components/Alert.html.twig', '<div>');
+        file_put_contents($this->tmpDir . '/Bundle2/Resources/views/components/Badge.html.twig', '<span>');
+
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.bundles', [
+            'Bundle1' => Storefront::class,
+            'Bundle2' => Storefront::class,
+        ]);
+        $container->setParameter('kernel.bundles_metadata', [
+            'Bundle1' => ['path' => $this->tmpDir . '/Bundle1', 'namespace' => 'Shopware\\Bundle1'],
+            'Bundle2' => ['path' => $this->tmpDir . '/Bundle2', 'namespace' => 'Shopware\\Bundle2'],
+        ]);
+
+        (new TwigComponentBundlePass())->process($container);
+
+        $components = $container->getParameter('storefront.bundle_components');
+        static::assertCount(2, $components);
+
+        $namespaces = array_column($components, 'namespace');
+        static::assertContains('Bundle1', $namespaces);
+        static::assertContains('Bundle2', $namespaces);
+    }
+
+    public function testProducesEmptyListWhenMissingKernelParameters(): void
+    {
+        $container = new ContainerBuilder();
+        // Neither kernel.bundles nor kernel.bundles_metadata set
+
+        (new TwigComponentBundlePass())->process($container);
+
+        static::assertSame([], $container->getParameter('storefront.bundle_components'));
+    }
+
+    private function createTempDir(): string
+    {
+        $dir = sys_get_temp_dir() . '/twig_component_pass_test_' . uniqid();
+        mkdir($dir, 0777, true);
+
+        return $dir;
+    }
+
+    private function removeDir(string $dir): void
+    {
+        foreach (scandir($dir) as $entry) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+
+            $path = $dir . '/' . $entry;
+            is_dir($path) ? $this->removeDir($path) : unlink($path);
+        }
+
+        rmdir($dir);
     }
 }

@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Framework\Twig\Components;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FileAttributes;
 use League\Flysystem\FilesystemOperator;
-use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
@@ -19,14 +18,13 @@ class TwigComponentHelper
     public const COMPONENT_DIRECTORY = 'Resources/views/components/';
 
     /**
-     * @param array<string, array{path: string}> $bundlesMetadata
+     * @param list<array{name: string, namespace: string, path: string}> $bundleComponents Pre-computed by TwigComponentBundlePass at container build time
      *
      * @internal
      */
     public function __construct(
-        private array $bundlesMetadata,
+        private readonly array $bundleComponents,
         private readonly string $projectDir,
-        private readonly NamespaceHierarchyBuilder $namespaceHierarchyBuilder,
         private readonly Connection $connection,
         private readonly SourceResolver $sourceResolver,
         private readonly FilesystemOperator $localFilesystem,
@@ -37,26 +35,37 @@ class TwigComponentHelper
     {
         $components = new TwigComponentCollection();
 
-        foreach ($this->findComponentsByTemplate() as $component) {
+        foreach ($this->bundleComponents as $data) {
+            $components->add(new TwigComponent($data['name'], $data['path'], $data['namespace']));
+        }
+
+        foreach ($this->findAppComponentsByTemplate() as $component) {
             $components->add($component);
         }
 
         return $components;
     }
 
+    public static function getComponentNameFromPath(string $templateRelativePath): string
+    {
+        if (str_starts_with($templateRelativePath, 'components/')) {
+            $templateRelativePath = str_replace('components/', '', $templateRelativePath);
+        }
+
+        $componentName = str_replace(\DIRECTORY_SEPARATOR, ':', $templateRelativePath);
+        $componentName = substr($componentName, 0, -10); // remove file extension ".html.twig"
+
+        return $componentName;
+    }
+
     /**
      * @return array<string, TwigComponent>
      */
-    private function findComponentsByTemplate(): array
+    private function findAppComponentsByTemplate(): array
     {
-        $dirs = array_merge(
-            $this->getBundleDirs(),
-            $this->getAppDirs()
-        );
-
         $components = [];
 
-        foreach ($dirs as $normalizedDir => $namespace) {
+        foreach ($this->getAppDirs() as $normalizedDir => $namespace) {
             try {
                 $items = $this->localFilesystem->listContents($normalizedDir, true);
             } catch (\Throwable) {
@@ -77,12 +86,12 @@ class TwigComponentHelper
                 $prefix = rtrim($normalizedDir, '/') . '/';
                 $relativePath = substr($filePath, \strlen($prefix));
 
-                // Equivalent of Finder::notPath('/_') – skip files inside underscore-prefixed directories
+                // Skip files inside underscore-prefixed directories
                 if (str_contains('/' . $relativePath, '/_')) {
                     continue;
                 }
 
-                $componentName = $this->getComponentNameFromPath($relativePath);
+                $componentName = self::getComponentNameFromPath($relativePath);
 
                 $absolutePath = Path::canonicalize(Path::join($this->projectDir, $filePath));
                 $component = new TwigComponent($componentName, $absolutePath, $namespace);
@@ -92,35 +101,6 @@ class TwigComponentHelper
         }
 
         return $components;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function getBundleDirs(): array
-    {
-        $namespaceHierarchy = $this->namespaceHierarchyBuilder->buildHierarchy();
-        $namespaces = array_keys($namespaceHierarchy);
-
-        $dirs = [];
-
-        foreach ($namespaces as $namespace) {
-            if (!isset($this->bundlesMetadata[$namespace])) {
-                continue;
-            }
-
-            $path = $this->bundlesMetadata[$namespace]['path'];
-            $componentDir = Path::join($path, self::COMPONENT_DIRECTORY);
-
-            $relativeDir = $this->toProjectRelativePath($componentDir);
-            if ($relativeDir === null || !$this->localFilesystem->directoryExists($relativeDir)) {
-                continue;
-            }
-
-            $dirs[$relativeDir] = $namespace;
-        }
-
-        return $dirs;
     }
 
     /**
@@ -176,17 +156,5 @@ class TwigComponentHelper
         }
 
         return str_replace('\\', '/', $relative);
-    }
-
-    private function getComponentNameFromPath(string $templateRelativePath): string
-    {
-        if (str_starts_with($templateRelativePath, 'components/')) {
-            $templateRelativePath = str_replace('components/', '', $templateRelativePath);
-        }
-
-        $componentName = str_replace(\DIRECTORY_SEPARATOR, ':', $templateRelativePath);
-        $componentName = substr($componentName, 0, -10); // remove file extension ".html.twig"
-
-        return $componentName;
     }
 }

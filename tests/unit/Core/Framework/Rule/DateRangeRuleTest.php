@@ -210,7 +210,7 @@ class DateRangeRuleTest extends TestCase
                 true,
                 'UTC',
                 '2021-01-01 20:00:00 +01:00',
-                true,
+                false,
             ],
             [
                 '2021-01-01 00:00:00',
@@ -218,7 +218,7 @@ class DateRangeRuleTest extends TestCase
                 false,
                 'UTC',
                 '2021-01-02 02:00:00 +04:00',
-                true,
+                false,
             ],
             [
                 '2021-01-02 00:00:00',
@@ -226,7 +226,7 @@ class DateRangeRuleTest extends TestCase
                 false,
                 'Etc/GMT-2',
                 '2021-01-01 22:00:00',
-                true,
+                false,
             ],
             [
                 '2021-01-02 00:00:00',
@@ -234,7 +234,7 @@ class DateRangeRuleTest extends TestCase
                 false,
                 'Etc/GMT-2',
                 '2021-01-01 21:59:59',
-                true,
+                false,
             ],
             // with useTime = true
             [
@@ -243,7 +243,7 @@ class DateRangeRuleTest extends TestCase
                 true,
                 'Etc/GMT-2',
                 '2021-01-01 08:00:00',
-                true,
+                false,
             ],
             [
                 '2021-01-01 10:00:00',
@@ -261,6 +261,64 @@ class DateRangeRuleTest extends TestCase
                 true,
                 null,
                 '2021-01-01 07:59:59',
+                true,
+            ],
+
+            // edge case test with timezone and border time
+            [
+                '2026-03-02T00:00:00',
+                '2026-03-12T23:59:59',
+                true,
+                null,
+                '2026-03-01T23:50:00',
+                false,
+            ],
+            [
+                '2026-03-02T00:00:00',
+                '2026-03-12T23:59:59',
+                false,
+                null,
+                '2026-03-01T23:50:00',
+                false,
+            ],
+            [
+                '2026-03-02T00:00:00',
+                '2026-03-12T23:59:59',
+                false,
+                null,
+                '2026-03-02T00:00:01',
+                true,
+            ],
+            [
+                '2026-03-02T00:00:00',
+                '2026-03-12T23:59:59',
+                false,
+                null,
+                '2026-03-12T23:59:59',
+                true,
+            ],
+            [
+                '2026-03-02T00:00:00',
+                '2026-03-12T23:59:59',
+                true,
+                null,
+                '2026-03-02T00:00:01',
+                true,
+            ],
+            [
+                '2026-03-02T00:00:00',
+                '2026-03-12T23:59:59',
+                true,
+                null,
+                '2026-03-12T23:59:59',
+                false,
+            ],
+            [
+                '2026-03-02T00:00:00',
+                '2026-03-12T23:59:59',
+                true,
+                null,
+                '2026-03-12T23:59:58',
                 true,
             ],
         ];

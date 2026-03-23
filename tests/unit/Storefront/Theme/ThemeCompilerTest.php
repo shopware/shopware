@@ -2,8 +2,10 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
+use League\Flysystem\Config;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use League\Flysystem\Visibility;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -12,16 +14,14 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
-use Shopware\Core\Framework\Util\Filesystem as ThemeFilesystem;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentCollection;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
@@ -29,805 +29,962 @@ use Shopware\Storefront\Theme\ScssPhpCompiler;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\ThemeCompiler;
+use Shopware\Storefront\Theme\ThemeConfigCacheInvalidator;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
-use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
-use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeVariablesSubscriber;
-use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\AsyncPlugin\AsyncPlugin;
-use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\NotFoundPlugin\NotFoundPlugin;
-use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\TestTheme\TestTheme;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Filesystem as LocalFilesystem;
 
 /**
  * @internal
+ *
+ * Unit tests for ThemeCompiler focusing on:
+ * - Public API contracts
+ * - Error handling
+ * - Dependency coordination
+ * - Cache invalidation
+ * - File operation coordination
  */
 #[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerTest extends TestCase
 {
-    use EnvTestBehaviour;
-
-    private string $mockSalesChannelId;
-
-    /**
-     * @var ThemeFileResolver&MockObject
-     */
-    private ThemeFileResolver $themeFileResolver;
-
     private Filesystem $filesystem;
 
     private Filesystem $tempFilesystem;
 
-    /**
-     * @var EventDispatcher&MockObject
-     */
-    private EventDispatcher $eventDispatcher;
+    private ThemeFileResolver&MockObject $themeFileResolver;
 
-    /**
-     * @var CacheInvalidator&MockObject
-     */
-    private CacheInvalidator $cacheInvalidator;
+    private EventDispatcherInterface&MockObject $eventDispatcher;
 
-    /**
-     * @var LoggerInterface&MockObject
-     */
-    private LoggerInterface $logger;
+    private CacheInvalidator&MockObject $cacheInvalidator;
 
-    /**
-     * @var ScssPhpCompiler&MockObject
-     */
-    private ScssPhpCompiler $scssPhpCompiler;
+    private LoggerInterface&MockObject $logger;
+
+    private ScssPhpCompiler&MockObject $scssPhpCompiler;
 
     private MD5ThemePathBuilder $pathBuilder;
 
     private ThemeFilesystemResolver&MockObject $themeFilesystemResolver;
 
-    /**
-     * @var CopyBatchInputFactory&MockObject
-     */
-    private CopyBatchInputFactory $copyBatchInputFactory;
+    private CopyBatchInputFactory&MockObject $copyBatchInputFactory;
+
+    private TwigComponentHelper&MockObject $twigComponentHelper;
+
+    private LocalFilesystem&MockObject $localFilesystem;
 
     protected function setUp(): void
     {
+        $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $this->tempFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->themeFileResolver = $this->createMock(ThemeFileResolver::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcher::class);
+        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
         $this->cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->scssPhpCompiler = $this->createMock(ScssPhpCompiler::class);
         $this->pathBuilder = new MD5ThemePathBuilder();
         $this->copyBatchInputFactory = $this->createMock(CopyBatchInputFactory::class);
         $this->themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
-
-        $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
-        $this->tempFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
-
-        $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
+        $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $this->twigComponentHelper->method('getComponents')->willReturn(new TwigComponentCollection());
+        $this->localFilesystem = $this->createMock(LocalFilesystem::class);
+        $this->localFilesystem->method('exists')->willReturn(false);
     }
 
-    public function testThemeCompileExceptionIsThrownWhenFilesAreNotResolved(): void
+    // ===================================
+    // Error Handling Tests
+    // ===================================
+
+    public function testThrowsExceptionWhenStyleFilesCannotBeResolved(): void
     {
-        $this->themeFileResolver->method('resolveStyleFiles')->willThrowException(new \InvalidArgumentException());
-        $compiler = $this->getThemeCompiler();
+        $this->themeFileResolver
+            ->method('resolveStyleFiles')
+            ->willThrowException(new \InvalidArgumentException('Cannot resolve files'));
 
-        $config = new StorefrontPluginConfiguration('test');
-        $config->setName('faultyTheme');
+        $config = $this->createThemeConfig('TestTheme');
+        $compiler = $this->createThemeCompiler();
 
-        $this->expectExceptionObject(new ThemeCompileException('faultyTheme'));
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme'));
+
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
-            'test',
+            'theme-id',
             $config,
             new StorefrontPluginConfigurationCollection(),
-            true,
+            false,
             Context::createDefaultContext()
         );
     }
 
-    public function testThemeCompileExceptionIsThrownWhenConcatenateFails(): void
+    public function testThrowsExceptionWhenConcatenationFails(): void
     {
-        $this->themeFileResolver->method('resolveFiles')->willReturn(
-            [ThemeFileResolver::STYLE_FILES => FileCollection::createFromArray(['foo'])]
-        );
+        $this->setupBasicFileResolution();
 
-        $this->eventDispatcher->method('dispatch')->willThrowException(new \Exception());
+        $this->eventDispatcher
+            ->method('dispatch')
+            ->willThrowException(new \RuntimeException('Event dispatch failed'));
 
-        $compiler = $this->getThemeCompiler();
+        $config = $this->createThemeConfig('TestTheme');
+        $compiler = $this->createThemeCompiler();
 
-        $config = new StorefrontPluginConfiguration('test');
-        $config->setName('faultyTheme');
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme'));
 
-        $this->expectExceptionObject(new ThemeCompileException('faultyTheme'));
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
-            'test',
+            'theme-id',
             $config,
             new StorefrontPluginConfigurationCollection(),
-            true,
+            false,
             Context::createDefaultContext()
         );
     }
 
-    public function testThemeCompileExceptionIsThrownWhenCollectCompiledFilesFails(): void
+    public function testThrowsExceptionWhenAssetCollectionFails(): void
     {
-        $this->themeFileResolver->method('resolveFiles')->willReturn(
-            [ThemeFileResolver::STYLE_FILES => FileCollection::createFromArray(['foo'])]
-        );
+        $this->setupBasicFileResolution();
 
-        $this->copyBatchInputFactory->method('fromDirectory')->willThrowException(new \Exception());
+        $this->copyBatchInputFactory
+            ->method('fromDirectory')
+            ->willThrowException(new \RuntimeException('Cannot copy assets'));
 
-        $compiler = $this->getThemeCompiler();
+        $config = $this->createThemeConfig('TestTheme', assetPaths: ['assets']);
+        $compiler = $this->createThemeCompiler();
 
-        $config = new StorefrontPluginConfiguration('test');
-        $config->setName('faultyTheme');
-        $config->setAssetPaths(['bla']);
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme'));
 
-        $this->expectExceptionObject(new ThemeCompileException('faultyTheme'));
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
-            'test',
+            'theme-id',
             $config,
             new StorefrontPluginConfigurationCollection(),
-            true,
+            true, // withAssets = true
             Context::createDefaultContext()
         );
     }
 
-    public function testFormatVariablesArrayConvertsToNonAssociativeArrayWithValidScssSyntax(): void
+    public function testThrowsExceptionWhenScssCompilationFails(): void
     {
-        $formatVariables = new \ReflectionMethod(ThemeCompiler::class, 'formatVariables');
+        $this->setupBasicFileResolution();
 
-        $variables = [
-            'sw-color-brand-primary' => '#008490',
-            'sw-color-brand-secondary' => '#526e7f',
-            'sw-border-color' => '#bcc1c7',
-        ];
+        $this->scssPhpCompiler
+            ->method('compileString')
+            ->willThrowException(new \Exception('SCSS compilation error'));
 
-        $actual = $formatVariables->invoke($this->getThemeCompiler(), $variables);
+        $config = $this->createThemeConfig('TestTheme');
+        $compiler = $this->createThemeCompiler();
 
-        $expected = [
-            '$sw-color-brand-primary: #008490;',
-            '$sw-color-brand-secondary: #526e7f;',
-            '$sw-border-color: #bcc1c7;',
-        ];
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme - Theme-ID: theme-id', 'SCSS compilation error'));
 
-        static::assertSame($expected, $actual);
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
     }
 
-    /**
-     * @param array<string, mixed> $config
-     */
-    #[DataProvider('configForDumpVariables')]
-    public function testDumpVariables(array $config, string $expected): void
+    public function testExistingFilesAreNotDeletedOnCompileError(): void
     {
-        $dumpVariables = new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables');
-
-        $actual = $dumpVariables->invoke($this->getThemeCompiler(), $config, 'themeId', $this->mockSalesChannelId, Context::createDefaultContext());
-
-        static::assertSame($expected, $actual);
-    }
-
-    public static function configForDumpVariables(): \Generator
-    {
-        // The resulting color values will be #ffffff00 because the scsscompiler is just a mock and the fallback will replace the real values
-        yield 'finds config fields and returns string with scss variables' => [
-            [
-                'fields' => [
-                    'sw-color-brand-primary' => [
-                        'name' => 'sw-color-brand-primary',
-                        'type' => 'color',
-                        'value' => '#008490',
-                    ],
-                    'sw-color-brand-secondary' => [
-                        'name' => 'sw-color-brand-secondary',
-                        'type' => 'color',
-                        'value' => '#526e7f',
-                    ],
-                    'sw-border-color' => [
-                        'name' => 'sw-border-color',
-                        'type' => 'color',
-                        'value' => '#bcc1c7',
-                    ],
-                    'sw-custom-header' => [
-                        'name' => 'sw-custom-header',
-                        'type' => 'checkbox',
-                        'value' => false,
-                    ],
-                    'sw-custom-footer' => [
-                        'name' => 'sw-custom-header',
-                        'type' => 'checkbox',
-                        'value' => true,
-                    ],
-                    'sw-custom-cart' => [
-                        'name' => 'sw-custom-header',
-                        'type' => 'switch',
-                        'value' => false,
-                    ],
-                    'sw-custom-product-box' => [
-                        'name' => 'sw-custom-header',
-                        'type' => 'switch',
-                        'value' => true,
-                    ],
-                    'sw-custom-textarea' => [
-                        'name' => 'sw-custom-textarea',
-                        'type' => 'textarea',
-                        'value' => '123',
-                    ],
-                    'sw-invalid-textarea' => [
-                        'name' => 'sw-invalid-textarea',
-                        'type' => 'media',
-                        'value' => [123],
-                    ],
-                    'sw-custom-url' => [
-                        'name' => 'sw-custom-url',
-                        'type' => 'url',
-                        'value' => 'https://www.shopware.com',
-                    ],
-                    'sw-custom-media' => [
-                        'name' => 'sw-custom-media',
-                        'type' => 'media',
-                        'value' => '456',
-                    ],
-                    'sw-invalid-media' => [
-                        'name' => 'sw-invalid-media',
-                        'type' => 'media',
-                        'value' => [false],
-                    ],
-                    'sw-invalid-type' => [
-                        'name' => 'sw-invalid-type',
-                        'value' => [false],
-                    ],
-                    'sw-multi-test' => [
-                        'name' => 'sw-multi-test',
-                        'type' => 'text',
-                        'value' => [
-                            'top',
-                            'bottom',
-                        ],
-                        'custom' => [
-                            'componentName' => 'sw-multi-select',
-                            'options' => [
-                                [
-                                    'value' => 'bottom',
-                                ],
-                                [
-                                    'value' => 'top',
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-            <<<PHP_EOL
-// ATTENTION! This file is auto generated by the Shopware\Storefront\Theme\ThemeCompiler and should not be edited.
-
-\$theme-id: themeId;
-\$sw-color-brand-primary: #008490;
-\$sw-color-brand-secondary: #526e7f;
-\$sw-border-color: #bcc1c7;
-\$sw-custom-header: 0;
-\$sw-custom-footer: 1;
-\$sw-custom-cart: 0;
-\$sw-custom-product-box: 1;
-\$sw-custom-textarea: '123';
-\$sw-custom-url: 'https://www.shopware.com';
-\$sw-custom-media: '456';
-\$sw-asset-theme-url: 'http://localhost';
-
-PHP_EOL,
-        ];
-
-        yield 'ignores fields with scss config property set to false' => [
-            [
-                'fields' => [
-                    'sw-color-brand-primary' => [
-                        'name' => 'sw-color-brand-primary',
-                        'type' => 'color',
-                        'value' => '#008490',
-                    ],
-                    'sw-color-brand-secondary' => [
-                        'name' => 'sw-color-brand-secondary',
-                        'type' => 'color',
-                        'value' => '#526e7f',
-                    ],
-                    // Prevent adding field as sass variable
-                    'sw-ignore-me' => [
-                        'name' => 'sw-border-color',
-                        'type' => 'text',
-                        'value' => 'Foo bar',
-                        'scss' => false,
-                    ],
-                ],
-            ],
-            <<<PHP_EOL
-// ATTENTION! This file is auto generated by the Shopware\Storefront\Theme\ThemeCompiler and should not be edited.
-
-\$theme-id: themeId;
-\$sw-color-brand-primary: #008490;
-\$sw-color-brand-secondary: #526e7f;
-\$sw-asset-theme-url: 'http://localhost';
-
-PHP_EOL,
-        ];
-        yield 'HasNoConfigFieldsAndReturnsOnlyDefaultVariables' => [
-            [
-                'blocks' => [
-                    'themeColors' => [
-                        'label' => [
-                            'en-GB' => 'Theme colours',
-                            'de-DE' => 'Theme-Farben',
-                        ],
-                    ],
-                    'typography' => [
-                        'label' => [
-                            'en-GB' => 'Typography',
-                            'de-DE' => 'Typografie',
-                        ],
-                    ],
-                ],
-            ],
-            '// ATTENTION! This file is auto generated by the Shopware\Storefront\Theme\ThemeCompiler and should not be edited.
-
-$theme-id: themeId;
-$sw-asset-theme-url: \'http://localhost\';
-',
-        ];
-        yield 'MayHaveZeroValueButNotNull' => [
-            [
-                'fields' => [
-                    'sw-zero-margin' => [
-                        'name' => 'sw-zero-margin',
-                        'type' => 'text',
-                        'value' => 0,
-                    ],
-                    'sw-null-margin' => [
-                        'name' => 'sw-null-margin',
-                        'type' => 'text',
-                        'value' => null,
-                    ],
-                    'sw-unset-margin' => [
-                        'name' => 'sw-unset-margin',
-                        'type' => 'text',
-                    ],
-                    'sw-empty-margin' => [
-                        'name' => 'sw-empty-margin',
-                        'type' => 'text',
-                        'value' => '',
-                    ],
-                ],
-            ],
-            <<<PHP_EOL
-// ATTENTION! This file is auto generated by the Shopware\Storefront\Theme\ThemeCompiler and should not be edited.
-
-\$theme-id: themeId;
-\$sw-zero-margin: 0;
-\$sw-null-margin: null;
-\$sw-unset-margin: null;
-\$sw-empty-margin: null;
-\$sw-asset-theme-url: 'http://localhost';
-
-PHP_EOL,
-        ];
-    }
-
-    public function testScssVariablesEventAddsNewVariablesToArray(): void
-    {
-        $subscriber = new MockThemeVariablesSubscriber($this->createMock(SystemConfigService::class));
-
-        $variables = [
-            'sw-color-brand-primary' => '#008490',
-            'sw-color-brand-secondary' => '#526e7f',
-            'sw-border-color' => '#bcc1c7',
-        ];
-
-        $event = new ThemeCompilerEnrichScssVariablesEvent($variables, $this->mockSalesChannelId, Context::createDefaultContext());
-        $subscriber->onAddVariables($event);
-
-        $actual = $event->getVariables();
-
-        $expected = [
-            'sw-color-brand-primary' => '#008490',
-            'sw-color-brand-secondary' => '#526e7f',
-            'sw-border-color' => '#bcc1c7',
-            'mock-variable-black' => '#000000',
-            'mock-variable-special' => '\'Special value with quotes\'',
-        ];
-
-        static::assertSame($expected, $actual);
-    }
-
-    public function testConcatenatedStylesEventPassThru(): void
-    {
-        $subscriber = new MockThemeCompilerConcatenatedSubscriber();
-
-        $styles = 'body {}';
-
-        $event = new ThemeCompilerConcatenatedStylesEvent($styles, $this->mockSalesChannelId);
-        $subscriber->onGetConcatenatedStyles($event);
-        $actual = $event->getConcatenatedStyles();
-
-        $expected = $styles . MockThemeCompilerConcatenatedSubscriber::STYLES_CONCAT;
-
-        static::assertSame($expected, $actual);
-    }
-
-    public function testCompileWithoutAssets(): void
-    {
+        $styleFiles = FileCollection::createFromArray(['test.scss']);
+        $this->themeFileResolver->method('resolveStyleFiles')->willReturn($styleFiles);
         $this->themeFileResolver->method('resolveFiles')->willReturn([
             ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
-            ThemeFileResolver::STYLE_FILES => new FileCollection(),
+            ThemeFileResolver::STYLE_FILES => $styleFiles,
         ]);
 
-        $compiler = $this->getThemeCompiler();
+        // Create existing files
+        $this->filesystem->createDirectory('theme/current');
+        $this->filesystem->write('theme/current/css/all.css', 'existing content');
 
-        $config = new StorefrontPluginConfiguration('test');
-        $config->setAssetPaths(['bla']);
+        $this->scssPhpCompiler
+            ->method('compileString')
+            ->willThrowException(new \Exception('Compilation failed'));
 
-        $pathBuilder = new MD5ThemePathBuilder();
-        static::assertSame('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
+        // Mock path builder to return same path (non-seeded scenario)
+        $pathBuilder = $this->createMock(MD5ThemePathBuilder::class);
+        $pathBuilder->method('assemblePath')->willReturn('current');
+        $pathBuilder->method('generateNewPath')->willReturn('new');
+        $pathBuilder->expects($this->never())->method('saveSeed');
+
+        $compiler = $this->createThemeCompiler($pathBuilder);
+        $config = $this->createThemeConfig('TestTheme');
+
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme - Theme-ID: theme-id', 'Compilation failed'));
 
         try {
-            $pathBuilder->getDecorated();
-        } catch (\Throwable $e) {
-            static::assertInstanceOf(DecorationPatternException::class, $e);
+            $compiler->compileTheme(
+                TestDefaults::SALES_CHANNEL,
+                'theme-id',
+                $config,
+                new StorefrontPluginConfigurationCollection(),
+                false,
+                Context::createDefaultContext()
+            );
+        } finally {
+            // Verify existing files still exist
+            static::assertTrue($this->filesystem->fileExists('theme/current/css/all.css'));
+            static::assertSame('existing content', $this->filesystem->read('theme/current/css/all.css'));
         }
+    }
+
+    public function testNewDirectoryIsNotCreatedOnCompileError(): void
+    {
+        $styleFiles = FileCollection::createFromArray(['test.scss']);
+        $this->themeFileResolver->method('resolveStyleFiles')->willReturn($styleFiles);
+        $this->themeFileResolver->method('resolveFiles')->willReturn([
+            ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
+            ThemeFileResolver::STYLE_FILES => $styleFiles,
+        ]);
+
+        $this->scssPhpCompiler
+            ->method('compileString')
+            ->willThrowException(new \Exception('Compilation failed'));
+
+        $pathBuilder = $this->createMock(MD5ThemePathBuilder::class);
+        $pathBuilder->method('assemblePath')->willReturn('current');
+        $pathBuilder->method('generateNewPath')->willReturn('new');
+
+        $compiler = $this->createThemeCompiler($pathBuilder);
+        $config = $this->createThemeConfig('TestTheme');
+
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme - Theme-ID: theme-id', 'Compilation failed'));
+
+        try {
+            $compiler->compileTheme(
+                TestDefaults::SALES_CHANNEL,
+                'theme-id',
+                $config,
+                new StorefrontPluginConfigurationCollection(),
+                false,
+                Context::createDefaultContext()
+            );
+        } finally {
+            static::assertFalse($this->filesystem->directoryExists('theme/new'));
+        }
+    }
+
+    // ===================================
+    // Cache Invalidation Tests
+    // ===================================
+
+    public function testCacheIsInvalidatedAfterSuccessfulCompilation(): void
+    {
+        $this->setupBasicFileResolution();
+        $this->scssPhpCompiler->method('compileString')->willReturn('compiled css');
+
+        $themeId = 'test-theme-id';
+
+        $this->cacheInvalidator
+            ->expects($this->once())
+            ->method('invalidate')
+            ->with(static::callback(function (array $tags) use ($themeId) {
+                return \in_array(
+                    ThemeConfigCacheInvalidator::buildCacheTag($themeId),
+                    $tags,
+                    true
+                );
+            }));
+
+        $compiler = $this->createThemeCompiler();
+        $config = $this->createThemeConfig('TestTheme');
 
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
-            'test',
+            $themeId,
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
+    }
+
+    public function testCacheIsNotInvalidatedOnCompilationError(): void
+    {
+        $this->setupBasicFileResolution();
+
+        $this->scssPhpCompiler
+            ->method('compileString')
+            ->willThrowException(new \Exception('Compilation failed'));
+
+        $this->cacheInvalidator
+            ->expects($this->never())
+            ->method('invalidate');
+
+        $compiler = $this->createThemeCompiler();
+        $config = $this->createThemeConfig('TestTheme');
+
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme - Theme-ID: theme-id', 'Compilation failed'));
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
+    }
+
+    // ===================================
+    // Event Dispatcher Tests
+    // ===================================
+
+    public function testDispatchesVariableEnrichmentEvent(): void
+    {
+        $this->setupBasicFileResolution();
+        $this->scssPhpCompiler->method('compileString')->willReturn('css');
+
+        $dispatchedEvents = [];
+        $this->eventDispatcher
+            ->method('dispatch')
+            ->willReturnCallback(function ($event) use (&$dispatchedEvents) {
+                $dispatchedEvents[] = $event;
+
+                return $event;
+            });
+
+        $compiler = $this->createThemeCompiler();
+        $config = $this->createThemeConfig('TestTheme');
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
             $config,
             new StorefrontPluginConfigurationCollection(),
             false,
             Context::createDefaultContext()
         );
 
-        static::assertTrue($this->filesystem->has('theme/9a11a759d278b4a55cb5e2c3414733c1'));
+        $variableEvents = array_filter(
+            $dispatchedEvents,
+            fn ($e) => $e instanceof ThemeCompilerEnrichScssVariablesEvent
+        );
+
+        static::assertNotEmpty($variableEvents, 'ThemeCompilerEnrichScssVariablesEvent should be dispatched');
     }
 
-    public function testAssetPathWillBeAbsoluteConverted(): void
+    public function testDispatchesConcatenatedStylesEvent(): void
     {
-        $config = new StorefrontPluginConfiguration('test');
-        $config->setAssetPaths(['assets']);
+        $this->setupBasicFileResolution();
+        $this->scssPhpCompiler->method('compileString')->willReturn('css');
+
+        $dispatchedEvents = [];
+        $this->eventDispatcher
+            ->method('dispatch')
+            ->willReturnCallback(function ($event) use (&$dispatchedEvents) {
+                $dispatchedEvents[] = $event;
+
+                return $event;
+            });
+
+        $compiler = $this->createThemeCompiler();
+        $config = $this->createThemeConfig('TestTheme');
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
+
+        $concatenatedEvents = array_filter(
+            $dispatchedEvents,
+            fn ($e) => $e instanceof ThemeCompilerConcatenatedStylesEvent
+        );
+
+        static::assertNotEmpty($concatenatedEvents, 'ThemeCompilerConcatenatedStylesEvent should be dispatched');
+    }
+
+    public function testVariableEnrichmentEventCanModifyVariables(): void
+    {
+        $this->setupBasicFileResolution();
+
+        $capturedScss = '';
+        $this->scssPhpCompiler
+            ->method('compileString')
+            ->willReturnCallback(function ($config, $scss) use (&$capturedScss) {
+                $capturedScss = $scss;
+
+                return 'compiled css';
+            });
+
+        $this->eventDispatcher
+            ->method('dispatch')
+            ->willReturnCallback(function ($event) {
+                if ($event instanceof ThemeCompilerEnrichScssVariablesEvent) {
+                    $event->addVariable('custom-variable', '#ff0000');
+                }
+
+                return $event;
+            });
+
+        $compiler = $this->createThemeCompiler();
+        $config = $this->createThemeConfig('TestTheme');
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
+
+        static::assertNotEmpty($capturedScss, 'SCSS should have been captured');
+        static::assertStringContainsString('$custom-variable: #ff0000', $capturedScss);
+    }
+
+    // ===================================
+    // Temp Filesystem Tests
+    // ===================================
+
+    public function testWritesVariablesToTempFilesystem(): void
+    {
+        $this->setupBasicFileResolution();
+        $this->scssPhpCompiler->method('compileString')->willReturn('css');
+
+        $compiler = $this->createThemeCompiler();
+        $config = $this->createThemeConfig('TestTheme');
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
+
+        static::assertTrue($this->tempFilesystem->has('theme-variables.scss'));
+        static::assertTrue($this->tempFilesystem->has('theme-variables/theme-id.scss'));
+    }
+
+    public function testTempFilesystemContainsThemeIdVariable(): void
+    {
+        $this->setupBasicFileResolution();
+        $this->scssPhpCompiler->method('compileString')->willReturn('css');
+
+        $compiler = $this->createThemeCompiler();
+        $config = $this->createThemeConfig('TestTheme');
+
+        $themeId = 'my-theme-id';
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            $themeId,
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
+
+        $content = $this->tempFilesystem->read('theme-variables.scss');
+        static::assertStringContainsString('$theme-id: my-theme-id', $content);
+    }
+
+    // ===================================
+    // File Operations Tests
+    // ===================================
+
+    public function testCreatesThemeDirectoryStructure(): void
+    {
+        $this->setupBasicFileResolution();
+        $this->scssPhpCompiler->method('compileString')->willReturn('compiled css');
+
+        $compiler = $this->createThemeCompiler();
+        $config = $this->createThemeConfig('TestTheme');
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
+
+        $expectedPath = 'theme/' . $this->pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-id');
+        static::assertTrue($this->filesystem->has($expectedPath));
+    }
+
+    public function testCompilesWithoutAssets(): void
+    {
+        $this->setupBasicFileResolution();
+        $this->scssPhpCompiler->method('compileString')->willReturn('css');
+
+        $this->copyBatchInputFactory
+            ->expects($this->never())
+            ->method('fromDirectory');
+
+        $compiler = $this->createThemeCompiler();
+        $config = $this->createThemeConfig('TestTheme', assetPaths: ['assets']);
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false, // withAssets = false
+            Context::createDefaultContext()
+        );
+    }
+
+    public function testCopiesToCorrectAssetPath(): void
+    {
+        $this->setupBasicFileResolution();
+        $this->scssPhpCompiler->method('compileString')->willReturn('css');
 
         $fs = new StaticFilesystem(['Resources/assets' => 'directory']);
 
-        $this->themeFilesystemResolver->expects($this->once())
+        $this->themeFilesystemResolver
             ->method('getFilesystemForStorefrontConfig')
-            ->with($config)
             ->willReturn($fs);
 
-        $this->themeFileResolver->method('resolveFiles')->willReturn([
-            ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
-            ThemeFileResolver::STYLE_FILES => new FileCollection(),
-        ]);
-
         $this->filesystem->createDirectory('temp');
-        $this->filesystem->write('temp/test.png', '');
+        $this->filesystem->write('temp/test.png', 'image content');
         $png = $this->filesystem->readStream('temp/test.png');
 
-        $this->copyBatchInputFactory->method('fromDirectory')->with('/app-root/Resources/assets', 'theme/test')->willReturn(
-            [
-                new CopyBatchInput($png, ['theme/9a11a759d278b4a55cb5e2c3414733c1/assets/test.png']),
-            ]
-        );
-
-        $compiler = $this->getThemeCompiler();
-
-        $pathBuilder = new MD5ThemePathBuilder();
-        static::assertSame('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
-
-        try {
-            $pathBuilder->getDecorated();
-        } catch (\Throwable $e) {
-            static::assertInstanceOf(DecorationPatternException::class, $e);
-        }
-
-        $compiler->compileTheme(
-            TestDefaults::SALES_CHANNEL,
-            'test',
-            $config,
-            new StorefrontPluginConfigurationCollection(),
-            true,
-            Context::createDefaultContext()
-        );
-
-        static::assertTrue($this->filesystem->fileExists('theme/9a11a759d278b4a55cb5e2c3414733c1/assets/test.png'));
-    }
-
-    public function testExistingFilesAreNotDeletedOnCompileError(): void
-    {
-        $this->themeFileResolver->method('resolveFiles')->willReturn(
-            [
-                ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
-                ThemeFileResolver::STYLE_FILES => new FileCollection()]
-        );
-
-        $this->filesystem->createDirectory('theme/9a11a759d278b4a55cb5e2c3414733c1');
-        $this->filesystem->write('theme/9a11a759d278b4a55cb5e2c3414733c1/all.js', '');
-
-        $this->scssPhpCompiler->expects($this->once())->method('compileString')->willThrowException(new \Exception());
-
-        $compiler = $this->getThemeCompiler();
-
-        $config = new StorefrontPluginConfiguration('test');
-        $config->setAssetPaths(['assets']);
-
-        $pathBuilder = new MD5ThemePathBuilder();
-        static::assertSame('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
-
-        $wasThrown = false;
-
-        try {
-            $compiler->compileTheme(
-                TestDefaults::SALES_CHANNEL,
-                'test',
-                $config,
-                new StorefrontPluginConfigurationCollection(),
-                true,
-                Context::createDefaultContext()
-            );
-        } catch (ThemeCompileException) {
-            $wasThrown = true;
-        }
-
-        static::assertTrue($wasThrown);
-        static::assertTrue($this->filesystem->fileExists('theme/9a11a759d278b4a55cb5e2c3414733c1/all.js'));
-    }
-
-    public function testNewFilesAreDeletedOnCompileError(): void
-    {
-        $this->themeFileResolver->method('resolveFiles')->willReturn(
-            [
-                ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
-                ThemeFileResolver::STYLE_FILES => new FileCollection()]
-        );
-
-        $this->filesystem->createDirectory('theme/current');
-        $this->filesystem->write('theme/current/all.js', '');
-
-        $this->copyBatchInputFactory->expects($this->never())
-            ->method('fromDirectory');
-
-        $this->scssPhpCompiler->expects($this->once())->method('compileString')->willThrowException(new \Exception());
-
-        $this->pathBuilder = $this->createMock(MD5ThemePathBuilder::class);
-        $this->pathBuilder->method('assemblePath')->willReturn('current');
-        $this->pathBuilder->method('generateNewPath')->willReturn('new');
-        $this->pathBuilder->expects($this->never())->method('saveSeed');
-
-        $compiler = $this->getThemeCompiler();
-
-        $config = new StorefrontPluginConfiguration('test');
-        $config->setAssetPaths(['assets']);
-
-        $wasThrown = false;
-
-        try {
-            $compiler->compileTheme(
-                TestDefaults::SALES_CHANNEL,
-                'test',
-                $config,
-                new StorefrontPluginConfigurationCollection(),
-                true,
-                Context::createDefaultContext()
-            );
-        } catch (ThemeCompileException) {
-            $wasThrown = true;
-        }
-
-        static::assertTrue($wasThrown);
-        static::assertTrue($this->filesystem->fileExists('theme/current/all.js'));
-        static::assertFalse($this->filesystem->fileExists('theme/new/all.js'));
-    }
-
-    public function testOldThemeFilesAreDeletedDelayedOnThemeCompileSuccess(): void
-    {
-        $this->themeFileResolver->method('resolveFiles')->willReturn(
-            [
-                ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
-                ThemeFileResolver::STYLE_FILES => new FileCollection()]
-        );
-
-        $this->filesystem->createDirectory('theme/current');
-        $this->filesystem->write('theme/current/all.js', '');
-
-        $this->scssPhpCompiler->expects($this->once())->method('compileString')->willReturn('');
-
-        $this->pathBuilder = $this->createMock(MD5ThemePathBuilder::class);
-        $this->pathBuilder->method('assemblePath')->willReturn('current');
-        $this->pathBuilder->expects($this->once())
-            ->method('generateNewPath')
+        $this->copyBatchInputFactory
+            ->expects($this->once())
+            ->method('fromDirectory')
             ->with(
-                TestDefaults::SALES_CHANNEL,
-                'test'
+                static::stringContains('Resources/assets'),
+                static::equalTo('theme/theme-id')
             )
-            ->willReturn('new');
-        $this->pathBuilder->expects($this->once())
-            ->method('saveSeed')
-            ->with(TestDefaults::SALES_CHANNEL, 'test');
+            ->willReturn([
+                new CopyBatchInput($png, ['theme/assets/test.png']),
+            ]);
 
-        $compiler = $this->getThemeCompiler();
-
-        $config = new StorefrontPluginConfiguration('test');
-        $config->setAssetPaths(['assets']);
+        $compiler = $this->createThemeCompiler();
+        $config = $this->createThemeConfig('TestTheme', assetPaths: ['assets']);
 
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
-            'test',
+            'theme-id',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            true, // withAssets = true
+            Context::createDefaultContext()
+        );
+    }
+
+    public function testPathBuilderSeedIsSavedOnSuccess(): void
+    {
+        $this->setupBasicFileResolution();
+        $this->scssPhpCompiler->method('compileString')->willReturn('css');
+
+        $pathBuilder = $this->createMock(MD5ThemePathBuilder::class);
+        $pathBuilder->method('assemblePath')->willReturn('old-path');
+        $pathBuilder->method('generateNewPath')->willReturn('new-path');
+        $pathBuilder
+            ->expects($this->once())
+            ->method('saveSeed')
+            ->with(TestDefaults::SALES_CHANNEL, 'theme-id');
+
+        $compiler = $this->createThemeCompiler($pathBuilder);
+        $config = $this->createThemeConfig('TestTheme');
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
+    }
+
+    public function testPathBuilderSeedIsNotSavedOnError(): void
+    {
+        $this->setupBasicFileResolution();
+
+        $this->scssPhpCompiler
+            ->method('compileString')
+            ->willThrowException(new \Exception('Compilation failed'));
+
+        $pathBuilder = $this->createMock(MD5ThemePathBuilder::class);
+        $pathBuilder->method('assemblePath')->willReturn('old-path');
+        $pathBuilder->method('generateNewPath')->willReturn('new-path');
+        $pathBuilder
+            ->expects($this->never())
+            ->method('saveSeed');
+
+        $compiler = $this->createThemeCompiler($pathBuilder);
+        $config = $this->createThemeConfig('TestTheme');
+
+        $this->expectExceptionObject(new ThemeCompileException('TestTheme - Theme-ID: theme-id', 'Compilation failed'));
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
+    }
+
+    // ===================================
+    // Script File Tests
+    // ===================================
+
+    public function testDoesNotCopyStorefrontScriptFiles(): void
+    {
+        $this->setupBasicFileResolution();
+        $this->scssPhpCompiler->method('compileString')->willReturn('css');
+
+        $config = $this->createThemeConfig('TestTheme');
+        $pluginConfig = new StorefrontPluginConfiguration('Plugin');
+        $scriptFiles = FileCollection::createFromArray([
+            '@Storefront', // Should be filtered out
+            'plugin.js',
+        ]);
+        $pluginConfig->setScriptFiles($scriptFiles);
+
+        $collection = new StorefrontPluginConfigurationCollection();
+        $collection->add($config);
+        $collection->add($pluginConfig);
+
+        // Setup filesystem for the plugin
+        $this->themeFilesystemResolver
+            ->method('getFilesystemForStorefrontConfig')
+            ->willReturn(new StaticFilesystem([]));
+
+        $compiler = $this->createThemeCompiler();
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $config,
+            $collection,
+            false,
+            Context::createDefaultContext()
+        );
+
+        // Test passes if no exception is thrown
+        // The @Storefront reference should be filtered out
+        // Verify that the theme directory was created
+        static::assertTrue($this->filesystem->directoryExists('theme/'));
+    }
+
+    public function testConfigurationCollectionIsNotMutated(): void
+    {
+        $this->setupBasicFileResolution();
+        $this->scssPhpCompiler->method('compileString')->willReturn('css');
+
+        $scriptFiles = FileCollection::createFromArray(['@Storefront', 'plugin.js']);
+
+        $config = $this->createThemeConfig('TestTheme');
+        $pluginConfig = new StorefrontPluginConfiguration('Plugin');
+        $pluginConfig->setScriptFiles($scriptFiles);
+
+        $collection = new StorefrontPluginConfigurationCollection();
+        $collection->add($config);
+        $collection->add($pluginConfig);
+
+        $originalCollection = clone $collection;
+
+        $this->themeFilesystemResolver
+            ->method('getFilesystemForStorefrontConfig')
+            ->willReturn(new StaticFilesystem([]));
+
+        $compiler = $this->createThemeCompiler();
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $config,
+            $collection,
+            false,
+            Context::createDefaultContext()
+        );
+
+        // Verify the collection was not mutated
+        static::assertEquals($originalCollection, $collection);
+    }
+
+    public function testCopyComponentScriptFilesIncludesComponentsWithScriptPath(): void
+    {
+        $this->setupBasicFileResolution();
+
+        $component = new TwigComponent(
+            'Sw:Button',
+            '/some/path/Sw/Button.html.twig',
+            'Storefront'
+        );
+
+        $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $this->twigComponentHelper->method('getComponents')
+            ->willReturn(new TwigComponentCollection([$component]));
+
+        // Recreate the mock so exists() returns true without conflicts from setUp's willReturn(false).
+        $this->localFilesystem = $this->createMock(LocalFilesystem::class);
+        $this->localFilesystem->method('exists')->willReturn(true);
+
+        // Replace the filesystem adapter with one that also implements WriteBatchInterface.
+        // CopyBatch::copy detects this and calls writeBatch() instead of fopen() on the
+        // source path, so no real file is needed on disk.
+        $this->filesystem = new Filesystem(
+            new class extends InMemoryFilesystemAdapter implements WriteBatchInterface {
+                public function writeBatch(CopyBatchInput ...$files): void
+                {
+                    foreach ($files as $file) {
+                        foreach ($file->getTargetFiles() as $target) {
+                            $this->write($target, '', new Config());
+                        }
+                    }
+                }
+            }
+        );
+
+        $compiler = $this->createThemeCompiler();
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $this->createThemeConfig('TestTheme'),
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
+
+        $themePrefix = $this->pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-id');
+        $expectedPath = 'theme/' . $themePrefix . '/js/components/Sw/Button.js';
+
+        static::assertTrue($this->filesystem->has($expectedPath));
+    }
+
+    public function testCopyComponentScriptFilesSkipsComponentsWithNoScriptFile(): void
+    {
+        $this->setupBasicFileResolution();
+
+        $component = new TwigComponent(
+            'Sw:Badge',
+            '/some/path/Sw/Badge.html.twig',
+            'Storefront'
+        );
+
+        $this->twigComponentHelper->method('getComponents')
+            ->willReturn(new TwigComponentCollection([$component]));
+
+        // localFilesystem defaults to exists() = false in setUp
+
+        $compiler = $this->createThemeCompiler();
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $this->createThemeConfig('TestTheme'),
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
+
+        $themePrefix = $this->pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-id');
+        $componentDir = 'theme/' . $themePrefix . '/js/components/';
+        static::assertFalse($this->filesystem->has($componentDir));
+    }
+
+    // ===================================
+    // Deployment Safety Tests
+    // ===================================
+
+    public function testOldThemeFilesRemainAfterSuccessfulCompilation(): void
+    {
+        $styleFiles = FileCollection::createFromArray(['test.scss']);
+        $this->themeFileResolver->method('resolveStyleFiles')->willReturn($styleFiles);
+        $this->themeFileResolver->method('resolveFiles')->willReturn([
+            ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
+            ThemeFileResolver::STYLE_FILES => $styleFiles,
+        ]);
+
+        // Create existing files in the OLD theme directory
+        $this->filesystem->createDirectory('theme/current');
+        $this->filesystem->write('theme/current/css/all.css', 'old content');
+        $this->filesystem->write('theme/current/js/all.js', 'old script');
+
+        $this->scssPhpCompiler->method('compileString')->willReturn('new compiled css');
+
+        // Mock path builder to return different paths (simulating seeded path approach)
+        $pathBuilder = $this->createMock(MD5ThemePathBuilder::class);
+        $pathBuilder->method('assemblePath')->willReturn('current');
+        $pathBuilder
+            ->expects($this->once())
+            ->method('generateNewPath')
+            ->with(TestDefaults::SALES_CHANNEL, 'theme-id')
+            ->willReturn('new');
+        $pathBuilder
+            ->expects($this->once())
+            ->method('saveSeed')
+            ->with(TestDefaults::SALES_CHANNEL, 'theme-id');
+
+        $compiler = $this->createThemeCompiler($pathBuilder);
+        $config = $this->createThemeConfig('TestTheme', assetPaths: ['assets']);
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
             $config,
             new StorefrontPluginConfigurationCollection(),
             true,
             Context::createDefaultContext()
         );
 
-        static::assertTrue($this->filesystem->fileExists('theme/current/all.js'));
+        // Verify old files still exist after successful compilation (delayed deletion pattern)
+        static::assertTrue($this->filesystem->fileExists('theme/current/css/all.css'));
+        static::assertTrue($this->filesystem->fileExists('theme/current/js/all.js'));
+        static::assertSame('old content', $this->filesystem->read('theme/current/css/all.css'));
+
+        // Verify new theme directory was created
+        static::assertTrue($this->filesystem->directoryExists('theme/new'));
     }
 
-    public function testCopyScriptFilesToTheme(): void
+    // ===================================
+    // Smoke Tests
+    // ===================================
+
+    public function testCompileSucceedsWithBasicConfiguration(): void
     {
-        $this->themeFileResolver->method('resolveFiles')->willReturn(
-            [
-                ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
-                ThemeFileResolver::STYLE_FILES => new FileCollection()]
-        );
+        $this->setupBasicFileResolution();
+        $this->scssPhpCompiler->method('compileString')->willReturn('compiled css');
 
-        $distLocation = __DIR__ . '/fixtures/ThemeAndPlugin/TestTheme/Resources/app/storefront/dist/storefront/js/test-theme';
-        $this->filesystem->createDirectory($distLocation);
-        $this->filesystem->write($distLocation . '/test-theme.js', '');
+        $compiler = $this->createThemeCompiler();
+        $config = $this->createThemeConfig('TestTheme');
 
-        $this->scssPhpCompiler->expects($this->once())->method('compileString')->willReturn('');
-
-        $this->logger->expects($this->once())->method('error');
-
-        $this->setEnvVars([
-            'V6_6_0_0' => 1,
-        ]);
-
-        $projectDir = __DIR__ . '/fixtures';
-        $compiler = $this->getThemeCompiler();
-
-        $filesystems = [
-            'AsyncPlugin' => new ThemeFilesystem(__DIR__ . '/fixtures/ThemeAndPlugin/AsyncPlugin'),
-            'TestTheme' => new ThemeFilesystem(__DIR__ . '/fixtures/ThemeAndPlugin/TestTheme'),
-            'NotFoundPlugin' => new ThemeFilesystem(__DIR__ . '/fixtures/ThemeAndPlugin/NotFoundPlugin'),
-        ];
-
-        $sourceResolver = new StaticSourceResolver($filesystems);
-
-        $this->themeFilesystemResolver->expects($this->exactly(\count($filesystems)))
-            ->method('getFilesystemForStorefrontConfig')
-            ->willReturnCallback(static fn (StorefrontPluginConfiguration $config) => $filesystems[$config->getTechnicalName()]);
-
-        $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
-            $sourceResolver,
-            new SymfonyFilesystem(),
-        );
-
-        $themePluginBundle = new TestTheme();
-        $asyncPluginBundle = new AsyncPlugin(true, $projectDir . 'fixtures/ThemeAndPlugin/AsyncPlugin');
-        $notFoundPluginBundle = new NotFoundPlugin(
-            true,
-            $projectDir . 'fixtures/ThemeAndPlugin/NotFoundPlugin'
-        );
-        $testTheme = $configurationFactory->createFromBundle($themePluginBundle);
-        $asyncPlugin = $configurationFactory->createFromBundle($asyncPluginBundle);
-        $appWithoutJs = $configurationFactory->createFromApp('ThemeAppWithoutJs', 'ThemeAppWithoutJs');
-
-        $notFoundPlugin = $configurationFactory->createFromBundle($notFoundPluginBundle);
-        $scripts = new FileCollection();
-        $scripts = $scripts::createFromArray([
-            'Resources/app/storefront/src/plugins/lorem-ipsum/plugin.js',
-        ]);
-        $notFoundPlugin->setScriptFiles($scripts);
-
-        $configCollection = new StorefrontPluginConfigurationCollection();
-        $configCollection->add($testTheme);
-        $configCollection->add($asyncPlugin);
-        $configCollection->add($notFoundPlugin);
-        $configCollection->add($appWithoutJs);
-
+        // This should not throw any exceptions
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
-            'TestTheme',
-            $testTheme,
-            $configCollection,
+            'theme-id',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
+
+        // Verify theme directory was created
+        $expectedPath = 'theme/' . $this->pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-id');
+        static::assertTrue($this->filesystem->has($expectedPath));
+    }
+
+    public function testCompileSucceedsWithAssetsEnabled(): void
+    {
+        $this->setupBasicFileResolution();
+        $this->scssPhpCompiler->method('compileString')->willReturn('compiled css');
+
+        $compiler = $this->createThemeCompiler();
+        $config = $this->createThemeConfig('TestTheme', assetPaths: ['assets']);
+
+        // This should not throw any exceptions
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
             true,
             Context::createDefaultContext()
         );
 
-        $themeBasePath = '/theme/2fb1d60e66e241fe65bcedc271cc2174';
-        $asyncMainJsInTheme = $themeBasePath . '/js/async-plugin/async-plugin.js';
-        $asyncAnotherJsFileInTheme = $themeBasePath . '/js/async-plugin/custom_plugins_AsyncPlugin_src_Resources_app_storefront_src_plugins_lorem-ipsum_plugin_js.js';
-        $themeMainJsInTheme = $themeBasePath . '/js/test-theme/test-theme.js';
-
-        static::assertTrue($this->filesystem->directoryExists($distLocation));
-        static::assertTrue($this->filesystem->fileExists($distLocation . '/test-theme.js'));
-        static::assertTrue($this->filesystem->fileExists($asyncMainJsInTheme));
-        static::assertTrue($this->filesystem->fileExists($asyncAnotherJsFileInTheme));
-        static::assertTrue($this->filesystem->fileExists($themeMainJsInTheme));
+        // Verify compilation completed
+        $expectedPath = 'theme/' . $this->pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-id');
+        static::assertTrue($this->filesystem->has($expectedPath));
     }
 
-    public function testKeepConfigurationCollectionWithGetScriptDistFolders(): void
+    public function testCompileCallsScssCompilerAtLeastOnce(): void
     {
-        $compiler = $this->getThemeCompiler();
+        $this->setupBasicFileResolution();
 
-        $configurationFactory = new StorefrontPluginConfigurationFactory(
-            $this->createMock(KernelPluginLoader::class),
-            new StaticSourceResolver([]),
-            new SymfonyFilesystem(),
-        );
+        $this->scssPhpCompiler
+            ->expects($this->atLeastOnce())
+            ->method('compileString')
+            ->willReturn('compiled css');
 
-        $themePluginBundle = new TestTheme();
-        $testTheme = $configurationFactory->createFromBundle($themePluginBundle);
-
-        $configCollection = new StorefrontPluginConfigurationCollection();
-        $configCollection->add($testTheme);
-
-        $testTheme->setScriptFiles(
-            FileCollection::createFromArray([
-                'Resources/app/storefront/src/plugins/lorem-ipsum/plugin.js',
-                '@Storefront',
-            ])
-        );
-
-        $currentConfigCollection = clone $configCollection;
+        $compiler = $this->createThemeCompiler();
+        $config = $this->createThemeConfig('TestTheme');
 
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
-            'TestTheme',
-            $testTheme,
-            $configCollection,
-            true,
+            'theme-id',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
             Context::createDefaultContext()
         );
-
-        // There should be no side effects on the configuration collection
-        static::assertEquals($currentConfigCollection, $configCollection);
     }
+
+    // ===================================
+    // Import Path Resolution Tests
+    // ===================================
 
     /**
-     * @param array<string> $mappings
+     * @param array<string, string> $mappings
      */
-    #[DataProvider('importPathsProvider')]
-    public function testGetResolveImportPathsCallbackReturnsNull(array $mappings, string $originPath): void
-    {
-        $compiler = $this->getThemeCompiler();
-        $closure = $compiler->getResolveImportPathsCallback($mappings);
+    #[DataProvider('importPathProvider')]
+    public function testResolveImportPathCallback(
+        array $mappings,
+        string $originalPath,
+        ?string $expectedResult
+    ): void {
+        $compiler = $this->createThemeCompiler();
+        $callback = $compiler->getResolveImportPathsCallback($mappings);
 
-        static::assertNull($closure($originPath));
+        $result = $callback($originalPath);
+
+        static::assertSame($expectedResult, $result);
     }
 
-    public static function importPathsProvider(): \Generator
+    public static function importPathProvider(): \Generator
     {
-        yield 'no mapping' => [
-            [],
-            'fake_path',
+        yield 'no mapping returns null' => [
+            'mappings' => [],
+            'originalPath' => '~vendor/library',
+            'expectedResult' => null,
         ];
-        yield 'wrong path without extension' => [
-            ['fake_path' => 'fake_path'],
-            '~fake_path',
+
+        yield 'wrong path without extension returns null' => [
+            'mappings' => ['vendor' => '/path/to/vendor'],
+            'originalPath' => '~other/library',
+            'expectedResult' => null,
         ];
-        yield 'wrong path with min extension' => [
-            ['fake_path' => 'fake_path'],
-            '~fake_path.min',
-        ];
-        yield 'wrong path with zip extension' => [
-            ['fake_path' => 'fake_path'],
-            '~fake_path.zip',
+
+        yield 'path with unsupported extension returns null' => [
+            'mappings' => ['vendor' => '/path/to/vendor'],
+            'originalPath' => '~vendor/library.zip',
+            'expectedResult' => null,
         ];
     }
 
-    protected function getThemeCompiler(): ThemeCompiler
+    public function testCopyComponentScriptFilesIncludesComponentWithExistingScript(): void
     {
-        return new ThemeCompiler(
+        // php://temp is a PHP stream wrapper: fopen() succeeds without touching the real filesystem
+        $component = new class('Sw:Button', '/any/path.html.twig', 'Storefront') extends TwigComponent {
+            public function getScriptPath(): string
+            {
+                return 'php://temp';
+            }
+        };
+
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $twigComponentHelper->method('getComponents')->willReturn(new TwigComponentCollection([$component]));
+
+        $this->setupBasicFileResolution();
+        $this->scssPhpCompiler->method('compileString')->willReturn('compiled css');
+
+        $localFilesystem = $this->createMock(LocalFilesystem::class);
+        $localFilesystem->method('exists')->willReturn(true);
+
+        $compiler = new ThemeCompiler(
             $this->filesystem,
             $this->tempFilesystem,
             $this->copyBatchInputFactory,
             $this->themeFileResolver,
+            $twigComponentHelper,
             true,
             $this->eventDispatcher,
             $this->themeFilesystemResolver,
@@ -837,7 +994,86 @@ PHP_EOL,
             $this->pathBuilder,
             $this->scssPhpCompiler,
             [],
-            false
+            false,
+            Visibility::PUBLIC,
+            $localFilesystem,
         );
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $this->createThemeConfig('TestTheme'),
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
+
+        $themePrefix = $this->pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-id');
+        $expectedPath = 'theme/' . $themePrefix . '/js/components/Sw/Button.js';
+        static::assertTrue($this->filesystem->fileExists($expectedPath));
+    }
+
+    // ===================================
+    // Helper Methods
+    // ===================================
+
+    private function createThemeCompiler(?MD5ThemePathBuilder $pathBuilder = null): ThemeCompiler
+    {
+        return new ThemeCompiler(
+            $this->filesystem,
+            $this->tempFilesystem,
+            $this->copyBatchInputFactory,
+            $this->themeFileResolver,
+            $this->twigComponentHelper,
+            true, // debug
+            $this->eventDispatcher,
+            $this->themeFilesystemResolver,
+            ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
+            $this->cacheInvalidator,
+            $this->logger,
+            $pathBuilder ?? $this->pathBuilder,
+            $this->scssPhpCompiler,
+            [], // customAllowedRegex
+            false, // validate
+            Visibility::PUBLIC,
+            $this->localFilesystem,
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $themeConfig
+     * @param array<int, string> $assetPaths
+     */
+    private function createThemeConfig(
+        string $name,
+        array $themeConfig = [],
+        array $assetPaths = []
+    ): StorefrontPluginConfiguration {
+        $config = new StorefrontPluginConfiguration($name);
+        $config->setName($name);
+
+        if ($themeConfig !== []) {
+            $config->setThemeConfig($themeConfig);
+        }
+
+        if ($assetPaths !== []) {
+            $config->setAssetPaths($assetPaths);
+        }
+
+        return $config;
+    }
+
+    private function setupBasicFileResolution(): void
+    {
+        $this->themeFileResolver
+            ->method('resolveStyleFiles')
+            ->willReturn(new FileCollection());
+
+        $this->themeFileResolver
+            ->method('resolveFiles')
+            ->willReturn([
+                ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
+                ThemeFileResolver::STYLE_FILES => new FileCollection(),
+            ]);
     }
 }

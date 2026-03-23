@@ -7,10 +7,9 @@ use Shopware\Core\Framework\App\Validation\Error\ElementTypeSchemaError;
 use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Shopware\Core\Framework\Util\Filesystem;
 
 /**
  * @internal only for use by the app-system
@@ -19,8 +18,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ElementTypeAppValidator extends AbstractManifestValidator
 {
     public function __construct(
-        private readonly ElementTypeSpecificationSerializer $serializer,
-        private readonly ValidatorInterface $validator,
+        private readonly YamlTypeLoader $loader,
     ) {
     }
 
@@ -30,13 +28,8 @@ class ElementTypeAppValidator extends AbstractManifestValidator
 
         $typesDir = $manifest->getPath() . '/Resources/content-system/types';
 
-        if (!is_dir($typesDir)) {
-            return $errors;
-        }
-
         try {
-            $loader = new YamlTypeLoader($this->serializer, $this->validator, $typesDir);
-            $loader->load();
+            $this->loader->load(new Filesystem($typesDir));
         } catch (ContentSystemException $e) {
             $errors->add(new ElementTypeSchemaError(
                 $typesDir,

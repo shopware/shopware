@@ -14,11 +14,11 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecification;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Filesystem;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\Validator\Validation;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -30,20 +30,33 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
 
     private const CORE_DEFINITIONS_DIRECTORY = __DIR__ . '/../../ContentSystem/Layout/Type/Definitions';
 
+    public function __construct(
+        private readonly YamlTypeLoader $loader,
+    ) {
+    }
+
+    public static function withDefaultLoader(): self
+    {
+        return new self(
+            new YamlTypeLoader(
+                new ElementTypeSpecificationSerializer(),
+                Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator()
+            )
+        );
+    }
+
     public function process(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition(ContentElementTypeRegistry::class)) {
             return;
         }
 
-        $serializer = new ElementTypeSpecificationSerializer();
-        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
         $allSpecifications = [];
 
-        $this->loadFromCoreDirectory($serializer, $validator, $allSpecifications);
-        $this->loadFromBundleMetadata($container, $serializer, $validator, $allSpecifications);
-        $this->loadFromPlugins($container, $serializer, $validator, $allSpecifications);
-        $this->loadFromApps($container, $serializer, $validator, $allSpecifications);
+        $this->loadFromDirectory(self::CORE_DEFINITIONS_DIRECTORY, $allSpecifications);
+        $this->loadFromBundleMetadata($container, $allSpecifications);
+        $this->loadFromPlugins($container, $allSpecifications);
+        $this->loadFromApps($container, $allSpecifications);
 
         $inlineDefinitions = [];
         foreach ($allSpecifications as $spec) {
@@ -55,20 +68,12 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * @param list<ContentElementTypeSpecification> $allSpecifications
-     */
-    private function loadFromCoreDirectory(ElementTypeSpecificationSerializer $serializer, ValidatorInterface $validator, array &$allSpecifications): void
-    {
-        $this->loadFromDirectory(self::CORE_DEFINITIONS_DIRECTORY, $serializer, $validator, $allSpecifications);
-    }
-
-    /**
      * Loads from all bundles using the standard path. Skips active plugins
      * (handled separately in loadFromPlugins where they can override the path).
      *
      * @param list<ContentElementTypeSpecification> $allSpecifications
      */
-    private function loadFromBundleMetadata(ContainerBuilder $container, ElementTypeSpecificationSerializer $serializer, ValidatorInterface $validator, array &$allSpecifications): void
+    private function loadFromBundleMetadata(ContainerBuilder $container, array &$allSpecifications): void
     {
         $bundleMetadata = $container->getParameter('kernel.bundles_metadata');
         if (!\is_array($bundleMetadata)) {
@@ -92,13 +97,7 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
                 continue;
             }
 
-            $absoluteDirectory = $metadata['path'] . '/' . self::STANDARD_TYPE_DIRECTORY;
-
-            if (!is_dir($absoluteDirectory)) {
-                continue;
-            }
-
-            $this->loadFromDirectory($absoluteDirectory, $serializer, $validator, $allSpecifications);
+            $this->loadFromDirectory($metadata['path'] . '/' . self::STANDARD_TYPE_DIRECTORY, $allSpecifications);
         }
     }
 
@@ -107,17 +106,12 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
      *
      * @param list<ContentElementTypeSpecification> $allSpecifications
      */
-    private function loadFromPlugins(ContainerBuilder $container, ElementTypeSpecificationSerializer $serializer, ValidatorInterface $validator, array &$allSpecifications): void
+    private function loadFromPlugins(ContainerBuilder $container, array &$allSpecifications): void
     {
         foreach ($this->getActivePluginClasses($container) as $pluginClass => $pluginMeta) {
             $relativeDirectory = $pluginClass::getContentTypeDirectory();
-            $absoluteDirectory = $pluginMeta['path'] . '/' . $relativeDirectory;
 
-            if (!is_dir($absoluteDirectory)) {
-                continue;
-            }
-
-            $this->loadFromDirectory($absoluteDirectory, $serializer, $validator, $allSpecifications);
+            $this->loadFromDirectory($pluginMeta['path'] . '/' . $relativeDirectory, $allSpecifications);
         }
     }
 
@@ -175,7 +169,7 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
      *
      * @param list<ContentElementTypeSpecification> $allSpecifications
      */
-    private function loadFromApps(ContainerBuilder $container, ElementTypeSpecificationSerializer $serializer, ValidatorInterface $validator, array &$allSpecifications): void
+    private function loadFromApps(ContainerBuilder $container, array &$allSpecifications): void
     {
         if ($container->getParameter('kernel.environment') !== 'dev') {
             return;
@@ -195,24 +189,16 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
         }
 
         foreach ($apps as $app) {
-            $appTypesDirectory = \sprintf('%s/%s/%s', $projectDirectory, $app['path'], self::STANDARD_TYPE_DIRECTORY);
-
-            if (!is_dir($appTypesDirectory)) {
-                continue;
-            }
-
-            $this->loadFromDirectory($appTypesDirectory, $serializer, $validator, $allSpecifications);
+            $this->loadFromDirectory(\sprintf('%s/%s/%s', $projectDirectory, $app['path'], self::STANDARD_TYPE_DIRECTORY), $allSpecifications);
         }
     }
 
     /**
      * @param list<ContentElementTypeSpecification> $allSpecifications
      */
-    private function loadFromDirectory(string $directory, ElementTypeSpecificationSerializer $serializer, ValidatorInterface $validator, array &$allSpecifications): void
+    private function loadFromDirectory(string $directory, array &$allSpecifications): void
     {
-        $loader = new YamlTypeLoader($serializer, $validator, $directory);
-
-        foreach ($loader->load() as $specification) {
+        foreach ($this->loader->load(new Filesystem($directory)) as $specification) {
             $allSpecifications[] = $specification;
         }
     }

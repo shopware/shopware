@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentElementTypeSpecification;
+use Shopware\Core\Framework\Util\Filesystem;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -16,46 +19,74 @@ use Symfony\Component\Validator\Validation;
 #[CoversClass(YamlTypeLoader::class)]
 class YamlTypeLoaderTest extends TestCase
 {
-    private string $tempDir;
+    private const CARD_YAML = <<<'YAML'
+meta:
+  name: "Sw:Product:Card"
+  label: "Product Card"
+  description: "A product card."
+  vendor: "shopware AG"
+  icon: "card"
+  category: "commerce"
+  copilot:
+    summary: "Card element"
+    hints:
+      - "Use for products"
+properties:
+  product:
+    type: Shopware\Core\Content\Product\ProductEntity
+    required: true
+    title: "Product"
+    description: "The product."
+  layout:
+    type: string
+    enum: ["box", "list"]
+    default: "box"
+    title: "Layout"
+    description: "Layout variant."
+slots:
+  - name: media
+    maxElements: 1
+    description: "Media slot."
+  - name: actions
+    allowList:
+      - "Sw:Action:Button"
+YAML;
 
-    protected function setUp(): void
-    {
-        $this->tempDir = sys_get_temp_dir() . '/yaml_type_loader_test_' . getmypid();
-        mkdir($this->tempDir, 0o777, true);
-    }
-
-    protected function tearDown(): void
-    {
-        $files = glob($this->tempDir . '/*');
-        if ($files !== false) {
-            foreach ($files as $file) {
-                unlink($file);
-            }
-        }
-        if (is_dir($this->tempDir)) {
-            rmdir($this->tempDir);
-        }
-    }
+    private const TEXT_YAML = <<<'YAML'
+meta:
+  name: "Sw:Content:Text"
+  label: "Text"
+  description: "Text."
+  vendor: "shopware AG"
+YAML;
 
     #[TestDox('loads multiple files from directory')]
     public function testLoadsMultipleFilesFromDirectory(): void
     {
-        file_put_contents($this->tempDir . '/text.yaml', "meta:\n  name: \"Sw:Content:Text\"\n  label: \"Text\"\n  description: \"Text.\"\n  vendor: \"shopware AG\"");
-        copy(__DIR__ . '/_fixtures/card.yaml', $this->tempDir . '/card.yaml');
+        $filesystem = $this->createFilesystemMock([
+            'text.yaml' => self::TEXT_YAML,
+            'card.yaml' => self::CARD_YAML,
+        ]);
 
         $loader = $this->createLoader();
-        $definitions = $loader->load();
+        $definitions = $loader->load($filesystem);
 
         static::assertCount(2, $definitions);
+
+        $names = array_map(static fn (ContentElementTypeSpecification $d) => $d->name(), $definitions);
+        static::assertContains('Sw:Content:Text', $names);
+        static::assertContains('Sw:Product:Card', $names);
     }
 
     #[TestDox('loads and returns named specification from YAML file')]
     public function testLoadsNamedSpecificationFromYamlFile(): void
     {
-        copy(__DIR__ . '/_fixtures/card.yaml', $this->tempDir . '/card.yaml');
+        $filesystem = $this->createFilesystemMock([
+            'card.yaml' => self::CARD_YAML,
+        ]);
 
         $loader = $this->createLoader();
-        $definitions = $loader->load();
+        $definitions = $loader->load($filesystem);
 
         static::assertCount(1, $definitions);
         static::assertSame('Sw:Product:Card', $definitions[0]->name());
@@ -64,59 +95,110 @@ class YamlTypeLoaderTest extends TestCase
     #[TestDox('returns empty array for non-existent directory')]
     public function testReturnsEmptyArrayForNonExistentDirectory(): void
     {
-        $loader = new YamlTypeLoader(
-            new ElementTypeSpecificationSerializer(),
-            Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator(),
-            '/nonexistent/path',
-        );
+        $filesystem = static::createStub(Filesystem::class);
+        $filesystem->method('has')->willReturn(false);
 
-        static::assertSame([], $loader->load());
+        $loader = $this->createLoader();
+
+        static::assertSame([], $loader->load($filesystem));
     }
 
     #[TestDox('returns empty array for directory without YAML files')]
     public function testReturnsEmptyArrayForEmptyDirectory(): void
     {
+        $filesystem = static::createStub(Filesystem::class);
+        $filesystem->method('has')->willReturn(true);
+        $filesystem->method('findFiles')->willReturn([]);
+
         $loader = $this->createLoader();
 
-        static::assertSame([], $loader->load());
+        static::assertSame([], $loader->load($filesystem));
     }
 
     #[TestDox('throws for invalid YAML syntax')]
     public function testThrowsForInvalidYamlSyntax(): void
     {
-        file_put_contents($this->tempDir . '/bad.yaml', "meta:\n  name: \"Sw:Bad:Yaml\n  broken: [");
+        $filesystem = $this->createFilesystemMock([
+            'bad.yaml' => "meta:\n  name: \"Sw:Bad:Yaml\n  broken: [",
+        ]);
 
         $loader = $this->createLoader();
 
         $this->expectException(ContentSystemException::class);
         $this->expectExceptionMessage('Invalid YAML syntax');
-        $loader->load();
+        $loader->load($filesystem);
     }
 
     #[TestDox('throws for YAML file that is not an array')]
     public function testThrowsWhenYamlFileIsNotArray(): void
     {
-        file_put_contents($this->tempDir . '/scalar.yaml', 'just a string');
+        $filesystem = $this->createFilesystemMock([
+            'scalar.yaml' => 'just a string',
+        ]);
+
+        $loader = $this->createLoader();
+
+        $this->expectExceptionObject(
+            ContentSystemException::elementTypeLoadFailed('/fake/scalar.yaml', 'YAML file must contain an array/map, got string')
+        );
+        $loader->load($filesystem);
+    }
+
+    #[TestDox('throws for YAML file with validation violations')]
+    public function testThrowsForValidationViolations(): void
+    {
+        $filesystem = $this->createFilesystemMock([
+            'invalid.yaml' => "meta:\n  name: \"\"\n  label: \"\"\n  description: \"\"\n  vendor: \"\"",
+        ]);
 
         $loader = $this->createLoader();
 
         $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('YAML file must contain an array');
-        $loader->load();
+        $this->expectExceptionMessage('Element type "<unknown>" is invalid');
+        $loader->load($filesystem);
     }
 
     #[TestDox('throws for duplicate names within same directory')]
     public function testThrowsForDuplicateTypeNames(): void
     {
-        file_put_contents($this->tempDir . '/text1.yaml', "meta:\n  name: \"Sw:Content:Text\"\n  label: \"Text 1\"\n  description: \"Text.\"\n  vendor: \"shopware AG\"");
-        file_put_contents($this->tempDir . '/text2.yaml', "meta:\n  name: \"Sw:Content:Text\"\n  label: \"Text 2\"\n  description: \"Text.\"\n  vendor: \"shopware AG\"");
+        $filesystem = $this->createFilesystemMock([
+            'text1.yaml' => self::TEXT_YAML,
+            'text2.yaml' => self::TEXT_YAML,
+        ]);
 
         $loader = $this->createLoader();
 
         $this->expectExceptionObject(
             ContentSystemException::elementTypeDuplicate('Sw:Content:Text', 'text1.yaml', 'text2.yaml')
         );
-        $loader->load();
+        $loader->load($filesystem);
+    }
+
+    /**
+     * @param array<string, string> $files filename => YAML content
+     */
+    private function createFilesystemMock(array $files): Filesystem
+    {
+        $splFiles = [];
+        foreach ($files as $filename => $content) {
+            $splFiles[] = new SplFileInfo('/fake/' . $filename, '', $filename);
+        }
+
+        $filesystem = static::createStub(Filesystem::class);
+        $filesystem->method('has')->willReturn(true);
+        $filesystem->method('findFiles')->willReturn($splFiles);
+
+        $readMap = [];
+        foreach ($files as $filename => $content) {
+            $readMap[] = [$filename, $content];
+        }
+        $filesystem->method('read')->willReturnMap($readMap);
+
+        $filesystem->method('path')->willReturnCallback(
+            static fn (string ...$path): string => '/fake/' . implode('/', $path)
+        );
+
+        return $filesystem;
     }
 
     private function createLoader(): YamlTypeLoader
@@ -124,7 +206,6 @@ class YamlTypeLoaderTest extends TestCase
         return new YamlTypeLoader(
             new ElementTypeSpecificationSerializer(),
             Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator(),
-            $this->tempDir,
         );
     }
 }

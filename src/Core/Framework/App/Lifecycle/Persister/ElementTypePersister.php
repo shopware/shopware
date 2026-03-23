@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * @internal only for use by the app-system
+ * @internal
  */
 #[Package('framework')]
 class ElementTypePersister implements PersisterInterface
@@ -47,10 +47,9 @@ class ElementTypePersister implements PersisterInterface
             return;
         }
 
-        $typesDirectory = $context->appFilesystem->path(self::TYPES_DIRECTORY);
-        $files = glob($typesDirectory . '/*.yaml');
+        $files = $context->appFilesystem->findFiles('*.yaml', self::TYPES_DIRECTORY);
 
-        if ($files === false || $files === []) {
+        if ($files === []) {
             return;
         }
 
@@ -59,8 +58,9 @@ class ElementTypePersister implements PersisterInterface
         $upserts = [];
         $processedNames = [];
 
-        foreach ($files as $file) {
-            $data = Yaml::parseFile($file);
+        foreach ($files as $fileInfo) {
+            $content = $context->appFilesystem->read(self::TYPES_DIRECTORY, $fileInfo->getRelativePathname());
+            $data = Yaml::parse($content);
 
             if (!\is_array($data)) {
                 continue;

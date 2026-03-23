@@ -172,8 +172,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Validation\ElementTypeAppValidator">
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer"/>
-            <argument type="service" id="validator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader"/>
             <tag name="shopware.app_manifest.validator"/>
         </service>
 

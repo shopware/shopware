@@ -133,7 +133,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new MessageHandlerCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new ContentRouteCompilerPass());
         $container->addCompilerPass(new ContentSystemDataLoaderTypeCompilerPass());
-        $container->addCompilerPass(new ElementTypeCompilerPass());
+        $container->addCompilerPass(ElementTypeCompilerPass::withDefaultLoader());
         $container->addCompilerPass(new CreateGeneratorScaffoldingCommandPass());
         $container->addCompilerPass(new RedisConnectionsCompilerPass());
 

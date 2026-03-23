@@ -6,6 +6,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentElementTypeSpecification;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Filesystem;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -14,35 +15,34 @@ use Symfony\Component\Yaml\Yaml;
  * @internal
  */
 #[Package('framework')]
-final class YamlTypeLoader extends AbstractContentElementTypeLoader
+final class YamlTypeLoader
 {
     public function __construct(
         private readonly ElementTypeSpecificationSerializer $serializer,
         private readonly ValidatorInterface $validator,
-        private readonly string $directory,
     ) {
     }
 
     /**
      * @return list<ContentElementTypeSpecification>
      */
-    public function load(): array
+    public function load(Filesystem $filesystem): array
     {
-        if (!is_dir($this->directory)) {
+        if (!$filesystem->has()) {
             return [];
         }
 
-        $files = glob($this->directory . '/*.yaml');
+        $files = $filesystem->findFiles('*.yaml', '.');
 
-        if ($files === false || $files === []) {
+        if ($files === []) {
             return [];
         }
 
         $definitions = [];
         $seenNames = [];
 
-        foreach ($files as $file) {
-            $data = $this->parseFile($file);
+        foreach ($files as $fileInfo) {
+            $data = $this->parseFile($filesystem, $fileInfo->getRelativePathname());
             $dto = $this->serializer->denormalize($data);
 
             $violations = $this->validator->validate($dto);
@@ -56,10 +56,10 @@ final class YamlTypeLoader extends AbstractContentElementTypeLoader
             $name = $dto->name;
 
             if (isset($seenNames[$name])) {
-                throw ContentSystemException::elementTypeDuplicate($name, basename($seenNames[$name]), basename($file));
+                throw ContentSystemException::elementTypeDuplicate($name, $seenNames[$name], $fileInfo->getFilename());
             }
 
-            $seenNames[$name] = $file;
+            $seenNames[$name] = $fileInfo->getFilename();
             $definitions[] = $dto->toContentElementTypeSpecification();
         }
 
@@ -69,16 +69,18 @@ final class YamlTypeLoader extends AbstractContentElementTypeLoader
     /**
      * @return array<string, mixed>
      */
-    private function parseFile(string $file): array
+    private function parseFile(Filesystem $filesystem, string $relativePath): array
     {
+        $content = $filesystem->read($relativePath);
+
         try {
-            $data = Yaml::parseFile($file);
+            $data = Yaml::parse($content);
         } catch (ParseException $e) {
-            throw ContentSystemException::elementTypeLoadFailed($file, 'Invalid YAML syntax: ' . $e->getMessage(), $e);
+            throw ContentSystemException::elementTypeLoadFailed($filesystem->path($relativePath), 'Invalid YAML syntax: ' . $e->getMessage(), $e);
         }
 
         if (!\is_array($data)) {
-            throw ContentSystemException::elementTypeLoadFailed($file, 'YAML file must contain an array/map, got ' . get_debug_type($data));
+            throw ContentSystemException::elementTypeLoadFailed($filesystem->path($relativePath), 'YAML file must contain an array/map, got ' . get_debug_type($data));
         }
 
         return $data;

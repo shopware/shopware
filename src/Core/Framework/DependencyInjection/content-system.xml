@@ -235,6 +235,11 @@
         <!-- Element Type System -->
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer"/>
 
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer"/>
+            <argument type="service" id="validator"/>
+        </service>
+
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer"/>
             <argument type="service" id="validator"/>

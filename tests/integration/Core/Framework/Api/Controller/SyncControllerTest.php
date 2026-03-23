@@ -134,7 +134,7 @@ class SyncControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $responseData = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $responseData = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
         static::assertFalse($responseData['data']['attributes']['active']);
 
         $this->getBrowser()->request('DELETE', '/api/product/' . $id);

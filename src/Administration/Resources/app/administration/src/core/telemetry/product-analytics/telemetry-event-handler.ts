@@ -1,9 +1,9 @@
 /**
  * @sw-package framework
  */
-import { string } from 'src/core/service/util.service';
-import type * as AmplitudeClient from '@amplitude/analytics-browser';
-import type { EventTypes, TelemetryEvent, TrackableType } from 'src/core/telemetry/types';
+import { string } from '../../service/util.service';
+import type { EventTypes, TelemetryEvent, TrackableType } from '../types';
+import type { TrackingClient } from './gateway-client';
 
 type TelemetryEventHandlers = {
     [N in EventTypes]?: (event: TelemetryEvent<N>) => void;
@@ -13,11 +13,11 @@ type TelemetryEventHandlers = {
  * @private
  */
 export default function createTelemetryEventHandler(
-    amplitude: typeof AmplitudeClient,
+    client: TrackingClient,
 ): (telemetryEvent: TelemetryEvent<EventTypes>) => void {
     const telemetryEventHandlers: TelemetryEventHandlers = {
         page_change: (event) => {
-            amplitude.track('page_viewed', {
+            client.track('page_viewed', {
                 sw_route_from_name: normalizeRouteName(event.eventData.from.name),
                 sw_route_from_href: event.eventData.from.path,
                 sw_route_to_name: normalizeRouteName(event.eventData.to.name),
@@ -29,16 +29,16 @@ export default function createTelemetryEventHandler(
             const shopId = Shopware.Store.get('context').app.config.shopId;
             const newUserId = `${shopId}:${event.eventData.userId}`;
 
-            const previousUserId = amplitude.getUserId();
-            amplitude.setUserId(newUserId);
-            // add more user properties via amplitude.identify(); ?
+            const previousUserId = client.getUserId();
+
+            client.identify(newUserId, event.eventData);
 
             if (newUserId && previousUserId !== newUserId) {
-                amplitude.track('login');
+                client.track('login');
             }
         },
         reset: () => {
-            amplitude.track('logout');
+            client.track('logout');
         },
         user_interaction: (event) => {
             const { target, originalEvent } = event.eventData;
@@ -69,10 +69,10 @@ export default function createTelemetryEventHandler(
                 eventProperties.sw_pointer_button = originalEvent.buttons;
             }
 
-            amplitude.track(eventName, eventProperties);
+            client.track(eventName, eventProperties);
         },
         programmatic: (event) => {
-            amplitude.track(event.eventData.eventName, event.eventData);
+            client.track(event.eventData.eventName, event.eventData);
         },
     };
 

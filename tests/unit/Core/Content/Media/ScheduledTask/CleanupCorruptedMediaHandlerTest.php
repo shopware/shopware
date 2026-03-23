@@ -150,7 +150,7 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
             static fn (RangeFilter $filter): bool => $filter->getField() === 'id'
         ));
 
-        static::assertNotEmpty($idRangeFilters);
+        static::assertArrayHasKey(0, $idRangeFilters);
         $idRangeFilter = $idRangeFilters[0];
 
         static::assertTrue($idRangeFilter->hasParameter(RangeFilter::GT));

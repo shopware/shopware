@@ -21,7 +21,7 @@ use Symfony\Component\Filesystem\Filesystem;
 class PluginCreateCommandTest extends TestCase
 {
     /**
-     * @param array<string, string> $arguments
+     * @param array<string, string|true> $arguments
      * @param list<string> $inputs
      * @param array<int, array<string, mixed>> $generators
      */

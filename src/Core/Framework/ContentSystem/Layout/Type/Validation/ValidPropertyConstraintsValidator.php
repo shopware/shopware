@@ -22,11 +22,11 @@ final class ValidPropertyConstraintsValidator extends ConstraintValidator
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof ValidPropertyConstraints) {
-            throw new UnexpectedTypeException($constraint, ValidPropertyConstraints::class); // @phpstan-ignore shopware.domainException (Symfony validator convention)
+            throw new UnexpectedTypeException($constraint, ValidPropertyConstraints::class); // @phpstan-ignore shopware.domainException (Symfony ConstraintValidator convention)
         }
 
         if (!$value instanceof PropertySpecificationDto) {
-            throw new UnexpectedTypeException($value, PropertySpecificationDto::class); // @phpstan-ignore shopware.domainException (Symfony validator convention)
+            throw new UnexpectedTypeException($value, PropertySpecificationDto::class); // @phpstan-ignore shopware.domainException (Symfony ConstraintValidator convention)
         }
 
         if ($value->translatable && $value->type !== 'string') {

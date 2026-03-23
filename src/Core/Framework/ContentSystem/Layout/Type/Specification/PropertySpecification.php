@@ -16,13 +16,18 @@ final readonly class PropertySpecification
      * @param array<string, mixed>|null $adminUI
      */
     public function __construct(
-        private string $name, // @phpstan-ignore property.onlyWritten (identity field, will be used by future domain API)
+        private string $name,
         private PropertyType $type,
         private bool $required,
         private string $title,
         private string $description,
         private ?array $adminUI,
     ) {
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     /**

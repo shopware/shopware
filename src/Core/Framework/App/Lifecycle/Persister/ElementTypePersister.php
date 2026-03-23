@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\Aggregate\AppContentElementType\AppContentElementTypeCollection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\Context;
@@ -70,7 +69,7 @@ class ElementTypePersister implements PersisterInterface
 
             $violations = $this->validator->validate($dto);
             if ($violations->count() > 0) {
-                throw ContentSystemException::elementTypeInvalid( // @phpstan-ignore shopware.domainException (validation error from content system is appropriate here)
+                throw AppException::elementTypeInvalid(
                     $dto->name ?: '<unknown>',
                     $violations
                 );

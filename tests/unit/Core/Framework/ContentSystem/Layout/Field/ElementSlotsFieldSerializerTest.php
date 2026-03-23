@@ -302,8 +302,7 @@ class ElementSlotsFieldSerializerTest extends TestCase
             )
         );
 
-        // @phpstan-ignore-next-line intentional wrong type for test
-        $this->serializer->serializeSlots(['broken' => 'not-a-slot-content']);
+        $this->serializer->serializeSlots(['broken' => 'not-a-slot-content']); // @phpstan-ignore argument.type (intentional wrong type for test)
     }
 
     #[TestDox('passes validation when slot elements satisfy constraints')]

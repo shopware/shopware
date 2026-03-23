@@ -8,9 +8,9 @@ use League\Flysystem\DirectoryListing;
 use League\Flysystem\FileAttributes;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Util\Filesystem as UtilFilesystem;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
@@ -28,7 +28,7 @@ class TwigComponentHelperTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
     }
 
     public function testGetComponentsReturnsEmptyCollectionWhenNoBundlesOrApps(): void

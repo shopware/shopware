@@ -13,14 +13,14 @@ use Symfony\Component\HttpFoundation\Response;
 class NoConfigurationException extends NumberRangeException
 {
     public function __construct(
-        string $entity,
+        string $entityName,
         ?string $salesChannelId = null
     ) {
         parent::__construct(
             Response::HTTP_BAD_REQUEST,
             self::NO_CONFIGURATION_FOR_ENTITY,
             'No number range configuration found for entity "{{ entity }}" with sales channel "{{ salesChannelId }}".',
-            ['entity' => $entity, 'salesChannelId' => $salesChannelId]
+            ['entity' => $entityName, 'salesChannelId' => $salesChannelId]
         );
     }
 }

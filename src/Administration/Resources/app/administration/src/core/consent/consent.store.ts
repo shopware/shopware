@@ -12,12 +12,34 @@ export type ConsentDTO = {
     readonly scopeName: 'system' | 'admin_user';
     readonly actor: string | null;
     readonly status: 'unset' | 'declined' | 'accepted' | 'revoked';
-    readonly updated_at: string | null;
+    readonly updatedAt: string | null;
+    readonly acceptedRevision?: string | null;
+    readonly latestRevision?: string | null;
 };
 
 type ConsentStoreState = {
     consents: Record<string, ConsentDTO>;
 };
+
+function isConsentAccepted(consent: ConsentDTO): boolean {
+    if (consent.status !== 'accepted') {
+        return false;
+    }
+
+    if (consent.latestRevision == null) {
+        return true;
+    }
+
+    return consent.acceptedRevision === consent.latestRevision;
+}
+
+function isConsentStale(consent: ConsentDTO): boolean {
+    if (consent.status !== 'accepted' || consent.latestRevision == null) {
+        return false;
+    }
+
+    return consent.acceptedRevision !== consent.latestRevision;
+}
 
 /**
  * @private
@@ -39,11 +61,14 @@ export default Shopware.Store.register('consent', {
                 throw new Error(`Consent with name "${name}" not found in store.`);
             }
 
-            if (this.consents[name].status === 'accepted') {
+            if (this.isAccepted(name)) {
                 return;
             }
 
-            const { data: updatedConsent } = await Shopware.Service('consentApiService').accept(name);
+            const { data: updatedConsent } = await Shopware.Service('consentApiService').accept(
+                name,
+                this.consents[name].latestRevision,
+            );
 
             this.consents[name] = updatedConsent;
 
@@ -71,7 +96,15 @@ export default Shopware.Store.register('consent', {
                 throw new Error(`Consent with name "${name}" not found in store.`);
             }
 
-            return this.consents[name].status === 'accepted';
+            return isConsentAccepted(this.consents[name]);
+        },
+
+        isStale(name: string): boolean {
+            if (!this.consents[name]) {
+                throw new Error(`Consent with name "${name}" not found in store.`);
+            }
+
+            return isConsentStale(this.consents[name]);
         },
     },
 });

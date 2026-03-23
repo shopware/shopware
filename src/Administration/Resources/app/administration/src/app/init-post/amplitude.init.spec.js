@@ -70,6 +70,8 @@ describe('src/app/post-init/amplitude.init.ts', () => {
             product_analytics: {
                 name: 'product_analytics',
                 status: 'accepted',
+                acceptedRevision: '2026-02-02',
+                latestRevision: '2026-02-02',
             },
         };
 
@@ -137,6 +139,16 @@ describe('src/app/post-init/amplitude.init.ts', () => {
         it('does not initialize amplitude without product analytics consent', async () => {
             const { init } = await import('@amplitude/analytics-browser');
             useConsentStore().consents.product_analytics.status = 'revoked';
+            init.mockClear();
+
+            watchHandle = await initAmplitude();
+
+            expect(init).not.toHaveBeenCalled();
+        });
+
+        it('does not initialize amplitude with stale product analytics consent', async () => {
+            const { init } = await import('@amplitude/analytics-browser');
+            useConsentStore().consents.product_analytics.acceptedRevision = '2026-02-01';
             init.mockClear();
 
             watchHandle = await initAmplitude();

@@ -18,6 +18,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -56,7 +57,7 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
     /**
      * @param list<ContentElementTypeSpecification> $allSpecifications
      */
-    private function loadFromCoreDirectory(ElementTypeSpecificationSerializer $serializer, \Symfony\Component\Validator\Validator\ValidatorInterface $validator, array &$allSpecifications): void
+    private function loadFromCoreDirectory(ElementTypeSpecificationSerializer $serializer, ValidatorInterface $validator, array &$allSpecifications): void
     {
         $this->loadFromDirectory(self::CORE_DEFINITIONS_DIRECTORY, $serializer, $validator, $allSpecifications);
     }
@@ -67,7 +68,7 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
      *
      * @param list<ContentElementTypeSpecification> $allSpecifications
      */
-    private function loadFromBundleMetadata(ContainerBuilder $container, ElementTypeSpecificationSerializer $serializer, \Symfony\Component\Validator\Validator\ValidatorInterface $validator, array &$allSpecifications): void
+    private function loadFromBundleMetadata(ContainerBuilder $container, ElementTypeSpecificationSerializer $serializer, ValidatorInterface $validator, array &$allSpecifications): void
     {
         $bundleMetadata = $container->getParameter('kernel.bundles_metadata');
         if (!\is_array($bundleMetadata)) {
@@ -76,7 +77,7 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
 
         $activePlugins = $container->getParameter('kernel.active_plugins');
         if (!\is_array($activePlugins)) {
-            return;
+            throw DependencyInjectionException::parameterHasWrongType('kernel.active_plugins', 'array', get_debug_type($activePlugins));
         }
 
         $pluginBundleNames = [];
@@ -106,7 +107,7 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
      *
      * @param list<ContentElementTypeSpecification> $allSpecifications
      */
-    private function loadFromPlugins(ContainerBuilder $container, ElementTypeSpecificationSerializer $serializer, \Symfony\Component\Validator\Validator\ValidatorInterface $validator, array &$allSpecifications): void
+    private function loadFromPlugins(ContainerBuilder $container, ElementTypeSpecificationSerializer $serializer, ValidatorInterface $validator, array &$allSpecifications): void
     {
         foreach ($this->getActivePluginClasses($container) as $pluginClass => $pluginMeta) {
             $relativeDirectory = $pluginClass::getContentTypeDirectory();
@@ -144,7 +145,13 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
                 );
             }
 
-            if (!\is_array($pluginMeta) || !isset($pluginMeta['path'], $pluginMeta['name'], $pluginMeta['class']) || !\is_string($pluginMeta['path']) || !\is_string($pluginMeta['name']) || !\is_string($pluginMeta['class'])) {
+            if (
+                !\is_array($pluginMeta)
+                || !isset($pluginMeta['path'], $pluginMeta['name'], $pluginMeta['class'])
+                || !\is_string($pluginMeta['path'])
+                || !\is_string($pluginMeta['name'])
+                || !\is_string($pluginMeta['class'])
+            ) {
                 throw DependencyInjectionException::parameterHasWrongType(
                     'kernel.active_plugins',
                     'array{name: string, path: string, class: string}',
@@ -168,7 +175,7 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
      *
      * @param list<ContentElementTypeSpecification> $allSpecifications
      */
-    private function loadFromApps(ContainerBuilder $container, ElementTypeSpecificationSerializer $serializer, \Symfony\Component\Validator\Validator\ValidatorInterface $validator, array &$allSpecifications): void
+    private function loadFromApps(ContainerBuilder $container, ElementTypeSpecificationSerializer $serializer, ValidatorInterface $validator, array &$allSpecifications): void
     {
         if ($container->getParameter('kernel.environment') !== 'dev') {
             return;
@@ -201,7 +208,7 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
     /**
      * @param list<ContentElementTypeSpecification> $allSpecifications
      */
-    private function loadFromDirectory(string $directory, ElementTypeSpecificationSerializer $serializer, \Symfony\Component\Validator\Validator\ValidatorInterface $validator, array &$allSpecifications): void
+    private function loadFromDirectory(string $directory, ElementTypeSpecificationSerializer $serializer, ValidatorInterface $validator, array &$allSpecifications): void
     {
         $loader = new YamlTypeLoader($serializer, $validator, $directory);
 

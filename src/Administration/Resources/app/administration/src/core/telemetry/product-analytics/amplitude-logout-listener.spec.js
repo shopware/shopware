@@ -1,11 +1,6 @@
-import {
-    createPrivacyAmplitudeClient,
-    getAmplitudeBrowserApiKeyPrefix,
-    initTelemetryAmplitude,
-    registerTelemetryLogoutListener,
-} from './amplitude.browser-client';
+import { registerAmplitudeLogoutListener } from './amplitude-logout-listener';
 
-describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
+describe('src/core/telemetry/product-analytics/amplitude-logout-listener', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         Shopware.Store.get('context').app.config.version = '6.7.0.0';
@@ -25,7 +20,7 @@ describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
             addOnLogoutListener,
         }));
 
-        registerTelemetryLogoutListener(
+        registerAmplitudeLogoutListener(
             {
                 flush,
                 reset,
@@ -48,7 +43,7 @@ describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
     it('wraps string beacon payloads in a JSON blob', async () => {
         const sendBeacon = jest.fn(() => true);
         const flush = jest.fn(() => {
-            navigator.sendBeacon('https://gateway.example/event', JSON.stringify({ events: [{ event_type: 'logout' }] }));
+            navigator.sendBeacon('https://gateway.example/v1/event', JSON.stringify({ events: [{ event_type: 'logout' }] }));
         });
         const reset = jest.fn();
         const addOnLogoutListener = jest.fn();
@@ -60,7 +55,7 @@ describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
         const originalSendBeacon = navigator.sendBeacon;
         navigator.sendBeacon = sendBeacon;
 
-        registerTelemetryLogoutListener(
+        registerAmplitudeLogoutListener(
             {
                 flush,
                 reset,
@@ -76,7 +71,7 @@ describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
         const payload = JSON.stringify({ events: [{ event_type: 'logout' }] });
 
         expect(sendBeacon).toHaveBeenCalledTimes(1);
-        expect(sendBeacon).toHaveBeenCalledWith('https://gateway.example/event', expect.any(Blob));
+        expect(sendBeacon).toHaveBeenCalledWith('https://gateway.example/v1/event', expect.any(Blob));
         await expect(sendBeacon.mock.calls[0][1].text()).resolves.toBe(payload);
         expect(reset).toHaveBeenCalledTimes(1);
 
@@ -94,7 +89,7 @@ describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
         const originalSendBeacon = navigator.sendBeacon;
         navigator.sendBeacon = sendBeacon;
 
-        registerTelemetryLogoutListener(
+        registerAmplitudeLogoutListener(
             {
                 flush: jest.fn(() => {
                     navigator.sendBeacon('https://gateway.example/other-endpoint', 'plain-string');
@@ -117,7 +112,7 @@ describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
     it('restores the native sendBeacon after overlapping logout callbacks', async () => {
         const sendBeacon = jest.fn(() => true);
         const flush = jest.fn(() => {
-            navigator.sendBeacon('https://gateway.example/event', JSON.stringify({ events: [{ event_type: 'logout' }] }));
+            navigator.sendBeacon('https://gateway.example/v1/event', JSON.stringify({ events: [{ event_type: 'logout' }] }));
         });
         const addOnLogoutListener = jest.fn();
 
@@ -128,7 +123,7 @@ describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
         const originalSendBeacon = navigator.sendBeacon;
         navigator.sendBeacon = sendBeacon;
 
-        registerTelemetryLogoutListener(
+        registerAmplitudeLogoutListener(
             {
                 flush,
                 reset: jest.fn(),
@@ -157,53 +152,5 @@ describe('src/core/telemetry/amplitude/amplitude.browser-client.ts', () => {
         expect(sendBeacon).toHaveBeenLastCalledWith('https://gateway.example/event', 'plain-string');
 
         navigator.sendBeacon = originalSendBeacon;
-    });
-
-    it('initializes telemetry amplitude against the gateway event endpoint', () => {
-        const init = jest.fn();
-
-        initTelemetryAmplitude({ init }, 'https://gateway.example');
-
-        expect(init).toHaveBeenCalledWith(
-            'placeholder-apikey',
-            undefined,
-            expect.objectContaining({
-                serverUrl: 'https://gateway.example/event',
-                appVersion: '6.7.0.0',
-                autocapture: false,
-                serverZone: 'EU',
-                flushMaxRetries: 2,
-                logLevel: 0,
-                fetchRemoteConfig: false,
-                trackingOptions: {
-                    ipAddress: false,
-                    language: false,
-                    platform: false,
-                },
-            }),
-        );
-    });
-
-    it('creates a privacy amplitude client for delete-user requests', () => {
-        const privacyAmplitude = {
-            init: jest.fn(),
-        };
-        const createInstance = jest.fn(() => privacyAmplitude);
-
-        const result = createPrivacyAmplitudeClient({ createInstance }, 'https://gateway.example');
-
-        expect(createInstance).toHaveBeenCalled();
-        expect(privacyAmplitude.init).toHaveBeenCalledWith(
-            'placeholder-apikey',
-            undefined,
-            expect.objectContaining({
-                serverUrl: 'https://gateway.example/delete-user',
-            }),
-        );
-        expect(result).toBe(privacyAmplitude);
-    });
-
-    it('returns the browser api key prefix used for cookie cleanup', () => {
-        expect(getAmplitudeBrowserApiKeyPrefix()).toBe('placeholde');
     });
 });

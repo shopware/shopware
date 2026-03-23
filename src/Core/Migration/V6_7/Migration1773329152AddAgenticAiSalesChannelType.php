@@ -28,7 +28,7 @@ class Migration1773329152AddAgenticAiSalesChannelType extends MigrationStep
         $connection->transactional(function (Connection $connection) use ($salesChannelTypeId, $defaultLanguageIds, $systemLanguageId): void {
             $connection->insert('sales_channel_type', [
                 'id' => $salesChannelTypeId,
-                'icon_name' => 'default-object-rocket',
+                'icon_name' => 'regular-sparkle',
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
 

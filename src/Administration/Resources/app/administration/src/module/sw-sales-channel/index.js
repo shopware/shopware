@@ -4,6 +4,7 @@
 
 import './service/export-template.service';
 import './product-export-templates';
+import './agentic-product-export-templates';
 import './service/domain-link.service';
 import './service/sales-channel-favorites.service';
 import './component/structure/sw-admin-menu-extension';
@@ -48,6 +49,10 @@ Shopware.Component.register(
 Shopware.Component.register(
     'sw-sales-channel-detail-product-comparison-preview',
     () => import('./view/sw-sales-channel-detail-product-comparison-preview'),
+);
+Shopware.Component.register(
+    'sw-sales-channel-detail-agentic-ai-integration',
+    () => import('./view/sw-sales-channel-detail-agentic-ai-integration'),
 );
 Shopware.Component.register(
     'sw-sales-channel-products-assignment-modal',
@@ -141,6 +146,14 @@ Module.register('sw-sales-channel', {
                 analytics: {
                     component: 'sw-sales-channel-detail-analytics',
                     path: 'analytics',
+                    meta: {
+                        parentPath: 'sw.sales.channel.list',
+                        privilege: 'sales_channel.viewer',
+                    },
+                },
+                agenticAiIntegration: {
+                    component: 'sw-sales-channel-detail-agentic-ai-integration',
+                    path: 'agentic-ai-integration',
                     meta: {
                         parentPath: 'sw.sales.channel.list',
                         privilege: 'sales_channel.viewer',

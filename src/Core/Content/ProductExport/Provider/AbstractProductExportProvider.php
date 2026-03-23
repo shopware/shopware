@@ -17,6 +17,11 @@ abstract class AbstractProductExportProvider
     abstract public function getTechnicalName(): string;
 
     /**
+     * @return array{headerTemplate: string, bodyTemplate: string, footerTemplate: string}
+     */
+    abstract public function getDefaultTemplateContent(): array;
+
+    /**
      * @param array<string, mixed> $renderContext
      *
      * @return array<string, mixed>

@@ -39,6 +39,18 @@ class ProductExportApiService extends ApiService {
             });
     }
 
+    getDefaultTemplate(providerName) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/default-template/${providerName}`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
     /**
      * Get the generated access key and secret access key from the API
      *

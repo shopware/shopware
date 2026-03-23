@@ -234,6 +234,35 @@
         },
         "cliCommand": "CLI-Befehl zur Erstellung des Produktexports"
       },
+      "agenticAi": {
+        "tabFeedTemplate": "Feed-Template",
+        "tabIntegration": "Integration",
+        "feedTemplateCardTitle": "Feed-Template",
+        "feedUrlCardTitle": "Feed-URL",
+        "additionalSettingsTitle": "Zusätzliche Einstellungen",
+        "buttonResetTemplate": "Auf Standard zurücksetzen",
+        "resetTemplateSuccess": "Template wurde auf Standard zurückgesetzt. Bitte speichern, um die Änderungen zu übernehmen.",
+        "errorLoadingTemplate": "Standard-Template konnte nicht geladen werden.",
+        "templates": {
+          "template-label": {
+            "open-ai": "OpenAI (JSONL)"
+          }
+        },
+        "integration": {
+          "stepByStepTitle": "Schritt f\u00fcr Schritt",
+          "feedUrlLabel": "Export-URL",
+          "providers": {
+            "open-ai": {
+              "cardTitle": "OpenAI-Verbindung",
+              "introduction": {
+                "title": "Anleitung: Einrichtung und Verbindung",
+                "description": "Dieser Verkaufskanal generiert einen JSONL-Produkt-Feed, damit Ihre Produkte in den ChatGPT-Suchergebnissen erscheinen k\u00f6nnen. Dazu m\u00fcssen Sie sich als Merchant bewerben und die Feed-URL mit OpenAI teilen. Alles Weitere wird in der folgenden Schritt-f\u00fcr-Schritt-Anleitung erkl\u00e4rt."
+              },
+              "stepByStep": "<li>Bewerben Sie sich als Merchant unter <a href=\"https://chatgpt.com/merchants/\" target=\"_blank\" rel=\"noopener noreferrer\">chatgpt.com/merchants</a></li><li>Kopieren Sie die Export-URL (unten) und teilen Sie diese mit OpenAI gem\u00e4\u00df der <a href=\"https://developers.openai.com/commerce/product-feeds\" target=\"_blank\" rel=\"noopener noreferrer\">Product Feeds Dokumentation</a></li><li>Stellen Sie sicher, dass die Export-URL \u00f6ffentlich erreichbar ist</li>"
+            }
+          }
+        }
+      },
       "hreflang": {
         "title": "Hreflang",
         "titleCard": "Hreflang-Integration",

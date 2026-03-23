@@ -106,7 +106,7 @@ class ProductExportController extends AbstractController
     {
         $entity = new ProductExportEntity();
 
-        $entity->setId('');
+        $entity->setId($dataBag->get('id') ?? '');
         $entity->setHeaderTemplate($dataBag->get('headerTemplate') ?? '');
         $entity->setBodyTemplate($dataBag->get('bodyTemplate') ?? '');
         $entity->setFooterTemplate($dataBag->get('footerTemplate') ?? '');

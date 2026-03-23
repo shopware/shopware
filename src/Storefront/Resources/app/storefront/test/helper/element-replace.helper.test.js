@@ -103,7 +103,7 @@ describe('element-replace.helper', () => {
                     listEntries.querySelectorAll('li.replaced-item'),
                     document.querySelectorAll('li.replaceable-item')
                 );
-            }).toThrowError();
+            }).toThrow();
         });
 
         test('it does not remove content if innerHtml is empty', () => {

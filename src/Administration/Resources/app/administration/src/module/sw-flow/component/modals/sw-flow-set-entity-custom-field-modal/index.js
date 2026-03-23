@@ -307,7 +307,6 @@ export default {
             }
 
             const allowedAware = this.triggerEvent.aware ?? [];
-            // eslint-disable-next-line max-len
             const options = this.flowBuilderService.getAvailableEntities(this.action, this.triggerActions, allowedAware, [
                 'customFields',
             ]);

@@ -33,6 +33,15 @@ class KnownIpsCollectorTest extends TestCase
         ], $suggestions);
     }
 
+    public function testSuggestionsForIpv6WhenIpv6NotSupported(): void
+    {
+        $suggestions = (new KnownIpsCollector(static fn () => false))->collectIps(new Request(server: ['REMOTE_ADDR' => '2001:0db8:0123:4567:89ab:cdef:1234:5678']));
+
+        static::assertSame([
+            '2001:0db8:0123:4567:89ab:cdef:1234:5678' => 'global.sw-multi-tag-ip-select.knownIps.you',
+        ], $suggestions);
+    }
+
     public function testCollectIpsWithNoIpGiven(): void
     {
         $als = new KnownIpsCollector();

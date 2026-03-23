@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
+use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -56,6 +57,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createProductStreamSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
+                ->append($this->createWebhookSection())
             ->end();
 
         return $treeBuilder;
@@ -340,7 +342,7 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('enable_url_upload_feature')->end()
                 ->booleanNode('enable_url_validation')->end()
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
-                    ->validate()->always()->then(fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
+                    ->validate()->always()->then(static fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
             ->end();
 
         return $rootNode;
@@ -363,7 +365,7 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->beforeNormalization()
-                    ->always()->then(function ($flags) {
+                    ->always()->then(static function ($flags) {
                         foreach ($flags as $key => $flag) {
                             // support old syntax
                             if (\is_int($key) && \is_string($flag)) {
@@ -608,9 +610,15 @@ class Configuration implements ConfigurationInterface
                 ->defaultValue('mysql')
                 ->end()
             ->arrayNode('config')
+                ->addDefaultsIfNotSet()
                 ->children()
                     ->scalarNode('connection')->defaultValue(null)->end()
                 ->end()
+            ->end()
+            ->end()
+            ->validate()
+                ->ifTrue(static fn (array $v) => $v['increment_storage'] === 'redis' && ($v['config']['connection'] ?? null) === null)
+                ->thenInvalid('The "config.connection" option is required when "increment_storage" is set to "redis".')
             ->end();
 
         return $rootNode;
@@ -989,7 +997,7 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                     ->validate()
-                        ->ifTrue(function ($areas) {
+                        ->ifTrue(static function ($areas) {
                             $allowedAreas = ['storefront', 'store_api'];
                             $providedAreas = array_keys($areas);
 
@@ -1062,7 +1070,7 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
             ->validate()
-                ->ifTrue(function (array $config) {
+                ->ifTrue(static function (array $config) {
                     $policies = array_keys($config['policies'] ?? []);
 
                     // Check default_policies references
@@ -1159,7 +1167,7 @@ class Configuration implements ConfigurationInterface
                             ->children()
                                 ->enumNode('type')
                                     ->isRequired()
-                                    ->values(array_map(fn (Type $type) => $type->value, Type::cases()))
+                                    ->values(array_map(static fn (Type $type) => $type->value, Type::cases()))
                                 ->end()
                                 ->scalarNode('description')->end()
                                 ->scalarNode('unit')->end()
@@ -1242,6 +1250,23 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('jwks_path')->isRequired()->end()
                 ->scalarNode('scope')->isRequired()->end()
                 ->scalarNode('register_url')->isRequired()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createWebhookSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('webhook');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->enumNode('failure_strategy')
+                    ->info('@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation')
+                    ->values(WebhookFailureStrategy::values())
+                    ->defaultValue(WebhookFailureStrategy::DisableOnThreshold->value)
+                ->end()
             ->end();
 
         return $rootNode;

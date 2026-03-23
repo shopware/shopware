@@ -30,7 +30,7 @@ class SitemapListerTest extends TestCase
         ]));
 
         $package = $this->createMock(Package::class);
-        $package->method('getUrl')->willReturnCallback(function (string $path) {
+        $package->method('getUrl')->willReturnCallback(static function (string $path) {
             return $path;
         });
 
@@ -75,7 +75,7 @@ class SitemapListerTest extends TestCase
         ]));
 
         $package = $this->createMock(Package::class);
-        $package->method('getUrl')->willReturnCallback(function (string $path) {
+        $package->method('getUrl')->willReturnCallback(static function (string $path) {
             return $path;
         });
 

@@ -61,7 +61,7 @@ class SystemUpdateListenerTest extends TestCase
         $indexer = $this->createMock(ElasticsearchIndexer::class);
         $indexer
             ->method('iterate')
-            ->willReturnCallback(function ($offset) use ($message) {
+            ->willReturnCallback(static function ($offset) use ($message) {
                 return $offset === null
                     ? $message
                     : null;

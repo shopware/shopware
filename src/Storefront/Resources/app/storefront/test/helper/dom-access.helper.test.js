@@ -54,7 +54,7 @@ describe('dom-access.helper', () => {
         });
 
         test('has attribute throws for non nodes', () => {
-            expect(() => { DomAccess.hasAttribute(42, 'toAnswer')}).toThrowError();
+            expect(() => { DomAccess.hasAttribute(42, 'toAnswer')}).toThrow();
         });
 
         test('has attribute returns false comments', () => {
@@ -69,19 +69,19 @@ describe('dom-access.helper', () => {
         });
 
         test('strict getAttribute throw for non nodes', () => {
-            expect(() => { DomAccess.getAttribute(42, 'theAnswer')}).toThrowError();
+            expect(() => { DomAccess.getAttribute(42, 'theAnswer')}).toThrow();
         });
 
         test('strict getAttribute throw if attribute does not exist', () => {
             const node = document.querySelector('div.headline');
-            expect(() => { DomAccess.getAttribute(node, 'theAnswer')}).toThrowError();
+            expect(() => { DomAccess.getAttribute(node, 'theAnswer')}).toThrow();
         });
 
         test('strict getAttribute throws if getAttribute is not defined', () => {
             const node = document.querySelector('div.headline');
             node.getAttribute = null;
 
-            expect(() => { DomAccess.getAttribute(node, 'style')}).toThrowError();
+            expect(() => { DomAccess.getAttribute(node, 'style')}).toThrow();
         });
 
         test('non strict getAttribute returns undefined for none nodes', () => {
@@ -103,7 +103,7 @@ describe('dom-access.helper', () => {
 
     describe('getDataAttribute', () => {
         test('throws for none nodes in strict mode', () => {
-            expect(() => { DomAccess.getDataAttribute(null, 'data-answers')}).toThrowError();
+            expect(() => { DomAccess.getDataAttribute(null, 'data-answers')}).toThrow();
         });
 
         test('returns undefined for none nodes in none strict mode', () => {
@@ -112,7 +112,7 @@ describe('dom-access.helper', () => {
 
         test('throws for nodes without dataset in strict mode', () => {
             const node = document.createComment('comments do not have data');
-            expect(() => { DomAccess.getDataAttribute(node, 'data-answers')}).toThrowError();
+            expect(() => { DomAccess.getDataAttribute(node, 'data-answers')}).toThrow();
         });
 
         test('returns undefined for nodes without dataset in none strict mode', () => {
@@ -122,7 +122,7 @@ describe('dom-access.helper', () => {
 
         test('throws if value does not exist in strict mode', () => {
             const node = document.querySelector('div.with-object-attribute');
-            expect(() => { DomAccess.getDataAttribute(node, 'data-answers')}).toThrowError();
+            expect(() => { DomAccess.getDataAttribute(node, 'data-answers')}).toThrow();
         });
 
         test('returns undefined if value does not exist in none strict mode', () => {
@@ -145,16 +145,16 @@ describe('dom-access.helper', () => {
         test('throws for none nodes and if querySelector is not defined', () => {
             const commentNode = document.createComment('this is a comment');
 
-            expect(() => { DomAccess.querySelector(42, 'a') }).toThrowError();
-            expect(() => { DomAccess.querySelector(42, 'a', false) }).toThrowError();
+            expect(() => { DomAccess.querySelector(42, 'a') }).toThrow();
+            expect(() => { DomAccess.querySelector(42, 'a', false) }).toThrow();
 
-            expect(() => { DomAccess.querySelector(commentNode, 'a') }).toThrowError();
-            expect(() => { DomAccess.querySelector(commentNode, 'a', false) }).toThrowError();
+            expect(() => { DomAccess.querySelector(commentNode, 'a') }).toThrow();
+            expect(() => { DomAccess.querySelector(commentNode, 'a', false) }).toThrow();
         });
 
         test('throws in strict mode if no element cant be found', () => {
             const emptyList = document.querySelector('ul.empty-list');
-            expect(() => { DomAccess.querySelector(emptyList, 'li') }).toThrowError();
+            expect(() => { DomAccess.querySelector(emptyList, 'li') }).toThrow();
         });
 
         test('return false in none strict mode if no element can be found', () => {
@@ -172,16 +172,16 @@ describe('dom-access.helper', () => {
         test('throws for none nodes and if querySelectorAll is not defined', () => {
             const commentNode = document.createComment('this is a comment');
 
-            expect(() => { DomAccess.querySelectorAll(42, 'a') }).toThrowError();
-            expect(() => { DomAccess.querySelectorAll(42, 'a', false) }).toThrowError();
+            expect(() => { DomAccess.querySelectorAll(42, 'a') }).toThrow();
+            expect(() => { DomAccess.querySelectorAll(42, 'a', false) }).toThrow();
 
-            expect(() => { DomAccess.querySelectorAll(commentNode, 'a') }).toThrowError();
-            expect(() => { DomAccess.querySelectorAll(commentNode, 'a', false) }).toThrowError();
+            expect(() => { DomAccess.querySelectorAll(commentNode, 'a') }).toThrow();
+            expect(() => { DomAccess.querySelectorAll(commentNode, 'a', false) }).toThrow();
         });
 
         test('throws in strict mode if no element cant be found', () => {
             const emptyList = document.querySelector('ul.empty-list');
-            expect(() => { DomAccess.querySelectorAll(emptyList, 'li') }).toThrowError();
+            expect(() => { DomAccess.querySelectorAll(emptyList, 'li') }).toThrow();
         });
 
         test('return false in none strict mode if no element can be found', () => {

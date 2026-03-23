@@ -248,7 +248,7 @@ class RuleValidator implements EventSubscriberInterface
      */
     private function getSavedConditions(array $commandQueue, Context $context): RuleConditionCollection
     {
-        $ids = array_map(function ($command) {
+        $ids = array_map(static function ($command) {
             $uuidBytes = $command->getPrimaryKey()['id'];
 
             return Uuid::fromBytesToHex($uuidBytes);

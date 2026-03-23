@@ -41,8 +41,13 @@
                 },
                 "example": {
                   "privileges": {
-                    "SwagAnalytics": ["customer:read", "order:read"],
-                    "SwagExample": ["product:write"]
+                    "SwagAnalytics": [
+                      "customer:read",
+                      "order:read"
+                    ],
+                    "SwagExample": [
+                      "product:write"
+                    ]
                   }
                 }
               }
@@ -127,7 +132,9 @@
     },
     "/app-system/{appName}/privileges": {
       "patch": {
-        "tags": ["App System"],
+        "tags": [
+          "App System"
+        ],
         "summary": "Accept or revoke privileges for an app",
         "description": "Accepts or revokes specified privileges for the given app.",
         "operationId": "managePrivileges",
@@ -163,8 +170,13 @@
                 }
               },
               "example": {
-                "accept": ["customer:read", "order:read"],
-                "revoke": ["product:write"]
+                "accept": [
+                  "customer:read",
+                  "order:read"
+                ],
+                "revoke": [
+                  "product:write"
+                ]
               }
             }
           }
@@ -193,6 +205,78 @@
             ]
           }
         ]
+      }
+    },
+    "/_action/app-system/secret/rotate": {
+      "post": {
+        "tags": [
+          "App System"
+        ],
+        "summary": "Initiate secret rotation for the calling app",
+        "description": "Initiates an app secret rotation for the calling app. Needs to be called with an integration token belonging to an app. Note that the secret rotation will only be scheduled and then handled asynchronously.",
+        "operationId": "appSecretRotation",
+        "responses": {
+          "202": {
+            "description": "Returns \"Accepted\" when secret rotation was scheduled."
+          },
+          "400": {
+            "description": "Malformed request, e.g. when requested with non app integration source."
+          },
+          "401": {
+            "description": "Unauthorized Access."
+          },
+          "403": {
+            "description": "Forbidden. Not a valid integration source."
+          },
+          "404": {
+            "description": "App not found."
+          }
+        },
+        "security": [
+          {
+            "oAuth": [
+              "admin"
+            ]
+          }
+        ]
+      }
+    },
+    "/app-system/shop/verify": {
+      "get": {
+        "tags": [
+          "App System", "Public"
+        ],
+        "summary": "Verify a shop's APP_URL",
+        "description": "Used to verify that a shop's APP_URL points to its self. The passed run ID and token are used to query the cache. It returns 204 no content if the given token can be verified using the run id.",
+        "operationId": "verifyAppUrl",
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "query",
+            "description": "A unique identifier used to look up the token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "description": "A unique identifier",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "An empty response signalling successful verification."
+          },
+          "400": {
+            "description": "Malformed request or unsuccessful verification."
+          }
+        }
       }
     }
   },

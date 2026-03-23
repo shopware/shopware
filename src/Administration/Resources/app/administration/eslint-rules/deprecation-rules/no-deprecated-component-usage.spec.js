@@ -21,8 +21,10 @@ const { mtFloatingUiValidTests, mtFloatingUiInvalidTests } = require("./no-depre
 const { swEntityListingValidChecks, swEntityListingInvalidChecks } = require("./no-deprecated-component-usage-checks/sw-entity-listing.check");
 
 const tester = new RuleTester({
-    parser: require.resolve('vue-eslint-parser'),
-    parserOptions: { ecmaVersion: 2015 }
+    languageOptions: {
+        parser: require('vue-eslint-parser'),
+        ecmaVersion: 2015,
+    },
 })
 
 tester.run('no-deprecated-component-usage', rule, {

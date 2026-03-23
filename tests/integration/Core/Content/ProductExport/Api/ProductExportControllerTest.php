@@ -205,7 +205,7 @@ TWIG,
             'salesChannelDomainId' => $this->getSalesChannelDomainId(),
             'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
             'headerTemplate' => '',
-            'bodyTemplate' => '{{ productExport.salesChannelId }}',
+            'bodyTemplate' => '{{ productExport.salesChannelId }},{{ provider.name }}',
             'footerTemplate' => '',
             'includeVariants' => false,
             'encoding' => 'UTF-8',
@@ -213,6 +213,7 @@ TWIG,
             'fileName' => 'test.csv',
             'accessKey' => 'test',
             'currencyId' => Defaults::CURRENCY,
+            'provider' => 'open-ai',
         ], \JSON_THROW_ON_ERROR);
 
         if (!$content) {
@@ -229,6 +230,9 @@ TWIG,
         );
 
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
+        static::assertStringContainsString('open-ai', $response);
     }
 
     public function testPreviewProvidesConfiguredProviderInTransientExportEntity(): void

@@ -11,6 +11,7 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
@@ -20,13 +21,16 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('discovery')]
 class OpenAiProductExportProvider extends AbstractProductExportProvider
 {
+    private const SYSTEM_CONFIG_DOMAIN = 'core.openAiProductExport';
+
     /**
      * @internal
      *
      * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
      */
     public function __construct(
-        private readonly EntityRepository $salesChannelRepository
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -35,6 +39,11 @@ class OpenAiProductExportProvider extends AbstractProductExportProvider
         return 'open-ai';
     }
 
+    /**
+     * @param array<string, mixed> $renderContext
+     *
+     * @return array<string, mixed>
+     */
     public function extendRenderContext(
         ProductExportEntity $productExport,
         SalesChannelContext $salesChannelContext,
@@ -42,8 +51,11 @@ class OpenAiProductExportProvider extends AbstractProductExportProvider
     ): array {
         $storeCountry = $salesChannelContext->getShippingLocation()->getCountry()->getIso();
         $targetCountries = $this->resolveTargetCountries($salesChannelContext);
-        $sellerUrl = $productExport->getSalesChannelDomain()?->getUrl();
-        $sellerName = $salesChannelContext->getSalesChannel()->getName();
+        $sellerUrl = $productExport->getSalesChannelDomain()?->getUrl() ?? '';
+        $sellerName = $salesChannelContext->getSalesChannel()->getName() ?? '';
+
+        $config = $this->getSystemConfigValues($productExport);
+        $returnPolicyUrl = $this->normalizeStringValue($config, 'returnPolicyUrl', $sellerUrl);
 
         $renderContext['provider'] = new ArrayStruct([
             'name' => $this->getTechnicalName(),
@@ -51,12 +63,87 @@ class OpenAiProductExportProvider extends AbstractProductExportProvider
             'targetCountries' => $targetCountries,
             'sellerName' => $sellerName,
             'sellerUrl' => $sellerUrl,
-            'returnPolicyUrl' => $sellerUrl, // todo: update it with actual return policy url
+            'returnPolicyUrl' => $returnPolicyUrl,
             'isEligibleSearch' => true,
             'isEligibleCheckout' => false,
+            'variantMapping' => $this->getVariantMapping($config),
         ]);
 
         return $renderContext;
+    }
+
+    /**
+     * @param array<string, mixed> $mapping
+     *
+     * @return array<string, list<string>|null>
+     */
+    private function getVariantMapping(array $mapping): array
+    {
+        return [
+            'color' => $this->normalizeMappingValue($mapping, 'variantColor'),
+            'size' => $this->normalizeMappingValue($mapping, 'variantSize'),
+            'size_system' => $this->normalizeMappingValue($mapping, 'variantSizeSystem'),
+            'gender' => $this->normalizeMappingValue($mapping, 'variantGender'),
+            'material' => $this->normalizeMappingValue($mapping, 'variantMaterial'),
+            'custom_variants' => $this->normalizeMappingValue($mapping, 'variantCustom'),
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $mapping
+     *
+     * @return list<string>|null
+     */
+    private function normalizeMappingValue(array $mapping, string $key): ?array
+    {
+        $value = $mapping[$key] ?? null;
+
+        if (!\is_array($value) || $value === []) {
+            return null;
+        }
+
+        $normalized = array_values(array_filter(
+            $value,
+            static fn (mixed $entry): bool => \is_string($entry) && trim($entry) !== '',
+        ));
+
+        return $normalized !== [] ? $normalized : null;
+    }
+
+    /**
+     * @param array<string, mixed> $mapping
+     */
+    private function normalizeStringValue(array $mapping, string $key, ?string $fallback = null): ?string
+    {
+        $value = $mapping[$key] ?? null;
+
+        if (!\is_string($value)) {
+            return $fallback;
+        }
+
+        $value = trim($value);
+
+        return $value === '' ? $fallback : $value;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getSystemConfigValues(ProductExportEntity $productExport): array
+    {
+        $rawMapping = $this->systemConfigService->getDomain(
+            self::SYSTEM_CONFIG_DOMAIN,
+            $productExport->getSalesChannelId(),
+            true
+        );
+
+        return array_combine(
+            array_map(
+                static fn (string $key): string => str_replace(self::SYSTEM_CONFIG_DOMAIN . '.', '', $key),
+                array_keys($rawMapping)
+            ),
+            array_values($rawMapping)
+        ) ?: [];
     }
 
     /**

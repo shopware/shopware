@@ -8,6 +8,7 @@ import './sw-sales-channel-detail-base.scss';
 const { Component, Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const domUtils = Shopware.Utils.dom;
+const objectHelper = Shopware.Utils.object;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
 
@@ -86,6 +87,12 @@ export default {
         templateName: {
             type: String,
             default: null,
+        },
+
+        agenticCommerceExportConfig: {
+            type: Array,
+            required: false,
+            default: () => [],
         },
     },
 
@@ -854,6 +861,46 @@ export default {
 
         validateMaintenanceIpCidr(term) {
             return utils.string.isValidIp(term) || utils.string.isValidCidr(term);
+        },
+
+        getAgenticCommerceExportElementBind(element) {
+            const bind = objectHelper.deepCopyObject(element);
+
+            if (
+                [
+                    'single-select',
+                    'multi-select',
+                ].includes(bind.type)
+            ) {
+                bind.config.labelProperty = 'name';
+                bind.config.valueProperty = 'id';
+            }
+
+            if (bind.type === 'text-editor') {
+                bind.config.componentName = 'sw-text-editor';
+            }
+
+            return bind;
+        },
+
+        getAgenticCommerceExportCardTitle(configEntry) {
+            if (configEntry?.titleSnippet) {
+                return this.$t(configEntry.titleSnippet);
+            }
+
+            return configEntry?.provider ?? '';
+        },
+
+        getAgenticCommerceExportCardPositionIdentifier(configEntry) {
+            if (configEntry?.positionIdentifier) {
+                return configEntry.positionIdentifier;
+            }
+
+            return 'sw-sales-channel-detail-base-agentic-commerce-export-config-open-ai';
+        },
+
+        onAgenticCommerceExportFieldUpdate(configEntry, fieldName, value) {
+            configEntry.values[fieldName] = value;
         },
     },
 };

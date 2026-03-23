@@ -14,12 +14,10 @@ export default {
     inject: ['acl'],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
             required: true,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         productExport: {
             required: true,
         },

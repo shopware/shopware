@@ -211,6 +211,28 @@
     </mt-card>
     {% endblock %}
 
+    <template v-if="isAgenticCommerce">
+        <mt-card
+            v-for="configEntry in agenticCommerceExportConfig"
+            :key="configEntry.provider"
+            position-identifier="sw-sales-channel-detail-base-agentic-commerce-export-config-open-ai"
+            :title="getAgenticCommerceExportCardTitle(configEntry)"
+        >
+            <sw-skeleton v-if="configEntry.isLoading" />
+
+            <template v-else>
+                <sw-form-field-renderer
+                    v-for="element in configEntry.elements"
+                    v-bind="getAgenticCommerceExportElementBind(element)"
+                    :key="`${configEntry.provider}-${element.name}`"
+                    :value="configEntry.values[element.name]"
+                    :disabled="!acl.can('sales_channel.editor') || isLoading || configEntry.isLoading"
+                    @update:value="onAgenticCommerceExportFieldUpdate(configEntry, element.name, $event)"
+                />
+            </template>
+        </mt-card>
+    </template>
+
     {% block sw_sales_channel_shipping_payment %}
     <mt-card
         v-if="salesChannel && !isProductExportChannel"

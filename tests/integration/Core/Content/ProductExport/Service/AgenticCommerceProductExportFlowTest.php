@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\TranslationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
@@ -44,10 +45,13 @@ class AgenticCommerceProductExportFlowTest extends TestCase
 
     private Context $context;
 
+    private SystemConfigService $systemConfigService;
+
     protected function setUp(): void
     {
         $this->productExportRepository = static::getContainer()->get('product_export.repository');
         $this->productExportGenerator = static::getContainer()->get(ProductExportGenerator::class);
+        $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -82,13 +86,22 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         $result = $this->productExportGenerator->generate($productExport, new ExportBehavior());
 
         static::assertNotNull($result);
-        static::assertFalse($result->hasErrors(), $result->hasErrors() ? json_encode(array_map(
+        static::assertTrue($result->hasErrors());
+        static::assertSame([[
+            'messageKey' => 'provider-validation-failed',
+            'parameters' => [
+                'provider' => 'open-ai',
+                'field' => 'group_id',
+                'error' => 'The field "group_id" must be a non-empty string.',
+                'line' => 1,
+            ],
+        ]], array_map(
             static fn ($error) => [
                 'messageKey' => $error->getMessageKey(),
                 'parameters' => $error->getParameters(),
             ],
             $result->getErrors()
-        ), \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES) : 'The generated feed must be valid JSONL without export errors.');
+        ));
 
         $lines = array_values(array_filter(
             preg_split('/\R/', $result->getContent()) ?: [],
@@ -110,9 +123,11 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         static::assertSame('in_stock', $exportedProduct['availability']);
         static::assertSame('ACME', $exportedProduct['brand']);
         static::assertArrayNotHasKey('condition', $exportedProduct);
-        static::assertSame($product['id'], $exportedProduct['group_id']);
         static::assertFalse($exportedProduct['listing_has_variations']);
-        static::assertSame('OpenAI Feed Product', $exportedProduct['item_group_title']);
+        static::assertArrayNotHasKey('group_id', $exportedProduct);
+        static::assertArrayNotHasKey('item_group_title', $exportedProduct);
+        static::assertArrayNotHasKey('offer_id', $exportedProduct);
+        static::assertArrayNotHasKey('variant_dict', $exportedProduct);
         static::assertFalse($exportedProduct['is_digital']);
         static::assertSame('DE', $exportedProduct['store_country']);
         static::assertIsArray($exportedProduct['target_countries']);
@@ -125,6 +140,88 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         static::assertSame($productExport->getSalesChannelDomain()?->getUrl(), $exportedProduct['return_policy']);
         static::assertStringContainsString((string) $productExport->getSalesChannelDomain()?->getUrl(), $exportedProduct['url']);
         static::assertStringStartsWith('https://example.com/images/openai-feed-product.jpg', $exportedProduct['image_url']);
+    }
+
+    public function testAgenticCommerceSalesChannelGeneratesMappedVariantFieldsForOpenAiFeed(): void
+    {
+        $variant = $this->createExportableVariantProduct();
+        $productStreamId = $this->createProductStreamForProduct($variant['id']);
+
+        $agenticSalesChannel = $this->createSalesChannel([
+            'id' => Uuid::randomHex(),
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE,
+            'name' => 'Agentic Commerce Feed',
+            'domains' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://agentic-commerce.localhost',
+                ],
+            ],
+        ]);
+
+        $salesChannelId = $agenticSalesChannel['id'];
+        $this->systemConfigService->set('core.openAiProductExport.variantColor', [$variant['colorGroupId']], $salesChannelId);
+        $this->systemConfigService->set('core.openAiProductExport.variantSize', [$variant['sizeGroupId']], $salesChannelId);
+        $this->systemConfigService->set('core.openAiProductExport.variantGender', [$variant['genderGroupId']], $salesChannelId);
+        $this->systemConfigService->set(
+            'core.openAiProductExport.variantCustom',
+            [
+                $variant['colorGroupId'], // overlap with specific mapping -> must be ignored
+                $variant['custom1GroupId'],
+                $variant['custom2GroupId'],
+                $variant['custom3GroupId'],
+                $variant['custom4GroupId'], // 4th custom value -> must be ignored (max 3)
+            ],
+            $salesChannelId
+        );
+
+        $productExport = $this->createProductExport($salesChannelId, $productStreamId, true);
+        $result = $this->productExportGenerator->generate($productExport, new ExportBehavior());
+
+        static::assertNotNull($result);
+        static::assertFalse($result->hasErrors(), 'The generated feed must be valid JSONL without export errors.');
+
+        $lines = array_values(array_filter(
+            preg_split('/\R/', $result->getContent()) ?: [],
+            static fn (string $line): bool => trim($line) !== ''
+        ));
+
+        static::assertCount(1, $lines);
+        static::assertJson($lines[0]);
+
+        /** @var array<string, mixed> $exportedProduct */
+        $exportedProduct = json_decode($lines[0], true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($exportedProduct['listing_has_variations']);
+        static::assertSame('SKU-' . $variant['productNumber'] . '-10.99', $exportedProduct['offer_id']);
+        static::assertSame($variant['parentId'], $exportedProduct['group_id']);
+        static::assertSame('OpenAI Feed Variant', $exportedProduct['item_group_title']);
+
+        static::assertSame('copper', $exportedProduct['color']);
+        static::assertSame('XL', $exportedProduct['size']);
+        static::assertSame('unisex', $exportedProduct['gender']);
+
+        static::assertSame('plan', $exportedProduct['custom_variant1_category']);
+        static::assertSame('12m', $exportedProduct['custom_variant1_option']);
+        static::assertSame('material_custom', $exportedProduct['custom_variant2_category']);
+        static::assertSame('silk', $exportedProduct['custom_variant2_option']);
+        static::assertSame('finish', $exportedProduct['custom_variant3_category']);
+        static::assertSame('matte', $exportedProduct['custom_variant3_option']);
+
+        static::assertArrayNotHasKey('custom_variant4_category', $exportedProduct);
+        static::assertArrayNotHasKey('custom_variant4_option', $exportedProduct);
+
+        static::assertIsArray($exportedProduct['variant_dict']);
+        static::assertSame('copper', $exportedProduct['variant_dict']['color']);
+        static::assertSame('XL', $exportedProduct['variant_dict']['size']);
+        static::assertSame('unisex', $exportedProduct['variant_dict']['gender']);
+        static::assertSame('12m', $exportedProduct['variant_dict']['plan']);
+        static::assertSame('silk', $exportedProduct['variant_dict']['material_custom']);
+        static::assertSame('matte', $exportedProduct['variant_dict']['finish']);
+        static::assertArrayNotHasKey('color_custom', $exportedProduct['variant_dict']);
     }
 
     /**
@@ -224,7 +321,7 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         return strtolower($productStreamId);
     }
 
-    private function createProductExport(string $salesChannelId, string $productStreamId): ProductExportEntity
+    private function createProductExport(string $salesChannelId, string $productStreamId, bool $includeVariants = false): ProductExportEntity
     {
         $salesChannel = $this->loadSalesChannel($salesChannelId);
         $domain = $salesChannel->getDomains()?->first();
@@ -246,7 +343,7 @@ class AgenticCommerceProductExportFlowTest extends TestCase
                 'encoding' => ProductExportEntity::ENCODING_UTF8,
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_JSONL,
                 'provider' => 'open-ai',
-                'includeVariants' => false,
+                'includeVariants' => $includeVariants,
                 'generateByCronjob' => false,
                 'interval' => 86400,
                 'headerTemplate' => '',
@@ -279,6 +376,136 @@ class AgenticCommerceProductExportFlowTest extends TestCase
             ->setLimit(1);
 
         return $countryRepository->searchIds($criteria, $this->context)->firstId() ?? throw new \RuntimeException('Default country not found');
+    }
+
+    /**
+     * @return array{
+     *     id: string,
+     *     parentId: string,
+     *     productNumber: string,
+     *     colorGroupId: string,
+     *     sizeGroupId: string,
+     *     genderGroupId: string,
+     *     custom1GroupId: string,
+     *     custom2GroupId: string,
+     *     custom3GroupId: string,
+     *     custom4GroupId: string
+     * }
+     */
+    private function createExportableVariantProduct(): array
+    {
+        $productRepository = static::getContainer()->get('product.repository');
+        $storefrontSalesChannelId = $this->getDefaultStorefrontSalesChannelId();
+
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $manufacturerId = Uuid::randomHex();
+        $taxId = Uuid::randomHex();
+        $mediaId = Uuid::randomHex();
+        $productMediaId = Uuid::randomHex();
+
+        $colorGroupId = Uuid::randomHex();
+        $sizeGroupId = Uuid::randomHex();
+        $genderGroupId = Uuid::randomHex();
+        $custom1GroupId = Uuid::randomHex();
+        $custom2GroupId = Uuid::randomHex();
+        $custom3GroupId = Uuid::randomHex();
+        $custom4GroupId = Uuid::randomHex();
+
+        $productRepository->create([
+            [
+                'id' => $parentId,
+                'productNumber' => 'openai-feed-parent',
+                'active' => true,
+                'stock' => 5,
+                'name' => 'OpenAI Feed Parent',
+                'description' => 'Feed parent description',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10.99, 'net' => 9.24, 'linked' => false]],
+                'manufacturer' => ['id' => $manufacturerId, 'name' => 'ACME'],
+                'tax' => ['id' => $taxId, 'taxRate' => 19, 'name' => 'Standard'],
+                'visibilities' => [
+                    ['salesChannelId' => $storefrontSalesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ],
+            [
+                'id' => $variantId,
+                'parentId' => $parentId,
+                'productNumber' => 'openai-feed-variant',
+                'active' => true,
+                'stock' => 5,
+                'name' => 'OpenAI Feed Variant',
+                'description' => 'Feed variant description',
+                'ean' => '1234567890123',
+                'manufacturerNumber' => 'MPN-123',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10.99, 'net' => 9.24, 'linked' => false]],
+                'manufacturerId' => $manufacturerId,
+                'taxId' => $taxId,
+                'coverId' => $productMediaId,
+                'media' => [
+                    [
+                        'id' => $productMediaId,
+                        'position' => 1,
+                        'media' => [
+                            'id' => $mediaId,
+                            'fileName' => 'openai-feed-variant',
+                            'fileExtension' => 'jpg',
+                            'mimeType' => 'image/jpeg',
+                            'path' => 'https://example.com/images/openai-feed-product.jpg',
+                        ],
+                    ],
+                ],
+                'visibilities' => [
+                    ['salesChannelId' => $storefrontSalesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+                'options' => [
+                    $this->createOptionPayload($colorGroupId, 'color', 'copper'),
+                    $this->createOptionPayload($sizeGroupId, 'size', 'XL'),
+                    $this->createOptionPayload($genderGroupId, 'gender', 'unisex'),
+                    $this->createOptionPayload($custom1GroupId, 'plan', '12m'),
+                    $this->createOptionPayload($custom2GroupId, 'material_custom', 'silk'),
+                    $this->createOptionPayload($custom3GroupId, 'finish', 'matte'),
+                    $this->createOptionPayload($custom4GroupId, 'color_custom', 'rose'),
+                ],
+            ],
+        ], $this->context);
+
+        return [
+            'id' => $variantId,
+            'parentId' => $parentId,
+            'productNumber' => 'openai-feed-variant',
+            'colorGroupId' => $colorGroupId,
+            'sizeGroupId' => $sizeGroupId,
+            'genderGroupId' => $genderGroupId,
+            'custom1GroupId' => $custom1GroupId,
+            'custom2GroupId' => $custom2GroupId,
+            'custom3GroupId' => $custom3GroupId,
+            'custom4GroupId' => $custom4GroupId,
+        ];
+    }
+
+    /**
+     * @return array{
+     *     id: string,
+     *     position: int,
+     *     groupId: string,
+     *     group: array{id: string, position: int, name: string},
+     *     name: string
+     * }
+     */
+    private function createOptionPayload(string $groupId, string $groupName, string $optionName): array
+    {
+        return [
+            'id' => Uuid::randomHex(),
+            'position' => 1,
+            'groupId' => $groupId,
+            'group' => [
+                'id' => $groupId,
+                'position' => 1,
+                'name' => $groupName,
+            ],
+            'name' => $optionName,
+        ];
     }
 
     private function getOpenAiBodyTemplate(): string

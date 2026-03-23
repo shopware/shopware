@@ -56,6 +56,10 @@ readonly class ProductExportProviderContextSubscriber implements EventSubscriber
             return;
         }
 
-        $event->setContext($provider->extendRenderContext($productExport, $salesChannelContext, $context));
+        $event->setContext($provider->extendRenderContext(
+            $productExport,
+            $salesChannelContext,
+            $context,
+        ));
     }
 }

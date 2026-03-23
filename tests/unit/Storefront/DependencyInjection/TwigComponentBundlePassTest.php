@@ -17,10 +17,17 @@ class TwigComponentBundlePassTest extends TestCase
 {
     private string $tmpDir = '';
 
+    private Filesystem $filesystem;
+
+    protected function setUp(): void
+    {
+        $this->filesystem = new Filesystem();
+    }
+
     protected function tearDown(): void
     {
-        if ($this->tmpDir !== '' && is_dir($this->tmpDir)) {
-            $this->removeDir($this->tmpDir);
+        if ($this->tmpDir !== '' && $this->filesystem->exists($this->tmpDir)) {
+            $this->filesystem->remove($this->tmpDir);
         }
     }
 
@@ -187,9 +194,9 @@ class TwigComponentBundlePassTest extends TestCase
     public function testDiscoversBundleComponentsFromRealDirectory(): void
     {
         $this->tmpDir = $this->createTempDir();
-        mkdir($this->tmpDir . '/Resources/views/components/Sw', 0777, true);
-        file_put_contents($this->tmpDir . '/Resources/views/components/Sw/Button.html.twig', '<button>test</button>');
-        file_put_contents($this->tmpDir . '/Resources/views/components/Sw/Card.html.twig', '<div>card</div>');
+        $this->filesystem->mkdir($this->tmpDir . '/Resources/views/components/Sw');
+        $this->filesystem->dumpFile($this->tmpDir . '/Resources/views/components/Sw/Button.html.twig', '<button>test</button>');
+        $this->filesystem->dumpFile($this->tmpDir . '/Resources/views/components/Sw/Card.html.twig', '<div>card</div>');
 
         $container = new ContainerBuilder();
         $container->setParameter('kernel.bundles', ['Storefront' => Storefront::class]);
@@ -216,8 +223,8 @@ class TwigComponentBundlePassTest extends TestCase
     public function testDiscoversNestedBundleComponents(): void
     {
         $this->tmpDir = $this->createTempDir();
-        mkdir($this->tmpDir . '/Resources/views/components/Forms/Input', 0777, true);
-        file_put_contents($this->tmpDir . '/Resources/views/components/Forms/Input/Text.html.twig', '<input>');
+        $this->filesystem->mkdir($this->tmpDir . '/Resources/views/components/Forms/Input');
+        $this->filesystem->dumpFile($this->tmpDir . '/Resources/views/components/Forms/Input/Text.html.twig', '<input>');
 
         $container = new ContainerBuilder();
         $container->setParameter('kernel.bundles', ['Storefront' => Storefront::class]);
@@ -236,10 +243,10 @@ class TwigComponentBundlePassTest extends TestCase
     public function testExcludesFilesInUnderscorePrefixedDirectories(): void
     {
         $this->tmpDir = $this->createTempDir();
-        mkdir($this->tmpDir . '/Resources/views/components/Sw', 0777, true);
-        mkdir($this->tmpDir . '/Resources/views/components/_private', 0777, true);
-        file_put_contents($this->tmpDir . '/Resources/views/components/Sw/Button.html.twig', '<button>');
-        file_put_contents($this->tmpDir . '/Resources/views/components/_private/Helper.html.twig', '<div>');
+        $this->filesystem->mkdir($this->tmpDir . '/Resources/views/components/Sw');
+        $this->filesystem->mkdir($this->tmpDir . '/Resources/views/components/_private');
+        $this->filesystem->dumpFile($this->tmpDir . '/Resources/views/components/Sw/Button.html.twig', '<button>');
+        $this->filesystem->dumpFile($this->tmpDir . '/Resources/views/components/_private/Helper.html.twig', '<div>');
 
         $container = new ContainerBuilder();
         $container->setParameter('kernel.bundles', ['Storefront' => Storefront::class]);
@@ -257,10 +264,10 @@ class TwigComponentBundlePassTest extends TestCase
     public function testDiscoversBundleComponentsFromMultipleBundles(): void
     {
         $this->tmpDir = $this->createTempDir();
-        mkdir($this->tmpDir . '/Bundle1/Resources/views/components', 0777, true);
-        mkdir($this->tmpDir . '/Bundle2/Resources/views/components', 0777, true);
-        file_put_contents($this->tmpDir . '/Bundle1/Resources/views/components/Alert.html.twig', '<div>');
-        file_put_contents($this->tmpDir . '/Bundle2/Resources/views/components/Badge.html.twig', '<span>');
+        $this->filesystem->mkdir($this->tmpDir . '/Bundle1/Resources/views/components');
+        $this->filesystem->mkdir($this->tmpDir . '/Bundle2/Resources/views/components');
+        $this->filesystem->dumpFile($this->tmpDir . '/Bundle1/Resources/views/components/Alert.html.twig', '<div>');
+        $this->filesystem->dumpFile($this->tmpDir . '/Bundle2/Resources/views/components/Badge.html.twig', '<span>');
 
         $container = new ContainerBuilder();
         $container->setParameter('kernel.bundles', [
@@ -295,22 +302,8 @@ class TwigComponentBundlePassTest extends TestCase
     private function createTempDir(): string
     {
         $dir = sys_get_temp_dir() . '/twig_component_pass_test_' . uniqid();
-        mkdir($dir, 0777, true);
+        $this->filesystem->mkdir($dir);
 
         return $dir;
-    }
-
-    private function removeDir(string $dir): void
-    {
-        foreach (scandir($dir) as $entry) {
-            if ($entry === '.' || $entry === '..') {
-                continue;
-            }
-
-            $path = $dir . '/' . $entry;
-            is_dir($path) ? $this->removeDir($path) : unlink($path);
-        }
-
-        rmdir($dir);
     }
 }

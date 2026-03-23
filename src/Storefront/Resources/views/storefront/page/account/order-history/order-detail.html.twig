@@ -225,9 +225,15 @@
                                                         {% for calculatedTax in order.price.calculatedTaxes %}
                                                             {% block page_account_order_item_detail_vat_label %}
                                                                 <dt class="col-6 col-md-8">
-                                                                    {{ 'checkout.summaryTaxInclude'|trans({
-                                                                        '%rate%':  calculatedTax.taxRate
-                                                                    })|sw_sanitize }}
+                                                                    {% if context.taxState == 'gross' %}
+                                                                        {{ 'checkout.summaryTaxInclude'|trans({
+                                                                            '%rate%':  calculatedTax.taxRate
+                                                                        })|sw_sanitize }}
+                                                                    {% else %}
+                                                                        {{ 'checkout.summaryTax'|trans({
+                                                                            '%rate%':  calculatedTax.taxRate
+                                                                        })|sw_sanitize }}
+                                                                    {% endif %}
                                                                 </dt>
                                                             {% endblock %}
 

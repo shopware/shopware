@@ -18,8 +18,11 @@ use Shopware\Core\Migration\V6_8\Migration1773829004RemoveLegacyProductStreamPro
 class Migration1773829004RemoveLegacyProductStreamProductStatesFilterTest extends TestCase
 {
     private Connection $connection;
+
     private string $streamId;
+
     private string $legacyFilterId;
+
     private string $newFilterId;
 
     protected function setUp(): void
@@ -30,6 +33,15 @@ class Migration1773829004RemoveLegacyProductStreamProductStatesFilterTest extend
         $this->streamId = Uuid::randomBytes();
         $this->legacyFilterId = Uuid::randomBytes();
         $this->newFilterId = Uuid::randomBytes();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->connection->delete('product_stream_filter', ['id' => $this->legacyFilterId]);
+        $this->connection->delete('product_stream_filter', ['id' => $this->newFilterId]);
+        $this->connection->delete('product_stream', ['id' => $this->streamId]);
+
+        parent::tearDown();
     }
 
     public function testGetCreationTimestamp(): void
@@ -106,14 +118,5 @@ class Migration1773829004RemoveLegacyProductStreamProductStatesFilterTest extend
 
         $indexers = (new IndexerQueuer($this->connection))->getIndexers();
         static::assertArrayHasKey('product_stream.indexer', $indexers);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->connection->delete('product_stream_filter', ['id' => $this->legacyFilterId]);
-        $this->connection->delete('product_stream_filter', ['id' => $this->newFilterId]);
-        $this->connection->delete('product_stream', ['id' => $this->streamId]);
-
-        parent::tearDown();
     }
 }

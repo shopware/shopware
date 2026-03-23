@@ -87,4 +87,3 @@ class Migration1773829000MigrateLineItemProductStatesRuleCondition extends Migra
         return json_encode(['operator' => $operator, 'productType' => $productType], \JSON_THROW_ON_ERROR);
     }
 }
-

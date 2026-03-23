@@ -90,4 +90,3 @@ class Migration1773829001MigrateProductStreamProductStatesFilter extends Migrati
         return implode('|', $mappedValues);
     }
 }
-

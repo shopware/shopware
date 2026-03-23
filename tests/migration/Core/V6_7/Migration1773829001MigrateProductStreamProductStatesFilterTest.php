@@ -39,6 +39,16 @@ class Migration1773829001MigrateProductStreamProductStatesFilterTest extends Tes
         $this->fallbackFilterId = Uuid::randomBytes();
     }
 
+    protected function tearDown(): void
+    {
+        $this->connection->delete('product_stream_filter', ['id' => $this->simpleFilterId]);
+        $this->connection->delete('product_stream_filter', ['id' => $this->qualifiedFilterId]);
+        $this->connection->delete('product_stream_filter', ['id' => $this->fallbackFilterId]);
+        $this->connection->delete('product_stream', ['id' => $this->streamId]);
+
+        parent::tearDown();
+    }
+
     public function testGetCreationTimestamp(): void
     {
         $migration = new Migration1773829001MigrateProductStreamProductStatesFilter();
@@ -147,15 +157,5 @@ class Migration1773829001MigrateProductStreamProductStatesFilterTest extends Tes
 
         $indexers = (new IndexerQueuer($this->connection))->getIndexers();
         static::assertArrayHasKey('product_stream.indexer', $indexers);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->connection->delete('product_stream_filter', ['id' => $this->simpleFilterId]);
-        $this->connection->delete('product_stream_filter', ['id' => $this->qualifiedFilterId]);
-        $this->connection->delete('product_stream_filter', ['id' => $this->fallbackFilterId]);
-        $this->connection->delete('product_stream', ['id' => $this->streamId]);
-
-        parent::tearDown();
     }
 }

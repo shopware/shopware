@@ -33,4 +33,3 @@ class Migration1773829003RemoveLegacyLineItemProductStatesRuleCondition extends 
     {
     }
 }
-

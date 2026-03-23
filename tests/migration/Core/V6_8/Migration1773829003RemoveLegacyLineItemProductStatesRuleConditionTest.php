@@ -18,8 +18,11 @@ use Shopware\Core\Migration\V6_8\Migration1773829003RemoveLegacyLineItemProductS
 class Migration1773829003RemoveLegacyLineItemProductStatesRuleConditionTest extends TestCase
 {
     private Connection $connection;
+
     private string $ruleId;
+
     private string $legacyConditionId;
+
     private string $newConditionId;
 
     protected function setUp(): void
@@ -30,6 +33,15 @@ class Migration1773829003RemoveLegacyLineItemProductStatesRuleConditionTest exte
         $this->ruleId = Uuid::randomBytes();
         $this->legacyConditionId = Uuid::randomBytes();
         $this->newConditionId = Uuid::randomBytes();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->connection->delete('rule_condition', ['id' => $this->legacyConditionId]);
+        $this->connection->delete('rule_condition', ['id' => $this->newConditionId]);
+        $this->connection->delete('rule', ['id' => $this->ruleId]);
+
+        parent::tearDown();
     }
 
     public function testGetCreationTimestamp(): void
@@ -103,14 +115,5 @@ class Migration1773829003RemoveLegacyLineItemProductStatesRuleConditionTest exte
 
         $indexers = (new IndexerQueuer($this->connection))->getIndexers();
         static::assertArrayHasKey('rule.indexer', $indexers);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->connection->delete('rule_condition', ['id' => $this->legacyConditionId]);
-        $this->connection->delete('rule_condition', ['id' => $this->newConditionId]);
-        $this->connection->delete('rule', ['id' => $this->ruleId]);
-
-        parent::tearDown();
     }
 }

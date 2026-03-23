@@ -35,4 +35,3 @@ class Migration1773829004RemoveLegacyProductStreamProductStatesFilter extends Mi
     {
     }
 }
-

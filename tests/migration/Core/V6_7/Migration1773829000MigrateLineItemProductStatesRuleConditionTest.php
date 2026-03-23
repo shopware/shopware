@@ -39,6 +39,16 @@ class Migration1773829000MigrateLineItemProductStatesRuleConditionTest extends T
         $this->noProductStateConditionId = Uuid::randomBytes();
     }
 
+    protected function tearDown(): void
+    {
+        $this->connection->delete('rule_condition', ['id' => $this->digitalConditionId]);
+        $this->connection->delete('rule_condition', ['id' => $this->legacyConditionId]);
+        $this->connection->delete('rule_condition', ['id' => $this->noProductStateConditionId]);
+        $this->connection->delete('rule', ['id' => $this->ruleId]);
+
+        parent::tearDown();
+    }
+
     public function testGetCreationTimestamp(): void
     {
         $migration = new Migration1773829000MigrateLineItemProductStatesRuleCondition();
@@ -163,15 +173,5 @@ class Migration1773829000MigrateLineItemProductStatesRuleConditionTest extends T
 
         $indexers = (new IndexerQueuer($this->connection))->getIndexers();
         static::assertArrayHasKey('rule.indexer', $indexers);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->connection->delete('rule_condition', ['id' => $this->digitalConditionId]);
-        $this->connection->delete('rule_condition', ['id' => $this->legacyConditionId]);
-        $this->connection->delete('rule_condition', ['id' => $this->noProductStateConditionId]);
-        $this->connection->delete('rule', ['id' => $this->ruleId]);
-
-        parent::tearDown();
     }
 }

@@ -378,15 +378,15 @@ export default Component.wrapComponentConfig({
         },
 
         checkContextLanguage() {
-            const isExists = (this.customer?.salesChannel?.languages || []).some(
+            const exists = (this.customer?.salesChannel?.languages || []).some(
                 (language) => language.id === Context.api.systemLanguageId,
             );
 
-            if (!isExists && this.customer?.salesChannel?.languageId) {
+            if (!exists && this.customer?.salesChannel?.languageId) {
                 Store.get('context').api.languageId = this.customer.salesChannel.languageId;
             }
 
-            if (isExists && !Store.get('context').isSystemDefaultLanguage) {
+            if (exists && !Store.get('context').isSystemDefaultLanguage) {
                 Store.get('context').resetLanguageToDefault();
             }
         },

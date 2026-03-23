@@ -75,14 +75,6 @@ return [
         // constructor changes of internal decorator, no break
         preg_quote('ADDED: Parameter transport was added to Method __construct() of class Shopware\Elasticsearch\Profiler\ClientProfiler', '/'),
         preg_quote('CHANGED: Parameter 0 of Shopware\Elasticsearch\Profiler\ClientProfiler#__construct() changed name from client to transport', '/'),
-        
-      // Revert new feature, which was not released yet
-        preg_quote('REMOVED: Class Shopware\Storefront\DependencyInjection\TwigComponentBundlePass has been deleted', '/'),
-        preg_quote('REMOVED: Method Shopware\Storefront\Framework\Twig\Extension\ConfigExtension#componentImportMap() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\Storefront\Framework\Twig\TemplateConfigAccessor#componentImportMap() was removed', '/'),
-        preg_quote('REMOVED: Class Shopware\Storefront\Framework\Routing\StorybookRouteScopeAllowList has been deleted', '/'),
-        preg_quote('REMOVED: Method Shopware\Core\Framework\Bundle::getTwigComponentNamespace() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\Core\Framework\Bundle::getTwigComponentNamespace() was removed', '/'),
 
         /** Internal annotation on {@see SwTwigFunction} was not recognized correctly */
         preg_quote('CHANGED: Shopware\Core\Framework\Adapter\Twig\SwTwigFunction was marked "@internal"', '/'),

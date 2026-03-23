@@ -198,7 +198,7 @@ class ThemeCompilerTest extends TestCase
     }
 
     /**
-     * @param array<string> $config
+     * @param array<string, mixed> $config
      */
     #[DataProvider('configForDumpVariables')]
     public function testDumpVariables(array $config, string $expected): void

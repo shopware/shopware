@@ -67,10 +67,16 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            $onlyFlat = match ($apiType) {
-                DefinitionService::TYPE_JSON => true,
-                default => $this->shouldIncludeReferenceOnly($definition, $forSalesChannel),
-            };
+            $referenceOnly = $this->shouldIncludeReferenceOnly($definition, $forSalesChannel);
+
+            // For TYPE_JSON (no paths), skip mapping/reference-only entities entirely
+            // For TYPE_JSON_API, they get generated as flat schemas and pruned later if unreferenced
+            if ($referenceOnly && $apiType === DefinitionService::TYPE_JSON) {
+                continue;
+            }
+
+            // TYPE_JSON never needs JsonApi wrapper schemas — set onlyFlat to skip them
+            $onlyFlat = $referenceOnly || $apiType === DefinitionService::TYPE_JSON;
 
             $schema = $this->definitionSchemaBuilder->getSchemaByDefinition(
                 $definition,
@@ -80,14 +86,23 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $apiType
             );
 
+            // Retrieve POST schema metadata from the schema builder
+            $postSchemaRef = $this->definitionSchemaBuilder->getLastPostSchemaRef();
+            $postRequiredFields = $this->definitionSchemaBuilder->getLastPostRequiredFields();
+
             $openApi->components->merge($schema);
 
-            if ($onlyFlat) {
+            if ($referenceOnly) {
                 continue;
             }
 
             if ($apiType === DefinitionService::TYPE_JSON_API) {
-                $openApi->merge($this->pathBuilder->getPathActions($definition, $this->getResourceUri($definition)));
+                $openApi->merge($this->pathBuilder->getPathActions(
+                    $definition,
+                    $this->getResourceUri($definition),
+                    $postSchemaRef,
+                    $postRequiredFields
+                ));
                 $openApi->merge([$this->pathBuilder->getTag($definition)]);
             }
         }
@@ -108,6 +123,12 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $loader->loadOpenapiSpecification());
+
+        // Remove unused schema components to reduce spec size
+        // Only for JSON_API where CRUD paths reference schemas; TYPE_JSON has no entity paths so schemas are the output
+        if ($apiType === DefinitionService::TYPE_JSON_API && !$forSalesChannel && empty($bundleName)) {
+            $finalSpecs = $this->removeUnreferencedSchemas($finalSpecs);
+        }
 
         return $finalSpecs;
     }
@@ -141,13 +162,27 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel);
-            $schema = array_shift($schema);
-            if ($schema === null) {
-                throw ApiException::invalidSchemaForDefinition($definition, 'No schema found');
+            $schemas = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel);
+            $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
+
+            // Prefer JsonApi schema for relationship extraction (has JSON:API relationships wrapper),
+            // fall back to Read schema for entities without JsonApi (e.g. store-api flat schemas)
+            $jsonApiSchema = $schemas[$schemaName . 'JsonApi'] ?? null;
+            $readSchema = $schemas[$schemaName] ?? null;
+
+            $sourceSchema = $jsonApiSchema ?? $readSchema;
+            if ($sourceSchema === null) {
+                throw ApiException::invalidSchemaStructure($definition->getEntityName());
             }
-            $schema = json_decode($schema->toJson(), true, 512, \JSON_THROW_ON_ERROR);
-            $schema = $schema['allOf'][1]['properties'];
+            $sourceSchemaData = json_decode($sourceSchema->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+
+            // For JsonApi schema: extract from allOf[1].properties (matches trunk behavior)
+            // For Read/flat schema: extract from allOf composition or direct properties
+            if ($jsonApiSchema !== null && isset($sourceSchemaData['allOf'][1]['properties'])) {
+                $schema = $sourceSchemaData['allOf'][1]['properties'];
+            } else {
+                $schema = $this->extractPropertiesFromSchemaData($sourceSchemaData, $schemas);
+            }
 
             $relationships = [];
             if (\array_key_exists('relationships', $schema)) {
@@ -160,7 +195,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     } elseif ($type === 'array') {
                         $entity = $relationshipData['items']['properties']['type']['example'];
                     } else {
-                        throw ApiException::invalidSchemaForDefinition($definition, 'Invalid type');
+                        throw ApiException::invalidSchemaStructure($definition->getEntityName());
                     }
 
                     $relationships[$propertyName] = [
@@ -201,7 +236,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     } elseif ($type === 'array') {
                         $entity = $data['items']['properties']['type']['example'];
                     } else {
-                        throw ApiException::invalidSchemaForDefinition($definition, 'Invalid type');
+                        throw ApiException::invalidSchemaStructure($definition->getEntityName());
                     }
 
                     $extensions[$propertyName] = ['type' => $type, 'entity' => $entity];
@@ -265,5 +300,143 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         }
 
         return false;
+    }
+
+    private function snakeCaseToCamelCase(string $input): string
+    {
+        return str_replace(' ', '', ucwords(str_replace('_', ' ', $input)));
+    }
+
+    /**
+     * Extracts properties from schema data, handling both allOf composition and direct properties
+     *
+     * @param array<string, mixed> $schemaData
+     * @param array<string, \OpenApi\Annotations\Schema> $allSchemas
+     *
+     * @return array<string, mixed>
+     */
+    private function extractPropertiesFromSchemaData(array $schemaData, array $allSchemas): array
+    {
+        // Direct properties (legacy/store-api structure)
+        if (isset($schemaData['properties'])) {
+            return $schemaData['properties'];
+        }
+
+        // allOf composition (new structure)
+        if (!isset($schemaData['allOf'])) {
+            return [];
+        }
+
+        $properties = [];
+
+        foreach ($schemaData['allOf'] as $item) {
+            // Inline properties
+            if (isset($item['properties'])) {
+                $properties = array_merge($properties, $item['properties']);
+            }
+
+            // Reference to another schema
+            if (isset($item['$ref'])) {
+                $refName = str_replace('#/components/schemas/', '', $item['$ref']);
+                if (isset($allSchemas[$refName])) {
+                    $refSchemaData = json_decode($allSchemas[$refName]->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+                    $refProperties = $this->extractPropertiesFromSchemaData($refSchemaData, $allSchemas);
+                    $properties = array_merge($properties, $refProperties);
+                }
+            }
+        }
+
+        return $properties;
+    }
+
+    /**
+     * Removes schema components that are not referenced anywhere in the spec.
+     * This reduces the size of the OpenAPI specification by removing orphaned schemas
+     * like mapping entities that are never directly referenced in paths or other schemas.
+     *
+     * @param OpenApiSpec $spec
+     *
+     * @return OpenApiSpec
+     */
+    private function removeUnreferencedSchemas(array $spec): array
+    {
+        if (!isset($spec['components']['schemas'])) {
+            return $spec;
+        }
+
+        $schemas = $spec['components']['schemas'];
+        $referencedSchemas = $this->collectReferencedSchemas($spec, $schemas);
+
+        // Filter schemas to only keep referenced ones
+        $spec['components']['schemas'] = array_filter(
+            $schemas,
+            static fn (mixed $schema, string $name): bool => isset($referencedSchemas[$name]),
+            \ARRAY_FILTER_USE_BOTH
+        );
+
+        return $spec;
+    }
+
+    /**
+     * Collects all schema names that are referenced in the spec.
+     * Recursively resolves references to include transitive dependencies.
+     *
+     * @param array<string, mixed> $spec
+     * @param array<string, mixed> $allSchemas
+     *
+     * @return array<string, true>
+     */
+    private function collectReferencedSchemas(array $spec, array $allSchemas): array
+    {
+        $referenced = [];
+
+        // Collect direct references from paths and other parts (excluding components.schemas itself)
+        $specWithoutSchemas = $spec;
+        unset($specWithoutSchemas['components']['schemas']);
+        $this->findRefsRecursive($specWithoutSchemas, $referenced);
+
+        // Resolve transitive references from referenced schemas
+        $queue = array_keys($referenced);
+        $queueIndex = 0;
+        while (isset($queue[$queueIndex])) {
+            $schemaName = $queue[$queueIndex];
+            ++$queueIndex;
+            if (!isset($allSchemas[$schemaName])) {
+                continue;
+            }
+
+            $schemaRefs = [];
+            $this->findRefsRecursive($allSchemas[$schemaName], $schemaRefs);
+
+            foreach ($schemaRefs as $refName => $true) {
+                if (!isset($referenced[$refName])) {
+                    $referenced[$refName] = true;
+                    $queue[] = $refName;
+                }
+            }
+        }
+
+        return $referenced;
+    }
+
+    /**
+     * Recursively finds all $ref references in a data structure.
+     *
+     * @param array<string, true> $refs
+     */
+    private function findRefsRecursive(mixed $data, array &$refs): void
+    {
+        if (!\is_array($data)) {
+            return;
+        }
+
+        if (isset($data['$ref']) && \is_string($data['$ref']) && str_starts_with($data['$ref'], '#/components/schemas/')) {
+            $refName = str_replace('#/components/schemas/', '', $data['$ref']);
+            $refs[$refName] = true;
+        }
+
+        foreach ($data as $value) {
+            $this->findRefsRecursive($value, $refs);
+        }
     }
 }

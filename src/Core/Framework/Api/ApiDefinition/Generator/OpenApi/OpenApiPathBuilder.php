@@ -32,9 +32,12 @@ class OpenApiPathBuilder
     }
 
     /**
+     * @param string|null $postSchemaRef Full $ref for POST request body (e.g. '#/components/schemas/ProductCreate'). If null, the implementation defaults to the corresponding '{SchemaName}Update' schema.
+     * @param string[] $postRequiredFields Required fields for POST when no dedicated Create schema exists. Used to build an inline allOf wrapper around the Update schema to enforce required fields.
+     *
      * @return PathItem[]
      */
-    public function getPathActions(EntityDefinition $definition, string $path): array
+    public function getPathActions(EntityDefinition $definition, string $path, ?string $postSchemaRef = null, array $postRequiredFields = []): array
     {
         $paths = [];
         $paths[$path] = new PathItem([
@@ -59,7 +62,7 @@ class OpenApiPathBuilder
             return $paths;
         }
 
-        $paths[$path]->post = $this->getCreatePath($definition);
+        $paths[$path]->post = $this->getCreatePath($definition, $postSchemaRef, $postRequiredFields);
         $paths[$path . '/{id}']->patch = $this->getUpdatePath($definition);
         $paths[$path . '/{id}']->delete = $this->getDeletePath($definition);
 
@@ -177,7 +180,11 @@ class OpenApiPathBuilder
         ]);
     }
 
-    private function getCreatePath(EntityDefinition $definition): Post
+    /**
+     * @param string|null $postSchemaRef Full $ref for POST request body. If null, defaults to '{SchemaName}Create'.
+     * @param string[] $postRequiredFields Required fields when using Update schema directly (no Create schema).
+     */
+    private function getCreatePath(EntityDefinition $definition, ?string $postSchemaRef = null, array $postRequiredFields = []): Post
     {
         $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
 
@@ -185,6 +192,24 @@ class OpenApiPathBuilder
 
         if ($experimental = $this->isExperimental($definition)) {
             $tags[] = 'Experimental';
+        }
+
+        // Determine request body schema
+        if ($postSchemaRef !== null) {
+            // When required fields are provided, wrap the schema ref with an allOf + required
+            if ($postRequiredFields !== []) {
+                $requestBodySchema = [
+                    'allOf' => [
+                        ['$ref' => $postSchemaRef],
+                    ],
+                    'required' => $postRequiredFields,
+                ];
+            } else {
+                $requestBodySchema = ['$ref' => $postSchemaRef];
+            }
+        } else {
+            // Fallback when called without POST schema metadata — use Update as safe default
+            $requestBodySchema = ['$ref' => '#/components/schemas/' . $schemaName . 'Update'];
         }
 
         return new Post([
@@ -203,9 +228,7 @@ class OpenApiPathBuilder
             'requestBody' => [
                 'content' => [
                     'application/json' => [
-                        'schema' => [
-                            '$ref' => '#/components/schemas/' . $schemaName,
-                        ],
+                        'schema' => $requestBodySchema,
                     ],
                 ],
             ],
@@ -238,7 +261,7 @@ class OpenApiPathBuilder
                 'content' => [
                     'application/json' => [
                         'schema' => [
-                            '$ref' => '#/components/schemas/' . $schemaName,
+                            '$ref' => '#/components/schemas/' . $schemaName . 'Update',
                         ],
                     ],
                 ],

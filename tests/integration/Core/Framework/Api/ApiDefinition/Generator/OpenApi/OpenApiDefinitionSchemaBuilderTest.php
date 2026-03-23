@@ -44,14 +44,17 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
                 $definition,
                 '',
                 false,
-                false,
+                true, // onlyFlat=true — as the generator uses for TYPE_JSON
                 DefinitionService::TYPE_JSON
             ),
             \JSON_THROW_ON_ERROR
         ), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame('Added since version: 6.0.0.0', $build['Simple']['description']);
-        static::assertSame('Added since version: 6.3.9.9.', $build['Simple']['properties']['i_am_a_new_field']['description']);
+        // TYPE_JSON now uses allOf composition (same as TYPE_JSON_API)
+        static::assertStringContainsString('Added since version: 6.0.0.0', $build['Simple']['description']);
+
+        // Find the i_am_a_new_field in the Update schema (modifiable fields)
+        static::assertSame('Added since version: 6.3.9.9.', $build['SimpleUpdate']['properties']['i_am_a_new_field']['description']);
         static::assertArrayNotHasKey('SimpleJsonApi', $build);
     }
 
@@ -74,14 +77,16 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
                 $definition,
                 '',
                 false,
-                false,
+                true, // onlyFlat=true — as the generator uses for TYPE_JSON
                 DefinitionService::TYPE_JSON
             ),
             \JSON_THROW_ON_ERROR
         ), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame('Added since version: 6.3.9.9', $build['Since']['description']);
-        static::assertArrayNotHasKey('description', $build['Since']['properties']['id']);
+        // TYPE_JSON now uses allOf composition (same as TYPE_JSON_API)
+        static::assertStringContainsString('Added since version: 6.3.9.9', $build['Since']['description']);
+        // id is in allOf[0] (read-only properties) with readOnly flag but no description
+        static::assertArrayNotHasKey('description', $build['Since']['allOf'][0]['properties']['id']);
         static::assertArrayNotHasKey('SinceJsonApi', $build);
     }
 
@@ -94,12 +99,16 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
                 $definition,
                 '',
                 false,
-                false,
+                true, // onlyFlat=true — as the generator uses for TYPE_JSON
                 DefinitionService::TYPE_JSON
             ),
             \JSON_THROW_ON_ERROR
         ), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertArrayNotHasKey('ignoreApiAwareField', $build['Simple']['properties']);
+        // TYPE_JSON now uses allOf composition — check all parts for the ignored field
+        // Read-only properties (allOf[0])
+        static::assertArrayNotHasKey('ignoreApiAwareField', $build['Simple']['allOf'][0]['properties'] ?? []);
+        // Update schema (modifiable fields)
+        static::assertArrayNotHasKey('ignoreApiAwareField', $build['SimpleUpdate']['properties'] ?? []);
     }
 }

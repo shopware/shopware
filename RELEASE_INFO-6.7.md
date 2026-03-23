@@ -567,6 +567,10 @@ The following routes now support cache tagging, enabling automatic invalidation 
 
 ## Core
 
+### New `ApiException::invalidSchemaStructure` exception
+
+A new domain exception method `ApiException::invalidSchemaStructure(string $entityName)` has been added for handling invalid OpenAPI schema structures during schema generation. This replaces the previous generic `\RuntimeException` usage in `OpenApi3Generator` and follows the domain exception pattern.
+
 ### Rework of DAL query generation for nested filters groups
 The DAL criteria builder has been adjusted to generate `EXISTS` subqueries instead of `LEFT JOIN`s for nested filter groups.
 

@@ -86,7 +86,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
      */
     public function isEmpty(): bool
     {
-        return empty($this->elements);
+        return $this->elements === [];
     }
 
     /**

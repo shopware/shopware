@@ -6,7 +6,6 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentElementTypeSpecification;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -50,7 +49,7 @@ final class YamlTypeLoader extends AbstractContentElementTypeLoader
             if ($violations->count() > 0) {
                 throw ContentSystemException::elementTypeInvalid(
                     $dto->name ?: '<unknown>',
-                    $this->formatViolations($violations)
+                    $violations
                 );
             }
 
@@ -83,15 +82,5 @@ final class YamlTypeLoader extends AbstractContentElementTypeLoader
         }
 
         return $data;
-    }
-
-    private function formatViolations(ConstraintViolationListInterface $violations): string
-    {
-        $messages = [];
-        foreach ($violations as $violation) {
-            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
-        }
-
-        return implode('; ', $messages);
     }
 }

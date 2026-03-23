@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -73,7 +72,7 @@ class ElementTypePersister implements PersisterInterface
             if ($violations->count() > 0) {
                 throw ContentSystemException::elementTypeInvalid( // @phpstan-ignore shopware.domainException (validation error from content system is appropriate here)
                     $dto->name ?: '<unknown>',
-                    $this->formatViolations($violations)
+                    $violations
                 );
             }
 
@@ -150,15 +149,5 @@ class ElementTypePersister implements PersisterInterface
         if ($existingAppName !== false) {
             throw AppException::elementTypeCollision($name, $existingAppName, 'app');
         }
-    }
-
-    private function formatViolations(ConstraintViolationListInterface $violations): string
-    {
-        $messages = [];
-        foreach ($violations as $violation) {
-            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
-        }
-
-        return implode('; ', $messages);
     }
 }

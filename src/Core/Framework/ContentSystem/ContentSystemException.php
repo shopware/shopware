@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * @final
@@ -279,8 +280,12 @@ class ContentSystemException extends HttpException
         );
     }
 
-    public static function elementTypeInvalid(string $name, string $reason): self
+    public static function elementTypeInvalid(string $name, string|ConstraintViolationListInterface $reason): self
     {
+        if ($reason instanceof ConstraintViolationListInterface) {
+            $reason = self::formatViolations($reason);
+        }
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::ELEMENT_TYPE_INVALID,
@@ -328,5 +333,15 @@ class ContentSystemException extends HttpException
             'Element type "{{ name }}" is not registered. Only registered types can be used in layouts.',
             ['name' => $name]
         );
+    }
+
+    private static function formatViolations(ConstraintViolationListInterface $violations): string
+    {
+        $messages = [];
+        foreach ($violations as $violation) {
+            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
+        }
+
+        return implode('; ', $messages);
     }
 }

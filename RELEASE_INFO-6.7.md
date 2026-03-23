@@ -172,6 +172,14 @@ If you want to enforce values on write, set `strict: true` when creating the fla
 
 ## Core
 
+### Changed behaviour of default fields in EntityDefinition
+
+Currently, it is not possible to overwrite the default fields `createdAt` and `updatedAt` of an entity in the definition.
+This is because the default fields are applied on top of the fields defined in the `defineFields` method.
+From the next major version on, the logic is turned around and the defined fields will be applied after the default fields.
+This makes it possible to overwrite the current default fields `createdAt` and `updatedAt`.
+Check your EntityDefinitions if this change will have an effect on your entities' behaviour. (Only applicable if you manually add `CreatedAtField` and/or `UpdatedAtField`)
+
 ### Product stream deletion is blocked while product exports exist
 
 Deleting a product stream that's been used in a product export raises a dedicated delete restriction.

@@ -61,6 +61,12 @@ The following methods are now abstract and must be implemented by extensions. Th
 
 <details>
 
+## Changed behaviour of default fields in EntityDefinition
+
+From now on, the defined fields of an EntityDefinition are applied after the default fields.
+This makes it possible to properly overwrite the current default fields `createdAt` and `updatedAt`.
+Check your EntityDefinitions if your entities still behave like intended. (Only applicable if you manually add `CreatedAtField` and/or `UpdatedAtField`)
+
 ## Multiple payment finalize calls allowed
 
 Multiple calls to the `/payment-finalize` endpoint using the same payment token are now allowed.

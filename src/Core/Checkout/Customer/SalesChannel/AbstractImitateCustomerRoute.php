@@ -3,14 +3,14 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 #[Package('checkout')]
 abstract class AbstractImitateCustomerRoute
 {
     abstract public function getDecorated(): AbstractImitateCustomerRoute;
 
-    abstract public function imitateCustomerLogin(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse;
+    abstract public function imitateCustomerLogin(Request $request, SalesChannelContext $context): Response;
 }

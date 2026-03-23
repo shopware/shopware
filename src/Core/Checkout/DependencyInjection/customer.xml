@@ -380,6 +380,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="validator"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerService">

@@ -128,7 +128,7 @@ class CartFacadeTest extends TestCase
     public function testRemove(): void
     {
         $context = static::getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $hook = new CartHook($this->createCart(), $context);
         $cart = static::getContainer()->get(CartFacadeHookFactory::class)->factory($hook, $this->script);
@@ -146,7 +146,7 @@ class CartFacadeTest extends TestCase
     }
 
     /**
-     * @param array<string, ExpectedPrice|null> $expectations
+     * @param array<string, ExpectedPrice|array<string, array<string, array<string, array<string, ExpectedPrice>|ExpectedPrice>|ExpectedPrice>|ExpectedPrice>|null> $expectations
      */
     #[DataProvider('scriptProvider')]
     public function testScripts(string $hook, array $expectations, ?\Closure $closure = null): void
@@ -160,9 +160,6 @@ class CartFacadeTest extends TestCase
             ->factory($hook, $this->script);
 
         static::getContainer()->get(ScriptExecutor::class)->execute($hook);
-
-        // add {% do debug.dump('foo') %} to debug scripts
-        //         dump(static::getContainer()->get(ScriptTraces::class)->getTraces());
 
         $this->assertItems($service, $expectations);
 
@@ -372,7 +369,7 @@ class CartFacadeTest extends TestCase
     }
 
     /**
-     * @param array<string, ExpectedPrice|null> $expectations
+     * @param array<string, ExpectedPrice|array<string, array<string, array<string, array<string, ExpectedPrice>|ExpectedPrice>|ExpectedPrice>|ExpectedPrice>|null> $expectations
      */
     private function assertItems(ItemsFacade|CartFacade|LineItemCollection $scope, array $expectations): void
     {
@@ -399,12 +396,15 @@ class CartFacadeTest extends TestCase
             }
 
             $price = $expected['price'];
+            static::assertInstanceOf(ExpectedPrice::class, $price);
             static::assertInstanceOf(ItemFacade::class, $item);
             static::assertInstanceOf(PriceFacade::class, $item->getPrice());
             static::assertSame($price->getUnitPrice(), $item->getPrice()->getUnit(), print_r($item->getItem(), true));
             static::assertSame($price->getTotalPrice(), $item->getPrice()->getTotal());
 
-            $this->assertItems($item->getChildren(), $expected['children']);
+            $children = $expected['children'];
+            static::assertIsArray($children);
+            $this->assertItems($item->getChildren(), $children);
         }
     }
 

@@ -6,6 +6,10 @@ use Composer\InstalledVersions;
 use Composer\IO\NullIO;
 use Composer\Semver\Comparator;
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Content\MailTemplate\MailTemplateLoader;
+use Shopware\Core\Content\MailTemplate\MailTemplateSetPersister;
+use Shopware\Core\Content\MailTemplate\MailTemplateXmlLoader;
+use Shopware\Core\Content\MailTemplate\Xml\MailTemplate as MailTemplateXml;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -98,6 +102,7 @@ class PluginLifecycleService
         private readonly VersionSanitizer $versionSanitizer,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly RequestStack $requestStack,
+        private readonly MailTemplateSetPersister $mailTemplateSetPersister,
     ) {
         $this->originalEventDispatcher = $eventDispatcher;
     }
@@ -161,6 +166,8 @@ class PluginLifecycleService
             $this->updatePluginData($pluginData, $shopwareContext);
 
             $pluginBaseClass->postInstall($installContext);
+
+            $this->syncPluginMailTemplates($pluginBaseClass, $shopwareContext);
 
             $this->eventDispatcher->dispatch(new PluginPostInstallEvent($plugin, $installContext));
         } catch (\Throwable $e) {
@@ -241,6 +248,7 @@ class PluginLifecycleService
 
         if (!$uninstallContext->keepUserData()) {
             $this->removeCustomEntities($plugin->getId());
+            $this->removePluginMailTemplates($pluginBaseClass, $shopwareContext);
         }
 
         if ($pluginBaseClass->executeComposerCommands()) {
@@ -327,6 +335,8 @@ class PluginLifecycleService
         $plugin->setVersion($updateVersion);
         $plugin->setUpgradeVersion(null);
         $plugin->setUpgradedAt($updateDate);
+
+        $this->syncPluginMailTemplates($pluginBaseClass, $shopwareContext);
 
         $pluginBaseClass->postUpdate($updateContext);
 
@@ -764,5 +774,35 @@ class PluginLifecycleService
                 self::$registeredListener = true;
             }
         }
+    }
+
+    private function syncPluginMailTemplates(Plugin $pluginBaseClass, Context $context): void
+    {
+        $basePath = $pluginBaseClass->getPath() . '/Resources/mail-templates';
+
+        if (!is_file($basePath . '/mail-templates.xml')) {
+            return;
+        }
+
+        $mailTemplates = MailTemplateLoader::load($basePath);
+
+        $this->mailTemplateSetPersister->sync($mailTemplates, $context);
+    }
+
+    private function removePluginMailTemplates(Plugin $pluginBaseClass, Context $context): void
+    {
+        $basePath = $pluginBaseClass->getPath() . '/Resources/mail-templates';
+
+        if (!is_file($basePath . '/mail-templates.xml')) {
+            return;
+        }
+
+        $mailTemplates = MailTemplateXmlLoader::load($basePath . '/mail-templates.xml');
+        $technicalNames = array_map(
+            static fn (MailTemplateXml $t) => $t->getTechnicalName(),
+            $mailTemplates->getMailTemplates()
+        );
+
+        $this->mailTemplateSetPersister->removeByTechnicalNames($technicalNames, $context);
     }
 }

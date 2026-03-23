@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mail-templates xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Content/MailTemplate/Schema/mail-templates-1.0.xsd">
+    <mail-template technical-name="example_notification">
+        <name>Example notification</name>
+        <subject>Example notification from {{ salesChannel.name }}</subject>
+        <sender-name>{{ salesChannel.name }}</sender-name>
+        <description>An example mail template for demonstration purposes</description>
+        <available-entities>
+            <salesChannel>salesChannel</salesChannel>
+        </available-entities>
+    </mail-template>
+</mail-templates>

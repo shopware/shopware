@@ -1,0 +1,5 @@
+<div style="font-family: Arial, sans-serif;">
+    <h1>Example notification</h1>
+    <p>This is an example HTML mail template.</p>
+    <p>Sales Channel: {{ salesChannel.name }}</p>
+</div>

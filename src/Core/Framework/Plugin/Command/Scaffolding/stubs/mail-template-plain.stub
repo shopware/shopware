@@ -1,0 +1,5 @@
+Example notification
+
+This is an example plain text mail template.
+
+Sales Channel: {{ salesChannel.name }}

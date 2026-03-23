@@ -34,6 +34,10 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Content\MailTemplate\MailTemplateSetPersister">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <!-- Controller -->
         <service id="Shopware\Core\Content\MailTemplate\Api\MailActionController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>

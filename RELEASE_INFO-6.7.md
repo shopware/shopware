@@ -270,6 +270,29 @@ This is helpful for stores that do not require search keywords and want to avoid
 Merchants can now set custom Open Graph title, description, and image per product in the product SEO tab in the administration.
 These values are used for the storefront product detail page meta tags (`og:title`, `og:description`, `og:image`), improving how product links appear when shared on social media and in search results.
 The fields are stored in the database, exposed via the Admin and Store API on the product entity, and default to the product meta title, meta description, and cover image when not set.
+### Declarative mail templates for plugins and apps
+
+Plugins and apps can now define mail templates declaratively using a directory-based convention under `Resources/mail-templates/`. This replaces the need for PHP boilerplate to persist mail template types and templates via the DAL.
+
+The approach uses an XML file for metadata (type name, subject, sender name, etc.) and separate `.html.twig` / `.txt.twig` files for template content, preserving full IDE support for Twig editing.
+
+**Directory structure:**
+```
+Resources/
+  mail-templates/
+    mail-templates.xml
+    order_confirmation/
+      en-GB/
+        html.twig
+        plain.twig
+      de-DE/
+        html.twig
+        plain.twig
+```
+
+On plugin install/update, mail template types and their templates are automatically synced to the database. On uninstall (without `--keep-user-data`), they are removed.
+
+The `bin/console plugin:create` scaffolding command now offers a `--create-mail-template` option that generates the directory structure and example files.
 
 ### Default CMS page ID now persisted for categories
 

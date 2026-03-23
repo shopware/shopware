@@ -154,6 +154,29 @@ Special handling for language context:
 - **Activity Override**: Bypasses inactivity logout when enabled
 - **Extended TTL**: Uses refresh token TTL for extended sessions
 
+## SSO Logout (OAuth Token Revocation)
+
+In addition to the standard `logout()` method, the login service exposes `logoutSso()` for sessions that were established through a configured SSO provider. This method implements [RFC 7009](https://www.rfc-editor.org/rfc/rfc7009) / OIDC 3.1.2.1 compliant token revocation.
+
+### `logoutSso(): Promise<void>`
+
+The SSO logout sequence:
+
+1. **Load SSO configuration** — calls `getLoginTemplateConfig()`. If this fails or returns no `url`, falls back to regular `logout()`.
+2. **Server-side token revocation** — sends a native `fetch` POST to `/api/_action/user/logout` with the current Bearer token. Axios is intentionally bypassed to avoid triggering the token-refresh interceptor during logout. If the request fails, the flow continues (best-effort).
+3. **Clear local auth state** — cookies, in-memory bearer cache, context-token, remember-me flag, and the auto-refresh timer are all cleared via the internal `clearAuthState()` helper.
+4. **Notify logout listeners** — all registered `addOnLogoutListener` callbacks are invoked.
+5. **Redirect to SSO provider** — navigates to `${loginConfig.url}&usePromptLogin=1` when the SSO configuration is non-default *or* when the session was flagged as an SSO session (`sessionStorage.sw-sso-session`).
+
+```typescript
+// Triggered from the admin menu when an SSO session is active
+await Shopware.Service('loginService').logoutSso();
+```
+
+### Internal `_navigateTo` hook
+
+The `_navigateTo(url: string): void` property on `LoginService` wraps `window.location.href` assignment. It is marked `@internal` and exists solely to allow test mocking (JSDOM marks `window.location` as non-configurable). Do not use this in production code.
+
 ## Event System
 
 ### Authentication Events

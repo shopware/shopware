@@ -63,6 +63,19 @@ Shopware.Feature = {
 }
 ```
 
+### Telemetry
+```javascript
+Shopware.Telemetry = {
+    initialize: Function,  // Call once during boot; sets up DOM observers and auth listeners
+    identify: Function,    // Dispatch identify event with current user (userId, locale, isAdmin)
+    track: Function,       // Dispatch a programmatic telemetry event
+    debug: Boolean,        // Set to true to log all events to the console
+    isInitialized: Boolean // Read-only; true after initialize() has been called
+}
+```
+
+Gated behind `PRODUCT_ANALYTICS` feature flag. See `05-global-object/04-telemetry.md` for full documentation.
+
 ### Essential Utilities
 ```javascript
 Shopware.Utils = utils;           // Collection of utility functions

@@ -38,7 +38,6 @@ class ErrorResponseFactoryTest extends TestCase
             ? $data['errors'][0]['trace']
             : $data['errors'][0]['meta']['trace'];
 
-
         $expectedStackTrace = [
             [
                 'class' => self::class,

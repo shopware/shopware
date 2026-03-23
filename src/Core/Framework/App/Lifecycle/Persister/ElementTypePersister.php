@@ -80,7 +80,8 @@ class ElementTypePersister implements PersisterInterface
             $dto->toContentElementTypeSpecification();
 
             $name = $dto->name;
-            $hash = Hasher::hash(json_encode($this->serializer->normalize($dto), \JSON_THROW_ON_ERROR));
+            $normalized = $this->serializer->normalize($dto);
+            $hash = Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR));
 
             $this->checkCollision($name, $appId);
 
@@ -94,7 +95,7 @@ class ElementTypePersister implements PersisterInterface
 
             $payload = [
                 'name' => $name,
-                'schema' => $this->serializer->normalize($dto),
+                'schema' => $normalized,
                 'hash' => $hash,
                 'active' => true,
                 'appId' => $appId,

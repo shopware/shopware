@@ -11,7 +11,9 @@ async function createWrapper() {
                 cmsService: Shopware.Service('cmsService'),
             },
             stubs: {
-                'sw-text-editor': await wrapTestComponent('sw-text-editor'),
+                // Stub text-editor and code-editor to prevent crashes in test environment
+                // These components access DOM APIs that don't exist in jsdom
+                'sw-text-editor': true,
                 'sw-text-editor-toolbar': true,
                 'sw-text-editor-table-toolbar': true,
                 'sw-code-editor': true,

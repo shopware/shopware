@@ -17,7 +17,6 @@ export default {
     emits: ['new-item-create'],
 
     props: {
-        // eslint-disable-next-line vue/require-default-prop
         currentValue: {
             type: String,
             required: false,

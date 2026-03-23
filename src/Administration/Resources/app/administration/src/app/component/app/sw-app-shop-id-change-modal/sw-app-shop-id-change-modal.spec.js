@@ -138,10 +138,6 @@ describe('sw-app-shop-id-change-modal', () => {
     });
 
     it('should send the selected strategy', async () => {
-        Object.defineProperty(window, 'location', {
-            value: { reload: jest.fn() },
-        });
-
         const changeShopIdMock = wrapper.vm.shopIdChangeService.changeShopId;
 
         const strategyButtons = wrapper.findAll('.sw-app-shop-id-change-modal__button-strategy');
@@ -149,9 +145,11 @@ describe('sw-app-shop-id-change-modal', () => {
         expect(strategyButtons).toHaveLength(3);
         await strategyButtons.at(1).trigger('click');
 
+        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
         await wrapper.get('.mt-button--primary').trigger('click');
 
         expect(changeShopIdMock.mock.calls[0][0].name).toMatch(strategies[1].name);
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(wrapper.vm._reloadPage).toHaveBeenCalled();
     });
 });

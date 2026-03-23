@@ -1,28 +1,23 @@
 import { createPinia, setActivePinia } from 'pinia';
-import { revokePermissions, grantPermissions } from './permissions';
+import * as permissions from './permissions';
 import { useShopwareServicesStore } from '../store/shopware-services.store';
 
 describe('src/module/sw-settings-services/composables/permissions', () => {
-    let originalLocation;
+    let reloadMock;
 
     beforeAll(() => {
         Shopware.Service().register('shopwareServicesService', () => ({
             acceptRevision: jest.fn(),
             revokePermissions: jest.fn(),
         }));
-
-        originalLocation = window.location;
-
-        Object.defineProperty(window, 'location', { configurable: true, value: { reload: jest.fn() } });
+        reloadMock = jest.fn();
+        permissions.__setReloadFn(reloadMock);
     });
 
     beforeEach(() => {
+        reloadMock.mockClear();
         setActivePinia(createPinia());
         useShopwareServicesStore();
-    });
-
-    afterAll(() => {
-        Object.defineProperty(window, 'location', { configurable: true, value: originalLocation });
     });
 
     it('calls shopware service and reloads', async () => {
@@ -38,20 +33,20 @@ describe('src/module/sw-settings-services/composables/permissions', () => {
             ],
         };
 
-        await grantPermissions();
+        await permissions.grantPermissions();
 
         expect(Shopware.Service('shopwareServicesService').acceptRevision).toHaveBeenCalledWith('2025-06-25');
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(reloadMock).toHaveBeenCalled();
     });
 
     it('throws exception if there is no current revision', async () => {
-        await expect(() => grantPermissions()).rejects.toThrow(new Error('No revision available'));
+        await expect(() => permissions.grantPermissions()).rejects.toThrow(new Error('No revision available'));
     });
 
     it('calls shopware service to revoke permissions and reloads', async () => {
-        await revokePermissions();
+        await permissions.revokePermissions();
 
         expect(Shopware.Service('shopwareServicesService').revokePermissions).toHaveBeenCalled();
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(reloadMock).toHaveBeenCalled();
     });
 });

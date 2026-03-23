@@ -6,10 +6,8 @@ import { dispatchConsentEvent } from 'src/core/consent/events';
 import template from './sw-settings-usage-data-store-data-consent.html.twig';
 import './sw-settings-usage-data-store-data-consent.scss';
 
-/* eslint-disable max-len */
 import SwSettingsUsageDataStoreDataConsentCard from '../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-store-data-consent-card';
 import SwSettingsUsageDataConsentCheckList from '../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-consent-check-list';
-/* eslint-enable max-len */
 
 /**
  * @private
@@ -58,11 +56,8 @@ export default Shopware.Component.wrapComponentConfig({
             try {
                 if (newValue) {
                     await consentStore.accept('backend_data');
-                    dispatchConsentEvent('consent_option_changed', { option: 'backend_data', state: 'enabled' });
                 } else {
                     await consentStore.revoke('backend_data');
-                    dispatchConsentEvent('consent_option_changed', { option: 'backend_data', state: 'disabled' });
-                    dispatchConsentEvent('consent_revoked', { accepted_options: [], declined_options: ['backend_data'] });
                 }
             } catch {
                 Shopware.Store.get('notification').createNotification({

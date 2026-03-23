@@ -11,6 +11,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Inc
 use Shopware\Core\Test\Stub\System\NumberRange\ValueGenerator\IncrementArrayStorage;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
  * @internal
@@ -31,12 +32,10 @@ class MigrateIncrementStorageCommandTest extends TestCase
         $this->arrayStorage = new IncrementArrayStorage([]);
 
         $command = new MigrateIncrementStorageCommand(
-            new IncrementStorageRegistry(new \ArrayObject(
-                [
-                    'SQL' => $this->sqlStorage,
-                    'Array' => $this->arrayStorage,
-                ]
-            ), 'SQL')
+            new IncrementStorageRegistry(new ServiceLocator([
+                'SQL' => fn () => $this->sqlStorage,
+                'Array' => fn () => $this->arrayStorage,
+            ]), 'SQL')
         );
 
         $this->tester = new CommandTester($command);

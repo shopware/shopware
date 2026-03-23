@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Flow;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
@@ -906,6 +907,92 @@ class SendMailActionTest extends TestCase
         $sendMailAction->handleFlow($flow);
 
         static::assertCount(2, $mailService->mail->getAttachments());
+    }
+
+    public function testSendMailWithMailTemplateMediaAttachment(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $context = $salesChannelContext->getContext();
+
+        $mailTemplateId = $this->retrieveMailTemplateId();
+
+        $mediaId = Uuid::randomHex();
+        $mediaPath = 'media/_test/' . $mediaId . '.png';
+
+        static::getContainer()->get('media.repository')->create([
+            [
+                'id' => $mediaId,
+                'fileName' => 'test-mail-attachment',
+                'fileExtension' => 'png',
+                'mimeType' => 'image/png',
+                'fileSize' => 10,
+                'path' => $mediaPath,
+            ],
+        ], $context);
+
+        /** @var FilesystemOperator $filesystem */
+        $filesystem = static::getContainer()->get('shopware.filesystem.public');
+        $filesystem->write($mediaPath, 'fake image content');
+
+        static::getContainer()->get('mail_template_media.repository')->create([
+            [
+                'id' => Uuid::randomHex(),
+                'mailTemplateId' => $mailTemplateId,
+                'mediaId' => $mediaId,
+                'languageId' => $context->getLanguageId(),
+                'position' => 0,
+            ],
+        ], $context);
+
+        $transportDecorator = new MailerTransportDecorator(
+            $this->createMock(TransportInterface::class),
+            static::getContainer()->get(MailAttachmentsBuilder::class),
+            $filesystem,
+            $this->documentRepository
+        );
+
+        $mailService = new TestEmailService(
+            static::getContainer()->get(MailFactory::class),
+            $transportDecorator
+        );
+
+        $sendMailAction = new SendMailAction(
+            $mailService,
+            $this->mailTemplateRepository,
+            static::getContainer()->get('logger'),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('mail_template_type.repository'),
+            static::getContainer()->get(Translator::class),
+            $this->connection,
+            static::getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(JsonEntityEncoder::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
+            true
+        );
+
+        $customerId = $this->createCustomer($context);
+        $orderId = $this->createOrder($customerId, $context);
+
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('transactions.stateMachineState');
+
+        /** @var OrderEntity $order */
+        $order = $this->orderRepository->search($criteria, $context)->first();
+
+        $event = new CheckoutOrderPlacedEvent($salesChannelContext, $order);
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig([
+            'mailTemplateId' => $mailTemplateId,
+            'recipient' => ['type' => 'customer'],
+        ]);
+
+        $sendMailAction->handleFlow($flow);
+
+        static::assertInstanceOf(Email::class, $mailService->mail);
+        static::assertCount(1, $mailService->mail->getAttachments());
+
+        $filesystem->delete($mediaPath);
     }
 
     private function createCustomer(Context $context): string

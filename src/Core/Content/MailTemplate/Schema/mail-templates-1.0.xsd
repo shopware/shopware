@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="mail-templates">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="mail-template" maxOccurs="unbounded" minOccurs="0" type="mail-template"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:unique name="uniqueMailTemplateTechnicalName">
+            <xs:selector xpath="mail-template"/>
+            <xs:field xpath="@technical-name"/>
+        </xs:unique>
+    </xs:element>
+    <xs:complexType name="mail-template">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="name" maxOccurs="unbounded" type="translatableString"/>
+            <xs:element name="subject" maxOccurs="unbounded" type="translatableString"/>
+            <xs:element name="sender-name" maxOccurs="unbounded" minOccurs="0" type="translatableString"/>
+            <xs:element name="description" maxOccurs="unbounded" minOccurs="0" type="translatableString"/>
+            <xs:element name="available-entities" minOccurs="0" type="available-entity-list"/>
+        </xs:choice>
+        <xs:attribute type="xs:string" name="technical-name" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="available-entity-list">
+        <xs:sequence>
+            <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="translatableString">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="lang" type="languageCode" default="en-GB"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:simpleType name="languageCode">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-z]{2,3}-[A-Z]{2}"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

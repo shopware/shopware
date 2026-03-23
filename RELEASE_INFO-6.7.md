@@ -115,6 +115,32 @@ Affected commands:
 - `bin/console dal:validate --json` → `bin/console dal:validate --format json`
 - `bin/console sales-channel:list --output json` → `bin/console sales-channel:list --format json`
 
+### Declarative mail templates for plugins and apps
+
+Plugins and apps can now define mail templates declaratively using a directory-based convention under `Resources/mail-templates/`. This replaces the need for PHP boilerplate to persist mail template types and templates via the DAL.
+
+The approach uses an XML file for metadata (type name, subject, sender name, etc.) and separate `.html.twig` / `.txt.twig` files for template content, preserving full IDE support for Twig editing.
+
+**Directory structure:**
+```
+Resources/
+  mail-templates/
+    mail-templates.xml
+    order_confirmation/
+      en-GB/
+        html.twig
+        plain.twig
+      de-DE/
+        html.twig
+        plain.twig
+```
+
+On plugin install/update, mail template types and their templates are automatically synced to the database. On uninstall (without `--keep-user-data`), they are removed.
+
+Templates that a merchant has edited in the Administration are not overwritten on update: once a mail template is changed through the API or Administration, its `was_modified_by_user` flag is set and the declarative sync leaves its content untouched.
+
+The `bin/console plugin:create` scaffolding command now offers a `--create-mail-template` option that generates the directory structure and example files.
+
 ## Administration
 
 ### Rule Builder cart total condition labels adjusted

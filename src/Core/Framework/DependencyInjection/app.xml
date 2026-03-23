@@ -167,6 +167,11 @@
             <tag name="shopware.app_lifecycle.persister" priority="-1100"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\MailTemplatePersister">
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\MailTemplateSetPersister"/>
+            <tag name="shopware.app_lifecycle.persister" priority="-1150"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister">
             <argument type="service" id="app_cms_block.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Cms\BlockTemplateLoader"/>

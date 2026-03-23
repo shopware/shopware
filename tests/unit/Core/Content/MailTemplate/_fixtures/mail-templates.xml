@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mail-templates xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="../../../../../../src/Core/Content/MailTemplate/Schema/mail-templates-1.0.xsd">
+    <mail-template technical-name="order_confirmation">
+        <name>Order confirmation</name>
+        <name lang="de-DE">Bestellbestätigung</name>
+        <subject>Your order {{ order.orderNumber }}</subject>
+        <subject lang="de-DE">Ihre Bestellung {{ order.orderNumber }}</subject>
+        <sender-name>{{ salesChannel.name }}</sender-name>
+        <sender-name lang="de-DE">{{ salesChannel.name }}</sender-name>
+        <description>Sent after order placement</description>
+        <description lang="de-DE">Wird nach Bestellaufgabe versendet</description>
+        <available-entities>
+            <order>order</order>
+            <salesChannel>salesChannel</salesChannel>
+        </available-entities>
+    </mail-template>
+</mail-templates>

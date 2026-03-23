@@ -173,7 +173,7 @@ class Privileges
             ['id' => Uuid::fromHexToBytes($appId)]
         );
 
-        $existingPrivileges = json_decode($existingPrivileges, true, \JSON_THROW_ON_ERROR);
+        $existingPrivileges = json_decode($existingPrivileges, true, flags: \JSON_THROW_ON_ERROR);
 
         sort($privileges);
         sort($existingPrivileges);
@@ -201,7 +201,7 @@ class Privileges
     {
         return array_map(
             static fn (?string $appPrivileges) => $appPrivileges
-                ? json_decode($appPrivileges, true, \JSON_THROW_ON_ERROR)
+                ? json_decode($appPrivileges, true, flags: \JSON_THROW_ON_ERROR)
                 : [],
             $privileges
         );
@@ -227,8 +227,8 @@ class Privileges
         );
 
         return array_map(static fn (array $row): array => [
-            json_decode($row['privileges'], true, \JSON_THROW_ON_ERROR),
-            json_decode($row['requested_privileges'], true, \JSON_THROW_ON_ERROR),
+            json_decode($row['privileges'], true, flags: \JSON_THROW_ON_ERROR),
+            json_decode($row['requested_privileges'], true, flags: \JSON_THROW_ON_ERROR),
         ], $privileges);
     }
 

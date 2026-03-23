@@ -61,14 +61,6 @@ return [
         // Return type is still of type "self" but more specific. Could never be something different from the InvalidSortQueryException, so this should be fine
         'CHANGED: The return type of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DataAbstractionLayerException.* changed from self to (?:the non-covariant )?Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Exception\\\\InvalidSortQueryException',
 
-        // Revert new feature, which was not released yet
-        preg_quote('REMOVED: Class Shopware\Storefront\DependencyInjection\TwigComponentBundlePass has been deleted', '/'),
-        preg_quote('REMOVED: Method Shopware\Storefront\Framework\Twig\Extension\ConfigExtension#componentImportMap() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\Storefront\Framework\Twig\TemplateConfigAccessor#componentImportMap() was removed', '/'),
-        preg_quote('REMOVED: Class Shopware\Storefront\Framework\Routing\StorybookRouteScopeAllowList has been deleted', '/'),
-        preg_quote('REMOVED: Method Shopware\Core\Framework\Bundle::getTwigComponentNamespace() was removed', '/'),
-        preg_quote('REMOVED: Method Shopware\Core\Framework\Bundle::getTwigComponentNamespace() was removed', '/'),
-
         /** Internal annotation on {@see SwTwigFunction} was not recognized correctly */
         preg_quote('CHANGED: Shopware\Core\Framework\Adapter\Twig\SwTwigFunction was marked "@internal"', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::escapeFilter() was removed', '/'),

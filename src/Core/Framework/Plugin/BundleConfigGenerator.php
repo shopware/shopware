@@ -84,6 +84,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                     'entryFilePath' => $this->getEntryFile($bundle->getPath(), 'Resources/app/storefront/src'),
                     'webpack' => $this->getWebpackConfig($bundle->getPath(), 'Resources/app/storefront'),
                     'styleFiles' => $this->getStyleFiles($bundle->getName(), $this->stripProjectDir($bundle->getPath())),
+                    'hasComponentAssets' => $this->hasStorefrontComponentAssets($bundle->getPath()),
                 ],
             ];
         }
@@ -110,6 +111,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                     'entryFilePath' => $this->getEntryFile($absolutePath, 'Resources/app/storefront/src'),
                     'webpack' => $this->getWebpackConfig($absolutePath, 'Resources/app/storefront'),
                     'styleFiles' => $this->getStyleFiles($app['name'], $app['path']),
+                    'hasComponentAssets' => $this->hasStorefrontComponentAssets($absolutePath),
                 ],
             ];
         }
@@ -187,6 +189,41 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
     private function asSnakeCase(string $string): string
     {
         return (new CamelCaseToSnakeCaseNameConverter())->normalize($string);
+    }
+
+    private function hasStorefrontComponentAssets(string $rootPath): bool
+    {
+        $componentPath = Path::join($rootPath, 'Resources', 'views', 'components');
+        if (!is_dir($componentPath)) {
+            return false;
+        }
+
+        $directory = new \RecursiveDirectoryIterator($componentPath, \FilesystemIterator::SKIP_DOTS);
+        $iterator = new \RecursiveIteratorIterator($directory);
+        $componentPrefixLength = \strlen($componentPath) + 1;
+
+        /** @var \SplFileInfo $file */
+        foreach ($iterator as $file) {
+            if (!$file->isFile()) {
+                continue;
+            }
+
+            $relativePath = str_replace('\\', '/', substr($file->getPathname(), $componentPrefixLength));
+
+            if (str_starts_with($relativePath, 'node_modules/') || str_contains($relativePath, '/node_modules/') || str_contains($relativePath, '.stories.')) {
+                continue;
+            }
+
+            if (preg_match('/\.test\.(js|ts)$/', $relativePath) === 1) {
+                continue;
+            }
+
+            if (preg_match('/\.(js|ts|scss|css)$/', $relativePath) === 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

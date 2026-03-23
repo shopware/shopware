@@ -173,6 +173,7 @@
         "symfony/translation-contracts": "~3.6.0",
         "symfony/twig-bridge": "~7.4.0",
         "symfony/twig-bundle": "~7.4.0",
+        "symfony/ux-twig-component": "~2.35.0",
         "symfony/validator": "~7.4.0",
         "symfony/var-exporter": "~7.4.0",
         "symfony/yaml": "~7.4.0",
@@ -301,6 +302,10 @@
         "static-analyze": "Launches the PHP Stan static analysis tool",
         "storefront:unit": "Launches the jest unit test-suite for the Storefront",
         "storefront:unit:watch": "Launches the interactive jest unit test-suite watcher for the Storefront",
+        "storefront:components:unit": "Launches the Vitest unit test-suite for Storefront components",
+        "storefront:components:unit:watch": "Launches the interactive Vitest unit test-suite watcher for Storefront components",
+        "storefront:dev-server": "Starts the Vite dev server for the Storefront (port 5175 by default, override with STOREFRONT_VITE_PORT)",
+        "storefront:storybook": "Runs the Storybook development server for the Storefront component library",
         "stylelint": "Codestyle checks all SCSS files of Administration and Storefront",
         "stylelint:admin": "Code Style checks for all Admin SCSS files",
         "stylelint:admin:fix": "Code Style checks for all Admin SCSS files and fixes them if possible",
@@ -312,7 +317,7 @@
         "translation:lint": "Validates existence of snippets in all core-supported languages",
         "translation:update": "Updates all installed translations from the translations GitHub repository",
         "watch:admin": "Enables hot module reloading for the Admin",
-        "watch:storefront": "Enables hot module reloading for the Storefront"
+        "watch:storefront": "Enables hot module reloading for the Storefront. Deprecated! Use 'storefront:dev-server' instead."
     },
     "scripts": {
         "admin:code-mods": "@npm:admin run code-mods --",
@@ -363,8 +368,8 @@
             "@php bin/console feature:dump",
             "@npm:storefront run production",
             "cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js",
-            "@php bin/console theme:compile --sync || true",
-            "@php bin/console assets:install"
+            "@php bin/console assets:install",
+            "@php bin/console theme:compile --sync || true"
         ],
         "check:license": "bash -c \"vendor/bin/composer-license-checker check -a $(sed -z 's/\\n/ -a /g' .allowed-licenses)\"",
         "ecs": [
@@ -466,8 +471,7 @@
         "reset": [
             "@init:db",
             "@build:js",
-            "@php bin/console theme:change --sync --all Storefront",
-            "@php bin/console assets:install"
+            "@php bin/console theme:change --sync --all Storefront"
         ],
         "setup": [
             "@composer install -o",
@@ -475,8 +479,7 @@
             "@init:db",
             "@init:js",
             "@build:js",
-            "@php bin/console theme:change --sync --all Storefront",
-            "@php bin/console assets:install"
+            "@php bin/console theme:change --sync --all Storefront"
         ],
         "static-analyze": [
             "@phpstan src/"
@@ -487,6 +490,24 @@
         "storefront:unit:watch": [
             "Composer\\Config::disableProcessTimeout",
             "@npm:storefront run unit-watch"
+        ],
+        "storefront:components:unit": [
+            "@npm:storefront run unit:components"
+        ],
+        "storefront:components:unit:watch": [
+            "Composer\\Config::disableProcessTimeout",
+            "@npm:storefront run unit:components:watch"
+        ],
+        "storefront:dev-server": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php bin/console bundle:dump",
+            "@php bin/console feature:dump",
+            "@php bin/console theme:dump",
+            "@npm:storefront run dev:server"
+        ],
+        "storefront:storybook": [
+            "Composer\\Config::disableProcessTimeout",
+            "@npm:storefront run storybook"
         ],
         "stylelint": [
             "@stylelint:admin src/**/*.scss",

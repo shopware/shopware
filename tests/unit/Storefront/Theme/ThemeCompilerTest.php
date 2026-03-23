@@ -104,7 +104,6 @@ class ThemeCompilerTest extends TestCase
 
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->tempFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
-
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
     }
 
@@ -826,6 +825,7 @@ PHP_EOL,
         return new ThemeCompiler(
             $this->filesystem,
             $this->tempFilesystem,
+            new Filesystem(new InMemoryFilesystemAdapter()),
             $this->copyBatchInputFactory,
             $this->themeFileResolver,
             true,

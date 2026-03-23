@@ -76,6 +76,7 @@ class ThemeCompilerTest extends TestCase
         $this->themeCompiler = new ThemeCompiler(
             $mockFilesystem,
             $mockFilesystem,
+            static::getContainer()->get('shopware.filesystem.public'),
             new CopyBatchInputFactory(),
             $themeFileResolver,
             true,
@@ -86,8 +87,6 @@ class ThemeCompilerTest extends TestCase
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
-            [],
-            false
         );
     }
 
@@ -442,10 +441,10 @@ PHP_EOL;
 
         $fs = new Filesystem(new InMemoryFilesystemAdapter());
         $tmpFs = new Filesystem(new InMemoryFilesystemAdapter());
-
         $compiler = new ThemeCompiler(
             $fs,
             $tmpFs,
+            static::getContainer()->get('shopware.filesystem.public'),
             new CopyBatchInputFactory(),
             $resolver,
             true,
@@ -456,8 +455,6 @@ PHP_EOL;
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
-            [],
-            false
         );
 
         $exception = null;

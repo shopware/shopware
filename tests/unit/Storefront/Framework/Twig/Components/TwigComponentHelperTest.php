@@ -3,7 +3,11 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Components;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\DirectoryAttributes;
+use League\Flysystem\DirectoryListing;
+use League\Flysystem\FileAttributes;
 use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
@@ -263,6 +267,129 @@ class TwigComponentHelperTest extends TestCase
         $sourceResolver->method('filesystemForAppName')
             ->with('AppWithNoComponents')
             ->willReturn($appFilesystem);
+
+        $helper = new TwigComponentHelper(
+            [],
+            self::PROJECT_DIR,
+            $connection,
+            $sourceResolver,
+            $this->filesystem,
+        );
+
+        static::assertCount(0, $helper->getComponents());
+    }
+
+    public function testGetComponentNameFromPathStripsComponentsPrefix(): void
+    {
+        $name = TwigComponentHelper::getComponentNameFromPath('components/Sw/Button.html.twig');
+
+        static::assertSame('Sw:Button', $name);
+    }
+
+    public function testGetComponentsSkipsAppWhenListContentsThrows(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([['namespace' => 'TestApp']]);
+
+        $appFilesystem = $this->createMock(UtilFilesystem::class);
+        $appFilesystem->method('has')->with(TwigComponentHelper::COMPONENT_DIRECTORY)->willReturn(true);
+        $appFilesystem->method('path')->willReturn(
+            Path::join(self::PROJECT_DIR, 'app-root', TwigComponentHelper::COMPONENT_DIRECTORY)
+        );
+
+        $sourceResolver = $this->createMock(SourceResolver::class);
+        $sourceResolver->method('filesystemForAppName')->willReturn($appFilesystem);
+
+        $localFilesystem = $this->createMock(FilesystemOperator::class);
+        $localFilesystem->method('directoryExists')->willReturn(true);
+        $localFilesystem->method('listContents')->willThrowException(new \RuntimeException('Filesystem error'));
+
+        $helper = new TwigComponentHelper(
+            [],
+            self::PROJECT_DIR,
+            $connection,
+            $sourceResolver,
+            $localFilesystem,
+        );
+
+        static::assertCount(0, $helper->getComponents());
+    }
+
+    public function testGetComponentsSkipsNonFileAttributesItems(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([['namespace' => 'TestApp']]);
+
+        $appFilesystem = $this->createMock(UtilFilesystem::class);
+        $appFilesystem->method('has')->with(TwigComponentHelper::COMPONENT_DIRECTORY)->willReturn(true);
+        $appFilesystem->method('path')->willReturn(
+            Path::join(self::PROJECT_DIR, 'app-root', TwigComponentHelper::COMPONENT_DIRECTORY)
+        );
+
+        $sourceResolver = $this->createMock(SourceResolver::class);
+        $sourceResolver->method('filesystemForAppName')->willReturn($appFilesystem);
+
+        $relativeDir = 'app-root/Resources/views/components';
+        $localFilesystem = $this->createMock(FilesystemOperator::class);
+        $localFilesystem->method('directoryExists')->willReturn(true);
+        $localFilesystem->method('listContents')->willReturn(
+            new DirectoryListing([
+                new DirectoryAttributes($relativeDir . '/Subfolder'),
+                new FileAttributes($relativeDir . '/Button.html.twig'),
+            ])
+        );
+
+        $helper = new TwigComponentHelper(
+            [],
+            self::PROJECT_DIR,
+            $connection,
+            $sourceResolver,
+            $localFilesystem,
+        );
+
+        $components = $helper->getComponents();
+
+        static::assertCount(1, $components);
+        static::assertTrue($components->has('TestApp:Button'));
+    }
+
+    public function testGetComponentsSkipsAppWhenRelativeDirIsOutsideProjectDir(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([['namespace' => 'TestApp']]);
+
+        $appFilesystem = $this->createMock(UtilFilesystem::class);
+        $appFilesystem->method('has')->with(TwigComponentHelper::COMPONENT_DIRECTORY)->willReturn(true);
+        $appFilesystem->method('path')->willReturn('/outside/project/components/');
+
+        $sourceResolver = $this->createMock(SourceResolver::class);
+        $sourceResolver->method('filesystemForAppName')->willReturn($appFilesystem);
+
+        $helper = new TwigComponentHelper(
+            [],
+            self::PROJECT_DIR,
+            $connection,
+            $sourceResolver,
+            $this->filesystem,
+        );
+
+        static::assertCount(0, $helper->getComponents());
+    }
+
+    public function testGetComponentsSkipsAppWhenLocalDirectoryDoesNotExist(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([['namespace' => 'TestApp']]);
+
+        $appFilesystem = $this->createMock(UtilFilesystem::class);
+        $appFilesystem->method('has')->with(TwigComponentHelper::COMPONENT_DIRECTORY)->willReturn(true);
+        // Points inside project dir, but no files are written there → directoryExists returns false
+        $appFilesystem->method('path')->willReturn(
+            Path::join(self::PROJECT_DIR, 'nonexistent-app', TwigComponentHelper::COMPONENT_DIRECTORY)
+        );
+
+        $sourceResolver = $this->createMock(SourceResolver::class);
+        $sourceResolver->method('filesystemForAppName')->willReturn($appFilesystem);
 
         $helper = new TwigComponentHelper(
             [],

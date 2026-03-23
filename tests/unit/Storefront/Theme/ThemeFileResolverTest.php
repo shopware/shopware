@@ -962,6 +962,37 @@ class ThemeFileResolverTest extends TestCase
         static::assertCount(1, $result, 'Duplicate @Namespace reference should be expanded only once');
     }
 
+    public function testResolveStyleFilesWithComponentsPlaceholder(): void
+    {
+        $config = new StorefrontPluginConfiguration('TestTheme');
+        $config->setStyleFiles(FileCollection::createFromArray(['@Components']));
+        $config->setScriptFiles(new FileCollection());
+
+        $configCollection = new StorefrontPluginConfigurationCollection([$config]);
+
+        $component = new class('Sw:Button', '/base/Storefront/Resources/views/components/Sw/Button.html.twig', 'Storefront') extends TwigComponent {
+            public function getStylePath(): string
+            {
+                return '/base/Storefront/Resources/views/components/Sw/Button/Button.css';
+            }
+        };
+
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $twigComponentHelper->method('getComponents')
+            ->willReturn(new TwigComponentCollection([$component]));
+
+        $localFilesystem = $this->createMock(Filesystem::class);
+        $localFilesystem->method('exists')->willReturn(true);
+
+        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper, $localFilesystem);
+
+        $result = $resolver->resolveStyleFiles($config, $configCollection, false);
+
+        static::assertCount(1, $result);
+        static::assertStringContainsString('Button.css', (string) $result->first()?->getFilepath());
+    }
+
     public function testResolveComponentSingleFileForScriptFilesType(): void
     {
         // The reference @Components:MyPlugin/Custom/Test.js resolves to a component

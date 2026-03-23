@@ -960,6 +960,59 @@ class ThemeCompilerTest extends TestCase
         ];
     }
 
+    public function testCopyComponentScriptFilesIncludesComponentWithExistingScript(): void
+    {
+        // php://temp is a PHP stream wrapper: fopen() succeeds without touching the real filesystem
+        $component = new class('Sw:Button', '/any/path.html.twig', 'Storefront') extends TwigComponent {
+            public function getScriptPath(): string
+            {
+                return 'php://temp';
+            }
+        };
+
+        $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $twigComponentHelper->method('getComponents')->willReturn(new TwigComponentCollection([$component]));
+
+        $this->setupBasicFileResolution();
+        $this->scssPhpCompiler->method('compileString')->willReturn('compiled css');
+
+        $localFilesystem = $this->createMock(LocalFilesystem::class);
+        $localFilesystem->method('exists')->willReturn(true);
+
+        $compiler = new ThemeCompiler(
+            $this->filesystem,
+            $this->tempFilesystem,
+            $this->copyBatchInputFactory,
+            $this->themeFileResolver,
+            $twigComponentHelper,
+            true,
+            $this->eventDispatcher,
+            $this->themeFilesystemResolver,
+            ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
+            $this->cacheInvalidator,
+            $this->logger,
+            $this->pathBuilder,
+            $this->scssPhpCompiler,
+            [],
+            false,
+            Visibility::PUBLIC,
+            $localFilesystem,
+        );
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'theme-id',
+            $this->createThemeConfig('TestTheme'),
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
+
+        $themePrefix = $this->pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-id');
+        $expectedPath = 'theme/' . $themePrefix . '/js/components/Sw/Button.js';
+        static::assertTrue($this->filesystem->fileExists($expectedPath));
+    }
+
     // ===================================
     // Helper Methods
     // ===================================

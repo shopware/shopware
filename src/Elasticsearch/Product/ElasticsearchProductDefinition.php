@@ -542,7 +542,8 @@ SQL;
                 $categories = $base[$id]['categories'] ?? [];
                 $translatedCategories = ElasticsearchIndexingUtils::parseJson($translation, 'categories');
 
-                if ($translation['customSearchKeywords'] !== null && $translation['customSearchKeywords'] !== '') {
+                $customSearchKeywords = $translation['customSearchKeywords'] ?? null;
+                if ($customSearchKeywords !== null && $customSearchKeywords !== '') {
                     $translation['customSearchKeywords'] = ElasticsearchIndexingUtils::parseJson($translation, 'customSearchKeywords');
                 }
 

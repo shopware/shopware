@@ -114,7 +114,7 @@ class ThemeLifecycleService
 
         $this->themeRepository->upsert([$themeData], $context);
 
-        if ($themeData['toDeleteMedia'] !== []) {
+        if (($themeData['toDeleteMedia'] ?? []) !== []) {
             $this->themeMediaRepository->delete($themeData['toDeleteMedia'], $context);
         }
 

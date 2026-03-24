@@ -23,7 +23,7 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
 
     public function isValid(Request $request, array $captchaConfig): bool
     {
-        if (!$request->request->has(self::CAPTCHA_REQUEST_PARAMETER)) {
+        if (!$request->request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
             return false;
         }
 
@@ -42,9 +42,15 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
             ]);
 
             $responseRaw = $response->getBody()->getContents();
-            $response = json_decode($responseRaw, true, flags: \JSON_THROW_ON_ERROR);
+            try {
+                $response = json_decode($responseRaw, true, flags: \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                $response = [];
+            }
 
-            return $response && $response['success'];
+            return \is_array($response)
+                && $response !== []
+                && $response['success'];
         } catch (ClientExceptionInterface) {
             return false;
         }

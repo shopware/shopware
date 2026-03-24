@@ -24,7 +24,7 @@ class GoogleReCaptchaV3 extends AbstractCaptcha
 
     public function isValid(Request $request, array $captchaConfig): bool
     {
-        if (!$request->request->has(self::CAPTCHA_REQUEST_PARAMETER)) {
+        if (!$request->request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
             return false;
         }
 
@@ -43,14 +43,21 @@ class GoogleReCaptchaV3 extends AbstractCaptcha
             ]);
 
             $responseRaw = $response->getBody()->getContents();
-            $response = json_decode($responseRaw, true, flags: \JSON_THROW_ON_ERROR);
+            try {
+                $response = json_decode($responseRaw, true, flags: \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                $response = [];
+            }
 
             $thresholdScore = (float) ($captchaConfig['config']['thresholdScore'] ?? self::DEFAULT_THRESHOLD_SCORE);
             if ($thresholdScore === 0.0) {
                 $thresholdScore = self::DEFAULT_THRESHOLD_SCORE;
             }
 
-            return $response && $response['success'] && ((float) $response['score']) >= $thresholdScore;
+            return \is_array($response)
+                && $response !== []
+                && $response['success']
+                && ((float) $response['score']) >= $thresholdScore;
         } catch (ClientExceptionInterface) {
             return false;
         }

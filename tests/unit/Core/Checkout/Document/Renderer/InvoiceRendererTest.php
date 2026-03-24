@@ -17,7 +17,6 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -50,7 +49,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  *
  * @phpstan-type OrderSettings array{accountType: string, isCountryCompanyTaxFree: bool, setOrderDelivery: bool, setShippingCountry: bool, setEuCountry: bool, shouldCheckVatIdPattern?: bool, validVat?: bool}
- * @phpstan-type InvoiceConfig array{displayAdditionalNoteDelivery: bool, deliveryCountries: array<string>}
+ * @phpstan-type InvoiceConfig array{displayAdditionalNoteDelivery: bool}
  */
 #[Package('after-sales')]
 #[CoversClass(InvoiceRenderer::class)]
@@ -138,7 +137,6 @@ class InvoiceRendererTest extends TestCase
         static::assertCount(1, $successResults);
         static::assertCount(0, $result->getErrors());
         static::assertArrayHasKey($orderId, $successResults);
-        static::assertInstanceOf(RenderedDocument::class, $successResults[$orderId]);
 
         static::assertNotNull($successResults[$orderId]->getOrder());
         static::assertNotNull($successResults[$orderId]->getContext());

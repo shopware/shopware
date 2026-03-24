@@ -165,7 +165,7 @@ class StornoRendererTest extends TestCase
     }
 
     /**
-     * @param array<string, string> $additionalConfig
+     * @param array{documentNumber: string, fileTypes: list<string>, custom?: array<string, string>} $additionalConfig
      */
     #[DataProvider('stornoNoteRendererDataProvider')]
     public function testRender(array $additionalConfig, \Closure $assertionCallback): void
@@ -221,7 +221,6 @@ class StornoRendererTest extends TestCase
         static::assertNotNull($order);
         static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
         $rendered = $processedTemplate->getSuccess()[$orderId];
-        static::assertInstanceOf(RenderedDocument::class, $rendered);
         static::assertStringContainsString('<html lang="en-GB">', $rendered->getContent());
         static::assertStringContainsString('</html>', $rendered->getContent());
         $assertionCallback($rendered);
@@ -250,6 +249,9 @@ class StornoRendererTest extends TestCase
         );
     }
 
+    /**
+     * @return \Generator<string, array{array{documentNumber: string, fileTypes: list<string>, custom?: array<string, string>}, \Closure}>
+     */
     public static function stornoNoteRendererDataProvider(): \Generator
     {
         yield 'render storno successfully' => [

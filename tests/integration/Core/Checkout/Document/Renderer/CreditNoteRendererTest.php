@@ -192,7 +192,7 @@ class CreditNoteRendererTest extends TestCase
     /**
      * @param array<int, int> $possibleTaxes
      * @param array<int, int> $creditPrices
-     * @param array<string, int> $additionalConfig
+     * @param array<string, int|string|array<string, string>> $additionalConfig
      */
     #[DataProvider('creditNoteRendererDataProvider')]
     public function testRender(
@@ -328,7 +328,6 @@ class CreditNoteRendererTest extends TestCase
                     $rendered->getContent()
                 );
             },
-            null,
         ];
 
         yield 'render credit_note without credit items' => [

@@ -61,6 +61,12 @@ The following methods are now abstract and must be implemented by extensions. Th
 
 <details>
 
+## Changed behaviour of default fields in EntityDefinition
+
+From now on, the defined fields of an EntityDefinition are applied after the default fields.
+This makes it possible to properly overwrite the current default fields `createdAt` and `updatedAt`.
+Check your EntityDefinitions if your entities still behave like intended. (Only applicable if you manually add `CreatedAtField` and/or `UpdatedAtField`)
+
 ## Multiple payment finalize calls allowed
 
 Multiple calls to the `/payment-finalize` endpoint using the same payment token are now allowed.
@@ -530,7 +536,7 @@ Instead of using the `link` property of the `manufacturer` entity directly, the 
 
 The increment-based message queue statistics system (displayed indexing progress notifications in the Administration) has been removed.
 
-### Removed deprecated `TemplateGroup` class
+## Removed deprecated `TemplateGroup` class
 
 The deprecated class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been removed.
 
@@ -550,6 +556,12 @@ shopware:
         increment_name:
           type: 'mysql'
 ```
+
+### Changed Exception Classes towards domain exceptions
+
+The following exception classes were removed and replaced by domain exceptions:
+* `\Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException` -> `\Shopware\Core\System\NumberRange\Exception\NumberRangeException::incrementStorageNotFound()`
+* `\Shopware\Core\System\NumberRange\Exception\NoConfigurationException` -> `\Shopware\Core\System\NumberRange\NumberRangeException::noConfigurationForEntity()`
 
 </details>
 

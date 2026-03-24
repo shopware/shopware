@@ -242,6 +242,10 @@ custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
 
 ## Administration
 
+### CMS data mapping source for media custom fields
+
+Fixed media custom fields not being available as data mapping source for image elements in category and product CMS layouts. Shop Administrators can now reliably bind media custom fields to images in CMS pages without workarounds.
+
 ## Storefront
 
 ### New Component System

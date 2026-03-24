@@ -230,7 +230,6 @@ const missingTests = [
     'src/module/sw-cms/blocks/image/image-slider/preview/index.js',
     'src/module/sw-cms/blocks/sidebar/sidebar-filter/preview/index.js',
     'src/module/sw-cms/component/index.ts',
-    'src/module/sw-cms/component/sw-cms-mapping-field/index.ts',
     'src/module/sw-cms/component/sw-cms-page-select/index.ts',
     'src/module/sw-cms/component/sw-cms-product-box-preview/index.ts',
     'src/module/sw-cms/component/sw-cms-section/sw-cms-section-config/index.ts',

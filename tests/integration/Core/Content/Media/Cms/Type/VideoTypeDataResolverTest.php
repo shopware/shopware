@@ -91,6 +91,36 @@ class VideoTypeDataResolverTest extends TestCase
         static::assertEquals($expectedCriteria, $mediaCriteria);
     }
 
+    public function testCollectWithMappedMediaCustomFieldId(): void
+    {
+        $product = new ProductEntity();
+        $product->setCustomFields(['heroVideo' => 'media123']);
+
+        $resolverContext = new EntityResolverContext(
+            $this->createMock(SalesChannelContext::class),
+            new Request(),
+            $this->createMock(ProductDefinition::class),
+            $product,
+        );
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_MAPPED, 'product.customFields.heroVideo'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('video');
+        $slot->setFieldConfig($fieldConfig);
+
+        $criteriaCollection = $this->videoResolver->collect($slot, $resolverContext);
+
+        static::assertNotNull($criteriaCollection);
+
+        $expectedCriteria = new Criteria(['media123']);
+        $mediaCriteria = $criteriaCollection->all()[MediaDefinition::class]['media_' . $slot->getUniqueIdentifier()];
+
+        static::assertEquals($expectedCriteria, $mediaCriteria);
+    }
+
     public function testEnrichWithEmptyConfig(): void
     {
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
@@ -270,6 +300,49 @@ class VideoTypeDataResolverTest extends TestCase
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_MAPPED, 'cover.media'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('video');
+        $slot->setFieldConfig($fieldConfig);
+
+        $this->videoResolver->enrich($slot, $resolverContext, $result);
+
+        $videoStruct = $slot->getData();
+        static::assertInstanceOf(VideoStruct::class, $videoStruct);
+        static::assertSame('media123', $videoStruct->getMediaId());
+        static::assertSame($media, $videoStruct->getMedia());
+    }
+
+    public function testMediaWithMappedCustomFieldId(): void
+    {
+        $media = new MediaEntity();
+        $media->setUniqueIdentifier('media123');
+
+        $product = new ProductEntity();
+        $product->setCustomFields(['heroVideo' => 'media123']);
+
+        $resolverContext = new EntityResolverContext(
+            $this->createMock(SalesChannelContext::class),
+            new Request(),
+            $this->createMock(ProductDefinition::class),
+            $product,
+        );
+
+        $mediaSearchResult = new EntitySearchResult(
+            'media',
+            1,
+            new MediaCollection([$media]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $result = new ElementDataCollection();
+        $result->add('media_id', $mediaSearchResult);
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_MAPPED, 'product.customFields.heroVideo'));
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');

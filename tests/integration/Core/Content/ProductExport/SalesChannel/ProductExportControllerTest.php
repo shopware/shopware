@@ -300,7 +300,7 @@ class ProductExportControllerTest extends TestCase
         $this->repository->upsert([
             [
                 'id' => $productExportId,
-                'fileName' => 'Testexport',
+                'fileName' => Uuid::randomHex(),
                 'accessKey' => Uuid::randomHex(),
                 'encoding' => $encoding,
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
@@ -332,7 +332,7 @@ class ProductExportControllerTest extends TestCase
         $this->repository->upsert([
             [
                 'id' => $productExportId,
-                'fileName' => 'Testexport',
+                'fileName' => Uuid::randomHex(),
                 'accessKey' => Uuid::randomHex(),
                 'encoding' => $encoding,
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_XML,

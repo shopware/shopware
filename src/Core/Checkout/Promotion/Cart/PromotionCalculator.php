@@ -409,6 +409,10 @@ class PromotionCalculator
 
             foreach ($package->getMetaData() as $key => $item) {
                 if (!\array_key_exists($key, $cartItems)) {
+                    if (!\array_key_exists($item->getLineItemId(), $splitItems)) {
+                        continue;
+                    }
+
                     $cartItems[$key] = $splitItems[$item->getLineItemId()];
                 }
             }

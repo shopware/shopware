@@ -9,6 +9,11 @@ use Shopware\Core\Framework\Plugin\Event\AssetUploadEvent;
 
 /**
  * @internal
+ *
+ * The `AssetUploadEvent` event is used to put the vite entrypoint and manifest files at the end of the copy process.
+ * This ensures, that the old admin assets still can be served until all new assets are copied.
+ * Otherwise, the vite entrypoint and manifest files were copied first, but the new assets were still missing and in progress to be copied.
+ * This would cause the admin to crash until all new assets were copied.
  */
 #[Package('framework')]
 class AssetUploadListener

@@ -250,6 +250,7 @@ export default function createLoginService(
                         refresh_token: token,
                     },
                     {
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                         baseURL: context.apiPath!,
                     },
                 );

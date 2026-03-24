@@ -275,7 +275,7 @@ class RuleConditionPersisterTest extends TestCase
 
     public function testPersistHydratesConstraintsForBoolField(): void
     {
-        $result = unserialize($this->getConstraintsForField(BoolField::fromArray(['name' => 'my-field'])));
+        $result = $this->getConstraintsForField(BoolField::fromArray(['name' => 'my-field']));
 
         static::assertArrayHasKey('my-field', $result);
         static::assertCount(1, $result['my-field']);
@@ -285,7 +285,7 @@ class RuleConditionPersisterTest extends TestCase
 
     public function testPersistHydratesConstraintsForFloatField(): void
     {
-        $result = unserialize($this->getConstraintsForField(FloatField::fromArray(['name' => 'my-field'])));
+        $result = $this->getConstraintsForField(FloatField::fromArray(['name' => 'my-field']));
 
         static::assertArrayHasKey('my-field', $result);
         static::assertCount(1, $result['my-field']);
@@ -295,7 +295,7 @@ class RuleConditionPersisterTest extends TestCase
 
     public function testPersistHydratesConstraintsForIntField(): void
     {
-        $result = unserialize($this->getConstraintsForField(IntField::fromArray(['name' => 'my-field'])));
+        $result = $this->getConstraintsForField(IntField::fromArray(['name' => 'my-field']));
 
         static::assertArrayHasKey('my-field', $result);
         static::assertCount(1, $result['my-field']);
@@ -305,7 +305,7 @@ class RuleConditionPersisterTest extends TestCase
 
     public function testPersistHydratesConstraintsForPriceField(): void
     {
-        $result = unserialize($this->getConstraintsForField(PriceField::fromArray(['name' => 'my-field'])));
+        $result = $this->getConstraintsForField(PriceField::fromArray(['name' => 'my-field']));
 
         static::assertArrayHasKey('my-field', $result);
         static::assertSame([], $result['my-field']);
@@ -313,7 +313,7 @@ class RuleConditionPersisterTest extends TestCase
 
     public function testPersistHydratesConstraintsForMultiEntitySelectField(): void
     {
-        $result = unserialize($this->getConstraintsForField(MultiEntitySelectField::fromArray(['name' => 'my-field', 'entity' => 'product'])));
+        $result = $this->getConstraintsForField(MultiEntitySelectField::fromArray(['name' => 'my-field', 'entity' => 'product']));
 
         static::assertArrayHasKey('my-field', $result);
         static::assertCount(1, $result['my-field']);
@@ -322,7 +322,7 @@ class RuleConditionPersisterTest extends TestCase
 
     public function testPersistHydratesConstraintsForSingleEntitySelectField(): void
     {
-        $result = unserialize($this->getConstraintsForField(SingleEntitySelectField::fromArray(['name' => 'my-field', 'entity' => 'product'])));
+        $result = $this->getConstraintsForField(SingleEntitySelectField::fromArray(['name' => 'my-field', 'entity' => 'product']));
 
         static::assertArrayHasKey('my-field', $result);
         static::assertCount(1, $result['my-field']);
@@ -331,7 +331,7 @@ class RuleConditionPersisterTest extends TestCase
 
     public function testPersistHydratesConstraintsForMediaSelectionField(): void
     {
-        $result = unserialize($this->getConstraintsForField(MediaSelectionField::fromArray(['name' => 'my-field'])));
+        $result = $this->getConstraintsForField(MediaSelectionField::fromArray(['name' => 'my-field']));
 
         static::assertArrayHasKey('my-field', $result);
         static::assertCount(1, $result['my-field']);
@@ -341,7 +341,7 @@ class RuleConditionPersisterTest extends TestCase
     public function testPersistHydratesConstraintsForSingleSelectField(): void
     {
         $field = SingleSelectField::fromArray(['name' => 'my-field', 'options' => ['opt1' => 'Option 1', 'opt2' => 'Option 2']]);
-        $result = unserialize($this->getConstraintsForField($field));
+        $result = $this->getConstraintsForField($field);
 
         static::assertArrayHasKey('my-field', $result);
         static::assertCount(1, $result['my-field']);
@@ -352,19 +352,21 @@ class RuleConditionPersisterTest extends TestCase
     public function testPersistHydratesConstraintsForMultiSelectField(): void
     {
         $field = MultiSelectField::fromArray(['name' => 'my-field', 'options' => ['opt1' => 'Option 1', 'opt2' => 'Option 2']]);
-        $result = unserialize($this->getConstraintsForField($field));
+        $result = $this->getConstraintsForField($field);
 
         static::assertArrayHasKey('my-field', $result);
         static::assertCount(1, $result['my-field']);
         static::assertInstanceOf(All::class, $result['my-field'][0]);
-        static::assertCount(1, $result['my-field'][0]->constraints);
-        static::assertInstanceOf(Choice::class, $result['my-field'][0]->constraints[0]);
-        static::assertSame(['opt1', 'opt2'], $result['my-field'][0]->constraints[0]->choices);
+        $allConstraint = $result['my-field'][0];
+        static::assertIsArray($allConstraint->constraints);
+        static::assertCount(1, $allConstraint->constraints);
+        static::assertInstanceOf(Choice::class, $allConstraint->constraints[0]);
+        static::assertSame(['opt1', 'opt2'], $allConstraint->constraints[0]->choices);
     }
 
     public function testPersistHydratesConstraintsForDefaultStringField(): void
     {
-        $result = unserialize($this->getConstraintsForField(TextField::fromArray(['name' => 'my-field'])));
+        $result = $this->getConstraintsForField(TextField::fromArray(['name' => 'my-field']));
 
         static::assertArrayHasKey('my-field', $result);
         static::assertCount(1, $result['my-field']);
@@ -374,7 +376,7 @@ class RuleConditionPersisterTest extends TestCase
 
     public function testPersistHydratesConstraintsAddsNotBlankForRequiredField(): void
     {
-        $result = unserialize($this->getConstraintsForField(BoolField::fromArray(['name' => 'my-field', 'required' => true])));
+        $result = $this->getConstraintsForField(BoolField::fromArray(['name' => 'my-field', 'required' => true]));
 
         static::assertArrayHasKey('my-field', $result);
         static::assertCount(2, $result['my-field']);
@@ -383,7 +385,10 @@ class RuleConditionPersisterTest extends TestCase
         static::assertSame('bool', $result['my-field'][1]->type);
     }
 
-    private function getConstraintsForField(CustomFieldType $field): string
+    /**
+     * @return array<string, list<mixed>>
+     */
+    private function getConstraintsForField(CustomFieldType $field): array
     {
         /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([$this->buildApp(new AppScriptConditionCollection())])]);
@@ -403,7 +408,8 @@ class RuleConditionPersisterTest extends TestCase
         $persister = $this->buildPersister($appRepository, $conditionRepository);
         $persister->persist($this->buildLifecycleContext($this->createManifest([$condition])));
 
-        return $conditionRepository->upserts[0][0]['constraints'];
+        /** @phpstan-ignore shopware.unserializeUsage */
+        return unserialize($conditionRepository->upserts[0][0]['constraints']);
     }
 
     /**

@@ -10,9 +10,9 @@ use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionE
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
-use Shopware\Core\Framework\App\Lifecycle\Persister\Extension\RuleConditionActivateExtension;
-use Shopware\Core\Framework\App\Lifecycle\Persister\Extension\RuleConditionDeactivateExtension;
-use Shopware\Core\Framework\App\Lifecycle\Persister\Extension\RuleConditionPersistExtension;
+use Shopware\Core\Framework\App\Lifecycle\Persister\Event\RuleConditionActivateEvent;
+use Shopware\Core\Framework\App\Lifecycle\Persister\Event\RuleConditionDeactivateEvent;
+use Shopware\Core\Framework\App\Lifecycle\Persister\Event\RuleConditionPersistEvent;
 use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -31,7 +31,6 @@ use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Manifest\Xml\RuleCondition\RuleCondition;
 use Shopware\Core\Framework\App\Manifest\Xml\RuleCondition\RuleConditions;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
@@ -60,7 +59,7 @@ class RuleConditionPersisterTest extends TestCase
         $this->eventDispatcher = new CollectingEventDispatcher();
     }
 
-    public function testPersistDispatchesPreAndPostExtensionEvents(): void
+    public function testPersistDispatchesEvent(): void
     {
         /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([$this->buildApp(new AppScriptConditionCollection())])]);
@@ -74,12 +73,11 @@ class RuleConditionPersisterTest extends TestCase
         $persister->persist($context);
 
         $events = $this->eventDispatcher->getEvents();
-        static::assertArrayHasKey(RuleConditionPersistExtension::NAME . '.pre', $events);
-        static::assertArrayHasKey(RuleConditionPersistExtension::NAME . '.post', $events);
-        static::assertInstanceOf(RuleConditionPersistExtension::class, $events[RuleConditionPersistExtension::NAME . '.pre']);
+        static::assertArrayHasKey(RuleConditionPersistEvent::class, $events);
+        static::assertInstanceOf(RuleConditionPersistEvent::class, $events[RuleConditionPersistEvent::class]);
     }
 
-    public function testPersistExtensionCarriesLifecycleContext(): void
+    public function testPersistEventCarriesLifecycleContext(): void
     {
         /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([$this->buildApp(new AppScriptConditionCollection())])]);
@@ -92,9 +90,9 @@ class RuleConditionPersisterTest extends TestCase
 
         $persister->persist($context);
 
-        $extension = $this->eventDispatcher->getEvents()[RuleConditionPersistExtension::NAME . '.pre'];
-        static::assertInstanceOf(RuleConditionPersistExtension::class, $extension);
-        static::assertSame($context, $extension->context);
+        $event = $this->eventDispatcher->getEvents()[RuleConditionPersistEvent::class];
+        static::assertInstanceOf(RuleConditionPersistEvent::class, $event);
+        static::assertSame($context, $event->getContext());
     }
 
     public function testPersistUpsertsNewConditions(): void
@@ -188,7 +186,7 @@ class RuleConditionPersisterTest extends TestCase
         static::assertEmpty($conditionRepository->upserts);
     }
 
-    public function testActivateConditionScriptsDispatchesExtensionEvents(): void
+    public function testActivateConditionScriptsDispatchesEvent(): void
     {
         /** @var StaticEntityRepository<AppScriptConditionCollection> $conditionRepository */
         $conditionRepository = new StaticEntityRepository([[]]);
@@ -200,9 +198,8 @@ class RuleConditionPersisterTest extends TestCase
         $persister->activateConditionScripts('app-id', Context::createDefaultContext());
 
         $events = $this->eventDispatcher->getEvents();
-        static::assertArrayHasKey(RuleConditionActivateExtension::NAME . '.pre', $events);
-        static::assertArrayHasKey(RuleConditionActivateExtension::NAME . '.post', $events);
-        static::assertInstanceOf(RuleConditionActivateExtension::class, $events[RuleConditionActivateExtension::NAME . '.pre']);
+        static::assertArrayHasKey(RuleConditionActivateEvent::class, $events);
+        static::assertInstanceOf(RuleConditionActivateEvent::class, $events[RuleConditionActivateEvent::class]);
     }
 
     public function testActivateConditionScriptsActivatesInactiveScripts(): void
@@ -239,7 +236,7 @@ class RuleConditionPersisterTest extends TestCase
         static::assertSame([], $conditionRepository->updates[0]);
     }
 
-    public function testDeactivateConditionScriptsDispatchesExtensionEvents(): void
+    public function testDeactivateConditionScriptsDispatchesEvent(): void
     {
         /** @var StaticEntityRepository<AppScriptConditionCollection> $conditionRepository */
         $conditionRepository = new StaticEntityRepository([[]]);
@@ -251,9 +248,8 @@ class RuleConditionPersisterTest extends TestCase
         $persister->deactivateConditionScripts('app-id', Context::createDefaultContext());
 
         $events = $this->eventDispatcher->getEvents();
-        static::assertArrayHasKey(RuleConditionDeactivateExtension::NAME . '.pre', $events);
-        static::assertArrayHasKey(RuleConditionDeactivateExtension::NAME . '.post', $events);
-        static::assertInstanceOf(RuleConditionDeactivateExtension::class, $events[RuleConditionDeactivateExtension::NAME . '.pre']);
+        static::assertArrayHasKey(RuleConditionDeactivateEvent::class, $events);
+        static::assertInstanceOf(RuleConditionDeactivateEvent::class, $events[RuleConditionDeactivateEvent::class]);
     }
 
     public function testDeactivateConditionScriptsDeactivatesActiveScripts(): void
@@ -424,7 +420,7 @@ class RuleConditionPersisterTest extends TestCase
             $this->scriptReader,
             $conditionRepository,
             $appRepository,
-            new ExtensionDispatcher($this->eventDispatcher),
+            $this->eventDispatcher,
         );
     }
 

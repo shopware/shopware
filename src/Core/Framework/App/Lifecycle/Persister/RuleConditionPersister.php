@@ -6,9 +6,9 @@ use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionC
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
-use Shopware\Core\Framework\App\Lifecycle\Persister\Extension\RuleConditionActivateExtension;
-use Shopware\Core\Framework\App\Lifecycle\Persister\Extension\RuleConditionDeactivateExtension;
-use Shopware\Core\Framework\App\Lifecycle\Persister\Extension\RuleConditionPersistExtension;
+use Shopware\Core\Framework\App\Lifecycle\Persister\Event\RuleConditionActivateEvent;
+use Shopware\Core\Framework\App\Lifecycle\Persister\Event\RuleConditionDeactivateEvent;
+use Shopware\Core\Framework\App\Lifecycle\Persister\Event\RuleConditionPersistEvent;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\BoolField;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldType;
@@ -24,7 +24,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
@@ -32,6 +31,7 @@ use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal only for use by the app-system
@@ -49,39 +49,14 @@ class RuleConditionPersister implements PersisterInterface
         private readonly ScriptFileReader $scriptReader,
         private readonly EntityRepository $appScriptConditionRepository,
         private readonly EntityRepository $appRepository,
-        private readonly ExtensionDispatcher $extensions,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
     public function persist(AppLifecycleContext $context): void
     {
-        $this->extensions->publish(
-            name: RuleConditionPersistExtension::NAME,
-            extension: new RuleConditionPersistExtension($context),
-            function: $this->doPersist(...)
-        );
-    }
+        $this->eventDispatcher->dispatch(new RuleConditionPersistEvent($context));
 
-    public function activateConditionScripts(string $appId, Context $context): void
-    {
-        $this->extensions->publish(
-            name: RuleConditionActivateExtension::NAME,
-            extension: new RuleConditionActivateExtension($appId, $context),
-            function: $this->doActivateConditionScripts(...)
-        );
-    }
-
-    public function deactivateConditionScripts(string $appId, Context $context): void
-    {
-        $this->extensions->publish(
-            name: RuleConditionDeactivateExtension::NAME,
-            extension: new RuleConditionDeactivateExtension($appId, $context),
-            function: $this->doDeactivateConditionScripts(...)
-        );
-    }
-
-    private function doPersist(AppLifecycleContext $context): void
-    {
         $app = $this->getAppWithExistingConditions($context->app->getId(), $context->context);
         $existingRuleConditions = $app->getScriptConditions();
         \assert($existingRuleConditions !== null);
@@ -121,8 +96,10 @@ class RuleConditionPersister implements PersisterInterface
         $this->deleteConditionScripts($existingRuleConditions, $context->context);
     }
 
-    private function doActivateConditionScripts(string $appId, Context $context): void
+    public function activateConditionScripts(string $appId, Context $context): void
     {
+        $this->eventDispatcher->dispatch(new RuleConditionActivateEvent($appId, $context));
+
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', false));
@@ -134,8 +111,10 @@ class RuleConditionPersister implements PersisterInterface
         $this->appScriptConditionRepository->update($updateSet, $context);
     }
 
-    private function doDeactivateConditionScripts(string $appId, Context $context): void
+    public function deactivateConditionScripts(string $appId, Context $context): void
     {
+        $this->eventDispatcher->dispatch(new RuleConditionDeactivateEvent($appId, $context));
+
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));

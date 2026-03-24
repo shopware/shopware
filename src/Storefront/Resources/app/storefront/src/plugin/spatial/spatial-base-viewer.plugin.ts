@@ -105,7 +105,11 @@ export default class SpatialBaseViewerPlugin extends Plugin {
                 animButton.classList.remove('visually-hidden');
 
                 if (this.dive.model.animations.length > 1) {
-                    const animSwitch = animContainer.querySelector('.spatial-anim-switch') as HTMLSelectElement;
+                    const animSwitchContainer = animContainer.querySelector('.spatial-anim-switch-container') as HTMLElement;
+                    if (!animSwitchContainer) {
+                        return;
+                    }
+                    const animSwitch = animSwitchContainer.querySelector('.spatial-anim-switch') as HTMLSelectElement;
                     if (!animSwitch) {
                         return;
                     }
@@ -122,7 +126,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
                         animButtonCircle.style.setProperty('--progress', String(0));
                     });
 
-                    animSwitch.classList.remove('visually-hidden');
+                    animSwitchContainer.classList.remove('visually-hidden');
                 }
             }
         }

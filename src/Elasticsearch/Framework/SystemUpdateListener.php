@@ -12,6 +12,8 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
+ * @deprecated tag:v6.8.0 - reason:remove-subscriber - Will be removed as it unused
+ *
  * @internal
  */
 #[Package('framework')]

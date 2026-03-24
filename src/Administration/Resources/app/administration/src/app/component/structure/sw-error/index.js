@@ -82,7 +82,6 @@ export default {
     methods: {
         createdComponent() {
             if (!this.linkText) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.linkText = this.$tc('sw-error.general.textLink');
             }
         },

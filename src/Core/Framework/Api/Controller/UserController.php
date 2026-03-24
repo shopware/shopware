@@ -129,6 +129,27 @@ class UserController extends AbstractController
     }
 
     #[Route(
+        path: '/api/_action/user/logout',
+        name: 'api.action.user.logout',
+        methods: [Request::METHOD_POST]
+    )]
+    public function logout(Context $context): Response
+    {
+        if (!$context->getSource() instanceof AdminApiSource) {
+            throw ApiException::invalidAdminSource($context->getSource()::class);
+        }
+
+        $userId = $context->getSource()->getUserId();
+        if (!$userId) {
+            throw ApiException::userNotLoggedIn();
+        }
+
+        $this->ssoService->revokeUserTokens($userId);
+
+        return new Response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route(
         path: '/api/user/{userId}',
         name: 'api.user.delete',
         defaults: [

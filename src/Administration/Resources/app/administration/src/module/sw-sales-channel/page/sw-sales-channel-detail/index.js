@@ -66,11 +66,8 @@ export default {
                 return this.productComparison.newProductExport;
             }
 
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.productComparison.newProductExport = this.productExportRepository.create();
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.productComparison.newProductExport.interval = 0;
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.productComparison.newProductExport.generateByCronjob = false;
 
             return this.productComparison.newProductExport;
@@ -294,7 +291,6 @@ export default {
             }
 
             const domainUrl = this.productExport.salesChannelDomain.url.replace(/\/+$/g, '');
-            // eslint-disable-next-line max-len
             this.productComparison.productComparisonAccessUrl = `${domainUrl}/store-api/product-export/${this.productExport.accessKey}/${this.productExport.fileName}`;
         },
 
@@ -338,7 +334,7 @@ export default {
                 this.isSaveSuccessful = true;
 
                 Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
-            } catch (error) {
+            } catch (_error) {
                 this.createNotificationError({
                     message: this.$tc(
                         'sw-sales-channel.detail.messageSaveError',

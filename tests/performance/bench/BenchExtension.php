@@ -21,7 +21,7 @@ class BenchExtension implements ExtensionInterface
     public function load(Container $container): void
     {
         if (!$this->resolver instanceof OptionsResolver) {
-            throw new \Exception(self::class . '::configure must be called before running the load method');
+            throw new \LogicException(self::class . '::configure must be called before running the load method');
         }
 
         $_SERVER['APP_ENV'] = 'test';
@@ -87,10 +87,7 @@ class BenchExtension implements ExtensionInterface
         $this->resolver = $resolver;
     }
 
-    /**
-     * @return mixed
-     */
-    public static function parseEnvVar(string $varName, mixed $default = false)
+    public static function parseEnvVar(string $varName, mixed $default = false): mixed
     {
         if (isset($_SERVER[$varName])) {
             return filter_var($_SERVER[$varName], \FILTER_VALIDATE_BOOLEAN);
@@ -99,6 +96,9 @@ class BenchExtension implements ExtensionInterface
         return $default;
     }
 
+    /**
+     * @return \Generator<string>
+     */
     private function findFixtures(string $fixturePath): \Generator
     {
         if (is_file($fixturePath) && preg_match('/\.php$/', basename($fixturePath))) {
@@ -108,9 +108,7 @@ class BenchExtension implements ExtensionInterface
             if (\is_array($directory)) {
                 foreach ($directory as $subName) {
                     if (!preg_match('/^\.+$/', $subName)) {
-                        foreach ($this->findFixtures($fixturePath . \DIRECTORY_SEPARATOR . $subName) as $fixture) {
-                            yield $fixture;
-                        }
+                        yield from $this->findFixtures($fixturePath . \DIRECTORY_SEPARATOR . $subName);
                     }
                 }
             }

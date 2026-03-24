@@ -32,6 +32,9 @@ class Sequence extends Struct
         return $sequence;
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public static function createAction(
         string $action,
         ?Sequence $nextAction,

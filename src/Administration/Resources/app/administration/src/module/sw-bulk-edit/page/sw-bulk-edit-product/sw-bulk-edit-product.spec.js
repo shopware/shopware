@@ -1021,6 +1021,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     it('should get parent product successful', async () => {
         const wrapper = await createWrapper(undefined, undefined, {
             productRepositoryMock: {
+                create: jest.fn(() => ({
+                    isNew: () => true,
+                })),
                 get: jest.fn(() => {
                     return Promise.resolve({
                         id: 'productId',

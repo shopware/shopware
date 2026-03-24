@@ -182,27 +182,26 @@ export default {
             this.isPreviewSuccessful = false;
         },
 
-        async resetToDefault() {
-            this.isLoadingReset = true;
+        resetToDefault() {
+            const provider = this.productExport.provider || 'open-ai';
+            const registry = Shopware.Service('exportTemplateService').getProductExportTemplateRegistry();
+            const template = Object.values(registry).find((entry) => entry.providerName === provider);
 
-            try {
-                const providerName = this.productExport.provider || 'open-ai';
-                const templates = await this.productExportService.getDefaultTemplate(providerName);
-
-                this.productExport.headerTemplate = templates.headerTemplate;
-                this.productExport.bodyTemplate = templates.bodyTemplate;
-                this.productExport.footerTemplate = templates.footerTemplate;
-
-                this.createNotificationInfo({
-                    message: this.$tc('sw-sales-channel.detail.agenticAi.resetTemplateSuccess'),
-                });
-            } catch (exception) {
+            if (!template) {
                 this.createNotificationError({
                     message: this.$tc('sw-sales-channel.detail.agenticAi.errorLoadingTemplate'),
                 });
+
+                return;
             }
 
-            this.isLoadingReset = false;
+            this.productExport.headerTemplate = template.headerTemplate;
+            this.productExport.bodyTemplate = template.bodyTemplate;
+            this.productExport.footerTemplate = template.footerTemplate;
+
+            this.createNotificationInfo({
+                message: this.$tc('sw-sales-channel.detail.agenticAi.resetTemplateSuccess'),
+            });
         },
 
         resetValid() {

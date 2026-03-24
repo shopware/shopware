@@ -47,7 +47,6 @@
     "POST /_action/order/{orderId}/recalculate",
     "POST /_action/order/{orderId}/toggleAutomaticPromotions",
     "GET /_action/order/{orderId}/{deepLinkCode}/document/{documentTypeName}/preview",
-    "GET /_action/product-export/default-template/{providerName}",
     "POST /_action/product-export/preview",
     "POST /_action/product-export/validate",
     "GET /_action/product/types",

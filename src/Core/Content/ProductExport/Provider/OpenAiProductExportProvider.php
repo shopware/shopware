@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\ProductExport\Provider;
 
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
-use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -34,23 +33,6 @@ class OpenAiProductExportProvider extends AbstractProductExportProvider
     public function getTechnicalName(): string
     {
         return 'open-ai';
-    }
-
-    public function getDefaultTemplateContent(): array
-    {
-        $templatePath = \dirname(__DIR__, 5) . '/src/Administration/Resources/app/administration/src/module/sw-sales-channel/agentic-product-export-templates/open-ai/body.json.twig';
-
-        $body = @file_get_contents($templatePath);
-
-        if ($body === false) {
-            throw ProductExportException::templateBodyNotSet();
-        }
-
-        return [
-            'headerTemplate' => '',
-            'bodyTemplate' => $body,
-            'footerTemplate' => '',
-        ];
     }
 
     public function extendRenderContext(

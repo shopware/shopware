@@ -8,7 +8,6 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\SalesChannelDomainNotFoundException;
 use Shopware\Core\Content\ProductExport\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
-use Shopware\Core\Content\ProductExport\Provider\ProductExportProviderRegistry;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
@@ -44,7 +43,6 @@ class ProductExportController extends AbstractController
         private readonly EntityRepository $salesChannelRepository,
         private readonly ProductExportGeneratorInterface $productExportGenerator,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ProductExportProviderRegistry $productExportProviderRegistry
     ) {
     }
 
@@ -102,22 +100,6 @@ class ProductExportController extends AbstractController
                 'errors' => $errorMessages ?? [],
             ]
         );
-    }
-
-    #[Route(
-        path: '/api/_action/product-export/default-template/{providerName}',
-        name: 'api.action.product_export.default_template',
-        methods: ['GET']
-    )]
-    public function defaultTemplate(string $providerName): JsonResponse
-    {
-        $provider = $this->productExportProviderRegistry->getByTechnicalName($providerName);
-
-        if ($provider === null) {
-            return new JsonResponse(['error' => 'No provider found for the given name'], Response::HTTP_NOT_FOUND);
-        }
-
-        return new JsonResponse($provider->getDefaultTemplateContent());
     }
 
     private function createEntity(RequestDataBag $dataBag): ProductExportEntity

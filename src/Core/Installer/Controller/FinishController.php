@@ -69,7 +69,14 @@ class FinishController extends InstallerController
             }
 
             $redirect->headers->setCookie(
-                Cookie::create('bearerAuth', json_encode($loginTokenData, \JSON_THROW_ON_ERROR), time() + $data['expires_in'], ($appUrlInfo['path'] ?? '') . '/admin', $appUrlInfo['host'], null, false)
+                Cookie::create(
+                    'bearerAuth',
+                    json_encode($loginTokenData, \JSON_THROW_ON_ERROR),
+                    time() + $data['expires_in'],
+                    ($appUrlInfo['path'] ?? '') . '/admin',
+                    $appUrlInfo['host'] ?? null,
+                    httpOnly: false
+                )
             );
         } catch (TransferException) {
             // ignore and don't automatically log in

@@ -215,3 +215,10 @@ parameters:
         -
             identifier: missingType.property
             path: tests/unit/Core/DevOps/Docs/Script/_fixtures/hooks/*
+
+        # Many tests are checking DAL write errors with `WriteException` containing `WriteConstraintViolationException`.
+        # As `WriteException` can also contain other exceptions, it is hard to teach PHPStan without touching each test, that in those tests only `WriteConstraintViolationException` are present.
+        # A Generic type for `WriteException` is not applicable, as it can contain different exceptions types at the same time.
+        -
+            message: "#Offset 'source' might not exist on array{status: string, code: #"
+            path: tests

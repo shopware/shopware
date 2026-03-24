@@ -88,7 +88,7 @@ abstract class Bundle extends SymfonyBundle
     }
 
     /**
-     * @return SymfonyBundle[]
+     * @return list<SymfonyBundle>
      */
     public function getAdditionalBundles(AdditionalBundleParameters $parameters): array
     {

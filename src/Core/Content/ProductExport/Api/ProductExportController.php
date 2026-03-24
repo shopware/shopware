@@ -42,7 +42,7 @@ class ProductExportController extends AbstractController
         private readonly EntityRepository $salesChannelDomainRepository,
         private readonly EntityRepository $salesChannelRepository,
         private readonly ProductExportGeneratorInterface $productExportGenerator,
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 

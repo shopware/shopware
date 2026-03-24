@@ -93,7 +93,7 @@ class ContentSystemElementTypePersister implements PersisterInterface
                 'name' => $name,
                 'schema' => $normalized,
                 'hash' => $hash,
-                'active' => true,
+                'active' => $context->app->isActive(),
                 'appId' => $appId,
             ];
 

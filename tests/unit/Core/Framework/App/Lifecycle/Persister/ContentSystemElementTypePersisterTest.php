@@ -297,6 +297,7 @@ class ContentSystemElementTypePersisterTest extends TestCase
     {
         $app = new AppEntity();
         $app->setId($this->ids->get('app'));
+        $app->setActive(true);
 
         return new AppLifecycleContext(
             manifest: static::createStub(Manifest::class),

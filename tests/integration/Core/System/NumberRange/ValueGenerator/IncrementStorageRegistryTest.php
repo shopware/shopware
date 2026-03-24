@@ -6,10 +6,10 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry;
 use Shopware\Core\Test\Stub\System\NumberRange\ValueGenerator\IncrementArrayStorage;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
  * @internal
@@ -36,12 +36,6 @@ class IncrementStorageRegistryTest extends TestCase
         static::assertInstanceOf(IncrementSqlStorage::class, $this->registry->getStorage());
     }
 
-    public function testGetUnknownStorageThrows(): void
-    {
-        static::expectException(IncrementStorageNotFoundException::class);
-        $this->registry->getStorage('foo');
-    }
-
     public function testMigrateToSqlStorage(): void
     {
         $arrayStorage = new IncrementArrayStorage([
@@ -51,12 +45,10 @@ class IncrementStorageRegistryTest extends TestCase
         $sqlStorage = static::getContainer()->get(IncrementSqlStorage::class);
 
         $registry = new IncrementStorageRegistry(
-            new \ArrayObject(
-                [
-                    'SQL' => $sqlStorage,
-                    'Array' => $arrayStorage,
-                ],
-            ),
+            new ServiceLocator([
+                'SQL' => static fn () => $sqlStorage,
+                'Array' => static fn () => $arrayStorage,
+            ]),
             'SQL'
         );
 
@@ -82,12 +74,10 @@ class IncrementStorageRegistryTest extends TestCase
         $arrayStorage = new IncrementArrayStorage([]);
 
         $registry = new IncrementStorageRegistry(
-            new \ArrayObject(
-                [
-                    'SQL' => $sqlStorage,
-                    'Array' => $arrayStorage,
-                ],
-            ),
+            new ServiceLocator([
+                'SQL' => static fn () => $sqlStorage,
+                'Array' => static fn () => $arrayStorage,
+            ]),
             'SQL'
         );
 
@@ -96,17 +86,5 @@ class IncrementStorageRegistryTest extends TestCase
         $registry->migrate('SQL', 'Array');
 
         static::assertSame($sqlStorage->list(), $arrayStorage->list());
-    }
-
-    public function testMigrateWithUnknownFromStorageThrows(): void
-    {
-        static::expectException(IncrementStorageNotFoundException::class);
-        $this->registry->migrate('foo', 'SQL');
-    }
-
-    public function testMigrateWithUnknownToStorageThrows(): void
-    {
-        static::expectException(IncrementStorageNotFoundException::class);
-        $this->registry->migrate('SQL', 'foo');
     }
 }

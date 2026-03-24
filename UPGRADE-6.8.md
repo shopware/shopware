@@ -4,6 +4,12 @@
 
 <details>
 
+## Default CMS page ID now persisted for categories
+
+The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.
+
+The runtime-only field `cmsPageIdSwitched` on `CategoryDefinition` was removed without replacement.
+
 ## Tax Calculation for percentage discounts / surcharges, e.g. promotions
 
 Taxes of percentage prices are not recalculated anymore, but use the existing tax calculation of the referenced line items.
@@ -54,6 +60,12 @@ The following methods are now abstract and must be implemented by extensions. Th
 # Core
 
 <details>
+
+## Changed behaviour of default fields in EntityDefinition
+
+From now on, the defined fields of an EntityDefinition are applied after the default fields.
+This makes it possible to properly overwrite the current default fields `createdAt` and `updatedAt`.
+Check your EntityDefinitions if your entities still behave like intended. (Only applicable if you manually add `CreatedAtField` and/or `UpdatedAtField`)
 
 ## Multiple payment finalize calls allowed
 
@@ -524,7 +536,7 @@ Instead of using the `link` property of the `manufacturer` entity directly, the 
 
 The increment-based message queue statistics system (displayed indexing progress notifications in the Administration) has been removed.
 
-### Removed deprecated `TemplateGroup` class
+## Removed deprecated `TemplateGroup` class
 
 The deprecated class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been removed.
 
@@ -544,6 +556,12 @@ shopware:
         increment_name:
           type: 'mysql'
 ```
+
+### Changed Exception Classes towards domain exceptions
+
+The following exception classes were removed and replaced by domain exceptions:
+* `\Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException` -> `\Shopware\Core\System\NumberRange\Exception\NumberRangeException::incrementStorageNotFound()`
+* `\Shopware\Core\System\NumberRange\Exception\NoConfigurationException` -> `\Shopware\Core\System\NumberRange\NumberRangeException::noConfigurationForEntity()`
 
 </details>
 

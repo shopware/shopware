@@ -7,6 +7,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
+use Symfony\Component\Asset\Packages;
 
 #[Package('framework')]
 class TemplateConfigAccessor
@@ -17,7 +18,8 @@ class TemplateConfigAccessor
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly ThemeConfigValueAccessor $themeConfigAccessor,
-        private readonly ThemeScripts $themeScripts
+        private readonly ThemeScripts $themeScripts,
+        private readonly Packages $packages,
     ) {
     }
 
@@ -48,7 +50,50 @@ class TemplateConfigAccessor
      */
     public function scripts(): array
     {
-        return $this->themeScripts->getThemeScripts();
+        $scripts = [];
+
+        foreach ($this->themeScripts->getThemeScripts() as $script) {
+            if (!str_starts_with($script, 'js/components/')) {
+                $scripts[] = $script;
+            }
+        }
+
+        return $scripts;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function componentImportMap(): array
+    {
+        $componentImportMap = [];
+        $themeScripts = $this->themeScripts->getThemeScripts();
+
+        // Filter theme scripts to component scripts only.
+        $componentScripts = array_filter($themeScripts, function ($script) {
+            return str_contains($script, 'js/components/');
+        });
+
+        // Create import map based on component tag.
+        foreach ($componentScripts as $componentScript) {
+            $componentTag = $this->getComponentTagFromScriptPath($componentScript);
+            $componentImportMap[$componentTag] = $this->packages->getUrl($componentScript, 'theme');
+        }
+
+        return $componentImportMap;
+    }
+
+    /**
+     * Derives the component tag from the script path.
+     * Example: js/components/Sw/Product/BuyButton.js => Sw:Product:BuyButton
+     */
+    private function getComponentTagFromScriptPath(string $path): string
+    {
+        $tag = str_replace('js/components/', '', $path);
+        $tag = str_replace('.js', '', $tag);
+        $tag = str_replace('/', ':', $tag);
+
+        return $tag;
     }
 
     /**

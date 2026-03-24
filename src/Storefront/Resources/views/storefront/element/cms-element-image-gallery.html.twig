@@ -407,8 +407,13 @@
                                                                         >
                                                                         </canvas>
                                                                         <div class="spatial-anim-button-container position-absolute end-0 top-0 hidden">
-                                                                            <button class="spatial-anim-button text-center mx-0 py-1 px-3"> Pause </button>
-                                                                            <div class="spatial-anim-progress mx-0 py-1 px-3"></div>
+                                                                            <button class="spatial-anim-button position-relative text-center mx-0 p-0">
+                                                                                <svg width="50px" height="50px" class="spatial-anim-button-circle position-absolute end-0 top-0">
+                                                                                    <circle r="calc(50% - (var(--stroke-width) / 2))" cx="50%" cy="50%"></circle>
+                                                                                </svg>
+                                                                                {% sw_icon 'editor-link' %}
+                                                                                {% sw_icon 'editor-list' %}
+                                                                            </button>
                                                                         </div>
                                                                         <span
                                                                                 class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"

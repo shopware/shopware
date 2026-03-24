@@ -2,7 +2,7 @@
 {% block sw_tree_item_element_actions %}
 <span v-if="hideActions"></span>
 <!-- eslint-disable-next-line vue/no-multi-spaces -->
-<span v-else> </span>
+<span v-else>{% parent %}</span>
 {% endblock %}
 
 {% block sw_tree_item_element_selection %}
@@ -43,7 +43,7 @@
         v-if="hideActions"
         #actions
     >
-        <span>{% parent %}</span>
+        <span></span>
     </template>
 </sw-settings-rule-tree-item>
 {% endblock %}

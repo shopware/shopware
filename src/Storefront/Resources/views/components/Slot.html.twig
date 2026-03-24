@@ -1,0 +1,50 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    name = null,
+    elements = [],
+    maxScopeDepth = 6,
+%}
+
+{% if elements is empty and name is not null %}
+    {# Recursively search for slots in outerScope chain #}
+    {% set currentScope = outerScope %}
+    {% set foundElements = null %}
+
+    {% for i in 0..maxScopeDepth %}
+        {% if currentScope is defined and currentScope is not null %}
+            {% if currentScope.slots is defined and currentScope.slots[name] is defined %}
+                {% set foundElements = currentScope.slots[name] %}
+                {% set currentScope = null %}
+            {% elseif currentScope.outerScope is defined %}
+                {% set currentScope = currentScope.outerScope %}
+            {% else %}
+                {% set currentScope = null %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
+    {% if foundElements is not null %}
+        {% set elements = foundElements %}
+    {% endif %}
+{% endif %}
+
+{% if elements is not empty %}
+    {% block elements %}
+        {% for element in elements %}
+            {% set elementProperties = element.properties %}
+            {% set elementProperties = elementProperties|merge({ 'data-element-id': element.id }) %}
+
+            {% if element.slots is not empty %}
+                {% set elementProperties = elementProperties|merge({ slots: element.slots }) %}
+            {% endif %}
+
+            {{ component(element.component, elementProperties) }}
+        {% endfor %}
+    {% endblock %}
+{% else %}
+    {% block content %}{% endblock %}
+{% endif %}
+

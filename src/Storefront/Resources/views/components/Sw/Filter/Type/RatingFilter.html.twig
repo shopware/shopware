@@ -1,0 +1,35 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    name = 'rating',
+    displayName = 'listing.filterRatingDisplayName'|trans|sw_sanitize,
+    maxStars = 5,
+%}
+
+{% set options = {
+    maxStars: maxStars,
+    displayName: displayName,
+} %}
+
+{% set defaultAttributes = {
+    class: 'sw-rating-filter sw-filter',
+    'data-component': 'Sw:Filter:Type:RatingFilter',
+    'data-component-options': options|json_encode,
+} %}
+
+<div {{ attributes.defaults(defaultAttributes) }}>
+    <ul class="sw-rating-filter__list p-0 m-0">
+        {% for star in maxStars..1 %}
+            <li class="sw-rating-filter__list-item">
+                <input class="sw-rating-filter__list-item-radio" type="radio" name="{{ name }}" value="{{ star }}" id="rating-{{ star }}">
+
+                <label class="sw-rating-filter__list-item-label" for="rating-{{ star }}">
+                    <twig:Sw:Rating:Stars :stars="star" :maxStars="maxStars" />
+                    {{ 'listing.filterRatingAndMore'|trans({ '%points%': star, '%maxPoints%': maxStars })|sw_sanitize }}
+                </label>
+            </li>
+        {% endfor %}
+    </ul>
+</div>

@@ -1,0 +1,22 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    media,
+    mediaHeight = 240,
+%}
+
+<div style="height: {{ mediaHeight }}px;">
+    <div style="max-height: {{ mediaHeight }}px; max-width: 100%">
+        {% set spatialGalleryViewerOptions = {
+            modelUrl: media.url,
+            lightIntensity: config('core.media.defaultLightIntensity'),
+            sliderPosition: 0,
+        } %}
+        <canvas
+            data-spatial-gallery-slider-viewer="true"
+            data-spatial-gallery-slider-viewer-options="{{ spatialGalleryViewerOptions|json_encode }}"
+        ></canvas>
+    </div>
+</div>

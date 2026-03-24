@@ -1,0 +1,34 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    filterName = '',
+    slots = [],
+%}
+
+{% set defaultAttributes = {
+    class: 'sw-filter-item',
+    'data-component': 'Sw:Filter:Item',
+} %}
+
+<div {{ attributes.defaults(defaultAttributes) }}>
+    <button
+        class="sw-filter-item__btn btn btn-light"
+        type="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+        data-bs-offset="0,0"
+        data-bs-auto-close="outside">
+        {{ filterName }}
+        <span class="sw-filter-item__count badge text-bg-secondary is--hidden">0</span>
+        <twig:Sw:Icon name="arrow-head-down" size="xs" />
+        <twig:Sw:Icon name="arrow-head-up" size="xs" />
+    </button>
+
+    <div class="sw-filter-item__dropdown dropdown-menu p-0">
+        {% block content %}
+            <twig:Slot name="content"></twig:Slot>
+        {% endblock %}
+    </div>
+</div>

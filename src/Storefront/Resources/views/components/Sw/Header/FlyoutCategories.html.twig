@@ -1,0 +1,39 @@
+{#
+    Flyout categories (recurse nav tree renderer)
+    ========================================================
+
+    * First level entries have column and row classes for the column layout.
+    * First level entries have stronger font weight.
+    * Entries with navigation depth more than 2 get a class for indentation.
+    * The recommended "navigationMaxDepth" is 2. More depth = higher flyout menu.
+#}
+
+{% props
+    navigationTree,
+    navigationLevel = 1,
+    navigationMaxDepth = 2
+%}
+
+{% set attributeDefaults = {
+    class: 'sw-flyout-categories is--level-' ~ navigationLevel ~ (navigationLevel == 1 ? ' row' : '') ~ ((navigationLevel > 2) ? ' is--indent' : ''),
+} %}
+
+<ul {{ attributes.defaults(attributeDefaults) }}>
+    {% for treeItem in navigationTree %}
+        <li class="sw-flyout-categories__item{% if navigationLevel == 1 %} col-4{% endif %}">
+            <a
+                class="sw-flyout-categories__link is--level-{{ navigationLevel }}"
+                href="{{ treeItem.category.seoUrl ?: '#' }}"
+            >
+                {{ treeItem.category.translated.name }}
+            </a>
+
+            {% if treeItem.children|length > 0 and navigationLevel < navigationMaxDepth %}
+                <twig:Sw:Header:FlyoutCategories
+                    :navigationTree="treeItem.children"
+                    :navigationLevel="navigationLevel + 1"
+                />
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>

@@ -1,0 +1,14 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% set defaultAttributes = {
+    class: 'sw-active-filters container',
+    'data-component': 'Sw:Filter:ActiveFilters',
+} %}
+
+<div {{ attributes.defaults(defaultAttributes) }}>
+    <button class="sw-active-filters__btn-reset-all btn btn-outline-danger is--hidden" type="button">
+        {{ 'listing.filterPanelResetAll'|trans|sw_sanitize }}
+    </button>
+</div>

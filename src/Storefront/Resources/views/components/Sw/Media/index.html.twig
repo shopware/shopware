@@ -1,0 +1,20 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    media,
+%}
+
+{% if media is not null %}
+    {% set mediaType = media.getMediaType().getName() %}
+    {% set isSpatial = media.isSpatialObject() %}
+
+    {% if isSpatial %}
+        <twig:Sw:Media:Spacial {{ ...attributes }}></twig:Sw:Media:Spacial>
+    {% elseif mediaType === 'VIDEO' %}
+        {# Video #}
+    {% else %}
+        <twig:Sw:Media:Image {{ ...attributes }}></twig:Sw:Media:Image>
+    {% endif %}
+{% endif %}

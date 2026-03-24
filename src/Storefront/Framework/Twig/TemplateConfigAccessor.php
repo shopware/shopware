@@ -86,12 +86,17 @@ class TemplateConfigAccessor
     /**
      * Derives the component tag from the script path.
      * Example: js/components/Sw/Product/BuyButton.js => Sw:Product:BuyButton
+     * Example: js/components/Sw/Product/Detail/Reviews/index.js => Sw:Product:Detail:Reviews
      */
     private function getComponentTagFromScriptPath(string $path): string
     {
         $tag = str_replace('js/components/', '', $path);
         $tag = str_replace('.js', '', $tag);
         $tag = str_replace('/', ':', $tag);
+
+        if (str_ends_with($tag, ':index')) {
+            $tag = substr($tag, 0, -\strlen(':index'));
+        }
 
         return $tag;
     }

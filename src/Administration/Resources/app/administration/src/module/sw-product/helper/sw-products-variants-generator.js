@@ -181,7 +181,6 @@ export default class VariantsGenerator extends EventEmitter {
             const numbers = {};
             const numberMap = {};
 
-            // eslint-disable-next-line
             for (const [
                 key,
                 variant,

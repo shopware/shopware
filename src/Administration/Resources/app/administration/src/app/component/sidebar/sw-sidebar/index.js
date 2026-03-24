@@ -41,7 +41,6 @@ export default {
         return {
             items: [],
             isOpened: false,
-            // eslint-disable-next-line vue/no-reserved-keys
             _parent: this.$parent,
         };
     },

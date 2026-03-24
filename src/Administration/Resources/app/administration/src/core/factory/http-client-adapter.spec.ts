@@ -3,7 +3,6 @@
  */
 
 import Axios from 'axios';
-// eslint-disable-next-line import/no-unresolved
 import AxiosV1 from 'axios-v1';
 import { createAxiosV0Adapter, createAxiosV1Adapter } from 'src/core/factory/http-client-adapter';
 

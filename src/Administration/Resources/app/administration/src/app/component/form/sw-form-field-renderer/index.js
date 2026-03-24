@@ -94,7 +94,6 @@ export default {
             required: false,
             default: null,
         },
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },

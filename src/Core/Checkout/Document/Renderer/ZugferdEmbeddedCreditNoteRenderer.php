@@ -18,7 +18,8 @@ class ZugferdEmbeddedCreditNoteRenderer extends AbstractDocumentRenderer
     public function __construct(
         protected AbstractDocumentRenderer $creditNoteRenderer,
         protected AbstractDocumentRenderer $zugferdCreditNoteRenderer,
-        protected ZugferdEmbeddedService $zugferdEmbeddedService
+        protected ZugferdEmbeddedService $zugferdEmbeddedService,
+        protected string $shopwareVersion,
     ) {
     }
 
@@ -45,7 +46,8 @@ class ZugferdEmbeddedCreditNoteRenderer extends AbstractDocumentRenderer
             $context,
             $rendererConfig,
             $creditNote,
-            $this->zugferdCreditNoteRenderer
+            $this->zugferdCreditNoteRenderer,
+            $this->shopwareVersion,
         );
     }
 }

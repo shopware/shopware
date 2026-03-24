@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-// eslint-disable-next-line import/no-extraneous-dependencies
 import colors from 'picocolors';
 import RepositoryFactory from 'src/core/data/repository-factory.data';
 import EntityHydrator from 'src/core/data/entity-hydrator.data';
@@ -10,9 +9,7 @@ import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import ErrorResolverError from 'src/core/data/error-resolver.data';
 import createHTTPClient from 'src/core/factory/http.factory';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import MockAdapter from 'axios-mock-adapter';
-// eslint-disable-next-line import/no-unresolved
 import EntitySchema from '../../_mocks_/entity-schema.json';
 
 // Add all entities from entity-schema
@@ -90,7 +87,7 @@ class ResponseRegistry {
 // create a mock for the httpClient for creating custom responses
 function clientMockFactory() {
     const client = createHTTPClient();
-    
+
     // The client is now a dispatcher that routes to axiosV0 or axiosV1
     // We need to mock both underlying axios instances
     const clientMockV0 = new MockAdapter(client.axiosV0);
@@ -126,7 +123,7 @@ function clientMockFactory() {
         const combinedArray = [];
         // Make it behave like an array by setting up the prototype
         Object.setPrototypeOf(combinedArray, Array.prototype);
-        
+
         // Override array methods to combine both histories
         return new Proxy(combinedArray, {
             get(target, prop) {
@@ -134,7 +131,7 @@ function clientMockFactory() {
                 if (prop === 'length') {
                     return clientMockV0.history[method].length + clientMockV1.history[method].length;
                 }
-                
+
                 // For numeric indices, access combined arrays
                 const index = Number(prop);
                 if (Number.isInteger(index) && index >= 0) {
@@ -144,7 +141,7 @@ function clientMockFactory() {
                     }
                     return clientMockV1.history[method][index - v0Length];
                 }
-                
+
                 // For array methods, operate on combined array
                 if (typeof Array.prototype[prop] === 'function') {
                     return function(...args) {
@@ -152,7 +149,7 @@ function clientMockFactory() {
                         return combined[prop](...args);
                     };
                 }
-                
+
                 return target[prop];
             },
         });

@@ -260,15 +260,37 @@ class ZugferdDocument
         return $this;
     }
 
+    public function withDocumentInformation(
+        string $documentDate,
+        string $documentNumber,
+        string $isoCode,
+        string $documentType
+    ): self {
+        $this->zugferdBuilder->setDocumentInformation(
+            $documentNumber,
+            $documentType,
+            new \DateTime($documentDate),
+            $isoCode,
+        );
+
+        return $this;
+    }
+
+    public function withDocumentSupplyChainEvent(\DateTime $deliveryDate): self
+    {
+        $this->zugferdBuilder->setDocumentSupplyChainEvent($deliveryDate);
+
+        return $this;
+    }
+
     public function withGeneralOrderData(
         ?\DateTime $deliveryDate,
         string $documentDate,
         string $documentNumber,
         string $isoCode,
-        string $documentType = ZugferdInvoiceType::INVOICE
     ): self {
         $this->zugferdBuilder
-            ->setDocumentInformation($documentNumber, $documentType, new \DateTime($documentDate), $isoCode)
+            ->setDocumentInformation($documentNumber, ZugferdInvoiceType::INVOICE, new \DateTime($documentDate), $isoCode)
             ->setDocumentSupplyChainEvent($deliveryDate);
 
         return $this;

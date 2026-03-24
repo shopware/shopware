@@ -23,7 +23,6 @@ export default {
                 return {};
             },
         },
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },

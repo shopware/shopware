@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -27,8 +28,8 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\Builder\Promotion\PromotionFixtureBuilder;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionIntegrationTestBehaviour;
-use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -41,7 +42,6 @@ class CartRestorerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use PromotionIntegrationTestBehaviour;
-    use PromotionTestFixtureBehaviour;
 
     private Connection $connection;
 
@@ -523,7 +523,24 @@ class CartRestorerTest extends TestCase
 
     public function testMergeCartsWithSetGroupPromotionDoesNotCrash(): void
     {
+        $baseContext = Context::createDefaultContext();
+        $productId1 = $this->createProduct($baseContext);
+        $productId2 = $this->createProduct($baseContext);
+
+        $code = 'SET' . Random::getAlphanumericString(5);
+
         $container = static::getContainer();
+        (new PromotionFixtureBuilder(
+            Uuid::randomHex(),
+            $container->get(SalesChannelContextFactory::class),
+            $container->get('promotion.repository'),
+            $container->get('promotion_setgroup.repository'),
+            $container->get('promotion_discount.repository')
+        ))
+            ->addSetGroup('COUNT', 2, 'PRICE_ASC')
+            ->setCode($code)
+            ->addDiscount(PromotionDiscountEntity::SCOPE_SET, PromotionDiscountEntity::TYPE_PERCENTAGE, 10.0, false, null)
+            ->buildPromotion();
 
         $guestToken = Uuid::randomHex();
         $guestContext = $this->createSalesChannelContext($guestToken);
@@ -532,13 +549,6 @@ class CartRestorerTest extends TestCase
         $customerToken = Uuid::randomHex();
         $customerContext = $this->createSalesChannelContext($customerToken);
         $this->contextPersister->save($customerToken, [], $customerContext->getSalesChannelId(), $this->customerId);
-
-        $productId1 = Uuid::randomHex();
-        $productId2 = Uuid::randomHex();
-        $this->createTestFixtureProduct($productId1, 30, 19, $container, $guestContext);
-        $this->createTestFixtureProduct($productId2, 30, 19, $container, $guestContext);
-
-        $code = 'SET' . Random::getAlphanumericString(5);
 
         $guestCart = $this->cartService->getCart($guestToken, $guestContext);
         $guestCart = $this->addProduct($productId1, 1, $guestCart, $this->cartService, $guestContext);

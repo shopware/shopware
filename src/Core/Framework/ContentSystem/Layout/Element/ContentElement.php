@@ -98,9 +98,6 @@ class ContentElement extends Struct
         return array_merge($this->structProperties, $this->nonStructProperties);
     }
 
-    /**
-     * Returns null when the property doesn't exist
-     */
     public function getProperty(string $key): mixed
     {
         if (\array_key_exists($key, $this->structProperties)) {
@@ -120,7 +117,7 @@ class ContentElement extends Struct
     }
 
     /**
-     * Sets a property value. Called at different lifecycle stages:
+     * Called at different lifecycle stages:
      * - Design time: static config values (persisted)
      * - Hydration: loaded data stored under the data requirement key
      * - Context resolution: context data stored under the property alias or consumer key
@@ -286,7 +283,7 @@ class ContentElement extends Struct
     {
         $data = parent::jsonSerialize();
 
-        // Remove internal structCache from output (should not be exposed via API)
+        // Remove internal property stores from output (should not be exposed via API)
         unset(
             $data['structProperties'],
             $data['nonStructProperties'],

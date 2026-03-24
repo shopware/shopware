@@ -214,7 +214,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Build constraints for this field. Can be called by parent serializers to compose constraints.
+     * Can be called by parent serializers to compose constraints.
      *
      * @return list<Constraint>
      */

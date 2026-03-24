@@ -245,6 +245,5 @@ class ContentSystemExceptionTest extends TestCase
             'CONTENT_SYSTEM__ELEMENT_TYPE_NOT_FOUND',
             'Sw:Unknown:Type',
         ];
-
     }
 }

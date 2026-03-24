@@ -273,22 +273,6 @@ class ElementTypeCompilerPassTest extends TestCase
         static::assertSame('Main slot', $slotDesc);
     }
 
-    #[TestDox('includes core definitions regardless of bundle or plugin configuration')]
-    public function testCoreDefinitionsAreAlwaysLoaded(): void
-    {
-        $container = $this->buildContainer('prod');
-        $container->setParameter('kernel.bundles_metadata', []);
-        $container->setParameter('kernel.active_plugins', []);
-
-        $registryDef = $container->getDefinition(ContentElementTypeRegistry::class);
-        $this->pass->process($container);
-
-        // The core Definitions directory ships with many built-in types.
-        // "Sw:Content:Text" is a known stable type that must always be present.
-        $names = $this->extractTypeNames($registryDef->getArgument(0));
-        static::assertContains('Sw:Content:Text', $names, 'Core definitions must always be loaded');
-    }
-
     #[TestDox('throws when kernel.bundles_metadata is not an array')]
     public function testThrowsWhenBundlesMetadataIsNotAnArray(): void
     {

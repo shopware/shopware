@@ -21,12 +21,18 @@
 
 <twig:Sw:Content:Modal {{ ...attributes.defaults(defaultAttributes)}}>
     <twig:block name="modal_content">
+        <h2 
+            class="sw-media-gallery-lightbox__title visually-hidden" 
+            id="{{ id }}-title"
+        >
+            {{ 'component.cms.mediaGallery.lightboxTitle'|trans|striptags }}
+        </h2>
 
         <button
             type="button"
             class="sw-media-gallery-lightbox__close-btn btn btn-light"
             data-bs-dismiss="modal"
-            aria-label="{{ closeLabel }}">
+            aria-label="{{ 'global.default.close'|trans|striptags }}">
             <twig:Sw:Icon name="x" size="sm" />
         </button>
 

@@ -15,25 +15,40 @@
     sliderPosition: 0,
 } %}
 
+{% set spatialCVA = cva({
+    base: 'sw-media-spatial',
+    variants: {
+        previewMode: {
+            true: 'sw-media-spatial--preview-mode',
+            false: 'sw-media-spatial--viewer-mode',
+        }
+    },
+}) %}
+
 {% set defaultAttributes = {
-    class: 'sw-media-spatial',
-    'data-component': 'Sw:Media:Spatial',
-    'data-component-options': spatialGalleryViewerOptions|json_encode,
+    class: spatialCVA.apply({ previewMode }),
 } %}
 
 {% if not previewMode %}
     {% set defaultAttributes = defaultAttributes|merge({
-        style: 'height: 240px;',
+        'data-component': 'Sw:Media:Spatial',
+        'data-component-options': spatialGalleryViewerOptions|json_encode,
     }) %}
 {% endif %}
 
 <div {{ attributes.defaults(defaultAttributes) }}>
     {% if previewMode %}
         <div class="sw-media-spatial__preview-overlay">
-            3D
+            <strong>3D</strong>
         </div>
     {% else %}
-        {# data-spatial-gallery-slider-viewer="true" #}
-        <canvas></canvas>
+        <canvas 
+            data-spatial-base-viewer="true" 
+            data-spatial-base-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
+            class="sw-media-spatial__canvas">
+        </canvas>
+        <div class="sw-media-spatial__loader spinner-border text-primary" role="status">
+            <span class="visually-hidden">{{ 'global.default.loading'|trans|striptags }}</span>
+        </div>
     {% endif %}
 </div>

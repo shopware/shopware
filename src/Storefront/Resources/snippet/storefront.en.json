@@ -865,6 +865,21 @@
         "zoomOut": "Zoom out",
         "zoomReset": "Reset zoom"
       },
+      "mediaGallery": {
+        "ariaLabel": "Media gallery containing %total% items",
+        "lightboxTitle": "Fullscreen media gallery",
+        "openLightboxAriaLabel": "Open media %index% in fullscreen gallery",
+        "counterDeviderLabel": "of",
+        "counterLabel": "Showing",
+        "thumbnailNavAriaLabel": "Media gallery thumbnail navigation",
+        "thumbnailNavScrollDown": "Scroll down",
+        "thumbnailNavScrollUp": "Scroll up",
+        "thumbnailNavScrollLeft": "Scroll left",
+        "thumbnailNavScrollRight": "Scroll right",
+        "thumbnailNavButtonAriaLabel": "Show media %index% of %total%",
+        "previousMedia": "Previous media",
+        "nextMedia": "Next media"
+      },
       "productGallery": {
         "ariaLabel": "Product gallery containing %total% items",
         "skipProductGallery": "Skip product gallery"

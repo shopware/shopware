@@ -7,11 +7,12 @@ export default class MediaGallery extends ShopwareComponent {
         showFullScreenGallery: true,
         zoomScale: 2.5,
         isLightbox: false,
+        counterDeviderLabel: 'of',
     };
 
     init() {
         // Thumbnail navigation buttons
-        this.thumbnailButtons = this.el.querySelectorAll('[data-gallery-thumbnail-button]');
+        this.thumbnailButtons = this.el.querySelectorAll('.sw-thumbnail-nav__button');
         this.thumbnailNavInner = this.el.querySelector('.sw-thumbnail-nav__inner');        
         this.thumbnailNavScrollBackBtn = this.el.querySelector('.sw-thumbnail-nav__scroll-control.is--backward');
         this.thumbnailNavScrollFordwardBtn = this.el.querySelector('.sw-thumbnail-nav__scroll-control.is--forward');
@@ -21,7 +22,7 @@ export default class MediaGallery extends ShopwareComponent {
         this.previewItems = this.el.querySelectorAll('.sw-media-gallery__preview-item');
 
         // Counter
-        this.counterBadge = this.el.querySelector('.sw-media-gallery__preview-item-badge');
+        this.counterBadge = this.el.querySelector('.sw-media-galley__counter-info');
 
         // Arrow navigation buttons
         this.backwardBtn = this.el.querySelector('.sw-media-gallery__nav-button.is--backward');
@@ -202,17 +203,33 @@ export default class MediaGallery extends ShopwareComponent {
             return;
         }
 
-        this.previewsContainer.addEventListener('scroll', () => {
-            const index = Math.round(this.previewsContainer.scrollLeft / this.previewsContainer.clientWidth);
+        this.onPreviewsContainerScroll = this.onPreviewsContainerScroll.bind(this);
+        this.previewsContainer.addEventListener('scroll', this.onPreviewsContainerScroll);
+    }
 
-            this.thumbnailButtons.forEach((btn, i) => {
-                btn.classList.toggle('is--active', i === index);
-            });
+    onPreviewsContainerScroll() {
+        const index = this.getCurrentIndex();
+        this.updateThumbnailNavActiveState(index);
+        this.updateCounter(index);
+    }
 
-            if (this.counterBadge) {
-                this.counterBadge.textContent = `${index + 1} / ${this.previewItems.length}`;
+    updateThumbnailNavActiveState(index) {
+        this.thumbnailButtons.forEach((btn, i) => {
+            if (i === index) {
+                btn.classList.add('is--active');
+                btn.setAttribute('aria-current', 'true');
+            } else {
+                btn.classList.remove('is--active');
+                btn.removeAttribute('aria-current');
             }
         });
+    }
+
+    updateCounter(index) {
+        if (!this.counterBadge) {
+            return;
+        }    
+        this.counterBadge.textContent = `${index + 1} ${this.options.counterDeviderLabel} ${this.previewItems.length}`;
     }
 
     initPreviewZoom() {
@@ -302,6 +319,10 @@ export default class MediaGallery extends ShopwareComponent {
     }
 
     destroy() {
+        if (this.previewsContainer) {
+            this.previewsContainer.removeEventListener('scroll', this.onPreviewsContainerScroll);
+        }
+
         if (this.backwardBtn) {
             this.backwardBtn.removeEventListener('click', this.onBackwardClick);
         }

@@ -11,6 +11,8 @@
     @prop showMagnifier - Boolean - Show the magnifier
     @prop useSchemaMarkup - Boolean - Use itemprop schema markup for SEO
     @prop showFullScreenGallery - Boolean - Show the full screen gallery
+    @prop isLightbox - Boolean - Gallery is displayed in the lightbox
+    @prop autoplayVideos - Boolean - Autoplay if the media is a video
 #}
 
 {% props
@@ -24,6 +26,7 @@
     useSchemaMarkup = false,
     showFullScreenGallery = true,
     isLightbox = false,
+    autoplayVideos = true,
 %}
 
 {% set lightboxId = 'sw-media-gallery-lightbox-' ~ random() %}
@@ -55,12 +58,14 @@
     showNavigationArrows,
     showFullScreenGallery,
     isLightbox,
+    counterDeviderLabel: 'component.cms.mediaGallery.counterDeviderLabel'|trans|striptags,
 } %}
 
 {% set defaultAttributes = {
     class: mediaGalleryCVA.apply({ thumbnailNavigationPosition, displayMode, singleMedia, isLightbox }),
     'data-component': 'Sw:Media:Gallery',
     'data-component-options': mediaGalleryOptions|json_encode,
+    'aria-label': 'component.cms.mediaGallery.ariaLabel'|trans({'%total%': mediaItems|length})|striptags,
 } %}
 
 {% if displayMode == 'fixedHeight' and maxHeight is not null %}
@@ -69,7 +74,7 @@
     }) %}
 {% endif %}
 
-<div {{ attributes.defaults(defaultAttributes) }}>
+<section {{ attributes.defaults(defaultAttributes) }}>
     {% if mediaItems|length > 1 %}
         <twig:Sw:Media:ThumbnailNav
             class="sw-media-gallery__thumbnail-nav"
@@ -91,7 +96,9 @@
                         data-bs-target="#{{ lightboxId }}"
                         role="button"
                         tabindex="0"
-                        aria-label="Open image {{ loop.index }} in lightbox"
+                        aria-label="{{ 'component.cms.mediaGallery.openLightboxAriaLabel'|trans({'%index%': loop.index})|striptags }}"
+                        aria-haspopup="dialog"
+                        aria-controls="{{ lightboxId }}"
                     {% endif %}
                 >
                     <twig:Sw:Media 
@@ -99,7 +106,7 @@
                         :title="null"
                         class="sw-media-gallery__preview"
                         :itemprop="useSchemaMarkup ? ('image' ~ (loop.first ? ' primaryImageOfPage' : '')) : null"
-                        :autoplay="true"
+                        :autoplay="autoplayVideos"
                     />
                 </div>
             {% endfor %}
@@ -109,7 +116,7 @@
             <button
                 type="button"
                 class="sw-media-gallery__nav-button is--backward btn btn-light"
-                aria-label="Previous image"
+                aria-label="{{ 'component.cms.mediaGallery.previousMedia'|trans|striptags }}"
             >
                 <twig:Sw:Icon name="arrow-head-left" size="sm" />
             </button>
@@ -117,19 +124,20 @@
             <button
                 type="button"
                 class="sw-media-gallery__nav-button is--forward btn btn-light"
-                aria-label="Next image"
+                aria-label="{{ 'component.cms.mediaGallery.nextMedia'|trans|striptags }}"
             >
                 <twig:Sw:Icon name="arrow-head-right" size="sm" />
             </button>
         {% endif %}
 
         {% if not singleMedia %}
-            <span class="sw-media-gallery__preview-item-badge badge">
-                1 / {{ mediaItems|length }}
+            <span class="sw-media-gallery__preview-item-badge badge" aria-live="polite">
+                <span class="visually-hidden">{{ 'component.cms.mediaGallery.counterLabel'|trans|striptags }} </span> 
+                <span class="sw-media-galley__counter-info">1 {{ mediaGalleryOptions.counterDeviderLabel }} {{ mediaItems|length }}</span>
             </span>
         {% endif %}
     </div>
-</div>
+</section>
 
 {% if showFullScreenGallery %}
     <twig:Sw:Media:GalleryLightbox

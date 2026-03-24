@@ -78,6 +78,7 @@
     flex: 0 0 100%;
     min-width: 0;
     scroll-snap-align: start;
+    position: relative;
 }
 
 .sw-media-gallery__nav-button {
@@ -124,10 +125,6 @@
     display: none;
 }
 
-.sw-media-gallery__preview-item-badge {
-    display: none;
-}
-
 @include media-breakpoint-down(md) {
     .sw-media-gallery__thumbnail-nav {
         display: none;
@@ -140,8 +137,10 @@
     .sw-media-gallery__nav-button {
         display: block;
     }
+}
 
+@include media-breakpoint-up(md) {
     .sw-media-gallery__preview-item-badge {
-        display: block;
+        @include visually-hidden;
     }
 }

@@ -95,16 +95,6 @@ class ProductExportExceptionTest extends TestCase
         static::assertSame('export-id', $exception->getParameter('productExportId'));
     }
 
-    public function testJsonlSplitFailed(): void
-    {
-        $exception = ProductExportException::jsonlSplitFailed();
-
-        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-        static::assertSame(ProductExportException::JSONL_SPLIT_FAILED_EXCEPTION, $exception->getErrorCode());
-        static::assertSame('The JSONL export could not be split into lines.', $exception->getMessage());
-        static::assertSame(['line' => 1], $exception->getParameters());
-    }
-
     public function testMalformedJsonlLine(): void
     {
         $exception = ProductExportException::malformedJsonlLine('Syntax error', 3);

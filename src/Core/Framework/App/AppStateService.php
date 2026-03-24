@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\App;
 
+use Shopware\Core\Framework\App\ContentSystem\ElementTypeStateService;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\Hooks\AppActivatedHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppDeactivatedHook;
-use Shopware\Core\Framework\App\ContentSystem\ElementTypeStateService;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;

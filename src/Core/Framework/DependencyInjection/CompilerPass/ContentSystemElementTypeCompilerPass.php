@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CompiledElementTypeDefinition;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CompiledElementTypeDefinitionCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
@@ -51,16 +53,16 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
             return;
         }
 
-        $allSpecifications = [];
+        $collection = new CompiledElementTypeDefinitionCollection();
 
-        $this->loadFromDirectory(self::CORE_DEFINITIONS_DIRECTORY, $allSpecifications);
-        $this->loadFromBundleMetadata($container, $allSpecifications);
-        $this->loadFromPlugins($container, $allSpecifications);
-        $this->loadFromApps($container, $allSpecifications);
+        $this->loadFromDirectory(self::CORE_DEFINITIONS_DIRECTORY, 'core', $collection);
+        $this->loadFromBundleMetadata($container, $collection);
+        $this->loadFromPlugins($container, $collection);
+        $this->loadFromApps($container, $collection);
 
         $inlineDefinitions = [];
-        foreach ($allSpecifications as $spec) {
-            $inlineDefinitions[] = $this->createInlineDefinition($spec);
+        foreach ($collection->all() as $compiled) {
+            $inlineDefinitions[] = $this->createCompiledDefinition($compiled);
         }
 
         $registryServiceDefinition = $container->getDefinition(ContentSystemElementTypeRegistry::class);
@@ -68,12 +70,9 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
     }
 
     /**
-     * Loads from all bundles using the standard path. Skips active plugins
-     * (handled separately in loadFromPlugins where they can override the path).
-     *
-     * @param list<ContentSystemElementTypeSpecification> $allSpecifications
+     * Active plugins excluded — loaded separately via loadFromPlugins to support custom type directories.
      */
-    private function loadFromBundleMetadata(ContainerBuilder $container, array &$allSpecifications): void
+    private function loadFromBundleMetadata(ContainerBuilder $container, CompiledElementTypeDefinitionCollection $collection): void
     {
         $bundleMetadata = $container->getParameter('kernel.bundles_metadata');
         if (!\is_array($bundleMetadata)) {
@@ -97,21 +96,16 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
                 continue;
             }
 
-            $this->loadFromDirectory($metadata['path'] . '/' . self::STANDARD_TYPE_DIRECTORY, $allSpecifications);
+            $this->loadFromDirectory($metadata['path'] . '/' . self::STANDARD_TYPE_DIRECTORY, 'bundle:' . $bundleName, $collection);
         }
     }
 
-    /**
-     * Loads from active plugins using the (potentially overridden) type directory.
-     *
-     * @param list<ContentSystemElementTypeSpecification> $allSpecifications
-     */
-    private function loadFromPlugins(ContainerBuilder $container, array &$allSpecifications): void
+    private function loadFromPlugins(ContainerBuilder $container, CompiledElementTypeDefinitionCollection $collection): void
     {
         foreach ($this->getActivePluginClasses($container) as $pluginClass => $pluginMeta) {
             $relativeDirectory = $pluginClass::getContentTypeDirectory();
 
-            $this->loadFromDirectory($pluginMeta['path'] . '/' . $relativeDirectory, $allSpecifications);
+            $this->loadFromDirectory($pluginMeta['path'] . '/' . $relativeDirectory, 'plugin:' . $pluginMeta['name'], $collection);
         }
     }
 
@@ -163,13 +157,7 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
         return $result;
     }
 
-    /**
-     * Loads app types from filesystem in dev environment only.
-     * Follows the established pattern from TwigLoaderConfigCompilerPass.
-     *
-     * @param list<ContentSystemElementTypeSpecification> $allSpecifications
-     */
-    private function loadFromApps(ContainerBuilder $container, array &$allSpecifications): void
+    private function loadFromApps(ContainerBuilder $container, CompiledElementTypeDefinitionCollection $collection): void
     {
         if ($container->getParameter('kernel.environment') !== 'dev') {
             return;
@@ -189,21 +177,28 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
         }
 
         foreach ($apps as $app) {
-            $this->loadFromDirectory(\sprintf('%s/%s/%s', $projectDirectory, $app['path'], self::STANDARD_TYPE_DIRECTORY), $allSpecifications);
+            $this->loadFromDirectory(\sprintf('%s/%s/%s', $projectDirectory, $app['path'], self::STANDARD_TYPE_DIRECTORY), 'app:' . $app['name'], $collection);
         }
     }
 
-    /**
-     * @param list<ContentSystemElementTypeSpecification> $allSpecifications
-     */
-    private function loadFromDirectory(string $directory, array &$allSpecifications): void
+    private function loadFromDirectory(string $directory, string $source, CompiledElementTypeDefinitionCollection $collection): void
     {
         foreach ($this->loader->load(new Filesystem($directory)) as $specification) {
-            $allSpecifications[] = $specification;
+            $collection->add(new CompiledElementTypeDefinition($specification, $source));
         }
     }
 
-    private function createInlineDefinition(ContentSystemElementTypeSpecification $spec): Definition
+    private function createCompiledDefinition(CompiledElementTypeDefinition $compiled): Definition
+    {
+        $specDef = $this->createSpecificationDefinition($compiled->specification);
+
+        $compiledDef = new Definition(CompiledElementTypeDefinition::class);
+        $compiledDef->setArguments([$specDef, $compiled->source]);
+
+        return $compiledDef;
+    }
+
+    private function createSpecificationDefinition(ContentSystemElementTypeSpecification $spec): Definition
     {
         $schema = $spec->toSchema();
 

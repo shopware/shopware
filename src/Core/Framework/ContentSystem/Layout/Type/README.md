@@ -53,7 +53,7 @@ This bridge is built at compile time by `ContentSystemDataLoaderTypeCompilerPass
 
 - **Definitions/** - Core YAML type definitions (49 files: headers, filters, products, content, media, grid)
 - **Loader/** - Type loading (YamlTypeLoader for filesystem, DatabaseTypeLoader for app types in prod)
-- **Registry/** - ContentSystemElementTypeRegistry (two-phase: compile-time baked + runtime DB)
+- **Registry/** - ContentSystemElementTypeRegistry (two-phase: compile-time baked + runtime DB), CompiledElementTypeDefinition (pairs specification with source label), CompiledElementTypeDefinitionCollection (name-keyed dedup)
 - **Serialization/** - ElementTypeSpecificationSerializer (YAML ↔ DTO conversion)
 - **Specification/** - Value objects (ContentSystemElementTypeSpecification, PropertySpecification, SlotSpecification, CopilotSpecification)
 - **Specification/Dto/** - Validation DTOs with Symfony constraint attributes

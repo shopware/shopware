@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\AbstractContentSystemElementTypeLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CompiledElementTypeDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
@@ -20,8 +21,7 @@ class ContentSystemElementTypeRegistryTest extends TestCase
     #[TestDox('returns all compiled specifications')]
     public function testAllReturnsAllRegisteredSpecifications(): void
     {
-        $def = $this->createSpec('Sw:Content:Text', 'Text');
-        $registry = new ContentSystemElementTypeRegistry([$def], []);
+        $registry = new ContentSystemElementTypeRegistry([$this->compiled('Sw:Content:Text', 'Text')], []);
 
         $all = $registry->all();
         static::assertCount(1, $all);
@@ -31,13 +31,12 @@ class ContentSystemElementTypeRegistryTest extends TestCase
     #[TestDox('returns both compiled and runtime specifications after loading')]
     public function testAllReturnsBothCompiledAndRuntimeSpecifications(): void
     {
-        $compiled = $this->createSpec('Sw:Content:Text', 'Text');
         $runtime = $this->createSpec('App:Demo:Hero', 'Hero');
 
         $loader = static::createStub(AbstractContentSystemElementTypeLoader::class);
         $loader->method('load')->willReturn([$runtime]);
 
-        $registry = new ContentSystemElementTypeRegistry([$compiled], [$loader]);
+        $registry = new ContentSystemElementTypeRegistry([$this->compiled('Sw:Content:Text', 'Text')], [$loader]);
 
         static::assertCount(2, $registry->all());
     }
@@ -45,8 +44,7 @@ class ContentSystemElementTypeRegistryTest extends TestCase
     #[TestDox('returns true for a registered type')]
     public function testHasReturnsTrueForRegisteredType(): void
     {
-        $def = $this->createSpec('Sw:Content:Text', 'Text');
-        $registry = new ContentSystemElementTypeRegistry([$def], []);
+        $registry = new ContentSystemElementTypeRegistry([$this->compiled('Sw:Content:Text', 'Text')], []);
 
         static::assertTrue($registry->has('Sw:Content:Text'));
     }
@@ -62,10 +60,10 @@ class ContentSystemElementTypeRegistryTest extends TestCase
     #[TestDox('returns the specification for a registered type')]
     public function testGetReturnsSpecificationForRegisteredType(): void
     {
-        $def = $this->createSpec('Sw:Content:Text', 'Text');
-        $registry = new ContentSystemElementTypeRegistry([$def], []);
+        $spec = $this->createSpec('Sw:Content:Text', 'Text');
+        $registry = new ContentSystemElementTypeRegistry([new CompiledElementTypeDefinition($spec, 'test')], []);
 
-        static::assertSame($def, $registry->get('Sw:Content:Text'));
+        static::assertSame($spec, $registry->get('Sw:Content:Text'));
     }
 
     #[TestDox('throws for unknown type on get')]
@@ -106,13 +104,12 @@ class ContentSystemElementTypeRegistryTest extends TestCase
     #[TestDox('preserves compiled specifications after reset')]
     public function testResetPreservesCompiledSpecifications(): void
     {
-        $compiled = $this->createSpec('Sw:Content:Text', 'Text');
         $runtime = $this->createSpec('App:Demo:Hero', 'Hero');
 
         $loader = static::createStub(AbstractContentSystemElementTypeLoader::class);
         $loader->method('load')->willReturn([$runtime]);
 
-        $registry = new ContentSystemElementTypeRegistry([$compiled], [$loader]);
+        $registry = new ContentSystemElementTypeRegistry([$this->compiled('Sw:Content:Text', 'Text')], [$loader]);
         $registry->all();
         $registry->reset();
 
@@ -136,29 +133,33 @@ class ContentSystemElementTypeRegistryTest extends TestCase
     #[TestDox('throws for duplicate registration in compiled specifications')]
     public function testDuplicateCompiledSpecificationThrows(): void
     {
-        $def1 = $this->createSpec('Sw:Content:Text', 'Text');
-        $def2 = $this->createSpec('Sw:Content:Text', 'Text 2');
-
         $this->expectExceptionObject(
-            ContentSystemException::elementTypeDuplicate('Sw:Content:Text', 'compiled', 'compiled')
+            ContentSystemException::elementTypeDuplicate('Sw:Content:Text', 'core', 'plugin:MyPlugin')
         );
-        new ContentSystemElementTypeRegistry([$def1, $def2], []);
+        new ContentSystemElementTypeRegistry([
+            $this->compiled('Sw:Content:Text', 'Text', 'core'),
+            $this->compiled('Sw:Content:Text', 'Text 2', 'plugin:MyPlugin'),
+        ], []);
     }
 
     #[TestDox('throws when runtime loader registers an already compiled type')]
     public function testRuntimeLoaderDuplicateWithCompiledThrows(): void
     {
-        $compiled = $this->createSpec('Sw:Content:Text', 'Text');
         $runtime = $this->createSpec('Sw:Content:Text', 'Text');
 
         $loader = new FixedTypeLoader([$runtime]);
 
-        $registry = new ContentSystemElementTypeRegistry([$compiled], [$loader]);
+        $registry = new ContentSystemElementTypeRegistry([$this->compiled('Sw:Content:Text', 'Text', 'core')], [$loader]);
 
         $this->expectExceptionObject(
-            ContentSystemException::elementTypeDuplicate('Sw:Content:Text', 'compiled', FixedTypeLoader::class)
+            ContentSystemException::elementTypeDuplicate('Sw:Content:Text', 'core', FixedTypeLoader::class)
         );
         $registry->all();
+    }
+
+    private function compiled(string $name, string $label, string $source = 'test'): CompiledElementTypeDefinition
+    {
+        return new CompiledElementTypeDefinition($this->createSpec($name, $label), $source);
     }
 
     private function createSpec(string $name, string $label): ContentSystemElementTypeSpecification

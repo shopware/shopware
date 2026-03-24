@@ -34,15 +34,15 @@ class ContentSystemElementTypeRegistry implements ResetInterface
     /**
      * @internal
      *
-     * @param list<ContentSystemElementTypeSpecification> $compiledDefinitions
+     * @param list<CompiledElementTypeDefinition> $compiledDefinitions
      * @param iterable<AbstractContentSystemElementTypeLoader> $runtimeLoaders
      */
     public function __construct(
         array $compiledDefinitions,
         private readonly iterable $runtimeLoaders,
     ) {
-        foreach ($compiledDefinitions as $definition) {
-            $this->register($definition, 'compiled');
+        foreach ($compiledDefinitions as $compiled) {
+            $this->register($compiled->specification, $compiled->source);
         }
     }
 

@@ -282,7 +282,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'categoriesRo' => array_values(array_map(static fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], ElasticsearchIndexingUtils::parseJson($item, 'categoryTree'))),
                 'taxId' => $item['taxId'],
                 'tags' => array_filter(array_map(static function (array $tag) {
-                    return empty($tag['id']) ? null : [
+                    return ($tag['id'] ?? '') === '' ? null : [
                         'id' => $tag['id'],
                         'name' => ElasticsearchIndexingUtils::stripText($tag['name'] ?? ''),
                         '_count' => 1,
@@ -542,7 +542,7 @@ SQL;
                 $categories = $base[$id]['categories'] ?? [];
                 $translatedCategories = ElasticsearchIndexingUtils::parseJson($translation, 'categories');
 
-                if (!empty($translation['customSearchKeywords'])) {
+                if ($translation['customSearchKeywords'] !== null && $translation['customSearchKeywords'] !== '') {
                     $translation['customSearchKeywords'] = ElasticsearchIndexingUtils::parseJson($translation, 'customSearchKeywords');
                 }
 
@@ -629,7 +629,7 @@ SQL;
                 $key = 'cheapest_price_' . $rule . '_' . $currency . '_net';
                 $mapped[$key] = $taxes['net'];
 
-                if (empty($taxes['percentage'])) {
+                if (($taxes['percentage'] ?? []) === []) {
                     continue;
                 }
 

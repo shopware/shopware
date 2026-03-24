@@ -37,7 +37,7 @@ class TestRuleHelper
             'Shopware\\Commercial\\Migration\\Test\\',
 
             'Swag\\SaasRufus\\Test\\Migration\\',
-            'Swag\\SaasRufus\\Tests\\Unit\\',
+            'Swag\\SaasRufus\\Test\\Unit\\',
         ];
 
         foreach ($unitTestNamespaces as $unitTestNamespace) {

@@ -18,10 +18,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class SalesChannelTypeValidator implements EventSubscriberInterface
 {
     private const PROTECTED_SALES_CHANNEL_TYPE_IDS = [
-        Defaults::SALES_CHANNEL_TYPE_API,
-        Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
-        Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON,
-        Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE,
+        Defaults::SALES_CHANNEL_TYPE_API => true,
+        Defaults::SALES_CHANNEL_TYPE_STOREFRONT => true,
+        Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON => true,
+        Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE => true,
     ];
 
     public static function getSubscribedEvents(): array
@@ -40,7 +40,7 @@ class SalesChannelTypeValidator implements EventSubscriberInterface
 
             $id = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
 
-            if (\in_array($id, self::PROTECTED_SALES_CHANNEL_TYPE_IDS, true)) {
+            if (\array_key_exists($id, self::PROTECTED_SALES_CHANNEL_TYPE_IDS)) {
                 $event->getExceptions()->add(new DefaultSalesChannelTypeCannotBeDeleted($id));
             }
         }

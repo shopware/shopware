@@ -62,12 +62,13 @@
         'sale_price': (salePriceValue|number_format(context.currency.itemRounding.decimals, '.', '')) ~ ' ' ~ context.currency.isoCode
     }) %}
 {% endif %}
+{# Property-mapped candidates for a future mapping layer:
+   material, age_group, variant_dict, color, size, size_system, gender,
+   custom_variant1_category/custom_variant1_option,
+   custom_variant2_category/custom_variant2_option,
+   custom_variant3_category/custom_variant3_option
+#}
+{# Skip rows that are missing core required feed data and would be invalid for OpenAI. #}
 {% if title and imageUrl and price %}
-    {# Property-mapped candidates for a future mapping layer:
-       material, age_group, variant_dict, color, size, size_system, gender,
-       custom_variant1_category/custom_variant1_option,
-       custom_variant2_category/custom_variant2_option,
-       custom_variant3_category/custom_variant3_option
-    #}
 {{ feedRow|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }}
 {% endif %}

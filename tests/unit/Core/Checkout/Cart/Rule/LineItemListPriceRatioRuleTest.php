@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Checkout\Cart\Rule;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -14,7 +14,6 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemListPriceRatioRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
@@ -22,11 +21,10 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[Group('rules')]
+#[CoversClass(LineItemListPriceRatioRule::class)]
 class LineItemListPriceRatioRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
-    use IntegrationTestBehaviour;
 
     private LineItemListPriceRatioRule $rule;
 
@@ -714,7 +712,7 @@ class LineItemListPriceRatioRuleTest extends TestCase
         $this->rule->assign(['amount' => $price, 'operator' => Rule::OPERATOR_EQ]);
 
         $match = $this->rule->match(new LineItemScope(
-            $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $price),
+            self::createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $price),
             $this->createMock(SalesChannelContext::class)
         ));
 
@@ -725,6 +723,6 @@ class LineItemListPriceRatioRuleTest extends TestCase
     {
         $listPrice = $listPriceAmount === null ? null : ListPrice::createFromUnitPrice($price, $listPriceAmount);
 
-        return $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $price, $listPrice);
+        return self::createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $price, $listPrice);
     }
 }

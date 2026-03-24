@@ -21,10 +21,7 @@ class JsonlRowParser
     public function parse(string $content): array
     {
         $lines = preg_split('/\R/', $content);
-
-        if ($lines === false) {
-            throw ProductExportException::jsonlSplitFailed();
-        }
+        \assert($lines !== false);
 
         $decodedRows = [];
 

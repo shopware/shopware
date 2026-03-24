@@ -24,7 +24,6 @@ class ProductExportException extends HttpException
     public const SALES_CHANNEL_DOMAIN_NOT_FOUND_EXCEPTION = 'PRODUCT_EXPORT__SALES_CHANNEL_DOMAIN_NOT_FOUND_EXCEPTION';
     public const TEMPLATE_FILE_NOT_FOUND_EXCEPTION = 'PRODUCT_EXPORT__TEMPLATE_FILE_NOT_FOUND_EXCEPTION';
     public const TEMPLATE_FILE_NOT_LOADABLE_EXCEPTION = 'PRODUCT_EXPORT__TEMPLATE_FILE_NOT_LOADABLE_EXCEPTION';
-    public const JSONL_SPLIT_FAILED_EXCEPTION = 'PRODUCT_EXPORT__JSONL_SPLIT_FAILED_EXCEPTION';
     public const JSONL_MALFORMED_LINE_EXCEPTION = 'PRODUCT_EXPORT__JSONL_MALFORMED_LINE_EXCEPTION';
     public const JSONL_LINE_NOT_OBJECT_EXCEPTION = 'PRODUCT_EXPORT__JSONL_LINE_NOT_OBJECT_EXCEPTION';
 
@@ -102,16 +101,6 @@ class ProductExportException extends HttpException
             self::TEMPLATE_FILE_NOT_LOADABLE_EXCEPTION,
             'Product export template "{{ template }}" could not be loaded.',
             ['template' => $template]
-        );
-    }
-
-    public static function jsonlSplitFailed(): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::JSONL_SPLIT_FAILED_EXCEPTION,
-            'The JSONL export could not be split into lines.',
-            ['line' => 1]
         );
     }
 

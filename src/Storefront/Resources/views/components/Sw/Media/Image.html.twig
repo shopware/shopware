@@ -1,0 +1,47 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    media,
+    height = 'auto',
+    sizes = null,
+    loading = 'lazy',
+    fetchpriority = 'auto',
+    maxImageWidth = 1360,
+    visibility = null
+%}
+
+{% set mediaImageCVA = cva({
+    base: 'sw-media sw-media-image'
+}) %}
+
+{% set attributeDefaults = {
+    src: media|sw_encode_media_url,
+    height: height,
+    loading: loading,
+    fetchpriority: fetchpriority,
+    sizes: sizes ? sizes : '(max-width: ' ~ maxImageWidth ~ 'px) 96vw, ' ~ maxImageWidth ~ 'px',
+    class: mediaImageCVA.apply({}),
+} %}
+
+{% if media.translated.alt is not null %}
+    {% set attributeDefaults = attributeDefaults|merge({ alt: media.translated.alt }) %}
+{% endif %}
+
+{% if media.translated.title is not null %}
+    {% set attributeDefaults = attributeDefaults|merge({ title: media.translated.title }) %}
+{% endif %}
+
+{% if media.thumbnails|length > 0 %}
+    {% set srcsetValues = [] %}
+
+    {% for thumbnail in media.thumbnails|sort((a, b) => a.width <=> b.width) %}
+        {% set srcsetValues = srcsetValues|merge([thumbnail.url|sw_encode_url ~ ' ' ~ thumbnail.width ~ 'w']) %}
+    {% endfor %}
+
+    {% set srcsetValues = srcsetValues|join(', ') %}
+    {% set attributeDefaults = attributeDefaults|merge({ srcset: srcsetValues }) %}
+{% endif %}
+
+<img {{ attributes.defaults(attributeDefaults) }}>

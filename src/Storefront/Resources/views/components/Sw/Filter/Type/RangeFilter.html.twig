@@ -1,0 +1,60 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    minKey = 'min',
+    maxKey = 'max',
+    unit = context.currency.symbol ? context.currency.symbol : '',
+    minLabel = 'listing.filterRangeMinLabel'|trans|sw_sanitize,
+    maxLabel = 'listing.filterRangeMaxLabel'|trans|sw_sanitize,
+    minInputValue = 0,
+    maxInputValue = 100,
+ %}
+
+{% set defaultAttributes = {
+    class: 'sw-range-filter sw-filter',
+    'data-component': 'Sw:Filter:Type:RangeFilter',
+} %}
+
+{% set rangeFilterOptions = {
+    unit: unit,
+    minLabel: minLabel,
+    maxLabel: maxLabel,
+} %}
+
+<div {{ attributes.defaults(defaultAttributes) }} data-range-filter-options="{{ rangeFilterOptions|json_encode }}">
+    <div class="sw-range-filter__range-min">
+        {% set minId = 'min-input-' ~ minKey ~ '-' ~ random() %}
+
+        <label class="sw-range-filter__min-label" for="{{ minId }}">
+            {{ minLabel }} ({{ unit }})
+        </label>
+        <input
+            class="sw-range-filter__min-input form-control"
+            id="{{ minId }}"
+            type="number"
+            name="{{ minKey }}"
+            min="{{ minInputValue }}"
+            max="{{ maxInputValue }}">
+    </div>
+
+    <div class="sw-range-filter__range-divider">
+        &ndash;
+    </div>
+
+    <div class="sw-range-filter__range-max">
+        {% set maxId = 'max-input-' ~ maxKey ~ '-' ~ random() %}
+
+        <label class="sw-range-filter__max-label" for="{{ maxId }}">
+            {{ maxLabel }} ({{ unit }})
+        </label>
+        <input
+            class="sw-range-filter__max-input form-control"
+            id="{{ maxId }}"
+            type="number"
+            name="{{ maxKey }}"
+            min="{{ minInputValue }}"
+            max="{{ maxInputValue }}">
+    </div>
+</div>

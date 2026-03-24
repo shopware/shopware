@@ -1,0 +1,19 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    page = null
+%}
+
+{% for element in page.elements %}
+    {% set properties = element.properties %}
+    {% set slots = element.slots %}
+    {% set properties = properties|merge({ 'data-element-id': element.id }) %}
+
+    {% if slots is not empty %}
+        {% set properties = properties|merge({ slots: slots }) %}
+    {% endif %}
+
+    {{ component(element.component, properties) }}
+{% endfor %}

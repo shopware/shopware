@@ -1,0 +1,63 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    name = '',
+    pack = 'default',
+    namespace = 'Storefront',
+    size = null,
+    color = null,
+    rotation = null,
+    flip = null,
+%}
+
+{% set iconVariants = cva({
+    base: 'sw-icon sw-icon--' ~ pack ~ ' sw-icon--' ~ pack ~ '-' ~ name,
+    variants: {
+        size: {
+            fluid: 'sw-icon--fluid',
+            lg: 'sw-icon--lg',
+            sm: 'sw-icon--sm',
+            xs: 'sw-icon--xs',
+            '1x': 'sw-icon--1x',
+            '2x': 'sw-icon--2x',
+            '3x': 'sw-icon--3x',
+        },
+        color: {
+            primary: 'text-primary',
+            secondary: 'text-secondary',
+            success: 'text-success',
+            info: 'text-info',
+            warning: 'text-warning',
+            danger: 'text-danger',
+            light: 'text-light',
+            dark: 'text-dark',
+        },
+        rotation: {
+            90: 'sw-icon--rotate-90',
+            180: 'sw-icon--rotate-180',
+            270: 'sw-icon--rotate-270',
+        },
+        flip: {
+            horizontal: 'sw-icon--flip-horizontal',
+            vertical: 'sw-icon--flip-vertical',
+            both: 'sw-icon--flip-both',
+        }
+    }
+}) %}
+
+{% set attributeDefaults = {
+    'aria-hidden': true,
+    class: iconVariants.apply({size, color, rotation, flip}),
+} %}
+
+{%- if themeIconConfig[pack] is defined -%}
+    {% set icon = source('@' ~ themeIconConfig[pack].namespace ~ '/' ~ themeIconConfig[pack].path ~'/'~ name ~ '.svg', ignore_missing = true) %}
+{%- else -%}
+    {% set icon = source('@' ~ namespace ~ '/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) %}
+{%- endif -%}
+
+<span {{ attributes.defaults(attributeDefaults) }}>
+    {{ icon|sw_icon_cache|raw }}
+</span>

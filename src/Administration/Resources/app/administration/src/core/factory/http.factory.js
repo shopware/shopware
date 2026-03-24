@@ -396,6 +396,18 @@ function refreshTokenInterceptor(client) {
             }
 
             if (status === 401) {
+                const errorCode = error.response?.data?.errors?.[0]?.code;
+
+                // Do not retry on SSO_LOGIN__TOKEN_NOT_FOUND 401 error that is not related to an expired admin token
+                if (errorCode === 'SSO_LOGIN__TOKEN_NOT_FOUND') {
+                    return Promise.reject(error);
+                }
+
+                // Prevent infinite retry loops - only allow one token refresh retry per request
+                if (originalRequest._tokenRefreshRetry) {
+                    return Promise.reject(error);
+                }
+
                 const loginService = Shopware.Service('loginService');
 
                 // Intentionally ignore refresh token errors here; they are handled via subscribeToTokenRefresh.
@@ -407,6 +419,7 @@ function refreshTokenInterceptor(client) {
                             // replace the expired token and retry
                             originalRequest.headers.Authorization = `Bearer ${newToken}`;
                             originalRequest.url = originalRequest.url.replace(originalRequest.baseURL, '');
+                            originalRequest._tokenRefreshRetry = true;
                             resolve(client.request(originalRequest));
                         },
                         (err) => {

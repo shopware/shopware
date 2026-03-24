@@ -404,7 +404,12 @@
                                                                         <canvas
                                                                                 data-spatial-gallery-slider-viewer
                                                                                 data-spatial-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
-                                                                        ></canvas>
+                                                                        >
+                                                                        </canvas>
+                                                                        <div class="spatial-anim-button-container position-absolute end-0 top-0 hidden">
+                                                                            <button class="spatial-anim-button text-center mx-0 py-1 px-3"> Pause </button>
+                                                                            <div class="spatial-anim-progress mx-0 py-1 px-3"></div>
+                                                                        </div>
                                                                         <span
                                                                                 class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
                                                                                 data-spatial-movement-note

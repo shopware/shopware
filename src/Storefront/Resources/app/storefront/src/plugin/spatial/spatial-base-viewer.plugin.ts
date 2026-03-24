@@ -48,6 +48,58 @@ export default class SpatialBaseViewerPlugin extends Plugin {
 
         if (this.dive == undefined) {
             this.dive = await window.DIVEQuickViewPlugin.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.canvas });
+
+            if (this.dive.model.animations.length > 0) {
+                // instantiate animation system
+                const animSystem = new window.DIVEAnimationPlugin.AnimationSystem();
+                await animSystem.fromClips(this.dive.model, this.dive.model.animations);
+                this.dive.clock.addTicker(animSystem);
+
+                // create animator
+                const animator = await animSystem.fromClips(this.dive.model, this.dive.model.animations);
+                animator.loop = "repeat";
+
+                // automatically play the first animation
+                animator.play();
+
+                // container
+                const animButtonContainer = this.canvas.parentElement?.querySelector('.spatial-anim-button-container');
+                if(!animButtonContainer) {
+                    return;
+                }
+
+                // button
+                const animButton = animButtonContainer.querySelector('.spatial-anim-button');
+                if(!animButton) {
+                    return;
+                }
+
+                animButton.addEventListener('click', () => {
+                    if(animator.state === 'playing') {
+                        animator.pause();
+                        animButton.textContent = 'Play';
+                    } else {
+                        animator.play();
+                        animButton.textContent = 'Pause';
+                    }
+                });
+
+                // progress
+                const progressBar = animButtonContainer.querySelector('.spatial-anim-progress') as HTMLElement | null;
+                if (!progressBar) {
+                    return;
+                }
+
+                const originalUpdate = animator.update.bind(animator);
+                animator.update = (deltaTime: number) => {
+                    originalUpdate(deltaTime);
+                    const progress = animator.duration > 0 ? animator.time / animator.duration : 0;
+                    progressBar.style.setProperty('--progress', String(progress));
+                };
+
+                // show button
+                animButtonContainer.classList.remove('hidden');
+            }
         }
 
         // @ts-ignore

@@ -295,6 +295,31 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     }
 }
 
+.spatial-anim-button-container {
+    .spatial-anim-button {
+        width: 100px;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .spatial-anim-progress {
+        display: block;
+        height: 4px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: calc(var(--progress, 0) * 100%);
+            background: green;
+        }
+    }
+}
+
 // @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
 .spatial-canvas-note {
     position: absolute;

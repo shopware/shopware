@@ -1,0 +1,5 @@
+meta:
+  name: "App:Demo:Hero"
+  label: "Hero Banner"
+  description: "A hero banner element."
+  vendor: "DemoApp"

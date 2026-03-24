@@ -240,6 +240,44 @@
           }
         ]
       }
+    },
+    "/app-system/shop/verify": {
+      "get": {
+        "tags": [
+          "App System", "Public"
+        ],
+        "summary": "Verify a shop's APP_URL",
+        "description": "Used to verify that a shop's APP_URL points to its self. The passed run ID and token are used to query the cache. It returns 204 no content if the given token can be verified using the run id.",
+        "operationId": "verifyAppUrl",
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "query",
+            "description": "A unique identifier used to look up the token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "description": "A unique identifier",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "An empty response signalling successful verification."
+          },
+          "400": {
+            "description": "Malformed request or unsuccessful verification."
+          }
+        }
+      }
     }
   },
   "components": {

@@ -265,4 +265,28 @@ class UserControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
     }
+
+    public function testLogoutRevokesRefreshTokens(): void
+    {
+        $client = $this->getBrowser();
+        $connection = static::getContainer()->get(Connection::class);
+
+        $userId = $connection->fetchOne('SELECT LOWER(HEX(id)) FROM user WHERE email = :email', ['email' => 'admin@example.com']);
+        static::assertIsString($userId);
+
+        $tokensBefore = (int) $connection->fetchOne(
+            'SELECT COUNT(*) FROM refresh_token WHERE user_id = UNHEX(:userId)',
+            ['userId' => $userId]
+        );
+        static::assertGreaterThan(0, $tokensBefore, 'Expected at least one refresh token before logout');
+
+        $client->request('POST', '/api/_action/user/logout');
+        static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
+
+        $tokensAfter = (int) $connection->fetchOne(
+            'SELECT COUNT(*) FROM refresh_token WHERE user_id = UNHEX(:userId)',
+            ['userId' => $userId]
+        );
+        static::assertSame(0, $tokensAfter, 'Expected all refresh tokens to be revoked after logout');
+    }
 }

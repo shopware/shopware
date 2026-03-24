@@ -20,6 +20,11 @@ class ContentElementTypeRegistry implements ResetInterface
     private array $types = [];
 
     /**
+     * @var array<string, string>
+     */
+    private array $sources = [];
+
+    /**
      * @var array<string, true>
      */
     private array $runtimeLoaded = [];
@@ -37,7 +42,7 @@ class ContentElementTypeRegistry implements ResetInterface
         private readonly iterable $runtimeLoaders,
     ) {
         foreach ($compiledDefinitions as $definition) {
-            $this->register($definition);
+            $this->register($definition, 'compiled');
         }
     }
 
@@ -72,22 +77,23 @@ class ContentElementTypeRegistry implements ResetInterface
     public function reset(): void
     {
         foreach ($this->runtimeLoaded as $name => $_) {
-            unset($this->types[$name]);
+            unset($this->types[$name], $this->sources[$name]);
         }
 
         $this->runtimeLoaded = [];
         $this->runtimeLoadComplete = false;
     }
 
-    private function register(ContentElementTypeSpecification $definition): void
+    private function register(ContentElementTypeSpecification $definition, string $source): void
     {
         $name = $definition->name();
 
         if (isset($this->types[$name])) {
-            throw ContentSystemException::elementTypeDuplicate($name, $this->types[$name]->name(), $definition->name());
+            throw ContentSystemException::elementTypeDuplicate($name, $this->sources[$name], $source);
         }
 
         $this->types[$name] = $definition;
+        $this->sources[$name] = $source;
     }
 
     private function ensureLoaded(): void
@@ -99,8 +105,10 @@ class ContentElementTypeRegistry implements ResetInterface
         $this->runtimeLoadComplete = true;
 
         foreach ($this->runtimeLoaders as $loader) {
+            $source = $loader::class;
+
             foreach ($loader->load() as $definition) {
-                $this->register($definition);
+                $this->register($definition, $source);
                 $this->runtimeLoaded[$definition->name()] = true;
             }
         }

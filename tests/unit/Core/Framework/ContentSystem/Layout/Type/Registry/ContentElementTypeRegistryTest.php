@@ -140,7 +140,7 @@ class ContentElementTypeRegistryTest extends TestCase
         $def2 = $this->createSpec('Sw:Content:Text', 'Text 2');
 
         $this->expectExceptionObject(
-            ContentSystemException::elementTypeDuplicate('Sw:Content:Text', 'Sw:Content:Text', 'Sw:Content:Text')
+            ContentSystemException::elementTypeDuplicate('Sw:Content:Text', 'compiled', 'compiled')
         );
         new ContentElementTypeRegistry([$def1, $def2], []);
     }
@@ -151,13 +151,12 @@ class ContentElementTypeRegistryTest extends TestCase
         $compiled = $this->createSpec('Sw:Content:Text', 'Text');
         $runtime = $this->createSpec('Sw:Content:Text', 'Text');
 
-        $loader = static::createStub(AbstractContentElementTypeLoader::class);
-        $loader->method('load')->willReturn([$runtime]);
+        $loader = new FixedTypeLoader([$runtime]);
 
         $registry = new ContentElementTypeRegistry([$compiled], [$loader]);
 
         $this->expectExceptionObject(
-            ContentSystemException::elementTypeDuplicate('Sw:Content:Text', 'Sw:Content:Text', 'Sw:Content:Text')
+            ContentSystemException::elementTypeDuplicate('Sw:Content:Text', 'compiled', FixedTypeLoader::class)
         );
         $registry->all();
     }
@@ -175,5 +174,23 @@ class ContentElementTypeRegistryTest extends TestCase
             [],
             [],
         );
+    }
+}
+
+/**
+ * @internal
+ */
+class FixedTypeLoader extends AbstractContentElementTypeLoader
+{
+    /**
+     * @param list<ContentElementTypeSpecification> $definitions
+     */
+    public function __construct(private readonly array $definitions)
+    {
+    }
+
+    public function load(): array
+    {
+        return $this->definitions;
     }
 }

@@ -57,7 +57,12 @@ class SeoActionController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/seo-url-template/validate', name: 'api.seo-url-template.validate', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/seo-url-template/validate',
+        name: 'api.seo-url-template.validate',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['seo-url-template:update']],
+        methods: ['POST']
+    )]
     public function validate(Request $request, Context $context): JsonResponse
     {
         $context->setConsiderInheritance(true);
@@ -71,7 +76,12 @@ class SeoActionController extends AbstractController
         return new JsonResponse();
     }
 
-    #[Route(path: '/api/_action/seo-url-template/preview', name: 'api.seo-url-template.preview', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/seo-url-template/preview',
+        name: 'api.seo-url-template.preview',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['seo-url-template:update']],
+        methods: ['POST']
+    )]
     public function preview(Request $request, Context $context): Response
     {
         $this->validateSeoUrlTemplate($request);

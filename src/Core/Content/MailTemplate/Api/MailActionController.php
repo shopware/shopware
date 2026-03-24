@@ -66,7 +66,8 @@ class MailActionController extends AbstractController
     #[Route(
         path: '/api/_action/mail-template/validate',
         name: 'api.action.mail_template.validate',
-        methods: [Request::METHOD_POST]
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:update']],
+        methods: [Request::METHOD_POST],
     )]
     public function validate(RequestDataBag $post, Context $context): JsonResponse
     {
@@ -80,6 +81,7 @@ class MailActionController extends AbstractController
     #[Route(
         path: '/api/_action/mail-template/build',
         name: 'api.action.mail_template.build',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:update']],
         methods: [Request::METHOD_POST]
     )]
     public function build(RequestDataBag $post, Context $context): JsonResponse

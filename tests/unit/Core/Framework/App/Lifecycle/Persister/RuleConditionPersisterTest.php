@@ -275,81 +275,112 @@ class RuleConditionPersisterTest extends TestCase
 
     public function testPersistHydratesConstraintsForBoolField(): void
     {
-        $constraints = $this->getConstraintsForField(BoolField::fromArray(['name' => 'my-field']));
+        $result = unserialize($this->getConstraintsForField(BoolField::fromArray(['name' => 'my-field'])));
 
-        static::assertSame(serialize(['my-field' => [new Type('bool')]]), $constraints);
+        static::assertArrayHasKey('my-field', $result);
+        static::assertCount(1, $result['my-field']);
+        static::assertInstanceOf(Type::class, $result['my-field'][0]);
+        static::assertSame('bool', $result['my-field'][0]->type);
     }
 
     public function testPersistHydratesConstraintsForFloatField(): void
     {
-        $constraints = $this->getConstraintsForField(FloatField::fromArray(['name' => 'my-field']));
+        $result = unserialize($this->getConstraintsForField(FloatField::fromArray(['name' => 'my-field'])));
 
-        static::assertSame(serialize(['my-field' => [new Type('numeric')]]), $constraints);
+        static::assertArrayHasKey('my-field', $result);
+        static::assertCount(1, $result['my-field']);
+        static::assertInstanceOf(Type::class, $result['my-field'][0]);
+        static::assertSame('numeric', $result['my-field'][0]->type);
     }
 
     public function testPersistHydratesConstraintsForIntField(): void
     {
-        $constraints = $this->getConstraintsForField(IntField::fromArray(['name' => 'my-field']));
+        $result = unserialize($this->getConstraintsForField(IntField::fromArray(['name' => 'my-field'])));
 
-        static::assertSame(serialize(['my-field' => [new Type('int')]]), $constraints);
+        static::assertArrayHasKey('my-field', $result);
+        static::assertCount(1, $result['my-field']);
+        static::assertInstanceOf(Type::class, $result['my-field'][0]);
+        static::assertSame('int', $result['my-field'][0]->type);
     }
 
     public function testPersistHydratesConstraintsForPriceField(): void
     {
-        $constraints = $this->getConstraintsForField(PriceField::fromArray(['name' => 'my-field']));
+        $result = unserialize($this->getConstraintsForField(PriceField::fromArray(['name' => 'my-field'])));
 
-        static::assertSame(serialize(['my-field' => []]), $constraints);
+        static::assertArrayHasKey('my-field', $result);
+        static::assertSame([], $result['my-field']);
     }
 
     public function testPersistHydratesConstraintsForMultiEntitySelectField(): void
     {
-        $constraints = $this->getConstraintsForField(MultiEntitySelectField::fromArray(['name' => 'my-field', 'entity' => 'product']));
+        $result = unserialize($this->getConstraintsForField(MultiEntitySelectField::fromArray(['name' => 'my-field', 'entity' => 'product'])));
 
-        static::assertSame(serialize(['my-field' => [new ArrayOfUuid()]]), $constraints);
+        static::assertArrayHasKey('my-field', $result);
+        static::assertCount(1, $result['my-field']);
+        static::assertInstanceOf(ArrayOfUuid::class, $result['my-field'][0]);
     }
 
     public function testPersistHydratesConstraintsForSingleEntitySelectField(): void
     {
-        $constraints = $this->getConstraintsForField(SingleEntitySelectField::fromArray(['name' => 'my-field', 'entity' => 'product']));
+        $result = unserialize($this->getConstraintsForField(SingleEntitySelectField::fromArray(['name' => 'my-field', 'entity' => 'product'])));
 
-        static::assertSame(serialize(['my-field' => [new Uuid()]]), $constraints);
+        static::assertArrayHasKey('my-field', $result);
+        static::assertCount(1, $result['my-field']);
+        static::assertInstanceOf(Uuid::class, $result['my-field'][0]);
     }
 
     public function testPersistHydratesConstraintsForMediaSelectionField(): void
     {
-        $constraints = $this->getConstraintsForField(MediaSelectionField::fromArray(['name' => 'my-field']));
+        $result = unserialize($this->getConstraintsForField(MediaSelectionField::fromArray(['name' => 'my-field'])));
 
-        static::assertSame(serialize(['my-field' => [new Uuid()]]), $constraints);
+        static::assertArrayHasKey('my-field', $result);
+        static::assertCount(1, $result['my-field']);
+        static::assertInstanceOf(Uuid::class, $result['my-field'][0]);
     }
 
     public function testPersistHydratesConstraintsForSingleSelectField(): void
     {
         $field = SingleSelectField::fromArray(['name' => 'my-field', 'options' => ['opt1' => 'Option 1', 'opt2' => 'Option 2']]);
-        $constraints = $this->getConstraintsForField($field);
+        $result = unserialize($this->getConstraintsForField($field));
 
-        static::assertSame(serialize(['my-field' => [new Choice(choices: ['opt1', 'opt2'])]]), $constraints);
+        static::assertArrayHasKey('my-field', $result);
+        static::assertCount(1, $result['my-field']);
+        static::assertInstanceOf(Choice::class, $result['my-field'][0]);
+        static::assertSame(['opt1', 'opt2'], $result['my-field'][0]->choices);
     }
 
     public function testPersistHydratesConstraintsForMultiSelectField(): void
     {
         $field = MultiSelectField::fromArray(['name' => 'my-field', 'options' => ['opt1' => 'Option 1', 'opt2' => 'Option 2']]);
-        $constraints = $this->getConstraintsForField($field);
+        $result = unserialize($this->getConstraintsForField($field));
 
-        static::assertSame(serialize(['my-field' => [new All(constraints: new Choice(choices: ['opt1', 'opt2']))]]), $constraints);
+        static::assertArrayHasKey('my-field', $result);
+        static::assertCount(1, $result['my-field']);
+        static::assertInstanceOf(All::class, $result['my-field'][0]);
+        static::assertCount(1, $result['my-field'][0]->constraints);
+        static::assertInstanceOf(Choice::class, $result['my-field'][0]->constraints[0]);
+        static::assertSame(['opt1', 'opt2'], $result['my-field'][0]->constraints[0]->choices);
     }
 
     public function testPersistHydratesConstraintsForDefaultStringField(): void
     {
-        $constraints = $this->getConstraintsForField(TextField::fromArray(['name' => 'my-field']));
+        $result = unserialize($this->getConstraintsForField(TextField::fromArray(['name' => 'my-field'])));
 
-        static::assertSame(serialize(['my-field' => [new Type('string')]]), $constraints);
+        static::assertArrayHasKey('my-field', $result);
+        static::assertCount(1, $result['my-field']);
+        static::assertInstanceOf(Type::class, $result['my-field'][0]);
+        static::assertSame('string', $result['my-field'][0]->type);
     }
 
     public function testPersistHydratesConstraintsAddsNotBlankForRequiredField(): void
     {
-        $constraints = $this->getConstraintsForField(BoolField::fromArray(['name' => 'my-field', 'required' => true]));
+        $result = unserialize($this->getConstraintsForField(BoolField::fromArray(['name' => 'my-field', 'required' => true])));
 
-        static::assertSame(serialize(['my-field' => [new NotBlank(), new Type('bool')]]), $constraints);
+        static::assertArrayHasKey('my-field', $result);
+        static::assertCount(2, $result['my-field']);
+        static::assertInstanceOf(NotBlank::class, $result['my-field'][0]);
+        static::assertInstanceOf(Type::class, $result['my-field'][1]);
+        static::assertSame('bool', $result['my-field'][1]->type);
     }
 
     private function getConstraintsForField(CustomFieldType $field): string

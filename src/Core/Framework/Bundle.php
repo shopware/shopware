@@ -17,6 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\ClosureLoader;
 use Symfony\Component\DependencyInjection\Loader\DirectoryLoader;
+use Symfony\Component\DependencyInjection\Loader\FileLoader;
 use Symfony\Component\DependencyInjection\Loader\GlobFileLoader;
 use Symfony\Component\DependencyInjection\Loader\IniFileLoader;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
@@ -31,6 +32,19 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 #[Package('framework')]
 abstract class Bundle extends SymfonyBundle
 {
+    protected array $supportedRouteConfigFormats = ['xml', 'yaml', 'yml', 'php'];
+
+    protected array $supportedServiceConfigFormats = ['xml', 'yaml', 'php'];
+
+    /**
+     * @var array<string, class-string<FileLoader>>
+     */
+    private array $serviceFormatToLoader = [
+        'xml' => XmlFileLoader::class,
+        'yaml' => YamlFileLoader::class,
+        'php' => PhpFileLoader::class,
+    ];
+
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
@@ -79,11 +93,13 @@ abstract class Bundle extends SymfonyBundle
     {
         $confDir = $this->getPath() . '/Resources/config';
 
+        $supportedExtensions = printf('.{%s}', implode(',', $this->supportedRouteConfigFormats));
+
         if (\is_dir($confDir)) {
-            $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, 'glob');
-            $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, 'glob');
-            $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob');
-            $routes->import($confDir . '/{routes}_' . $environment . Kernel::CONFIG_EXTS, 'glob');
+            $routes->import($confDir . '/{routes}/*' . $supportedExtensions, 'glob');
+            $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . $supportedExtensions, 'glob');
+            $routes->import($confDir . '/{routes}' . $supportedExtensions, 'glob');
+            $routes->import($confDir . '/{routes}_' . $environment . $supportedExtensions, 'glob');
         }
     }
 
@@ -100,8 +116,10 @@ abstract class Bundle extends SymfonyBundle
         $fileSystem = new Filesystem();
         $confDir = $this->getPath() . '/Resources/config';
 
+        $supportedExtensions = printf('.{%s}', implode(',', $this->supportedRouteConfigFormats));
+
         if ($fileSystem->exists($confDir)) {
-            $routes->import($confDir . '/{routes_overwrite}' . Kernel::CONFIG_EXTS, 'glob');
+            $routes->import($confDir . '/{routes_overwrite}' . $supportedExtensions, 'glob');
         }
     }
 
@@ -212,11 +230,17 @@ abstract class Bundle extends SymfonyBundle
     private function registerContainerFile(ContainerBuilder $container): void
     {
         $fileLocator = new FileLocator($this->getPath());
-        $loaderResolver = new LoaderResolver([
-            new XmlFileLoader($container, $fileLocator),
-            new YamlFileLoader($container, $fileLocator),
-            new PhpFileLoader($container, $fileLocator),
-        ]);
+
+        $concreteLoaders = [];
+        foreach ($this->supportedServiceConfigFormats as $format) {
+            if (!array_key_exists($format, $this->serviceFormatToLoader)) {
+                continue;
+            }
+
+            $concreteLoaders[] = new $this->serviceFormatToLoader[$format]($container, $fileLocator);
+        }
+
+        $loaderResolver = new LoaderResolver($concreteLoaders);
         $delegatingLoader = new DelegatingLoader($loaderResolver);
 
         foreach ($this->getServicesFilePathArray($this->getPath() . '/Resources/config/services.*') as $path) {

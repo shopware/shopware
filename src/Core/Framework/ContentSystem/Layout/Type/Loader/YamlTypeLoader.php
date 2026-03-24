@@ -13,9 +13,11 @@ use Symfony\Component\Yaml\Yaml;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[Package('framework')]
-final class YamlTypeLoader
+class YamlTypeLoader
 {
     public function __construct(
         private readonly ElementTypeSpecificationSerializer $serializer,

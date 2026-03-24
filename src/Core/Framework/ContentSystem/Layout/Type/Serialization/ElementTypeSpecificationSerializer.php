@@ -10,9 +10,11 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[Package('framework')]
-final class ElementTypeSpecificationSerializer
+class ElementTypeSpecificationSerializer
 {
     /**
      * @param array<string, mixed> $data Raw YAML/DB structure with meta/properties/slots top-level keys

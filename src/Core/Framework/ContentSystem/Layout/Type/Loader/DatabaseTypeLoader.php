@@ -11,9 +11,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[Package('framework')]
-final class DatabaseTypeLoader extends AbstractContentElementTypeLoader
+class DatabaseTypeLoader extends AbstractContentElementTypeLoader
 {
     public function __construct(
         private readonly ElementTypeSpecificationSerializer $serializer,

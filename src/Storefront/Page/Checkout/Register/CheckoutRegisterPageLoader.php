@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Uuid\UuidException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Salutation\AbstractSalutationsSorter;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationEntity;
@@ -45,7 +46,8 @@ class CheckoutRegisterPageLoader
         private readonly CartService $cartService,
         private readonly AbstractSalutationRoute $salutationRoute,
         private readonly AbstractCountryRoute $countryRoute,
-        private readonly AbstractTranslator $translator
+        private readonly AbstractTranslator $translator,
+        private readonly AbstractSalutationsSorter $salutationSorter
     ) {
     }
 
@@ -118,8 +120,7 @@ class CheckoutRegisterPageLoader
     private function getSalutations(SalesChannelContext $salesChannelContext): SalutationCollection
     {
         $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
-
-        $salutations->sort(static fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
+        $this->salutationSorter->sort($salutations);
 
         return $salutations;
     }

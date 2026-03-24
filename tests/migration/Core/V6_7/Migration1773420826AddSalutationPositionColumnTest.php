@@ -42,6 +42,27 @@ class Migration1773420826AddSalutationPositionColumnTest extends TestCase
         static::assertSame('1', $positions['diverse']);
     }
 
+    public function testMigrationDoesNotOverrideManualPositionsOnSecondRun(): void
+    {
+        $connection = self::getContainer()->get(Connection::class);
+
+        $this->dropPositionColumnIfExists($connection);
+
+        $migration = new Migration1773420826AddSalutationPositionColumn();
+        $migration->update($connection);
+
+        $connection->executeStatement(
+            'UPDATE `salutation` SET `position` = 9 WHERE `salutation_key` = :key',
+            ['key' => 'mr']
+        );
+
+        $migration->update($connection);
+
+        $position = $connection->fetchOne('SELECT `position` FROM `salutation` WHERE `salutation_key` = "mr"');
+
+        static::assertSame('9', $position);
+    }
+
     private function dropPositionColumnIfExists(Connection $connection): void
     {
         try {

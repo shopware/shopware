@@ -91,12 +91,7 @@ class AddressListingPageLoader
     private function getSalutations(SalesChannelContext $context): SalutationCollection
     {
         $salutations = $this->salutationRoute->load(new Request(), $context, new Criteria())->getSalutations();
-
-        if (Feature::isActive('v6.8.0.0')) {
-            $salutations->sortByPosition();
-        } else {
-            $this->salutationSorter->sort($salutations);
-        }
+        $this->salutationSorter->sort($salutations);
 
         return $salutations;
     }

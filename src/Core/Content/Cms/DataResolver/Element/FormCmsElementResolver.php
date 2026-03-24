@@ -39,12 +39,7 @@ class FormCmsElementResolver extends AbstractCmsElementResolver
         $context = $resolverContext->getSalesChannelContext();
 
         $salutations = $this->salutationRoute->load(new Request(), $context, new Criteria())->getSalutations();
-
-        if (Feature::isActive('v6.8.0.0')) {
-            $salutations->sortByPosition();
-        } else {
-            $this->salutationSorter->sort($salutations);
-        }
+        $this->salutationSorter->sort($salutations);
 
         $slot->setData($salutations);
     }

@@ -34,7 +34,7 @@ class SalutationDefinition extends EntityDefinition
 
     final public const MRS = 'mrs';
 
-    final public const DEFAULT_POSITION = 1;
+    final public const DEFAULT_POSITION = 100;
 
     public function getEntityName(): string
     {
@@ -75,5 +75,12 @@ class SalutationDefinition extends EntityDefinition
             (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'salutation_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('newsletterRecipients', NewsletterRecipientDefinition::class, 'salutation_id', 'id'))->addFlags(new SetNullOnDelete()),
         ]);
+    }
+
+    public function getDefaults(): array
+    {
+        return [
+            'position' => self::DEFAULT_POSITION
+        ];
     }
 }

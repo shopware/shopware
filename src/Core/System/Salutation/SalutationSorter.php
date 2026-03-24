@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Salutation;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
@@ -15,6 +16,22 @@ class SalutationSorter extends AbstractSalutationsSorter
 
     public function sort(SalutationCollection $salutations): SalutationCollection
     {
+        if (!Feature::isActive('v6.8.0.0')) {
+            $salutations->sort(static function (SalutationEntity $a, SalutationEntity $b) {
+                if ($a->getSalutationKey() === SalutationDefinition::NOT_SPECIFIED) {
+                    return -1;
+                }
+
+                if ($b->getSalutationKey() === SalutationDefinition::NOT_SPECIFIED) {
+                    return 1;
+                }
+
+                return $b->getSalutationKey() <=> $a->getSalutationKey();
+            });
+
+            return $salutations;
+        }
+
         $salutations->sortByPosition();
 
         return $salutations;

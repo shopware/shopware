@@ -24,7 +24,7 @@ class Migration1773420826AddSalutationPositionColumn extends MigrationStep
      */
     public function update(Connection $connection): void
     {
-        $this->addColumn(
+        $added = $this->addColumn(
             $connection,
             'salutation',
             'position',
@@ -32,6 +32,10 @@ class Migration1773420826AddSalutationPositionColumn extends MigrationStep
             false,
             (string) SalutationDefinition::DEFAULT_POSITION
         );
+
+        if (!$added) {
+            return;
+        }
 
         $this->assignDefaultPositions($connection);
     }

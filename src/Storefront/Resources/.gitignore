@@ -85,3 +85,6 @@ app/storefront/dist/*
 app/storefront/test/app
 
 public/
+
+*storybook.log
+storybook-static

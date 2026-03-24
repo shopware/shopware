@@ -9,7 +9,7 @@ return [
                 {% set currencyIsoCode = order.currency.isoCode %}
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br>
                 <br>
-                Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}.<br>
+                Thank you for your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}.<br>
                 <br>
                 <strong>Information on your order:</strong><br>
                 <br>
@@ -101,7 +101,7 @@ return [
                 {% set currencyIsoCode = order.currency.isoCode %}
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}.
+                Thank you for your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}.
 
                 Information on your order:
 
@@ -158,7 +158,7 @@ return [
                 {% set currencyIsoCode = order.currency.isoCode %}
                 Hallo {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br>
                 <br>
-                vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.orderNumber}}) am {{ order.orderDateTime|date }}.<br>
+                vielen Dank für Ihre Bestellung im {{ salesChannel.translated.name }} (Nummer: {{order.orderNumber}}) am {{ order.orderDateTime|date }}.<br>
                 <br>
                 <strong>Informationen zu Ihrer Bestellung:</strong><br>
                 <br>
@@ -249,7 +249,7 @@ return [
                 {% set currencyIsoCode = order.currency.isoCode %}
                 Hallo {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.orderNumber}}) am {{ order.orderDateTime|date }}.
+                vielen Dank für Ihre Bestellung im {{ salesChannel.translated.name }} (Nummer: {{order.orderNumber}}) am {{ order.orderDateTime|date }}.
 
                 Informationen zu Ihrer Bestellung:
 
@@ -307,7 +307,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
+                        the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                         <strong>The new status is as follows: {{order.stateMachineState.name}}.</strong><br/>
                         <br/>
                         You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -319,7 +319,7 @@ return [
 
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+                the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
                 The new status is as follows: {{order.stateMachineState.name}}.
 
                 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -332,7 +332,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
+                        der Lieferstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                         <strong>Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.</strong><br/>
                         <br/>
                         Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -344,7 +344,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
+                der Bestellstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
                 Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.
 
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -359,7 +359,7 @@ return [
                         <p>
                             {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                             <br/>
-                            the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
+                            the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                             <strong>The new status is as follows: {{order.stateMachineState.name}}.</strong><br/>
                             <br/>
                             You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -371,7 +371,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+                the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
                 The new status is as follows: {{order.stateMachineState.name}}.
 
                 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -384,7 +384,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
+                        der Bestellstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                         <strong>Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.</strong><br/>
                         <br/>
                         Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -396,7 +396,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
+                der Bestellstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
                 Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.
 
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -410,7 +410,7 @@ return [
                     <br/>
                             {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                             <br/>
-                            the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
+                            the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                             <strong>The new status is as follows: {{order.stateMachineState.name}}.</strong><br/>
                             <br/>
                             You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -422,7 +422,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+                the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
                 The new status is as follows: {{order.stateMachineState.name}}.
 
                 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -435,7 +435,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
+                        der Bestellstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                         <strong>Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.</strong><br/>
                         <br/>
                         Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -447,7 +447,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
+                der Bestellstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
                 Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.
 
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -462,7 +462,7 @@ return [
                         <p>
                             {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                             <br/>
-                            the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
+                            the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                             <strong>The new status is as follows: {{order.stateMachineState.name}}.</strong><br/>
                             <br/>
                             You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -474,7 +474,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+                the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
                 The new status is as follows: {{order.stateMachineState.name}}.
 
                 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -487,7 +487,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
+                        der Bestellstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                         <strong>Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.</strong><br/>
                         <br/>
                         Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -499,7 +499,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
+                der Bestellstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
                 Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.
 
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -513,7 +513,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
+                        the status of your delivery at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                         <strong>The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                         <br/>
                         You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -524,7 +524,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+                the status of your delivery at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
                 The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.
 
                 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -537,7 +537,7 @@ return [
                    <p>
                        {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                        <br/>
-                       der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
+                       der Lieferstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                        <strong>Die Bestellung hat jetzt den Lieferstatus: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                        <br/>
                        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -548,7 +548,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
+                der Lieferstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
                 Die Bestellung hat jetzt den Lieferstatus: {{order.deliveries.first.stateMachineState.name}}.
 
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -563,7 +563,7 @@ return [
                    <p>
                        {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                        <br/>
-                       the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
+                       the status of your delivery at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                        <strong>The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                        <br/>
                        You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -575,7 +575,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+                the status of your delivery at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
                 The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.
 
                 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -588,7 +588,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
+                        der Lieferstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                         <strong>Die Bestellung hat jetzt den Lieferstatus: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                         <br/>
                         Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -599,7 +599,7 @@ return [
             'plain' => '
                     {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
+                der Lieferstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
                 Die Bestellung hat jetzt den Lieferstatus: {{order.deliveries.first.stateMachineState.name}}.
 
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -614,7 +614,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
+                        the status of your delivery at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                         <strong>The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                         <br/>
                         You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -626,7 +626,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+                the status of your delivery at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
                 The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.
 
                 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -639,7 +639,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
+                        der Lieferstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                         <strong>Die Bestellung hat jetzt den Lieferstatus: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                         <br/>
                         Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -651,7 +651,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
+                der Lieferstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
                 Die Bestellung hat jetzt den Lieferstatus: {{order.deliveries.first.stateMachineState.name}}.
 
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -666,7 +666,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
+                        the status of your delivery at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                         <strong>The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                         <br/>
                         You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -678,7 +678,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+                the status of your delivery at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
                 The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.
 
                 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -691,7 +691,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
+                        der Lieferstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                         <strong>Die Bestellung hat jetzt den Lieferstatus: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                         <br/>
                         Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -703,7 +703,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
+                der Lieferstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
                 Die Bestellung hat jetzt den Lieferstatus: {{order.deliveries.first.stateMachineState.name}}.
 
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -718,7 +718,7 @@ return [
                       <p>
                           {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                           <br/>
-                          the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
+                          the status of your delivery at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                           <strong>The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                           <br/>
                           You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -730,7 +730,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+                the status of your delivery at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
                 The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.
 
                 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -743,7 +743,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
+                        der Lieferstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                         <strong>Die Bestellung hat jetzt den Lieferstatus: {{order.deliveries.first.stateMachineState.name}}.</strong><br/>
                         <br/>
                         Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -754,7 +754,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
+                der Lieferstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
                 Die Bestellung hat jetzt den Lieferstatus: {{order.deliveries.first.stateMachineState.name}}.
 
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -769,7 +769,7 @@ return [
                         <p>
                             {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                             <br/>
-                            the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
+                            the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                             <strong>The new status is as follows: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                             <br/>
                             <br/>
@@ -782,7 +782,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+                the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
                 The new status is as follows: {{order.transactions.first.stateMachineState.name}}.
 
                 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -795,7 +795,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
+                        der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                         <strong>Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                         <br/>
                         Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -807,7 +807,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
+                der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
                 Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.
 
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -822,7 +822,7 @@ return [
                         <p>
                             {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                             <br/>
-                            the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
+                            the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                             <strong>The new status is as follows: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                             <br/>
                             You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -834,7 +834,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+                the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
                 The new status is as follows: {{order.transactions.first.stateMachineState.name}}.
 
                 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -847,7 +847,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
+                        der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                         <strong>Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                         <br/>
                         Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -859,7 +859,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
+                der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
                 Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.
 
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -874,7 +874,7 @@ return [
                         <p>
                             {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                             <br/>
-                            the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
+                            the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                             <strong>The new status is as follows: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                             <br/>
                             You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -886,7 +886,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+                the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
                 The new status is as follows: {{order.transactions.first.stateMachineState.name}}.
 
                 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -899,7 +899,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
+                        der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                         <strong>Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                         <br/>
                         Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -911,7 +911,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
+                der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
                 Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.
 
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -926,7 +926,7 @@ return [
                         <p>
                             {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                             <br/>
-                            the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
+                            the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                             <strong>The new status is as follows: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                             <br/>
                             You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -938,7 +938,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+                the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
                 The new status is as follows: {{order.transactions.first.stateMachineState.name}}.
 
                 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -951,7 +951,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
+                        der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                         <strong>Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                         <br/>
                         Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -963,7 +963,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
+                der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
                 Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.
 
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -978,7 +978,7 @@ return [
                         <p>
                             {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                             <br/>
-                            the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
+                            the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                             <strong>The new status is as follows: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                             <br/>
                             You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -990,7 +990,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+                the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
                 The new status is as follows: {{order.transactions.first.stateMachineState.name}}.
 
                 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -1003,7 +1003,7 @@ return [
                     <p>
                        {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                        <br/>
-                       der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
+                       der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                        <strong>Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                        <br/>
                         Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -1015,7 +1015,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
+                der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
                 Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.
 
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -1030,7 +1030,7 @@ return [
                         <p>
                             {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                             <br/>
-                            the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
+                            the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                             <strong>The new status is as follows: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                             <br/>
                             You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -1042,7 +1042,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+                the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
                 The new status is as follows: {{order.transactions.first.stateMachineState.name}}.
 
                 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -1055,7 +1055,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
+                        der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                         <strong>Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                         <br/>
                         Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -1067,7 +1067,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
+                der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
                 Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.
 
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -1082,7 +1082,7 @@ return [
                         <p>
                             {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                             <br/>
-                            the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
+                            the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }} has changed.<br/>
                             <strong>The new status is as follows: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                             <br/>
                             You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -1094,7 +1094,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
+                the status of your order at {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
                 The new status is as follows: {{order.transactions.first.stateMachineState.name}}.
 
                 You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -1107,7 +1107,7 @@ return [
                     <p>
                         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br/>
                         <br/>
-                        der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
+                        der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert.<br/>
                         <strong>Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.</strong><br/>
                         <br/>
                         Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}
@@ -1119,7 +1119,7 @@ return [
             'plain' => '
                 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
 
-                der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
+                der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
                 Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.
 
                 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl(\'frontend.account.order.single.page\', { \'deepLinkCode\': order.deepLinkCode}, salesChannel.domains|first.url) }}

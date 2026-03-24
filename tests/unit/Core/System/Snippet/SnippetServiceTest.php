@@ -68,9 +68,9 @@ class SnippetServiceTest extends TestCase
     }
 
     /**
-     * @param list<string> $catalogueMessages
-     * @param \Throwable|list<string> $expected
-     * @param list<string> $databaseSnippets
+     * @param \Throwable|array<string, string> $expected
+     * @param array<string, string> $catalogueMessages
+     * @param array<string, string> $databaseSnippets
      */
     #[DataProvider('getStorefrontSnippetsDataProvider')]
     public function testGetStorefrontSnippets(

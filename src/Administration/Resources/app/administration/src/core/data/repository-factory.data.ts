@@ -54,7 +54,6 @@ export default class RepositoryFactory {
             route,
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             definition.entity,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this.httpClient,
             this.hydrator,
             this.changesetGenerator,

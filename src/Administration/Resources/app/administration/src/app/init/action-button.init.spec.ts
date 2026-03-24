@@ -1,7 +1,6 @@
 /**
  * @sw-package framework
  */
-// eslint-disable-next-line filename-rules/match
 import { createPinia, setActivePinia } from 'pinia';
 import initActionButtons from 'src/app/init/action-button.init';
 import { add } from '@shopware-ag/meteor-admin-sdk/es/ui/action-button';

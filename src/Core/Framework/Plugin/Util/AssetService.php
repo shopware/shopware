@@ -335,6 +335,10 @@ class AssetService
      */
     private function getManifest(): array
     {
+        if ($this->areAssetsStoredLocally()) {
+            return [];
+        }
+
         $hashes = [];
         try {
             $hashes = json_decode($this->privateFilesystem->read(self::ASSET_MANIFEST_FILENAME), true, flags: \JSON_THROW_ON_ERROR);
@@ -345,6 +349,9 @@ class AssetService
     }
 
     /**
+     * Manifest file is saved in private file system and not in asset file system itself to ensure,
+     * that no information about installed apps and plugins are exposed
+     *
      * @param array<string, array<string, string>> $manifest
      *
      * @throws \JsonException
@@ -352,9 +359,22 @@ class AssetService
      */
     private function writeManifest(array $manifest): void
     {
+        if ($this->areAssetsStoredLocally()) {
+            return;
+        }
+
         $this->privateFilesystem->write(
             self::ASSET_MANIFEST_FILENAME,
             json_encode($manifest, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR)
         );
+    }
+
+    /**
+     * If the private file system is remotely, but the assets are stored locally, it could lead to problems.
+     * Therefore, we do not save a manifest file at all.
+     */
+    private function areAssetsStoredLocally(): bool
+    {
+        return $this->parameterBag->get('shopware.filesystem.asset.type') === 'local';
     }
 }

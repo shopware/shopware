@@ -323,6 +323,35 @@ class AssetServiceTest extends TestCase
         );
     }
 
+    public function testCopyDoesNotWriteManifestForLocalFilesystems(): void
+    {
+        $filesystem = $this->createFilesystem();
+
+        $mockFs = $this->createMock(FilesystemOperator::class);
+        $mockFs
+            ->expects($this->never())
+            ->method('write');
+
+        $mockFs
+            ->expects($this->never())
+            ->method('read');
+
+        $assetService = $this->createAssetService(
+            $filesystem,
+            $mockFs,
+            staticSourceResolver: new StaticSourceResolver([
+                'ExampleBundle' => new ThemeFilesystem(__DIR__ . '/../_fixtures/ExampleBundle'),
+            ]),
+            parameterBag: new ParameterBag(['shopware.filesystem.asset.type' => 'local', 'shopware.filesystem.asset.config' => []])
+        );
+
+        $assetService->copyAssetsFromApp('ExampleBundle', __DIR__ . '/_fixtures/ExampleBundle');
+
+        static::assertTrue($filesystem->has('bundles/example'));
+        static::assertTrue($filesystem->has('bundles/example/test.txt'));
+        static::assertSame('TEST', trim($filesystem->read('bundles/example/test.txt')));
+    }
+
     public function testCopyPerformsFullCopyWithForceFlag(): void
     {
         $kernel = $this->createMock(KernelInterface::class);
@@ -409,6 +438,7 @@ class AssetServiceTest extends TestCase
         ?CacheInvalidator $cacheInvalidator = null,
         ?KernelPluginLoader $pluginLoader = null,
         ?StaticSourceResolver $staticSourceResolver = null,
+        ?ParameterBag $parameterBag = null,
     ): AssetService {
         if ($kernel === null) {
             $kernel = $this->createMock(KernelInterface::class);
@@ -424,7 +454,7 @@ class AssetServiceTest extends TestCase
             $pluginLoader ?? new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
             $cacheInvalidator ?? $this->createMock(CacheInvalidator::class),
             $staticSourceResolver ?? new StaticSourceResolver(),
-            new ParameterBag(['shopware.filesystem.asset.type' => 's3', 'shopware.filesystem.asset.config' => []]),
+            $parameterBag ?? new ParameterBag(['shopware.filesystem.asset.type' => 's3', 'shopware.filesystem.asset.config' => []]),
             new EventDispatcher(),
         );
     }

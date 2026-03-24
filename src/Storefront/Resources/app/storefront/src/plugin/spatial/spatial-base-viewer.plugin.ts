@@ -49,9 +49,6 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         if (this.dive == undefined) {
             this.dive = await window.DIVEQuickViewPlugin.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.canvas });
 
-            console.log(this.dive.model);
-            console.log(this.dive.model.animations);
-            console.log(this.dive.model.animations.length);
             if (this.dive.model.animations.length > 0) {
                 // instantiate animation system
                 const animSystem = new window.DIVEAnimationPlugin.AnimationSystem();

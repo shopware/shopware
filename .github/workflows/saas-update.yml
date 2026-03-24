@@ -14,16 +14,4 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: shopware/octo-sts-action@main
-        id: sts
-        with:
-          scope: shopware/saas
-          identity: SaaSCoreUpdate
-      - name: Trigger saas saas core-update
-        shell: bash
-        env:
-          TARGET_BRANCH: ${{ github.base_ref }}
-          ASSIGNEE: ${{ github.event.pull_request.assignee.login || github.event.pull_request.user.login }}
-          GH_TOKEN: ${{ steps.sts.outputs.token }}
-        run: |
-          gh workflow run "core-update.yml" --repo "shopware/saas" --ref "$TARGET_BRANCH" -f upstream-assignee="$ASSIGNEE"
+      - uses: shopware/github-actions/update-saas-refs@main

@@ -1,0 +1,11 @@
+meta:
+  name: "Sw:App:Element"
+  label: "App Element"
+  description: "An app element for unit tests."
+  vendor: "test-vendor"
+
+properties:
+  text:
+    type: string
+    title: "Text"
+    description: "The text content."

@@ -1,0 +1,11 @@
+meta:
+  name: "Sw:CustomPlugin:Element"
+  label: "Custom Plugin Element"
+  description: "A custom plugin element for unit tests."
+  vendor: "shopware AG"
+
+properties:
+  text:
+    type: string
+    title: "Text"
+    description: "The text content."

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
@@ -11,11 +12,13 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
 use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractConvertGuestRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -23,9 +26,11 @@ use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
@@ -37,6 +42,8 @@ use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageL
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Constraints\EqualTo;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
@@ -57,7 +64,9 @@ class AuthController extends StorefrontController
         private readonly AbstractLogoutRoute $logoutRoute,
         private readonly AbstractImitateCustomerRoute $imitateCustomerRoute,
         private readonly StorefrontCartFacade $cartFacade,
-        private readonly AccountRecoverPasswordPageLoader $recoverPasswordPageLoader
+        private readonly AccountRecoverPasswordPageLoader $recoverPasswordPageLoader,
+        private readonly AbstractConvertGuestRoute $convertGuestRoute,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -373,5 +382,72 @@ class AuthController extends StorefrontController
                 ]
             );
         }
+    }
+
+    #[Route(
+        path: '/account/convert',
+        name: 'frontend.account.convert.page',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: [Request::METHOD_GET],
+    )]
+    public function convertForm(SalesChannelContext $context): Response
+    {
+        /** @var CustomerEntity $customer */
+        $customer = $context->getCustomer();
+
+        if (!$customer->getGuest()) {
+            return $this->redirectToRoute('frontend.account.home.page');
+        }
+
+        return $this->renderStorefront('@Storefront/storefront/page/account/convert.html.twig');
+    }
+
+    #[Route(
+        path: '/account/convert',
+        name: 'frontend.account.convert.save',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+            PlatformRequest::ATTRIBUTE_CAPTCHA => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
+    public function convert(RequestDataBag $request, SalesChannelContext $context): Response
+    {
+        /** @var CustomerEntity $customer */
+        $customer = $context->getCustomer();
+
+        if (!$customer->getGuest()) {
+            return $this->redirectToRoute('frontend.account.home.page');
+        }
+
+        $definition = new DataValidationDefinition('guest_conversion');
+
+        if ($this->systemConfigService->get('core.loginRegistration.requirePasswordConfirmation', $context->getSalesChannelId())) {
+            $definition->add('passwordConfirmation', new NotBlank(), new EqualTo(value: $request->get('password')));
+        }
+
+        try {
+            $this->convertGuestRoute->convertGuest($request, $context, $customer, $definition);
+        } catch (RateLimitExceededException $e) {
+            $this->addFlash(self::INFO, $this->trans('error.rateLimitExceeded', ['%seconds%' => $e->getWaitTime()]));
+        } catch (ConstraintViolationException $formViolations) {
+            if ($formViolations->getViolations()->findByCodes(CustomerEmailUnique::CUSTOMER_EMAIL_NOT_UNIQUE_CODE)->count()) {
+                $this->addFlash(self::DANGER, $this->trans('error.VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE'));
+            }
+
+            return $this->forwardToRoute(
+                'frontend.account.convert.page',
+                ['formViolations' => $formViolations]
+            );
+        }
+
+        $this->addFlash(self::SUCCESS, $this->trans('account.convertSucceeded'));
+        $this->logoutRoute->logout($context, new RequestDataBag());
+
+        return $this->redirectToRoute('frontend.account.login.page');
     }
 }

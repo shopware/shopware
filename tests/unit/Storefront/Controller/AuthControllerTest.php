@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractConvertGuestRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
@@ -53,6 +55,8 @@ class AuthControllerTest extends TestCase
         $imitateCustomerRoute = $this->createMock(AbstractImitateCustomerRoute::class);
         $cartFacade = $this->createMock(StorefrontCartFacade::class);
         $recoverPasswordRoute = $this->createMock(AccountRecoverPasswordPageLoader::class);
+        $abstractConvertGuestRoute = $this->createMock(AbstractConvertGuestRoute::class);
+        $systemConfigService = $this->createMock(SystemConfigService::class);
 
         $this->controller = new AuthControllerTestClass(
             $this->accountLoginPageLoader,
@@ -63,6 +67,8 @@ class AuthControllerTest extends TestCase
             $imitateCustomerRoute,
             $cartFacade,
             $recoverPasswordRoute,
+            $abstractConvertGuestRoute,
+            $systemConfigService
         );
 
         $containerBuilder = new ContainerBuilder();

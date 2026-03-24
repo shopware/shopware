@@ -1,0 +1,103 @@
+{% sw_extends '@Storefront/storefront/page/account/_page.html.twig' %}
+
+{% block page_account %}
+    <div class="account-guest-conversion">
+        {% block component_account_guest_conversion_header %}
+            <header class="account-guest-conversion__header">
+                <h1 class="account-guest-conversion__title">
+                    {{ 'account.convertGuestTitle'|trans|sw_sanitize }}
+                </h1>
+
+                <h5>
+                    {{ 'account.convertGuestInfo'|trans({
+                        '%email%': context.customer.email
+                    })|raw }}
+                </h5>
+            </header>
+        {% endblock %}
+
+        {% block component_account_guest_conversion_form_container %}
+            <div class="account-guest-conversion__form-container">
+                {% block component_account_guest_conversion_form %}
+                <form action="{{ path('frontend.account.convert.save') }}"
+                      class="account-guest-conversion__form"
+                      method="post"
+                      data-form-handler="true"
+                >
+                    {% block component_account_guest_conversion_password %}
+                    {% set passwordFieldDescription = '' %}
+
+                    {% if config('core.loginRegistration.passwordMinLength') != 0 %}
+                        {% set passwordFieldDescription = 'account.personalPasswordDescription'|trans({
+                            '%minLength%': config('core.loginRegistration.passwordMinLength')
+                        })|sw_sanitize %}
+                    {% endif %}
+
+                    <div class="account-guest-conversion__field">
+                    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                        type: 'password',
+                        label: 'account.personalPasswordLabel'|trans|sw_sanitize,
+                        id: 'guestConversionPassword',
+                        name: 'password',
+                        autocomplete: 'new-password',
+                        description: passwordFieldDescription,
+                        violationPath: '/password',
+                        validationRules: 'required,minLength',
+                        minlength: config('core.loginRegistration.passwordMinLength'),
+                        additionalClass: 'js-guest-conversion-password'
+                    } %}
+                    </div>
+                    {% endblock %}
+
+                    {% block component_account_guest_conversion_password_confirmation %}
+                    {% if config('core.loginRegistration.requirePasswordConfirmation') %}
+                        <div class="account-guest-conversion__field">
+                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                type: 'password',
+                                label: 'account.personalPasswordConfirmationLabel'|trans|sw_sanitize,
+                                id: 'guestConversionPasswordConfirmation',
+                                name: 'passwordConfirmation',
+                                autocomplete: 'new-password',
+                                violationPath: '/passwordConfirmation',
+                                validationRules: 'required,confirmation',
+                                additionalClass: 'js-guest-conversion-password-confirmation'
+                            } %}
+                        </div>
+                    {% endif %}
+                    {% endblock %}
+
+                    {% block component_account_guest_conversion_terms %}
+                    <div class="account-guest-conversion__terms">
+                        {{ 'account.privacyNoticeTextModal'|trans({
+                            '%privacyModalTagOpen%': '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }) ~ '">',
+                            '%privacyModalTagClose%': '</button>',
+                            '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">',
+                            '%tosModalTagClose%': '</button>',
+                        })|raw }}
+                    </div>
+                    {% endblock %}
+
+                    {% block component_account_guest_conversion_captcha %}
+                        {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' %}
+                    {% endblock %}
+
+                    {% block component_account_guest_conversion_required_fields %}
+                    <p class="account-guest-conversion__required-info">
+                        {{ 'general.requiredFields'|trans|sw_sanitize }}
+                    </p>
+                    {% endblock %}
+
+                    {% block component_account_guest_conversion_submit %}
+                    <div class="account-guest-conversion__action">
+                        <button type="submit"
+                                class="btn btn-primary btn-lg account-guest-conversion__submit">
+                            {{ 'general.formSubmit'|trans|sw_sanitize }}
+                        </button>
+                    </div>
+                    {% endblock %}
+                </form>
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

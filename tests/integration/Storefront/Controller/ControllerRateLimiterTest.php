@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Checkout\Customer\SalesChannel\ConvertGuestRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
@@ -39,6 +40,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -127,7 +129,9 @@ class ControllerRateLimiterTest extends TestCase
             static::getContainer()->get(LogoutRoute::class),
             static::getContainer()->get(ImitateCustomerRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
-            static::getContainer()->get(AccountRecoverPasswordPageLoader::class)
+            static::getContainer()->get(AccountRecoverPasswordPageLoader::class),
+            static::getContainer()->get(ConvertGuestRoute::class),
+            static::getContainer()->get(SystemConfigService::class),
         );
         $controller->setContainer(static::getContainer());
 
@@ -159,7 +163,9 @@ class ControllerRateLimiterTest extends TestCase
             $this->createMock(AbstractLogoutRoute::class),
             $this->createMock(AbstractImitateCustomerRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
-            static::getContainer()->get(AccountRecoverPasswordPageLoader::class)
+            static::getContainer()->get(AccountRecoverPasswordPageLoader::class),
+            static::getContainer()->get(ConvertGuestRoute::class),
+            static::getContainer()->get(SystemConfigService::class)
         );
         $controller->setContainer(static::getContainer());
 
@@ -196,7 +202,9 @@ class ControllerRateLimiterTest extends TestCase
             $this->createMock(AbstractLogoutRoute::class),
             $this->createMock(AbstractImitateCustomerRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
-            static::getContainer()->get(AccountRecoverPasswordPageLoader::class)
+            static::getContainer()->get(AccountRecoverPasswordPageLoader::class),
+            static::getContainer()->get(ConvertGuestRoute::class),
+            static::getContainer()->get(SystemConfigService::class)
         );
         $controller->setContainer(static::getContainer());
 

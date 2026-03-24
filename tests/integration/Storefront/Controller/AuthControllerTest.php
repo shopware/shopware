@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\ConvertGuestRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
@@ -624,6 +625,72 @@ class AuthControllerTest extends TestCase
         static::assertStringNotContainsString('https://de.wikipedia.org/wiki/Phishing', $responseContent);
     }
 
+    public function testConvert(): void
+    {
+        $browser = $this->register();
+        $response = $browser->getResponse();
+
+        static::assertNotFalse($response->getContent());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        $browser->request('POST', '/account/convert', ['password' => 'password']);
+        $response = $browser->getResponse();
+
+        static::assertSame(302, $response->getStatusCode());
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/account/login', $response->getTargetUrl());
+    }
+
+    public function testRegisteredUserCanNotCovert(): void
+    {
+        $browser = $this->login();
+
+        $browser->request('GET', '/account/convert');
+        $response = $browser->getResponse();
+
+        static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/account', $response->getTargetUrl());
+    }
+
+    public function testCanNotConvertWithoutPassword(): void
+    {
+        $browser = $this->register();
+        $response = $browser->getResponse();
+
+        static::assertNotFalse($response->getContent());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        $browser->request('POST', '/account/convert');
+        $response = $browser->getResponse();
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertIsString($response->getContent());
+        static::assertStringContainsString('Passwords must have a minimum length of 8 characters.', $response->getContent());
+    }
+
+    public function testConvertHandelPasswordConfirm(): void
+    {
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
+        $systemConfig->set('core.loginRegistration.requirePasswordConfirmation', true);
+
+        $browser = $this->register();
+        $response = $browser->getResponse();
+
+        static::assertNotFalse($response->getContent());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        $browser->request('POST', '/account/convert', [
+            'password' => 'password',
+            'passwordConfirmation' => 'pwd',
+        ]);
+        $response = $browser->getResponse();
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertIsString($response->getContent());
+        static::assertStringContainsString('Confirmation field does not match.', $response->getContent());
+    }
+
     private function createProductOnDatabase(string $productId, string $productNumber, Context $context): void
     {
         $taxId = Uuid::randomHex();
@@ -671,7 +738,34 @@ class AuthControllerTest extends TestCase
         return $browser;
     }
 
-    private function createCustomer(bool $active = true, bool $doubleOptInReg = false): ?CustomerEntity
+    private function register(): KernelBrowser
+    {
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser->request(
+            'POST',
+            EnvironmentHelper::getVariable('APP_URL') . '/account/register',
+            $this->tokenize('frontend.account.register.save', [
+                'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+                'email' => 'max.mustermann@example.com',
+                'emailConfirmation' => 'max.mustermann@example.com',
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'storefrontUrl' => 'http://localhost',
+
+                'billingAddress' => [
+                    'countryId' => $this->getValidCountryId(),
+                    'street' => 'Musterstrasse 13',
+                    'zipcode' => '48599',
+                    'city' => 'Epe',
+                ],
+            ])
+        );
+
+        return $browser;
+    }
+
+    private function createCustomer(bool $active = true, bool $doubleOptInReg = false, bool $guest = false): ?CustomerEntity
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -699,6 +793,7 @@ class AuthControllerTest extends TestCase
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
+            'guest' => $guest,
         ];
 
         /** @var EntityRepository<CustomerCollection> $repo */
@@ -721,7 +816,9 @@ class AuthControllerTest extends TestCase
             $this->createMock(AbstractLogoutRoute::class),
             static::getContainer()->get(ImitateCustomerRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
-            static::getContainer()->get(AccountRecoverPasswordPageLoader::class)
+            static::getContainer()->get(AccountRecoverPasswordPageLoader::class),
+            static::getContainer()->get(ConvertGuestRoute::class),
+            static::getContainer()->get(SystemConfigService::class),
         );
         $controller->setContainer(static::getContainer());
 

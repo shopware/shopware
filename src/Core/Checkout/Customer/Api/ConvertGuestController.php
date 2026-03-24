@@ -42,7 +42,7 @@ class ConvertGuestController
     }
 
     #[Route(path: '/api/_action/customer-convert/{customerId}', name: 'api.action.customer.convert', methods: ['POST'])]
-    public function convert(#[\SensitiveParameter] Request $request, Context $context, string $customerId): NoContentResponse
+    public function convert(Request $request, Context $context, string $customerId): NoContentResponse
     {
         $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->first();
 

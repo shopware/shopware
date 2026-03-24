@@ -73,8 +73,8 @@ class RuleConditionPersisterTest extends TestCase
         $persister->persist($context);
 
         $events = $this->eventDispatcher->getEvents();
-        static::assertArrayHasKey(RuleConditionPersistEvent::class, $events);
-        static::assertInstanceOf(RuleConditionPersistEvent::class, $events[RuleConditionPersistEvent::class]);
+        static::assertCount(1, $events);
+        static::assertInstanceOf(RuleConditionPersistEvent::class, $events[0]);
     }
 
     public function testPersistEventCarriesLifecycleContext(): void
@@ -90,9 +90,10 @@ class RuleConditionPersisterTest extends TestCase
 
         $persister->persist($context);
 
-        $event = $this->eventDispatcher->getEvents()[RuleConditionPersistEvent::class];
-        static::assertInstanceOf(RuleConditionPersistEvent::class, $event);
-        static::assertSame($context, $event->getContext());
+        $events = $this->eventDispatcher->getEvents();
+        static::assertCount(1, $events);
+        static::assertInstanceOf(RuleConditionPersistEvent::class, $events[0]);
+        static::assertSame($context, $events[0]->getContext());
     }
 
     public function testPersistUpsertsNewConditions(): void
@@ -198,8 +199,8 @@ class RuleConditionPersisterTest extends TestCase
         $persister->activateConditionScripts('app-id', Context::createDefaultContext());
 
         $events = $this->eventDispatcher->getEvents();
-        static::assertArrayHasKey(RuleConditionActivateEvent::class, $events);
-        static::assertInstanceOf(RuleConditionActivateEvent::class, $events[RuleConditionActivateEvent::class]);
+        static::assertCount(1, $events);
+        static::assertInstanceOf(RuleConditionActivateEvent::class, $events[0]);
     }
 
     public function testActivateConditionScriptsActivatesInactiveScripts(): void
@@ -248,8 +249,8 @@ class RuleConditionPersisterTest extends TestCase
         $persister->deactivateConditionScripts('app-id', Context::createDefaultContext());
 
         $events = $this->eventDispatcher->getEvents();
-        static::assertArrayHasKey(RuleConditionDeactivateEvent::class, $events);
-        static::assertInstanceOf(RuleConditionDeactivateEvent::class, $events[RuleConditionDeactivateEvent::class]);
+        static::assertCount(1, $events);
+        static::assertInstanceOf(RuleConditionDeactivateEvent::class, $events[0]);
     }
 
     public function testDeactivateConditionScriptsDeactivatesActiveScripts(): void

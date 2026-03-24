@@ -162,16 +162,16 @@
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ElementTypePersister">
-            <argument type="service" id="app_content_element_type.repository"/>
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemElementTypePersister">
+            <argument type="service" id="app_content_system_element_type.repository"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer"/>
             <argument type="service" id="validator"/>
-            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentElementTypeRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.app_lifecycle.persister" priority="-1400"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Validation\ElementTypeAppValidator">
+        <service id="Shopware\Core\Framework\App\Validation\ContentSystemElementTypeAppValidator">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader"/>
             <tag name="shopware.app_manifest.validator"/>
         </service>
@@ -662,7 +662,7 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Aggregate\AppContentElementType\AppContentElementTypeDefinition">
+        <service id="Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 

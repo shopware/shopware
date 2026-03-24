@@ -27,7 +27,7 @@ class ElementTypeSpecificationDtoTest extends TestCase
             [],
         );
 
-        $schema = $dto->toContentElementTypeSpecification()->toSchema();
+        $schema = $dto->toContentSystemElementTypeSpecification()->toSchema();
 
         static::assertCount(2, $schema['properties']);
         static::assertArrayHasKey('title', $schema['properties']);
@@ -42,7 +42,7 @@ class ElementTypeSpecificationDtoTest extends TestCase
             [new SlotSpecificationDto('media', 1, ['Sw:Media:Image'], 'Media slot.')],
         );
 
-        $schema = $dto->toContentElementTypeSpecification()->toSchema();
+        $schema = $dto->toContentSystemElementTypeSpecification()->toSchema();
 
         static::assertCount(1, $schema['slots']);
     }
@@ -51,7 +51,7 @@ class ElementTypeSpecificationDtoTest extends TestCase
     public function testConvertsEmptyDtoToSpecification(): void
     {
         $dto = $this->createDto([], []);
-        $spec = $dto->toContentElementTypeSpecification();
+        $spec = $dto->toContentSystemElementTypeSpecification();
 
         static::assertSame('Sw:Product:Card', $spec->name());
 

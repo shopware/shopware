@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
-use Shopware\Core\Framework\App\Aggregate\AppContentElementType\AppContentElementTypeCollection;
+use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
@@ -143,7 +143,7 @@ class AppEntity extends Entity
 
     protected ?AppFlowEventCollection $flowEvents = null;
 
-    protected ?AppContentElementTypeCollection $contentElementTypes = null;
+    protected ?AppContentSystemElementTypeCollection $contentElementTypes = null;
 
     /**
      * @var EntityCollection<AppShippingMethodEntity>|null
@@ -621,12 +621,12 @@ class AppEntity extends Entity
         $this->flowEvents = $flowEvents;
     }
 
-    public function getContentElementTypes(): ?AppContentElementTypeCollection
+    public function getContentElementTypes(): ?AppContentSystemElementTypeCollection
     {
         return $this->contentElementTypes;
     }
 
-    public function setContentElementTypes(AppContentElementTypeCollection $contentElementTypes): void
+    public function setContentElementTypes(AppContentSystemElementTypeCollection $contentElementTypes): void
     {
         $this->contentElementTypes = $contentElementTypes;
     }

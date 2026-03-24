@@ -3,10 +3,10 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\App\Aggregate\AppContentElementType\AppContentElementTypeCollection;
+use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeCollection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -22,18 +22,18 @@ use Symfony\Component\Yaml\Yaml;
  * @internal
  */
 #[Package('framework')]
-class ElementTypePersister implements PersisterInterface
+class ContentSystemElementTypePersister implements PersisterInterface
 {
     private const TYPES_DIRECTORY = 'Resources/content-system/types';
 
     /**
-     * @param EntityRepository<AppContentElementTypeCollection> $contentElementTypeRepository
+     * @param EntityRepository<AppContentSystemElementTypeCollection> $contentElementTypeRepository
      */
     public function __construct(
         private readonly EntityRepository $contentElementTypeRepository,
         private readonly ElementTypeSpecificationSerializer $serializer,
         private readonly ValidatorInterface $validator,
-        private readonly ContentElementTypeRegistry $registry,
+        private readonly ContentSystemElementTypeRegistry $registry,
         private readonly Connection $connection,
     ) {
     }
@@ -75,7 +75,7 @@ class ElementTypePersister implements PersisterInterface
                 );
             }
 
-            $dto->toContentElementTypeSpecification();
+            $dto->toContentSystemElementTypeSpecification();
 
             $name = $dto->name;
             $normalized = $this->serializer->normalize($dto);
@@ -124,7 +124,7 @@ class ElementTypePersister implements PersisterInterface
         }
     }
 
-    private function getExistingTypes(string $appId, Context $context): AppContentElementTypeCollection
+    private function getExistingTypes(string $appId, Context $context): AppContentSystemElementTypeCollection
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
@@ -139,7 +139,7 @@ class ElementTypePersister implements PersisterInterface
         }
 
         $existingAppName = $this->connection->fetchOne(
-            'SELECT a.name FROM app_content_element_type t
+            'SELECT a.name FROM app_content_system_element_type t
              INNER JOIN app a ON t.app_id = a.id
              WHERE t.name = :name AND t.app_id != :appId',
             ['name' => $name, 'appId' => Uuid::fromHexToBytes($appId)]

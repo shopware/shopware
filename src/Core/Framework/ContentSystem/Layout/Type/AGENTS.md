@@ -9,12 +9,12 @@ Type spec `properties` = schema for hydrated API output, NOT storage format
 
 ## Source Code References
 
-- **Registry**: `Registry/ContentElementTypeRegistry` (two-phase: compiled + runtime loaders)
-- **Compiler Pass**: `DependencyInjection/CompilerPass/ElementTypeCompilerPass` (discovers from core, bundles, plugins, apps)
+- **Registry**: `Registry/ContentSystemElementTypeRegistry` (two-phase: compiled + runtime loaders)
+- **Compiler Pass**: `DependencyInjection/CompilerPass/ContentSystemElementTypeCompilerPass` (discovers from core, bundles, plugins, apps)
 - **Loaders**: `Loader/YamlTypeLoader` (filesystem), `Loader/DatabaseTypeLoader` (app types, prod only)
 - **Serializer**: `Serialization/ElementTypeSpecificationSerializer` (YAML ↔ DTO)
-- **API Endpoint**: `Api/Controller/InfoController::getContentElementTypes()` (`GET /api/_info/content-element-types.json`)
-- **App Integration**: `App/Lifecycle/Persister/ElementTypePersister`, `App/Validation/ElementTypeAppValidator`
+- **API Endpoint**: `Api/Controller/InfoController::getContentSystemElementTypes()` (`GET /api/_info/content-system-element-types.json`)
+- **App Integration**: `App/Lifecycle/Persister/ContentSystemElementTypePersister`, `App/Validation/ContentSystemElementTypeAppValidator`
 - **Type Map Bridge**: `Schema/ContentSystemDataLoaderTypeMap` — connects FQCNs to loader sources
 
 ## Constraints

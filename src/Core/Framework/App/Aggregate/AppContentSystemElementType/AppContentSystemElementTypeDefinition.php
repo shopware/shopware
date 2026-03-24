@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\App\Aggregate\AppContentElementType;
+namespace Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType;
 
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -19,9 +19,9 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-class AppContentElementTypeDefinition extends EntityDefinition
+class AppContentSystemElementTypeDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'app_content_element_type';
+    final public const ENTITY_NAME = 'app_content_system_element_type';
 
     public function getEntityName(): string
     {
@@ -30,12 +30,12 @@ class AppContentElementTypeDefinition extends EntityDefinition
 
     public function getEntityClass(): string
     {
-        return AppContentElementTypeEntity::class;
+        return AppContentSystemElementTypeEntity::class;
     }
 
     public function getCollectionClass(): string
     {
-        return AppContentElementTypeCollection::class;
+        return AppContentSystemElementTypeCollection::class;
     }
 
     public function since(): ?string

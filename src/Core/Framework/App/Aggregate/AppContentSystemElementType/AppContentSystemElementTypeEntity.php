@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\App\Aggregate\AppContentElementType;
+namespace Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-class AppContentElementTypeEntity extends Entity
+class AppContentSystemElementTypeEntity extends Entity
 {
     use EntityIdTrait;
 

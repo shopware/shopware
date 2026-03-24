@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Registry;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\AbstractContentElementTypeLoader;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\AbstractContentSystemElementTypeLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -12,10 +12,10 @@ use Symfony\Contracts\Service\ResetInterface;
  * @final
  */
 #[Package('framework')]
-class ContentElementTypeRegistry implements ResetInterface
+class ContentSystemElementTypeRegistry implements ResetInterface
 {
     /**
-     * @var array<string, ContentElementTypeSpecification>
+     * @var array<string, ContentSystemElementTypeSpecification>
      */
     private array $types = [];
 
@@ -34,8 +34,8 @@ class ContentElementTypeRegistry implements ResetInterface
     /**
      * @internal
      *
-     * @param list<ContentElementTypeSpecification> $compiledDefinitions
-     * @param iterable<AbstractContentElementTypeLoader> $runtimeLoaders
+     * @param list<ContentSystemElementTypeSpecification> $compiledDefinitions
+     * @param iterable<AbstractContentSystemElementTypeLoader> $runtimeLoaders
      */
     public function __construct(
         array $compiledDefinitions,
@@ -47,7 +47,7 @@ class ContentElementTypeRegistry implements ResetInterface
     }
 
     /**
-     * @return array<string, ContentElementTypeSpecification>
+     * @return array<string, ContentSystemElementTypeSpecification>
      */
     public function all(): array
     {
@@ -63,7 +63,7 @@ class ContentElementTypeRegistry implements ResetInterface
         return isset($this->types[$name]);
     }
 
-    public function get(string $name): ContentElementTypeSpecification
+    public function get(string $name): ContentSystemElementTypeSpecification
     {
         $this->ensureLoaded();
 
@@ -84,7 +84,7 @@ class ContentElementTypeRegistry implements ResetInterface
         $this->runtimeLoadComplete = false;
     }
 
-    private function register(ContentElementTypeSpecification $definition, string $source): void
+    private function register(ContentSystemElementTypeSpecification $definition, string $source): void
     {
         $name = $definition->name();
 

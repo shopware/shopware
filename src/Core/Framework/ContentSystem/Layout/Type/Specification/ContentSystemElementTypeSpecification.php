@@ -26,7 +26,7 @@ use Shopware\Core\Framework\Log\Package;
  * @phpstan-type ElementTypeSchema = array{name: string, label: string, description: string, vendor: string, icon: string|null, category: string|null, copilot: CopilotSchema, properties: array<string, PropertySchema>, slots: list<SlotSchema>}
  */
 #[Package('framework')]
-final readonly class ContentElementTypeSpecification
+final readonly class ContentSystemElementTypeSpecification
 {
     /**
      * @param array<string, PropertySpecification> $properties

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class ElementTypeSchemaError extends Error
+class ContentSystemElementTypeSchemaError extends Error
 {
     private const KEY = 'manifest-invalid-element-type-schema';
 

@@ -14,11 +14,11 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\AttributeEntityComp
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AutoconfigureCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentRouteCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemDataLoaderTypeCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemElementTypeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\CreateGeneratorScaffoldingCommandPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DisableTwigCacheWarmerCompilerPass;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\ElementTypeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass;
@@ -133,7 +133,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new MessageHandlerCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new ContentRouteCompilerPass());
         $container->addCompilerPass(new ContentSystemDataLoaderTypeCompilerPass());
-        $container->addCompilerPass(ElementTypeCompilerPass::withDefaultLoader());
+        $container->addCompilerPass(ContentSystemElementTypeCompilerPass::withDefaultLoader());
         $container->addCompilerPass(new CreateGeneratorScaffoldingCommandPass());
         $container->addCompilerPass(new RedisConnectionsCompilerPass());
 

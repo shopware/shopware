@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  * @internal
  */
 #[Package('framework')]
-class Migration1773442200AddAppContentElementTypeTable extends MigrationStep
+class Migration1773442200AddAppContentSystemElementTypeTable extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
@@ -20,7 +20,7 @@ class Migration1773442200AddAppContentElementTypeTable extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeStatement('
-            CREATE TABLE IF NOT EXISTS `app_content_element_type` (
+            CREATE TABLE IF NOT EXISTS `app_content_system_element_type` (
                 `id` BINARY(16) NOT NULL,
                 `app_id` BINARY(16) NOT NULL,
                 `name` VARCHAR(255) NOT NULL,
@@ -30,10 +30,10 @@ class Migration1773442200AddAppContentElementTypeTable extends MigrationStep
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
-                UNIQUE KEY `uniq.app_content_element_type.name_app` (`name`, `app_id`),
-                KEY `fk.app_content_element_type.app_id` (`app_id`),
-                KEY `idx.app_content_element_type.app_id_active` (`app_id`, `active`),
-                CONSTRAINT `fk.app_content_element_type.app_id`
+                UNIQUE KEY `uniq.app_content_system_element_type.name_app` (`name`, `app_id`),
+                KEY `fk.app_content_system_element_type.app_id` (`app_id`),
+                KEY `idx.app_content_system_element_type.app_id_active` (`app_id`, `active`),
+                CONSTRAINT `fk.app_content_system_element_type.app_id`
                     FOREIGN KEY (`app_id`) REFERENCES `app` (`id`)
                     ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

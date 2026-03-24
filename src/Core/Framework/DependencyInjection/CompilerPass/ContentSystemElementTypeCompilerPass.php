@@ -5,9 +5,9 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Validation;
  * @internal
  */
 #[Package('framework')]
-final class ElementTypeCompilerPass implements CompilerPassInterface
+final class ContentSystemElementTypeCompilerPass implements CompilerPassInterface
 {
     private const STANDARD_TYPE_DIRECTORY = 'Resources/content-system/types';
 
@@ -47,7 +47,7 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $container): void
     {
-        if (!$container->hasDefinition(ContentElementTypeRegistry::class)) {
+        if (!$container->hasDefinition(ContentSystemElementTypeRegistry::class)) {
             return;
         }
 
@@ -63,7 +63,7 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
             $inlineDefinitions[] = $this->createInlineDefinition($spec);
         }
 
-        $registryServiceDefinition = $container->getDefinition(ContentElementTypeRegistry::class);
+        $registryServiceDefinition = $container->getDefinition(ContentSystemElementTypeRegistry::class);
         $registryServiceDefinition->setArgument(0, $inlineDefinitions);
     }
 
@@ -71,7 +71,7 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
      * Loads from all bundles using the standard path. Skips active plugins
      * (handled separately in loadFromPlugins where they can override the path).
      *
-     * @param list<ContentElementTypeSpecification> $allSpecifications
+     * @param list<ContentSystemElementTypeSpecification> $allSpecifications
      */
     private function loadFromBundleMetadata(ContainerBuilder $container, array &$allSpecifications): void
     {
@@ -104,7 +104,7 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
     /**
      * Loads from active plugins using the (potentially overridden) type directory.
      *
-     * @param list<ContentElementTypeSpecification> $allSpecifications
+     * @param list<ContentSystemElementTypeSpecification> $allSpecifications
      */
     private function loadFromPlugins(ContainerBuilder $container, array &$allSpecifications): void
     {
@@ -167,7 +167,7 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
      * Loads app types from filesystem in dev environment only.
      * Follows the established pattern from TwigLoaderConfigCompilerPass.
      *
-     * @param list<ContentElementTypeSpecification> $allSpecifications
+     * @param list<ContentSystemElementTypeSpecification> $allSpecifications
      */
     private function loadFromApps(ContainerBuilder $container, array &$allSpecifications): void
     {
@@ -194,7 +194,7 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * @param list<ContentElementTypeSpecification> $allSpecifications
+     * @param list<ContentSystemElementTypeSpecification> $allSpecifications
      */
     private function loadFromDirectory(string $directory, array &$allSpecifications): void
     {
@@ -203,7 +203,7 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
         }
     }
 
-    private function createInlineDefinition(ContentElementTypeSpecification $spec): Definition
+    private function createInlineDefinition(ContentSystemElementTypeSpecification $spec): Definition
     {
         $schema = $spec->toSchema();
 
@@ -247,7 +247,7 @@ final class ElementTypeCompilerPass implements CompilerPassInterface
             $slotDefs[] = $slotDef;
         }
 
-        $def = new Definition(ContentElementTypeSpecification::class);
+        $def = new Definition(ContentSystemElementTypeSpecification::class);
         $def->setArguments([
             $schema['name'],
             $schema['label'],

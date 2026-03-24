@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\App\Event\CustomAppEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
@@ -446,7 +446,7 @@ class InfoControllerTest extends TestCase
             $this->createMock(StatsService::class),
             new EventDispatcher(),
             $this->createMock(ContentSystemDataLoaderTypeSchemaGenerator::class),
-            $this->createMock(ContentElementTypeRegistry::class),
+            $this->createMock(ContentSystemElementTypeRegistry::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -524,7 +524,7 @@ class InfoControllerTest extends TestCase
             $this->createMock(StatsService::class),
             new EventDispatcher(),
             $this->createMock(ContentSystemDataLoaderTypeSchemaGenerator::class),
-            $this->createMock(ContentElementTypeRegistry::class),
+            $this->createMock(ContentSystemElementTypeRegistry::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));

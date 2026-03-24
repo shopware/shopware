@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Loader;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @final
  */
 #[Package('framework')]
-class DatabaseTypeLoader extends AbstractContentElementTypeLoader
+class DatabaseTypeLoader extends AbstractContentSystemElementTypeLoader
 {
     public function __construct(
         private readonly ElementTypeSpecificationSerializer $serializer,
@@ -26,7 +26,7 @@ class DatabaseTypeLoader extends AbstractContentElementTypeLoader
     }
 
     /**
-     * @return list<ContentElementTypeSpecification>
+     * @return list<ContentSystemElementTypeSpecification>
      */
     public function load(): array
     {
@@ -37,7 +37,7 @@ class DatabaseTypeLoader extends AbstractContentElementTypeLoader
         /** @var list<array{name: string, schema: string, app_name: string}> $rows */
         $rows = $this->connection->fetchAllAssociative(
             'SELECT t.name, t.schema, a.name as app_name
-             FROM app_content_element_type t
+             FROM app_content_system_element_type t
              INNER JOIN app a ON t.app_id = a.id
              WHERE t.active = 1'
         );
@@ -57,7 +57,7 @@ class DatabaseTypeLoader extends AbstractContentElementTypeLoader
                 );
             }
 
-            $definitions[] = $dto->toContentElementTypeSpecification();
+            $definitions[] = $dto->toContentSystemElementTypeSpecification();
         }
 
         return $definitions;

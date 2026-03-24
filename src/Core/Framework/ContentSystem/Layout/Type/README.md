@@ -39,22 +39,22 @@ This bridge is built at compile time by `ContentSystemDataLoaderTypeCompilerPass
 
 ## Architecture
 
-1. **Specification Value Objects** (Specification/) — Immutable VOs: ContentElementTypeSpecification (top-level), PropertySpecification + PropertyType (property with type info), SlotSpecification (slot with allowList/maxElements), CopilotSpecification (LLM metadata). DTOs in Specification/Dto/ carry Symfony validation attributes for input deserialization.
+1. **Specification Value Objects** (Specification/) — Immutable VOs: ContentSystemElementTypeSpecification (top-level), PropertySpecification + PropertyType (property with type info), SlotSpecification (slot with allowList/maxElements), CopilotSpecification (LLM metadata). DTOs in Specification/Dto/ carry Symfony validation attributes for input deserialization.
 
-2. **Loading** (Loader/) — YamlTypeLoader scans a directory for *.yaml files, deserializes via ElementTypeSpecificationSerializer, validates via Symfony Validator. DatabaseTypeLoader loads active app types from the app_content_element_type table (prod only; returns empty in dev where apps load from filesystem via the compiler pass).
+2. **Loading** (Loader/) — YamlTypeLoader scans a directory for *.yaml files, deserializes via ElementTypeSpecificationSerializer, validates via Symfony Validator. DatabaseTypeLoader loads active app types from the app_content_system_element_type table (prod only; returns empty in dev where apps load from filesystem via the compiler pass).
 
-3. **Registry** (Registry/) — ContentElementTypeRegistry holds all types in-memory. Two-phase: compiled definitions injected by ElementTypeCompilerPass, plus runtime-loaded definitions from tagged content_system.type_loader services (lazy on first access). Implements ResetInterface to clear runtime types between requests.
+3. **Registry** (Registry/) — ContentSystemElementTypeRegistry holds all types in-memory. Two-phase: compiled definitions injected by ContentSystemElementTypeCompilerPass, plus runtime-loaded definitions from tagged content_system.type_loader services (lazy on first access). Implements ResetInterface to clear runtime types between requests.
 
-4. **Compiler Pass** — ElementTypeCompilerPass discovers YAML definitions from four sources: core Definitions/ directory, bundle metadata, active plugins (customizable via Plugin::getContentTypeDirectory()), and active apps (dev env only, filesystem).
+4. **Compiler Pass** — ContentSystemElementTypeCompilerPass discovers YAML definitions from four sources: core Definitions/ directory, bundle metadata, active plugins (customizable via Plugin::getContentTypeDirectory()), and active apps (dev env only, filesystem).
 
-5. **App Integration** — AppContentElementTypeDefinition (DAL entity), ElementTypePersister (syncs YAML to DB with collision detection), ElementTypeAppValidator (validates app YAML during manifest validation).
+5. **App Integration** — AppContentSystemElementTypeDefinition (DAL entity), ContentSystemElementTypePersister (syncs YAML to DB with collision detection), ContentSystemElementTypeAppValidator (validates app YAML during manifest validation).
 
 ## Subdirectories
 
 - **Definitions/** - Core YAML type definitions (49 files: headers, filters, products, content, media, grid)
 - **Loader/** - Type loading (YamlTypeLoader for filesystem, DatabaseTypeLoader for app types in prod)
-- **Registry/** - ContentElementTypeRegistry (two-phase: compile-time baked + runtime DB)
+- **Registry/** - ContentSystemElementTypeRegistry (two-phase: compile-time baked + runtime DB)
 - **Serialization/** - ElementTypeSpecificationSerializer (YAML ↔ DTO conversion)
-- **Specification/** - Value objects (ContentElementTypeSpecification, PropertySpecification, SlotSpecification, CopilotSpecification)
+- **Specification/** - Value objects (ContentSystemElementTypeSpecification, PropertySpecification, SlotSpecification, CopilotSpecification)
 - **Specification/Dto/** - Validation DTOs with Symfony constraint attributes
 - **Validation/** - Custom validators (ValidPropertyConstraints for type/translatable/enum rules)

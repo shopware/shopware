@@ -8,14 +8,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecification;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\ElementTypeCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemElementTypeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Plugin;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -25,8 +25,8 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
-#[CoversClass(ElementTypeCompilerPass::class)]
-class ElementTypeCompilerPassTest extends TestCase
+#[CoversClass(ContentSystemElementTypeCompilerPass::class)]
+class ContentSystemElementTypeCompilerPassTest extends TestCase
 {
     /**
      * Fixtures root directory. Sub-directories mirror the directory layout expected by the compiler pass.
@@ -39,11 +39,11 @@ class ElementTypeCompilerPassTest extends TestCase
      */
     private const FIXTURES_DIR = __DIR__ . '/fixtures';
 
-    private ElementTypeCompilerPass $pass;
+    private ContentSystemElementTypeCompilerPass $pass;
 
     protected function setUp(): void
     {
-        $this->pass = new ElementTypeCompilerPass(
+        $this->pass = new ContentSystemElementTypeCompilerPass(
             new YamlTypeLoader(
                 new ElementTypeSpecificationSerializer(),
                 Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator(),
@@ -62,7 +62,7 @@ class ElementTypeCompilerPassTest extends TestCase
         // No registry definition — must not throw
         $this->pass->process($container);
 
-        static::assertFalse($container->hasDefinition(ContentElementTypeRegistry::class));
+        static::assertFalse($container->hasDefinition(ContentSystemElementTypeRegistry::class));
     }
 
     #[TestDox('scans non-plugin bundles using the standard type directory path')]
@@ -75,7 +75,7 @@ class ElementTypeCompilerPassTest extends TestCase
         ]);
         $container->setParameter('kernel.active_plugins', []);
 
-        $registryDef = $container->getDefinition(ContentElementTypeRegistry::class);
+        $registryDef = $container->getDefinition(ContentSystemElementTypeRegistry::class);
         $this->pass->process($container);
 
         $names = $this->extractTypeNames($registryDef->getArgument(0));
@@ -99,7 +99,7 @@ class ElementTypeCompilerPassTest extends TestCase
             ],
         ]);
 
-        $registryDef = $container->getDefinition(ContentElementTypeRegistry::class);
+        $registryDef = $container->getDefinition(ContentSystemElementTypeRegistry::class);
         $this->pass->process($container);
 
         $names = $this->extractTypeNames($registryDef->getArgument(0));
@@ -120,7 +120,7 @@ class ElementTypeCompilerPassTest extends TestCase
             ],
         ]);
 
-        $registryDef = $container->getDefinition(ContentElementTypeRegistry::class);
+        $registryDef = $container->getDefinition(ContentSystemElementTypeRegistry::class);
         $this->pass->process($container);
 
         $names = $this->extractTypeNames($registryDef->getArgument(0));
@@ -141,7 +141,7 @@ class ElementTypeCompilerPassTest extends TestCase
             ],
         ]);
 
-        $registryDef = $container->getDefinition(ContentElementTypeRegistry::class);
+        $registryDef = $container->getDefinition(ContentSystemElementTypeRegistry::class);
         $this->pass->process($container);
 
         $names = $this->extractTypeNames($registryDef->getArgument(0));
@@ -164,7 +164,7 @@ class ElementTypeCompilerPassTest extends TestCase
             ]);
         $container->set(Connection::class, $connection);
 
-        $registryDef = $container->getDefinition(ContentElementTypeRegistry::class);
+        $registryDef = $container->getDefinition(ContentSystemElementTypeRegistry::class);
         $this->pass->process($container);
 
         $names = $this->extractTypeNames($registryDef->getArgument(0));
@@ -201,7 +201,7 @@ class ElementTypeCompilerPassTest extends TestCase
         $this->pass->process($container);
 
         // Verify the registry was still populated (from core definitions)
-        $registryDef = $container->getDefinition(ContentElementTypeRegistry::class);
+        $registryDef = $container->getDefinition(ContentSystemElementTypeRegistry::class);
         static::assertIsArray($registryDef->getArgument(0));
     }
 
@@ -210,7 +210,7 @@ class ElementTypeCompilerPassTest extends TestCase
     {
         $testDef = $this->loadFixtureDefinition();
 
-        static::assertSame(ContentElementTypeSpecification::class, $testDef->getClass());
+        static::assertSame(ContentSystemElementTypeSpecification::class, $testDef->getClass());
 
         [$name, $label, $description, $vendor, $icon, $category, $copilotDef] = $testDef->getArguments();
 
@@ -333,14 +333,14 @@ class ElementTypeCompilerPassTest extends TestCase
         $container = new ContainerBuilder();
         $container->setParameter('kernel.environment', $environment);
 
-        $registryDef = new Definition(ContentElementTypeRegistry::class);
-        $container->setDefinition(ContentElementTypeRegistry::class, $registryDef);
+        $registryDef = new Definition(ContentSystemElementTypeRegistry::class);
+        $container->setDefinition(ContentSystemElementTypeRegistry::class, $registryDef);
 
         return $container;
     }
 
     /**
-     * Extracts the type name (first argument) from each inline ContentElementTypeSpecification Definition.
+     * Extracts the type name (first argument) from each inline ContentSystemElementTypeSpecification Definition.
      *
      * @return list<string>
      */
@@ -375,7 +375,7 @@ class ElementTypeCompilerPassTest extends TestCase
         ]);
         $container->setParameter('kernel.active_plugins', []);
 
-        $registryDef = $container->getDefinition(ContentElementTypeRegistry::class);
+        $registryDef = $container->getDefinition(ContentSystemElementTypeRegistry::class);
         $this->pass->process($container);
 
         $byName = $this->indexDefinitionsByName($registryDef->getArgument(0));

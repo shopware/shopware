@@ -10,8 +10,8 @@
 - **Store API**: `SalesChannel/ContentRoute` (single class, DI-parameterized per format + section)
 - **Schema**: `Schema/ContentSystemDataLoaderTypeResolver`, `Schema/ContentSystemDataLoaderTypeMap`, `Schema/ContentSystemDataLoaderTypeSchemaGenerator`
 - **Compiler Pass**: `DependencyInjection/CompilerPass/ContentSystemDataLoaderTypeCompilerPass` — collects loader type info at build time
-- **Element Type Registry**: `Layout/Type/Registry/ContentElementTypeRegistry`
-- **Element Type API**: `GET /api/_info/content-element-types.json` (registered in `InfoController`)
+- **Element Type Registry**: `Layout/Type/Registry/ContentSystemElementTypeRegistry`
+- **Element Type API**: `GET /api/_info/content-system-element-types.json` (registered in `InfoController`)
 - **Type-Loader Bridge**: `Schema/ContentSystemDataLoaderTypeMap`, `Schema/ContentSystemDataLoaderTypeResolver`
 
 ## Constraints

@@ -248,8 +248,8 @@
             <tag name="content_system.type_loader"/>
         </service>
 
-        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentElementTypeRegistry">
-            <argument type="collection"/><!-- Populated by ElementTypeCompilerPass -->
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry">
+            <argument type="collection"/><!-- Populated by ContentSystemElementTypeCompilerPass -->
             <argument type="tagged_iterator" tag="content_system.type_loader"/>
             <tag name="kernel.reset" method="reset"/>
         </service>

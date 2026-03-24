@@ -6,14 +6,14 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Aggregate\AppContentElementType\AppContentElementTypeCollection;
-use Shopware\Core\Framework\App\Aggregate\AppContentElementType\AppContentElementTypeEntity;
+use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeCollection;
+use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeEntity;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
-use Shopware\Core\Framework\App\Lifecycle\Persister\ElementTypePersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemElementTypePersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Util\Filesystem;
@@ -31,8 +31,8 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * @internal
  */
-#[CoversClass(ElementTypePersister::class)]
-class ElementTypePersisterTest extends TestCase
+#[CoversClass(ContentSystemElementTypePersister::class)]
+class ContentSystemElementTypePersisterTest extends TestCase
 {
     private const FIXTURES_DIR = __DIR__ . '/fixtures';
 
@@ -49,8 +49,8 @@ class ElementTypePersisterTest extends TestCase
     #[TestDox('inserts a new element type when no existing types are stored')]
     public function testInsertsNewTypeWhenNoneExist(): void
     {
-        /** @var StaticEntityRepository<AppContentElementTypeCollection> $repo */
-        $repo = new StaticEntityRepository([new AppContentElementTypeCollection()]);
+        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
+        $repo = new StaticEntityRepository([new AppContentSystemElementTypeCollection()]);
 
         $persister = $this->buildPersister($repo);
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
@@ -72,15 +72,15 @@ class ElementTypePersisterTest extends TestCase
         $normalized = $this->computeNormalizedForFixture();
         $hash = Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR));
 
-        $existing = new AppContentElementTypeEntity();
+        $existing = new AppContentSystemElementTypeEntity();
         $existing->setId($this->ids->create('type-hero'));
         $existing->setName('App:Demo:Hero');
         $existing->setHash($hash);
         $existing->setSchema($normalized);
         $existing->setAppId($this->ids->get('app'));
 
-        /** @var StaticEntityRepository<AppContentElementTypeCollection> $repo */
-        $repo = new StaticEntityRepository([new AppContentElementTypeCollection([$existing])]);
+        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
+        $repo = new StaticEntityRepository([new AppContentSystemElementTypeCollection([$existing])]);
 
         $persister = $this->buildPersister($repo);
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
@@ -92,15 +92,15 @@ class ElementTypePersisterTest extends TestCase
     #[TestDox('updates an existing type when its hash has changed')]
     public function testUpdatesExistingTypeWhenHashChanges(): void
     {
-        $existing = new AppContentElementTypeEntity();
+        $existing = new AppContentSystemElementTypeEntity();
         $existing->setId($this->ids->create('type-hero'));
         $existing->setName('App:Demo:Hero');
         $existing->setHash('outdated-hash-value');
         $existing->setSchema([]);
         $existing->setAppId($this->ids->get('app'));
 
-        /** @var StaticEntityRepository<AppContentElementTypeCollection> $repo */
-        $repo = new StaticEntityRepository([new AppContentElementTypeCollection([$existing])]);
+        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
+        $repo = new StaticEntityRepository([new AppContentSystemElementTypeCollection([$existing])]);
 
         $persister = $this->buildPersister($repo);
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
@@ -116,15 +116,15 @@ class ElementTypePersisterTest extends TestCase
     #[TestDox('deletes stored types that are no longer present in the app filesystem')]
     public function testDeletesTypesNotPresentInFiles(): void
     {
-        $obsolete = new AppContentElementTypeEntity();
+        $obsolete = new AppContentSystemElementTypeEntity();
         $obsolete->setId($this->ids->create('type-old'));
         $obsolete->setName('App:Old:Type');
         $obsolete->setHash('some-hash');
         $obsolete->setSchema([]);
         $obsolete->setAppId($this->ids->get('app'));
 
-        /** @var StaticEntityRepository<AppContentElementTypeCollection> $repo */
-        $repo = new StaticEntityRepository([new AppContentElementTypeCollection([$obsolete])]);
+        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
+        $repo = new StaticEntityRepository([new AppContentSystemElementTypeCollection([$obsolete])]);
 
         $persister = $this->buildPersister($repo);
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
@@ -136,7 +136,7 @@ class ElementTypePersisterTest extends TestCase
     #[TestDox('returns early when the types directory does not exist in the app filesystem')]
     public function testReturnsEarlyWhenTypesDirectoryDoesNotExist(): void
     {
-        /** @var StaticEntityRepository<AppContentElementTypeCollection> $repo */
+        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
         $persister = $this->buildPersister($repo);
@@ -149,7 +149,7 @@ class ElementTypePersisterTest extends TestCase
     #[TestDox('returns early when the types directory contains no YAML files')]
     public function testReturnsEarlyWhenNoYamlFilesFound(): void
     {
-        /** @var StaticEntityRepository<AppContentElementTypeCollection> $repo */
+        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
         $filesystem = new StaticFilesystem(['Resources/content-system/types' => '']);
@@ -168,8 +168,8 @@ class ElementTypePersisterTest extends TestCase
         // We override findFiles() indirectly: since StaticFilesystem always returns [] from
         // findFiles(), we cannot exercise the "non-array YAML" path via StaticFilesystem.
         // Instead, we stub the filesystem via an anonymous subclass.
-        /** @var StaticEntityRepository<AppContentElementTypeCollection> $repo */
-        $repo = new StaticEntityRepository([new AppContentElementTypeCollection()]);
+        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
+        $repo = new StaticEntityRepository([new AppContentSystemElementTypeCollection()]);
 
         $scalarYamlFs = new class extends Filesystem {
             public function __construct()
@@ -215,8 +215,8 @@ class ElementTypePersisterTest extends TestCase
     #[TestDox('throws when the validator returns constraint violations for a type DTO')]
     public function testThrowsOnValidationFailure(): void
     {
-        /** @var StaticEntityRepository<AppContentElementTypeCollection> $repo */
-        $repo = new StaticEntityRepository([new AppContentElementTypeCollection()]);
+        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
+        $repo = new StaticEntityRepository([new AppContentSystemElementTypeCollection()]);
 
         $violations = new ConstraintViolationList([
             new ConstraintViolation('Name must not be blank', null, [], null, 'name', ''),
@@ -234,10 +234,10 @@ class ElementTypePersisterTest extends TestCase
     #[TestDox('throws when the type name collides with a core or plugin type in the registry')]
     public function testThrowsOnCollisionWithCoreType(): void
     {
-        /** @var StaticEntityRepository<AppContentElementTypeCollection> $repo */
-        $repo = new StaticEntityRepository([new AppContentElementTypeCollection()]);
+        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
+        $repo = new StaticEntityRepository([new AppContentSystemElementTypeCollection()]);
 
-        $registry = static::createStub(ContentElementTypeRegistry::class);
+        $registry = static::createStub(ContentSystemElementTypeRegistry::class);
         $registry->method('has')->willReturn(true);
 
         $persister = $this->buildPersister($repo, registry: $registry);
@@ -249,8 +249,8 @@ class ElementTypePersisterTest extends TestCase
     #[TestDox('throws when the type name is already registered by a different app in the database')]
     public function testThrowsOnCollisionWithOtherApp(): void
     {
-        /** @var StaticEntityRepository<AppContentElementTypeCollection> $repo */
-        $repo = new StaticEntityRepository([new AppContentElementTypeCollection()]);
+        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
+        $repo = new StaticEntityRepository([new AppContentSystemElementTypeCollection()]);
 
         $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')->willReturn('OtherApp');
@@ -262,20 +262,20 @@ class ElementTypePersisterTest extends TestCase
     }
 
     /**
-     * @param StaticEntityRepository<AppContentElementTypeCollection> $repo
+     * @param StaticEntityRepository<AppContentSystemElementTypeCollection> $repo
      */
     private function buildPersister(
         StaticEntityRepository $repo,
         ?ValidatorInterface $validator = null,
-        ?ContentElementTypeRegistry $registry = null,
+        ?ContentSystemElementTypeRegistry $registry = null,
         ?Connection $connection = null,
-    ): ElementTypePersister {
+    ): ContentSystemElementTypePersister {
         if ($validator === null) {
             $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
         }
 
         if ($registry === null) {
-            $registry = static::createStub(ContentElementTypeRegistry::class);
+            $registry = static::createStub(ContentSystemElementTypeRegistry::class);
             $registry->method('has')->willReturn(false);
         }
 
@@ -284,7 +284,7 @@ class ElementTypePersisterTest extends TestCase
             $connection->method('fetchOne')->willReturn(false);
         }
 
-        return new ElementTypePersister(
+        return new ContentSystemElementTypePersister(
             $repo,
             $this->serializer,
             $validator,

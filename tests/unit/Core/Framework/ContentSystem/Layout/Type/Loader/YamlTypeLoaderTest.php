@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\Util\Filesystem;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Validator\Validation;
@@ -73,7 +73,7 @@ YAML;
 
         static::assertCount(2, $definitions);
 
-        $names = array_map(static fn (ContentElementTypeSpecification $d) => $d->name(), $definitions);
+        $names = array_map(static fn (ContentSystemElementTypeSpecification $d) => $d->name(), $definitions);
         static::assertContains('Sw:Content:Text', $names);
         static::assertContains('Sw:Product:Card', $names);
     }

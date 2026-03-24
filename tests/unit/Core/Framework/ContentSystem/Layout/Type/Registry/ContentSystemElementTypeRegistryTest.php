@@ -6,22 +6,22 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\AbstractContentElementTypeLoader;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentElementTypeRegistry;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\AbstractContentSystemElementTypeLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
 
 /**
  * @internal
  */
-#[CoversClass(ContentElementTypeRegistry::class)]
-class ContentElementTypeRegistryTest extends TestCase
+#[CoversClass(ContentSystemElementTypeRegistry::class)]
+class ContentSystemElementTypeRegistryTest extends TestCase
 {
     #[TestDox('returns all compiled specifications')]
     public function testAllReturnsAllRegisteredSpecifications(): void
     {
         $def = $this->createSpec('Sw:Content:Text', 'Text');
-        $registry = new ContentElementTypeRegistry([$def], []);
+        $registry = new ContentSystemElementTypeRegistry([$def], []);
 
         $all = $registry->all();
         static::assertCount(1, $all);
@@ -34,10 +34,10 @@ class ContentElementTypeRegistryTest extends TestCase
         $compiled = $this->createSpec('Sw:Content:Text', 'Text');
         $runtime = $this->createSpec('App:Demo:Hero', 'Hero');
 
-        $loader = static::createStub(AbstractContentElementTypeLoader::class);
+        $loader = static::createStub(AbstractContentSystemElementTypeLoader::class);
         $loader->method('load')->willReturn([$runtime]);
 
-        $registry = new ContentElementTypeRegistry([$compiled], [$loader]);
+        $registry = new ContentSystemElementTypeRegistry([$compiled], [$loader]);
 
         static::assertCount(2, $registry->all());
     }
@@ -46,7 +46,7 @@ class ContentElementTypeRegistryTest extends TestCase
     public function testHasReturnsTrueForRegisteredType(): void
     {
         $def = $this->createSpec('Sw:Content:Text', 'Text');
-        $registry = new ContentElementTypeRegistry([$def], []);
+        $registry = new ContentSystemElementTypeRegistry([$def], []);
 
         static::assertTrue($registry->has('Sw:Content:Text'));
     }
@@ -54,7 +54,7 @@ class ContentElementTypeRegistryTest extends TestCase
     #[TestDox('returns false for an unknown type')]
     public function testHasReturnsFalseForUnknownType(): void
     {
-        $registry = new ContentElementTypeRegistry([], []);
+        $registry = new ContentSystemElementTypeRegistry([], []);
 
         static::assertFalse($registry->has('Sw:Unknown:Type'));
     }
@@ -63,7 +63,7 @@ class ContentElementTypeRegistryTest extends TestCase
     public function testGetReturnsSpecificationForRegisteredType(): void
     {
         $def = $this->createSpec('Sw:Content:Text', 'Text');
-        $registry = new ContentElementTypeRegistry([$def], []);
+        $registry = new ContentSystemElementTypeRegistry([$def], []);
 
         static::assertSame($def, $registry->get('Sw:Content:Text'));
     }
@@ -71,7 +71,7 @@ class ContentElementTypeRegistryTest extends TestCase
     #[TestDox('throws for unknown type on get')]
     public function testGetThrowsForUnknownType(): void
     {
-        $registry = new ContentElementTypeRegistry([], []);
+        $registry = new ContentSystemElementTypeRegistry([], []);
 
         $this->expectExceptionObject(ContentSystemException::elementTypeNotFound('Sw:Unknown:Type'));
         $registry->get('Sw:Unknown:Type');
@@ -82,10 +82,10 @@ class ContentElementTypeRegistryTest extends TestCase
     {
         $runtimeDef = $this->createSpec('App:Demo:Hero', 'Hero');
 
-        $loader = static::createStub(AbstractContentElementTypeLoader::class);
+        $loader = static::createStub(AbstractContentSystemElementTypeLoader::class);
         $loader->method('load')->willReturn([$runtimeDef]);
 
-        $registry = new ContentElementTypeRegistry([], [$loader]);
+        $registry = new ContentSystemElementTypeRegistry([], [$loader]);
 
         static::assertTrue($registry->has('App:Demo:Hero'));
     }
@@ -95,10 +95,10 @@ class ContentElementTypeRegistryTest extends TestCase
     {
         $runtimeDef = $this->createSpec('App:Demo:Hero', 'Hero');
 
-        $loader = $this->createMock(AbstractContentElementTypeLoader::class);
+        $loader = $this->createMock(AbstractContentSystemElementTypeLoader::class);
         $loader->expects($this->once())->method('load')->willReturn([$runtimeDef]);
 
-        $registry = new ContentElementTypeRegistry([], [$loader]);
+        $registry = new ContentSystemElementTypeRegistry([], [$loader]);
         $registry->has('App:Demo:Hero');
         $registry->has('App:Demo:Hero');
     }
@@ -109,10 +109,10 @@ class ContentElementTypeRegistryTest extends TestCase
         $compiled = $this->createSpec('Sw:Content:Text', 'Text');
         $runtime = $this->createSpec('App:Demo:Hero', 'Hero');
 
-        $loader = static::createStub(AbstractContentElementTypeLoader::class);
+        $loader = static::createStub(AbstractContentSystemElementTypeLoader::class);
         $loader->method('load')->willReturn([$runtime]);
 
-        $registry = new ContentElementTypeRegistry([$compiled], [$loader]);
+        $registry = new ContentSystemElementTypeRegistry([$compiled], [$loader]);
         $registry->all();
         $registry->reset();
 
@@ -124,10 +124,10 @@ class ContentElementTypeRegistryTest extends TestCase
     {
         $runtime = $this->createSpec('App:Demo:Hero', 'Hero');
 
-        $loader = $this->createMock(AbstractContentElementTypeLoader::class);
+        $loader = $this->createMock(AbstractContentSystemElementTypeLoader::class);
         $loader->expects($this->exactly(2))->method('load')->willReturn([$runtime]);
 
-        $registry = new ContentElementTypeRegistry([], [$loader]);
+        $registry = new ContentSystemElementTypeRegistry([], [$loader]);
         $registry->all();
         $registry->reset();
         $registry->all();
@@ -142,7 +142,7 @@ class ContentElementTypeRegistryTest extends TestCase
         $this->expectExceptionObject(
             ContentSystemException::elementTypeDuplicate('Sw:Content:Text', 'compiled', 'compiled')
         );
-        new ContentElementTypeRegistry([$def1, $def2], []);
+        new ContentSystemElementTypeRegistry([$def1, $def2], []);
     }
 
     #[TestDox('throws when runtime loader registers an already compiled type')]
@@ -153,7 +153,7 @@ class ContentElementTypeRegistryTest extends TestCase
 
         $loader = new FixedTypeLoader([$runtime]);
 
-        $registry = new ContentElementTypeRegistry([$compiled], [$loader]);
+        $registry = new ContentSystemElementTypeRegistry([$compiled], [$loader]);
 
         $this->expectExceptionObject(
             ContentSystemException::elementTypeDuplicate('Sw:Content:Text', 'compiled', FixedTypeLoader::class)
@@ -161,9 +161,9 @@ class ContentElementTypeRegistryTest extends TestCase
         $registry->all();
     }
 
-    private function createSpec(string $name, string $label): ContentElementTypeSpecification
+    private function createSpec(string $name, string $label): ContentSystemElementTypeSpecification
     {
-        return new ContentElementTypeSpecification(
+        return new ContentSystemElementTypeSpecification(
             $name,
             $label,
             '',
@@ -180,10 +180,10 @@ class ContentElementTypeRegistryTest extends TestCase
 /**
  * @internal
  */
-class FixedTypeLoader extends AbstractContentElementTypeLoader
+class FixedTypeLoader extends AbstractContentSystemElementTypeLoader
 {
     /**
-     * @param list<ContentElementTypeSpecification> $definitions
+     * @param list<ContentSystemElementTypeSpecification> $definitions
      */
     public function __construct(private readonly array $definitions)
     {

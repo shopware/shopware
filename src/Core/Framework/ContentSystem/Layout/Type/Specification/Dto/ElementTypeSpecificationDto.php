@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto;
 
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -39,7 +39,7 @@ final readonly class ElementTypeSpecificationDto
     ) {
     }
 
-    public function toContentElementTypeSpecification(): ContentElementTypeSpecification
+    public function toContentSystemElementTypeSpecification(): ContentSystemElementTypeSpecification
     {
         $properties = [];
         foreach ($this->properties as $key => $dto) {
@@ -51,7 +51,7 @@ final readonly class ElementTypeSpecificationDto
             $slots[] = $dto->toSlotSpecification();
         }
 
-        return new ContentElementTypeSpecification(
+        return new ContentSystemElementTypeSpecification(
             $this->name,
             $this->label,
             $this->description,

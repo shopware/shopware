@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\App\Validation;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Validation\Error\ElementTypeSchemaError;
+use Shopware\Core\Framework\App\Validation\Error\ContentSystemElementTypeSchemaError;
 use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Util\Filesystem;
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class ElementTypeAppValidator extends AbstractManifestValidator
+class ContentSystemElementTypeAppValidator extends AbstractManifestValidator
 {
     public function __construct(
         private readonly YamlTypeLoader $loader,
@@ -31,7 +31,7 @@ class ElementTypeAppValidator extends AbstractManifestValidator
         try {
             $this->loader->load(new Filesystem($typesDir));
         } catch (ContentSystemException $e) {
-            $errors->add(new ElementTypeSchemaError(
+            $errors->add(new ContentSystemElementTypeSchemaError(
                 $typesDir,
                 $e->getMessage()
             ));

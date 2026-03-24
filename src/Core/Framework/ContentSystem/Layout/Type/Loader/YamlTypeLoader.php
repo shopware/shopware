@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Loader;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -26,7 +26,7 @@ class YamlTypeLoader
     }
 
     /**
-     * @return list<ContentElementTypeSpecification>
+     * @return list<ContentSystemElementTypeSpecification>
      */
     public function load(Filesystem $filesystem): array
     {
@@ -62,7 +62,7 @@ class YamlTypeLoader
             }
 
             $seenNames[$name] = $fileInfo->getFilename();
-            $definitions[] = $dto->toContentElementTypeSpecification();
+            $definitions[] = $dto->toContentSystemElementTypeSpecification();
         }
 
         return $definitions;

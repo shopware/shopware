@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Type\Specifica
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
@@ -14,8 +14,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecific
 /**
  * @internal
  */
-#[CoversClass(ContentElementTypeSpecification::class)]
-class ContentElementTypeSpecificationTest extends TestCase
+#[CoversClass(ContentSystemElementTypeSpecification::class)]
+class ContentSystemElementTypeSpecificationTest extends TestCase
 {
     #[TestDox('returns element type name')]
     public function testNameReturnsTypeName(): void
@@ -73,9 +73,9 @@ class ContentElementTypeSpecificationTest extends TestCase
         static::assertSame([], $schema['slots']);
     }
 
-    private function createSpecification(?string $icon, ?string $category): ContentElementTypeSpecification
+    private function createSpecification(?string $icon, ?string $category): ContentSystemElementTypeSpecification
     {
-        return new ContentElementTypeSpecification(
+        return new ContentSystemElementTypeSpecification(
             'Sw:Product:Card',
             'Product Card',
             'A product card.',
@@ -88,9 +88,9 @@ class ContentElementTypeSpecificationTest extends TestCase
         );
     }
 
-    private function createFullSpecification(): ContentElementTypeSpecification
+    private function createFullSpecification(): ContentSystemElementTypeSpecification
     {
-        return new ContentElementTypeSpecification(
+        return new ContentSystemElementTypeSpecification(
             'Sw:Product:Card',
             'Product Card',
             'A product card.',

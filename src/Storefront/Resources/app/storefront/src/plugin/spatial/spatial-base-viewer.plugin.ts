@@ -49,6 +49,9 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         if (this.dive == undefined) {
             this.dive = await window.DIVEQuickViewPlugin.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.canvas });
 
+            console.log(this.dive.model);
+            console.log(this.dive.model.animations);
+            console.log(this.dive.model.animations.length);
             if (this.dive.model.animations.length > 0) {
                 // instantiate animation system
                 const animSystem = new window.DIVEAnimationPlugin.AnimationSystem();
@@ -63,13 +66,13 @@ export default class SpatialBaseViewerPlugin extends Plugin {
                 animator.play();
 
                 // container
-                const animButtonContainer = this.canvas.parentElement?.querySelector('.spatial-anim-button-container') as HTMLElement | null;
-                if (!animButtonContainer) {
+                const animContainer = this.canvas.parentElement?.querySelector('.spatial-anim-container') as HTMLElement | null;
+                if (!animContainer) {
                     return;
                 }
 
                 // button
-                const animButton = animButtonContainer.querySelector('.spatial-anim-button');
+                const animButton = animContainer.querySelector('.spatial-anim-button');
                 if (!animButton) {
                     return;
                 }
@@ -77,23 +80,50 @@ export default class SpatialBaseViewerPlugin extends Plugin {
                 animButton.addEventListener('click', () => {
                     if (animator.state === 'playing') {
                         animator.pause();
-                        animButtonContainer.classList.remove('spatial-anim-play');
+                        animButton.classList.remove('spatial-anim-play');
                     } else {
-                        animator.play();
-                        animButtonContainer.classList.add('spatial-anim-play');
+                        animator.resume();
+                        animButton.classList.add('spatial-anim-play');
                     }
                 });
+
+                const animButtonCircle = animButton.querySelector('.spatial-anim-button-circle') as HTMLElement;
+                if (!animButtonCircle) {
+                    return;
+                }
+                animButtonCircle.style.setProperty('--progress', String(0));
 
                 const originalUpdate = animator.update.bind(animator);
                 animator.update = (deltaTime: number) => {
                     originalUpdate(deltaTime);
                     const progress = animator.duration > 0 ? animator.time / animator.duration : 0;
-                    animButtonContainer.style.setProperty('--progress', String(progress));
+                    animButtonCircle.style.setProperty('--progress', String(progress));
                 };
 
                 // show button
-                animButtonContainer.classList.add('spatial-anim-play');
-                animButtonContainer.classList.remove('hidden');
+                animButton.classList.add('spatial-anim-play');
+                animButton.classList.remove('visually-hidden');
+
+                if (this.dive.model.animations.length > 1) {
+                    const animSwitch = animContainer.querySelector('.spatial-anim-switch') as HTMLSelectElement;
+                    if (!animSwitch) {
+                        return;
+                    }
+                    this.dive.model.animations.forEach((animation: any) => {
+                        const option = document.createElement('option');
+                        option.value = animation.name;
+                        option.textContent = animation.name;
+                        animSwitch.appendChild(option);
+                    });
+                    animSwitch.addEventListener('change', (event: Event) => {
+                        const selectedOption = (event.target as HTMLSelectElement).value;
+                        animator.play(selectedOption);
+                        animButton.classList.add('spatial-anim-play');
+                        animButtonCircle.style.setProperty('--progress', String(0));
+                    });
+
+                    animSwitch.classList.remove('visually-hidden');
+                }
             }
         }
 

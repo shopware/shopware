@@ -295,7 +295,12 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     }
 }
 
-.spatial-anim-button-container {
+.spatial-anim-container {
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    gap: 8px;
+
     .spatial-anim-button {
         height: 40px;
         width: 40px;
@@ -303,6 +308,18 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         outline: none;
         border-radius: 50%;
         background: rgba(0, 0, 0, 0.70);
+
+        &.spatial-anim-play {
+            .icon-play {
+                display: none;
+            }
+        }
+
+        &:not(.spatial-anim-play) {
+            .icon-pause {
+                display: none;
+            }
+        }
     }
 
     .spatial-anim-button-circle {
@@ -338,16 +355,17 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         }
     }
 
-    &.spatial-anim-play {
-        .icon-play {
-            display: none;
-        }
-    }
 
-    &:not(.spatial-anim-play) {
-        .icon-pause {
-            display: none;
-        }
+
+    .spatial-anim-switch {
+        height: 40px;
+        width: 100px;
+        background: rgba(0, 0, 0, 0.70);
+        color: $white;
+        border-radius: 4px;
+        border: none;
+        outline: none;
+        padding: 0 8px;
     }
 }
 

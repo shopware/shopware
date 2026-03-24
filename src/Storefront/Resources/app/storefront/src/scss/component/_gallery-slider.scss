@@ -330,19 +330,22 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         transform: translate(-50%, -50%);
         color: var(--bs-white);
 
+        width: 16px;
+        height: 16px;
+
         svg {
             top: 0;
         }
     }
 
     &.spatial-anim-play {
-        .icon-editor-link {
+        .icon-play {
             display: none;
         }
     }
 
     &:not(.spatial-anim-play) {
-        .icon-editor-list {
+        .icon-pause {
             display: none;
         }
     }

@@ -252,11 +252,19 @@ class LineItemListPriceRatioRuleTest extends TestCase
             'expected' => false,
         ];
 
-        yield 'match / operator lower than equals/ negative ratio' => [
+        yield 'match / operator lower than equals / negative ratio' => [
             'operator' => Rule::OPERATOR_LTE,
             'ruleRatio' => 1.5,
             'price' => 7,
             'listPrice' => 5,
+            'expected' => true,
+        ];
+
+        yield 'match / operator lower than equals / null value' => [
+            'operator' => Rule::OPERATOR_LTE,
+            'ruleRatio' => 0,
+            'price' => 7,
+            'listPrice' => null,
             'expected' => true,
         ];
 

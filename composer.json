@@ -172,6 +172,7 @@
         "symfony/translation-contracts": "~3.6.0",
         "symfony/twig-bridge": "~7.4.0",
         "symfony/twig-bundle": "~7.4.0",
+        "symfony/ux-twig-component": "~2.32.0",
         "symfony/validator": "~7.4.0",
         "symfony/var-exporter": "~7.4.0",
         "symfony/yaml": "~7.4.0",
@@ -296,6 +297,7 @@
         "static-analyze": "Launches the PHP Stan static analysis tool",
         "storefront:unit": "Launches the jest unit test-suite for the Storefront",
         "storefront:unit:watch": "Launches the interactive jest unit test-suite watcher for the Storefront",
+        "storefront:storybook": "Runs the Storybook development server for the Storefront component library",
         "stylelint": "Codestyle checks all SCSS files of Administration and Storefront",
         "stylelint:admin": "Code Style checks for all Admin SCSS files",
         "stylelint:admin:fix": "Code Style checks for all Admin SCSS files and fixes them if possible",
@@ -477,6 +479,10 @@
         "storefront:unit:watch": [
             "Composer\\Config::disableProcessTimeout",
             "@npm:storefront run unit-watch"
+        ],
+        "storefront:storybook": [
+            "Composer\\Config::disableProcessTimeout",
+            "@npm:storefront run storybook"
         ],
         "stylelint": [
             "@stylelint:admin src/**/*.scss",

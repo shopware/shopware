@@ -2,9 +2,7 @@
  * @sw-package discovery
  */
 
-// eslint-disable-next-line import/no-unresolved
 import header from './header.csv.twig?raw';
-// eslint-disable-next-line import/no-unresolved
 import body from './body.csv.twig?raw';
 
 Shopware.Service('exportTemplateService').registerProductExportTemplate({

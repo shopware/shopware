@@ -1,4 +1,4 @@
-import { ConsentEvent, dispatchConsentEvent } from './events';
+import { ConsentEvent, dispatchConsentEvent, isConsentEvent, isConsentEventType } from './events';
 
 describe('src/core/consent/events.ts', () => {
     beforeEach(() => {
@@ -12,12 +12,12 @@ describe('src/core/consent/events.ts', () => {
 
     it('creates a consent event with timestamp', () => {
         const consentEvent = new ConsentEvent('consent_modal_viewed', {
-            option: ['user_tracking'],
+            option: ['product_analytics'],
         });
 
         expect(consentEvent.eventName).toBe('consent_modal_viewed');
         expect(consentEvent.eventProperties).toEqual({
-            option: ['user_tracking'],
+            option: ['product_analytics'],
         });
         expect(consentEvent.timestamp).toBeInstanceOf(Date);
     });
@@ -26,10 +26,10 @@ describe('src/core/consent/events.ts', () => {
         jest.setSystemTime(new Date('2026-01-01T10:00:00.000Z'));
 
         const firstEvent = new ConsentEvent('consent_modal_viewed', {
-            option: ['user_tracking'],
+            option: ['product_analytics'],
         });
         const secondEvent = new ConsentEvent('consent_option_changed', {
-            option: 'user_tracking',
+            option: 'product_analytics',
             state: 'enabled',
         });
 
@@ -40,17 +40,21 @@ describe('src/core/consent/events.ts', () => {
         global.activeFeatureFlags = ['PRODUCT_ANALYTICS'];
         const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
 
-        dispatchConsentEvent('consent_option_changed', {
-            option: 'backend_data',
-            state: 'enabled',
+        dispatchConsentEvent('consent_modal_viewed', {
+            consents_shown: [
+                'product_analytics',
+                'backend_data',
+            ],
         });
 
         expect(emitSpy).toHaveBeenCalledWith('consent', expect.any(ConsentEvent));
         expect(emitSpy.mock.calls[0][1]).toMatchObject({
-            eventName: 'consent_option_changed',
+            eventName: 'consent_modal_viewed',
             eventProperties: {
-                option: 'backend_data',
-                state: 'enabled',
+                consents_shown: [
+                    'product_analytics',
+                    'backend_data',
+                ],
             },
         });
     });
@@ -60,9 +64,33 @@ describe('src/core/consent/events.ts', () => {
         const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
 
         dispatchConsentEvent('consent_modal_viewed', {
-            option: ['user_tracking'],
+            consents_shown: ['product_analytics'],
         });
 
         expect(emitSpy).not.toHaveBeenCalled();
+    });
+
+    describe('isConsentEvent', () => {
+        it('checks the prototype', () => {
+            expect(isConsentEvent(new ConsentEvent('consent_modal_viewed', { consents_shown: ['product_analytics'] }))).toBe(
+                true,
+            );
+
+            expect(
+                isConsentEvent({
+                    eventName: 'consent_modal_viewed',
+                    eventProperties: { consents_shown: ['product_analytics'] },
+                }),
+            ).toBe(false);
+        });
+
+        it('compares the eventName property', () => {
+            const event = new ConsentEvent('consent_modal_viewed', {
+                consents_shown: ['product_analytics'],
+            });
+
+            expect(isConsentEventType(event, 'consent_modal_viewed')).toBe(true);
+            expect(isConsentEventType(event, 'consent_modal_decision')).toBe(false);
+        });
     });
 });

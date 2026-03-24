@@ -14,10 +14,10 @@ describe('iterator.helper.js', () => {
         const callback = jest.fn();
         Iterator.iterate(testMap, callback);
 
-        expect(callback).toBeCalledTimes(3);
-        expect(callback).nthCalledWith(1, 1, 'first', testMap);
-        expect(callback).nthCalledWith(2, 1, 'second', testMap);
-        expect(callback).nthCalledWith(3, 1, 'third', testMap);
+        expect(callback).toHaveBeenCalledTimes(3);
+        expect(callback).toHaveBeenNthCalledWith(1, 1, 'first', testMap);
+        expect(callback).toHaveBeenNthCalledWith(2, 1, 'second', testMap);
+        expect(callback).toHaveBeenNthCalledWith(3, 1, 'third', testMap);
     });
 
     test('it iterates over arrays', () => {
@@ -26,10 +26,10 @@ describe('iterator.helper.js', () => {
         const callback = jest.fn();
         Iterator.iterate(arr, callback);
 
-        expect(callback).toBeCalledTimes(3);
-        expect(callback).nthCalledWith(1, 1, 0, arr);
-        expect(callback).nthCalledWith(2, 2, 1, arr);
-        expect(callback).nthCalledWith(3, 3, 2, arr);
+        expect(callback).toHaveBeenCalledTimes(3);
+        expect(callback).toHaveBeenNthCalledWith(1, 1, 0, arr);
+        expect(callback).toHaveBeenNthCalledWith(2, 2, 1, arr);
+        expect(callback).toHaveBeenNthCalledWith(3, 3, 2, arr);
     });
 
     test('it iterates over formData', () => {
@@ -41,10 +41,10 @@ describe('iterator.helper.js', () => {
         const callback = jest.fn();
         Iterator.iterate(formData, callback);
 
-        expect(callback).toBeCalledTimes(3);
-        expect(callback).nthCalledWith(1, '1', 'first');
-        expect(callback).nthCalledWith(2, '2', 'second');
-        expect(callback).nthCalledWith(3, '3', 'third');
+        expect(callback).toHaveBeenCalledTimes(3);
+        expect(callback).toHaveBeenNthCalledWith(1, '1', 'first');
+        expect(callback).toHaveBeenNthCalledWith(2, '2', 'second');
+        expect(callback).toHaveBeenNthCalledWith(3, '3', 'third');
     });
 
     test('it iterates over objects', () => {
@@ -57,10 +57,10 @@ describe('iterator.helper.js', () => {
         const callback = jest.fn();
         Iterator.iterate(objectToIterate, callback);
 
-        expect(callback).toBeCalledTimes(3);
-        expect(callback).nthCalledWith(1, 1, 'a');
-        expect(callback).nthCalledWith(2, 2, 'b');
-        expect(callback).nthCalledWith(3, 3, 'c');
+        expect(callback).toHaveBeenCalledTimes(3);
+        expect(callback).toHaveBeenNthCalledWith(1, 1, 'a');
+        expect(callback).toHaveBeenNthCalledWith(2, 2, 'b');
+        expect(callback).toHaveBeenNthCalledWith(3, 3, 'c');
     });
 
     test('it iterates node lists', () => {
@@ -70,10 +70,10 @@ describe('iterator.helper.js', () => {
         const callback = jest.fn();
         Iterator.iterate(nodeList, callback);
 
-        expect(callback).toBeCalledTimes(3);
-        expect(callback).nthCalledWith(1, nodeList[0], 0, nodeList);
-        expect(callback).nthCalledWith(2, nodeList[1], 1, nodeList);
-        expect(callback).nthCalledWith(3, nodeList[2], 2, nodeList);
+        expect(callback).toHaveBeenCalledTimes(3);
+        expect(callback).toHaveBeenNthCalledWith(1, nodeList[0], 0, nodeList);
+        expect(callback).toHaveBeenNthCalledWith(2, nodeList[1], 1, nodeList);
+        expect(callback).toHaveBeenNthCalledWith(3, nodeList[2], 2, nodeList);
 
     });
 
@@ -85,25 +85,25 @@ describe('iterator.helper.js', () => {
         const callback = jest.fn();
         Iterator.iterate(nodeList, callback);
 
-        expect(callback).toBeCalledTimes(3);
+        expect(callback).toHaveBeenCalledTimes(3);
 
         const arrayNodeList = Array.from(nodeList);
         expect(nodeList.length).toBe(arrayNodeList.length);
 
-        expect(callback).nthCalledWith(1, arrayNodeList[0], 0, arrayNodeList);
-        expect(callback).nthCalledWith(2, arrayNodeList[1], 1, arrayNodeList);
-        expect(callback).nthCalledWith(3, arrayNodeList[2], 2, arrayNodeList);
+        expect(callback).toHaveBeenNthCalledWith(1, arrayNodeList[0], 0, arrayNodeList);
+        expect(callback).toHaveBeenNthCalledWith(2, arrayNodeList[1], 1, arrayNodeList);
+        expect(callback).toHaveBeenNthCalledWith(3, arrayNodeList[2], 2, arrayNodeList);
 
     });
 
     test('it throws for primitives', () => {
-        expect(() => { return Iterator.iterate('iterate over string') }).toThrowError();
-        expect(() => { return Iterator.iterate(new String('iterate over string')) }).toThrowError();
-        expect(() => { return Iterator.iterate(42) }).toThrowError();
+        expect(() => { return Iterator.iterate('iterate over string') }).toThrow();
+        expect(() => { return Iterator.iterate(new String('iterate over string')) }).toThrow();
+        expect(() => { return Iterator.iterate(42) }).toThrow();
     });
 
     test('it throws for null and undefined', () => {
-        expect(() => { return Iterator.iterate(null) }).toThrowError();
-        expect(() => { return Iterator.iterate(undefined) }).toThrowError();
+        expect(() => { return Iterator.iterate(null) }).toThrow();
+        expect(() => { return Iterator.iterate(undefined) }).toThrow();
     });
 });

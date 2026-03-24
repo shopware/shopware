@@ -51,7 +51,6 @@ async function createWrapper() {
                         sync: true,
                     }),
                     'sw-field': true,
-                    // eslint-disable-next-line max-len
                     'sw-extension-my-extensions-listing-controls': await wrapTestComponent(
                         'sw-extension-my-extensions-listing-controls',
                         { sync: true },

@@ -9,7 +9,7 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-media-index', () => import('./page/sw-media-index'));
 Shopware.Component.register('sw-media-grid', () => import('./component/sw-media-grid'));
 Shopware.Component.register('sw-media-sidebar', () => import('./component/sidebar/sw-media-sidebar'));
@@ -29,7 +29,7 @@ Shopware.Component.register('sw-media-library', () => import('./component/sw-med
 Shopware.Component.register('sw-media-modal-v2', () => import('./component/sw-media-modal-v2'));
 
 Shopware.Component.register('sw-media-save-modal', () => import('./component/sw-media-save-modal'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-media', {

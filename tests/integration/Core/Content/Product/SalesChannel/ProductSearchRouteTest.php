@@ -93,9 +93,7 @@ class ProductSearchRouteTest extends TestCase
 
         $browser->request(
             'POST',
-            '/store-api/search?search=Test-Product',
-            [
-            ]
+            '/store-api/search?search=Test-Product'
         );
         static::assertIsString($browser->getResponse()->getContent());
         $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -312,7 +310,7 @@ class ProductSearchRouteTest extends TestCase
     }
 
     /**
-     * @param array<string, bool> $searchTerms
+     * @param array<array-key, bool> $searchTerms
      */
     #[DataProvider('searchTestCases')]
     public function testProductSearch(string $productNumber, array $searchTerms, ?string $languageId): void
@@ -371,7 +369,7 @@ class ProductSearchRouteTest extends TestCase
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, array{string, array<array-key, bool>, string|null}>
      */
     public static function searchTestCases(): array
     {

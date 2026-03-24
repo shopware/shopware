@@ -186,7 +186,7 @@ module.exports = {
                             });
 
                             // Check if after computedNode there is a trailing comma
-                            const commaToken = context.getTokenAfter(dataNode);
+                            const commaToken = context.sourceCode.getTokenAfter(dataNode);
                             if (commaToken.value === ',') {
                                 yield fixer.remove(commaToken);
                             }
@@ -241,7 +241,7 @@ module.exports = {
                             });
 
                             // Check if after computedNode there is a trailing comma
-                            const commaToken = context.getTokenAfter(computedNode);
+                            const commaToken = context.sourceCode.getTokenAfter(computedNode);
                             if (commaToken.value === ',') {
                                 yield fixer.remove(commaToken);
                             }
@@ -265,7 +265,7 @@ module.exports = {
                             });
 
                             // Check if after methodsNode there is a trailing comma
-                            const commaToken = context.getTokenAfter(methodsNode);
+                            const commaToken = context.sourceCode.getTokenAfter(methodsNode);
                             if (commaToken.value === ',') {
                                 yield fixer.remove(commaToken);
                             }
@@ -289,7 +289,7 @@ module.exports = {
                             });
 
                             // Check if after watchNode there is a trailing comma
-                            const commaToken = context.getTokenAfter(watchNode);
+                            const commaToken = context.sourceCode.getTokenAfter(watchNode);
                             if (commaToken.value === ',') {
                                 yield fixer.remove(commaToken);
                             }
@@ -311,7 +311,7 @@ module.exports = {
                             yield fixer.remove(mountedNode);
 
                             // Check if after mountedNode there is a trailing comma
-                            const commaToken = context.getTokenAfter(mountedNode);
+                            const commaToken = context.sourceCode.getTokenAfter(mountedNode);
 
                             if (commaToken.value === ',') {
                                 yield fixer.remove(commaToken);
@@ -331,7 +331,7 @@ module.exports = {
                             yield fixer.remove(updatedNode);
 
                             // Check if after updatedNode there is a trailing comma
-                            const commaToken = context.getTokenAfter(updatedNode);
+                            const commaToken = context.sourceCode.getTokenAfter(updatedNode);
 
                             if (commaToken.value === ',') {
                                 yield fixer.remove(commaToken);
@@ -351,7 +351,7 @@ module.exports = {
                             yield fixer.remove(unmountedNode);
 
                             // Check if after unmountedNode there is a trailing comma
-                            const commaToken = context.getTokenAfter(unmountedNode);
+                            const commaToken = context.sourceCode.getTokenAfter(unmountedNode);
 
                             if (commaToken.value === ',') {
                                 yield fixer.remove(commaToken);
@@ -371,7 +371,7 @@ module.exports = {
                             yield fixer.remove(beforeMountNode);
 
                             // Check if after beforeMountNode there is a trailing comma
-                            const commaToken = context.getTokenAfter(beforeMountNode);
+                            const commaToken = context.sourceCode.getTokenAfter(beforeMountNode);
 
                             if (commaToken.value === ',') {
                                 yield fixer.remove(commaToken);
@@ -391,7 +391,7 @@ module.exports = {
                             yield fixer.remove(beforeUpdateNode);
 
                             // Check if after beforeUpdateNode there is a trailing comma
-                            const commaToken = context.getTokenAfter(beforeUpdateNode);
+                            const commaToken = context.sourceCode.getTokenAfter(beforeUpdateNode);
 
                             if (commaToken.value === ',') {
                                 yield fixer.remove(commaToken);
@@ -411,7 +411,7 @@ module.exports = {
                             yield fixer.remove(beforeUnmountNode);
 
                             // Check if after beforeUnmountNode there is a trailing comma
-                            const commaToken = context.getTokenAfter(beforeUnmountNode);
+                            const commaToken = context.sourceCode.getTokenAfter(beforeUnmountNode);
                             if (commaToken.value === ',') {
                                 yield fixer.remove(commaToken);
                             }
@@ -430,7 +430,7 @@ module.exports = {
                             yield fixer.remove(createdNode);
 
                             // Check if after createdNode there is a trailing comma
-                            const commaToken = context.getTokenAfter(createdNode);
+                            const commaToken = context.sourceCode.getTokenAfter(createdNode);
                             if (commaToken.value === ',') {
                                 yield fixer.remove(commaToken);
                             }
@@ -449,7 +449,7 @@ module.exports = {
                             yield fixer.remove(beforeCreateNode);
 
                             // Check if after beforeCreateNode there is a trailing comma
-                            const commaToken = context.getTokenAfter(beforeCreateNode);
+                            const commaToken = context.sourceCode.getTokenAfter(beforeCreateNode);
                             if (commaToken.value === ',') {
                                 yield fixer.remove(commaToken);
                             }
@@ -468,7 +468,7 @@ module.exports = {
                             yield fixer.remove(beforeDestroyNode);
 
                             // Check if after beforeDestroyNode there is a trailing comma
-                            const commaToken = context.getTokenAfter(beforeDestroyNode);
+                            const commaToken = context.sourceCode.getTokenAfter(beforeDestroyNode);
                             if (commaToken.value === ',') {
                                 yield fixer.remove(commaToken);
                             }
@@ -487,7 +487,7 @@ module.exports = {
                             yield fixer.remove(destroyedNode);
 
                             // Check if after destroyedNode there is a trailing comma
-                            const commaToken = context.getTokenAfter(destroyedNode);
+                            const commaToken = context.sourceCode.getTokenAfter(destroyedNode);
                             if (commaToken.value === ',') {
                                 yield fixer.remove(commaToken);
                             }
@@ -506,7 +506,7 @@ module.exports = {
                             yield fixer.remove(injectNode);
 
                             // Check if after injectNode there is a trailing comma
-                            const commaToken = context.getTokenAfter(injectNode);
+                            const commaToken = context.sourceCode.getTokenAfter(injectNode);
                             if (commaToken.value === ',') {
                                 yield fixer.remove(commaToken);
                             }

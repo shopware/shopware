@@ -214,7 +214,7 @@ class ConsentReporterTest extends TestCase
 
     private static function assertPayloadContains(string $key, mixed $value, string $body): void
     {
-        $payload = json_decode($body, true, \JSON_THROW_ON_ERROR);
+        $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
 
         static::assertIsArray($payload);
         static::assertArrayHasKey($key, $payload);

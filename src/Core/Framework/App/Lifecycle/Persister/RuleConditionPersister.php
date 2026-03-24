@@ -55,7 +55,10 @@ class RuleConditionPersister implements PersisterInterface
 
     public function persist(AppLifecycleContext $context): void
     {
-        $this->eventDispatcher->dispatch(new RuleConditionPersistEvent($context));
+        $event = new RuleConditionPersistEvent($context);
+        $this->eventDispatcher->dispatch($event);
+
+        $context = $event->getContext();
 
         $app = $this->getAppWithExistingConditions($context->app->getId(), $context->context);
         $existingRuleConditions = $app->getScriptConditions();
@@ -98,7 +101,10 @@ class RuleConditionPersister implements PersisterInterface
 
     public function activateConditionScripts(string $appId, Context $context): void
     {
-        $this->eventDispatcher->dispatch(new RuleConditionActivateEvent($appId, $context));
+        $event = new RuleConditionActivateEvent($appId, $context);
+        $this->eventDispatcher->dispatch($event);
+
+        $context = $event->getContext();
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
@@ -113,7 +119,10 @@ class RuleConditionPersister implements PersisterInterface
 
     public function deactivateConditionScripts(string $appId, Context $context): void
     {
-        $this->eventDispatcher->dispatch(new RuleConditionDeactivateEvent($appId, $context));
+        $event = new RuleConditionDeactivateEvent($appId, $context);
+        $this->eventDispatcher->dispatch($event);
+
+        $context = $event->getContext();
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));

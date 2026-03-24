@@ -397,6 +397,7 @@ class WebhookManagerTest extends TestCase
     private function prepareWebhook(string $eventName, bool $onlyLiveVersion = false, array $acl = ['product:read']): Webhook
     {
         $webhook = $this->getWebhook($eventName, $onlyLiveVersion);
+        static::assertIsString($webhook->appAclRoleId);
 
         $this->webhookLoader->expects($this->once())
             ->method('getWebhooks')

@@ -27,11 +27,8 @@ class AddressHashSubscriberTest extends TestCase
         $this->subscriber = new AddressHashSubscriber();
     }
 
-    /**
-     * @param array<string, string|null> $expectedStruct
-     */
     #[DataProvider('generateProvider')]
-    public function testGenerate(CustomerAddressEntity|OrderAddressEntity $address, string $expectedHash, array $expectedStruct): void
+    public function testGenerate(CustomerAddressEntity|OrderAddressEntity $address, string $expectedHash): void
     {
         $event = new EntityLoadedEvent(
             new CustomerAddressDefinition(),
@@ -64,13 +61,11 @@ class AddressHashSubscriberTest extends TestCase
         yield 'OrderAddressEntity' => [
             (new OrderAddressEntity())->assign($address),
             '949c5f5f8ea7e6b2ff979c8b6d5f54a9c57394d9bc56a3e62a7ecbaa309b1192',
-            [...$address, 'extensions' => []],
         ];
 
         yield 'CustomerAddressEntity' => [
             (new CustomerAddressEntity())->assign($address),
             '949c5f5f8ea7e6b2ff979c8b6d5f54a9c57394d9bc56a3e62a7ecbaa309b1192',
-            [...$address, 'extensions' => []],
         ];
     }
 }

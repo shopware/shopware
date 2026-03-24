@@ -36,8 +36,6 @@ class CountryAgnosticFileLinterTest extends TestCase
 
     private MockObject&Finder $finder;
 
-    private MockObject&Filesystem $filesystem;
-
     /**
      * @var MockObject&EntityRepository<PluginCollection>
      */
@@ -52,7 +50,7 @@ class CountryAgnosticFileLinterTest extends TestCase
     {
         // Mock Finder to avoid filesystem scanning
         $this->finder = $this->createMock(Finder::class);
-        $this->filesystem = $this->createMock(Filesystem::class);
+        $filesystem = $this->createMock(Filesystem::class);
         $this->pluginRepository = $this->createMock(EntityRepository::class);
         $this->appRepository = $this->createMock(EntityRepository::class);
 
@@ -67,7 +65,7 @@ class CountryAgnosticFileLinterTest extends TestCase
         $this->finder->method('in')->willReturnSelf();
 
         $this->fileLinter = new CountryAgnosticFileLinter(
-            $this->filesystem,
+            $filesystem,
             $this->pluginRepository,
             $this->appRepository,
             $this->finder,
@@ -201,8 +199,8 @@ class CountryAgnosticFileLinterTest extends TestCase
 
     public function testGetFinderWithExtensionPaths(): void
     {
-        $pluginSearchResult = $this->createPluginSearchResult('/path/to/plugin1', 'plugin-id-1');
-        $appSearchResult = $this->createAppSearchResult('/path/to/app1', 'app-id-1');
+        $pluginSearchResult = $this->createPluginSearchResult();
+        $appSearchResult = $this->createAppSearchResult();
 
         $this->pluginRepository->expects($this->once())->method('search')->willReturn($pluginSearchResult);
         $this->appRepository->expects($this->once())->method('search')->willReturn($appSearchResult);
@@ -219,7 +217,7 @@ class CountryAgnosticFileLinterTest extends TestCase
                 return $this->finder;
             });
 
-        $options = $this->createOptionsWithExtensions('MyPlugin,MyApp');
+        $options = $this->createOptionsWithExtensions();
 
         $this->finder->method('count')->willReturn(0);
         $this->finder->method('getIterator')->willReturn(new \ArrayIterator([]));
@@ -231,11 +229,11 @@ class CountryAgnosticFileLinterTest extends TestCase
     /**
      * @return EntitySearchResult<PluginCollection>
      */
-    private function createPluginSearchResult(string $path, string $id): EntitySearchResult
+    private function createPluginSearchResult(): EntitySearchResult
     {
         $plugin = new PluginEntity();
-        $plugin->setPath($path);
-        $plugin->setUniqueIdentifier($id);
+        $plugin->setPath('/path/to/plugin1');
+        $plugin->setUniqueIdentifier('plugin-id-1');
 
         $collection = new PluginCollection([$plugin]);
 
@@ -252,11 +250,11 @@ class CountryAgnosticFileLinterTest extends TestCase
     /**
      * @return EntitySearchResult<AppCollection>
      */
-    private function createAppSearchResult(string $path, string $id): EntitySearchResult
+    private function createAppSearchResult(): EntitySearchResult
     {
         $app = new AppEntity();
-        $app->setPath($path);
-        $app->setUniqueIdentifier($id);
+        $app->setPath('/path/to/app1');
+        $app->setUniqueIdentifier('app-id-1');
 
         $collection = new AppCollection([$app]);
 
@@ -270,13 +268,13 @@ class CountryAgnosticFileLinterTest extends TestCase
         );
     }
 
-    private function createOptionsWithExtensions(string $extensions): LintedTranslationFileOptions
+    private function createOptionsWithExtensions(): LintedTranslationFileOptions
     {
         $input = $this->createMock(InputInterface::class);
         $input->method('getOption')->willReturnMap([
             ['fix', false],
             ['all', false],
-            ['extensions', $extensions],
+            ['extensions', 'MyPlugin,MyApp'],
             ['ignore', ''],
             ['dir', ''],
         ]);
@@ -294,8 +292,9 @@ class CountryAgnosticFileLinterTest extends TestCase
     private function hydrateFixingCollection(LintedTranslationFileStruct $lintedFileStruct): LintedTranslationFileStruct
     {
         foreach ($lintedFileStruct->getFixableFiles()->getMapping() as $fileOptions) {
-            $selection = array_key_first($fileOptions);
-            $lintedFileStruct->addToFixingCollection($fileOptions[$selection]);
+            $firstFileOption = array_first($fileOptions);
+            static::assertNotNull($firstFileOption);
+            $lintedFileStruct->addToFixingCollection($firstFileOption);
         }
 
         return $lintedFileStruct;

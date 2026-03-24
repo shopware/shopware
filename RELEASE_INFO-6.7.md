@@ -123,6 +123,25 @@ The same `thumbnails` payload shape is accepted by `POST /api/_action/media/{id}
 It is now possible to use libraries like [`doctrine-mysql-come-back`](https://github.com/facile-it/doctrine-mysql-come-back), which wrap the default DBAL connection.
 More information on how to set up, can be found here: https://developer.shopware.com/docs/guides/hosting/infrastructure/database.html#setup-for-long-running-environments
 
+### System config overrides in staging mode
+
+The `system:setup:staging` command now supports pre-configuring system config keys during staging setup. Both global and sales channel-specific values can be set, following the same YAML structure used for [static system configuration](https://developer.shopware.com/docs/guides/hosting/configurations/shopware/static-system-config.md).
+
+Use `default` for global config values and sales channel IDs for channel-specific overrides:
+
+```yaml
+shopware:
+  staging:
+    system_config:
+      default:
+        core.mailerSettings.smtpHost: "smtp.staging.local"
+        core.listing.allowBuyInListing: false
+      0188da12724970b9b4a708298259b171:
+        core.mailerSettings.smtpHost: "smtp.other.staging.local"
+```
+
+When `bin/console system:setup:staging` is executed, the configured keys are written to the database via `SystemConfigService`.
+
 ## API
 
 ### Deprecation of newsletter route methods
@@ -156,6 +175,14 @@ By default, `Choice` is non-strict and does not affect write validation.
 If you want to enforce values on write, set `strict: true` when creating the flag; the write layer will then validate the input for supported field types (string, int, float).
 
 ## Core
+
+### Changed behaviour of default fields in EntityDefinition
+
+Currently, it is not possible to overwrite the default fields `createdAt` and `updatedAt` of an entity in the definition.
+This is because the default fields are applied on top of the fields defined in the `defineFields` method.
+From the next major version on, the logic is turned around and the defined fields will be applied after the default fields.
+This makes it possible to overwrite the current default fields `createdAt` and `updatedAt`.
+Check your EntityDefinitions if this change will have an effect on your entities' behaviour. (Only applicable if you manually add `CreatedAtField` and/or `UpdatedAtField`)
 
 ### Product stream deletion is blocked while product exports exist
 
@@ -219,7 +246,91 @@ custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
 
 ## Administration
 
+### CMS data mapping source for media custom fields
+
+Fixed media custom fields not being available as data mapping source for image elements in category and product CMS layouts. Shop Administrators can now reliably bind media custom fields to images in CMS pages without workarounds.
+
 ## Storefront
+
+### New Component System
+
+We introduced a new component system to the Storefront, which makes it easier to create reusable templates. It is one foundation of a new content system, which will be released at a later stage, but components can also be used anywhere in existing templates. The component system is based on [Twig UX components](https://symfony.com/bundles/ux-twig-component/current/index.html), plus some additional features like SCSS and JS handling for your components.
+
+To dive into the full possibilities, please refer to the [official documentation](https://developer.shopware.com/docs/concepts/framework/storefront-components.html).
+
+### Single file references in theme.json
+
+The `theme.json` file now supports single file references, allowing you to include individual files from other bundles or components rather than pulling in an entire theme or plugin. This gives themes fine-grained control over exactly which files are compiled.
+
+There are three reference formats available for both `style` and `script` entries:
+
+**Bundle-relative references** — Include a single specific file from another bundle or theme using `@BundleName/path/to/file`:
+
+```json
+{
+  "style": [
+    "@MyTheme/app/storefront/src/scss/overrides.scss",
+    "@MyTheme"
+  ],
+  "script": [
+    "@MyPlugin/app/storefront/dist/storefront/my-plugin.js",
+    "@Plugins"
+  ]
+}
+```
+
+**Component single file references** — Include the script or style file of a single registered component using `@Components/ComponentPath/file`:
+
+```json
+{
+  "style": [
+    "@Components/Sw/Alert/index.scss",
+    "@Components/Sw/Filter/Panel/index.scss"
+  ],
+  "script": [
+    "@Components/Sw/Filter/ActiveFilters/index.js"
+  ]
+}
+```
+
+**Namespaced component references** — Scope the component lookup to a specific bundle using `@Components:BundleName/ComponentPath/file`. This is useful when multiple bundles register components under the same relative path:
+
+```json
+{
+  "style": [
+    "@Components:MyPlugin/Custom/Slider/index.scss"
+  ],
+  "script": [
+    "@Components:MyPlugin/Custom/Slider/index.js"
+  ]
+}
+```
+
+All three formats can be mixed freely with the existing `@ThemeName`, `@Plugins`, and `@Components` wildcard references within the same `theme.json`.
+
+### New global JavaScript event system
+
+With the new component system we also start to improve the general possibilities in the Storefront. One of these improvements is a new global event system that is available via a new central `Shopware` object. This system is easier to use than the instance scoped events from the current JS plugin system. The event system is based on the native Node [event emitter](https://nodejs.org/en/learn/asynchronous-work/the-nodejs-event-emitter) and can be used in a similar way. You will find some additional features, like interceptable events which can be used to hook into certain methods, like changing request parameters before they get send. We want to offer this as a new extension system, especially for the new component system.
+
+```JavaScript
+window.Shopware.emit('Filter:Change', { foo: 'bar' });
+```
+
+```JavaScript
+window.Shopware.on('Filter:Change', ({ foo }) => {
+    // do something
+});
+```
+
+For more detailed information, refer to the [documentation](./src/Storefront/Resources/app/storefront/src/component-system/README.md).
+
+### New plugin manager function to call plugin methods
+
+We added a new method to the Storefront plugin manager which allows to call a specific plugin method on all existing instances of that plugin.
+
+```JavaScript
+window.PluginManager.callPluginMethod(pluginName, methodName, ...args)
+```
 
 ### Block renaming
 

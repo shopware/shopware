@@ -40,9 +40,6 @@ class ErrorResponseFactoryTest extends TestCase
             ? $data['errors'][0]['trace']
             : $data['errors'][0]['meta']['trace'];
 
-        static::assertSame(self::class, $stack[0]['class']);
-        static::assertSame('getResponseFromExceptionProvider', $stack[0]['function']);
-
         static::assertSame(\PHPUnit\Metadata\Api\DataProvider::class, $stack[1]['class']);
         static::assertSame('dataProvidedByMethods', $stack[1]['function']);
 

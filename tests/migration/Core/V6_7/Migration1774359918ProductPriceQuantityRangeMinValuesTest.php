@@ -2,10 +2,12 @@
 
 namespace Shopware\Tests\Migration\Core\V6_7;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -48,12 +50,9 @@ class Migration1774359918ProductPriceQuantityRangeMinValuesTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->connection->delete('product_price', ['id' => $this->productPriceId]);
-        $this->connection->delete('product_price', ['id' => $this->productPrice2Id]);
-        $this->connection->delete('product_price', ['id' => $this->productPrice3Id]);
+        $this->connection->delete('product', ['id' => $this->productId]);
         $this->connection->delete('rule', ['id' => $this->ruleId]);
         $this->connection->delete('rule', ['id' => $this->rule2Id]);
-        $this->connection->delete('product', ['id' => $this->productId]);
     }
 
     public function testCreationTimestamp(): void
@@ -65,28 +64,30 @@ class Migration1774359918ProductPriceQuantityRangeMinValuesTest extends TestCase
 
     public function testMigration(): void
     {
-        $this->connection->insert('product', [
+        $queue = new MultiInsertQueryQueue($this->connection);
+
+        $queue->addInsert('product', [
             'id' => $this->productId,
             'version_id' => $this->versionId,
             'stock' => 10,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $this->connection->insert('rule', [
+        $queue->addInsert('rule', [
             'id' => $this->ruleId,
             'name' => 'Price rule 1',
             'priority' => 1,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $this->connection->insert('rule', [
+        $queue->addInsert('rule', [
             'id' => $this->rule2Id,
             'name' => 'Price rule 2',
             'priority' => 2,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $this->connection->insert('product_price', [
+        $queue->addInsert('product_price', [
             'id' => $this->productPriceId,
             'version_id' => $this->versionId,
             'rule_id' => $this->ruleId,
@@ -104,7 +105,7 @@ class Migration1774359918ProductPriceQuantityRangeMinValuesTest extends TestCase
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $this->connection->insert('product_price', [
+        $queue->addInsert('product_price', [
             'id' => $this->productPrice2Id,
             'version_id' => $this->versionId,
             'rule_id' => $this->rule2Id,
@@ -123,7 +124,7 @@ class Migration1774359918ProductPriceQuantityRangeMinValuesTest extends TestCase
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $this->connection->insert('product_price', [
+        $queue->addInsert('product_price', [
             'id' => $this->productPrice3Id,
             'version_id' => $this->versionId,
             'rule_id' => $this->rule2Id,
@@ -141,26 +142,32 @@ class Migration1774359918ProductPriceQuantityRangeMinValuesTest extends TestCase
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
+        $queue->execute();
+
         $migration = new Migration1774359918ProductPriceQuantityRangeMinValues();
 
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $sql = 'SELECT `quantity_start`, `quantity_end` FROM `product_price` WHERE `id` = :id';
+        $prices = $this->connection->fetchAllAssociativeIndexed(
+            'SELECT LOWER(HEX(`id`)), `quantity_start`, `quantity_end` FROM `product_price` WHERE `id` IN (:ids)',
+            ['ids' => [$this->productPriceId, $this->productPrice2Id, $this->productPrice3Id]],
+            ['ids' => ArrayParameterType::BINARY]
+        );
 
-        $price = $this->connection->fetchAssociative($sql, ['id' => $this->productPriceId]);
+        $price = $prices[Uuid::fromBytesToHex($this->productPriceId)];
 
         static::assertIsArray($price);
         static::assertSame('1', $price['quantity_start']);
         static::assertNull($price['quantity_end']);
 
-        $price2 = $this->connection->fetchAssociative($sql, ['id' => $this->productPrice2Id]);
+        $price2 = $prices[Uuid::fromBytesToHex($this->productPrice2Id)];
 
         static::assertIsArray($price2);
         static::assertSame('1', $price2['quantity_start']);
         static::assertSame('1', $price2['quantity_end']);
 
-        $price3 = $this->connection->fetchAssociative($sql, ['id' => $this->productPrice3Id]);
+        $price3 = $prices[Uuid::fromBytesToHex($this->productPrice3Id)];
 
         static::assertIsArray($price3);
         static::assertSame('2', $price3['quantity_start']);

@@ -41,7 +41,7 @@
                                 {% block component_checkout_cart_header_tax_price %}
                                     <div class="col-2 order-detail-content-header-cell order-header-tax-price">
                                         {% if context.salesChannel.taxCalculationType == 'horizontal' %}
-                                            {% if context.taxState == 'gross' %}
+                                            {% if order.taxStatus === constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_GROSS') %}
                                                 {{ 'checkout.cartHeaderTaxIncludeVat'|trans|sw_sanitize }}
                                             {% else %}
                                                 {{ 'checkout.cartHeaderTaxExcludeVat'|trans|sw_sanitize }}
@@ -225,9 +225,14 @@
                                                         {% for calculatedTax in order.price.calculatedTaxes %}
                                                             {% block page_account_order_item_detail_vat_label %}
                                                                 <dt class="col-6 col-md-8">
-                                                                    {{ 'checkout.summaryTax'|trans({
-                                                                        '%rate%':  calculatedTax.taxRate
-                                                                    })|sw_sanitize }}
+                                                                    {% if order.taxStatus === constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_GROSS') %}                                                                        {{ 'checkout.summaryTaxInclude'|trans({
+                                                                            '%rate%':  calculatedTax.taxRate
+                                                                        })|sw_sanitize }}
+                                                                    {% else %}
+                                                                        {{ 'checkout.summaryTax'|trans({
+                                                                            '%rate%':  calculatedTax.taxRate
+                                                                        })|sw_sanitize }}
+                                                                    {% endif %}
                                                                 </dt>
                                                             {% endblock %}
 

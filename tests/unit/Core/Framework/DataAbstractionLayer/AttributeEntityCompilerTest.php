@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToOne;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
@@ -35,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited as ReverseInheritedFlag;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking as SearchRankingFlag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -57,6 +59,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntity;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityCollection;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityWithInheritance;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityWithSearchRanking;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\StringEnum;
 
 /**
@@ -68,18 +71,14 @@ class AttributeEntityCompilerTest extends TestCase
 {
     public function testCompile(): void
     {
-        $compiler = new AttributeEntityCompiler();
-
-        $compiledResult = $compiler->compile(AttributeEntity::class);
+        $compiledResult = (new AttributeEntityCompiler())->compile(AttributeEntity::class);
 
         static::assertSame($this->getExpectedCompilationResult(), $compiledResult);
     }
 
     public function testInheritedAttributeCompilesCorrectly(): void
     {
-        $compiler = new AttributeEntityCompiler();
-
-        $compiledResult = $compiler->compile(AttributeEntityWithInheritance::class);
+        $compiledResult = (new AttributeEntityCompiler())->compile(AttributeEntityWithInheritance::class);
 
         // Find the main entity definition (not mapping tables)
         $entityDefinition = null;
@@ -124,7 +123,7 @@ class AttributeEntityCompilerTest extends TestCase
         static::assertArrayHasKey(InheritedFlag::class, $inheritedStringField['flags'], 'inheritedString should have Inherited flag');
         static::assertIsArray($inheritedStringField['flags'][InheritedFlag::class]);
         static::assertSame(InheritedFlag::class, $inheritedStringField['flags'][InheritedFlag::class]['class']);
-        static::assertSame([null], $inheritedStringField['flags'][InheritedFlag::class]['args']);
+        static::assertSame(['foreignKey' => null], $inheritedStringField['flags'][InheritedFlag::class]['args'] ?? null);
 
         // Verify inherited FK field has Inherited flag
         static::assertNotNull($inheritedCurrencyIdField, 'currencyId field not found');
@@ -143,14 +142,81 @@ class AttributeEntityCompilerTest extends TestCase
         static::assertArrayHasKey(InheritedFlag::class, $inheritedWithForeignKeyField['flags'], 'inheritedWithForeignKey should have Inherited flag');
         static::assertIsArray($inheritedWithForeignKeyField['flags'][InheritedFlag::class]);
         static::assertSame(InheritedFlag::class, $inheritedWithForeignKeyField['flags'][InheritedFlag::class]['class']);
-        static::assertSame(['custom_fk'], $inheritedWithForeignKeyField['flags'][InheritedFlag::class]['args'], 'foreignKey parameter should be passed through');
+        static::assertSame(['foreignKey' => 'custom_fk'], $inheritedWithForeignKeyField['flags'][InheritedFlag::class]['args'] ?? null, 'foreignKey parameter should be passed through');
 
         // Verify inherited association field has ReverseInherited flag
         static::assertNotNull($inheritedProductField, 'product field not found');
         static::assertArrayHasKey(ReverseInheritedFlag::class, $inheritedProductField['flags'], 'product should have ReverseInherited flag');
         static::assertIsArray($inheritedProductField['flags'][ReverseInheritedFlag::class]);
         static::assertSame(ReverseInheritedFlag::class, $inheritedProductField['flags'][ReverseInheritedFlag::class]['class']);
-        static::assertSame(['propertyName' => 'attributed'], $inheritedProductField['flags'][ReverseInheritedFlag::class]['args']);
+        static::assertSame(['propertyName' => 'attributed'], $inheritedProductField['flags'][ReverseInheritedFlag::class]['args'] ?? null);
+    }
+
+    public function testSearchRankingAttributeCompilesCorrectly(): void
+    {
+        $compiledResult = (new AttributeEntityCompiler())->compile(AttributeEntityWithSearchRanking::class);
+
+        // Find the main entity definition (not mapping tables)
+        $entityDefinition = null;
+        foreach ($compiledResult as $result) {
+            if ($result['type'] === 'entity' && $result['entity_name'] === 'attribute_entity_search_ranking') {
+                $entityDefinition = $result;
+                break;
+            }
+        }
+
+        static::assertNotNull($entityDefinition, 'Entity definition not found in compiled result');
+
+        // Find fields with SearchRanking flag
+        $currencyField = null;
+        $middleRankedStringField = null;
+        $lowRankedStringField = null;
+        $highRankedStringField = null;
+
+        foreach ($entityDefinition['fields'] as $field) {
+            switch ($field['name'] ?? null) {
+                case 'currency':
+                    $currencyField = $field;
+                    break;
+                case 'middleRankedString':
+                    $middleRankedStringField = $field;
+                    break;
+                case 'lowRankedString':
+                    $lowRankedStringField = $field;
+                    break;
+                case 'highRankedString':
+                    $highRankedStringField = $field;
+                    break;
+            }
+        }
+
+        // Verify currency field has SearchRanking flag with correct class and args
+        static::assertNotNull($currencyField, 'currency field not found');
+        static::assertArrayHasKey(SearchRankingFlag::class, $currencyField['flags'], 'currency should have SearchRanking flag');
+        static::assertIsArray($currencyField['flags'][SearchRankingFlag::class]);
+        static::assertSame(SearchRankingFlag::class, $currencyField['flags'][SearchRankingFlag::class]['class']);
+        static::assertSame(['ranking' => SearchRanking::ASSOCIATION_SEARCH_RANKING, 'tokenize' => true], $currencyField['flags'][SearchRankingFlag::class]['args'] ?? null);
+
+        // Verify middle ranked string field has SearchRanking flag with correct class and args
+        static::assertNotNull($middleRankedStringField, 'middle ranked string field not found');
+        static::assertArrayHasKey(SearchRankingFlag::class, $middleRankedStringField['flags'], 'middle ranked string field should have SearchRanking flag');
+        static::assertIsArray($middleRankedStringField['flags'][SearchRankingFlag::class]);
+        static::assertSame(SearchRankingFlag::class, $middleRankedStringField['flags'][SearchRankingFlag::class]['class']);
+        static::assertSame(['ranking' => SearchRanking::MIDDLE_SEARCH_RANKING, 'tokenize' => false], $middleRankedStringField['flags'][SearchRankingFlag::class]['args'] ?? null);
+
+        // Verify low ranked string field has SearchRanking flag with correct class and args
+        static::assertNotNull($lowRankedStringField, 'low ranked string field not found');
+        static::assertArrayHasKey(SearchRankingFlag::class, $lowRankedStringField['flags'], 'low ranked string field should have SearchRanking flag');
+        static::assertIsArray($lowRankedStringField['flags'][SearchRankingFlag::class]);
+        static::assertSame(SearchRankingFlag::class, $lowRankedStringField['flags'][SearchRankingFlag::class]['class']);
+        static::assertSame(['ranking' => SearchRanking::LOW_SEARCH_RANKING, 'tokenize' => true], $lowRankedStringField['flags'][SearchRankingFlag::class]['args'] ?? null);
+
+        // Verify high ranked string field has SearchRanking flag with correct class and args
+        static::assertNotNull($highRankedStringField, 'high ranked string field not found');
+        static::assertArrayHasKey(SearchRankingFlag::class, $highRankedStringField['flags'], 'high ranked string field should have SearchRanking flag');
+        static::assertIsArray($highRankedStringField['flags'][SearchRankingFlag::class]);
+        static::assertSame(SearchRankingFlag::class, $highRankedStringField['flags'][SearchRankingFlag::class]['class']);
+        static::assertSame(['ranking' => SearchRanking::HIGH_SEARCH_RANKING, 'tokenize' => false], $highRankedStringField['flags'][SearchRankingFlag::class]['args'] ?? null);
     }
 
     /**

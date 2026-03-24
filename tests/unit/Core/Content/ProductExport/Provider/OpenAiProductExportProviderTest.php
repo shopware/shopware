@@ -127,6 +127,37 @@ class OpenAiProductExportProviderTest extends TestCase
         static::assertSame('Merchant', $renderContext['provider']->get('sellerName'));
     }
 
+    public function testExtendRenderContextSetsTargetCountriesToNullWhenRepositoryReturnsNoSalesChannel(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannel = $this->createSalesChannel();
+        $salesChannelId = $salesChannel->getId();
+
+        $repository = $this->createSalesChannelRepository([
+            /**
+             * @return list<SalesChannelEntity>
+             */
+            static function (Criteria $criteria, Context $repositoryContext) use ($context, $salesChannelId): array {
+                static::assertSame([$salesChannelId], $criteria->getIds());
+                static::assertTrue($criteria->hasAssociation('countries'));
+                static::assertSame($context, $repositoryContext);
+
+                return [];
+            },
+        ]);
+
+        $provider = new OpenAiProductExportProvider($repository);
+
+        $renderContext = $provider->extendRenderContext(
+            $this->createProductExport(),
+            $this->createSalesChannelContext($salesChannel, $context),
+            []
+        );
+
+        static::assertInstanceOf(ArrayStruct::class, $renderContext['provider']);
+        static::assertNull($renderContext['provider']->get('targetCountries'));
+    }
+
     /**
      * @param list<string|null> $countryIsoCodes
      */

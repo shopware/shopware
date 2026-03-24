@@ -49,14 +49,16 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         if (this.dive == undefined) {
             this.dive = await window.DIVEQuickViewPlugin.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.canvas });
 
-            if (this.dive.model.animations.length > 0) {
+            // @ts-ignore - animations is inherited from Object3D
+            const animations: { name: string }[] = this.dive.model.animations;
+            if (animations.length > 0) {
                 // instantiate animation system
                 const animSystem = new window.DIVEAnimationPlugin.AnimationSystem();
-                await animSystem.fromClips(this.dive.model, this.dive.model.animations);
+                await animSystem.fromClips(this.dive.model, animations as never);
                 this.dive.clock.addTicker(animSystem);
 
                 // create animator
-                const animator = await animSystem.fromClips(this.dive.model, this.dive.model.animations);
+                const animator = await animSystem.fromClips(this.dive.model, animations as never);
                 animator.loop = 'repeat';
 
                 // automatically play the first animation
@@ -101,7 +103,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
                 animButton.classList.add('spatial-anim-play');
                 animButton.classList.remove('visually-hidden');
 
-                if (this.dive.model.animations.length > 1) {
+                if (animations.length > 1) {
                     const animSwitchContainer = animContainer.querySelector('.spatial-anim-switch-container') as HTMLElement;
                     if (!animSwitchContainer) {
                         return;
@@ -110,7 +112,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
                     if (!animSwitch) {
                         return;
                     }
-                    this.dive.model.animations.forEach((animation: any) => {
+                    animations.forEach((animation) => {
                         const option = document.createElement('option');
                         option.value = animation.name;
                         option.textContent = animation.name;

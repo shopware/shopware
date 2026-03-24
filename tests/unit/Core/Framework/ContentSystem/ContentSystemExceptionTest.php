@@ -239,13 +239,6 @@ class ContentSystemExceptionTest extends TestCase
             'meta.name: must not be blank; meta.label: must not be blank',
         ];
 
-        yield 'element type missing required field' => [
-            ContentSystemException::elementTypeMissingRequiredField('meta.name'),
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            'CONTENT_SYSTEM__ELEMENT_TYPE_MISSING_REQUIRED_FIELD',
-            'meta.name',
-        ];
-
         yield 'element type not found' => [
             ContentSystemException::elementTypeNotFound('Sw:Unknown:Type'),
             Response::HTTP_NOT_FOUND,
@@ -253,11 +246,5 @@ class ContentSystemExceptionTest extends TestCase
             'Sw:Unknown:Type',
         ];
 
-        yield 'element type unregistered' => [
-            ContentSystemException::elementTypeUnregistered('Sw:Ghost:Type'),
-            Response::HTTP_BAD_REQUEST,
-            'CONTENT_SYSTEM__ELEMENT_TYPE_UNREGISTERED',
-            'Sw:Ghost:Type',
-        ];
     }
 }

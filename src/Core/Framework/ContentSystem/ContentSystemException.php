@@ -38,9 +38,7 @@ class ContentSystemException extends HttpException
     public const ELEMENT_TYPE_DUPLICATE = 'CONTENT_SYSTEM__ELEMENT_TYPE_DUPLICATE';
     public const ELEMENT_TYPE_INVALID = 'CONTENT_SYSTEM__ELEMENT_TYPE_INVALID';
     public const ELEMENT_TYPE_LOAD_FAILED = 'CONTENT_SYSTEM__ELEMENT_TYPE_LOAD_FAILED';
-    public const ELEMENT_TYPE_MISSING_REQUIRED_FIELD = 'CONTENT_SYSTEM__ELEMENT_TYPE_MISSING_REQUIRED_FIELD';
     public const ELEMENT_TYPE_NOT_FOUND = 'CONTENT_SYSTEM__ELEMENT_TYPE_NOT_FOUND';
-    public const ELEMENT_TYPE_UNREGISTERED = 'CONTENT_SYSTEM__ELEMENT_TYPE_UNREGISTERED';
 
     public static function dataLoaderNotRegistered(string $requirementType, string $elementType, string $elementId): self
     {
@@ -305,32 +303,12 @@ class ContentSystemException extends HttpException
         );
     }
 
-    public static function elementTypeMissingRequiredField(string $field): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::ELEMENT_TYPE_MISSING_REQUIRED_FIELD,
-            'Element type is missing required field "{{ field }}"',
-            ['field' => $field]
-        );
-    }
-
     public static function elementTypeNotFound(string $name): self
     {
         return new self(
             Response::HTTP_NOT_FOUND,
             self::ELEMENT_TYPE_NOT_FOUND,
             'Element type "{{ name }}" not found',
-            ['name' => $name]
-        );
-    }
-
-    public static function elementTypeUnregistered(string $name): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::ELEMENT_TYPE_UNREGISTERED,
-            'Element type "{{ name }}" is not registered. Only registered types can be used in layouts.',
             ['name' => $name]
         );
     }

@@ -7,13 +7,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
-use Shopware\Core\Migration\V6_7\Migration1773500000AddProductOpenGraphFields;
+use Shopware\Core\Migration\V6_7\Migration1774345867AddProductOpenGraphFields;
 
 /**
  * @internal
  */
-#[CoversClass(Migration1773500000AddProductOpenGraphFields::class)]
-class Migration1773500000AddProductOpenGraphFieldsTest extends TestCase
+#[CoversClass(Migration1774345867AddProductOpenGraphFields::class)]
+class Migration1774345867AddProductOpenGraphFieldsTest extends TestCase
 {
     private Connection $connection;
 
@@ -26,14 +26,14 @@ class Migration1773500000AddProductOpenGraphFieldsTest extends TestCase
 
     public function testCreationTimestamp(): void
     {
-        $migration = new Migration1773500000AddProductOpenGraphFields();
+        $migration = new Migration1774345867AddProductOpenGraphFields();
 
-        static::assertSame(1773500000, $migration->getCreationTimestamp());
+        static::assertSame(1774345867, $migration->getCreationTimestamp());
     }
 
     public function testColumnsAndForeignKeyAreCreated(): void
     {
-        $migration = new Migration1773500000AddProductOpenGraphFields();
+        $migration = new Migration1774345867AddProductOpenGraphFields();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
@@ -45,7 +45,7 @@ class Migration1773500000AddProductOpenGraphFieldsTest extends TestCase
 
     public function testForeignKeyIsCreatedWhenMissing(): void
     {
-        $migration = new Migration1773500000AddProductOpenGraphFields();
+        $migration = new Migration1774345867AddProductOpenGraphFields();
         $migration->update($this->connection);
 
         if (TableHelper::foreignKeyExists($this->connection, 'product', 'fk.product.open_graph_media_id')) {

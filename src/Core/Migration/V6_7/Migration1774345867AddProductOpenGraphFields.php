@@ -9,12 +9,12 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('inventory')]
-class Migration1773500000AddProductOpenGraphFields extends MigrationStep
+#[Package('framework')]
+class Migration1774345867AddProductOpenGraphFields extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1773500000;
+        return 1774345867;
     }
 
     public function update(Connection $connection): void

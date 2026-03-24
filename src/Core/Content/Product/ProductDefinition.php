@@ -157,7 +157,7 @@ class ProductDefinition extends EntityDefinition
             (new ReferenceVersionField(self::class, 'canonical_product_version_id'))->addFlags(new ApiAware(), new Inherited(), new Required()),
             (new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class))->addFlags(new ApiAware(), new Inherited())->setDescription('Unique identity of CMS page.'),
             (new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Inherited(), new Required(), new ApiAware()),
-            (new FkField('open_graph_media_id', 'openGraphMediaId', MediaDefinition::class))->addFlags(new ApiAware())->setDescription('Media used as Open Graph image for social media sharing.'),
+            (new FkField('open_graph_media_id', 'openGraphMediaId', MediaDefinition::class))->addFlags(new ApiAware(), new Inherited())->setDescription('Media used as Open Graph image for social media sharing.'),
 
             (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required(), new ApiCriteriaAware())->setDescription('Price of the product.'),
             (new NumberRangeField('product_number', 'productNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING, false), new Required())->setDescription('Unique number assigned to individual products. Define rules for automatic assignment of every product creation as per your number range.'),

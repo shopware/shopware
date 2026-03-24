@@ -17,16 +17,16 @@ export default {
     methods: {
         createdComponent() {
             this.onGenerateKeys();
-            if (this.isProductComparison || this.isAgenticAi) {
+            if (this.isProductComparison || this.isAgenticCommerce) {
                 this.onGenerateProductExportKey(false);
             }
-            if (this.isAgenticAi) {
+            if (this.isAgenticCommerce) {
                 this.prefillAgenticAiDefaults();
             }
         },
 
         prefillAgenticAiDefaults() {
-            this.productExport.fileName = `agentic-ai-${utils.createId()}.jsonl`;
+            this.productExport.fileName = `agentic-commerce-${utils.createId()}.jsonl`;
         },
     },
 };

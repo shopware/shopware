@@ -135,12 +135,12 @@ export default {
             return this.salesChannel && this.salesChannel.typeId === Defaults.productComparisonTypeId;
         },
 
-        isAgenticAi() {
-            return this.salesChannel && this.salesChannel.typeId === Defaults.agenticAiTypeId;
+        isAgenticCommerce() {
+            return this.salesChannel && this.salesChannel.typeId === Defaults.agenticCommerceTypeId;
         },
 
         isProductExportChannel() {
-            return this.isProductComparison || this.isAgenticAi;
+            return this.isProductComparison || this.isAgenticCommerce;
         },
 
         isHeadlessSalesChannel() {
@@ -530,8 +530,8 @@ export default {
         templateSelectOptions() {
             return this.templateOptions
                 .filter((exportTemplate) => {
-                    if (this.isAgenticAi) {
-                        return exportTemplate.salesChannelTypeId === Defaults.agenticAiTypeId;
+                    if (this.isAgenticCommerce) {
+                        return exportTemplate.salesChannelTypeId === Defaults.agenticCommerceTypeId;
                     }
 
                     return !exportTemplate.salesChannelTypeId;

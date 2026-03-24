@@ -51,8 +51,8 @@ Shopware.Component.register(
     () => import('./view/sw-sales-channel-detail-product-comparison-preview'),
 );
 Shopware.Component.register(
-    'sw-sales-channel-detail-agentic-ai-integration',
-    () => import('./view/sw-sales-channel-detail-agentic-ai-integration'),
+    'sw-sales-channel-detail-agentic-commerce-integration',
+    () => import('./view/sw-sales-channel-detail-agentic-commerce-integration'),
 );
 Shopware.Component.register(
     'sw-sales-channel-products-assignment-modal',
@@ -151,9 +151,9 @@ Module.register('sw-sales-channel', {
                         privilege: 'sales_channel.viewer',
                     },
                 },
-                agenticAiIntegration: {
-                    component: 'sw-sales-channel-detail-agentic-ai-integration',
-                    path: 'agentic-ai-integration',
+                agenticCommerceIntegration: {
+                    component: 'sw-sales-channel-detail-agentic-commerce-integration',
+                    path: 'agentic-commerce-integration',
                     meta: {
                         parentPath: 'sw.sales.channel.list',
                         privilege: 'sales_channel.viewer',

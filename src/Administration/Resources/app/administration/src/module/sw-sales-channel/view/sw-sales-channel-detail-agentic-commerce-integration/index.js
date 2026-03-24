@@ -2,8 +2,10 @@
  * @sw-package discovery
  */
 
-import template from './sw-sales-channel-detail-agentic-ai-integration.html.twig';
-import './sw-sales-channel-detail-agentic-ai-integration.scss';
+import template from './sw-sales-channel-detail-agentic-commerce-integration.html.twig';
+import './sw-sales-channel-detail-agentic-commerce-integration.scss';
+
+const DEFAULT_PROVIDER = 'open-ai';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -35,11 +37,11 @@ export default {
 
     computed: {
         providerName() {
-            return this.productExport?.provider || 'open-ai';
+            return this.productExport?.provider || DEFAULT_PROVIDER;
         },
 
         isOpenAi() {
-            return this.providerName === 'open-ai';
+            return this.providerName === DEFAULT_PROVIDER;
         },
 
         feedUrl() {
@@ -47,7 +49,7 @@ export default {
         },
 
         integrationSnippetPrefix() {
-            return `sw-sales-channel.detail.agenticAi.integration.providers.${this.providerName}`;
+            return `sw-sales-channel.detail.agenticCommerce.integration.providers.${this.providerName}`;
         },
     },
 };

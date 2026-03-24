@@ -6,7 +6,7 @@ import { mount } from '@vue/test-utils';
 
 async function createWrapper(props = {}) {
     return mount(
-        await wrapTestComponent('sw-sales-channel-detail-agentic-ai-integration', {
+        await wrapTestComponent('sw-sales-channel-detail-agentic-commerce-integration', {
             sync: true,
         }),
         {
@@ -31,7 +31,7 @@ async function createWrapper(props = {}) {
             },
             props: {
                 salesChannel: {
-                    typeId: Shopware.Defaults.agenticAiTypeId,
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
                 },
                 productExport: {
                     provider: 'open-ai',
@@ -44,7 +44,7 @@ async function createWrapper(props = {}) {
     );
 }
 
-describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-ai-integration', () => {
+describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-commerce-integration', () => {
     it('should not render the card while loading', async () => {
         const wrapper = await createWrapper({ isLoading: true });
 

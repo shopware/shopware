@@ -100,7 +100,7 @@ export default {
 
         isProductComparisonSalesChannelType(salesChannelTypeId) {
             return (
-                salesChannelTypeId === Defaults.productComparisonTypeId || salesChannelTypeId === Defaults.agenticAiTypeId
+                salesChannelTypeId === Defaults.productComparisonTypeId || salesChannelTypeId === Defaults.agenticCommerceTypeId
             );
         },
     },

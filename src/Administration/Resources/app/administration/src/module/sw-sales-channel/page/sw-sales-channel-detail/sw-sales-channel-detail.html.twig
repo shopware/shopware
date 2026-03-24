@@ -73,19 +73,19 @@
 
                 {% block sw_sales_channel_detail_content_tab_theme %}{% endblock %}
 
-                {% block sw_sales_channel_detail_content_tab_agentic_ai_integration %}
+                {% block sw_sales_channel_detail_content_tab_agentic_commerce_integration %}
                 <sw-tabs-item
-                    v-if="isAgenticAi && !isLoading"
-                    :route="{ name: 'sw.sales.channel.detail.agenticAiIntegration', params: { id: $route.params.id } }"
-                    :title="$tc('sw-sales-channel.detail.agenticAi.tabIntegration')"
+                    v-if="isAgenticCommerce && !isLoading"
+                    :route="{ name: 'sw.sales.channel.detail.agenticCommerceIntegration', params: { id: $route.params.id } }"
+                    :title="$tc('sw-sales-channel.detail.agenticCommerce.tabIntegration')"
                 >
-                    {{ $tc('sw-sales-channel.detail.agenticAi.tabIntegration') }}
+                    {{ $tc('sw-sales-channel.detail.agenticCommerce.tabIntegration') }}
                 </sw-tabs-item>
                 {% endblock %}
 
                 {%  block sw_sales_channel_detail_content_tab_product_comparison %}
                 <sw-tabs-item
-                    v-if="(isProductComparison || isAgenticAi) && !isLoading"
+                    v-if="(isProductComparison || isAgenticCommerce) && !isLoading"
                     :route="{ name: 'sw.sales.channel.detail.productComparison', params: { id: $route.params.id } }"
                     :title="$tc('sw-sales-channel.detail.tabProductComparison')"
                 >

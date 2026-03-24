@@ -234,12 +234,8 @@
         },
         "cliCommand": "CLI Command to generate the product export"
       },
-      "agenticAi": {
-        "tabFeedTemplate": "Feed Template",
+      "agenticCommerce": {
         "tabIntegration": "Integration",
-        "feedTemplateCardTitle": "Feed Template",
-        "feedUrlCardTitle": "Feed URL",
-        "additionalSettingsTitle": "Additional Settings",
         "buttonResetTemplate": "Reset to default",
         "resetTemplateSuccess": "Template has been reset to default. Please save to keep the changes.",
         "errorLoadingTemplate": "Could not load default template.",

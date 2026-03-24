@@ -97,12 +97,12 @@ export default {
             return this.salesChannel.typeId === Defaults.apiSalesChannelTypeId;
         },
 
-        isAgenticAi() {
+        isAgenticCommerce() {
             if (!this.salesChannel) {
-                return this.$route.params.typeId === Defaults.agenticAiTypeId;
+                return this.$route.params.typeId === Defaults.agenticCommerceTypeId;
             }
 
-            return this.salesChannel.typeId === Defaults.agenticAiTypeId;
+            return this.salesChannel.typeId === Defaults.agenticCommerceTypeId;
         },
 
         salesChannelRepository() {
@@ -310,7 +310,7 @@ export default {
         },
 
         prepareSaveData() {
-            const needsProductExport = this.isProductComparison || this.isAgenticAi;
+            const needsProductExport = this.isProductComparison || this.isAgenticCommerce;
 
             if (needsProductExport && !this.salesChannel.productExports.length) {
                 this.salesChannel.productExports.add(this.productExport);

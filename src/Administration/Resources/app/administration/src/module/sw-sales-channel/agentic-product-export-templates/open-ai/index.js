@@ -7,8 +7,8 @@ import body from './body.json.twig?raw';
 
 Shopware.Service('exportTemplateService').registerProductExportTemplate({
     name: 'open_ai',
-    translationKey: 'sw-sales-channel.detail.agenticAi.templates.template-label.open-ai',
-    salesChannelTypeId: Shopware.Defaults.agenticAiTypeId,
+    translationKey: 'sw-sales-channel.detail.agenticCommerce.templates.template-label.open-ai',
+    salesChannelTypeId: Shopware.Defaults.agenticCommerceTypeId,
     providerName: 'open-ai',
     headerTemplate: '',
     bodyTemplate: body.trim(),

@@ -58,8 +58,8 @@ export default {
     },
 
     computed: {
-        isAgenticAi() {
-            return this.salesChannel?.typeId === Defaults.agenticAiTypeId;
+        isAgenticCommerce() {
+            return this.salesChannel?.typeId === Defaults.agenticCommerceTypeId;
         },
 
         editorConfig() {
@@ -189,7 +189,7 @@ export default {
 
             if (!template) {
                 this.createNotificationError({
-                    message: this.$tc('sw-sales-channel.detail.agenticAi.errorLoadingTemplate'),
+                    message: this.$tc('sw-sales-channel.detail.agenticCommerce.errorLoadingTemplate'),
                 });
 
                 return;
@@ -200,7 +200,7 @@ export default {
             this.productExport.footerTemplate = template.footerTemplate;
 
             this.createNotificationInfo({
-                message: this.$tc('sw-sales-channel.detail.agenticAi.resetTemplateSuccess'),
+                message: this.$tc('sw-sales-channel.detail.agenticCommerce.resetTemplateSuccess'),
             });
         },
 

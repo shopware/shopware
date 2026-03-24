@@ -3,26 +3,17 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
-final class RuleConditionActivateEvent extends Event implements ShopwareEvent
+final class RuleConditionActivateEvent
 {
     public function __construct(
-        private readonly string $appId,
-        private readonly Context $context,
+        public readonly string $appId,
+        public readonly Context $context,
     ) {
-    }
-
-    public function getAppId(): string
-    {
-        return $this->appId;
-    }
-
-    public function getContext(): Context
-    {
-        return $this->context;
     }
 }

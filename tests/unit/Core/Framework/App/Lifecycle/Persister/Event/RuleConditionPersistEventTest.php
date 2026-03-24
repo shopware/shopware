@@ -36,6 +36,6 @@ class RuleConditionPersistEventTest extends TestCase
 
         $event = new RuleConditionPersistEvent($lifecycleContext);
 
-        static::assertSame($lifecycleContext, $event->getContext());
+        static::assertSame($lifecycleContext, $event->context);
     }
 }

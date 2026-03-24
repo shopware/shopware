@@ -22,7 +22,7 @@ class RuleConditionActivateEventTest extends TestCase
 
         $event = new RuleConditionActivateEvent($appId, $context);
 
-        static::assertSame($appId, $event->getAppId());
-        static::assertSame($context, $event->getContext());
+        static::assertSame($appId, $event->appId);
+        static::assertSame($context, $event->context);
     }
 }

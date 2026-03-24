@@ -1,0 +1,154 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    product,
+    defaultRoute = seoUrl('frontend.detail.page', { productId: product.id }),
+    slots = [],
+    layout = 'default',
+    showTaxInfo = false,
+    mediaHeight = 'auto',
+    mediaObjectFit = 'contain',
+    mediaSizes = '(max-width: 400px) 96vw, 400px',
+    border = false,
+    rounded = false,
+%}
+
+{% set horizontal = (layout == 'horizontal') %}
+
+{% set cardCVA = cva({
+    base: 'sw-product-card card h-100',
+    variants: {
+        layout: {
+            default: 'is--layout-default',
+            horizontal: 'is--layout-horizontal',
+        },
+        mediaObjectFit: {
+            cover: 'is--media-cover',
+            contain: 'is--media-contain',
+        },
+        border: {
+            true: ['has--border'],
+            false: null,
+        },
+        rounded: {
+            true: ['is--rounded'],
+            false: null,
+        }
+    }
+}) %}
+
+{% set attributeDefaults = {
+    class: cardCVA.apply({ layout, mediaObjectFit, border, rounded }),
+} %}
+
+{% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
+
+<div {{ attributes.defaults(attributeDefaults) }}>
+
+    <div class="sw-product-card__inner d-flex h-100">
+
+        <div {{ attributes.nested('header').defaults({ class: 'sw-product-card__header position-relative overflow-hidden' }) }}>
+
+            <twig:Slot name="header-top"></twig:Slot>
+
+            {% block media %}
+                <twig:Slot name="media">
+                    {% if product.cover %}
+                        <twig:Sw:Media
+                            :media="product.cover.media"
+                            :height="mediaHeight"
+                            :sizes="mediaSizes"
+                            class="card-img-top sw-product-card__media"
+                        />
+                    {% endif %}
+                </twig:Slot>
+            {% endblock %}
+
+            {% block badges %}
+                <twig:Slot name="badges">
+                    <twig:Sw:Product:Badges :product="product" />
+                </twig:Slot>
+            {% endblock %}
+
+            {% if config('core.cart.wishlistEnabled') %}
+                <twig:Sw:Product:WishlistButton :productId="product.id" />
+            {% endif %}
+
+            <twig:Slot name="header-bottom"></twig:Slot>
+        </div>
+
+        <div class="sw-product-card__content d-flex flex-fill flex-column">
+
+            <div {{ attributes.nested('body').defaults({ class: 'sw-product-card__body card-body' }) }}>
+
+                <twig:Slot name="body-top"></twig:Slot>
+
+                {% block title %}
+                    <twig:Slot name="title">
+                        <h2 {{ attributes.nested('title').defaults({ class: 'sw-product-card__title card-title fw-semibold' }) }}>
+                            <a
+                                {{ attributes.nested('title-link').defaults({
+                                    class: 'sw-product-card__title-link' ~ (product.cover.media.isSpatialObject() ? '' : ' stretched-link'),
+                                    href: defaultRoute,
+                                    style: "--sw-product-card-media-height: #{mediaHeight}px",
+                                }) }}
+                            >
+                                {{ product.translated.name }}
+                            </a>
+                        </h2>
+                    </twig:Slot>
+                {% endblock %}
+
+                {% if config('core.listing.showReview') and product.ratingAverage %}
+                    <twig:Slot name="rating">
+                        <twig:Sw:Rating:Stars :stars="product.ratingAverage" />
+                    </twig:Slot>
+                {% endif %}
+
+                {% if not displayParent %}
+                    <twig:Slot name="variants">
+                        {% if product.variation is not null %}
+                            <twig:Sw:Product:Variants :productVariants="product.variation" />
+                        {% endif %}
+                    </twig:Slot>
+                {% endif %}
+
+                <p class="sw-product-card__description fs-6 mb-0">
+                    {{ product.translated.description|striptags|raw|u.truncate(255, '...') }}
+                </p>
+
+                <twig:Slot name="body-bottom"></twig:Slot>
+            </div>
+
+            <div {{ attributes.nested('footer').defaults({ class: 'sw-product-card__footer card-footer border-0 pt-0' }) }}>
+
+                <twig:Slot name="footer-top"></twig:Slot>
+
+                {% block price %}
+                    <twig:Slot name="price">
+                        <twig:Sw:Product:PriceDisplay
+                            :product="product"
+                            :showTaxInfo="showTaxInfo"
+                        />
+                    </twig:Slot>
+                {% endblock %}
+
+                {% block actions %}
+                    <twig:Slot name="actions">
+                        <twig:Sw:Product:CardActions
+                            :product="product"
+                        />
+                    </twig:Slot>
+                {% endblock %}
+
+                <twig:Slot name="footer-bottom"></twig:Slot>
+            </div>
+        </div>
+    </div>
+
+    {% block loading_indicator %}
+        <twig:Sw:Product:CardLoader />
+    {% endblock %}
+</div>

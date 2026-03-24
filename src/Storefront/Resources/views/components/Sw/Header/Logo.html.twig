@@ -1,0 +1,42 @@
+{% props
+    linkTitle = 'header.logoLink'|trans|striptags,
+    linkPath = path('frontend.home.page'),
+    alt = 'header.logoLink'|trans|striptags,
+    logoMobileUrl = theme_config('sw-logo-mobile'),
+    logoTabletUrl = theme_config('sw-logo-tablet'),
+    logoDesktopUrl = theme_config('sw-logo-desktop'),
+    breakpointMd = theme_config('breakpoint.md'),
+    breakpointLg = theme_config('breakpoint.lg'),
+%}
+
+{% set attributeDefaults = {
+    class: 'sw-header-logo',
+    href: linkPath,
+    title: linkTitle,
+} %}
+
+<a {{ attributes.defaults(attributeDefaults) }}>
+    <picture class="sw-header-logo__picture d-block">
+        {% if logoTabletUrl and logoTabletUrl != logoDesktopUrl %}
+            <source
+                srcset="{{ logoTabletUrl|sw_encode_url }}"
+                media="(min-width: {{ breakpointMd }}px) and (max-width: {{ breakpointLg - 1 }}px)"
+            >
+        {% endif %}
+
+        {% if logoMobileUrl and logoMobileUrl != logoDesktopUrl %}
+            <source
+                srcset="{{ logoMobileUrl|sw_encode_url }}"
+                media="(max-width: {{ breakpointMd - 1 }}px)"
+            >
+        {% endif %}
+
+        {% if logoDesktopUrl %}
+            <img
+                src="{{ logoDesktopUrl|sw_encode_url }}"
+                alt="{{ alt }}"
+                class="img-fluid sw-header-logo__main-img"
+            >
+        {% endif %}
+    </picture>
+</a>

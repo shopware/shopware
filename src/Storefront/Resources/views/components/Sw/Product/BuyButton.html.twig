@@ -1,0 +1,60 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    product = null,
+    extraFormData = {},
+    jsOptions = {},
+%}
+
+{% set buyButtonCVA = cva({
+    base: 'sw-buy-widget d-grid',
+}) %}
+
+{% set attributeDefaults = {
+    class: buyButtonCVA.apply({}),
+    method: 'post',
+    action: path('frontend.checkout.line-item.add'),
+    'data-component': 'Sw:Product:BuyButton',
+    'data-component-options': jsOptions|json_encode,
+} %}
+
+{% set formData = {
+    redirectTo: 'frontend.detail.page',
+    redirectParameters: { productId: product.id }|json_encode,
+    ("lineItems[#{product.id}][id]"): product.id,
+    ("lineItems[#{product.id}][referencedId]"): product.id,
+    ("lineItems[#{product.id}][type]"): 'product',
+    ("lineItems[#{product.id}][stackable]"): '1',
+    ("lineItems[#{product.id}][removable]"): '1',
+    ("lineItems[#{product.id}][quantity]"): product.minPurchase,
+    ("lineItems[#{product.id}][product-name]"): product.translated.name
+} %}
+
+{% if extraFormData %}
+    {% set formData = formData|merge(extraFormData) %}
+{% endif %}
+
+<form {{ attributes.defaults(attributeDefaults) }}>
+    {% block form_data_inputs %}
+        {% for name, value in formData %}
+            <input
+                type="hidden"
+                name="{{ name }}"
+                value="{{ value }}"
+                {% if name == 'redirectParameters' %}
+                    data-redirect-parameters="true"
+                {% endif %}
+                >
+        {% endfor %}
+    {% endblock %}
+
+     {% block buy_button %}
+        <twig:Slot name="buy-button">
+            <twig:Sw:Button variant="buy">
+                {{ 'listing.boxAddProduct'|trans|sw_sanitize }}
+            </twig:Sw:Button>
+        </twig:Slot>
+    {% endblock %}
+</form>

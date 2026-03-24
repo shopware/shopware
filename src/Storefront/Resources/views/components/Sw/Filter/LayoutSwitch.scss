@@ -1,0 +1,31 @@
+.sw-layout-switch {
+    align-self: start;
+}
+
+.sw-layout-switch__default,
+.sw-layout-switch__horizontal {
+    --bs-btn-color: var(--bs-light-text-emphasis);;
+    --bs-btn-hover-color: var(--bs-light-text-emphasis);;
+    --bs-btn-border-color: transparent;
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-active-border-color: transparent;
+    --bs-btn-bg: var(--bs-white);
+    --bs-btn-hover-bg: var(--bs-gray-200);
+    transition: all 0.2s ease-in-out;
+
+    &.is--active {
+        --bs-btn-color: var(--bs-body);
+        --bs-btn-bg: var(--bs-gray-200);
+    }
+
+    &.btn .icon {
+        color: currentColor;
+        width: 1.2rem;
+        height: 1.2rem;
+
+        & > svg {
+            top: 0.25em;
+            fill: currentColor;
+        }
+    }
+}

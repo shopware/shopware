@@ -1,0 +1,45 @@
+{
+    "title": "Sw/Icon",
+    "parameters": {
+        "server": {
+            "id": "Sw:Icon"
+        },
+        "template": "<twig:Sw:Icon name=\"cart\" size=\"fluid\" color=\"primary\" rotation=\"0\" />"
+    },
+    "argTypes": {
+        "name": { "control": "text" },
+        "pack": {
+          "control": "select",
+          "options": ["default", "solid"]
+        },
+        "namespace": { "control": "text" },
+        "size": { 
+            "control": "select",
+            "options": ["fluid", "lg", "sm", "xs", "1x", "2x", "3x"]
+        },
+        "color": {
+            "control": "select",
+            "options": ["primary", "secondary", "success", "info", "warning", "danger", "light", "dark"]
+        },
+        "rotation": {
+            "control": "select",
+            "options": [0, 90, 180, 270]
+        },
+        "flip": {
+            "control": "select",
+            "options": ["horizontal", "vertical", "both"]
+        }
+      },
+    "stories": [
+        {
+            "name": "Icon",
+            "args": {
+                "name": "cart",
+                "pack": "default",
+                "namespace": "Storefront",
+                "size": "lg",
+                "color": "primary"
+            }
+        }
+    ]
+}

@@ -1,0 +1,20 @@
+.sw-product-card-badges {
+    position: absolute;
+    left: 0.5rem;
+    top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.sw-product-card-badges__badge {
+    --bs-badge-padding-x: 6px;
+    --bs-badge-padding-y: 4px;
+    --bs-badge-font-size: #{$font-size-sm};
+    --bs-badge-font-weight: 600;
+    --bs-badge-border-radius: 3px;
+    margin: 0;
+    height: auto;
+    line-height: 1;
+    width: max-content;
+}

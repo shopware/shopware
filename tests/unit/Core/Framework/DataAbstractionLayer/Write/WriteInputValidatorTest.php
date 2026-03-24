@@ -17,12 +17,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class WriteInputValidatorTest extends TestCase
 {
     /**
-     * @param array<array<string, mixed|null>> $input
+     * @param array<array-key, array<array-key, string>> $input
      */
     #[DataProvider('invalidWriteInputProvider')]
     public function testInvalidWriteInputs(array $input): void
     {
-        static::expectException(DataAbstractionLayerException::class);
+        $this->expectException(DataAbstractionLayerException::class);
 
         WriteInputValidator::validate($input);
     }

@@ -12,7 +12,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration as ShopwareAdministration;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
@@ -42,7 +41,7 @@ class AssetServiceTest extends TestCase
             ->with('bundleName')
             ->willThrowException(new \InvalidArgumentException());
 
-        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $filesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $assetService = new AssetService(
             $filesystem,
             $filesystem,
@@ -65,7 +64,7 @@ class AssetServiceTest extends TestCase
             ->with('ExampleBundle')
             ->willReturn($this->getBundle());
 
-        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $filesystem = new Filesystem(new InMemoryFilesystemAdapter());
 
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects($this->exactly(2))->method('invalidate');
@@ -98,7 +97,7 @@ class AssetServiceTest extends TestCase
             ->with('ExampleBundle')
             ->willReturn($this->getBundle());
 
-        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $filesystem = new Filesystem(new InMemoryFilesystemAdapter());
 
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects($this->never())->method('invalidate');
@@ -123,7 +122,7 @@ class AssetServiceTest extends TestCase
 
     public function testCopyAssetsFromBundlePluginInactivePlugin(): void
     {
-        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $filesystem = new Filesystem(new InMemoryFilesystemAdapter());
 
         $classLoader = $this->createMock(ClassLoader::class);
         $classLoader->method('findFile')->willReturn(__FILE__);
@@ -133,10 +132,12 @@ class AssetServiceTest extends TestCase
             [
                 [
                     'name' => 'ExampleBundle',
+                    'version' => '1.0.0',
                     'baseClass' => ExampleBundle::class,
                     'path' => __DIR__ . '/_fixtures/ExampleBundle',
                     'active' => true,
                     'managedByComposer' => false,
+                    'composerName' => 'Swag\ExampleBundle',
                     'autoload' => [
                         'psr-4' => [
                             'ExampleBundle' => '',
@@ -178,7 +179,7 @@ class AssetServiceTest extends TestCase
             ->with('ExampleBundle')
             ->willReturn($this->getBundle());
 
-        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $filesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $assetService = new AssetService(
             $filesystem,
             $filesystem,
@@ -234,7 +235,7 @@ class AssetServiceTest extends TestCase
 
     public function testCopyAssetsWithoutApp(): void
     {
-        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $filesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $assetService = new AssetService(
             $filesystem,
             $filesystem,
@@ -254,7 +255,7 @@ class AssetServiceTest extends TestCase
 
     public function testCopyAssetsWithApp(): void
     {
-        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $filesystem = new Filesystem(new InMemoryFilesystemAdapter());
 
         $assetService = new AssetService(
             $filesystem,
@@ -402,7 +403,7 @@ class AssetServiceTest extends TestCase
 
     public function testCopyDoesNotWriteManifestForLocalFilesystems(): void
     {
-        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $filesystem = new Filesystem(new InMemoryFilesystemAdapter());
 
         $mockFs = $this->createMock(FilesystemOperator::class);
         $mockFs

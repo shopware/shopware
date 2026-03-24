@@ -181,7 +181,6 @@ class DeliveryNoteRendererTest extends TestCase
         $order = $caughtEvent->getOrders()->get($orderId);
         static::assertNotNull($order);
 
-        static::assertInstanceOf(RenderedDocument::class, $rendered);
         static::assertCount(1, $caughtEvent->getOrders());
         static::assertStringContainsString('<html lang="en-GB">', $rendered->getContent());
         static::assertStringContainsString('</html>', $rendered->getContent());

@@ -427,6 +427,19 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(wrapper.vm.flyoutStyle.top).toBe('80px');
     });
 
+    it('should call logoutSso on logout and navigate to login', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.loginService.logoutSso = jest.fn().mockResolvedValue(undefined);
+        const routerPush = jest.spyOn(wrapper.vm.$router, 'push').mockResolvedValue(undefined);
+
+        await wrapper.vm.onLogoutUser();
+
+        expect(wrapper.vm.loginService.logoutSso).toHaveBeenCalledTimes(1);
+        expect(routerPush).toHaveBeenCalledWith({ name: 'sw.login.index' });
+    });
+
     it('should not show icons in flyout menu items', async () => {
         const app = document.createElement('div');
         app.id = 'app';

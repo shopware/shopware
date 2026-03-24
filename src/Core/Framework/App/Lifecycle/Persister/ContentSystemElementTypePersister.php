@@ -75,8 +75,6 @@ class ContentSystemElementTypePersister implements PersisterInterface
                 );
             }
 
-            $dto->toContentSystemElementTypeSpecification();
-
             $name = $dto->name;
             $normalized = $this->serializer->normalize($dto);
             $hash = Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR));

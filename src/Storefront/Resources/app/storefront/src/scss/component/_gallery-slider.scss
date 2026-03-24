@@ -302,7 +302,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         border: none;
         outline: none;
         border-radius: 50%;
-        background: rgba(0, 0, 0, 0.70);
+        background: rgba(0, 0, 0, 0.7);
 
         &.spatial-anim-play {
             .icon-play {
@@ -373,7 +373,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        background-color: rgba(0, 0, 0, 0.70);
+        background-color: rgba(0, 0, 0, 0.7);
         color: var(--bs-white, #fff);
         border-radius: 8px;
         border: none;

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\Hooks\AppActivatedHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppDeactivatedHook;
+use Shopware\Core\Framework\App\ContentSystem\ElementTypeStateService;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
@@ -36,7 +37,8 @@ class AppStateService
         private readonly PaymentMethodStateService $paymentMethodStateService,
         private readonly ScriptExecutor $scriptExecutor,
         private readonly RuleConditionPersister $ruleConditionPersister,
-        private readonly FlowEventPersister $flowEventPersister
+        private readonly FlowEventPersister $flowEventPersister,
+        private readonly ElementTypeStateService $elementTypeStateService,
     ) {
     }
 
@@ -56,6 +58,7 @@ class AppStateService
         $this->scriptPersister->activateAppScripts($appId, $context);
         $this->paymentMethodStateService->activatePaymentMethods($appId, $context);
         $this->ruleConditionPersister->activateConditionScripts($appId, $context);
+        $this->elementTypeStateService->activateElementTypes($appId, $context);
         $this->activeAppsLoader->reset();
         // manually set active flag to true, so we don't need to re-fetch the app from DB
         $app->setActive(true);
@@ -90,6 +93,7 @@ class AppStateService
         $this->paymentMethodStateService->deactivatePaymentMethods($appId, $context);
         $this->ruleConditionPersister->deactivateConditionScripts($appId, $context);
         $this->flowEventPersister->deactivateFlow($appId);
+        $this->elementTypeStateService->deactivateElementTypes($appId, $context);
         // reset only after new state is in the DB
         $this->activeAppsLoader->reset();
     }

@@ -191,6 +191,11 @@
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ContentSystem\ElementTypeStateService"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ContentSystem\ElementTypeStateService">
+            <argument type="service" id="app_content_system_element_type.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper" public="true">

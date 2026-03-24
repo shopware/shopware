@@ -1333,6 +1333,7 @@ class OrderConverterTest extends TestCase
             'source' => null,
             'hash' => null,
             'states' => [],
+            'persisted' => false,
         ];
     }
 

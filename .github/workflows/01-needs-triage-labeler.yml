@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Wait 5 minutes
         run: sleep 5m
-      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+      - uses: actions/github-script@450193c5abd4cdb17ba9f3ffcfe8f635c4bb6c2a # 7
         with:
           script: |
             console.debug(context.payload);

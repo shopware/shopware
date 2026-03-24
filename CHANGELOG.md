@@ -1,6 +1,31 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.15
+*  [GHSA-c4p7-rwrg-pf6p - Double signature verification in app-reregistration flow](https://github.com/shopware/shopware/security/advisories/GHSA-c4p7-rwrg-pf6p)
+*  [GHSA-gqc5-xv7m-gcjq - Limit account enumeration via Store API](https://github.com/shopware/shopware/security/advisories/GHSA-gqc5-xv7m-gcjq)
+*  [GHSA-7vvp-j573-5584 - Proper check for the deepLinkCode filter type](https://github.com/shopware/shopware/security/advisories/GHSA-7vvp-j573-5584)
+
+## 6.6.10.14
+*  [#13348 - Online cancelation request (Elektronische Widerrufsfunktion)](https://github.com/shopware/shopware/issues/13348)
+*  [#15308 - fix: allow searching while suggest is still loading](https://github.com/shopware/shopware/pull/15308)
+*  [#14854 - e-invoice xml file is not sent as an email attachment](https://github.com/shopware/shopware/issues/14854)
+*  [#15307 - ES working wrong with NotEquals filter in nested fields](https://github.com/shopware/shopware/issues/15307)
+*  [#14838 - Administration: Button label says “Create and download PDF” but downloads ZUGFeRD XML (filename null.xml)](https://github.com/shopware/shopware/issues/14838)
+*  [#15258 - feat: Add event for the config info API route (backport: 6.6.x)](https://github.com/shopware/shopware/pull/15258)
+*  [#12229 - Shop version 6.7.2.0 + Commercial version 7.1.2 = 500 error](https://github.com/shopware/shopware/issues/12229)
+*  [#14904 - Regression: database:refresh-migration Command no longer works](https://github.com/shopware/shopware/issues/14904)
+*  [#15206 - fix: Reading associations via the parent, if the parent has multiple associations of the same type and to the same entity (backport: 6.6.x)](https://github.com/shopware/shopware/pull/15206)
+*  [#14555 - "Promotion -> All -> Are None of" fails to match](https://github.com/shopware/shopware/issues/14555)
+*  [#13812 - Variant preselection in category product listing doesn’t work in Shopware 6.7.x](https://github.com/shopware/shopware/issues/13812)
+*  [#14922 - Major update of DomPDF dependency](./changelog/release-6-6-10-14/2026-02-18-update-of-dompdf-dependency.md)
+*  [#14613 - fix: Profiler: use $title as key in start() so it will correctly be unset in stop() (backport: 6.6.x)](https://github.com/shopware/shopware/pull/14613)
+*  [#14951 - fix: add branch alias for main (backport: 6.6.x)](https://github.com/shopware/shopware/pull/14951)
+*  [#14647 - Cart line item is missing regulation price](https://github.com/shopware/shopware/issues/14647)
+*  [#14017 - Accessibility Inputs do not have autocomplete attribute](https://github.com/shopware/shopware/issues/14017)
+*  [#14024 - Accessibility: User account contains some level A issues](https://github.com/shopware/shopware/issues/14024)
+*  [#3478 - App flow actions custom headers in async mode 6.6.x backport #14678](./changelog/release-6-6-10-14/2026-02-04-app-flow-actions-custom-headers-in-async-mode.md)
+
 ## 6.6.10.13
 *  [#14738 - fix: `getAddress` in`AddressDetailPageLoader` (backport: 6.6.x) (#14738)](https://github.com/shopware/shopware/pull/14738)
 *  [#14735 - fix: order edit loading (backport: 6.6.x) (#14747)](https://github.com/shopware/shopware/issues/14735)

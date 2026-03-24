@@ -91,9 +91,9 @@ jobs:
           SYMFONY_ALLOW_ALL_IP: "1"
         run: symfony server:start
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: lts/*
 
       - name: Refresh Package List
         shell: bash
@@ -120,7 +120,7 @@ jobs:
         working-directory: tests/acceptance
         run: npx playwright test --project=${{ matrix.name }} ${{ matrix.name == 'Install' && '--trace=on' || '' }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: playwright-report-${{ matrix.name }}-php${{ matrix.php-version }}-${{ matrix.accessibility == 'accessibility' && '-accessibility' || '' }}
@@ -133,7 +133,7 @@ jobs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - id: generate-matrix
         run: |
           MATRIX=$(php .github/bin/generate-phpunit-matrix.php "${{ inputs.nightly }}")
@@ -207,7 +207,7 @@ jobs:
         run: git config --system core.longpaths true
 
       - name: Clone platform
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
   php-security:
     runs-on: ubuntu-24.04
     name: "Composer dependencies"
@@ -215,7 +215,7 @@ jobs:
       COMPOSER_ROOT_VERSION: 6.6.9999999-dev
     steps:
       - name: Clone platform
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -244,20 +244,20 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+        uses: github/codeql-action/autobuild@v4
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
 
   tested-update-versions:
     name: tested-versions
@@ -320,7 +320,7 @@ jobs:
           composer -d src/Elasticsearch config version ${SW_RECOVERY_NEXT_VERSION}
 
       - name: Checkout template
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: shopware/production
           path: old-shopware
@@ -352,9 +352,9 @@ jobs:
         working-directory: old-shopware
         run: symfony server:start -d
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: lts/*
 
       - name: Install dependencies
         working-directory: new-shopware/tests/acceptance
@@ -378,7 +378,7 @@ jobs:
         working-directory: new-shopware/tests/acceptance
         run: npx playwright test --project=Update --trace=on
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: playwright-report-update-${{ matrix.update.version }}

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Service;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
@@ -14,6 +15,8 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
@@ -57,7 +60,7 @@ class DocumentGenerator
         string $deepLinkCode = '',
         /* , string $fileType = PdfRenderer::FILE_EXTENSION */
     ): ?RenderedDocument {
-        $fileType = \func_get_args()[3] ?? PdfRenderer::FILE_EXTENSION;
+        $fileType = \func_num_args() > 3 ? \func_get_args()[3] : PdfRenderer::FILE_EXTENSION;
 
         $criteria = new Criteria([$documentId]);
 
@@ -75,6 +78,8 @@ class DocumentGenerator
         if (!$document instanceof DocumentEntity) {
             throw DocumentException::documentNotFound($documentId);
         }
+
+        $fileType ??= $document->getDocumentMediaFile()?->getFileExtension() ?? PdfRenderer::FILE_EXTENSION;
 
         $document = $this->ensureDocumentMediaFileGenerated($document, $fileType, $context);
         $documentMedia = $this->loadMediaByFileType($document, $fileType);
@@ -366,13 +371,19 @@ class DocumentGenerator
             SELECT LOWER(HEX(document.id))
             FROM document INNER JOIN document_type
                 ON document.document_type_id = document_type.id
-            WHERE document_type.technical_name = :technicalName
+            WHERE document_type.technical_name IN (:technicalNames)
             AND document.document_number = :invoiceNumber
             AND document.order_id = :orderId
         ', [
-            'technicalName' => InvoiceRenderer::TYPE,
+            'technicalNames' => [
+                InvoiceRenderer::TYPE,
+                ZugferdRenderer::TYPE,
+                ZugferdEmbeddedRenderer::TYPE,
+            ],
             'invoiceNumber' => $invoiceNumber,
             'orderId' => Uuid::fromHexToBytes($orderId),
+        ], [
+            'technicalNames' => ArrayParameterType::STRING,
         ]);
     }
 

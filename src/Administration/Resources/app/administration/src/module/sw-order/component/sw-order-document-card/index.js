@@ -230,6 +230,10 @@ export default {
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
+
+        isXmlDocument() {
+            return this.currentDocumentType?.technicalName === 'zugferd_invoice';
+        },
     },
 
     watch: {
@@ -299,7 +303,11 @@ export default {
 
         invoiceExists() {
             return this.documents.some((document) => {
-                return document.documentType.technicalName === 'invoice';
+                return (
+                    document.documentType.technicalName === 'invoice' ||
+                    document.documentType.technicalName === 'zugferd_invoice' ||
+                    document.documentType.technicalName === 'zugferd_embedded_invoice'
+                );
             });
         },
 
@@ -407,7 +415,8 @@ export default {
                 }
 
                 if (additionalAction === 'download') {
-                    this.downloadDocument(documentId, documentDeepLink);
+                    const fileType = this.isXmlDocument ? 'xml' : 'pdf';
+                    this.downloadDocument(documentId, documentDeepLink, fileType);
                 } else if (additionalAction === 'send') {
                     const criteria = new Criteria(null, null);
                     criteria.addAssociation('documentType').addAssociation('documentA11yMediaFile');

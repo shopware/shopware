@@ -621,7 +621,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        wrapper.vm.$tc = jest.fn();
+        wrapper.vm.$t = jest.fn();
         wrapper.vm.$router = {
             resolve: jest.fn(() => {
                 return { href: 'bar' };
@@ -629,7 +629,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         };
         wrapper.vm.buildReplyToTooltip('foo');
 
-        expect(wrapper.vm.$tc).toHaveBeenCalledWith('foo', 0, {
+        expect(wrapper.vm.$t).toHaveBeenCalledWith('foo', 0, {
             settingsLink: 'bar',
         });
     });

@@ -228,6 +228,43 @@ class MatchAllLineItemsRuleTest extends TestCase
         ];
     }
 
+    #[DataProvider('getEmptyFilteredLineItemsTestData')]
+    public function testEmptyFilteredLineItemsWithCartScope(
+        ?int $minimumShouldMatch,
+        bool $expected
+    ): void {
+        $lineItemRule = new LineItemInCategoryRule();
+        $lineItemRule->assign([
+            'categoryIds' => ['1'],
+            'operator' => Rule::OPERATOR_NEQ,
+        ]);
+
+        $allLineItemsRule = new MatchAllLineItemsRule([], $minimumShouldMatch, 'product');
+        $allLineItemsRule->addRule($lineItemRule);
+
+        $promotionLineItem = $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO')
+            ->setPayloadValue('promotionId', 'A');
+        $cart = $this->createCart(new LineItemCollection([$promotionLineItem]));
+
+        $match = $allLineItemsRule->match(new CartRuleScope(
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertSame($expected, $match);
+    }
+
+    /**
+     * @return array<string, mixed[]>
+     */
+    public static function getEmptyFilteredLineItemsTestData(): array
+    {
+        return [
+            'no type match / no minimum / returns true (vacuously true)' => [null, true],
+            'no type match / minimum set / returns false' => [1, false],
+        ];
+    }
+
     /**
      * @param array<string> $categoryIds
      */

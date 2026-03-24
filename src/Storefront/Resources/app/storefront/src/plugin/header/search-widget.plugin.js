@@ -2,7 +2,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 import Debouncer from 'src/helper/debouncer.helper';
 import HttpClient from 'src/service/http-client.service';
-import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading-indicator.util';
+import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
 import Iterator from 'src/helper/iterator.helper';
 
 export default class SearchWidgetPlugin extends Plugin {
@@ -185,7 +185,7 @@ export default class SearchWidgetPlugin extends Plugin {
         this._client.abort();
 
         // init loading indicator
-        const indicator = new ButtonLoadingIndicator(this._submitButton);
+        const indicator = new LoadingIndicatorUtil(this._submitButton);
         indicator.create();
 
         this.$emitter.publish('beforeSearch');

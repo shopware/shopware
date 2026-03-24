@@ -2,27 +2,47 @@ import GoogleReCaptchaV2Plugin from 'src/plugin/captcha/google-re-captcha/google
 
 describe('GoogleReCaptchaV2Plugin tests', () => {
     let googleReCaptchav2Plugin = undefined;
+    let mockElement;
+    let originalPluginManager;
 
     beforeEach(() => {
         window.grecaptcha = {
-            ready: () => {},
-            execute: () => {}
+            ready: (cb) => cb(),
+            execute: jest.fn(() => Promise.resolve('token')),
+            render: jest.fn(() => 'widgetId'),
         };
 
-        const mockElement = document.createElement('form');
+        mockElement = document.createElement('form');
         const inputField = document.createElement('input');
         const iframe = document.createElement('iframe');
-        inputField.className = 'grecaptcha-input';
+        const container = document.createElement('div');
+        container.className = 'grecaptcha-v2-container';
+        inputField.className = 'grecaptcha-v2-input';
         mockElement.appendChild(inputField);
         mockElement.appendChild(iframe);
+        mockElement.appendChild(container);
 
-        googleReCaptchav2Plugin = new GoogleReCaptchaV2Plugin(mockElement, {
-            grecaptchaInputSelector: '.grecaptcha-input'
-        });
+        mockElement.submit = jest.fn();
+        mockElement.checkValidity = jest.fn(() => true);
+
+        document.body.appendChild(mockElement);
+
+        originalPluginManager = window.PluginManager;
+        window.PluginManager = {
+            getPluginInstancesFromElement: jest.fn(() => new Map()),
+            getPlugin: jest.fn(() => new Map([['instances', []]])),
+        };
+
+        googleReCaptchav2Plugin = new GoogleReCaptchaV2Plugin(mockElement);
     });
 
     afterEach(() => {
+        window.PluginManager = originalPluginManager;
         googleReCaptchav2Plugin = undefined;
+
+        if (mockElement && mockElement.parentElement) {
+            mockElement.parentElement.removeChild(mockElement);
+        }
     });
 
     test('GoogleReCaptchaV2Plugin exists', () => {
@@ -30,11 +50,6 @@ describe('GoogleReCaptchaV2Plugin tests', () => {
     });
 
     test('grecaptcha render is called on initialize', () => {
-        googleReCaptchav2Plugin.grecaptcha.render = jest.fn(() => { return 'widgetId'; });
-        googleReCaptchav2Plugin.grecaptcha.ready = googleReCaptchav2Plugin._onGreCaptchaReady.bind(googleReCaptchav2Plugin);
-
-        googleReCaptchav2Plugin.init();
-
         expect(googleReCaptchav2Plugin.grecaptcha.render).toHaveBeenCalled();
         expect(googleReCaptchav2Plugin.grecaptchaWidgetId).toEqual('widgetId');
         expect(googleReCaptchav2Plugin.grecaptchaContainerIframe.tagName).toEqual('IFRAME');
@@ -101,5 +116,3 @@ describe('GoogleReCaptchaV2Plugin tests', () => {
         expect(googleReCaptchav2Plugin.grecaptchaInput.value).toEqual('token');
     });
 });
-
-

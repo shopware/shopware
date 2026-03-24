@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Storage;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 /**
  * @internal
  */
-#[CoversClass(MySQLKeyValueStorage::class)]
 class MySQLKeyValueStorageTest extends TestCase
 {
     use IntegrationTestBehaviour;

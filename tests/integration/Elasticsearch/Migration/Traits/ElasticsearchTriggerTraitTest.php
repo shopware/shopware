@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Elasticsearch\Migration\Traits;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Elasticsearch\Migration\Traits\ElasticsearchTriggerTrait;
@@ -13,7 +12,6 @@ use Shopware\Elasticsearch\Migration\Traits\ElasticsearchTriggerTrait;
  *
  * @phpstan-ignore classConstant.deprecatedTrait
  */
-#[CoversClass(ElasticsearchTriggerTrait::class)]
 class ElasticsearchTriggerTraitTest extends TestCase
 {
     use ElasticsearchTriggerTrait;

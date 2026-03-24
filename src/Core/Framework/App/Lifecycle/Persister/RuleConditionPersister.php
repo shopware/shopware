@@ -6,6 +6,9 @@ use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionC
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
+use Shopware\Core\Framework\App\Lifecycle\Persister\Extension\RuleConditionActivateExtension;
+use Shopware\Core\Framework\App\Lifecycle\Persister\Extension\RuleConditionDeactivateExtension;
+use Shopware\Core\Framework\App\Lifecycle\Persister\Extension\RuleConditionPersistExtension;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\BoolField;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldType;
@@ -21,6 +24,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
@@ -44,11 +48,39 @@ class RuleConditionPersister implements PersisterInterface
     public function __construct(
         private readonly ScriptFileReader $scriptReader,
         private readonly EntityRepository $appScriptConditionRepository,
-        private readonly EntityRepository $appRepository
+        private readonly EntityRepository $appRepository,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
     public function persist(AppLifecycleContext $context): void
+    {
+        $this->extensions->publish(
+            name: RuleConditionPersistExtension::NAME,
+            extension: new RuleConditionPersistExtension($context),
+            function: $this->doPersist(...)
+        );
+    }
+
+    public function activateConditionScripts(string $appId, Context $context): void
+    {
+        $this->extensions->publish(
+            name: RuleConditionActivateExtension::NAME,
+            extension: new RuleConditionActivateExtension($appId, $context),
+            function: $this->doActivateConditionScripts(...)
+        );
+    }
+
+    public function deactivateConditionScripts(string $appId, Context $context): void
+    {
+        $this->extensions->publish(
+            name: RuleConditionDeactivateExtension::NAME,
+            extension: new RuleConditionDeactivateExtension($appId, $context),
+            function: $this->doDeactivateConditionScripts(...)
+        );
+    }
+
+    private function doPersist(AppLifecycleContext $context): void
     {
         $app = $this->getAppWithExistingConditions($context->app->getId(), $context->context);
         $existingRuleConditions = $app->getScriptConditions();
@@ -89,7 +121,7 @@ class RuleConditionPersister implements PersisterInterface
         $this->deleteConditionScripts($existingRuleConditions, $context->context);
     }
 
-    public function activateConditionScripts(string $appId, Context $context): void
+    private function doActivateConditionScripts(string $appId, Context $context): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
@@ -102,7 +134,7 @@ class RuleConditionPersister implements PersisterInterface
         $this->appScriptConditionRepository->update($updateSet, $context);
     }
 
-    public function deactivateConditionScripts(string $appId, Context $context): void
+    private function doDeactivateConditionScripts(string $appId, Context $context): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));

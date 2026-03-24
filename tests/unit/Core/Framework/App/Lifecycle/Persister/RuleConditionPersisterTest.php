@@ -1,0 +1,448 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Persister;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
+use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
+use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
+use Shopware\Core\Framework\App\Lifecycle\Persister\Extension\RuleConditionActivateExtension;
+use Shopware\Core\Framework\App\Lifecycle\Persister\Extension\RuleConditionDeactivateExtension;
+use Shopware\Core\Framework\App\Lifecycle\Persister\Extension\RuleConditionPersistExtension;
+use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
+use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
+use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\BoolField;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldType;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\FloatField;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\IntField;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MediaSelectionField;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MultiEntitySelectField;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MultiSelectField;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\PriceField;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\SingleEntitySelectField;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\SingleSelectField;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\TextField;
+use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
+use Shopware\Core\Framework\App\Manifest\Xml\RuleCondition\RuleCondition;
+use Shopware\Core\Framework\App\Manifest\Xml\RuleCondition\RuleConditions;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
+use Shopware\Core\Framework\Validation\Constraint\Uuid;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+#[CoversClass(RuleConditionPersister::class)]
+class RuleConditionPersisterTest extends TestCase
+{
+    private ScriptFileReader&MockObject $scriptReader;
+
+    private CollectingEventDispatcher $eventDispatcher;
+
+    protected function setUp(): void
+    {
+        $this->scriptReader = $this->createMock(ScriptFileReader::class);
+        $this->eventDispatcher = new CollectingEventDispatcher();
+    }
+
+    public function testPersistDispatchesPreAndPostExtensionEvents(): void
+    {
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([$this->buildApp(new AppScriptConditionCollection())])]);
+
+        /** @var StaticEntityRepository<AppScriptConditionCollection> $conditionRepository */
+        $conditionRepository = new StaticEntityRepository([]);
+
+        $persister = $this->buildPersister($appRepository, $conditionRepository);
+        $context = $this->buildLifecycleContext($this->createManifest([]));
+
+        $persister->persist($context);
+
+        $events = $this->eventDispatcher->getEvents();
+        static::assertArrayHasKey(RuleConditionPersistExtension::NAME . '.pre', $events);
+        static::assertArrayHasKey(RuleConditionPersistExtension::NAME . '.post', $events);
+        static::assertInstanceOf(RuleConditionPersistExtension::class, $events[RuleConditionPersistExtension::NAME . '.pre']);
+    }
+
+    public function testPersistExtensionCarriesLifecycleContext(): void
+    {
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([$this->buildApp(new AppScriptConditionCollection())])]);
+
+        /** @var StaticEntityRepository<AppScriptConditionCollection> $conditionRepository */
+        $conditionRepository = new StaticEntityRepository([]);
+
+        $persister = $this->buildPersister($appRepository, $conditionRepository);
+        $context = $this->buildLifecycleContext($this->createManifest([]));
+
+        $persister->persist($context);
+
+        $extension = $this->eventDispatcher->getEvents()[RuleConditionPersistExtension::NAME . '.pre'];
+        static::assertInstanceOf(RuleConditionPersistExtension::class, $extension);
+        static::assertSame($context, $extension->context);
+    }
+
+    public function testPersistUpsertsNewConditions(): void
+    {
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([$this->buildApp(new AppScriptConditionCollection())])]);
+
+        /** @var StaticEntityRepository<AppScriptConditionCollection> $conditionRepository */
+        $conditionRepository = new StaticEntityRepository([]);
+
+        $this->scriptReader->method('getScriptContent')->willReturn('script-content');
+
+        $condition = RuleCondition::fromArray([
+            'identifier' => 'my-condition',
+            'name' => ['en-GB' => 'My Condition'],
+            'script' => 'condition.twig',
+            'constraints' => [],
+        ]);
+
+        $persister = $this->buildPersister($appRepository, $conditionRepository);
+        $persister->persist($this->buildLifecycleContext($this->createManifest([$condition])));
+
+        static::assertCount(1, $conditionRepository->upserts);
+        static::assertSame('app\\TestApp_my-condition', $conditionRepository->upserts[0][0]['identifier']);
+        static::assertSame('script-content', $conditionRepository->upserts[0][0]['script']);
+    }
+
+    public function testPersistUpdatesExistingConditionById(): void
+    {
+        $existingCondition = new AppScriptConditionEntity();
+        $existingCondition->setId('existing-id');
+        $existingCondition->setIdentifier('app\\TestApp_my-condition');
+        $existingCondition->setActive(true);
+        $existingConditions = new AppScriptConditionCollection([$existingCondition]);
+
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([$this->buildApp($existingConditions)])]);
+
+        /** @var StaticEntityRepository<AppScriptConditionCollection> $conditionRepository */
+        $conditionRepository = new StaticEntityRepository([]);
+
+        $this->scriptReader->method('getScriptContent')->willReturn('content');
+
+        $condition = RuleCondition::fromArray([
+            'identifier' => 'my-condition',
+            'name' => ['en-GB' => 'My Condition'],
+            'script' => 'condition.twig',
+            'constraints' => [],
+        ]);
+
+        $persister = $this->buildPersister($appRepository, $conditionRepository);
+        $persister->persist($this->buildLifecycleContext($this->createManifest([$condition])));
+
+        static::assertCount(1, $conditionRepository->upserts);
+        static::assertSame('existing-id', $conditionRepository->upserts[0][0]['id']);
+    }
+
+    public function testPersistDeletesOrphanedConditions(): void
+    {
+        $orphan = new AppScriptConditionEntity();
+        $orphan->setId('orphan-id');
+        $orphan->setIdentifier('app\\TestApp_old-condition');
+        $orphan->setActive(true);
+        $existingConditions = new AppScriptConditionCollection([$orphan]);
+
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([$this->buildApp($existingConditions)])]);
+
+        /** @var StaticEntityRepository<AppScriptConditionCollection> $conditionRepository */
+        $conditionRepository = new StaticEntityRepository([]);
+
+        $persister = $this->buildPersister($appRepository, $conditionRepository);
+        $persister->persist($this->buildLifecycleContext($this->createManifest([])));
+
+        static::assertEmpty($conditionRepository->upserts);
+        static::assertCount(1, $conditionRepository->deletes);
+        static::assertSame([['id' => 'orphan-id']], $conditionRepository->deletes[0]);
+    }
+
+    public function testPersistSkipsUpsertWhenNoConditionsInManifest(): void
+    {
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([$this->buildApp(new AppScriptConditionCollection())])]);
+
+        /** @var StaticEntityRepository<AppScriptConditionCollection> $conditionRepository */
+        $conditionRepository = new StaticEntityRepository([]);
+
+        $persister = $this->buildPersister($appRepository, $conditionRepository);
+        $persister->persist($this->buildLifecycleContext($this->createManifest([])));
+
+        static::assertEmpty($conditionRepository->upserts);
+    }
+
+    public function testActivateConditionScriptsDispatchesExtensionEvents(): void
+    {
+        /** @var StaticEntityRepository<AppScriptConditionCollection> $conditionRepository */
+        $conditionRepository = new StaticEntityRepository([[]]);
+
+        /** @var StaticEntityRepository<AppCollection> $appRepo */
+        $appRepo = new StaticEntityRepository([]);
+
+        $persister = $this->buildPersister($appRepo, $conditionRepository);
+        $persister->activateConditionScripts('app-id', Context::createDefaultContext());
+
+        $events = $this->eventDispatcher->getEvents();
+        static::assertArrayHasKey(RuleConditionActivateExtension::NAME . '.pre', $events);
+        static::assertArrayHasKey(RuleConditionActivateExtension::NAME . '.post', $events);
+        static::assertInstanceOf(RuleConditionActivateExtension::class, $events[RuleConditionActivateExtension::NAME . '.pre']);
+    }
+
+    public function testActivateConditionScriptsActivatesInactiveScripts(): void
+    {
+        $context = Context::createDefaultContext();
+
+        /** @var StaticEntityRepository<AppScriptConditionCollection> $conditionRepository */
+        $conditionRepository = new StaticEntityRepository([['script-id']]);
+
+        /** @var StaticEntityRepository<AppCollection> $appRepo */
+        $appRepo = new StaticEntityRepository([]);
+
+        $persister = $this->buildPersister($appRepo, $conditionRepository);
+        $persister->activateConditionScripts('test-app-id', $context);
+
+        static::assertCount(1, $conditionRepository->updates);
+        static::assertSame([['id' => 'script-id', 'active' => true]], $conditionRepository->updates[0]);
+    }
+
+    public function testActivateConditionScriptsSkipsUpdateWhenNoneInactive(): void
+    {
+        $context = Context::createDefaultContext();
+
+        /** @var StaticEntityRepository<AppScriptConditionCollection> $conditionRepository */
+        $conditionRepository = new StaticEntityRepository([[]]);
+
+        /** @var StaticEntityRepository<AppCollection> $appRepo */
+        $appRepo = new StaticEntityRepository([]);
+
+        $persister = $this->buildPersister($appRepo, $conditionRepository);
+        $persister->activateConditionScripts('app-id', $context);
+
+        static::assertCount(1, $conditionRepository->updates);
+        static::assertSame([], $conditionRepository->updates[0]);
+    }
+
+    public function testDeactivateConditionScriptsDispatchesExtensionEvents(): void
+    {
+        /** @var StaticEntityRepository<AppScriptConditionCollection> $conditionRepository */
+        $conditionRepository = new StaticEntityRepository([[]]);
+
+        /** @var StaticEntityRepository<AppCollection> $appRepo */
+        $appRepo = new StaticEntityRepository([]);
+
+        $persister = $this->buildPersister($appRepo, $conditionRepository);
+        $persister->deactivateConditionScripts('app-id', Context::createDefaultContext());
+
+        $events = $this->eventDispatcher->getEvents();
+        static::assertArrayHasKey(RuleConditionDeactivateExtension::NAME . '.pre', $events);
+        static::assertArrayHasKey(RuleConditionDeactivateExtension::NAME . '.post', $events);
+        static::assertInstanceOf(RuleConditionDeactivateExtension::class, $events[RuleConditionDeactivateExtension::NAME . '.pre']);
+    }
+
+    public function testDeactivateConditionScriptsDeactivatesActiveScripts(): void
+    {
+        $context = Context::createDefaultContext();
+
+        /** @var StaticEntityRepository<AppScriptConditionCollection> $conditionRepository */
+        $conditionRepository = new StaticEntityRepository([['script-id']]);
+
+        /** @var StaticEntityRepository<AppCollection> $appRepo */
+        $appRepo = new StaticEntityRepository([]);
+
+        $persister = $this->buildPersister($appRepo, $conditionRepository);
+        $persister->deactivateConditionScripts('test-app-id', $context);
+
+        static::assertCount(1, $conditionRepository->updates);
+        static::assertSame([['id' => 'script-id', 'active' => false]], $conditionRepository->updates[0]);
+    }
+
+    public function testPersistHydratesConstraintsForBoolField(): void
+    {
+        $constraints = $this->getConstraintsForField(BoolField::fromArray(['name' => 'my-field']));
+
+        static::assertSame(serialize(['my-field' => [new Type('bool')]]), $constraints);
+    }
+
+    public function testPersistHydratesConstraintsForFloatField(): void
+    {
+        $constraints = $this->getConstraintsForField(FloatField::fromArray(['name' => 'my-field']));
+
+        static::assertSame(serialize(['my-field' => [new Type('numeric')]]), $constraints);
+    }
+
+    public function testPersistHydratesConstraintsForIntField(): void
+    {
+        $constraints = $this->getConstraintsForField(IntField::fromArray(['name' => 'my-field']));
+
+        static::assertSame(serialize(['my-field' => [new Type('int')]]), $constraints);
+    }
+
+    public function testPersistHydratesConstraintsForPriceField(): void
+    {
+        $constraints = $this->getConstraintsForField(PriceField::fromArray(['name' => 'my-field']));
+
+        static::assertSame(serialize(['my-field' => []]), $constraints);
+    }
+
+    public function testPersistHydratesConstraintsForMultiEntitySelectField(): void
+    {
+        $constraints = $this->getConstraintsForField(MultiEntitySelectField::fromArray(['name' => 'my-field', 'entity' => 'product']));
+
+        static::assertSame(serialize(['my-field' => [new ArrayOfUuid()]]), $constraints);
+    }
+
+    public function testPersistHydratesConstraintsForSingleEntitySelectField(): void
+    {
+        $constraints = $this->getConstraintsForField(SingleEntitySelectField::fromArray(['name' => 'my-field', 'entity' => 'product']));
+
+        static::assertSame(serialize(['my-field' => [new Uuid()]]), $constraints);
+    }
+
+    public function testPersistHydratesConstraintsForMediaSelectionField(): void
+    {
+        $constraints = $this->getConstraintsForField(MediaSelectionField::fromArray(['name' => 'my-field']));
+
+        static::assertSame(serialize(['my-field' => [new Uuid()]]), $constraints);
+    }
+
+    public function testPersistHydratesConstraintsForSingleSelectField(): void
+    {
+        $field = SingleSelectField::fromArray(['name' => 'my-field', 'options' => ['opt1' => 'Option 1', 'opt2' => 'Option 2']]);
+        $constraints = $this->getConstraintsForField($field);
+
+        static::assertSame(serialize(['my-field' => [new Choice(choices: ['opt1', 'opt2'])]]), $constraints);
+    }
+
+    public function testPersistHydratesConstraintsForMultiSelectField(): void
+    {
+        $field = MultiSelectField::fromArray(['name' => 'my-field', 'options' => ['opt1' => 'Option 1', 'opt2' => 'Option 2']]);
+        $constraints = $this->getConstraintsForField($field);
+
+        static::assertSame(serialize(['my-field' => [new All(constraints: new Choice(choices: ['opt1', 'opt2']))]]), $constraints);
+    }
+
+    public function testPersistHydratesConstraintsForDefaultStringField(): void
+    {
+        $constraints = $this->getConstraintsForField(TextField::fromArray(['name' => 'my-field']));
+
+        static::assertSame(serialize(['my-field' => [new Type('string')]]), $constraints);
+    }
+
+    public function testPersistHydratesConstraintsAddsNotBlankForRequiredField(): void
+    {
+        $constraints = $this->getConstraintsForField(BoolField::fromArray(['name' => 'my-field', 'required' => true]));
+
+        static::assertSame(serialize(['my-field' => [new NotBlank(), new Type('bool')]]), $constraints);
+    }
+
+    private function getConstraintsForField(CustomFieldType $field): string
+    {
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([$this->buildApp(new AppScriptConditionCollection())])]);
+
+        /** @var StaticEntityRepository<AppScriptConditionCollection> $conditionRepository */
+        $conditionRepository = new StaticEntityRepository([]);
+
+        $this->scriptReader->method('getScriptContent')->willReturn('script');
+
+        $condition = RuleCondition::fromArray([
+            'identifier' => 'test-condition',
+            'name' => ['en-GB' => 'Test Condition'],
+            'script' => 'test.twig',
+            'constraints' => [$field],
+        ]);
+
+        $persister = $this->buildPersister($appRepository, $conditionRepository);
+        $persister->persist($this->buildLifecycleContext($this->createManifest([$condition])));
+
+        return $conditionRepository->upserts[0][0]['constraints'];
+    }
+
+    /**
+     * @param StaticEntityRepository<AppCollection> $appRepository
+     * @param StaticEntityRepository<AppScriptConditionCollection> $conditionRepository
+     */
+    private function buildPersister(
+        StaticEntityRepository $appRepository,
+        StaticEntityRepository $conditionRepository,
+    ): RuleConditionPersister {
+        return new RuleConditionPersister(
+            $this->scriptReader,
+            $conditionRepository,
+            $appRepository,
+            new ExtensionDispatcher($this->eventDispatcher),
+        );
+    }
+
+    private function buildApp(AppScriptConditionCollection $scriptConditions, string $appId = 'app-id'): AppEntity
+    {
+        $app = new AppEntity();
+        $app->setId($appId);
+        $app->setActive(true);
+        $app->setScriptConditions($scriptConditions);
+
+        return $app;
+    }
+
+    private function buildLifecycleContext(Manifest $manifest, string $appId = 'app-id'): AppLifecycleContext
+    {
+        $app = new AppEntity();
+        $app->setId($appId);
+        $app->setActive(true);
+
+        return new AppLifecycleContext(
+            manifest: $manifest,
+            app: $app,
+            context: Context::createDefaultContext(),
+            appFilesystem: new StaticFilesystem(),
+            defaultLocale: 'en-GB',
+            isInstall: true,
+        );
+    }
+
+    /**
+     * @param list<RuleCondition> $conditions
+     */
+    private function createManifest(array $conditions): Manifest
+    {
+        $manifest = $this->createMock(Manifest::class);
+
+        $domDocument = new \DOMDocument();
+        $domElement = $domDocument->createElement('root');
+
+        foreach ([
+            'name' => 'TestApp',
+            'label' => 'Test Label',
+            'author' => 'Test Author',
+            'copyright' => '© Test',
+            'license' => 'MIT',
+            'version' => '1.0.0',
+        ] as $tag => $value) {
+            $domElement->appendChild($domDocument->createElement($tag, $value));
+        }
+
+        $manifest->method('getMetadata')->willReturn(Metadata::fromXml($domElement));
+        $manifest->method('getRuleConditions')->willReturn(
+            $conditions !== [] ? RuleConditions::fromArray(['ruleConditions' => $conditions]) : null
+        );
+
+        return $manifest;
+    }
+}

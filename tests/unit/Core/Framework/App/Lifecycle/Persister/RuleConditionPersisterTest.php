@@ -222,7 +222,7 @@ class RuleConditionPersisterTest extends TestCase
         static::assertSame([['id' => 'script-id', 'active' => true]], $conditionRepository->updates[0]);
     }
 
-    public function testActivateConditionScriptsSkipsUpdateWhenNoneInactive(): void
+    public function testActivateConditionScriptsUpdateEmptyDataWhenNoneInactive(): void
     {
         $context = Context::createDefaultContext();
 

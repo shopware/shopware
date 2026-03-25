@@ -41,11 +41,6 @@ class PromotionProcessor implements CartProcessorInterface
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
     {
         Profiler::trace('cart::promotion::process', function () use ($data, $original, $toCalculate, $context, $behavior): void {
-            // reset cached group-builder results so each cart-calculation pass
-            // (e.g. the multiple passes that occur during login / cart-merge)
-            // starts fresh.
-            $this->groupBuilder->reset();
-
             // always make sure we have
             // the line item group builder for our
             // line item group rule inside the cart data

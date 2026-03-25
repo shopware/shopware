@@ -206,7 +206,7 @@ class PromotionCalculatorTest extends TestCase
         static::assertTrue($discountItem->hasPayloadValue('composition'));
     }
 
-    public function testEnrichPackagesSkipsMissingLineItemInSplitItems(): void
+    public function testEnrichPackagesDropsPackageWithMissingLineItemInSplitItems(): void
     {
         $presentId = $this->ids->get('present-product');
         $missingId = $this->ids->get('stale-product');
@@ -283,7 +283,7 @@ class PromotionCalculatorTest extends TestCase
             new CartBehavior()
         );
 
-        static::assertNotNull($cart->getLineItems()->get($discountItem->getId()));
+        static::assertNull($cart->getLineItems()->get($discountItem->getId()));
     }
 
     private function getDiscountItem(string $promotionId): LineItem

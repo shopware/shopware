@@ -49,8 +49,6 @@ class PromotionProcessorTest extends TestCase
             [new LineItem('B', PromotionProcessor::LINE_ITEM_TYPE, Uuid::randomHex(), 1)],
         ));
 
-        $groupBuilderMock->expects($this->once())->method('reset');
-
         $promotionCalculatorMock->expects($this->once())
             ->method('calculate')
             ->with(
@@ -90,8 +88,6 @@ class PromotionProcessorTest extends TestCase
             [(new LineItem('B', PromotionProcessor::LINE_ITEM_TYPE, Uuid::randomHex(), 1))->setPayload(['promotionCodeType' => PromotionItemBuilder::PROMOTION_TYPE_GLOBAL])],
         ));
 
-        $groupBuilderMock->expects($this->once())->method('reset');
-
         $promotionCalculatorMock->expects($this->never())
             ->method('calculate');
 
@@ -121,8 +117,6 @@ class PromotionProcessorTest extends TestCase
             // `promotionCodeType` => fixed means the promotion is applied only if the promotion code is input.
             [(new LineItem('B', PromotionProcessor::LINE_ITEM_TYPE, Uuid::randomHex(), 1))->setPayload(['promotionCodeType' => PromotionItemBuilder::PROMOTION_TYPE_FIXED])],
         ));
-
-        $groupBuilderMock->expects($this->once())->method('reset');
 
         $promotionCalculatorMock->expects($this->never())
             ->method('calculate');

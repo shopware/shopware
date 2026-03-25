@@ -309,15 +309,12 @@ export function createExtendableSetup<
                 },
                 { _private: {} as TPrivateSetupResult } as PreviousStateResultForExtensions,
             );
-            previousStateResultForExtensions._private = Object.keys(wrappedState).reduce<TPrivateSetupResult>(
-                (acc, key) => {
-                    if (!publicStateKeys.includes(key)) {
-                        (acc as Record<string, unknown>)[key] = wrappedStateAsRecord[key];
-                    }
-                    return acc;
-                },
-                {} as TPrivateSetupResult,
-            );
+            previousStateResultForExtensions._private = Object.keys(wrappedState).reduce<TPrivateSetupResult>((acc, key) => {
+                if (!publicStateKeys.includes(key)) {
+                    (acc as Record<string, unknown>)[key] = wrappedStateAsRecord[key];
+                }
+                return acc;
+            }, {} as TPrivateSetupResult);
 
             // Apply the override with a destructured copy of the wrapped state to prevent calling himself
             let overrideResult: ReturnType<typeof override>;

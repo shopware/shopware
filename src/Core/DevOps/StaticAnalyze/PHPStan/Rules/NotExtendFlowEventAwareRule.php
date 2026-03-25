@@ -22,7 +22,8 @@ class NotExtendFlowEventAwareRule
     {
         return PHPat::rule()
             ->classes(Selector::isInterface())
-            ->shouldNotDependOn()
+            ->shouldNot()
+            ->dependOn()
             ->classes(Selector::classname(FlowEventAware::class))
             ->because('Flow events should not be derived from each other to make them easier to test.');
     }

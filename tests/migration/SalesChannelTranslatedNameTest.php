@@ -98,6 +98,9 @@ class SalesChannelTranslatedNameTest extends TestCase
         static::assertCount(0, $result, $message);
     }
 
+    /**
+     * @return \Iterator<non-empty-string, SplFileInfo>
+     */
     private function findFilesWithTwigTag(string $baseDirectory): \Iterator
     {
         return (new Finder())

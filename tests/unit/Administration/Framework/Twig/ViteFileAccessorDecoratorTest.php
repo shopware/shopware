@@ -61,11 +61,8 @@ class ViteFileAccessorDecoratorTest extends TestCase
         static::assertSame($fileExists, $this->decorator->hasFile($configName, $fileType));
     }
 
-    /**
-     * @param array{'entryPoints', string, 'js', 0} $assetKeys
-     */
     #[DataProvider('getDataProvider')]
-    public function testGetData(bool $pullFromCache, string $configName, array $assetKeys, string $expectedAssetUrl): void
+    public function testGetData(bool $pullFromCache, string $configName, string $bundleName, string $expectedAssetUrl): void
     {
         if ($pullFromCache) {
             $this->decorator->getData($configName, FileAccessor::ENTRYPOINTS);
@@ -73,17 +70,7 @@ class ViteFileAccessorDecoratorTest extends TestCase
 
         $result = $this->decorator->getData($configName, FileAccessor::ENTRYPOINTS);
 
-        // Dynamically check the keys
-        $firstArrayKey = array_shift($assetKeys);
-        $previousValue = $result[$firstArrayKey];
-        foreach ($assetKeys as $key) {
-            // Use the previous collected value to check the next key
-            static::assertArrayHasKey($key, $previousValue);
-            $previousValue = $previousValue[$key];
-        }
-
-        // Check that the last key value is the expected asset URL
-        static::assertSame($expectedAssetUrl, $previousValue);
+        static::assertSame($expectedAssetUrl, $result['entryPoints'][$bundleName]['js'][0]);
     }
 
     /**
@@ -131,7 +118,7 @@ class ViteFileAccessorDecoratorTest extends TestCase
     }
 
     /**
-     * @return list<array{bool, string, array{'entryPoints', string, 'js', 0}, string}>
+     * @return list<array{bool, string, string, string}>
      */
     public static function getDataProvider(): array
     {
@@ -139,45 +126,25 @@ class ViteFileAccessorDecoratorTest extends TestCase
             [
                 false,
                 '_default',
-                [
-                    'entryPoints',
-                    'administration',
-                    'js',
-                    0,
-                ],
+                'administration',
                 'https:://shopware.com/bundles/administration/administration/assets/app.js',
             ],
             [
                 true,
                 '_default',
-                [
-                    'entryPoints',
-                    'administration',
-                    'js',
-                    0,
-                ],
+                'administration',
                 'https:://shopware.com/bundles/administration/administration/assets/app.js',
             ],
             [
                 false,
                 'TestBundle',
-                [
-                    'entryPoints',
-                    'test-bundle',
-                    'js',
-                    0,
-                ],
+                'test-bundle',
                 'https:://shopware.com/bundles/test/administration/assets/app.js',
             ],
             [
                 true,
                 'TestBundle',
-                [
-                    'entryPoints',
-                    'test-bundle',
-                    'js',
-                    0,
-                ],
+                'test-bundle',
                 'https:://shopware.com/bundles/test/administration/assets/app.js',
             ],
         ];

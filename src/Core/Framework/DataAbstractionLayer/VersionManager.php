@@ -416,7 +416,6 @@ class VersionManager
             }
         }
 
-        /** @phpstan-ignore notIdentical.alwaysFalse (might be overridden by reference) */
         if ($extensions !== []) {
             $payload['extensions'] = $extensions;
         }

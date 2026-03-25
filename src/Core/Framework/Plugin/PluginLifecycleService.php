@@ -338,7 +338,7 @@ class PluginLifecycleService
     /**
      * @throws PluginNotInstalledException
      */
-    public function activatePlugin(PluginEntity $plugin, Context $shopwareContext, bool $reactivate = false): ActivateContext
+    public function activatePlugin(PluginEntity $plugin, Context $shopwareContext, bool $reactivate = false, bool $validateRequirements = true): ActivateContext
     {
         if ($plugin->getInstalledAt() === null) {
             throw PluginException::notInstalled($plugin->getName());
@@ -359,7 +359,9 @@ class PluginLifecycleService
             return $activateContext;
         }
 
-        $this->requirementValidator->validateRequirements($plugin, $shopwareContext, self::PLUGIN_LIFECYCLE_METHOD_ACTIVATE);
+        if ($validateRequirements === true) {
+            $this->requirementValidator->validateRequirements($plugin, $shopwareContext, self::PLUGIN_LIFECYCLE_METHOD_ACTIVATE);
+        }
 
         $this->eventDispatcher->dispatch(new PluginPreActivateEvent($plugin, $activateContext));
 
@@ -627,11 +629,12 @@ class PluginLifecycleService
         $pluginLoader = $this->container->get(KernelPluginLoader::class);
 
         $plugins = $pluginLoader->getPluginInfos();
-        foreach ($plugins as $i => $pluginData) {
+        foreach ($plugins as &$pluginData) {
             if ($pluginData['baseClass'] === $plugin->getBaseClass()) {
-                $plugins[$i]['active'] = $plugin->getActive();
+                $pluginData['active'] = $plugin->getActive();
             }
         }
+        unset($pluginData);
 
         if (!$plugin->getActive()) {
             $this->clearEntityExtensions($pluginNamespace);

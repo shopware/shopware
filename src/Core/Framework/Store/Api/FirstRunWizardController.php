@@ -10,9 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
-use Shopware\Core\Framework\Store\Exception\StoreApiException;
-use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
@@ -39,19 +38,19 @@ class FirstRunWizardController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/store/frw/start', name: 'api.custom.store.frw.start', methods: ['POST'])]
+    #[Route(path: '/api/_action/store/frw/start', name: 'api.custom.store.frw.start', methods: [Request::METHOD_POST])]
     public function frwStart(Context $context): JsonResponse
     {
         try {
             $this->frwService->startFrw($context);
         } catch (ClientException $exception) {
-            throw new StoreApiException($exception);
+            throw StoreException::storeError($exception);
         }
 
         return new JsonResponse();
     }
 
-    #[Route(path: '/api/_action/store/language-plugins', name: 'api.custom.store.language-plugins', methods: ['GET'])]
+    #[Route(path: '/api/_action/store/language-plugins', name: 'api.custom.store.language-plugins', methods: [Request::METHOD_GET])]
     public function getLanguagePluginList(Context $context): JsonResponse
     {
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
@@ -60,7 +59,7 @@ class FirstRunWizardController extends AbstractController
         try {
             $languagePlugins = $this->frwService->getLanguagePlugins($plugins, $apps, $context);
         } catch (ClientException $exception) {
-            throw new StoreApiException($exception);
+            throw StoreException::storeError($exception);
         }
 
         return new JsonResponse([
@@ -69,7 +68,7 @@ class FirstRunWizardController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_action/store/demo-data-plugins', name: 'api.custom.store.demo-data-plugins', methods: ['GET'])]
+    #[Route(path: '/api/_action/store/demo-data-plugins', name: 'api.custom.store.demo-data-plugins', methods: [Request::METHOD_GET])]
     public function getDemoDataPluginList(Context $context): JsonResponse
     {
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
@@ -78,7 +77,7 @@ class FirstRunWizardController extends AbstractController
         try {
             $languagePlugins = $this->frwService->getDemoDataPlugins($plugins, $apps, $context);
         } catch (ClientException $exception) {
-            throw new StoreApiException($exception);
+            throw StoreException::storeError($exception);
         }
 
         return new JsonResponse([
@@ -87,13 +86,13 @@ class FirstRunWizardController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_action/store/recommendation-regions', name: 'api.custom.store.recommendation-regions', methods: ['GET'])]
+    #[Route(path: '/api/_action/store/recommendation-regions', name: 'api.custom.store.recommendation-regions', methods: [Request::METHOD_GET])]
     public function getRecommendationRegions(Context $context): JsonResponse
     {
         try {
             $recommendationRegions = $this->frwService->getRecommendationRegions($context);
         } catch (ClientException $exception) {
-            throw new StoreApiException($exception);
+            throw StoreException::storeError($exception);
         }
 
         return new JsonResponse([
@@ -102,7 +101,7 @@ class FirstRunWizardController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_action/store/recommendations', name: 'api.custom.store.recommendations', methods: ['GET'])]
+    #[Route(path: '/api/_action/store/recommendations', name: 'api.custom.store.recommendations', methods: [Request::METHOD_GET])]
     public function getRecommendations(Request $request, Context $context): JsonResponse
     {
         $region = $request->query->has('region') ? (string) $request->query->get('region') : null;
@@ -114,7 +113,7 @@ class FirstRunWizardController extends AbstractController
         try {
             $recommendations = $this->frwService->getRecommendations($plugins, $apps, $region, $category, $context);
         } catch (ClientException $exception) {
-            throw new StoreApiException($exception);
+            throw StoreException::storeError($exception);
         }
 
         return new JsonResponse([
@@ -123,32 +122,37 @@ class FirstRunWizardController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_action/store/frw/login', name: 'api.custom.store.frw.login', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/store/frw/login',
+        name: 'api.custom.store.frw.login',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function frwLogin(RequestDataBag $requestDataBag, Context $context): JsonResponse
     {
         $shopwareId = $requestDataBag->get('shopwareId');
         $password = $requestDataBag->get('password');
 
         if ($shopwareId === null || $password === null) {
-            throw new StoreInvalidCredentialsException();
+            throw StoreException::invalidCredentials();
         }
 
         try {
             $this->frwService->frwLogin($shopwareId, $password, $context);
         } catch (ClientException $exception) {
-            throw new StoreApiException($exception);
+            throw StoreException::storeError($exception);
         }
 
         return new JsonResponse();
     }
 
-    #[Route(path: '/api/_action/store/license-domains', name: 'api.custom.store.license-domains', methods: ['GET'])]
+    #[Route(path: '/api/_action/store/license-domains', name: 'api.custom.store.license-domains', methods: [Request::METHOD_GET])]
     public function getDomainList(Context $context): JsonResponse
     {
         try {
             $domains = $this->frwService->getLicenseDomains($context);
         } catch (ClientException $exception) {
-            throw new StoreApiException($exception);
+            throw StoreException::storeError($exception);
         }
 
         return new JsonResponse([
@@ -157,7 +161,12 @@ class FirstRunWizardController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_action/store/verify-license-domain', name: 'api.custom.store.verify-license-domain', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/store/verify-license-domain',
+        name: 'api.custom.store.verify-license-domain',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function verifyDomain(QueryDataBag $params, Context $context): JsonResponse
     {
         $domain = $params->get('domain') ?? '';
@@ -166,13 +175,13 @@ class FirstRunWizardController extends AbstractController
         try {
             $domainStruct = $this->frwService->verifyLicenseDomain($domain, $context, $testEnvironment);
         } catch (ClientException $exception) {
-            throw new StoreApiException($exception);
+            throw StoreException::storeError($exception);
         }
 
         return new JsonResponse(['data' => $domainStruct]);
     }
 
-    #[Route(path: '/api/_action/store/frw/finish', name: 'api.custom.store.frw.finish', methods: ['POST'])]
+    #[Route(path: '/api/_action/store/frw/finish', name: 'api.custom.store.frw.finish', methods: [Request::METHOD_POST])]
     public function frwFinish(QueryDataBag $params, Context $context): JsonResponse
     {
         $failed = $params->getBoolean('failed');

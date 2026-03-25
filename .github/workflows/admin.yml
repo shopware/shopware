@@ -27,7 +27,7 @@ jobs:
           path: |
             src/Administration/Resources/app/administration/node_modules/.eslintcache
             src/Administration/Resources/app/administration/node_modules/.stylelintcache
-          key: admin-lint-${{ runner.os }}-6.6
+          key: admin-lint-${{ runner.os }}-${{ hashFiles('src/Administration/Resources/app/administration/package-lock.json', 'src/Administration/Resources/app/administration/eslint.config.mjs', 'src/Administration/Resources/app/administration/.stylelintrc') }}
 
       - name: Lint
         working-directory: src/Administration/Resources/app/administration
@@ -44,49 +44,58 @@ jobs:
 
   admin:
     runs-on: ubuntu-24.04
-    name: "Jest Admin"
-    strategy:
-      matrix:
-        test-type:
-          - unit
+    name: "Jest Admin (unit)"
     env:
-      APP_ENV: prod
-      DATABASE_URL: mysql://root:root@database:3306/root
-      APP_URL: http://localhost:8000
-      APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
-      OPENSEARCH_URL: elasticsearch:9200
-      ADMIN_OPENSEARCH_URL: elasticsearch:9200
-      BLUE_GREEN_DEPLOYMENT: 1
+      NODE_VERSION: 'lts/*'
+      JEST_MAX_WORKERS: 100%
 
     steps:
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:
-          install-admin: true
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
-      - name: Run Jest Admin ${{ matrix.test-type }}
-        run: npm --prefix src/Administration/Resources/app/administration run ${{ matrix.test-type }} -- --silent
+
+      - name: Generate entity schema mock
+        run: composer run framework:schema:dump
+
+      - name: Setup Node
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: src/Administration/Resources/app/administration/package-lock.json
+
+      - name: Install admin dependencies
+        run: npm --prefix src/Administration/Resources/app/administration ci
+
+      - name: Generate unit test setup artifacts
+        run: npm --prefix src/Administration/Resources/app/administration run unit-setup
+
+      - name: Run Jest Admin unit
+        run: npm --prefix src/Administration/Resources/app/administration run unit -- --silent
+
       - name: Upload coverage
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # 5
-        if: ${{ matrix.test-type == 'unit' }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           files: build/artifacts/jest/cobertura-coverage.xml
           flags: jest-admin
+          disable_search: true
 
   license-check:
     runs-on: ubuntu-24.04
     name: "License check"
     env:
       WHITELISTED_JS_PACKAGES: 'abab@2.0.1;administration;taffydb@2.6.2'
+      NODE_VERSION: 'lts/*'  
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
       - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
       - name: install packages
         working-directory: src/Storefront/Resources/app/storefront
         run: |

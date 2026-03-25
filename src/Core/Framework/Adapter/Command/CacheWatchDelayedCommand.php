@@ -45,7 +45,7 @@ class CacheWatchDelayedCommand extends Command
             return self::FAILURE;
         }
 
-        $this->dispatcher->addListener(ConsoleEvents::SIGNAL, function (ConsoleSignalEvent $event): void {
+        $this->dispatcher->addListener(ConsoleEvents::SIGNAL, static function (ConsoleSignalEvent $event): void {
             $signal = $event->getHandlingSignal();
             $event->setExitCode(0);
 
@@ -92,7 +92,7 @@ class CacheWatchDelayedCommand extends Command
     private function render(Table $table, array $rows): void
     {
         $table->setHeaders(['Tags at: ' . date('Y-m-d H:i:s')]);
-        $table->setRows(array_map(fn ($tag) => [$tag], $rows));
+        $table->setRows(array_map(static fn ($tag) => [$tag], $rows));
         $table->render();
     }
 }

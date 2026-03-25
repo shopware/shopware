@@ -170,8 +170,8 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array<string> $config
-     * @param array<string> $expectedProducts
+     * @param list<string> $config
+     * @param list<string> $expectedProducts
      */
     #[Depends('testIndexing')]
     #[DataProvider('providerSearchCases')]
@@ -245,9 +245,9 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string>, string, array<string>}>
+     * @return \Generator<string, array{list<string>, string, list<string>}>
      */
-    public static function providerSearchCases(): iterable
+    public static function providerSearchCases(): \Generator
     {
         yield 'search inside description' => [
             ['name', 'description'],
@@ -468,7 +468,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     {
         $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
-        $this->addEventListener($eventDispatcher, ElasticsearchCustomFieldsMappingEvent::class, function (ElasticsearchCustomFieldsMappingEvent $event): void {
+        $this->addEventListener($eventDispatcher, ElasticsearchCustomFieldsMappingEvent::class, static function (ElasticsearchCustomFieldsMappingEvent $event): void {
             $event->setMapping('evolvesTo', CustomFieldTypes::SELECT);
             $event->setMapping('evolvesText', CustomFieldTypes::TEXT);
         });

@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -976,6 +977,60 @@ class AttributeEntityIntegrationTest extends TestCase
             $productField->is(ReverseInherited::class),
             'product association field should have ReverseInherited flag'
         );
+    }
+
+    public function testSearchRankingFlagAppliedToFields(): void
+    {
+        $definition = static::getContainer()->get('attribute_entity_search_ranking.definition');
+
+        static::assertInstanceOf(AttributeEntityDefinition::class, $definition);
+
+        $currencyField = $definition->getFields()->get('currency');
+        static::assertNotNull($currencyField, 'currency field should exist');
+        static::assertTrue(
+            $currencyField->is(SearchRanking::class),
+            'currency association field should have SearchRanking flag'
+        );
+
+        $searchRankingFlag = $currencyField->getFlag(SearchRanking::class);
+        static::assertSame(SearchRanking::ASSOCIATION_SEARCH_RANKING, $searchRankingFlag->getRanking());
+        static::assertTrue($searchRankingFlag->tokenize());
+
+        $middleRankedField = $definition->getFields()->get('middleRankedString');
+
+        static::assertNotNull($middleRankedField, 'middle ranked field should exist');
+        static::assertTrue(
+            $middleRankedField->is(SearchRanking::class),
+            'middle ranked field should have SearchRanking flag'
+        );
+
+        $searchRankingFlag = $middleRankedField->getFlag(SearchRanking::class);
+        static::assertSame(SearchRanking::MIDDLE_SEARCH_RANKING, $searchRankingFlag->getRanking());
+        static::assertFalse($searchRankingFlag->tokenize());
+
+        $lowRankedField = $definition->getFields()->get('lowRankedString');
+
+        static::assertNotNull($lowRankedField, 'low ranked field should exist');
+        static::assertTrue(
+            $lowRankedField->is(SearchRanking::class),
+            'low ranked field should have SearchRanking flag'
+        );
+
+        $searchRankingFlag = $lowRankedField->getFlag(SearchRanking::class);
+        static::assertSame(SearchRanking::LOW_SEARCH_RANKING, $searchRankingFlag->getRanking());
+        static::assertTrue($searchRankingFlag->tokenize());
+
+        $highRankedField = $definition->getFields()->get('highRankedString');
+
+        static::assertNotNull($highRankedField, 'high ranked field should exist');
+        static::assertTrue(
+            $highRankedField->is(SearchRanking::class),
+            'middle ranked field should have SearchRanking flag'
+        );
+
+        $searchRankingFlag = $highRankedField->getFlag(SearchRanking::class);
+        static::assertSame(SearchRanking::HIGH_SEARCH_RANKING, $searchRankingFlag->getRanking());
+        static::assertFalse($searchRankingFlag->tokenize());
     }
 
     /**

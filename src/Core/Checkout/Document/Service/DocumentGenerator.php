@@ -138,7 +138,7 @@ class DocumentGenerator
             try {
                 $document = $success[$orderId] ?? null;
 
-                if (!($document instanceof RenderedDocument)) {
+                if (!$document instanceof RenderedDocument) {
                     continue;
                 }
 

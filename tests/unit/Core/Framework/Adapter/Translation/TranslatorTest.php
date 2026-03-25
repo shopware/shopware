@@ -85,7 +85,7 @@ class TranslatorTest extends TestCase
         $property = new \ReflectionProperty(CacheItem::class, 'isTaggable');
         $property->setValue($item, true);
 
-        $cache->expects($expectedCacheKey ? $this->once() : $this->never())->method('get')->willReturnCallback(function (string $key, callable $callback) use ($expectedCacheKey, $item) {
+        $cache->expects($expectedCacheKey ? $this->once() : $this->never())->method('get')->willReturnCallback(static function (string $key, callable $callback) use ($expectedCacheKey, $item) {
             static::assertSame($expectedCacheKey, $key);
 
             return $callback($item);
@@ -280,23 +280,6 @@ class TranslatorTest extends TestCase
             'expectedSnippetSetId' => $expectedSnippetSetId,
             'locale' => 'de-DE',
             'requestSnippetSetId' => $expectedSnippetSetId,
-        ];
-    }
-
-    public static function provideTracingExamples(): \Generator
-    {
-        yield 'disabled' => [
-            false,
-            [
-                'shopware.translator',
-            ],
-        ];
-
-        yield 'enabled' => [
-            true,
-            [
-                'translator.foo',
-            ],
         ];
     }
 

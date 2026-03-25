@@ -5,7 +5,6 @@
 import positionIdentifiers from './position-identifiers.json';
 import dataSetIds from './data-sets.json';
 
-/* eslint-disable max-len */
 const missingTests = [
     'src/app/adapter/view/sw-vue-devtools.ts',
     'src/app/component/media/sw-media-add-thumbnail-form/index.js',
@@ -25,7 +24,6 @@ const missingTests = [
     'src/app/component/base/sw-container/index.js',
     'src/app/component/base/sw-description-list/index.js',
     'src/app/component/base/sw-help-text/index.js',
-    'src/app/component/base/sw-highlight-text/index.js',
     'src/app/component/base/sw-inheritance-switch/index.js',
     'src/app/component/base/sw-price-preview/index.js',
     'src/app/component/base/sw-radio-panel/index.js',
@@ -153,7 +151,6 @@ const missingTests = [
     'src/core/feature.ts',
     'src/core/helper/device.helper.js',
     'src/core/helper/middleware.helper.js',
-    'src/core/helper/refresh-token.helper.js',
     'src/core/helper/store-loader.helper.js',
     'src/core/helper/upload-task.helper.js',
     'src/core/service/api/acl.api.service.js',
@@ -233,7 +230,6 @@ const missingTests = [
     'src/module/sw-cms/blocks/image/image-slider/preview/index.js',
     'src/module/sw-cms/blocks/sidebar/sidebar-filter/preview/index.js',
     'src/module/sw-cms/component/index.ts',
-    'src/module/sw-cms/component/sw-cms-mapping-field/index.ts',
     'src/module/sw-cms/component/sw-cms-page-select/index.ts',
     'src/module/sw-cms/component/sw-cms-product-box-preview/index.ts',
     'src/module/sw-cms/component/sw-cms-section/sw-cms-section-config/index.ts',

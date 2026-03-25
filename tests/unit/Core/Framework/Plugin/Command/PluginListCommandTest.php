@@ -22,7 +22,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(PluginListCommand::class)]
 class PluginListCommandTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<PluginCollection> */
+    /**
+     * @var MockObject&EntityRepository<PluginCollection>
+     */
     private MockObject&EntityRepository $pluginRepoMock;
 
     private MockObject&ComposerPluginLoader $composerPluginLoaderMock;
@@ -113,7 +115,7 @@ class PluginListCommandTest extends TestCase
     {
         $filterValue = 'shopware-is-love';
 
-        $criteria = static::callback(function (Criteria $criteria) use ($filterValue): bool {
+        $criteria = static::callback(static function (Criteria $criteria) use ($filterValue): bool {
             $filters = $criteria->getFilters();
             // must be MultiFilter
             if (!(\count($filters) === 1 && $filters[0] instanceof MultiFilter)) {

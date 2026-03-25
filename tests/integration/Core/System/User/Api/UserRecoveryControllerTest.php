@@ -77,7 +77,7 @@ class UserRecoveryControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             UserRecoveryRequestEvent::EVENT_NAME,
-            function (UserRecoveryRequestEvent $event) use (&$dispatchedEvent): void {
+            static function (UserRecoveryRequestEvent $event) use (&$dispatchedEvent): void {
                 $dispatchedEvent = $event;
             },
         );

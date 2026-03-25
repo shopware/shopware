@@ -19,10 +19,6 @@ class AssetUploadListenerTest extends TestCase
     {
         $listener = new AssetUploadListener();
         $event = new AssetUploadEvent(
-            '/test/foo',
-            '/test/bar',
-            ['foo' => 'bar'],
-            ['foo' => 'bar'],
             [
                 'administration/.vite/manifest.json',
                 'administration/.vite/entrypoints.json',

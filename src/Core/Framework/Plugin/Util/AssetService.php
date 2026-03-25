@@ -270,10 +270,6 @@ class AssetService
         $filesToDelete = array_keys(array_diff_key($remoteManifest, $localManifest));
 
         $uploadEvent = $this->eventDispatcher->dispatch(new AssetUploadEvent(
-            $originDir,
-            $targetDirectory,
-            $localManifest,
-            $remoteManifest,
             $uploads,
             $filesToDelete,
         ));

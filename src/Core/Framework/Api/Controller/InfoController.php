@@ -157,8 +157,8 @@ class InfoController extends AbstractController
         return new JsonResponse($data);
     }
 
-    #[Route(path: '/api/_info/content-system-data-loader-type-schema.json', name: 'api.info.content-system-data-loader-type-schema', methods: ['GET'])]
-    public function contentSystemDataLoaderTypeSchema(): JsonResponse
+    #[Route(path: '/api/_info/content-system-data-loader-types.json', name: 'api.info.content-system-data-loader-types', methods: ['GET'])]
+    public function contentSystemDataLoaderTypes(): JsonResponse
     {
         return new JsonResponse($this->dataLoaderTypeSchemaGenerator->getSchema());
     }

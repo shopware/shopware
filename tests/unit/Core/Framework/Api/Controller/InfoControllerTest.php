@@ -217,7 +217,7 @@ class InfoControllerTest extends TestCase
     }
 
     #[TestDox('returns content system data loader type schema as JSON')]
-    public function testContentSystemDataLoaderTypeSchema(): void
+    public function testContentSystemDataLoaderTypes(): void
     {
         $expected = [
             'sources' => [
@@ -231,7 +231,7 @@ class InfoControllerTest extends TestCase
         $schemaGenerator->method('getSchema')->willReturn($expected);
 
         $controller = $this->createController(dataLoaderTypeSchemaGenerator: $schemaGenerator);
-        $response = $controller->contentSystemDataLoaderTypeSchema();
+        $response = $controller->contentSystemDataLoaderTypes();
 
         static::assertSame(200, $response->getStatusCode());
         $content = $response->getContent();

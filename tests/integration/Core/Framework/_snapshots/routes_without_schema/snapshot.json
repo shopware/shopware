@@ -95,8 +95,6 @@
     "POST /_action/user/user-recovery",
     "GET /_action/user/user-recovery/hash",
     "PATCH /_action/user/user-recovery/password",
-    "GET /_info/content-system-element-types.json",
-    "GET /_info/content-system-data-loader-type-schema.json",
     "GET /_info/entity-schema.json",
     "GET /_info/me",
     "PATCH /_info/me",

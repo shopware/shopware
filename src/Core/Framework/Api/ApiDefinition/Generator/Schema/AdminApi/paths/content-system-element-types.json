@@ -1,0 +1,144 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Content System Element Types",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "\/_info\/content-system-element-types.json": {
+            "get": {
+                "tags": [
+                    "System Info & Health Check"
+                ],
+                "summary": "Get content system element types",
+                "description": "Get all registered content system element type specifications.",
+                "operationId": "content-system-element-types",
+                "responses": {
+                    "200": {
+                        "description": "Returns a list of all registered content system element types.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["types"],
+                                    "properties": {
+                                        "types": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": ["name", "label", "description", "vendor", "icon", "category", "copilot", "properties", "slots"],
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "description": "Unique type name."
+                                                    },
+                                                    "label": {
+                                                        "type": "string",
+                                                        "description": "Human-readable label."
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "description": "Human-readable description."
+                                                    },
+                                                    "vendor": {
+                                                        "type": "string",
+                                                        "description": "Vendor or source identifier."
+                                                    },
+                                                    "icon": {
+                                                        "type": ["string", "null"],
+                                                        "description": "Optional icon identifier."
+                                                    },
+                                                    "category": {
+                                                        "type": ["string", "null"],
+                                                        "description": "Optional category for grouping."
+                                                    },
+                                                    "copilot": {
+                                                        "type": "object",
+                                                        "required": ["summary", "hints"],
+                                                        "properties": {
+                                                            "summary": {
+                                                                "type": "string"
+                                                            },
+                                                            "hints": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "string"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "properties": {
+                                                        "type": "object",
+                                                        "description": "Map of property name to property specification.",
+                                                        "additionalProperties": {
+                                                            "type": "object",
+                                                            "required": ["type", "translatable", "enum", "default", "required", "title", "description", "adminUI"],
+                                                            "properties": {
+                                                                "type": {
+                                                                    "type": "string",
+                                                                    "description": "Primitive type name or FQCN."
+                                                                },
+                                                                "translatable": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "enum": {
+                                                                    "type": ["array", "null"],
+                                                                    "items": {
+                                                                        "type": ["string", "integer", "number", "boolean"]
+                                                                    }
+                                                                },
+                                                                "default": {
+                                                                    "type": ["string", "integer", "number", "boolean", "null"]
+                                                                },
+                                                                "required": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "title": {
+                                                                    "type": "string"
+                                                                },
+                                                                "description": {
+                                                                    "type": "string"
+                                                                },
+                                                                "adminUI": {
+                                                                    "type": ["object", "null"]
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "slots": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "required": ["name", "maxElements", "allowList", "description"],
+                                                            "properties": {
+                                                                "name": {
+                                                                    "type": "string"
+                                                                },
+                                                                "maxElements": {
+                                                                    "type": ["integer", "null"]
+                                                                },
+                                                                "allowList": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "description": {
+                                                                    "type": "string"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -21,7 +21,7 @@
 - Specification resolution happens in `ContentRoute`, NOT in `ContentPipeline`
 - OpenAPI schemas: update `src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/` when modifying endpoints
 - Data loader type introspection: `ContentSystemDataLoaderTypeCompilerPass` calls `getProvidedData()` on all tagged loaders at build time — loaders MUST have `@extends AbstractContentDataLoader<T>` PHPDoc; wildcard loaders override `overrideProvidedTypes()` for runtime expansion
-- Schema API endpoint: `GET /api/_info/content-system-data-loader-type-schema.json` (registered in `InfoController`)
+- Schema API endpoint: `GET /api/_info/content-system-data-loader-types.json` (registered in `InfoController`)
 - Type spec `properties` = hydrated output schema, NOT storage schema; property key links type spec → data_requirements → accepts_context → setProperty()
 
 ## Quick Reference

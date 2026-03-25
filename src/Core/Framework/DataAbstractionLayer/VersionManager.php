@@ -524,9 +524,9 @@ class VersionManager
     }
 
     /**
-     * @param array<string, string> $payload
+     * @param array<string, mixed> $payload
      *
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
     private function addVersionToPayload(array $payload, EntityDefinition $definition, string $versionId): array
     {
@@ -662,9 +662,9 @@ class VersionManager
 
     /**
      * @param array<string> $entityId
-     * @param array<string|int, mixed> $payload
+     * @param array<string, mixed> $payload
      *
-     * @return array<string|int, mixed>
+     * @return array<string, mixed>
      */
     private function addTranslationToPayload(array $entityId, array $payload, EntityDefinition $definition, VersionCommitEntity $commit): array
     {
@@ -738,7 +738,7 @@ class VersionManager
     }
 
     /**
-     * @return array{insert:array<string, array<int, mixed>>, update:array<string, array<int, mixed>>, delete:array<string, array<int, mixed>>}
+     * @return array{insert:array<string, list<array<string, mixed>>>, update:array<string, list<array<string, mixed>>>, delete:array<string, list<array<string, mixed>>>}
      */
     private function buildWrites(VersionCommitCollection $commits): array
     {
@@ -783,7 +783,7 @@ class VersionManager
     }
 
     /**
-     * @param array{insert:array<string, array<int, mixed>>, update:array<string, array<int, mixed>>, delete:array<string, array<int, mixed>>} $writes
+     * @param array{insert:array<string, list<array<string, mixed>>>, update:array<string, list<array<string, mixed>>>, delete:array<string, list<array<string, mixed>>>} $writes
      */
     private function executeWrites(array $writes, WriteContext $liveContext): WriteResult
     {

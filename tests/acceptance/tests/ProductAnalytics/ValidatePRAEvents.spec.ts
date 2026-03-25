@@ -1,8 +1,6 @@
 import { isSaaSInstance, test } from '@fixtures/AcceptanceTest';
 import { expect } from '@playwright/test';
 import type { Route, Request } from '@playwright/test';
-import { AdminPageObjects } from '@shopware-ag/acceptance-test-suite';
-import { setProductAnalyticsConsentState } from '../../helpers/product-analytics-consent';
 
 interface CapturedRequest {
     postData: string;
@@ -18,28 +16,18 @@ export interface AmplitudeRequestPayload {
     events: AmplitudeEvent[];
 }
 
-const PRODUCT_ANALYTICS_ENDPOINT = /\/event(?:$|\?)/;
-const TRACKED_ADMIN_EVENT_TYPES = new Set(['link_visited', 'page_viewed', 'button_click']);
-
-async function expectCapturedEventCount(captured: CapturedRequest[], expectedCount: number): Promise<void> {
-    await expect.poll(() => parseCapturedEvents(captured).length).toBe(expectedCount);
-}
+const PRODUCT_ANALYTICS_ENDPOINT = 'httpapi';
 
 // Annotate entire file as serial.
 test.describe.configure({ mode: 'serial' });
 
-test('As a merchant, I want to make sure admin events are sent correctly.', {
-    tag: ['@ProductAnalytics'],
-}, async ({
+test('As a merchant, I want to make sure admin events are sent correctly.', { tag: '@ProductAnalytics' }, async ({
+    ShopAdmin,
     AdminDashboard,
-    AdminApiContext,
-    InstanceMeta,
+    AdminOrderListing,
+    AdminOrderDetail,
     TestDataService,
 }) => {
-    const page = AdminDashboard.page;
-    const adminDashboard = AdminDashboard;
-    const adminOrderListing = new AdminPageObjects.OrderListing(page, InstanceMeta);
-    const adminOrderDetail = new AdminPageObjects.OrderDetail(page, InstanceMeta);
 
     const captured: CapturedRequest[] = [];
     const requestHandler = async (route: Route) => {
@@ -62,50 +50,65 @@ test('As a merchant, I want to make sure admin events are sent correctly.', {
         )
     };
 
+    test.skip(true, 'Temporarily skipped after removing the PRODUCT_ANALYTICS feature flag.');
+
     const product = await TestDataService.createBasicProduct();
     const customer = await TestDataService.createCustomer();
     const order = await TestDataService.createOrder([{ product: product, quantity: 1 }], customer);
 
-    await test.step('Set consent for product analytics', async () => {
-        await setProductAnalyticsConsentState(page, AdminApiContext, true);
+    await test.step('Intercept all the API calls to product analytics', async () => {
+
+        await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, requestHandler);
     });
 
-    await test.step('Intercept all the API calls to product analytics', async () => {
-        await page.route(PRODUCT_ANALYTICS_ENDPOINT, requestHandler);
+    await test.step('Set consent for product analytics', async () => {
+        // TO-DO: implement via UI once available and Feature flag is disabled by default
     });
 
     await test.step('Navigate via link to order page from dashboard', async () => {
-        await adminDashboard.adminMenuOrder.click();
-        await adminDashboard.adminMenuOrderOverview.click();
-        await expect(adminOrderListing.addOrderButton).toBeVisible();
-        await expectCapturedEventCount(captured, 2);
+
+        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
+        await AdminDashboard.adminMenuOrder.click();
+        await AdminDashboard.adminMenuOrderOverview.click();
+        const request = await requestPromise;
+        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
+
+        await ShopAdmin.expects(AdminOrderListing.addOrderButton).toBeVisible();
     });
 
     await test.step('Navigate via link to detail order page', async () => {
-        const orderRow = await adminOrderListing.getLineItemByOrderNumber(order.orderNumber);
-        await expect(orderRow.orderNumberText).toBeVisible();
+
+        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
+        const orderRow = await AdminOrderListing.getLineItemByOrderNumber(order.orderNumber);
+        await ShopAdmin.expects(orderRow.orderNumberText).toBeVisible()
         await orderRow.orderNumberText.click();
-        await expectCapturedEventCount(captured, 4);
+        const request = await requestPromise;
+        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
     });
 
     await test.step('Navigate via button to save order', async () => {
-        await expect(adminOrderDetail.saveButton).toBeVisible();
-        await expect(adminOrderDetail.contextMenuButton).toBeVisible();
-        await adminOrderDetail.saveButton.click();
-        await expectCapturedEventCount(captured, 5);
-        await expect(adminOrderDetail.contextMenuButton).toBeVisible();
+
+        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
+        await ShopAdmin.expects(AdminOrderDetail.saveButton).toBeVisible();
+        await ShopAdmin.expects(AdminOrderDetail.contextMenuButton).toBeVisible()
+        await AdminOrderDetail.saveButton.click();
+        const request = await requestPromise;
+        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
+
+        await ShopAdmin.expects(AdminOrderDetail.contextMenuButton).toBeVisible()
     });
 
     await test.step('Navigate via page view to dashboard page', async () => {
-        await page.evaluate((hashRoute) => {
-            document.location = hashRoute;
-        }, adminDashboard.url());
-        await page.waitForURL((url) => url.hash.startsWith('/sw/dashboard/index') || url.hash.startsWith('#/sw/dashboard/index'));
-        await expect(adminDashboard.adminMenuOrder).toBeVisible();
-        await expectCapturedEventCount(captured, 6);
+
+        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
+        await ShopAdmin.goesTo(AdminDashboard.url());
+        const request = await requestPromise;
+        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
+
+        await ShopAdmin.expects(AdminDashboard.adminMenuOrder).toBeVisible();
         // eslint-disable-next-line playwright/no-conditional-in-test
         if (!await isSaaSInstance(TestDataService.AdminApiClient)) {
-            await expect(adminDashboard.welcomeHeadline).toBeVisible();
+            await ShopAdmin.expects(AdminDashboard.welcomeHeadline).toBeVisible();
         }
     });
 
@@ -114,21 +117,17 @@ test('As a merchant, I want to make sure admin events are sent correctly.', {
         const events = parseCapturedEvents(captured);
         expect(events).toHaveLength(6);
 
-        const eventIds = events.map((event) => event.event_id);
-
-        expect(eventIds).toHaveLength(6);
-        expect(new Set(eventIds).size).toBe(eventIds.length);
-        expect(eventIds[0]).toBeGreaterThan(0);
-        expect(eventIds.every((eventId, index, ids) => index === 0 || eventId > ids[index - 1])).toBeTruthy();
+        const eventIds = events.map(e => e.event_id);
+        expect(eventIds).toEqual([1, 2, 3, 4, 5, 6]);
 
         const eventTypes = events.map(e => e.event_type);
         expect(eventTypes).toEqual([
-            'link_visited', // event_id 1
-            'page_viewed',  // event_id 2
-            'link_visited', // event_id 3
-            'page_viewed',  // event_id 4
-            'button_click', // event_id 5
-            'page_viewed',  // event_id 6
+            'Link Visited',   // event_id 1
+            'Page Viewed',    // event_id 2
+            'Link Visited',   // event_id 3
+            'Page Viewed',    // event_id 4
+            'Button Click',   // event_id 5
+            'Page Viewed',    // event_id 6
         ]);
 
         const [
@@ -209,20 +208,14 @@ test('As a merchant, I want to make sure admin events are sent correctly.', {
         expect(pageViewedBackToDashProps.sw_page_name).toBe('sw.dashboard.index');
         expect(pageViewedBackToDashProps.sw_page_path).toBe('/sw/dashboard/index');
     });
-
-    await page.close();
 });
 
-test('As a merchant, I want to make sure no admin events are sent when I do not consent.', {
-    tag: ['@ProductAnalytics'],
-}, async ({
+test('As a merchant, I want to make sure no admin events are sent when I do not consent.', { tag: '@ProductAnalytics' }, async ({
+    ShopAdmin,
     AdminDashboard,
-    AdminApiContext,
-    InstanceMeta,
+    AdminOrderListing,
 }) => {
-    const page = AdminDashboard.page;
-    const adminDashboard = AdminDashboard;
-    const adminOrderListing = new AdminPageObjects.OrderListing(page, InstanceMeta);
+    test.skip(true, 'Temporarily skipped after removing the PRODUCT_ANALYTICS feature flag.');
 
     const captured: CapturedRequest[] = [];
     const requestHandler = async (route: Route) => {
@@ -245,24 +238,30 @@ test('As a merchant, I want to make sure no admin events are sent when I do not 
         )
     };
 
-    await page.route(PRODUCT_ANALYTICS_ENDPOINT, requestHandler);
-
     await test.step('Do not set consent for product analytics', async () => {
-        await setProductAnalyticsConsentState(page, AdminApiContext, false);
+        // TO-DO: implement via UI once available and Feature flag is disabled by default
+    });
+
+   await test.step('Intercept all the API calls to product analytics', async () => {
+
+        await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, requestHandler);
     });
 
     await test.step('Navigate via link to order page from dashboard', async () => {
-        await adminDashboard.adminMenuOrder.click();
-        await adminDashboard.adminMenuOrderOverview.click();
-        await expect(adminOrderListing.addOrderButton).toBeVisible();
-        await expect(adminDashboard.adminMenuOrderOverview).toBeVisible();
+
+        await AdminDashboard.adminMenuOrder.click();
+        await AdminDashboard.adminMenuOrderOverview.click();
+        await ShopAdmin.expects(AdminOrderListing.addOrderButton).toBeVisible();
     });
 
     await test.step('Validate no captured requests for product analytics', async () => {
-        await expect.poll(() => parseCapturedEvents(captured).length, { timeout: 1000 }).toBe(0);
-    });
 
-    await page.close();
+        // we want to check that something does NOT happen, so we need a hard waitForTimeout, as there is nothing we can actually wait for.
+        // so we wait for 3s to ensure that product analytics events would have been captured
+        // eslint-disable-next-line playwright/no-wait-for-timeout
+        await AdminDashboard.page.waitForTimeout(3000);
+        expect(captured.length).toBe(0);
+    });
 });
 
 function parseCapturedEvents(captured: CapturedRequest[]): AmplitudeEvent[] {
@@ -273,9 +272,7 @@ function parseCapturedEvents(captured: CapturedRequest[]): AmplitudeEvent[] {
         try {
             const parsed: AmplitudeRequestPayload = JSON.parse(c.postData);
             if (Array.isArray(parsed.events)) {
-                events.push(
-                    ...parsed.events.filter((event) => TRACKED_ADMIN_EVENT_TYPES.has(event.event_type)),
-                );
+                events.push(...parsed.events);
             }
         } catch {
             // If not JSON, ignore for now

@@ -59,42 +59,8 @@ jobs:
           shard-count: ${{ matrix.shard-count }}
           workers: 1
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
-          extra-options: ${{ matrix.name == 'Platform' && '--grep-invert=@ProductAnalyticsConsentModal' || matrix.name == 'Install' && '--trace=on' || '' }}
+          extra-options: ${{ matrix.name != 'Install' && '' || '--trace=on' }}
           use-currents: ${{ inputs.nightly == 'true' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}
-          currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID }}
-          currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
-          playwright-role-arn: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
-          playwright-traces-domain: ${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}
-          s3-bucket: shopware-ci-playwright-traces
-          report-prefix: playwright-reports
-
-  acceptance-product-analytics-consent-modal:
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: "consent-modal-viewed"
-            file: "tests/ProductAnalytics/ConsentModalViewedEvent.spec.ts"
-            grep: "@ProductAnalyticsConsentModalViewed"
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
-      - uses: ./.github/actions/ats
-        env:
-          PRODUCT_ANALYTICS_PREPARE_MODAL_STATE: 1
-        with:
-          project: "Platform"
-          php-version: "8.2"
-          shard: 1
-          shard-count: 1
-          workers: 1
-          install: true
-          extra-options: >-
-            --grep=${{ matrix.grep }}
-            -- ${{ matrix.file }}
-          artifact-prefix: "ats-product-analytics-consent-modal-${{ matrix.name }}"
-          use-currents: ${{ inputs.nightly == 'true' && github.event_name == 'schedule' && '' || '' }}
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
           playwright-role-arn: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
@@ -116,8 +82,6 @@ jobs:
         with:
           files: |
             tests/acceptance/tests/**/*.spec.ts
-          files_ignore: |
-            tests/acceptance/tests/ProductAnalytics/ConsentModalViewedEvent.spec.ts
 
       - name: Execute acceptance tests
         if: ${{ steps.changed-files.outputs.any_changed == 'true' }}
@@ -128,7 +92,6 @@ jobs:
           project: "Platform"
           install: true
           extra-options: >-
-            --grep-invert=@ProductAnalyticsConsentModal
             --repeat-each="10"
             -- ${{ format(' {0}', steps.changed-files.outputs.all_changed_files) }}
           artifact-prefix: "ats-changed"

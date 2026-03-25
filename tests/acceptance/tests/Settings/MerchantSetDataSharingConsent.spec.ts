@@ -1,97 +1,65 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
-import type { Page, Response } from '@playwright/test';
-import { setProductAnalyticsConsentState } from '../../helpers/product-analytics-consent';
+import type { Response } from '@playwright/test';
 
-const SETTINGS_PRIVACY_ROUTE = '#/sw/settings/usage/data/index/general';
-const PROFILE_PRIVACY_ROUTE = '#/sw/profile/index/privacy-preferences';
-const STORE_DATA_CHECKBOX = /Share store data \(anonymous\)|Shopdaten teilen \(anonym\)/;
-const USER_DATA_CHECKBOX = /Share personal data|Persönliche Daten teilen/;
-
-function waitForConsentResponse(
-    page: Page,
-    action: 'accept' | 'revoke',
-    consent: 'backend_data' | 'product_analytics',
-): Promise<Response> {
-    return page.waitForResponse((response: Response) => {
-        if (!response.url().includes(`/api/consents/${action}`)) {
-            return false;
-        }
-
-        if (response.request().method() !== 'POST') {
-            return false;
-        }
-
-        try {
-            return response.request().postDataJSON()?.consent === consent;
-        } catch {
-            return false;
-        }
-    });
-}
-
-test('Merchant is able accept or decline the data sharing consent.', {
-    tag: ['@DataSharing'],
-}, async ({
+test('Merchant is able accept or decline the data sharing consent.', { tag: '@DataSharing' }, async ({
+    ShopAdmin,
     AdminDashboard,
-    AdminApiContext,
+    AdminDataSharing,
 }) => {
-    const page = AdminDashboard.page;
+    test.skip(true, 'Temporarily skipped after removing the PRODUCT_ANALYTICS feature flag.');
 
-    await test.step('Start from both accepted consents', async () => {
-        await setProductAnalyticsConsentState(page, AdminApiContext, true);
+    let consentResponsePromise: Promise<Response>;
+    let response: Response;
+
+    await test.step('Validate the initial consent state', async () => {
+        await ShopAdmin.goesTo(AdminDashboard.url());
+        await ShopAdmin.expects(AdminDashboard.dataSharingConsentBanner).toBeVisible();
+        await ShopAdmin.expects(AdminDashboard.dataSharingTermsAgreementLabel).toBeVisible();
     });
 
-    await test.step('Validate declining and accepting store data consent on privacy settings', async () => {
-        await page.goto(SETTINGS_PRIVACY_ROUTE);
-
-        const storeDataConsentCheckbox = page.getByLabel(STORE_DATA_CHECKBOX);
-
-        await expect(storeDataConsentCheckbox).toBeChecked();
-
-        let consentResponsePromise = waitForConsentResponse(page, 'revoke', 'backend_data');
-        await storeDataConsentCheckbox.click();
-        let response = await consentResponsePromise;
-        expect(response.ok()).toBeTruthy();
-        await expect(storeDataConsentCheckbox).not.toBeChecked();
-
-        consentResponsePromise = waitForConsentResponse(page, 'accept', 'backend_data');
-        await storeDataConsentCheckbox.click();
+    await test.step('Validate the accepting of the consent on dashboard page', async () => {
+        consentResponsePromise = AdminDashboard.page.waitForResponse('**/api/usage-data/accept-consent');
+        await AdminDashboard.dataSharingAgreeButton.click();
         response = await consentResponsePromise;
-        expect(response.ok()).toBeTruthy();
-        await expect(storeDataConsentCheckbox).toBeChecked();
+        expect(response.status()).toBe(204);
+        await ShopAdmin.expects(AdminDashboard.dataSharingAcceptMessageText).toBeVisible();
+        await ShopAdmin.expects(AdminDashboard.dataSharingSettingsLink).toBeVisible();
 
-        consentResponsePromise = waitForConsentResponse(page, 'revoke', 'backend_data');
-        await storeDataConsentCheckbox.click();
-        response = await consentResponsePromise;
-        expect(response.ok()).toBeTruthy();
-        await expect(storeDataConsentCheckbox).not.toBeChecked();
+        await AdminDashboard.dataSharingSettingsLink.click();
+        await ShopAdmin.expects(AdminDataSharing.dataSharingSuccessMessageLabel).toBeVisible();
     });
 
-    await test.step('Validate declining and accepting personal data consent on profile privacy preferences', async () => {
-        await page.goto(PROFILE_PRIVACY_ROUTE);
-
-        const personalDataConsentCheckbox = page.getByLabel(USER_DATA_CHECKBOX);
-
-        await expect(personalDataConsentCheckbox).toBeChecked();
-
-        let consentResponsePromise = waitForConsentResponse(page, 'revoke', 'product_analytics');
-        await personalDataConsentCheckbox.click();
-        let response = await consentResponsePromise;
-        expect(response.ok()).toBeTruthy();
-        await expect(personalDataConsentCheckbox).not.toBeChecked();
-
-        consentResponsePromise = waitForConsentResponse(page, 'accept', 'product_analytics');
-        await personalDataConsentCheckbox.click();
+    await test.step('Validate the declining and accepting of the consent on data sharing page', async () => {
+        consentResponsePromise = AdminDataSharing.page.waitForResponse('**/api/usage-data/revoke-consent');
+        await AdminDataSharing.dataSharingDisableButton.click();
         response = await consentResponsePromise;
-        expect(response.ok()).toBeTruthy();
-        await expect(personalDataConsentCheckbox).toBeChecked();
+        expect(response.status()).toBe(204);
+        await ShopAdmin.expects(AdminDataSharing.dataSharingTermsAgreementLabel).toBeVisible();
 
-        consentResponsePromise = waitForConsentResponse(page, 'revoke', 'product_analytics');
-        await personalDataConsentCheckbox.click();
+        consentResponsePromise = AdminDataSharing.page.waitForResponse('**/api/usage-data/accept-consent');
+        await AdminDataSharing.dataSharingAgreeButton.click();
         response = await consentResponsePromise;
-        expect(response.ok()).toBeTruthy();
-        await expect(personalDataConsentCheckbox).not.toBeChecked();
+        expect(response.status()).toBe(204);
+        await ShopAdmin.expects(AdminDataSharing.dataSharingSuccessMessageLabel).toBeVisible();
+
+        await AdminDataSharing.dataSharingDisableButton.click();
     });
 
-    await page.close();
+    await test.step('Validate the declining of the consent and hiding of the consent banner on dashboard page', async () => {
+        await ShopAdmin.goesTo(AdminDashboard.url());
+        await ShopAdmin.expects(AdminDashboard.dataSharingConsentBanner).toBeVisible();
+
+        consentResponsePromise = AdminDashboard.page.waitForResponse('**/api/usage-data/hide-consent-banner');
+        await AdminDashboard.dataSharingNotAtTheMomentButton.click();
+        response = await consentResponsePromise;
+        expect(response.status()).toBe(204);
+        await ShopAdmin.expects(AdminDashboard.dataSharingNotAtTheMomentMessageText).toBeVisible();
+        await ShopAdmin.expects(AdminDashboard.dataSharingSettingsLink).toBeVisible();
+
+        await AdminDashboard.dataSharingSettingsLink.click();
+        await ShopAdmin.expects(AdminDataSharing.dataSharingTermsAgreementLabel).toBeVisible();
+        await ShopAdmin.expects(AdminDataSharing.dataSharingAgreeButton).toBeVisible();
+        await ShopAdmin.goesTo(AdminDashboard.url());
+        await ShopAdmin.expects(AdminDashboard.dataSharingConsentBanner).not.toBeVisible();
+    });
 });

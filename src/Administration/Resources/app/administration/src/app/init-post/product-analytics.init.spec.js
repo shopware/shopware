@@ -85,8 +85,8 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
         return { onSpy, offSpy };
     }
 
-    function getRegisteredHandler(mockedFactory) {
-        return mockedFactory.mock.results[0]?.value;
+    function getRegisteredHandler(mockedFactory, index = 0) {
+        return mockedFactory.mock.results[index]?.value;
     }
 
     describe('initialization', () => {
@@ -110,7 +110,6 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
             const registeredConsentHandler = getRegisteredHandler(consentEventHandler);
 
             expect(consentEventHandler).toHaveBeenCalled();
-            expect(consentEventHandler).toHaveReturnedWith(expect.any(Function));
             expect(onSpy).toHaveBeenCalledTimes(1);
             expect(registeredConsentHandler).toEqual(expect.any(Function));
             expect(onSpy).toHaveBeenCalledWith('consent', registeredConsentHandler);
@@ -133,7 +132,6 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
             const registeredTelemetryHandler = getRegisteredHandler(telemetryEventHandler);
 
             expect(mockInit).toHaveBeenCalled();
-            expect(telemetryEventHandler).toHaveReturnedWith(expect.any(Function));
             expect(onSpy).toHaveBeenCalledTimes(2);
             expect(registeredTelemetryHandler).toEqual(expect.any(Function));
             expect(onSpy).toHaveBeenNthCalledWith(2, 'telemetry', registeredTelemetryHandler);

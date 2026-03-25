@@ -283,23 +283,6 @@ class TranslatorTest extends TestCase
         ];
     }
 
-    public static function provideTracingExamples(): \Generator
-    {
-        yield 'disabled' => [
-            false,
-            [
-                'shopware.translator',
-            ],
-        ];
-
-        yield 'enabled' => [
-            true,
-            [
-                'translator.foo',
-            ],
-        ];
-    }
-
     private static function createRequest(?string $salesChannelId, ?string $snippetSetId): Request
     {
         return new Request(

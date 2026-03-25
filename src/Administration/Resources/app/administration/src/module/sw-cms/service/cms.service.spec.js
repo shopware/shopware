@@ -615,6 +615,14 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                         customFieldType: 'datetime',
                     },
                 },
+                {
+                    id: '16a2beeb80f041c29390efa3432760dd',
+                    name: 'custom_media_field',
+                    type: 'text',
+                    config: {
+                        customFieldType: 'media',
+                    },
+                },
             ];
 
             const mockResponses = global.repositoryFactoryMock.responses;
@@ -817,6 +825,9 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             await cmsService.addCustomFieldsToMappingTypes('product', mappings);
 
             expect(mappings).toEqual({
+                entity: {
+                    media: ['product.customFields.custom_media_field'],
+                },
                 string: [
                     'product.customFields.custom_text_field',
                     'product.customFields.custom_textarea_field',

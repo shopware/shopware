@@ -7,6 +7,7 @@ import ComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { hasBlockEntries, resetBlockIndex } from 'src/core/factory/twig-block-index';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
+import { _overridesMap } from 'src/app/adapter/composition-extension-system';
 
 function createComponentMatrix(components) {
     const possibilities = [
@@ -108,6 +109,11 @@ describe('core/factory/async-component.factory.ts', () => {
         TemplateFactory.getNormalizedTemplateRegistry().clear();
         TemplateFactory.disableTwigCache();
         ComponentFactory.markComponentTemplatesAsNotResolved();
+
+        const entries = [...Object.keys(_overridesMap)];
+        entries.forEach((key) => {
+            delete _overridesMap[key];
+        });
         resetBlockIndex();
     });
 

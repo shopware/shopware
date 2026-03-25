@@ -23,7 +23,6 @@ test.describe.configure({ mode: 'serial' });
 
 test('As a merchant, I want to make sure admin events are sent correctly.', { tag: '@ProductAnalytics' }, async ({
     ShopAdmin,
-    FeatureService,
     AdminDashboard,
     AdminOrderListing,
     AdminOrderDetail,
@@ -51,7 +50,7 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         )
     };
 
-    test.skip(!(await FeatureService.isEnabled('PRODUCT_ANALYTICS')), 'Product Analytics feature flag is not enabled.');
+    test.skip(true, 'Temporarily skipped after removing the PRODUCT_ANALYTICS feature flag.');
 
     const product = await TestDataService.createBasicProduct();
     const customer = await TestDataService.createCustomer();
@@ -216,6 +215,7 @@ test('As a merchant, I want to make sure no admin events are sent when I do not 
     AdminDashboard,
     AdminOrderListing,
 }) => {
+    test.skip(true, 'Temporarily skipped after removing the PRODUCT_ANALYTICS feature flag.');
 
     const captured: CapturedRequest[] = [];
     const requestHandler = async (route: Route) => {

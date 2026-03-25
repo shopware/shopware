@@ -23,8 +23,13 @@ interface OrderDownloadDocument {
 
 interface OrderDeleteDocument {
     isChanged: boolean;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any[];
+    value: Array<{
+        id: string;
+        name: string;
+        technicalName: string;
+        translated?: { name?: string; customFields?: unknown };
+        selected: boolean;
+    }>;
 }
 
 interface SwBulkState {

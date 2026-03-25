@@ -35,7 +35,7 @@ class FinishControllerTest extends TestCase
             ->setConstructorArgs([
                 $this->systemLocker,
                 new Client(),
-                'https://example.com',
+                'https://www.shopware.com',
                 'admin',
             ])
             ->onlyMethods(['renderInstaller'])
@@ -81,7 +81,7 @@ class FinishControllerTest extends TestCase
         $response = $this->createController($client)->finish($request);
 
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertSame('https://example.com/admin', $response->headers->get('Location'));
+        static::assertSame('https://www.shopware.com/admin', $response->headers->get('Location'));
 
         $cookies = $response->headers->getCookies();
         static::assertCount(1, $cookies);
@@ -149,7 +149,7 @@ class FinishControllerTest extends TestCase
 
     private function createController(
         Client $client,
-        string $appUrl = 'https://example.com',
+        string $appUrl = 'https://www.shopware.com',
         string $adminPathName = 'admin'
     ): FinishController {
         return new FinishController(

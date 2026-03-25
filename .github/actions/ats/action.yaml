@@ -190,6 +190,7 @@ runs:
               docker run --rm \
                --init \
                --ipc=host \
+               -e APP_URL=http://localhost:8000 \
                -e CURRENTS_PROJECT_ID \
                -e CURRENTS_RECORD_KEY \
                -e CURRENTS_BUILD_ID \

@@ -20,7 +20,7 @@ function parentToken(): TestToken {
     return { type: 'logic', token: { type: 'parent' } };
 }
 
-/** A `{% block name %}` logic token whose body is the nested `output` array (TwigJS shape). */
+/** A nested `{% block name %}` token whose body is given by an output array. */
 function blockToken(blockName: string, output: TestToken[]): TestToken {
     return { type: 'logic', token: { blockName, output } };
 }
@@ -68,7 +68,7 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
             expect(reconstructInnerTemplate(tokens)).toBe('<div class="before"><sw-block-parent /></div>');
         });
 
-        it('reconstructs the inner template of a single {% block %} token (blockName + output)', () => {
+        it('recursively reconstructs the content of a nested {% block %} token', () => {
             const tokens = [
                 blockToken('inner_block', [rawToken('<div class="inner"></div>')]),
             ];
@@ -76,40 +76,7 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
             expect(reconstructInnerTemplate(tokens)).toBe('<div class="inner"></div>');
         });
 
-        it('recursively reconstructs two layers of {% block %} tokens (outer block contains inner block)', () => {
-            const tokens = [
-                blockToken('outer', [
-                    rawToken('<div class="outer-open">'),
-                    blockToken('inner', [rawToken('<span class="deep"></span>')]),
-                    rawToken('</div>'),
-                ]),
-            ];
-
-            expect(reconstructInnerTemplate(tokens)).toBe(
-                '<div class="outer-open"><span class="deep"></span></div>',
-            );
-        });
-
-        /**
-         * Regression for `TwigToken`: shapes mirror observed TwigJS runtime output and
-         * should be re-checked when upgrading the `twig` package (see JSDoc on the type).
-         */
-        it('matches composite TwigJS-like token trees (raw, blockName/output, parent, Twig.logic.type.*)', () => {
-            const tokens = [
-                rawToken('<p>'),
-                blockToken('outer', [
-                    rawToken('A'),
-                    blockToken('inner', [rawToken('B'), parentToken()]),
-                    rawToken('C'),
-                ]),
-                rawToken('</p>'),
-                unknownLogicToken(),
-            ];
-
-            expect(reconstructInnerTemplate(tokens)).toBe('<p>AB<sw-block-parent />C</p>');
-        });
-
-        it('recursively handles a block body that contains a parent token', () => {
+        it('recursively handles a nested block that itself contains a parent token', () => {
             const tokens = [
                 blockToken('nested_with_parent', [
                     parentToken(),

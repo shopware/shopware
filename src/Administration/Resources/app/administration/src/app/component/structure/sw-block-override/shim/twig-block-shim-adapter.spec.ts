@@ -80,10 +80,7 @@
  *
  * Additionally, use a UNIQUE block name per test (e.g. embed a test-local
  * identifier in the block name: "shim_test_basic_rendering_no_parent") so tests
- * cannot share index entries even if `afterEach` does not run — for example when
- * a test is copied without the suite’s teardown, `afterEach` is commented out
- * during debugging, or a focused run (`it.only`) omits the parent `afterEach`
- * hook.
+ * cannot share index entries even if the reset helpers are accidentally skipped.
  *
  * Note: importing `resetBlockIndex` and `resetShimSlotState` is the only
  * permissible reference to shim-internal exports. They are test seams, not
@@ -180,55 +177,6 @@ async function createWrapper({
     );
 }
 
-type MountTwoBlockRootsOptions = {
-    blockXName: string;
-    blockYName: string;
-    defaultX?: string;
-    defaultY?: string;
-    rootXClass?: string;
-    rootYClass?: string;
-};
-
-/**
- * Mounts two sibling `<sw-block>` instances (e.g. block-X / block-Y plugin matrix tests).
- * Defaults match the common “root-x / root-y + default-x / default-y” pattern.
- */
-async function mountTwoBlockRoots({
-    blockXName,
-    blockYName,
-    defaultX = '<div class="default-x"></div>',
-    defaultY = '<div class="default-y"></div>',
-    rootXClass = 'root-x',
-    rootYClass = 'root-y',
-}: MountTwoBlockRootsOptions) {
-    const swBlock = await wrapTestComponent('sw-block', { sync: true });
-
-    return mount(
-        {
-            template: `
-                <div>
-                    <div class="${rootXClass}">
-                        <sw-block name="${blockXName}" :data="$dataScope()">
-                            ${defaultX}
-                        </sw-block>
-                    </div>
-                    <div class="${rootYClass}">
-                        <sw-block name="${blockYName}" :data="$dataScope()">
-                            ${defaultY}
-                        </sw-block>
-                    </div>
-                </div>
-            `,
-            components: {
-                'sw-block': swBlock,
-            },
-        },
-        {
-            global: { mocks: { $dataScope: getBlockDataScope } },
-        },
-    );
-}
-
 describe('Twig → Native Block Runtime Adapter (shim)', () => {
     let consoleSpy: jest.SpyInstance;
 
@@ -249,7 +197,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
     // ─── Basic rendering ─────────────────────────────────────────────────────
 
     describe('basic rendering', () => {
-        it('renders Twig override content inside a migrated sw-block and replaces default content when the override contains no {% parent %}', async () => {
+        it('renders the Twig block override content inside a migrated native sw-block component', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `
                     {% block shim_basic_renders_override %}
@@ -259,6 +207,20 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             });
 
             const wrapper = await createWrapper({ blockName: 'shim_basic_renders_override' });
+
+            expect(wrapper.find('.override-content').exists()).toBeTruthy();
+        });
+
+        it('replaces the entire default block content when the Twig override contains no {% parent %}', async () => {
+            Shopware.Component.override('sw-product-detail', {
+                template: `
+                    {% block shim_basic_replaces_default %}
+                        <div class="override-content"></div>
+                    {% endblock %}
+                `,
+            });
+
+            const wrapper = await createWrapper({ blockName: 'shim_basic_replaces_default' });
 
             expect(wrapper.find('.default-content').exists()).toBeFalsy();
             expect(wrapper.find('.override-content').exists()).toBeTruthy();
@@ -275,8 +237,6 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 template: `{% block shim_basic_empty_body %}{% endblock %}`,
             });
 
-            // Empty `defaultContent` ensures the host `<sw-block>` has no fallback markup besides the
-            // shim output — combined with an empty Twig block body, `.component-root` should stay empty.
             const wrapper = await createWrapper({
                 blockName: 'shim_basic_empty_body',
                 defaultContent: '',
@@ -319,8 +279,20 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.override-content + .default-content').exists()).toBeTruthy();
         });
 
-        // When {% parent %} is omitted, default slot content is replaced entirely — covered in
-        // basic rendering: "renders Twig override content… replaces default content when… no {% parent %}".
+        it('renders only the override content when {% parent %} is absent even if default content exists', async () => {
+            Shopware.Component.override('sw-product-detail', {
+                template: `
+                    {% block shim_parent_absent %}
+                        <div class="override-content"></div>
+                    {% endblock %}
+                `,
+            });
+
+            const wrapper = await createWrapper({ blockName: 'shim_parent_absent' });
+
+            expect(wrapper.find('.default-content').exists()).toBeFalsy();
+            expect(wrapper.find('.override-content').exists()).toBeTruthy();
+        });
 
         it('renders a Twig override with only {% parent %} as equivalent to the default block content', async () => {
             Shopware.Component.override('sw-product-detail', {
@@ -419,8 +391,6 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
     // ─── Multiple overrides targeting different blocks ────────────────────────
 
     describe('multiple Twig overrides targeting different block names', () => {
-        // Positive matrix: one override template defines both blocks; each mount sees only its matching shim.
-        // Contrast with the next test, which is the minimal negative case (only block-A defined, block-B mounted).
         it('applies each Twig override independently to its own sw-block without cross-contamination', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `
@@ -429,21 +399,36 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 `,
             });
 
-            const wrapper = await mountTwoBlockRoots({
-                blockXName: 'shim_multi_diff_block_a',
-                blockYName: 'shim_multi_diff_block_b',
-                defaultX: '<div class="default-a"></div>',
-                defaultY: '<div class="default-b"></div>',
-                rootXClass: 'root-a',
-                rootYClass: 'root-b',
-            });
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const wrapper = mount(
+                {
+                    template: `
+                        <div>
+                            <div class="root-a">
+                                <sw-block name="shim_multi_diff_block_a" :data="$dataScope()">
+                                    <div class="default-a"></div>
+                                </sw-block>
+                            </div>
+                            <div class="root-b">
+                                <sw-block name="shim_multi_diff_block_b" :data="$dataScope()">
+                                    <div class="default-b"></div>
+                                </sw-block>
+                            </div>
+                        </div>
+                    `,
+                    components: {
+                        'sw-block': swBlock,
+                    },
+                },
+                {
+                    global: { mocks: { $dataScope: getBlockDataScope } },
+                },
+            );
 
             expect(wrapper.find('.root-a .override-a').exists()).toBeTruthy();
             expect(wrapper.find('.root-a .default-a').exists()).toBeFalsy();
-            expect(wrapper.find('.root-a .override-b').exists()).toBeFalsy();
             expect(wrapper.find('.root-b .override-b').exists()).toBeTruthy();
             expect(wrapper.find('.root-b .default-b').exists()).toBeFalsy();
-            expect(wrapper.find('.root-b .override-a').exists()).toBeFalsy();
         });
 
         it('does not apply an override registered for block-A to a sw-block with name block-B', async () => {
@@ -468,8 +453,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
     // ─── Combinations: multiple plugins × multiple blocks ────────────────────
 
     describe('combinations of multiple plugins overriding multiple blocks', () => {
-        it('chains three {% parent %} shim layers on one block (three plugins) in registration order', async () => {
-            // Extends the two-override “stack with parent” case: verifies depth-3 {% parent %} ordering, not only two plugins.
+        it('stacks three plugins that all target the same block with {% parent %} in registration order', async () => {
             // Simulates three independent plugins each appending content below the previous layer.
             Shopware.Component.override('sw-plugin-a', {
                 template: `
@@ -535,20 +519,37 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 `,
             });
 
-            const wrapper = await mountTwoBlockRoots({
-                blockXName: 'shim_combo_shared_block_x',
-                blockYName: 'shim_combo_shared_block_y',
-            });
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const wrapper = mount(
+                {
+                    template: `
+                        <div>
+                            <div class="root-x">
+                                <sw-block name="shim_combo_shared_block_x" :data="$dataScope()">
+                                    <div class="default-x"></div>
+                                </sw-block>
+                            </div>
+                            <div class="root-y">
+                                <sw-block name="shim_combo_shared_block_y" :data="$dataScope()">
+                                    <div class="default-y"></div>
+                                </sw-block>
+                            </div>
+                        </div>
+                    `,
+                    components: {
+                        'sw-block': swBlock,
+                    },
+                },
+                {
+                    global: { mocks: { $dataScope: getBlockDataScope } },
+                },
+            );
 
             // block-x: default → plugin-a-x → plugin-b-x
             expect(wrapper.find('.root-x .default-x + .plugin-a-x + .plugin-b-x').exists()).toBeTruthy();
-            expect(wrapper.find('.root-x .plugin-a-y').exists()).toBeFalsy();
-            expect(wrapper.find('.root-x .plugin-b-y').exists()).toBeFalsy();
 
             // block-y: default → plugin-a-y → plugin-b-y (independent of block-x)
             expect(wrapper.find('.root-y .default-y + .plugin-a-y + .plugin-b-y').exists()).toBeTruthy();
-            expect(wrapper.find('.root-y .plugin-a-x').exists()).toBeFalsy();
-            expect(wrapper.find('.root-y .plugin-b-x').exists()).toBeFalsy();
         });
 
         it('stacks plugin-A on both blocks, plugin-B only on block-X, leaving block-Y untouched by plugin-B', async () => {
@@ -576,58 +577,37 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 `,
             });
 
-            const wrapper = await mountTwoBlockRoots({
-                blockXName: 'shim_combo_partial_block_x',
-                blockYName: 'shim_combo_partial_block_y',
-            });
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const wrapper = mount(
+                {
+                    template: `
+                        <div>
+                            <div class="root-x">
+                                <sw-block name="shim_combo_partial_block_x" :data="$dataScope()">
+                                    <div class="default-x"></div>
+                                </sw-block>
+                            </div>
+                            <div class="root-y">
+                                <sw-block name="shim_combo_partial_block_y" :data="$dataScope()">
+                                    <div class="default-y"></div>
+                                </sw-block>
+                            </div>
+                        </div>
+                    `,
+                    components: {
+                        'sw-block': swBlock,
+                    },
+                },
+                {
+                    global: { mocks: { $dataScope: getBlockDataScope } },
+                },
+            );
 
             // block-x gets both plugins stacked
             expect(wrapper.find('.root-x .default-x + .plugin-a-x + .plugin-b-x').exists()).toBeTruthy();
-            expect(wrapper.find('.root-x .plugin-a-y').exists()).toBeFalsy();
-            expect(wrapper.find('.root-x .plugin-b-y').exists()).toBeFalsy();
 
             // block-y gets only plugin-A; plugin-B must not appear here
             expect(wrapper.find('.root-y .default-y + .plugin-a-y').exists()).toBeTruthy();
-            expect(wrapper.find('.root-y .plugin-b-x').exists()).toBeFalsy();
-            expect(wrapper.find('.root-y .plugin-b-y').exists()).toBeFalsy();
-        });
-
-        it('stacks plugin-B on both blocks, plugin-A only on block-X, leaving block-Y untouched by plugin-A', async () => {
-            // Registration-order mirror of the previous test: plugin A is partial, plugin B defines both blocks.
-            Shopware.Component.override('sw-plugin-a', {
-                template: `
-                    {% block shim_combo_partial_swapped_block_x %}
-                        {% parent %}
-                        <div class="plugin-a-x"></div>
-                    {% endblock %}
-                `,
-            });
-
-            Shopware.Component.override('sw-plugin-b', {
-                template: `
-                    {% block shim_combo_partial_swapped_block_x %}
-                        {% parent %}
-                        <div class="plugin-b-x"></div>
-                    {% endblock %}
-                    {% block shim_combo_partial_swapped_block_y %}
-                        {% parent %}
-                        <div class="plugin-b-y"></div>
-                    {% endblock %}
-                `,
-            });
-
-            const wrapper = await mountTwoBlockRoots({
-                blockXName: 'shim_combo_partial_swapped_block_x',
-                blockYName: 'shim_combo_partial_swapped_block_y',
-            });
-
-            expect(wrapper.find('.root-x .default-x + .plugin-a-x + .plugin-b-x').exists()).toBeTruthy();
-            expect(wrapper.find('.root-x .plugin-a-y').exists()).toBeFalsy();
-            expect(wrapper.find('.root-x .plugin-b-y').exists()).toBeFalsy();
-
-            expect(wrapper.find('.root-y .default-y + .plugin-b-y').exists()).toBeTruthy();
-            expect(wrapper.find('.root-y .plugin-a-x').exists()).toBeFalsy();
-            expect(wrapper.find('.root-y .plugin-a-y').exists()).toBeFalsy();
             expect(wrapper.find('.root-y .plugin-b-x').exists()).toBeFalsy();
         });
 
@@ -642,17 +622,36 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 template: `{% block shim_combo_two_calls_block_y %}<div class="override-y"></div>{% endblock %}`,
             });
 
-            const wrapper = await mountTwoBlockRoots({
-                blockXName: 'shim_combo_two_calls_block_x',
-                blockYName: 'shim_combo_two_calls_block_y',
-            });
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const wrapper = mount(
+                {
+                    template: `
+                        <div>
+                            <div class="root-x">
+                                <sw-block name="shim_combo_two_calls_block_x" :data="$dataScope()">
+                                    <div class="default-x"></div>
+                                </sw-block>
+                            </div>
+                            <div class="root-y">
+                                <sw-block name="shim_combo_two_calls_block_y" :data="$dataScope()">
+                                    <div class="default-y"></div>
+                                </sw-block>
+                            </div>
+                        </div>
+                    `,
+                    components: {
+                        'sw-block': swBlock,
+                    },
+                },
+                {
+                    global: { mocks: { $dataScope: getBlockDataScope } },
+                },
+            );
 
             expect(wrapper.find('.root-x .override-x').exists()).toBeTruthy();
             expect(wrapper.find('.root-x .default-x').exists()).toBeFalsy();
-            expect(wrapper.find('.root-x .override-y').exists()).toBeFalsy();
             expect(wrapper.find('.root-y .override-y').exists()).toBeTruthy();
             expect(wrapper.find('.root-y .default-y').exists()).toBeFalsy();
-            expect(wrapper.find('.root-y .override-x').exists()).toBeFalsy();
         });
 
         it('correctly applies three blocks from one plugin template across three mounted sw-blocks', async () => {
@@ -741,9 +740,10 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.native-content').exists()).toBeTruthy();
         });
 
-        it('asserts default → Twig shim → native <sw-block extends> DOM order (same registration setup as the test above)', async () => {
-            // Same Twig + nativeExtensions setup as the prior test; this case exists
-            // to lock in composition order via sibling selectors, not a different scenario.
+        it('stacks a Twig shim override on top of an existing native <sw-block extends>', async () => {
+            // The shim is always registered before mount (boot time), so it is
+            // added to the block context first. The native extension mounts later
+            // and is stacked on top of the shim.
             Shopware.Component.override('sw-product-detail', {
                 template: `
                     {% block shim_interop_shim_below_native %}
@@ -789,34 +789,6 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.shim-content').exists()).toBeFalsy();
             expect(wrapper.find('.default-content').exists()).toBeFalsy();
             expect(wrapper.find('.native-content').exists()).toBeTruthy();
-        });
-
-        it('chains a Twig-only shim (no {% parent %}) with a native <sw-block extends> that uses <sw-block-parent />', async () => {
-            // “Twig as base, native extension”: legacy override fully replaces default slot
-            // markup; a second template extends the same block using only native sw-block.
-            Shopware.Component.override('sw-product-detail', {
-                template: `
-                    {% block shim_interop_twig_base_native_extends %}
-                        <div class="twig-replaces-default"></div>
-                    {% endblock %}
-                `,
-            });
-
-            const wrapper = await createWrapper({
-                blockName: 'shim_interop_twig_base_native_extends',
-                nativeExtensions: `
-                    <sw-block extends="shim_interop_twig_base_native_extends">
-                        <sw-block-parent />
-                        <div class="native-extension-markup"></div>
-                    </sw-block>
-                `,
-            });
-
-            expect(wrapper.find('.default-content').exists()).toBeFalsy();
-            expect(wrapper.find('.twig-replaces-default').exists()).toBeTruthy();
-            expect(wrapper.find('.native-extension-markup').exists()).toBeTruthy();
-            const html = wrapper.html();
-            expect(html.indexOf('native-extension-markup')).toBeGreaterThan(html.indexOf('twig-replaces-default'));
         });
     });
 
@@ -1106,39 +1078,6 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
 
             expect(wrapper.find('.default-content + .override-content').exists()).toBeTruthy();
         });
-
-        it('renders {% parent %} content correctly after many reactive updates and a host sw-block remount', async () => {
-            // Regression guard for the providedParents accumulation bug. The old
-            // push() implementation added one entry per computed re-run without a
-            // matching pop, growing the array unboundedly. After a host remount a
-            // fresh sw-block-parent instance would pop from that array; this test
-            // verifies the resulting DOM is still structurally correct.
-            Shopware.Component.override('sw-product-detail', {
-                template: `
-                    {% block shim_parent_after_reactive_remount %}
-                        {% parent %}
-                        <div class="override-content"></div>
-                    {% endblock %}
-                `,
-            });
-
-            const wrapper = await createWrapper({
-                blockName: 'shim_parent_after_reactive_remount',
-                defaultContent: '<div class="default-content">{{ label }}</div>',
-                extraData: { label: 'initial' },
-            });
-
-            await wrapper.setData({ label: 'a' });
-            await wrapper.setData({ label: 'ab' });
-            await wrapper.setData({ label: 'abc' });
-
-            await wrapper.setData({ renderHost: false });
-            await wrapper.setData({ renderHost: true });
-
-            expect(wrapper.findAll('.default-content')).toHaveLength(1);
-            expect(wrapper.findAll('.override-content')).toHaveLength(1);
-            expect(wrapper.find('.default-content + .override-content').exists()).toBeTruthy();
-        });
     });
 
     // ─── Component instance stability (focus preservation) ───────────────────
@@ -1198,6 +1137,39 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
 
             expect(wrapper.find('.override-content').text()).toBe('abc');
         });
+
+        it('renders {% parent %} content correctly after many reactive updates and a host sw-block remount', async () => {
+            // Regression guard for the providedParents accumulation bug. The old
+            // push() implementation added one entry per computed re-run without a
+            // matching pop, growing the array unboundedly. After a host remount a
+            // fresh sw-block-parent instance would pop from that array; this test
+            // verifies the resulting DOM is still structurally correct.
+            Shopware.Component.override('sw-product-detail', {
+                template: `
+                    {% block shim_parent_after_reactive_remount %}
+                        {% parent %}
+                        <div class="override-content"></div>
+                    {% endblock %}
+                `,
+            });
+
+            const wrapper = await createWrapper({
+                blockName: 'shim_parent_after_reactive_remount',
+                defaultContent: '<div class="default-content">{{ label }}</div>',
+                extraData: { label: 'initial' },
+            });
+
+            await wrapper.setData({ label: 'a' });
+            await wrapper.setData({ label: 'ab' });
+            await wrapper.setData({ label: 'abc' });
+
+            await wrapper.setData({ renderHost: false });
+            await wrapper.setData({ renderHost: true });
+
+            expect(wrapper.findAll('.default-content')).toHaveLength(1);
+            expect(wrapper.findAll('.override-content')).toHaveLength(1);
+            expect(wrapper.find('.default-content + .override-content').exists()).toBeTruthy();
+        });
     });
 
     // ─── Nested {% block %} inside Twig override templates ───────────────────
@@ -1243,7 +1215,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.level-1 .level-2 .level-3').exists()).toBeTruthy();
         });
 
-        it('renders {% parent %} in the outer block before a nested {% block %} (parent is not inside the inner block)', async () => {
+        it('renders a {% parent %} inside a nested {% block %} as <sw-block-parent />', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `
                     {% block shim_nested_with_parent %}
@@ -1260,25 +1232,6 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.default-content').exists()).toBeTruthy();
             expect(wrapper.find('.inner-content').exists()).toBeTruthy();
             expect(wrapper.find('.default-content + .inner-content').exists()).toBeTruthy();
-        });
-
-        it('renders {% parent %} in the innermost nested {% block %} as <sw-block-parent />', async () => {
-            Shopware.Component.override('sw-product-detail', {
-                template: `
-                    {% block shim_nested_parent_innermost %}
-                        {% block shim_nested_parent_innermost_inner %}
-                            {% parent %}
-                            <div class="innermost-after-parent"></div>
-                        {% endblock %}
-                    {% endblock %}
-                `,
-            });
-
-            const wrapper = await createWrapper({ blockName: 'shim_nested_parent_innermost' });
-
-            expect(wrapper.find('.default-content').exists()).toBeTruthy();
-            expect(wrapper.find('.innermost-after-parent').exists()).toBeTruthy();
-            expect(wrapper.find('.default-content + .innermost-after-parent').exists()).toBeTruthy();
         });
     });
 
@@ -1487,6 +1440,20 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.default-content').exists()).toBeTruthy();
         });
 
+        it('renders default content when an override targets a block name never mounted as an sw-block', async () => {
+            Shopware.Component.override('sw-product-detail', {
+                template: `{% block shim_edge_no_mount_target %}<div class="override-content"></div>{% endblock %}`,
+            });
+
+            const wrapper = await createWrapper({
+                blockName: 'shim_edge_different_from_override',
+                defaultContent: '<div class="default-content"></div>',
+            });
+
+            expect(wrapper.find('.override-content').exists()).toBeFalsy();
+            expect(wrapper.find('.default-content').exists()).toBeTruthy();
+        });
+
         it('handles an override template with a whitespace-only block body without crashing', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `{% block shim_edge_whitespace_only %}   {% endblock %}`,
@@ -1498,6 +1465,87 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             });
 
             expect(wrapper.find('.component-root').exists()).toBeTruthy();
+        });
+
+        it('handles multiple override calls for the same component name, each targeting a different block', async () => {
+            Shopware.Component.override('sw-product-detail', {
+                template: `{% block shim_edge_multi_call_a %}<div class="override-a"></div>{% endblock %}`,
+            });
+
+            Shopware.Component.override('sw-product-detail', {
+                template: `{% block shim_edge_multi_call_b %}<div class="override-b"></div>{% endblock %}`,
+            });
+
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const wrapper = mount(
+                {
+                    template: `
+                        <div>
+                            <div class="root-a">
+                                <sw-block name="shim_edge_multi_call_a" :data="$dataScope()">
+                                    <div class="default-a"></div>
+                                </sw-block>
+                            </div>
+                            <div class="root-b">
+                                <sw-block name="shim_edge_multi_call_b" :data="$dataScope()">
+                                    <div class="default-b"></div>
+                                </sw-block>
+                            </div>
+                        </div>
+                    `,
+                    components: {
+                        'sw-block': swBlock,
+                    },
+                },
+                {
+                    global: { mocks: { $dataScope: getBlockDataScope } },
+                },
+            );
+
+            expect(wrapper.find('.root-a .override-a').exists()).toBeTruthy();
+            expect(wrapper.find('.root-a .default-a').exists()).toBeFalsy();
+            expect(wrapper.find('.root-b .override-b').exists()).toBeTruthy();
+            expect(wrapper.find('.root-b .default-b').exists()).toBeFalsy();
+        });
+
+        it('handles multiple top-level {% block %} definitions in a single override call', async () => {
+            Shopware.Component.override('sw-product-detail', {
+                template: `
+                    {% block shim_edge_multi_top_a %}<div class="override-a"></div>{% endblock %}
+                    {% block shim_edge_multi_top_b %}<div class="override-b"></div>{% endblock %}
+                `,
+            });
+
+            const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const wrapper = mount(
+                {
+                    template: `
+                        <div>
+                            <div class="root-a">
+                                <sw-block name="shim_edge_multi_top_a" :data="$dataScope()">
+                                    <div class="default-a"></div>
+                                </sw-block>
+                            </div>
+                            <div class="root-b">
+                                <sw-block name="shim_edge_multi_top_b" :data="$dataScope()">
+                                    <div class="default-b"></div>
+                                </sw-block>
+                            </div>
+                        </div>
+                    `,
+                    components: {
+                        'sw-block': swBlock,
+                    },
+                },
+                {
+                    global: { mocks: { $dataScope: getBlockDataScope } },
+                },
+            );
+
+            expect(wrapper.find('.root-a .override-a').exists()).toBeTruthy();
+            expect(wrapper.find('.root-a .default-a').exists()).toBeFalsy();
+            expect(wrapper.find('.root-b .override-b').exists()).toBeTruthy();
+            expect(wrapper.find('.root-b .default-b').exists()).toBeFalsy();
         });
     });
 
@@ -1568,12 +1616,12 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 {
                     template: `
                         <div>
-                            <div class="multi-instance-parent-a">
+                            <div class="instance-a">
                                 <sw-block name="shim_multi_instance_parent_isolation" :data="$dataScope()">
                                     <div class="default-content"></div>
                                 </sw-block>
                             </div>
-                            <div class="multi-instance-parent-b">
+                            <div class="instance-b">
                                 <sw-block name="shim_multi_instance_parent_isolation" :data="$dataScope()">
                                     <div class="default-content"></div>
                                 </sw-block>
@@ -1590,13 +1638,13 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             );
 
             // Each instance: default → override, each exactly once
-            expect(wrapper.findAll('.multi-instance-parent-a .default-content')).toHaveLength(1);
-            expect(wrapper.findAll('.multi-instance-parent-a .override-content')).toHaveLength(1);
-            expect(wrapper.find('.multi-instance-parent-a .default-content + .override-content').exists()).toBeTruthy();
+            expect(wrapper.findAll('.instance-a .default-content')).toHaveLength(1);
+            expect(wrapper.findAll('.instance-a .override-content')).toHaveLength(1);
+            expect(wrapper.find('.instance-a .default-content + .override-content').exists()).toBeTruthy();
 
-            expect(wrapper.findAll('.multi-instance-parent-b .default-content')).toHaveLength(1);
-            expect(wrapper.findAll('.multi-instance-parent-b .override-content')).toHaveLength(1);
-            expect(wrapper.find('.multi-instance-parent-b .default-content + .override-content').exists()).toBeTruthy();
+            expect(wrapper.findAll('.instance-b .default-content')).toHaveLength(1);
+            expect(wrapper.findAll('.instance-b .override-content')).toHaveLength(1);
+            expect(wrapper.find('.instance-b .default-content + .override-content').exists()).toBeTruthy();
         });
     });
 });

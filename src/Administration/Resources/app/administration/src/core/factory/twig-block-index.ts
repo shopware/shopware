@@ -69,9 +69,9 @@ export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: 
 
         const innerTemplate = reconstructInnerTemplate(output);
 
-        const entries = getBlockEntries(blockName);
-        entries.push({ componentName, innerTemplate });
-        blockIndex.set(blockName, entries);
+        const existing = blockIndex.get(blockName) ?? [];
+        existing.push({ componentName, innerTemplate });
+        blockIndex.set(blockName, existing);
     });
 }
 

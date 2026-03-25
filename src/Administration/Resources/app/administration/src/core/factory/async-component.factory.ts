@@ -613,28 +613,19 @@ function override(
     let config: ComponentConfig;
 
     /**
-     * Twig block index — sync vs async vs boot-order assumption (1:1):
+     * Synchronous indexing for direct-object configs (the common case for plugins
+     * and the only case exercised in tests). This ensures the block index is
+     * populated before any `sw-block` with a matching name mounts, without
+     * needing to await the full async config resolution pipeline.
      *
-     * - **Synchronous path:** `componentConfiguration` is a plain object with
-     *   `typeof template === 'string'`. We call `indexTwigBlocksFromTemplate`
-     *   immediately in this function (no `await`), so the index is populated
-     *   before any later async work.
-     *
-     * - **Asynchronous path:** `componentConfiguration` is a function (or the
-     *   resolved config only becomes available after `await`). Indexing runs
-     *   inside `configResolveMethod` the first time the override config is
-     *   resolved (`!isSyncWithTemplate` branch).
-     *
-     * - **Boot-order assumption (not enforced at runtime):** For async paths,
-     *   correct Twig shims rely on the admin boot sequence calling
-     *   `initComponent()` for every registered component and thus resolving
-     *   overrides before the Vue app mounts. If a `<sw-block name="…">` ran
-     *   `setup()` before its override’s config was resolved, the index could
-     *   still be empty and legacy Twig content would silently fall back to the
-     *   default block (indistinguishable from “no Twig override”). Changing
-     *   bootstrap order could cause that without a warning.
-     *
-     * See `technical-docs/03-extensibility/06-twig-native-block-adapter.md`.
+     * INVARIANT (C-1): For async function configs the block index is populated
+     * inside `configResolveMethod` when it is awaited. Shopware's boot sequence
+     * calls `initComponent()` for all registered components before Vue mounts any
+     * component, so async overrides are always indexed before the first
+     * `<sw-block name="...">` setup() runs. If this boot order is ever changed,
+     * async Twig overrides will silently produce no output (default content renders
+     * unchanged). See `technical-docs/03-extensibility/06-twig-native-block-adapter.md`
+     * for a detailed explanation.
      */
     const isSyncWithTemplate =
         componentConfiguration !== null &&

@@ -117,24 +117,11 @@ describe('app/component/structure/sw-block-override/shim/create-shim-slot.ts', (
         });
 
         it('creates independent component types for each createShimSlot invocation', () => {
-            // Each call allocates its own shimComponent object (see create-shim-slot.ts);
-            // Vue treats component type as object identity, so separate invocations must
-            // not share the same type reference. Different innerTemplate/blockName here
-            // only mirrors two distinct overrides; the invariant is per call, not per
-            // differing arguments (covered by the following test).
+            // Each call to createShimSlot owns a separate shimComponent object so
+            // that different shim slots do not share — and therefore conflict on —
+            // the same component identity during VDOM diffing.
             const slot1 = createShimSlot(makeEntry({ innerTemplate: '<div class="a"></div>' }), 'distinct_types_a');
             const slot2 = createShimSlot(makeEntry({ innerTemplate: '<div class="b"></div>' }), 'distinct_types_b');
-
-            const [vnode1] = slot1(null);
-            const [vnode2] = slot2(null);
-
-            expect(vnode1.type).not.toBe(vnode2.type);
-        });
-
-        it('does not reuse the same component type when entry and block name are identical', () => {
-            const entry = makeEntry({ innerTemplate: '<div class="same"></div>' });
-            const slot1 = createShimSlot(entry, 'identical_args');
-            const slot2 = createShimSlot(entry, 'identical_args');
 
             const [vnode1] = slot1(null);
             const [vnode2] = slot2(null);

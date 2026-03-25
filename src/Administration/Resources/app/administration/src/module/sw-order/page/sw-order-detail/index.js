@@ -503,7 +503,7 @@ export default {
 
             try {
                 errorDetails = error.response.data.errors[0].detail;
-            } catch (e) {
+            } catch (_e) {
                 errorDetails = '';
             }
 

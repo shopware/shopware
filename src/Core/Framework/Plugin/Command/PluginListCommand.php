@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -18,6 +19,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @phpstan-import-type PluginInfo from KernelPluginLoader
+ */
 #[AsCommand(
     name: 'plugin:list',
     description: 'Lists all plugins',
@@ -30,8 +34,10 @@ class PluginListCommand extends Command
      *
      * @param EntityRepository<PluginCollection> $pluginRepo
      */
-    public function __construct(private readonly EntityRepository $pluginRepo, private readonly ComposerPluginLoader $composerPluginLoader)
-    {
+    public function __construct(
+        private readonly EntityRepository $pluginRepo,
+        private readonly ComposerPluginLoader $composerPluginLoader
+    ) {
         parent::__construct();
     }
 
@@ -90,6 +96,8 @@ class PluginListCommand extends Command
             $pluginActive = $plugin->getActive();
             $pluginInstalled = $plugin->getInstalledAt();
             $pluginUpgradeable = $plugin->getUpgradeVersion();
+            $pluginComposerName = $plugin->getComposerName() ?? '';
+            $isComposerInstalled = $pluginComposerName !== '' && ($composerInstalled[$pluginComposerName] ?? false);
 
             $pluginTable[] = [
                 $plugin->getName(),
@@ -101,11 +109,11 @@ class PluginListCommand extends Command
                 $pluginInstalled ? 'Yes' : 'No',
                 $pluginActive ? 'Yes' : 'No',
                 $pluginUpgradeable ? 'Yes' : 'No',
-                isset($composerInstalled[$plugin->getComposerName()]) ? 'Yes' : 'No',
+                $isComposerInstalled ? 'Yes' : 'No',
             ];
 
-            if (isset($composerInstalled[$plugin->getComposerName()])) {
-                $composerInstalledAndRegistered[$plugin->getComposerName()] = true;
+            if ($isComposerInstalled) {
+                $composerInstalledAndRegistered[$pluginComposerName] = true;
             }
 
             if ($pluginActive) {
@@ -158,7 +166,7 @@ class PluginListCommand extends Command
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, PluginInfo>
      */
     private function getComposerPluginLoaderPackages(): array
     {

@@ -226,7 +226,7 @@ class RegisterController extends StorefrontController
                 throw RoutingException::missingRequestParameter('errorRoute');
             }
 
-            if (empty($request->request->get('errorRoute'))) {
+            if ($request->request->getString('errorRoute') === '') {
                 $request->request->set('errorRoute', 'frontend.account.register.page');
             }
 

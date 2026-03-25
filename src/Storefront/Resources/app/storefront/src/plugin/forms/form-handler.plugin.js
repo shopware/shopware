@@ -170,8 +170,8 @@ export default class FormHandler extends Plugin {
             validationEvent,
             Debouncer.debounce(
                 window.formValidation.validateField.bind(window.formValidation, field),
-                this.options.debounceTime
-            )
+                this.options.debounceTime,
+            ),
         );
     }
 

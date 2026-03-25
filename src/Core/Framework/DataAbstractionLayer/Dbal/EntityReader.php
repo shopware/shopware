@@ -798,24 +798,26 @@ class EntityReader implements EntityReaderInterface
         // collect all ids of many-to-many association which already stored inside the struct instances
         $ids = $this->collectManyToManyIds($collection, $association);
 
-        if ($ids !== []) {
-            $criteria->setIds($ids);
-        }
-
         $referenceClass = $association->getToManyReferenceDefinition();
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
 
-        $data = $this->_read(
-            $criteria,
-            $referenceClass,
-            $context,
-            new $collectionClass(),
-            $referenceClass->getFields()->getBasicFields(),
-            false,
-            $fieldsForPartialLoading,
-            $isPartialLoading,
-        );
+        if ($ids !== []) {
+            $criteria->setIds($ids);
+
+            $data = $this->_read(
+                $criteria,
+                $referenceClass,
+                $context,
+                new $collectionClass(),
+                $referenceClass->getFields()->getBasicFields(),
+                false,
+                $fieldsForPartialLoading,
+                $isPartialLoading,
+            );
+        } else {
+            $data = new $collectionClass();
+        }
 
         foreach ($collection as $struct) {
             $extension = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);

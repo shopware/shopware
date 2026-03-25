@@ -8,6 +8,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class SeoUrlMapping
 {
+    /**
+     * @param array<string, mixed> $infoPathContext
+     * @param array<string, mixed> $seoPathInfoContext
+     */
     public function __construct(
         private readonly Entity $entity,
         private readonly array $infoPathContext,
@@ -21,11 +25,17 @@ class SeoUrlMapping
         return $this->entity;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getSeoPathInfoContext(): array
     {
         return $this->seoPathInfoContext;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getInfoPathContext(): array
     {
         return $this->infoPathContext;

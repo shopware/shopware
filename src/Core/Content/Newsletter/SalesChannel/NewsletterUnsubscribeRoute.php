@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -21,6 +22,7 @@ use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -38,7 +40,9 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
     public function __construct(
         private readonly EntityRepository $newsletterRecipientRepository,
         private readonly DataValidator $validator,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly RateLimiter $rateLimiter,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -77,6 +81,10 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
     #[Route(path: '/store-api/newsletter/unsubscribe', name: 'store-api.newsletter.unsubscribe', methods: ['POST'])]
     public function unsubscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse
     {
+        if (($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {
+            $this->rateLimiter->ensureAccepted(RateLimiter::NEWSLETTER_UNSUBSCRIBE_FORM, $request->getClientIp());
+        }
+
         $data = $dataBag->only('email');
 
         if (empty($data['email']) || !\is_string($data['email'])) {

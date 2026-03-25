@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-// eslint-disable-next-line filename-rules/match
 import { createPinia, setActivePinia } from 'pinia';
 import type { AdminMenuStore } from './admin-menu.store';
 import type { AppModuleDefinition } from '../../core/service/api/app-modules.service';

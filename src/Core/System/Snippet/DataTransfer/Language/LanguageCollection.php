@@ -16,18 +16,16 @@ class LanguageCollection extends Collection
     /**
      * @param list<Language> $elements
      */
-    public function __construct(
-        iterable $elements = [],
-    ) {
-        parent::__construct($elements);
-
+    public function __construct(iterable $elements = [])
+    {
+        parent::__construct();
         foreach ($elements as $element) {
             $this->set($element->locale, $element);
         }
     }
 
     /**
-     * @param array-key|null $key
+     * @param string $key
      * @param Language $element
      */
     public function set($key, $element): void
@@ -35,6 +33,11 @@ class LanguageCollection extends Collection
         $this->validateType($element);
 
         $this->elements[$key] = $element;
+    }
+
+    public function add($element): void
+    {
+        $this->set($element->locale, $element);
     }
 
     protected function getExpectedClass(): string

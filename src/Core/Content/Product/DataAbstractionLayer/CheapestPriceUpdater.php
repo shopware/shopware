@@ -133,7 +133,7 @@ class CheapestPriceUpdater
      */
     private function getCheapest(?string $ruleId, array $prices, ?array $default): ?array
     {
-        if (isset($prices[$ruleId])) {
+        if ($ruleId !== null && isset($prices[$ruleId])) {
             return $prices[$ruleId];
         }
 

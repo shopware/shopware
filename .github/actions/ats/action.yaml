@@ -85,9 +85,6 @@ inputs:
 
 runs:
     using: "composite"
-    container:
-        image: mcr.microsoft.com/playwright:v1.58.2-noble
-    #  options: --user 1001
     steps:
         - uses: shopware/octo-sts-action@main
           id: create-pr-token
@@ -183,6 +180,7 @@ runs:
           run: php .github/bin/prepare-product-analytics-consent-preconditions.php
 
         - name: Run your tests
+          uses: docker://mcr.microsoft.com/playwright:v1.58.2-noble
           shell: bash
           working-directory: ${{ inputs.directory }}
           env:

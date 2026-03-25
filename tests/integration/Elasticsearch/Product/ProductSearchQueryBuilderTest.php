@@ -9,6 +9,8 @@ use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -93,6 +95,8 @@ class ProductSearchQueryBuilderTest extends TestCase
         $connection->rollBack();
     }
 
+    #[DoesNotPerformAssertions]
+    #[TestDox('Warmup Elasticsearch index and test data for dependent tests')]
     public function testIndexing(): IdsCollection
     {
         $this->connection->executeStatement('DELETE FROM product');
@@ -166,8 +170,8 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array<string> $config
-     * @param array<string> $expectedProducts
+     * @param list<string> $config
+     * @param list<string> $expectedProducts
      */
     #[Depends('testIndexing')]
     #[DataProvider('providerSearchCases')]
@@ -241,9 +245,9 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string>, string, array<string>}>
+     * @return \Generator<string, array{list<string>, string, list<string>}>
      */
-    public static function providerSearchCases(): iterable
+    public static function providerSearchCases(): \Generator
     {
         yield 'search inside description' => [
             ['name', 'description'],
@@ -464,7 +468,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     {
         $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
-        $this->addEventListener($eventDispatcher, ElasticsearchCustomFieldsMappingEvent::class, function (ElasticsearchCustomFieldsMappingEvent $event): void {
+        $this->addEventListener($eventDispatcher, ElasticsearchCustomFieldsMappingEvent::class, static function (ElasticsearchCustomFieldsMappingEvent $event): void {
             $event->setMapping('evolvesTo', CustomFieldTypes::SELECT);
             $event->setMapping('evolvesText', CustomFieldTypes::TEXT);
         });

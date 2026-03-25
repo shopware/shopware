@@ -740,16 +740,16 @@ class FlowExecutorTest extends TestCase
             ->with(
                 static::callback(
                     static function (object $event, ?string $_ = null) use ($flow, $storableFlow, $invocations, $pre, $post): bool {
-                        match ($invocations->numberOfInvocations()) {
+                        $invocationNumber = $invocations->numberOfInvocations();
+                        match ($invocationNumber) {
                             1 => static::assertEquals(new FlowExecutorExtension($flow, $storableFlow), $event),
                             2 => static::assertEquals(new FlowExecutorExtension($flow, $storableFlow), $event),
                             default => static::fail('Unexpected number of invocations'),
                         };
 
-                        match ($invocations->numberOfInvocations()) {
+                        match ($invocationNumber) {
                             1 => $pre->__invoke(),
                             2 => $post->__invoke(),
-                            default => static::fail('Unexpected number of invocations'),
                         };
 
                         return true;
@@ -881,7 +881,7 @@ class FlowExecutorTest extends TestCase
         $this->addOrderTagActionMock
             ->expects($this->exactly(3))
             ->method('handleFlow')
-            ->willReturnCallback(function (StorableFlow $flow) use (&$callCount, $idSequence): void {
+            ->willReturnCallback(static function (StorableFlow $flow) use (&$callCount, $idSequence): void {
                 static::assertSame(
                     $idSequence[$callCount],
                     $flow->getFlowState()->currentSequence->sequenceId

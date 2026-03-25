@@ -21,7 +21,7 @@ class CreatedByFieldSerializer extends FkFieldSerializer
 {
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
-        if (!($field instanceof CreatedByField)) {
+        if (!$field instanceof CreatedByField) {
             throw DataAbstractionLayerException::invalidSerializerField(CreatedByField::class, $field);
         }
 

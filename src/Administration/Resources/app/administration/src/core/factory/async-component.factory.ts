@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-/* eslint-disable max-len, @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any */
 import { warn } from 'src/core/service/utils/debug.utils';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
@@ -694,7 +694,6 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         throw new Error(`The component registry has not found a component with the name "${componentName}".`);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const resultConfig: ComponentConfig | boolean = await awaitedConfig();
     if (typeof resultConfig === 'boolean') {
         throw new Error(`The component registry could not build the component with the name "${componentName}".`);
@@ -731,16 +730,23 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         // clone the override configuration to prevent side-effects to the config
         const overrides = cloneDeep(overrideRegistry.get(componentName));
 
-        const convertedOverrides = await convertOverrides(
-            overrides!.map((c) => c.config),
-            config,
+        // Resolve all override configs in parallel, then separate by type
+        const resolvedEntries = await Promise.all(overrides!.map((overrideEntry) => overrideEntry.config()));
+
+        const standardOverrideConfigs: AwaitedComponentConfig[] = resolvedEntries.map(
+            (resolvedConfig) => () => Promise.resolve(resolvedConfig),
         );
 
-        convertedOverrides.forEach((overrideComp) => {
-            overrideComp.extends = config;
-            overrideComp._isOverride = true;
-            config = { ...overrideComp };
-        });
+        // Continue with standard Options API overrides
+        if (standardOverrideConfigs.length > 0) {
+            const convertedOverrides = await convertOverrides(standardOverrideConfigs, config);
+
+            convertedOverrides.forEach((overrideComp) => {
+                overrideComp.extends = config;
+                overrideComp._isOverride = true;
+                config = { ...overrideComp };
+            });
+        }
     }
 
     const superRegistry = buildSuperRegistry(config);
@@ -807,7 +813,6 @@ async function convertOverrides(
      * Merge and sort the overrides from latest to first.
      * Copy over previous override properties if they don't exist.
      */
-    // eslint-disable-next-line max-len
     /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment */
     // @ts-expect-error
     const sortedOverrides: ComponentConfig[] = overrides.reduceRight((acc, overrideComp) => {
@@ -1116,7 +1121,6 @@ function enrichSuperChain(baseConfig: ComponentConfig, targetConfig: ComponentCo
             return;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const methodsOrComputed = baseConfig[methodOrComputed];
         // base component computed or methods are empty
         if (!methodsOrComputed) {
@@ -1135,7 +1139,7 @@ function enrichSuperChain(baseConfig: ComponentConfig, targetConfig: ComponentCo
                 method,
             ]) => {
                 // override specifically overrides the current method or computed? Abort!
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 if (targetConfig[methodOrComputed].hasOwnProperty(key)) {
                     return;
                 }
@@ -1150,16 +1154,14 @@ function enrichSuperChain(baseConfig: ComponentConfig, targetConfig: ComponentCo
                     Object.entries(method as object).forEach(([cmd]) => {
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                         targetConfig[methodOrComputed][key][cmd] = function (...args: $TSFixMe) {
-                            // eslint-disable-next-line max-len
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
                             return this.$super(`${key}.${cmd}`, ...args);
                         };
                     });
                 } else {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     targetConfig[methodOrComputed][key] = function (...args: $TSFixMe) {
-                        // eslint-disable-next-line max-len
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
                         return this.$super(key, ...args);
                     };
                 }
@@ -1215,7 +1217,7 @@ function resolveGetterSetterChain(
         return findMethodInChain(extension.extends, methodName, methodsOrComputed);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return extension[methodsOrComputed][methodName][cmd];
 }
 

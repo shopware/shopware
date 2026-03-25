@@ -35,7 +35,6 @@ import { DiscountScopes, DiscountTypes, PromotionPermissions } from 'src/module/
 import data from 'src/core/data/index';
 import ApplicationBootstrapper from 'src/core/application';
 
-import RefreshTokenHelper from 'src/core/helper/refresh-token.helper';
 import HttpFactory from 'src/core/factory/http.factory';
 import RepositoryFactory from 'src/core/data/repository-factory.data';
 import ApiContextFactory from 'src/core/factory/api-context.factory';
@@ -139,6 +138,7 @@ class ShopwareClass implements CustomShopwareProperties {
         registerComponentHelper: AsyncComponentFactory.registerComponentHelper,
         markComponentAsSync: AsyncComponentFactory.markComponentAsSync,
         isSyncComponent: AsyncComponentFactory.isSyncComponent,
+        getOverrideRegistry: AsyncComponentFactory.getOverrideRegistry,
         createExtendableSetup: createExtendableSetup,
         overrideComponentSetup: overrideComponentSetup,
 
@@ -296,7 +296,6 @@ class ShopwareClass implements CustomShopwareProperties {
     public Helper = {
         FlatTreeHelper: FlatTreeHelper,
         MiddlewareHelper: MiddlewareHelper,
-        RefreshTokenHelper: RefreshTokenHelper,
         SanitizerHelper: SanitizerHelper,
         DeviceHelper: DeviceHelper,
         PromotionHelper: {

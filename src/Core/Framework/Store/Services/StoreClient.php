@@ -95,7 +95,7 @@ class StoreClient
 
         $this->storeService->updateStoreToken($context, $accessTokenStruct);
 
-        $this->configService->set('core.store.shopSecret', $accessTokenStruct->getShopSecret());
+        $this->configService->set('core.store.shopSecret', $accessTokenStruct->getShopSecret(), null, false);
 
         $this->eventDispatcher->dispatch(new ShopwareAccountLoginEvent($context));
     }
@@ -327,7 +327,7 @@ class StoreClient
     public function listMyExtensions(ExtensionCollection $extensions, Context $context): ExtensionCollection
     {
         try {
-            $payload = ['plugins' => array_map(fn (ExtensionStruct $e) => [
+            $payload = ['plugins' => array_map(static fn (ExtensionStruct $e) => [
                 'name' => $e->getName(),
                 'version' => $e->getVersion(),
             ], $extensions->getElements())];

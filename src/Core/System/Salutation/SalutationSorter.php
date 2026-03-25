@@ -15,7 +15,7 @@ class SalutationSorter extends AbstractSalutationsSorter
 
     public function sort(SalutationCollection $salutations): SalutationCollection
     {
-        $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
+        $salutations->sort(static function (SalutationEntity $a, SalutationEntity $b) {
             if ($a->getSalutationKey() === SalutationDefinition::NOT_SPECIFIED) {
                 return -1;
             }

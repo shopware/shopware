@@ -567,11 +567,21 @@ class CriteriaParser
                 foreach ($context->getLanguageIdChain() as $languageId) {
                     $query->add(new ExistsQuery($this->getTranslatedFieldName($fieldName, $languageId)), BoolQuery::MUST_NOT);
                 }
-            } else {
-                $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
+
+                return $this->createNestedQuery($query, $definition, $filter->getField());
             }
 
-            return $this->createNestedQuery($query, $definition, $filter->getField());
+            $path = $this->getNestedPath($definition, $filter->getField());
+
+            if ($path) {
+                $query->add(new NestedQuery($path, new ExistsQuery($fieldName)), BoolQuery::MUST_NOT);
+
+                return $query;
+            }
+
+            $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
+
+            return $query;
         }
 
         $value = $this->parseValue($definition, $filter, $filter->getValue());
@@ -994,7 +1004,7 @@ class CriteriaParser
         if ($field instanceof BoolField) {
             return match (true) {
                 $value === null => null,
-                \is_array($value) => \array_map(fn ($value) => (bool) $value, $value),
+                \is_array($value) => \array_map(static fn ($value) => (bool) $value, $value),
                 default => (bool) $value,
             };
         }
@@ -1002,7 +1012,7 @@ class CriteriaParser
         if ($field instanceof DateTimeField) {
             return match (true) {
                 $value === null => null,
-                \is_array($value) => \array_map(fn ($value) => (new \DateTime($value))->format('Y-m-d H:i:s.000'), $value),
+                \is_array($value) => \array_map(static fn ($value) => (new \DateTime($value))->format('Y-m-d H:i:s.000'), $value),
                 default => (new \DateTime($value))->format('Y-m-d H:i:s.000'),
             };
         }
@@ -1010,7 +1020,7 @@ class CriteriaParser
         if ($field instanceof FloatField) {
             return match (true) {
                 $value === null => null,
-                \is_array($value) => \array_map(fn ($value) => (float) $value, $value),
+                \is_array($value) => \array_map(static fn ($value) => (float) $value, $value),
                 default => (float) $value,
             };
         }
@@ -1018,7 +1028,7 @@ class CriteriaParser
         if ($field instanceof IntField) {
             return match (true) {
                 $value === null => null,
-                \is_array($value) => \array_map(fn ($value) => (int) $value, $value),
+                \is_array($value) => \array_map(static fn ($value) => (int) $value, $value),
                 default => (int) $value,
             };
         }

@@ -2,14 +2,12 @@
  * @sw-package framework
  */
 import useConsentStore from 'src/core/consent/consent.store';
-import { trackConsentLegalLinkClicked, trackConsentOptionChanged, trackConsentRevoked } from 'src/core/consent/tracking';
+import { dispatchConsentEvent } from 'src/core/consent/events';
 import template from './sw-settings-usage-data-profile-consent.html.twig';
 import './sw-settings-usage-data-profile-consent.scss';
 
-/* eslint-disable max-len */
 import SwSettingsUsageDataUserDataConsentCard from '../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-user-data-consent-card';
 import SwSettingsUsageDataConsentCheckList from '../sw-settings-usage-data-consent-modal/subcomponents/sw-settings-usage-data-consent-check-list';
-/* eslint-enable max-len */
 
 /**
  * @private
@@ -57,11 +55,8 @@ export default Shopware.Component.wrapComponentConfig({
             try {
                 if (newValue) {
                     await consentStore.accept('product_analytics');
-                    trackConsentOptionChanged('user_tracking', 'enabled');
                 } else {
                     await consentStore.revoke('product_analytics');
-                    trackConsentOptionChanged('user_tracking', 'disabled');
-                    trackConsentRevoked([], ['user_tracking']);
                 }
             } catch {
                 Shopware.Store.get('notification').createNotification({
@@ -76,8 +71,8 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        onLegalLinkClick(linkTarget: 'privacy_policy' | 'data_use_details') {
-            trackConsentLegalLinkClicked(linkTarget, 'user');
+        onLegalLinkClick() {
+            dispatchConsentEvent('consent_legal_link_clicked', { link_target: 'privacy_policy', source: 'user' });
         },
     },
 });

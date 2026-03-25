@@ -48,16 +48,32 @@ export default class ContextGatewayClient {
      * @param tokenResponse - the response from the context gateway containing the token and optional redirect URL (returned by the call method)
      * @param customTarget - an optional custom target path to redirect to, if not provided the current page will be reloaded
      */
+    /**
+     * Thin wrappers so tests can spy on location/navigation without mocking window.location
+     * (non-configurable in JSDOM v26).
+     */
+    _getLocationHref(): string {
+        return window.location.href;
+    }
+
+    _navigateTo(url: string): void {
+        window.location.href = url;
+    }
+
+    _reloadPage(): void {
+        window.location.reload();
+    }
+
     public navigate(tokenResponse: ContextTokenResponse, customTarget: string | null = null): ContextTokenResponse {
         // reload the page to apply context changes if no target is specified
         if (!customTarget && !tokenResponse.redirectUrl) {
-            window.location.reload();
+            this._reloadPage();
 
             return tokenResponse;
         }
 
         // otherwise redirect to the redirectUrl, which can be overridden by a customTarget path
-        const currentUrl = new URL(window.location.href);
+        const currentUrl = new URL(this._getLocationHref());
         const targetUrl = new URL(
             customTarget ?? currentUrl.pathname.replace(/^\//, '') ?? '',
             (tokenResponse.redirectUrl ?? currentUrl.href).replace(/\/$/, '') + '/',
@@ -70,7 +86,7 @@ export default class ContextGatewayClient {
             }
         });
 
-        window.location.href = targetUrl.toString().replace(/\/$/, '');
+        this._navigateTo(targetUrl.toString().replace(/\/$/, ''));
 
         return tokenResponse;
     }

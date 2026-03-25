@@ -80,6 +80,7 @@ class RequestTransformer implements RequestTransformerInterface
         '/installer',
         '/_fragment/',
         '/robots.txt',
+        '/storybook/',
     ];
 
     /**
@@ -284,7 +285,7 @@ class RequestTransformer implements RequestTransformerInterface
         }
 
         // reduce shops to which base url is the beginning of the request
-        $domains = array_filter($domains, fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl), \ARRAY_FILTER_USE_KEY);
+        $domains = array_filter($domains, static fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl), \ARRAY_FILTER_USE_KEY);
 
         if ($domains === []) {
             return null;

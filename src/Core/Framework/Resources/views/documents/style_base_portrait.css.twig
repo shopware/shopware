@@ -101,6 +101,7 @@
             width: 100%;
             border-spacing: 0 2px;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         .line-item-table tbody tr:first-child > td {
@@ -108,7 +109,11 @@
         }
 
         .line-item-table tbody tr > td {
-            padding-bottom: 5px;
+            padding-bottom: 10px;
+            padding-left: 5px;
+            padding-right: 5px;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
 
         .line-item-table tbody tr:first-child > .line-item-breakable .label-wrapper {
@@ -126,20 +131,26 @@
         }
 
         .line-item-table-header > th.product-number {
-            width: 200px;
+            width: 12%;
+            padding-right: 10px;
         }
 
         .line-item-table-header > th.product-label {
-            width: 240px;
+            width: auto;
         }
 
         .line-item-table-header > th.numbers {
+            width: 7%;
             text-align: right;
+            padding-left: 10px;
+        }
+
+        .line-item-table-header > th.numbers.incl-vat {
+            width: 10%;
         }
 
         .line-item-table-header > th.incl-vat {
             position: relative;
-            width: auto;
         }
 
         .line-item-table-header > th.incl-vat > span {

@@ -22,7 +22,6 @@ use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
-use Shopware\Core\System\UsageData\Services\LastCollectionAllowedDateResolver;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 
@@ -44,7 +43,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $handler = new IterateEntityMessageHandler(
             $messageBus,
             $iteratorFactory,
-            new LastCollectionAllowedDateResolver($this->createMock(ConsentService::class)),
+            $this->createMock(ConsentService::class),
             $this->createMock(EntityDefinitionService::class),
             $this->createMock(LoggerInterface::class),
         );
@@ -67,7 +66,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects($this->exactly(1))
             ->method('getConsentState')
-            ->willReturn($this->createConsentState(ConsentStatus::REVOKED, null));
+            ->willReturn($this->createConsentState(ConsentStatus::UNSET, null));
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects($this->exactly(1))
@@ -78,13 +77,13 @@ class IterateEntityMessageHandlerTest extends TestCase
         $handler = new IterateEntityMessageHandler(
             $messageBus,
             $iteratorFactory,
-            new LastCollectionAllowedDateResolver($consentService),
+            $consentService,
             $entityDefinitionService,
             $this->createMock(LoggerInterface::class),
         );
 
         static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage('No collection allowed date found. Skipping dispatching of entity sync message. Entity: test-entity, Operation: delete');
+        static::expectExceptionMessage('The consent was never accepted. Skipping dispatching of entity sync message. Entity: test-entity, Operation: delete');
         $handler(new IterateEntityMessage('test-entity', Operation::DELETE, new \DateTimeImmutable('2023-08-16'), new \DateTimeImmutable()));
 
         $dispatchedMessages = $messageBus->getMessages();
@@ -125,7 +124,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $handler = new IterateEntityMessageHandler(
             $messageBus,
             $iteratorFactory,
-            new LastCollectionAllowedDateResolver($consentService),
+            $consentService,
             $entityDefinitionService,
             $this->createMock(LoggerInterface::class),
         );
@@ -177,7 +176,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $handler = new IterateEntityMessageHandler(
             $messageBus,
             $iteratorFactory,
-            new LastCollectionAllowedDateResolver($consentService),
+            $consentService,
             $entityDefinitionService,
             $this->createMock(LoggerInterface::class),
         );
@@ -223,7 +222,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $messageHandler = new IterateEntityMessageHandler(
             $this->createMock(CollectingMessageBus::class),
             $iteratorFactory,
-            new LastCollectionAllowedDateResolver($consentService),
+            $consentService,
             $entityDefinitionService,
             $logger,
         );
@@ -262,7 +261,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         $messageHandler = new IterateEntityMessageHandler(
             $this->createMock(CollectingMessageBus::class),
             $iteratorFactory,
-            new LastCollectionAllowedDateResolver($consentService),
+            $consentService,
             $entityDefinitionService,
             $logger,
         );
@@ -277,7 +276,7 @@ class IterateEntityMessageHandlerTest extends TestCase
 
     private function createConsentState(ConsentStatus $status, ?string $updatedAt): ConsentState
     {
-        if ($status === ConsentStatus::ACCEPTED && $updatedAt === null) {
+        if ($status !== ConsentStatus::UNSET && $updatedAt === null) {
             $updatedAt = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         }
 

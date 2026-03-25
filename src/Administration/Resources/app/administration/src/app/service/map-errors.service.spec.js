@@ -102,7 +102,6 @@ describe('app/service/map-errors.service.js', () => {
         expect(computedValues.testEntityCollectionIdError.name).toBe('getterCollectionError');
     });
 
-    // eslint-disable-next-line max-len
     it('mapCollectionPropertyErrors: the getterCollectionError should get the entity name from the vue instance for each entity', async () => {
         const spyGetEntityNameOne = jest.fn(() => 'test_entity');
         const spyGetEntityNameTwo = jest.fn(() => 'test_entity');

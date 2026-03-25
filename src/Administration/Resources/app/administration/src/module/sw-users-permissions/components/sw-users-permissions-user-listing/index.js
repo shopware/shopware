@@ -219,7 +219,7 @@ export default {
                 try {
                     this.isConfirmingPassword = true;
                     verifiedToken = await this.loginService.verifyUserToken(this.confirmPassword);
-                } catch (e) {
+                } catch (_e) {
                     this.createNotificationError({
                         title: this.$tc(
                             'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle',

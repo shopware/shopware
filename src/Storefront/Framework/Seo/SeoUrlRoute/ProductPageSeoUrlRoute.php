@@ -55,7 +55,7 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
         $categories = $product->get('mainCategories') ?? null;
         if ($categories instanceof EntityCollection && $salesChannel !== null) {
             $filtered = $categories->filter(
-                fn (Entity $category) => $category->get('salesChannelId') === $salesChannel->getId()
+                static fn (Entity $category) => $category->get('salesChannelId') === $salesChannel->getId()
             );
 
             $product->assign(['mainCategories' => $filtered]);

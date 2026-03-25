@@ -9,6 +9,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -60,9 +61,22 @@ class MailActionController extends AbstractController
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
     }
 
-    #[Route(path: '/api/_action/mail-template/validate', name: 'api.action.mail_template.validate', methods: ['POST'])]
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
+    #[Route(
+        path: '/api/_action/mail-template/validate',
+        name: 'api.action.mail_template.validate',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:update']],
+        methods: [Request::METHOD_POST],
+    )]
     public function validate(RequestDataBag $post, Context $context): JsonResponse
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The API endpoint "/api/_action/mail-template/validate" is deprecated and will be removed in v6.8.0.0 without replacement.'
+        );
+
         $this->templateRenderer->initialize();
         $this->templateRenderer->render($post->get('contentHtml', ''), [], $context);
         $this->templateRenderer->render($post->get('contentPlain', ''), [], $context);
@@ -70,7 +84,12 @@ class MailActionController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/mail-template/build', name: 'api.action.mail_template.build', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/mail-template/build',
+        name: 'api.action.mail_template.build',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function build(RequestDataBag $post, Context $context): JsonResponse
     {
         $data = $post->all();

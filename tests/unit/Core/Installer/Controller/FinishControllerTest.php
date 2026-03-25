@@ -143,7 +143,7 @@ class FinishControllerTest extends TestCase
 
         $response = $this->createController($client)->finish($request);
 
-        static::assertSame(302, $response->getStatusCode());
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
         static::assertCount(0, $response->headers->getCookies());
     }
 

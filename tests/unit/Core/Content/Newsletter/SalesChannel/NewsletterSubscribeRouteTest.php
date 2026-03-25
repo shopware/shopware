@@ -321,7 +321,7 @@ class NewsletterSubscribeRouteTest extends TestCase
     }
 
     /**
-     * @param array{isDoubleOptIn: bool, doubleOptInRegistered: bool} $doiSettings
+     * @param array{'core.newsletter.doubleOptIn': bool, 'core.newsletter.doubleOptInRegistered': bool} $doiSettings
      * @param array{id: string, email: string} $customerData
      * @param array{id: string, email: string} $recipientData
      */

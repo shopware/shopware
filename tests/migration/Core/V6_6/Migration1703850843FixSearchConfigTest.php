@@ -39,7 +39,7 @@ class Migration1703850843FixSearchConfigTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $input
+     * @param list<array<string, mixed>> $input
      * @param array<string, mixed> $expected
      */
     #[DataProvider('migrationProvider')]
@@ -209,7 +209,7 @@ class Migration1703850843FixSearchConfigTest extends TestCase
     /**
      * @param array<mixed> $fields
      *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     private static function module(string $key, array $fields): array
     {
@@ -218,6 +218,8 @@ class Migration1703850843FixSearchConfigTest extends TestCase
 
     /**
      * @param array<mixed> $fields
+     *
+     * @return \Generator<string, array<string, mixed>>
      */
     private static function resolve(string $key, array $fields): \Generator
     {

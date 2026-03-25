@@ -53,6 +53,9 @@ class FetchModeHelper
         foreach ($result as $row) {
             $index = $row[$groupKey];
             unset($row[$groupKey]);
+            if ($index === null) {
+                continue;
+            }
 
             $rows[$index][] = $mapper ? $mapper($row) : $row;
         }
@@ -81,6 +84,9 @@ class FetchModeHelper
         foreach ($result as $row) {
             $index = $row[$groupKey];
             unset($row[$groupKey]);
+            if ($index === null) {
+                continue;
+            }
 
             $rows[$index] = $row;
         }

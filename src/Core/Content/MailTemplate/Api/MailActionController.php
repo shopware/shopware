@@ -9,6 +9,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -63,13 +64,22 @@ class MailActionController extends AbstractController
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     #[Route(
         path: '/api/_action/mail-template/validate',
         name: 'api.action.mail_template.validate',
-        methods: [Request::METHOD_POST]
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:update']],
+        methods: [Request::METHOD_POST],
     )]
     public function validate(RequestDataBag $post, Context $context): JsonResponse
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The API endpoint "/api/_action/mail-template/validate" is deprecated and will be removed in v6.8.0.0 without replacement.'
+        );
+
         $this->templateRenderer->initialize();
         $this->templateRenderer->render($post->get('contentHtml', ''), [], $context);
         $this->templateRenderer->render($post->get('contentPlain', ''), [], $context);
@@ -80,6 +90,7 @@ class MailActionController extends AbstractController
     #[Route(
         path: '/api/_action/mail-template/build',
         name: 'api.action.mail_template.build',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:update']],
         methods: [Request::METHOD_POST]
     )]
     public function build(RequestDataBag $post, Context $context): JsonResponse

@@ -55,6 +55,10 @@ The following methods are now abstract and must be implemented by extensions. Th
 - `confirmWithResponse()` returns `SuccessResponse`
 - `unsubscribeWithResponse()` returns `SuccessResponse`
 
+## Removed `/api/_action/mail-template/validate` route
+
+The `/api/_action/mail-template/validate` route has been removed without replacement, as it was not used and did not provide any significant value.
+
 </details>
 
 # Core

@@ -8,20 +8,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CompiledElementTypeDefinition;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecification;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentSystemElementTypeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Plugin;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -44,12 +35,7 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->pass = new ContentSystemElementTypeCompilerPass(
-            new YamlTypeLoader(
-                new ElementTypeSpecificationSerializer(),
-                Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator(),
-            )
-        );
+        $this->pass = new ContentSystemElementTypeCompilerPass();
     }
 
     #[TestDox('scans non-plugin bundles using the standard type directory path')]
@@ -62,11 +48,11 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         ]);
         $container->setParameter('kernel.active_plugins', []);
 
-        $registryDef = $container->getDefinition(ContentSystemElementTypeRegistry::class);
         $this->pass->process($container);
 
-        $names = $this->extractTypeNames($registryDef->getArgument(0));
-        static::assertContains('Sw:Test:Element', $names, 'Bundle scan must include fixture type');
+        $directories = $this->extractDirectories($container);
+        static::assertArrayHasKey('bundle:BundleA', $directories);
+        static::assertSame(self::FIXTURES_DIR . '/bundle-a/Resources/content-system/types', $directories['bundle:BundleA']);
     }
 
     #[TestDox('loads active plugins from their configured type directory')]
@@ -83,11 +69,10 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
             ],
         ]);
 
-        $registryDef = $container->getDefinition(ContentSystemElementTypeRegistry::class);
         $this->pass->process($container);
 
-        $names = $this->extractTypeNames($registryDef->getArgument(0));
-        static::assertContains('Sw:Plugin:Element', $names, 'Plugin scan must include fixture type');
+        $directories = $this->extractDirectories($container);
+        static::assertArrayHasKey('plugin:FixturePlugin', $directories);
     }
 
     #[TestDox('loads app types from filesystem in dev environment')]
@@ -106,83 +91,10 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
             ]);
         $container->set(Connection::class, $connection);
 
-        $registryDef = $container->getDefinition(ContentSystemElementTypeRegistry::class);
         $this->pass->process($container);
 
-        $names = $this->extractTypeNames($registryDef->getArgument(0));
-        static::assertContains('Sw:App:Element', $names, 'App scan in dev must include fixture type');
-    }
-
-    #[TestDox('creates inline definition with correct top-level spec fields and copilot')]
-    public function testInlineDefinitionTopLevelFields(): void
-    {
-        $defs = $this->loadFixtureDefinitions();
-
-        static::assertSame(CompiledElementTypeDefinition::class, $defs['compiled']->getClass());
-        static::assertSame('bundle:BundleA', $defs['compiled']->getArguments()[1]);
-
-        $testDef = $defs['spec'];
-        static::assertSame(ContentSystemElementTypeSpecification::class, $testDef->getClass());
-
-        [$name, $label, $description, $vendor, $icon, $category, $copilotDef] = $testDef->getArguments();
-
-        static::assertSame('Sw:Test:Element', $name);
-        static::assertSame('Test Element', $label);
-        static::assertSame('A test element for unit tests.', $description);
-        static::assertSame('shopware AG', $vendor);
-        static::assertSame('default', $icon);
-        static::assertSame('content', $category);
-
-        static::assertInstanceOf(Definition::class, $copilotDef);
-        static::assertSame(CopilotSpecification::class, $copilotDef->getClass());
-        [$summary, $hints] = $copilotDef->getArguments();
-        static::assertSame('A summary', $summary);
-        static::assertSame(['hint one'], $hints);
-    }
-
-    #[TestDox('creates inline definition with correct property sub-definitions')]
-    public function testInlineDefinitionPropertyStructure(): void
-    {
-        $testDef = $this->loadFixtureDefinitions()['spec'];
-
-        $propertyDefs = $testDef->getArguments()[7];
-        static::assertIsArray($propertyDefs);
-        static::assertArrayHasKey('title', $propertyDefs);
-
-        $propDef = $propertyDefs['title'];
-        static::assertInstanceOf(Definition::class, $propDef);
-        static::assertSame(PropertySpecification::class, $propDef->getClass());
-        [$propKey, $typeDef, $required, $propTitle] = $propDef->getArguments();
-        static::assertSame('title', $propKey);
-        static::assertFalse($required);
-        static::assertSame('Title', $propTitle);
-
-        static::assertInstanceOf(Definition::class, $typeDef);
-        static::assertSame(PropertyType::class, $typeDef->getClass());
-        [$type, $translatable, $enum, $default] = $typeDef->getArguments();
-        static::assertSame('string', $type);
-        static::assertTrue($translatable);
-        static::assertNull($enum);
-        static::assertNull($default);
-    }
-
-    #[TestDox('creates inline definition with correct slot sub-definitions')]
-    public function testInlineDefinitionSlotStructure(): void
-    {
-        $testDef = $this->loadFixtureDefinitions()['spec'];
-
-        $slotDefs = $testDef->getArguments()[8];
-        static::assertIsArray($slotDefs);
-        static::assertCount(1, $slotDefs);
-
-        $slotDef = $slotDefs[0];
-        static::assertInstanceOf(Definition::class, $slotDef);
-        static::assertSame(SlotSpecification::class, $slotDef->getClass());
-        [$slotName, $maxElements, $allowList, $slotDesc] = $slotDef->getArguments();
-        static::assertSame('default', $slotName);
-        static::assertSame(5, $maxElements);
-        static::assertSame(['text-block', 'image'], $allowList);
-        static::assertSame('Main slot', $slotDesc);
+        $directories = $this->extractDirectories($container);
+        static::assertArrayHasKey('app:TestApp', $directories);
     }
 
     #[TestDox('skips active-plugin bundles during bundle-metadata loading')]
@@ -202,11 +114,10 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
             ],
         ]);
 
-        $registryDef = $container->getDefinition(ContentSystemElementTypeRegistry::class);
         $this->pass->process($container);
 
-        $names = $this->extractTypeNames($registryDef->getArgument(0));
-        static::assertNotContains('Sw:Test:Element', $names, 'Plugin bundles must not be scanned via bundle metadata');
+        $directories = $this->extractDirectories($container);
+        static::assertArrayNotHasKey('bundle:MyPlugin', $directories);
     }
 
     #[TestDox('uses the overridden path for plugins with a custom type directory')]
@@ -223,11 +134,11 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
             ],
         ]);
 
-        $registryDef = $container->getDefinition(ContentSystemElementTypeRegistry::class);
         $this->pass->process($container);
 
-        $names = $this->extractTypeNames($registryDef->getArgument(0));
-        static::assertContains('Sw:CustomPlugin:Element', $names, 'Plugin with custom dir must find fixture type');
+        $directories = $this->extractDirectories($container);
+        static::assertArrayHasKey('plugin:FixturePluginWithCustomTypeDir', $directories);
+        static::assertSame(self::FIXTURES_DIR . '/test-plugin-custom/custom-types', $directories['plugin:FixturePluginWithCustomTypeDir']);
     }
 
     #[TestDox('skips app loading when environment is not dev')]
@@ -242,20 +153,24 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         $container->set(Connection::class, $connection);
 
         $this->pass->process($container);
+
+        $directories = $this->extractDirectories($container);
+        $appKeys = array_filter(array_keys($directories), static fn (string $key) => str_starts_with($key, 'app:'));
+        static::assertSame([], array_values($appKeys));
     }
 
-    #[TestDox('returns early without loading any specs when registry definition is missing')]
-    public function testProcessReturnsEarlyWhenRegistryIsMissing(): void
+    #[TestDox('returns early without loading any directories when YamlTypeLoader definition is missing')]
+    public function testProcessReturnsEarlyWhenYamlLoaderIsMissing(): void
     {
         $container = new ContainerBuilder();
         $container->setParameter('kernel.bundles_metadata', []);
         $container->setParameter('kernel.active_plugins', []);
         $container->setParameter('kernel.environment', 'prod');
 
-        // No registry definition — must not throw
+        // No YamlTypeLoader definition — must not throw
         $this->pass->process($container);
 
-        static::assertFalse($container->hasDefinition(ContentSystemElementTypeRegistry::class));
+        static::assertFalse($container->hasDefinition(YamlTypeLoader::class));
     }
 
     #[TestDox('swallows DB exception during app loading')]
@@ -273,9 +188,28 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         // Must not throw — DB failures are silently swallowed
         $this->pass->process($container);
 
-        // Verify the registry was still populated (from core definitions)
-        $registryDef = $container->getDefinition(ContentSystemElementTypeRegistry::class);
-        static::assertIsArray($registryDef->getArgument(0));
+        // Verify core directory was still collected even when app loading fails
+        $directories = $this->extractDirectories($container);
+        static::assertArrayHasKey('core', $directories);
+    }
+
+    #[TestDox('throws when kernel.project_dir is not a string during app loading')]
+    public function testThrowsWhenProjectDirIsNotAStringInDevEnvironment(): void
+    {
+        $container = $this->buildContainer('dev');
+        $container->setParameter('kernel.bundles_metadata', []);
+        $container->setParameter('kernel.active_plugins', []);
+        $container->setParameter('kernel.project_dir', 123);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['path' => 'test-app', 'name' => 'TestApp'],
+        ]);
+        $container->set(Connection::class, $connection);
+
+        $this->expectExceptionObject(DependencyInjectionException::projectDirNotInContainer());
+
+        $this->pass->process($container);
     }
 
     #[TestDox('throws when kernel.bundles_metadata is not an array')]
@@ -286,6 +220,22 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         $container->setParameter('kernel.active_plugins', []);
 
         $this->expectExceptionObject(DependencyInjectionException::bundlesMetadataIsNotAnArray());
+
+        $this->pass->process($container);
+    }
+
+    #[TestDox('throws when kernel.active_plugins is not an array')]
+    public function testThrowsWhenActivePluginsIsNotAnArray(): void
+    {
+        $container = $this->buildContainer('prod');
+        $container->setParameter('kernel.bundles_metadata', ['SomeBundle' => ['path' => '/some/path']]);
+        $container->setParameter('kernel.active_plugins', 'not-an-array');
+
+        $this->expectExceptionObject(DependencyInjectionException::parameterHasWrongType(
+            'kernel.active_plugins',
+            'array',
+            'string'
+        ));
 
         $this->pass->process($container);
     }
@@ -338,67 +288,18 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         $container = new ContainerBuilder();
         $container->setParameter('kernel.environment', $environment);
 
-        $registryDef = new Definition(ContentSystemElementTypeRegistry::class);
-        $container->setDefinition(ContentSystemElementTypeRegistry::class, $registryDef);
+        $loaderDef = new Definition(YamlTypeLoader::class);
+        $container->setDefinition(YamlTypeLoader::class, $loaderDef);
 
         return $container;
     }
 
     /**
-     * @return list<string>
+     * @return array<string, string>
      */
-    private function extractTypeNames(mixed $definitions): array
+    private function extractDirectories(ContainerBuilder $container): array
     {
-        return array_keys($this->indexDefinitionsByName($definitions));
-    }
-
-    /**
-     * Unwraps CompiledElementTypeDefinition wrappers and indexes inner spec Definitions by name.
-     *
-     * @return array<string, Definition>
-     */
-    private function indexDefinitionsByName(mixed $definitions): array
-    {
-        static::assertIsArray($definitions);
-
-        $indexed = [];
-        foreach ($definitions as $compiledDef) {
-            static::assertInstanceOf(Definition::class, $compiledDef);
-            static::assertSame(CompiledElementTypeDefinition::class, $compiledDef->getClass());
-
-            $specDef = $compiledDef->getArguments()[0];
-            static::assertInstanceOf(Definition::class, $specDef);
-
-            $name = $specDef->getArguments()[0] ?? null;
-            static::assertIsString($name);
-            $indexed[$name] = $compiledDef;
-        }
-
-        return $indexed;
-    }
-
-    /**
-     * @return array{compiled: Definition, spec: Definition}
-     */
-    private function loadFixtureDefinitions(): array
-    {
-        $container = $this->buildContainer('prod');
-        $container->setParameter('kernel.bundles_metadata', [
-            'BundleA' => ['path' => self::FIXTURES_DIR . '/bundle-a'],
-        ]);
-        $container->setParameter('kernel.active_plugins', []);
-
-        $registryDef = $container->getDefinition(ContentSystemElementTypeRegistry::class);
-        $this->pass->process($container);
-
-        $byName = $this->indexDefinitionsByName($registryDef->getArgument(0));
-        static::assertArrayHasKey('Sw:Test:Element', $byName);
-
-        $compiledDef = $byName['Sw:Test:Element'];
-        $specDef = $compiledDef->getArguments()[0];
-        static::assertInstanceOf(Definition::class, $specDef);
-
-        return ['compiled' => $compiledDef, 'spec' => $specDef];
+        return $container->getDefinition(YamlTypeLoader::class)->getArgument('$directories');
     }
 }
 

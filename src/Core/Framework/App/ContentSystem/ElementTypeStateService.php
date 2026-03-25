@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\ContentSystem;
 
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeCollection;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,9 +16,6 @@ use Shopware\Core\Framework\Log\Package;
  * Toggles the `active` column on app_content_system_element_type when an app
  * is activated or deactivated. DatabaseTypeLoader queries WHERE active = 1,
  * so deactivated types are excluded from the registry on the next request.
- *
- * The registry implements ResetInterface — runtime-loaded types are cleared
- * between requests, so no explicit registry reset is needed here.
  */
 #[Package('framework')]
 class ElementTypeStateService
@@ -27,17 +25,20 @@ class ElementTypeStateService
      */
     public function __construct(
         private readonly EntityRepository $elementTypeRepository,
+        private readonly AbstractContentSystemElementTypeRegistry $registry,
     ) {
     }
 
     public function activateElementTypes(string $appId, Context $context): void
     {
         $this->updateElementTypes($appId, $context, false, true);
+        $this->registry->invalidate();
     }
 
     public function deactivateElementTypes(string $appId, Context $context): void
     {
         $this->updateElementTypes($appId, $context, true, false);
+        $this->registry->invalidate();
     }
 
     private function updateElementTypes(string $appId, Context $context, bool $currentActiveState, bool $newActiveState): void

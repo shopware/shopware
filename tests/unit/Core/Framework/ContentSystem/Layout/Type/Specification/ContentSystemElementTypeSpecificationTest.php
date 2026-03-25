@@ -17,14 +17,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecific
 #[CoversClass(ContentSystemElementTypeSpecification::class)]
 class ContentSystemElementTypeSpecificationTest extends TestCase
 {
-    #[TestDox('returns element type name')]
-    public function testNameReturnsTypeName(): void
-    {
-        $spec = $this->createSpecification('card', 'commerce');
-
-        static::assertSame('Sw:Product:Card', $spec->name());
-    }
-
     #[TestDox('includes all top-level scalar fields in schema')]
     public function testToSchemaIncludesTopLevelScalarFields(): void
     {
@@ -39,8 +31,8 @@ class ContentSystemElementTypeSpecificationTest extends TestCase
         static::assertSame('commerce', $schema['category']);
     }
 
-    #[TestDox('preserves property keys and delegates to property specifications')]
-    public function testToSchemaPreservesPropertyKeys(): void
+    #[TestDox('includes property keys and slots in schema')]
+    public function testToSchemaIncludesPropertyKeysAndSlots(): void
     {
         $spec = $this->createFullSpecification();
         $schema = $spec->toSchema();
@@ -48,14 +40,6 @@ class ContentSystemElementTypeSpecificationTest extends TestCase
         static::assertCount(2, $schema['properties']);
         static::assertArrayHasKey('product', $schema['properties']);
         static::assertArrayHasKey('layout', $schema['properties']);
-    }
-
-    #[TestDox('maps slots as indexed array')]
-    public function testToSchemaMapsSlots(): void
-    {
-        $spec = $this->createFullSpecification();
-        $schema = $spec->toSchema();
-
         static::assertCount(1, $schema['slots']);
         static::assertIsArray($schema['slots'][0]);
     }
@@ -73,6 +57,25 @@ class ContentSystemElementTypeSpecificationTest extends TestCase
         static::assertSame([], $schema['slots']);
     }
 
+    #[TestDox('excludes source field from schema output')]
+    public function testToSchemaDoesNotIncludeSource(): void
+    {
+        $specification = new ContentSystemElementTypeSpecification(
+            'Sw:Content:Text',
+            'Text',
+            '',
+            'test',
+            null,
+            null,
+            new CopilotSpecification('', []),
+            [],
+            [],
+            'core'
+        );
+
+        static::assertArrayNotHasKey('source', $specification->toSchema());
+    }
+
     private function createSpecification(?string $icon, ?string $category): ContentSystemElementTypeSpecification
     {
         return new ContentSystemElementTypeSpecification(
@@ -85,6 +88,7 @@ class ContentSystemElementTypeSpecificationTest extends TestCase
             new CopilotSpecification('Product card', ['Use for single products']),
             [],
             [],
+            'test',
         );
     }
 
@@ -119,6 +123,7 @@ class ContentSystemElementTypeSpecificationTest extends TestCase
             [
                 new SlotSpecification('media', 1, ['Sw:Media:Image'], 'Media slot.'),
             ],
+            'test',
         );
     }
 }

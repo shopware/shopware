@@ -44,6 +44,7 @@ class DatabaseTypeLoaderTest extends TestCase
 
         static::assertCount(1, $definitions);
         static::assertSame('App:Demo:Hero', $definitions[0]->name());
+        static::assertSame('app:DemoApp', $definitions[0]->source());
     }
 
     #[TestDox('returns empty list in dev environment')]

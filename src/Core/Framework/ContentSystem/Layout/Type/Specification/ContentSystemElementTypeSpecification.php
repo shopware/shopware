@@ -42,12 +42,18 @@ final readonly class ContentSystemElementTypeSpecification
         private CopilotSpecification $copilot,
         private array $properties,
         private array $slots,
+        private string $source = '',
     ) {
     }
 
     public function name(): string
     {
         return $this->name;
+    }
+
+    public function source(): string
+    {
+        return $this->source;
     }
 
     /**

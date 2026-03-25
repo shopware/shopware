@@ -9,7 +9,7 @@ Type spec `properties` = schema for hydrated API output, NOT storage format
 
 ## Source Code References
 
-- **Registry**: `Registry/ContentSystemElementTypeRegistry` (two-phase: compiled + runtime loaders), `CompiledElementTypeDefinitionCollection` (compile-time dedup with source labels)
+- **Registry**: `Registry/AbstractContentSystemElementTypeRegistry` (abstract, decoration pattern), `Registry/ContentSystemElementTypeRegistry` (stateless aggregator), `Registry/CachedContentSystemElementTypeRegistry` (`cache.system` pool decorator)
 - **Compiler Pass**: `DependencyInjection/CompilerPass/ContentSystemElementTypeCompilerPass` (discovers from core, bundles, plugins, apps)
 - **Loaders**: `Loader/YamlTypeLoader` (filesystem), `Loader/DatabaseTypeLoader` (app types, prod only)
 - **Serializer**: `Serialization/ElementTypeSpecificationSerializer` (YAML ↔ DTO)
@@ -21,8 +21,7 @@ Type spec `properties` = schema for hydrated API output, NOT storage format
 
 - Type names must be unique across all sources (core, bundles, plugins, apps) — duplicates caught at compile time with source labels (e.g., `"core"`, `"plugin:MyPlugin"`)
 - YAML: one type per file, `meta.name` is authoritative (filename is informational)
-- Registry is `@final` + `ResetInterface` — runtime-loaded types cleared between requests
-- Compiled types survive resets; runtime types (DB-loaded) do not
+- Registry uses Shopware decoration pattern: `AbstractContentSystemElementTypeRegistry` → `ContentSystemElementTypeRegistry` (leaf) → `CachedContentSystemElementTypeRegistry` (decorator, `cache.system` pool). `invalidate()` throws `DecorationPatternException` by default — only the cached decorator overrides it. Consumers type-hint `AbstractContentSystemElementTypeRegistry`.
 - `DatabaseTypeLoader` returns empty in dev (apps load from filesystem via compiler pass in dev)
 - Plugin type directory customizable via `Plugin::getContentTypeDirectory()`
 - `ValidPropertyConstraintsValidator` enforces: `translatable` only on `string`, `enum` only on primitives

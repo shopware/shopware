@@ -238,6 +238,8 @@
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer"/>
             <argument type="service" id="validator"/>
+            <argument key="$directories" type="collection"/>
+            <tag name="content_system.type_loader"/>
         </service>
 
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader">
@@ -249,9 +251,13 @@
         </service>
 
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry">
-            <argument type="collection"/><!-- Populated by ContentSystemElementTypeCompilerPass -->
             <argument type="tagged_iterator" tag="content_system.type_loader"/>
-            <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CachedContentSystemElementTypeRegistry"
+                 decorates="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CachedContentSystemElementTypeRegistry.inner"/>
+            <argument type="service" id="cache.system"/>
         </service>
 
         <!-- Content Route Loader (arg 0 set by ContentRouteCompilerPass) -->

@@ -16,8 +16,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\SlotSpec
 #[CoversClass(ElementTypeSpecificationDto::class)]
 class ElementTypeSpecificationDtoTest extends TestCase
 {
-    #[TestDox('preserves property keys when converting to specification')]
-    public function testPreservesPropertyKeysOnConversion(): void
+    #[TestDox('maps property keys to schema')]
+    public function testMapsPropertyKeysToSchema(): void
     {
         $dto = $this->createDto(
             [
@@ -27,38 +27,54 @@ class ElementTypeSpecificationDtoTest extends TestCase
             [],
         );
 
-        $schema = $dto->toContentSystemElementTypeSpecification()->toSchema();
+        $schema = $dto->toContentSystemElementTypeSpecification('test')->toSchema();
 
         static::assertCount(2, $schema['properties']);
         static::assertArrayHasKey('title', $schema['properties']);
         static::assertArrayHasKey('layout', $schema['properties']);
     }
 
-    #[TestDox('converts slot DTOs into specification slots')]
-    public function testConvertsSlotsToSpecification(): void
+    #[TestDox('includes slots in schema')]
+    public function testIncludesSlotsInSchema(): void
     {
         $dto = $this->createDto(
             [],
             [new SlotSpecificationDto('media', 1, ['Sw:Media:Image'], 'Media slot.')],
         );
 
-        $schema = $dto->toContentSystemElementTypeSpecification()->toSchema();
+        $schema = $dto->toContentSystemElementTypeSpecification('test')->toSchema();
 
         static::assertCount(1, $schema['slots']);
     }
 
-    #[TestDox('produces correct name and empty collections when no properties or slots are defined')]
-    public function testConvertsEmptyDtoToSpecification(): void
+    #[TestDox('returns empty properties and slots when none are defined')]
+    public function testReturnsEmptyCollectionsWhenNoneAreDefined(): void
     {
         $dto = $this->createDto([], []);
-        $spec = $dto->toContentSystemElementTypeSpecification();
-
-        static::assertSame('Sw:Product:Card', $spec->name());
-
-        $schema = $spec->toSchema();
+        $schema = $dto->toContentSystemElementTypeSpecification('test')->toSchema();
 
         static::assertSame([], $schema['properties']);
         static::assertSame([], $schema['slots']);
+    }
+
+    #[TestDox('passes source label through to specification')]
+    public function testSourceIsPassedThroughToSpecification(): void
+    {
+        $dto = new ElementTypeSpecificationDto(
+            'Sw:Content:Text',
+            'Text',
+            '',
+            'vendor',
+            null,
+            null,
+            new CopilotSpecificationDto('', []),
+            [],
+            [],
+        );
+
+        $specification = $dto->toContentSystemElementTypeSpecification('plugin:MyPlugin');
+
+        static::assertSame('plugin:MyPlugin', $specification->source());
     }
 
     /**

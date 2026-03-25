@@ -117,7 +117,6 @@
             <directory suffix=".php">src/Core/Framework/Util/Database</directory>
 
             <!-- ContentSystem: trivial value objects, DTOs, route responses, pure delegations, enums, loader configs -->
-            <file>src/Core/Framework/ContentSystem/Layout/Type/Registry/CompiledElementTypeDefinition.php</file>
             <file>src/Core/Framework/ContentSystem/SalesChannel/Routing/ContentRouteDefinition.php</file>
             <file>src/Core/Framework/ContentSystem/Layout/Element/Context/Distribution/DistributionStrategy.php</file>
             <file>src/Core/Framework/ContentSystem/RenderingSpecification.php</file>

@@ -39,7 +39,7 @@ final readonly class ElementTypeSpecificationDto
     ) {
     }
 
-    public function toContentSystemElementTypeSpecification(): ContentSystemElementTypeSpecification
+    public function toContentSystemElementTypeSpecification(string $source): ContentSystemElementTypeSpecification
     {
         $properties = [];
         foreach ($this->properties as $key => $dto) {
@@ -61,6 +61,7 @@ final readonly class ElementTypeSpecificationDto
             $this->copilot->toCopilotSpecification(),
             $properties,
             $slots,
+            $source,
         );
     }
 }

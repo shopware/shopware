@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeCollection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -33,7 +33,7 @@ class ContentSystemElementTypePersister implements PersisterInterface
         private readonly EntityRepository $contentElementTypeRepository,
         private readonly ElementTypeSpecificationSerializer $serializer,
         private readonly ValidatorInterface $validator,
-        private readonly ContentSystemElementTypeRegistry $registry,
+        private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly Connection $connection,
     ) {
     }
@@ -119,6 +119,10 @@ class ContentSystemElementTypePersister implements PersisterInterface
 
         if ($deleteIds !== []) {
             $this->contentElementTypeRepository->delete($deleteIds, $context->context);
+        }
+
+        if ($upserts !== [] || $deleteIds !== []) {
+            $this->registry->invalidate();
         }
     }
 

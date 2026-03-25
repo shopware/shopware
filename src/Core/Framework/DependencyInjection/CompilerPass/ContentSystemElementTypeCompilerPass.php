@@ -5,22 +5,10 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CompiledElementTypeDefinition;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CompiledElementTypeDefinitionCollection;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecification;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Filesystem;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -32,47 +20,28 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
 
     private const CORE_DEFINITIONS_DIRECTORY = __DIR__ . '/../../ContentSystem/Layout/Type/Definitions';
 
-    public function __construct(
-        private readonly YamlTypeLoader $loader,
-    ) {
-    }
-
-    public static function withDefaultLoader(): self
-    {
-        return new self(
-            new YamlTypeLoader(
-                new ElementTypeSpecificationSerializer(),
-                Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator()
-            )
-        );
-    }
-
     public function process(ContainerBuilder $container): void
     {
-        if (!$container->hasDefinition(ContentSystemElementTypeRegistry::class)) {
+        if (!$container->hasDefinition(YamlTypeLoader::class)) {
             return;
         }
 
-        $collection = new CompiledElementTypeDefinitionCollection();
+        $directories = [];
 
-        $this->loadFromDirectory(self::CORE_DEFINITIONS_DIRECTORY, 'core', $collection);
-        $this->loadFromBundleMetadata($container, $collection);
-        $this->loadFromPlugins($container, $collection);
-        $this->loadFromApps($container, $collection);
+        $this->loadFromDirectory(self::CORE_DEFINITIONS_DIRECTORY, 'core', $directories);
+        $this->loadFromBundleMetadata($container, $directories);
+        $this->loadFromPlugins($container, $directories);
+        $this->loadFromApps($container, $directories);
 
-        $inlineDefinitions = [];
-        foreach ($collection->all() as $compiled) {
-            $inlineDefinitions[] = $this->createCompiledDefinition($compiled);
-        }
-
-        $registryServiceDefinition = $container->getDefinition(ContentSystemElementTypeRegistry::class);
-        $registryServiceDefinition->setArgument(0, $inlineDefinitions);
+        $container->getDefinition(YamlTypeLoader::class)->setArgument('$directories', $directories);
     }
 
     /**
      * Active plugins excluded — loaded separately via loadFromPlugins to support custom type directories.
+     *
+     * @param array<string, string> $directories
      */
-    private function loadFromBundleMetadata(ContainerBuilder $container, CompiledElementTypeDefinitionCollection $collection): void
+    private function loadFromBundleMetadata(ContainerBuilder $container, array &$directories): void
     {
         $bundleMetadata = $container->getParameter('kernel.bundles_metadata');
         if (!\is_array($bundleMetadata)) {
@@ -96,16 +65,19 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
                 continue;
             }
 
-            $this->loadFromDirectory($metadata['path'] . '/' . self::STANDARD_TYPE_DIRECTORY, 'bundle:' . $bundleName, $collection);
+            $this->loadFromDirectory($metadata['path'] . '/' . self::STANDARD_TYPE_DIRECTORY, 'bundle:' . $bundleName, $directories);
         }
     }
 
-    private function loadFromPlugins(ContainerBuilder $container, CompiledElementTypeDefinitionCollection $collection): void
+    /**
+     * @param array<string, string> $directories
+     */
+    private function loadFromPlugins(ContainerBuilder $container, array &$directories): void
     {
         foreach ($this->getActivePluginClasses($container) as $pluginClass => $pluginMeta) {
             $relativeDirectory = $pluginClass::getContentTypeDirectory();
 
-            $this->loadFromDirectory($pluginMeta['path'] . '/' . $relativeDirectory, 'plugin:' . $pluginMeta['name'], $collection);
+            $this->loadFromDirectory($pluginMeta['path'] . '/' . $relativeDirectory, 'plugin:' . $pluginMeta['name'], $directories);
         }
     }
 
@@ -157,7 +129,10 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
         return $result;
     }
 
-    private function loadFromApps(ContainerBuilder $container, CompiledElementTypeDefinitionCollection $collection): void
+    /**
+     * @param array<string, string> $directories
+     */
+    private function loadFromApps(ContainerBuilder $container, array &$directories): void
     {
         if ($container->getParameter('kernel.environment') !== 'dev') {
             return;
@@ -177,84 +152,15 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
         }
 
         foreach ($apps as $app) {
-            $this->loadFromDirectory(\sprintf('%s/%s/%s', $projectDirectory, $app['path'], self::STANDARD_TYPE_DIRECTORY), 'app:' . $app['name'], $collection);
+            $this->loadFromDirectory(\sprintf('%s/%s/%s', $projectDirectory, $app['path'], self::STANDARD_TYPE_DIRECTORY), 'app:' . $app['name'], $directories);
         }
     }
 
-    private function loadFromDirectory(string $directory, string $source, CompiledElementTypeDefinitionCollection $collection): void
+    /**
+     * @param array<string, string> $directories
+     */
+    private function loadFromDirectory(string $directory, string $source, array &$directories): void
     {
-        foreach ($this->loader->load(new Filesystem($directory)) as $specification) {
-            $collection->add(new CompiledElementTypeDefinition($specification, $source));
-        }
-    }
-
-    private function createCompiledDefinition(CompiledElementTypeDefinition $compiled): Definition
-    {
-        $specDef = $this->createSpecificationDefinition($compiled->specification);
-
-        $compiledDef = new Definition(CompiledElementTypeDefinition::class);
-        $compiledDef->setArguments([$specDef, $compiled->source]);
-
-        return $compiledDef;
-    }
-
-    private function createSpecificationDefinition(ContentSystemElementTypeSpecification $spec): Definition
-    {
-        $schema = $spec->toSchema();
-
-        $copilotDef = new Definition(CopilotSpecification::class);
-        $copilotDef->setArguments([
-            $schema['copilot']['summary'] ?? '',
-            $schema['copilot']['hints'] ?? [],
-        ]);
-
-        $propertyDefs = [];
-        foreach ($schema['properties'] as $key => $propSchema) {
-            $typeDef = new Definition(PropertyType::class);
-            $typeDef->setArguments([
-                $propSchema['type'],
-                $propSchema['translatable'] ?? false,
-                $propSchema['enum'] ?? null,
-                $propSchema['default'] ?? null,
-            ]);
-
-            $propDef = new Definition(PropertySpecification::class);
-            $propDef->setArguments([
-                $key,
-                $typeDef,
-                $propSchema['required'] ?? false,
-                $propSchema['title'] ?? '',
-                $propSchema['description'] ?? '',
-                $propSchema['adminUI'] ?? null,
-            ]);
-            $propertyDefs[$key] = $propDef;
-        }
-
-        $slotDefs = [];
-        foreach ($schema['slots'] as $slotSchema) {
-            $slotDef = new Definition(SlotSpecification::class);
-            $slotDef->setArguments([
-                $slotSchema['name'],
-                $slotSchema['maxElements'] ?? null,
-                $slotSchema['allowList'] ?? [],
-                $slotSchema['description'] ?? '',
-            ]);
-            $slotDefs[] = $slotDef;
-        }
-
-        $def = new Definition(ContentSystemElementTypeSpecification::class);
-        $def->setArguments([
-            $schema['name'],
-            $schema['label'],
-            $schema['description'] ?? '',
-            $schema['vendor'] ?? '',
-            $schema['icon'] ?? null,
-            $schema['category'] ?? null,
-            $copilotDef,
-            $propertyDefs,
-            $slotDefs,
-        ]);
-
-        return $def;
+        $directories[$source] = $directory;
     }
 }

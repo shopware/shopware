@@ -43,9 +43,9 @@ This bridge is built at compile time by `ContentSystemDataLoaderTypeCompilerPass
 
 2. **Loading** (Loader/) — YamlTypeLoader scans a directory for *.yaml files, deserializes via ElementTypeSpecificationSerializer, validates via Symfony Validator. DatabaseTypeLoader loads active app types from the app_content_system_element_type table (prod only; returns empty in dev where apps load from filesystem via the compiler pass).
 
-3. **Registry** (Registry/) — ContentSystemElementTypeRegistry holds all types in-memory. Two-phase: compiled definitions injected by ContentSystemElementTypeCompilerPass, plus runtime-loaded definitions from tagged content_system.type_loader services (lazy on first access). Implements ResetInterface to clear runtime types between requests.
+3. **Registry** (Registry/) — Uses the Shopware decoration pattern. AbstractContentSystemElementTypeRegistry defines the contract; ContentSystemElementTypeRegistry is the stateless aggregator (leaf) that iterates tagged content_system.type_loader services; CachedContentSystemElementTypeRegistry decorates it with a `cache.system` pool, caching the aggregated result cross-request. `invalidate()` throws `DecorationPatternException` by default — only the cached decorator overrides it.
 
-4. **Compiler Pass** — ContentSystemElementTypeCompilerPass discovers YAML definitions from four sources: core Definitions/ directory, bundle metadata, active plugins (customizable via Plugin::getContentTypeDirectory()), and active apps (dev env only, filesystem).
+4. **Compiler Pass** — ContentSystemElementTypeCompilerPass discovers YAML directories from four sources: core Definitions/ directory, bundle metadata, active plugins (customizable via Plugin::getContentTypeDirectory()), and active apps (dev env only, filesystem). Injects directory paths into YamlTypeLoader — no YAML parsing at compile time.
 
 5. **App Integration** — AppContentSystemElementTypeDefinition (DAL entity), ContentSystemElementTypePersister (syncs YAML to DB with collision detection), ContentSystemElementTypeAppValidator (validates app YAML during manifest validation).
 
@@ -53,7 +53,7 @@ This bridge is built at compile time by `ContentSystemDataLoaderTypeCompilerPass
 
 - **Definitions/** - Core YAML type definitions (49 files: headers, filters, products, content, media, grid)
 - **Loader/** - Type loading (YamlTypeLoader for filesystem, DatabaseTypeLoader for app types in prod)
-- **Registry/** - ContentSystemElementTypeRegistry (two-phase: compile-time baked + runtime DB), CompiledElementTypeDefinition (pairs specification with source label), CompiledElementTypeDefinitionCollection (name-keyed dedup)
+- **Registry/** - AbstractContentSystemElementTypeRegistry (decoration pattern contract), ContentSystemElementTypeRegistry (stateless aggregator), CachedContentSystemElementTypeRegistry (cross-request cache decorator)
 - **Serialization/** - ElementTypeSpecificationSerializer (YAML ↔ DTO conversion)
 - **Specification/** - Value objects (ContentSystemElementTypeSpecification, PropertySpecification, SlotSpecification, CopilotSpecification)
 - **Specification/Dto/** - Validation DTOs with Symfony constraint attributes

@@ -17,18 +17,49 @@ use Symfony\Component\Yaml\Yaml;
  * @final
  */
 #[Package('framework')]
-class YamlTypeLoader
+class YamlTypeLoader extends AbstractContentSystemElementTypeLoader
 {
+    /**
+     * @param array<string, string> $directories source label => absolute path
+     */
     public function __construct(
         private readonly ElementTypeSpecificationSerializer $serializer,
         private readonly ValidatorInterface $validator,
+        private readonly array $directories = [],
     ) {
     }
 
     /**
      * @return list<ContentSystemElementTypeSpecification>
      */
-    public function load(Filesystem $filesystem): array
+    public function load(): array
+    {
+        $definitions = [];
+        $seenNames = [];
+
+        foreach ($this->directories as $source => $path) {
+            $filesystem = new Filesystem($path);
+            $directoryDefinitions = $this->loadDirectory($filesystem, $source);
+
+            foreach ($directoryDefinitions as $specification) {
+                $name = $specification->name();
+
+                if (isset($seenNames[$name])) {
+                    throw ContentSystemException::elementTypeDuplicate($name, $seenNames[$name], $source);
+                }
+
+                $seenNames[$name] = $source;
+                $definitions[] = $specification;
+            }
+        }
+
+        return $definitions;
+    }
+
+    /**
+     * @return list<ContentSystemElementTypeSpecification>
+     */
+    private function loadDirectory(Filesystem $filesystem, string $source): array
     {
         if (!$filesystem->has()) {
             return [];
@@ -62,7 +93,7 @@ class YamlTypeLoader
             }
 
             $seenNames[$name] = $fileInfo->getFilename();
-            $definitions[] = $dto->toContentSystemElementTypeSpecification();
+            $definitions[] = $dto->toContentSystemElementTypeSpecification($source);
         }
 
         return $definitions;

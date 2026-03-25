@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeCollection;
 use Shopware\Core\Framework\App\ContentSystem\ElementTypeStateService;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -41,7 +42,10 @@ class ElementTypeStateServiceTest extends TestCase
             },
         ]);
 
-        $service = new ElementTypeStateService($repo);
+        $registry = $this->createMock(AbstractContentSystemElementTypeRegistry::class);
+        $registry->expects($this->once())->method('invalidate');
+
+        $service = new ElementTypeStateService($repo, $registry);
         $service->activateElementTypes($appId, Context::createDefaultContext());
 
         static::assertCount(1, $repo->updates);
@@ -73,7 +77,10 @@ class ElementTypeStateServiceTest extends TestCase
             },
         ]);
 
-        $service = new ElementTypeStateService($repo);
+        $registry = $this->createMock(AbstractContentSystemElementTypeRegistry::class);
+        $registry->expects($this->once())->method('invalidate');
+
+        $service = new ElementTypeStateService($repo, $registry);
         $service->deactivateElementTypes($appId, Context::createDefaultContext());
 
         static::assertCount(1, $repo->updates);
@@ -81,15 +88,18 @@ class ElementTypeStateServiceTest extends TestCase
         static::assertSame(['id' => 'type-id-1', 'active' => false], $repo->updates[0][0]);
     }
 
-    #[TestDox('passes empty update when no element types match')]
-    public function testNoMatchingTypesResultsInEmptyUpdate(): void
+    #[TestDox('invalidates registry even when no element types match for activation')]
+    public function testActivateElementTypesInvalidatesRegistryWhenNoTypesFound(): void
     {
         /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
             [],
         ]);
 
-        $service = new ElementTypeStateService($repo);
+        $registry = $this->createMock(AbstractContentSystemElementTypeRegistry::class);
+        $registry->expects($this->once())->method('invalidate');
+
+        $service = new ElementTypeStateService($repo, $registry);
         $service->activateElementTypes('app-without-types', Context::createDefaultContext());
 
         static::assertCount(1, $repo->updates);

@@ -57,7 +57,7 @@ class DatabaseTypeLoader extends AbstractContentSystemElementTypeLoader
                 );
             }
 
-            $definitions[] = $dto->toContentSystemElementTypeSpecification();
+            $definitions[] = $dto->toContentSystemElementTypeSpecification('app:' . $row['app_name']);
         }
 
         return $definitions;

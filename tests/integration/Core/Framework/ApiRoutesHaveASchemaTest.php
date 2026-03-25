@@ -111,7 +111,9 @@ class ApiRoutesHaveASchemaTest extends TestCase
                 $routesFromPathParameter = $this->getRoutesFromSchemaDefinitionPath($path, $routeSchema);
                 foreach ($routesFromPathParameter as $routeFromPathParameter) {
                     if (\in_array($routeFromPathParameter, $missingRoutes, true)) {
-                        unset($schemaRoutes[$path], $missingRoutes[array_search($routeFromPathParameter, $missingRoutes, true)]);
+                        $missingRouteKey = array_search($routeFromPathParameter, $missingRoutes, true);
+                        static::assertNotFalse($missingRouteKey);
+                        unset($schemaRoutes[$path], $missingRoutes[$missingRouteKey]);
                     }
                 }
                 $missingRoutes = array_values($missingRoutes);

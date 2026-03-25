@@ -51,6 +51,11 @@ abstract class Field extends Struct
         return 0;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return static natively
+     *
+     * @return static
+     */
     public function setFlags(Flag ...$flags): self
     {
         $this->flags = [];
@@ -64,6 +69,11 @@ abstract class Field extends Struct
         return $this;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return static natively
+     *
+     * @return static
+     */
     public function addFlags(Flag ...$flags): self
     {
         foreach ($flags as $flag) {
@@ -74,7 +84,11 @@ abstract class Field extends Struct
     }
 
     /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return static natively
+     *
      * @param class-string<Flag> $class
+     *
+     * @return static
      */
     public function removeFlag(string $class): self
     {
@@ -130,6 +144,11 @@ abstract class Field extends Struct
         return $this->description;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return static natively
+     *
+     * @return static
+     */
     public function setDescription(string $description): self
     {
         $this->description = $description;

@@ -75,7 +75,7 @@ describe('src/core/telemetry/index.js', () => {
                 'telemetry',
                 new TelemetryEvent('identify', {
                     userId: currentUser.id,
-                    locale: null,
+                    locale: 'en-GB',
                     isAdmin: currentUser.admin,
                 }),
             );
@@ -94,6 +94,31 @@ describe('src/core/telemetry/index.js', () => {
             logoutCallback();
 
             expect(eventBusSpy).toHaveBeenCalledWith('telemetry', new TelemetryEvent('reset', {}));
+        });
+
+        it('dispatches identify events', () => {
+            const handler = jest.fn();
+            Shopware.Utils.EventBus.on('telemetry', handler);
+
+            const currentUser = {
+                id: '8b8ebef4-7fa3-4844-ab7e-120463ea558b',
+                admin: true,
+            };
+            Shopware.Store.get('session').currentUser = currentUser;
+
+            const telemetry = new Telemetry({ queries: [] });
+
+            telemetry.identify();
+
+            expect(handler).toHaveBeenCalledWith(
+                new TelemetryEvent('identify', {
+                    userId: currentUser.id,
+                    locale: 'en-GB',
+                    isAdmin: currentUser.admin,
+                }),
+            );
+
+            Shopware.Utils.EventBus.off('telemetry', handler);
         });
     });
 

@@ -111,7 +111,7 @@
             <tag name="shopware.product_export.validator"/>
         </service>
 
-        <service id="Shopware\Core\Content\ProductExport\Provider\ProductExportProviderRegistry">
+        <service id="Shopware\Core\Content\ProductExport\Provider\AgenticCommerceProductExportProviderRegistry">
             <argument type="tagged_iterator" tag="shopware.product_export.provider"/>
         </service>
 
@@ -132,8 +132,8 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Content\ProductExport\Subscriber\ProductExportProviderContextSubscriber">
-            <argument type="service" id="Shopware\Core\Content\ProductExport\Provider\ProductExportProviderRegistry"/>
+        <service id="Shopware\Core\Content\ProductExport\Subscriber\AgenticCommerceProductExportProviderContextSubscriber">
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Provider\AgenticCommerceProductExportProviderRegistry"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

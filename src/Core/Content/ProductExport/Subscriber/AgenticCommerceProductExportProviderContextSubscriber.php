@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\ProductExport\Subscriber;
 
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderBodyContextEvent;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
-use Shopware\Core\Content\ProductExport\Provider\ProductExportProviderRegistry;
+use Shopware\Core\Content\ProductExport\Provider\AgenticCommerceProductExportProviderRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -15,10 +15,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
  */
 #[Package('discovery')]
-readonly class ProductExportProviderContextSubscriber implements EventSubscriberInterface
+readonly class AgenticCommerceProductExportProviderContextSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private ProductExportProviderRegistry $providerRegistry,
+        private AgenticCommerceProductExportProviderRegistry $providerRegistry,
     ) {
     }
 

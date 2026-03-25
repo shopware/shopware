@@ -5,8 +5,8 @@ namespace Shopware\Tests\Unit\Core\Content\ProductExport\Provider;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
-use Shopware\Core\Content\ProductExport\Provider\AbstractProductExportProvider;
-use Shopware\Core\Content\ProductExport\Provider\ProductExportProviderRegistry;
+use Shopware\Core\Content\ProductExport\Provider\AbstractAgenticCommerceProductExportProvider;
+use Shopware\Core\Content\ProductExport\Provider\AgenticCommerceProductExportProviderRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -14,8 +14,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(ProductExportProviderRegistry::class)]
-class ProductExportProviderRegistryTest extends TestCase
+#[CoversClass(AgenticCommerceProductExportProviderRegistry::class)]
+class AgenticCommerceProductExportProviderRegistryTest extends TestCase
 {
     public function testGetByTechnicalNameReturnsMatchingProvider(): void
     {
@@ -23,7 +23,7 @@ class ProductExportProviderRegistryTest extends TestCase
         $matchingProvider = $this->createProvider('open-ai');
         $duplicateProvider = $this->createProvider('open-ai');
 
-        $registry = new ProductExportProviderRegistry([
+        $registry = new AgenticCommerceProductExportProviderRegistry([
             $firstProvider,
             $matchingProvider,
             $duplicateProvider,
@@ -34,7 +34,7 @@ class ProductExportProviderRegistryTest extends TestCase
 
     public function testGetByTechnicalNameReturnsNullWhenProviderDoesNotExist(): void
     {
-        $registry = new ProductExportProviderRegistry([
+        $registry = new AgenticCommerceProductExportProviderRegistry([
             $this->createProvider('google'),
             $this->createProvider('meta'),
         ]);
@@ -42,9 +42,9 @@ class ProductExportProviderRegistryTest extends TestCase
         static::assertNull($registry->getByTechnicalName('open-ai'));
     }
 
-    private function createProvider(string $technicalName): AbstractProductExportProvider
+    private function createProvider(string $technicalName): AbstractAgenticCommerceProductExportProvider
     {
-        return new class($technicalName) extends AbstractProductExportProvider {
+        return new class($technicalName) extends AbstractAgenticCommerceProductExportProvider {
             public function __construct(private readonly string $technicalName)
             {
             }
@@ -54,12 +54,11 @@ class ProductExportProviderRegistryTest extends TestCase
                 return $this->technicalName;
             }
 
-            public function extendRenderContext(
+            protected function buildProviderContext(
                 ProductExportEntity $productExport,
                 SalesChannelContext $salesChannelContext,
-                array $renderContext
             ): array {
-                return $renderContext;
+                return [];
             }
         };
     }

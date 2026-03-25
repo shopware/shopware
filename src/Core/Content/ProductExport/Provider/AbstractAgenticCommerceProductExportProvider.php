@@ -14,10 +14,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Concrete providers only need to implement {@see buildProviderContext()} for their format-specific fields.
  *
  * @internal
+ *
+ * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
  */
 #[Package('discovery')]
-abstract class AbstractAgenticCommerceProductExportProvider extends AbstractProductExportProvider
+abstract class AbstractAgenticCommerceProductExportProvider
 {
+    abstract public function getTechnicalName(): string;
+
     /**
      * @param array<string, mixed> $renderContext
      *
@@ -45,8 +49,8 @@ abstract class AbstractAgenticCommerceProductExportProvider extends AbstractProd
     }
 
     /**
-     * Return provider-specific render context fields. Common fields (name, referralCode,
-     * affiliateCode, campaignCode) are added automatically by the base class.
+     * Return provider-specific render context fields. The base class adds common fields (name, referralCode,
+     * affiliateCode, campaignCode) automatically.
      *
      * @return array<string, mixed>
      */

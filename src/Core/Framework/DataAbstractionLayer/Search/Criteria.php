@@ -492,7 +492,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param array<string>|array<int, array<string>> $ids
+     * @param array<IDStructure> $ids
      */
     public function cloneForRead(array $ids = []): Criteria
     {

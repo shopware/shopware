@@ -169,6 +169,7 @@
         "placeholderDescription": "Regelbeschreibung eingeben ...",
         "labelType": "Typ",
         "placeholderType": "Regeltyp auswählen ...",
+        "productStatesConditionWarning": "Die Bedingung \"Position mit Produktzustand\" ist veraltet und wird in v6.8 entfernt. Bitte stattdessen \"Position mit Produkttyp\" verwenden.",
         "placeholderDelayType": "Verzögerung auswählen ..."
       },
       "tag": {

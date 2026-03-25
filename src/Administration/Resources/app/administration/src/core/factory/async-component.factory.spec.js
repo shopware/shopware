@@ -6,6 +6,7 @@ import { mount } from '@vue/test-utils';
 import ComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
+import { _overridesMap } from 'src/app/adapter/composition-extension-system';
 
 function createComponentMatrix(components) {
     const possibilities = [
@@ -107,6 +108,11 @@ describe('core/factory/async-component.factory.ts', () => {
         TemplateFactory.getNormalizedTemplateRegistry().clear();
         TemplateFactory.disableTwigCache();
         ComponentFactory.markComponentTemplatesAsNotResolved();
+
+        const entries = [...Object.keys(_overridesMap)];
+        entries.forEach((key) => {
+            delete _overridesMap[key];
+        });
     });
 
     it('test the component matrix', async () => {

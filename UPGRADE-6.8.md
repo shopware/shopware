@@ -4,6 +4,36 @@
 
 # API
 
+<details>
+
+## Changed returned status code for `/store-api/document/download/` when no documents are found
+
+The Store API route `/store-api/document/download` returns now a standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested mime type, instead of returning a `204` status code.
+
+## Removal of `/api/_info/queue.json` endpoint
+
+The `/api/_info/queue.json` endpoint has been removed. You may `/api/_info/message-stats.json` as alternative to get statistics for message queues.
+
+## Newsletter route methods removed and response changed
+
+The following methods have been removed:
+
+- `AbstractNewsletterSubscribeRoute::subscribe()`
+- `AbstractNewsletterConfirmRoute::confirm()`
+- `AbstractNewsletterUnsubscribeRoute::unsubscribe()`
+
+The following methods are now abstract and must be implemented by extensions. Their return types have been narrowed from `StoreApiResponse` to their explicit types:
+
+- `subscribeWithResponse()` returns `NewsletterSubscribeRouteResponse`
+- `confirmWithResponse()` returns `SuccessResponse`
+- `unsubscribeWithResponse()` returns `SuccessResponse`
+
+## Removed `/api/_action/mail-template/validate` route
+
+The `/api/_action/mail-template/validate` route has been removed without replacement, as it was not used and did not provide any significant value.
+
+</details>
+
 # Core
 
 <details>

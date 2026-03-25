@@ -77,19 +77,12 @@ jobs:
           - name: "consent-modal-viewed"
             file: "tests/ProductAnalytics/ConsentModalViewedEvent.spec.ts"
             grep: "@ProductAnalyticsConsentModalViewed"
-          - name: "consent-modal-accept"
-            file: "tests/ProductAnalytics/ValidatePRAEvents.spec.ts"
-            grep: "@ProductAnalyticsConsentModalAccept"
-          - name: "consent-modal-reject"
-            file: "tests/ProductAnalytics/ValidatePRAEvents.spec.ts"
-            grep: "@ProductAnalyticsConsentModalReject"
-          - name: "consent-modal-settings"
-            file: "tests/Settings/MerchantSetDataSharingConsent.spec.ts"
-            grep: "@ProductAnalyticsConsentModalSettings"
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
       - uses: ./.github/actions/ats
+        env:
+          PRODUCT_ANALYTICS_PREPARE_MODAL_STATE: 1
         with:
           project: "Platform"
           php-version: "8.2"
@@ -97,7 +90,6 @@ jobs:
           shard-count: 1
           workers: 1
           install: true
-          prepare-product-analytics-consent-modal-state: true
           extra-options: >-
             --grep=${{ matrix.grep }}
             -- ${{ matrix.file }}
@@ -126,8 +118,6 @@ jobs:
             tests/acceptance/tests/**/*.spec.ts
           files_ignore: |
             tests/acceptance/tests/ProductAnalytics/ConsentModalViewedEvent.spec.ts
-            tests/acceptance/tests/ProductAnalytics/ValidatePRAEvents.spec.ts
-            tests/acceptance/tests/Settings/MerchantSetDataSharingConsent.spec.ts
 
       - name: Execute acceptance tests
         if: ${{ steps.changed-files.outputs.any_changed == 'true' }}

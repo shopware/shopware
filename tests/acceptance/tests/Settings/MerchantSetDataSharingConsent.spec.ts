@@ -1,11 +1,9 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 import type { Page, Response } from '@playwright/test';
-import { prepareProductAnalyticsConsentModal } from '../../helpers/product-analytics-consent';
-import { createStableAdminPage } from '../../helpers/stable-admin-page';
+import { setProductAnalyticsConsentState } from '../../helpers/product-analytics-consent';
 
 const SETTINGS_PRIVACY_ROUTE = '#/sw/settings/usage/data/index/general';
 const PROFILE_PRIVACY_ROUTE = '#/sw/profile/index/privacy-preferences';
-const ALLOW_ALL_BUTTON = /Allow All|Share all data|Alle akzeptieren|Alle Daten teilen/;
 const STORE_DATA_CHECKBOX = /Share store data \(anonymous\)|Shopdaten teilen \(anonym\)/;
 const USER_DATA_CHECKBOX = /Share personal data|Persönliche Daten teilen/;
 
@@ -31,39 +29,16 @@ function waitForConsentResponse(
     });
 }
 
-async function removeSymfonyDebugToolbar(page: Page): Promise<void> {
-    await page.evaluate(() => {
-        document.querySelectorAll('.sf-toolbar').forEach((element) => {
-            element.remove();
-        });
-    });
-}
-
 test('Merchant is able accept or decline the data sharing consent.', {
-    tag: ['@DataSharing', '@ProductAnalyticsConsentModal', '@ProductAnalyticsConsentModalSettings'],
+    tag: ['@DataSharing'],
 }, async ({
-    browser,
-    SalesChannelBaseConfig,
+    AdminDashboard,
     AdminApiContext,
 }) => {
-    const { page } = await createStableAdminPage(browser, SalesChannelBaseConfig, AdminApiContext);
+    const page = AdminDashboard.page;
 
-    await test.step('Accept both data sharing consents from the dashboard modal', async () => {
-        await prepareProductAnalyticsConsentModal(page, AdminApiContext);
-        await expect(page.locator('.sw-settings-usage-data-consent-modal__content')).toBeVisible();
-
-        const backendDataConsentPromise = waitForConsentResponse(page, 'accept', 'backend_data');
-        const productAnalyticsConsentPromise = waitForConsentResponse(page, 'accept', 'product_analytics');
-
-        await removeSymfonyDebugToolbar(page);
-        await page.getByRole('button', { name: ALLOW_ALL_BUTTON }).click();
-
-        const backendDataResponse = await backendDataConsentPromise;
-        const productAnalyticsResponse = await productAnalyticsConsentPromise;
-
-        expect(backendDataResponse.ok()).toBeTruthy();
-        expect(productAnalyticsResponse.ok()).toBeTruthy();
-        await expect(page.locator('.sw-settings-usage-data-consent-modal__content')).not.toBeVisible();
+    await test.step('Start from both accepted consents', async () => {
+        await setProductAnalyticsConsentState(page, AdminApiContext, true);
     });
 
     await test.step('Validate declining and accepting store data consent on privacy settings', async () => {

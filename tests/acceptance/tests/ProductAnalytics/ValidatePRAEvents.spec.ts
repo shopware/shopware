@@ -1,9 +1,8 @@
 import { isSaaSInstance, test } from '@fixtures/AcceptanceTest';
 import { expect } from '@playwright/test';
-import type { Page, Response, Route, Request } from '@playwright/test';
+import type { Route, Request } from '@playwright/test';
 import { AdminPageObjects } from '@shopware-ag/acceptance-test-suite';
-import { prepareProductAnalyticsConsentModal } from '../../helpers/product-analytics-consent';
-import { createStableAdminPage } from '../../helpers/stable-admin-page';
+import { setProductAnalyticsConsentState } from '../../helpers/product-analytics-consent';
 
 interface CapturedRequest {
     postData: string;
@@ -21,38 +20,6 @@ export interface AmplitudeRequestPayload {
 
 const PRODUCT_ANALYTICS_ENDPOINT = /\/event(?:$|\?)/;
 const TRACKED_ADMIN_EVENT_TYPES = new Set(['link_visited', 'page_viewed', 'button_click']);
-const ALLOW_ALL_BUTTON = /Allow All|Share all data|Alle akzeptieren|Alle Daten teilen/;
-const REJECT_ALL_BUTTON = /Reject All|Share nothing|Alle ablehnen|Ablehnen/;
-
-function waitForConsentResponse(
-    page: Page,
-    action: 'accept' | 'revoke',
-    consent: 'backend_data' | 'product_analytics',
-): Promise<Response> {
-    return page.waitForResponse((response: Response) => {
-        if (!response.url().includes(`/api/consents/${action}`)) {
-            return false;
-        }
-
-        if (response.request().method() !== 'POST') {
-            return false;
-        }
-
-        try {
-            return response.request().postDataJSON()?.consent === consent;
-        } catch {
-            return false;
-        }
-    });
-}
-
-async function removeSymfonyDebugToolbar(page: Page): Promise<void> {
-    await page.evaluate(() => {
-        document.querySelectorAll('.sf-toolbar').forEach((element) => {
-            element.remove();
-        });
-    });
-}
 
 async function expectCapturedEventCount(captured: CapturedRequest[], expectedCount: number): Promise<void> {
     await expect.poll(() => parseCapturedEvents(captured).length).toBe(expectedCount);
@@ -62,15 +29,15 @@ async function expectCapturedEventCount(captured: CapturedRequest[], expectedCou
 test.describe.configure({ mode: 'serial' });
 
 test('As a merchant, I want to make sure admin events are sent correctly.', {
-    tag: ['@ProductAnalytics', '@ProductAnalyticsConsentModal', '@ProductAnalyticsConsentModalAccept'],
+    tag: ['@ProductAnalytics'],
 }, async ({
-    browser,
-    SalesChannelBaseConfig,
+    AdminDashboard,
     AdminApiContext,
     InstanceMeta,
     TestDataService,
 }) => {
-    const { page, adminDashboard } = await createStableAdminPage(browser, SalesChannelBaseConfig, AdminApiContext);
+    const page = AdminDashboard.page;
+    const adminDashboard = AdminDashboard;
     const adminOrderListing = new AdminPageObjects.OrderListing(page, InstanceMeta);
     const adminOrderDetail = new AdminPageObjects.OrderDetail(page, InstanceMeta);
 
@@ -100,29 +67,7 @@ test('As a merchant, I want to make sure admin events are sent correctly.', {
     const order = await TestDataService.createOrder([{ product: product, quantity: 1 }], customer);
 
     await test.step('Set consent for product analytics', async () => {
-        await prepareProductAnalyticsConsentModal(page, AdminApiContext);
-        await expect(page.locator('.sw-settings-usage-data-consent-modal__content')).toBeVisible();
-
-        const backendDataConsentPromise = waitForConsentResponse(
-            page,
-            'accept',
-            'backend_data',
-        );
-        const productAnalyticsConsentPromise = waitForConsentResponse(
-            page,
-            'accept',
-            'product_analytics',
-        );
-
-        await removeSymfonyDebugToolbar(page);
-        await page.getByRole('button', { name: ALLOW_ALL_BUTTON }).click();
-
-        const backendDataResponse = await backendDataConsentPromise;
-        const productAnalyticsResponse = await productAnalyticsConsentPromise;
-
-        expect(backendDataResponse.ok()).toBeTruthy();
-        expect(productAnalyticsResponse.ok()).toBeTruthy();
-        await expect(page.locator('.sw-settings-usage-data-consent-modal__content')).not.toBeVisible();
+        await setProductAnalyticsConsentState(page, AdminApiContext, true);
     });
 
     await test.step('Intercept all the API calls to product analytics', async () => {
@@ -269,14 +214,14 @@ test('As a merchant, I want to make sure admin events are sent correctly.', {
 });
 
 test('As a merchant, I want to make sure no admin events are sent when I do not consent.', {
-    tag: ['@ProductAnalytics', '@ProductAnalyticsConsentModal', '@ProductAnalyticsConsentModalReject'],
+    tag: ['@ProductAnalytics'],
 }, async ({
-    browser,
-    SalesChannelBaseConfig,
+    AdminDashboard,
     AdminApiContext,
     InstanceMeta,
 }) => {
-    const { page, adminDashboard } = await createStableAdminPage(browser, SalesChannelBaseConfig, AdminApiContext);
+    const page = AdminDashboard.page;
+    const adminDashboard = AdminDashboard;
     const adminOrderListing = new AdminPageObjects.OrderListing(page, InstanceMeta);
 
     const captured: CapturedRequest[] = [];
@@ -303,29 +248,7 @@ test('As a merchant, I want to make sure no admin events are sent when I do not 
     await page.route(PRODUCT_ANALYTICS_ENDPOINT, requestHandler);
 
     await test.step('Do not set consent for product analytics', async () => {
-        await prepareProductAnalyticsConsentModal(page, AdminApiContext);
-        await expect(page.locator('.sw-settings-usage-data-consent-modal__content')).toBeVisible();
-
-        const backendDataConsentPromise = waitForConsentResponse(
-            page,
-            'revoke',
-            'backend_data',
-        );
-        const productAnalyticsConsentPromise = waitForConsentResponse(
-            page,
-            'revoke',
-            'product_analytics',
-        );
-
-        await removeSymfonyDebugToolbar(page);
-        await page.getByRole('button', { name: REJECT_ALL_BUTTON }).click();
-
-        const backendDataResponse = await backendDataConsentPromise;
-        const productAnalyticsResponse = await productAnalyticsConsentPromise;
-
-        expect(backendDataResponse.ok()).toBeTruthy();
-        expect(productAnalyticsResponse.ok()).toBeTruthy();
-        await expect(page.locator('.sw-settings-usage-data-consent-modal__content')).not.toBeVisible();
+        await setProductAnalyticsConsentState(page, AdminApiContext, false);
     });
 
     await test.step('Navigate via link to order page from dashboard', async () => {

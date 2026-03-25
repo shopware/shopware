@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Provider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Provider\OpenAiProductExportProvider;
@@ -17,6 +18,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
@@ -29,7 +31,10 @@ class OpenAiProductExportProviderTest extends TestCase
 {
     public function testGetTechnicalNameReturnsOpenAi(): void
     {
-        $provider = new OpenAiProductExportProvider($this->createSalesChannelRepository());
+        $provider = new OpenAiProductExportProvider(
+            $this->createSalesChannelRepository(),
+            $this->createMock(SystemConfigService::class)
+        );
 
         static::assertSame('open-ai', $provider->getTechnicalName());
     }
@@ -37,11 +42,15 @@ class OpenAiProductExportProviderTest extends TestCase
     public function testExtendRenderContextUsesCountriesFromSalesChannelContext(): void
     {
         $repository = $this->createSalesChannelRepository();
-        $provider = new OpenAiProductExportProvider($repository);
         $salesChannel = $this->createSalesChannel(['DE', null, 'FR']);
+        $productExport = $this->createProductExport($salesChannel->getId());
+        $provider = new OpenAiProductExportProvider(
+            $repository,
+            $this->createSystemConfigService([], $salesChannel->getId())
+        );
 
         $renderContext = $provider->extendRenderContext(
-            $this->createProductExport(),
+            $productExport,
             $this->createSalesChannelContext($salesChannel),
             ['existing' => 'value']
         );
@@ -59,6 +68,14 @@ class OpenAiProductExportProviderTest extends TestCase
         static::assertSame('https://merchant.example', $providerContext->get('returnPolicyUrl'));
         static::assertTrue($providerContext->get('isEligibleSearch'));
         static::assertFalse($providerContext->get('isEligibleCheckout'));
+        static::assertSame([
+            'color' => null,
+            'size' => null,
+            'size_system' => null,
+            'gender' => null,
+            'material' => null,
+            'custom_variants' => null,
+        ], $providerContext->get('variantMapping'));
     }
 
     public function testExtendRenderContextLoadsCountriesFromRepositoryWhenAssociationIsNotLoaded(): void
@@ -67,6 +84,7 @@ class OpenAiProductExportProviderTest extends TestCase
         $salesChannel = $this->createSalesChannel();
         $salesChannelId = $salesChannel->getId();
         $fallbackSalesChannel = $this->createSalesChannel([null, 'US']);
+        $productExport = $this->createProductExport($salesChannelId);
 
         $repository = $this->createSalesChannelRepository([
             /**
@@ -81,10 +99,13 @@ class OpenAiProductExportProviderTest extends TestCase
             },
         ]);
 
-        $provider = new OpenAiProductExportProvider($repository);
+        $provider = new OpenAiProductExportProvider(
+            $repository,
+            $this->createSystemConfigService([], $salesChannelId)
+        );
 
         $renderContext = $provider->extendRenderContext(
-            $this->createProductExport(),
+            $productExport,
             $this->createSalesChannelContext($salesChannel, $context),
             []
         );
@@ -99,6 +120,7 @@ class OpenAiProductExportProviderTest extends TestCase
         $salesChannel = $this->createSalesChannel();
         $salesChannelId = $salesChannel->getId();
         $fallbackSalesChannel = $this->createSalesChannel();
+        $productExport = $this->createProductExport($salesChannelId);
 
         $repository = $this->createSalesChannelRepository([
             /**
@@ -113,10 +135,13 @@ class OpenAiProductExportProviderTest extends TestCase
             },
         ]);
 
-        $provider = new OpenAiProductExportProvider($repository);
+        $provider = new OpenAiProductExportProvider(
+            $repository,
+            $this->createSystemConfigService([], $salesChannelId)
+        );
 
         $renderContext = $provider->extendRenderContext(
-            $this->createProductExport(),
+            $productExport,
             $this->createSalesChannelContext($salesChannel, $context),
             []
         );
@@ -132,6 +157,7 @@ class OpenAiProductExportProviderTest extends TestCase
         $context = Context::createDefaultContext();
         $salesChannel = $this->createSalesChannel();
         $salesChannelId = $salesChannel->getId();
+        $productExport = $this->createProductExport($salesChannelId);
 
         $repository = $this->createSalesChannelRepository([
             /**
@@ -146,16 +172,55 @@ class OpenAiProductExportProviderTest extends TestCase
             },
         ]);
 
-        $provider = new OpenAiProductExportProvider($repository);
+        $provider = new OpenAiProductExportProvider(
+            $repository,
+            $this->createSystemConfigService([], $salesChannelId)
+        );
 
         $renderContext = $provider->extendRenderContext(
-            $this->createProductExport(),
+            $productExport,
             $this->createSalesChannelContext($salesChannel, $context),
             []
         );
 
         static::assertInstanceOf(ArrayStruct::class, $renderContext['provider']);
         static::assertNull($renderContext['provider']->get('targetCountries'));
+    }
+
+    public function testExtendRenderContextUsesConfiguredInputValues(): void
+    {
+        $salesChannel = $this->createSalesChannel(['DE']);
+        $salesChannelId = $salesChannel->getId();
+        $productExport = $this->createProductExport($salesChannelId);
+        $provider = new OpenAiProductExportProvider(
+            $this->createSalesChannelRepository(),
+            $this->createSystemConfigService([
+                'core.openAiProductExport.returnPolicyUrl' => ' https://returns.example/policy ',
+                'core.openAiProductExport.variantColor' => [' color ', '', 5, 'secondary-color'],
+                'core.openAiProductExport.variantSize' => [],
+                'core.openAiProductExport.variantSizeSystem' => ['eu_size'],
+                'core.openAiProductExport.variantGender' => ['unisex'],
+                'core.openAiProductExport.variantMaterial' => ['cotton'],
+                'core.openAiProductExport.variantCustom' => ['custom_a', null, 'custom_b'],
+            ], $salesChannelId)
+        );
+
+        $renderContext = $provider->extendRenderContext(
+            $productExport,
+            $this->createSalesChannelContext($salesChannel),
+            []
+        );
+
+        static::assertInstanceOf(ArrayStruct::class, $renderContext['provider']);
+        static::assertSame('https://returns.example/policy', $renderContext['provider']->get('returnPolicyUrl'));
+        static::assertSame([
+            'color' => [' color ', 'secondary-color'],
+            'size' => null,
+            'size_system' => ['eu_size'],
+            'gender' => ['unisex'],
+            'material' => ['cotton'],
+            'custom_variants' => ['custom_a', 'custom_b'],
+        ], $renderContext['provider']->get('variantMapping'));
     }
 
     /**
@@ -197,13 +262,14 @@ class OpenAiProductExportProviderTest extends TestCase
         );
     }
 
-    private function createProductExport(): ProductExportEntity
+    private function createProductExport(?string $salesChannelId = null): ProductExportEntity
     {
         $salesChannelDomain = new SalesChannelDomainEntity();
         $salesChannelDomain->setUrl('https://merchant.example');
 
         $productExport = new ProductExportEntity();
         $productExport->setSalesChannelDomain($salesChannelDomain);
+        $productExport->setSalesChannelId($salesChannelId ?? Uuid::randomHex());
 
         return $productExport;
     }
@@ -219,5 +285,21 @@ class OpenAiProductExportProviderTest extends TestCase
         $repository = new StaticEntityRepository($searches);
 
         return $repository;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     *
+     * @return SystemConfigService&MockObject
+     */
+    private function createSystemConfigService(array $config, ?string $expectedSalesChannelId): SystemConfigService
+    {
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->once())
+            ->method('getDomain')
+            ->with('core.openAiProductExport', $expectedSalesChannelId, true)
+            ->willReturn($config);
+
+        return $systemConfigService;
     }
 }

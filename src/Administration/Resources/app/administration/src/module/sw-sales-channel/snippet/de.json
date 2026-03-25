@@ -236,6 +236,7 @@
       },
       "agenticCommerce": {
         "tabIntegration": "Integration",
+          "openAiSettingsTitle": "OpenAI-Einstellungen",
         "buttonResetTemplate": "Auf Standard zurücksetzen",
         "resetTemplateSuccess": "Template wurde auf Standard zurückgesetzt. Bitte speichern, um die Änderungen zu übernehmen.",
         "errorLoadingTemplate": "Standard-Template konnte nicht geladen werden.",

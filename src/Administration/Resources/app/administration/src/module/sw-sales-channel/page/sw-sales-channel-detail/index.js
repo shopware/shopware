@@ -6,6 +6,7 @@ import template from './sw-sales-channel-detail.html.twig';
 
 const { Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
+const objectHelper = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -14,6 +15,7 @@ export default {
     inject: [
         'repositoryFactory',
         'exportTemplateService',
+        'systemConfigApiService',
         'acl',
         'feature',
     ],
@@ -43,6 +45,7 @@ export default {
                 showTemplateModal: false,
                 selectedTemplate: null,
             },
+            agenticCommerceExportConfig: [],
         };
     },
 
@@ -147,6 +150,17 @@ export default {
         allowSaving() {
             return this.acl.can('sales_channel.editor');
         },
+
+        defaultAgenticCommerceExportConfig() {
+            return [
+                {
+                    provider: 'open-ai',
+                    systemConfigDomain: 'core.openAiProductExport',
+                    titleSnippet: 'sw-sales-channel.detail.agenticCommerce.openAiSettingsTitle',
+                    positionIdentifier: 'sw-sales-channel-detail-base-agentic-commerce-export-config-open-ai',
+                },
+            ];
+        },
     },
 
     watch: {
@@ -176,6 +190,7 @@ export default {
             }
 
             if (this.$route.params.typeId) {
+                this.loadAgenticCommerceExportConfig();
                 return;
             }
 
@@ -201,6 +216,7 @@ export default {
                     }
 
                     this.generateAccessUrl();
+                    this.loadAgenticCommerceExportConfig();
 
                     this.isLoading = false;
                 });
@@ -358,8 +374,93 @@ export default {
         async onSave() {
             const saveSuccessful = await this.saveSalesChannel();
 
-            if (saveSuccessful) {
-                this.loadEntityData();
+            if (!saveSuccessful) {
+                return;
+            }
+
+            const configSaveSuccessful = await this.saveAgenticCommerceExportConfig();
+
+            if (!configSaveSuccessful) {
+                return;
+            }
+
+            this.loadEntityData();
+        },
+
+        async loadAgenticCommerceExportConfig() {
+            this.agenticCommerceExportConfig = this.defaultAgenticCommerceExportConfig.map((configEntry) => {
+                return {
+                    ...configEntry,
+                    elements: [],
+                    values: {},
+                    isLoading: false,
+                    isLoaded: false,
+                };
+            });
+
+            if (!this.isAgenticCommerce || !this.salesChannel?.id) {
+                return;
+            }
+
+            await Promise.all(
+                this.agenticCommerceExportConfig.map(async (configEntry) => {
+                    configEntry.isLoading = true;
+
+                    try {
+                        const [
+                            config,
+                            values,
+                        ] = await Promise.all([
+                            this.systemConfigApiService.getConfig(configEntry.systemConfigDomain),
+                            this.systemConfigApiService.getValues(configEntry.systemConfigDomain, this.salesChannel.id),
+                        ]);
+
+                        configEntry.elements = config.flatMap((card) => card.elements);
+                        configEntry.values = values;
+                        configEntry.isLoaded = true;
+                    } catch (_error) {
+                        this.createNotificationError({
+                            message: this.$t('sw-sales-channel.detail.messageAPIError'),
+                        });
+                    } finally {
+                        configEntry.isLoading = false;
+                    }
+                }),
+            );
+        },
+
+        async saveAgenticCommerceExportConfig() {
+            if (!this.isAgenticCommerce || !this.salesChannel?.id) {
+                return true;
+            }
+
+            const loadedConfigs = this.agenticCommerceExportConfig.filter((configEntry) => configEntry.isLoaded);
+
+            if (loadedConfigs.length === 0) {
+                return true;
+            }
+
+            const mergedValues = loadedConfigs.reduce((accumulator, configEntry) => {
+                return {
+                    ...accumulator,
+                    ...objectHelper.deepCopyObject(configEntry.values),
+                };
+            }, {});
+
+            try {
+                await this.systemConfigApiService.batchSave({
+                    [this.salesChannel.id]: mergedValues,
+                });
+
+                return true;
+            } catch (_error) {
+                this.createNotificationError({
+                    message: this.$t('sw-sales-channel.detail.messageSaveError', {
+                        name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
+                    }),
+                });
+
+                return false;
             }
         },
 

@@ -27,7 +27,6 @@ use Shopware\Core\Framework\Event\LanguageAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -163,7 +162,6 @@ class SendMailAction extends FlowAction implements DelayableAction
         if ($data->has('templateId')) {
             $this->updateMailTemplateType(
                 $flow->getContext(),
-                $flow,
                 $flow->data(),
                 $mailTemplate
             );
@@ -174,13 +172,13 @@ class SendMailAction extends FlowAction implements DelayableAction
             ...$flow->data(),
         ];
 
-        $this->send($data, $flow->getContext(), $templateData, $mailExtension, $injectedTranslator);
+        $this->send($data, $flow->getContext(), $templateData, $injectedTranslator);
     }
 
     /**
      * @param array<string, mixed> $templateData
      */
-    private function send(DataBag $data, Context $context, array $templateData, MailSendSubscriberConfig $extension, bool $injectedTranslator): void
+    private function send(DataBag $data, Context $context, array $templateData, bool $injectedTranslator): void
     {
         try {
             $this->emailService->send(
@@ -208,7 +206,6 @@ class SendMailAction extends FlowAction implements DelayableAction
      */
     private function updateMailTemplateType(
         Context $context,
-        StorableFlow $event,
         array $templateData,
         MailTemplateEntity $mailTemplate
     ): void {
@@ -217,25 +214,6 @@ class SendMailAction extends FlowAction implements DelayableAction
         }
 
         if (!$this->updateMailTemplate) {
-            return;
-        }
-
-        $mailTemplateTypeTranslation = $this->connection->fetchOne(
-            'SELECT 1 FROM mail_template_type_translation WHERE language_id = :languageId AND mail_template_type_id =:mailTemplateTypeId',
-            [
-                'languageId' => Uuid::fromHexToBytes($context->getLanguageId()),
-                'mailTemplateTypeId' => Uuid::fromHexToBytes($mailTemplate->getMailTemplateTypeId()),
-            ]
-        );
-
-        if (!$mailTemplateTypeTranslation) {
-            // Don't throw errors if this fails // Fix with NEXT-15475
-            $this->logger->warning(
-                "Could not update mail template type, because translation for this language does not exits:\n"
-                . 'Flow id: ' . $event->getFlowState()->flowId . "\n"
-                . 'Sequence id: ' . $event->getFlowState()->getSequenceId()
-            );
-
             return;
         }
 

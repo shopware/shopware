@@ -76,7 +76,7 @@ class RuleIndexer extends EntityIndexer
             return;
         }
 
-        $ids = array_unique(array_filter($ids));
+        $ids = array_values(array_unique(array_filter($ids)));
         if ($ids === []) {
             return;
         }
@@ -89,7 +89,7 @@ class RuleIndexer extends EntityIndexer
             $this->areaUpdater->update($ids);
         }
 
-        $this->eventDispatcher->dispatch(new RuleIndexerEvent($ids, $message->getContext(), $message->getSkip()));
+        $this->eventDispatcher->dispatch(new RuleIndexerEvent($ids, $message->getContext(), array_values($message->getSkip())));
     }
 
     public function getTotal(): int

@@ -126,6 +126,7 @@ class SeoUrlRepositoryTest extends TestCase
 
     public function testEmptySeoUrlCollection(): void
     {
+        /** @phpstan-ignore argument.type (Intentionally providing an empty generator for test purpose) */
         $registry = new SeoUrlRouteRegistry($this->emptyGenerator());
         static::assertSame([], (array) $registry->getSeoUrlRoutes());
 
@@ -133,6 +134,9 @@ class SeoUrlRepositoryTest extends TestCase
         static::assertSame([], (array) $registry->getSeoUrlRoutes());
     }
 
+    /**
+     * @return \Generator<array{}>
+     */
     private function emptyGenerator(): \Generator
     {
         yield from [];

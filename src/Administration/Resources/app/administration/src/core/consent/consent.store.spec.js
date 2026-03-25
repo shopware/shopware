@@ -23,7 +23,6 @@ describe('/core/consent/consent.store', () => {
     });
 
     beforeEach(() => {
-        global.activeFeatureFlags = ['PRODUCT_ANALYTICS'];
         useConsentStore().$reset();
         jest.useFakeTimers();
     });

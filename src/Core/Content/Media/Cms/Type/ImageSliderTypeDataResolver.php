@@ -126,15 +126,16 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
             }
 
             if ($sliderItemsConfig->getStringValue() === 'product.media') {
-                /** @var ProductEntity $productEntity */
                 $productEntity = $resolverContext->getEntity();
-
-                if ($productEntity->getCover()) {
-                    /** @var ProductMediaCollection $sliderItems */
-                    $sliderItems = new ProductMediaCollection(array_merge(
-                        [$productEntity->getCoverId() => $productEntity->getCover()],
-                        $sliderItems->getElements()
-                    ));
+                if ($productEntity instanceof ProductEntity) {
+                    $productCoverId = $productEntity->getCoverId();
+                    $productCover = $productEntity->getCover();
+                    if ($productCoverId !== null && $productCover !== null) {
+                        $sliderItems = new ProductMediaCollection(array_merge(
+                            [$productCoverId => $productCover],
+                            $sliderItems->getElements()
+                        ));
+                    }
                 }
             }
 
@@ -164,9 +165,8 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
             return;
         }
 
-        /** @var MediaEntity|null $media */
         $media = $searchResult->get($config['mediaId']);
-        if (!$media) {
+        if (!$media instanceof MediaEntity) {
             return;
         }
 

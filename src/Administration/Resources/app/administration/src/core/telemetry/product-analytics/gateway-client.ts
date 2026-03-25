@@ -16,9 +16,9 @@ export interface TrackingClient {
     track(eventName: string, eventPayload?: EventPayload): void;
     identify(userId: string, userProperties?: EventPayload): void;
     getUserId(): string | null;
-    reset(): void;
     clearStorage(): void;
     flush(): void;
+    useBeaconTransport(): void;
     isInitialized: boolean;
 }
 
@@ -48,9 +48,6 @@ export class GatewayClient implements TrackingClient {
     getUserId(): string | null {
         return this.adapter.getUserId();
     }
-    reset(): void {
-        this.adapter.reset();
-    }
 
     clearStorage(): void {
         this.adapter.clearStorage();
@@ -58,6 +55,10 @@ export class GatewayClient implements TrackingClient {
 
     flush() {
         this.adapter.flush();
+    }
+
+    useBeaconTransport() {
+        this.adapter.useBeaconTransport();
     }
 
     trackConsentMetric(metric: ConsentEventName, eventProperties: Record<string, TrackableType>, time: number) {

@@ -19,12 +19,38 @@ export class AmplitudeAdapter implements TrackingClient {
     #isInitialized: boolean;
     #serverUrl: string;
     #amplitudeInstance: ReturnType<typeof createInstance>;
+    #isBeaconWrapped: boolean;
 
     constructor(serverUrl: string, defaultLanguage: string) {
         this.#serverUrl = `${serverUrl}/v1/event`;
         this.#amplitudeInstance = createInstance();
         this.#amplitudeInstance.add(amplitudePluginShopwareProperties(defaultLanguage));
         this.#isInitialized = false;
+        this.#isBeaconWrapped = false;
+    }
+
+    useBeaconTransport(): void {
+        this.#amplitudeInstance.setTransport('beacon');
+
+        if (this.#isBeaconWrapped) {
+            return;
+        }
+
+        if (typeof navigator === 'undefined' || typeof navigator.sendBeacon !== 'function') {
+            return;
+        }
+
+        const targetUrl = this.#serverUrl;
+        const originalSendBeacon = navigator.sendBeacon.bind(navigator);
+
+        navigator.sendBeacon = (url: string | URL, data?: BodyInit | null): boolean => {
+            if (typeof data === 'string' && url.toString().startsWith(targetUrl)) {
+                return originalSendBeacon(url, new Blob([data], { type: 'application/json' }));
+            }
+            return originalSendBeacon(url, data);
+        };
+
+        this.#isBeaconWrapped = true;
     }
 
     clearStorage(): void {
@@ -76,10 +102,6 @@ export class AmplitudeAdapter implements TrackingClient {
         return this.#isInitialized;
     }
 
-    reset(): void {
-        this.#amplitudeInstance.reset();
-    }
-
     track(eventName: string, eventPayload?: EventPayload): void {
         if (!this.isInitialized) {
             return;
@@ -94,9 +116,5 @@ export class AmplitudeAdapter implements TrackingClient {
 
     setOptOut(optOut: boolean) {
         this.#amplitudeInstance.setOptOut(optOut);
-    }
-
-    setTransport(transport: 'fetch' | 'beacon' | 'xhr') {
-        this.#amplitudeInstance.setTransport(transport);
     }
 }

@@ -4,7 +4,7 @@ on:
     types:
       - closed
     branches:
-      - 6.[0-9]*.[0-9]*.x
+      - 6.[0-9]+.[0-9]+.x
 
 jobs:
   create_saas_update_pr:

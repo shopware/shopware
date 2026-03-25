@@ -206,6 +206,19 @@
       "modalInfoNoDomains": "No active domain found. Please check your Sales Channel settings.",
       "labelCancel": "Close"
     },
+    "convertGuest": {
+      "modalTitle": "Convert user",
+      "mail": {
+        "title": "Send reset email (recommended)",
+        "description": "The customer will receive a secure link to set a new password.",
+        "button": "Send reset email"
+      },
+      "manual": {
+        "title": "Set password manually",
+        "description": "Set a new password for the customer directly. The customer will not be notified.",
+        "button": "Set password"
+      }
+    },
     "addressForm": {
       "labelCompany": "Company",
       "labelDepartment": "Department",

@@ -3,6 +3,11 @@
 $sw-customer-color-mail-to-link: var(--color-text-brand-default);
 
 .sw-customer-card {
+    &__header {
+        display: flex;
+        gap: 8px;
+    }
+
     .sw-customer-card__metadata {
         padding-top: 17px;
     }

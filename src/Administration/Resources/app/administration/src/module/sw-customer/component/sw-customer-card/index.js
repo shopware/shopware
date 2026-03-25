@@ -51,6 +51,7 @@ export default {
     data() {
         return {
             showImitateCustomerModal: false,
+            showConvertCustomerModal: false,
         };
     },
 
@@ -227,5 +228,13 @@ export default {
         onCloseImitateCustomerModal() {
             this.showImitateCustomerModal = false;
         },
+
+        onOpenConvertCustomerModal() {
+            this.showConvertCustomerModal = true;
+        },
+
+        onCloseConvertCustomerModal() {
+            this.showConvertCustomerModal = false;
+        }
     },
 };

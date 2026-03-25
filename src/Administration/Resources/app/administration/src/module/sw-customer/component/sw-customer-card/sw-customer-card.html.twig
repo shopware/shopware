@@ -7,6 +7,14 @@
 >
     {% block sw_customer_card_header_right %}
     <template #headerRight>
+        <div class="sw-customer-card__header">
+        {% block sw_customer_card_convert_guest %}
+            <sw-customer-convert-guest
+                :customerId="customer.id"
+                v-if="showConvertCustomerModal"
+                @modal-close="onCloseConvertCustomerModal"
+            />
+        {% endblock %}
         {% block sw_customer_card_imitate_customer_modal %}
         <sw-customer-imitate-customer-modal
             v-if="showImitateCustomerModal"
@@ -14,6 +22,14 @@
             @modal-close="onCloseImitateCustomerModal"
         />
         {% endblock %}
+
+        <mt-button
+            variant="action"
+            @click="onOpenConvertCustomerModal"
+            :disabled="!customer.guest"
+        >
+            Convert to registered account
+        </mt-button>
 
         {% block sw_customer_card_action_customer_impersonation %}
         <mt-button
@@ -38,6 +54,7 @@
             </template>
         </mt-button>
         {% endblock %}
+        </div>
     </template>
     {% endblock %}
 

@@ -174,6 +174,10 @@ This information is used to enrich the generated OpenAPI schema with `enum` valu
 By default, `Choice` is non-strict and does not affect write validation.
 If you want to enforce values on write, set `strict: true` when creating the flag; the write layer will then validate the input for supported field types (string, int, float).
 
+### Deprecated `/api/_action/mail-template/validate` route
+
+The `/api/_action/mail-template/validate` route is deprecated and will be removed without replacement in v6.8.0.0, as it was not used and did not provide any significant value.
+
 ## Core
 
 ### Changed behaviour of default fields in EntityDefinition

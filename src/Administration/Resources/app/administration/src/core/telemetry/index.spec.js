@@ -7,7 +7,6 @@ describe('src/core/telemetry/index.js', () => {
     let mockLoginService;
 
     beforeEach(() => {
-        global.activeFeatureFlags = ['PRODUCT_ANALYTICS'];
         jest.useFakeTimers({
             now: new Date('2025-09-23'),
         });

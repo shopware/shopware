@@ -12,7 +12,6 @@ export default {
     template,
 
     inject: [
-        'feature',
         'shopIdChangeService',
         'userActivityApiService',
     ],

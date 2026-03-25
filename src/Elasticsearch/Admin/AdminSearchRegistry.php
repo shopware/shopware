@@ -147,7 +147,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
         /** @var array<string, string> $indices */
         $indices = $this->connection->fetchAllKeyValue('SELECT `alias`, `index` FROM admin_elasticsearch_index_task');
 
-        if (empty($indices)) {
+        if ($indices === []) {
             return;
         }
 
@@ -266,7 +266,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
         $result = $this->client->bulk($arguments);
 
-        if (\is_array($result) && !empty($result['errors'])) {
+        if (\is_array($result) && isset($result['errors'])) {
             $errors = $this->parseErrors($result);
 
             throw ElasticsearchException::indexingError($errors);

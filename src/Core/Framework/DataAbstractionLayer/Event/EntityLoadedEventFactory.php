@@ -132,10 +132,10 @@ class EntityLoadedEventFactory
      */
     private function map(Entity $entity, array &$mapping): void
     {
-        $mapping[$entity->getInternalEntityName()][] = $entity;
+        $internalEntityName = $entity->getInternalEntityName() ?? '';
+        $mapping[$internalEntityName][] = $entity;
 
-        $vars = $entity->getVars();
-        foreach ($vars as $value) {
+        foreach ($entity->getVars() as $value) {
             if ($value instanceof Entity) {
                 $this->map($value, $mapping);
 

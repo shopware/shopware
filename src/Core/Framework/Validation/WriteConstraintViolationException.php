@@ -8,6 +8,17 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @phpstan-type WriteConstraintErrorData array{
+ *     code: string,
+ *     status: string,
+ *     detail: string|\Stringable,
+ *     template: string,
+ *     meta: array{parameters: array<string, mixed>},
+ *     source: array{pointer: string},
+ *     trace?: array<int, mixed>
+ * }
+ */
 #[Package('framework')]
 class WriteConstraintViolationException extends DataAbstractionLayerException implements WriteFieldException, ConstraintViolationExceptionInterface
 {
@@ -63,6 +74,9 @@ class WriteConstraintViolationException extends DataAbstractionLayerException im
         return $result;
     }
 
+    /**
+     * @return \Generator<WriteConstraintErrorData>
+     */
     public function getErrors(bool $withTrace = false): \Generator
     {
         foreach ($this->getViolations() as $violation) {

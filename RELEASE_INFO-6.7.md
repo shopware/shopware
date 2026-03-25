@@ -140,6 +140,10 @@ When `bin/console system:setup:staging` is executed, the configured keys are wri
 
 ## API
 
+### Minimum value constraints added to quantity fields in ProductPriceDefinition
+
+The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
+
 ### Deprecation of newsletter route methods
 
 The following methods are deprecated and will be removed with the next major version:
@@ -169,6 +173,10 @@ This information is used to enrich the generated OpenAPI schema with `enum` valu
 
 By default, `Choice` is non-strict and does not affect write validation.
 If you want to enforce values on write, set `strict: true` when creating the flag; the write layer will then validate the input for supported field types (string, int, float).
+
+### Deprecated `/api/_action/mail-template/validate` route
+
+The `/api/_action/mail-template/validate` route is deprecated and will be removed without replacement in v6.8.0.0, as it was not used and did not provide any significant value.
 
 ## Core
 
@@ -241,6 +249,10 @@ the `shopware.filesystem.s3.client` service to provide a custom Symfony HTTP cli
 custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
 
 ## Administration
+
+### CMS data mapping source for media custom fields
+
+Fixed media custom fields not being available as data mapping source for image elements in category and product CMS layouts. Shop Administrators can now reliably bind media custom fields to images in CMS pages without workarounds.
 
 ## Storefront
 

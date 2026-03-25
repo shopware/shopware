@@ -7,7 +7,23 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
- * @phpstan-type ErrorData array{status: string, code: string, title: string, detail: string, meta: array{parameters: array<string, mixed>}, trace?: array<int, mixed>}
+ * @phpstan-type ErrorData array{
+ *     status: string,
+ *     code: string|null,
+ *     title?: string,
+ *     detail: string|\Stringable|null,
+ *     template?: string,
+ *     meta?: array{
+ *         parameters?: array<string, mixed>,
+ *         documentationLink?: string,
+ *         trace?: array<int, mixed>,
+ *         file?: string,
+ *         line?: int,
+ *         previous?: mixed
+ *     },
+ *     source?: array{pointer: string},
+ *     trace?: array<int, mixed>|string
+ * }
  */
 #[Package('framework')]
 abstract class ShopwareHttpException extends HttpException implements ShopwareException
@@ -36,6 +52,9 @@ abstract class ShopwareHttpException extends HttpException implements ShopwareEx
         return Response::HTTP_INTERNAL_SERVER_ERROR;
     }
 
+    /**
+     * @return \Generator<ErrorData>
+     */
     public function getErrors(bool $withTrace = false): \Generator
     {
         yield $this->getCommonErrorData($withTrace);
@@ -58,14 +77,14 @@ abstract class ShopwareHttpException extends HttpException implements ShopwareEx
     }
 
     /**
-     * @return ErrorData
+     * @return array{status: string, code: string, title: string, detail: string, meta: array{parameters: array<string, mixed>}, trace?: array<int, mixed>}
      */
     protected function getCommonErrorData(bool $withTrace = false): array
     {
         $error = [
             'status' => (string) $this->getStatusCode(),
             'code' => $this->getErrorCode(),
-            'title' => (string) (Response::$statusTexts[$this->getStatusCode()] ?? 'unknown status'),
+            'title' => Response::$statusTexts[$this->getStatusCode()] ?? 'unknown status',
             'detail' => $this->getMessage(),
             'meta' => [
                 'parameters' => $this->getParameters(),

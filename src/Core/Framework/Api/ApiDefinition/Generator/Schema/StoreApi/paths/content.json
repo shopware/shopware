@@ -1,0 +1,182 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/content/{path}": {
+            "get": {
+                "tags": ["Content"],
+                "summary": "Fetch rendered content layout",
+                "description": "Loads and renders content with full element trees. Supports product/{productId}, category/{categoryId}, and landing-page/{landingPageId} path patterns.",
+                "operationId": "readContent",
+                "parameters": [
+                    {
+                        "name": "path",
+                        "in": "path",
+                        "description": "Content path pattern",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    },
+                    {
+                        "name": "elementId",
+                        "in": "query",
+                        "description": "Request only specific element and its descendants (partial rendering)",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Layout metadata with fully hydrated element trees.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentPage" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [{ "ApiKey": [] }]
+            }
+        },
+        "/content-decomposed/{path}": {
+            "get": {
+                "tags": ["Content"],
+                "summary": "Fetch rendered content layout (decomposed format)",
+                "description": "Loads and renders content with decomposed format: skeletons + deduplicated data + assignments. Optimized for bandwidth efficiency.",
+                "operationId": "readContentDecomposed",
+                "parameters": [
+                    {
+                        "name": "path",
+                        "in": "path",
+                        "description": "Content path pattern",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    },
+                    {
+                        "name": "elementId",
+                        "in": "query",
+                        "description": "Request only specific element and its descendants (partial rendering)",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Layout metadata with element skeletons, deduplicated property data, and element-to-data mappings.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentDecomposedPage" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [{ "ApiKey": [] }]
+            }
+        },
+        "/content-skeleton/{path}": {
+            "get": {
+                "tags": ["Content"],
+                "summary": "Fetch content layout skeleton (without hydration)",
+                "description": "Returns layout structure without hydrated data. Useful for layout preview, client-side hydration, or structure inspection. Runs pre-hydration events but skips data loading.",
+                "operationId": "readContentSkeleton",
+                "parameters": [
+                    {
+                        "name": "path",
+                        "in": "path",
+                        "description": "Content path pattern",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    },
+                    {
+                        "name": "elementId",
+                        "in": "query",
+                        "description": "Request only specific element and its descendants (partial rendering)",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Layout metadata with element trees before hydration.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentSkeletonPage" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [{ "ApiKey": [] }]
+            }
+        },
+        "/content-data/{path}": {
+            "get": {
+                "tags": ["Content"],
+                "summary": "Fetch content data only (without skeleton)",
+                "description": "Returns only the hydrated data and element-to-property assignments. Useful when client already has the skeleton and only needs refreshed data.",
+                "operationId": "readContentData",
+                "parameters": [
+                    {
+                        "name": "path",
+                        "in": "path",
+                        "description": "Content path pattern",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    },
+                    {
+                        "name": "elementId",
+                        "in": "query",
+                        "description": "Request only specific element and its descendants (partial rendering)",
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Layout metadata with deduplicated property data and element-to-data mappings.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentDataPage" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [{ "ApiKey": [] }]
+            }
+        }
+    }
+}

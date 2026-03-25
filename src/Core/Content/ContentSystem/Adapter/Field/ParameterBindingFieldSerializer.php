@@ -1,0 +1,133 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\ContentSystem\Adapter\Field;
+
+use Shopware\Core\Content\ContentSystem\Adapter\ParameterBinding\ParameterBinding;
+use Shopware\Core\Content\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\AbstractFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+
+/**
+ * @phpstan-import-type ResolutionConfigData from ResolutionConfigFieldSerializer
+ *
+ * @phpstan-type ParameterBindingData array{
+ *     placeholder?: string,
+ *     resolution?: ResolutionConfigData
+ * }
+ *
+ * @internal
+ */
+#[Package('discovery')]
+class ParameterBindingFieldSerializer extends AbstractFieldSerializer
+{
+    public function __construct(
+        ValidatorInterface $validator,
+        DefinitionInstanceRegistry $definitionRegistry,
+        private readonly ResolutionConfigFieldSerializer $resolutionConfigSerializer
+    ) {
+        parent::__construct($validator, $definitionRegistry);
+    }
+
+    public function encode(
+        Field $field,
+        EntityExistence $existence,
+        KeyValuePair $data,
+        WriteParameterBag $parameters
+    ): \Generator {
+        if (!$field instanceof StorageAware) {
+            throw ContentSystemException::invalidFieldType(StorageAware::class, $field::class);
+        }
+
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
+
+        $value = $data->getValue();
+
+        if ($value instanceof ParameterBinding) {
+            $value = $this->serializeParameterBinding($value);
+        }
+
+        if ($value !== null) {
+            $value = Json::encode($value);
+        }
+
+        yield $field->getStorageName() => $value;
+    }
+
+    public function decode(Field $field, mixed $value): ?ParameterBinding
+    {
+        if (!$field instanceof ParameterBindingField) {
+            throw ContentSystemException::invalidFieldType(ParameterBindingField::class, $field::class);
+        }
+
+        if ($value === null) {
+            return null;
+        }
+
+        if (\is_string($value)) {
+            $value = json_decode($value, true, 512, \JSON_THROW_ON_ERROR);
+        }
+
+        if (!\is_array($value)) {
+            throw ContentSystemException::invalidFieldValueType('parameter_binding', 'array', \gettype($value));
+        }
+
+        return $this->deserializeParameterBinding($value);
+    }
+
+    /**
+     * @return ParameterBindingData
+     */
+    public function serializeParameterBinding(ParameterBinding $binding): array
+    {
+        $array = [];
+
+        if ($binding->placeholder !== null) {
+            $array['placeholder'] = $binding->placeholder;
+        }
+
+        if ($binding->resolution !== null) {
+            $array['resolution'] = $this->resolutionConfigSerializer->serializeResolutionConfig($binding->resolution);
+        }
+
+        return $array;
+    }
+
+    /**
+     * @param ParameterBindingData $data
+     */
+    public function deserializeParameterBinding(array $data, ?string $parameterName = null): ParameterBinding
+    {
+        $placeholder = $data['placeholder'] ?? null;
+        $resolution = null;
+
+        if (\array_key_exists('resolution', $data) && \is_array($data['resolution'])) {
+            $resolution = $this->resolutionConfigSerializer->deserializeResolutionConfig($data['resolution']);
+        }
+
+        return new ParameterBinding($parameterName ?? $placeholder ?? '', $placeholder, $resolution);
+    }
+
+    protected function getConstraints(Field $field): array
+    {
+        $constraints = [
+            new Type('array'),
+        ];
+
+        if ($field->is(Required::class)) {
+            $constraints[] = new NotBlank();
+        }
+
+        return $constraints;
+    }
+}

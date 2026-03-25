@@ -204,7 +204,7 @@ runs:
                -v "${{ github.workspace }}:/work" \
                -w "/work/${{ inputs.directory }}" \
                mcr.microsoft.com/playwright:v1.58.2-noble \
-               bash -lc 'npx $ATS_CMD test --project=${{ inputs.project }} --workers=${{ inputs.workers }} --shard=${{ inputs.shard }}/${{ inputs.shard-count }} ${{ inputs.extra-options }}'
+               bash -lc "npx $ATS_CMD test --project=${{ inputs.project }} --workers=${{ inputs.workers }} --shard=${{ inputs.shard }}/${{ inputs.shard-count }} ${{ inputs.extra-options }}"
           continue-on-error: ${{ contains(inputs.project, 'visual') }} # Visual tests are allowed to fail; the results will be uploaded regardless and checked regularly
 
         - uses: actions/upload-artifact@v4

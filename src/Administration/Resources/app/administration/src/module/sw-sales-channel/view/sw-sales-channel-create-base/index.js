@@ -21,11 +21,11 @@ export default {
                 this.onGenerateProductExportKey(false);
             }
             if (this.isAgenticCommerce) {
-                this.prefillAgenticAiDefaults();
+                this.prefillAgenticCommerceDefaults();
             }
         },
 
-        prefillAgenticAiDefaults() {
+        prefillAgenticCommerceDefaults() {
             this.productExport.fileName = `agentic-commerce-${utils.createId()}.jsonl`;
         },
     },

@@ -36,9 +36,10 @@ class ContentSystemException extends HttpException
     public const UNSUPPORTED_TYPE_NODE = 'CONTENT_SYSTEM__UNSUPPORTED_TYPE_NODE';
     public const UNRESOLVABLE_TYPE_CLASS = 'CONTENT_SYSTEM__UNRESOLVABLE_TYPE_CLASS';
     public const ELEMENT_TYPE_DUPLICATE = 'CONTENT_SYSTEM__ELEMENT_TYPE_DUPLICATE';
-    public const ELEMENT_TYPE_INVALID = 'CONTENT_SYSTEM__ELEMENT_TYPE_INVALID';
+    public const ELEMENT_TYPES_INVALID = 'CONTENT_SYSTEM__ELEMENT_TYPES_INVALID';
     public const ELEMENT_TYPE_LOAD_FAILED = 'CONTENT_SYSTEM__ELEMENT_TYPE_LOAD_FAILED';
     public const ELEMENT_TYPE_NOT_FOUND = 'CONTENT_SYSTEM__ELEMENT_TYPE_NOT_FOUND';
+    public const ELEMENT_TYPE_INVALID_FILENAME = 'CONTENT_SYSTEM__ELEMENT_TYPE_INVALID_FILENAME';
 
     public static function dataLoaderNotRegistered(string $requirementType, string $elementType, string $elementId): self
     {
@@ -278,20 +279,6 @@ class ContentSystemException extends HttpException
         );
     }
 
-    public static function elementTypeInvalid(string $name, string|ConstraintViolationListInterface $reason): self
-    {
-        if ($reason instanceof ConstraintViolationListInterface) {
-            $reason = self::formatViolations($reason);
-        }
-
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::ELEMENT_TYPE_INVALID,
-            'Element type "{{ name }}" is invalid: {{ reason }}',
-            ['name' => $name, 'reason' => $reason]
-        );
-    }
-
     public static function elementTypeLoadFailed(string $file, string $reason, ?\Throwable $previous = null): self
     {
         return new self(
@@ -303,6 +290,31 @@ class ContentSystemException extends HttpException
         );
     }
 
+    public static function elementTypesInvalid(ConstraintViolationListInterface $violations): self
+    {
+        $messages = [];
+        foreach ($violations as $violation) {
+            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ELEMENT_TYPES_INVALID,
+            'Element type validation failed: {{ reason }}',
+            ['reason' => implode('; ', $messages)]
+        );
+    }
+
+    public static function elementTypeInvalidFilename(string $segment, string $file): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ELEMENT_TYPE_INVALID_FILENAME,
+            'Invalid element type filename segment "{{ segment }}" in file "{{ file }}". Segments must match [a-z0-9]+(-[a-z0-9]+)*',
+            ['segment' => $segment, 'file' => $file]
+        );
+    }
+
     public static function elementTypeNotFound(string $name): self
     {
         return new self(
@@ -311,15 +323,5 @@ class ContentSystemException extends HttpException
             'Element type "{{ name }}" not found',
             ['name' => $name]
         );
-    }
-
-    private static function formatViolations(ConstraintViolationListInterface $violations): string
-    {
-        $messages = [];
-        foreach ($violations as $violation) {
-            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
-        }
-
-        return implode('; ', $messages);
     }
 }

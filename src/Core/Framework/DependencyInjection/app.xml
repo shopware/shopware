@@ -165,9 +165,9 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemElementTypePersister">
             <argument type="service" id="app_content_system_element_type.repository"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer"/>
-            <argument type="service" id="validator"/>
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader"/>
             <tag name="shopware.app_lifecycle.persister" priority="-1400"/>
         </service>
 

@@ -9,7 +9,6 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Filesystem;
 
 /**
  * @internal only for use by the app-system
@@ -27,9 +26,10 @@ class ContentSystemElementTypeAppValidator extends AbstractManifestValidator
         $errors = new ErrorCollection();
 
         $typesDir = $manifest->getPath() . '/Resources/content-system/types';
+        $appName = $manifest->getMetadata()->getName();
 
         try {
-            $this->loader->load(new Filesystem($typesDir));
+            $this->loader->loadFromDirectory($typesDir, 'app:' . $appName, $appName);
         } catch (ContentSystemException $e) {
             $errors->add(new ContentSystemElementTypeSchemaError(
                 $typesDir,

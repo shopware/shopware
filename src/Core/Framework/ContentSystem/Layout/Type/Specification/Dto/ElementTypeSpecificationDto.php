@@ -18,8 +18,6 @@ final readonly class ElementTypeSpecificationDto
      */
     public function __construct(
         #[Assert\NotBlank]
-        public string $name,
-        #[Assert\NotBlank]
         public string $label,
         #[Assert\NotBlank]
         public string $description,
@@ -39,7 +37,7 @@ final readonly class ElementTypeSpecificationDto
     ) {
     }
 
-    public function toContentSystemElementTypeSpecification(string $source): ContentSystemElementTypeSpecification
+    public function toContentSystemElementTypeSpecification(string $name, string $source): ContentSystemElementTypeSpecification
     {
         $properties = [];
         foreach ($this->properties as $key => $dto) {
@@ -52,7 +50,7 @@ final readonly class ElementTypeSpecificationDto
         }
 
         return new ContentSystemElementTypeSpecification(
-            $this->name,
+            $name,
             $this->label,
             $this->description,
             $this->vendor,

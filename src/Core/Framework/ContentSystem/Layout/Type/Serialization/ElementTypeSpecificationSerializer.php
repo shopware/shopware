@@ -56,7 +56,6 @@ class ElementTypeSpecificationSerializer
         }
 
         return new ElementTypeSpecificationDto(
-            name: $meta['name'] ?? '',
             label: $meta['label'] ?? '',
             description: $description,
             vendor: $meta['vendor'] ?? '',
@@ -74,7 +73,6 @@ class ElementTypeSpecificationSerializer
     public function normalize(ElementTypeSpecificationDto $dto): array
     {
         $meta = [
-            'name' => $dto->name,
             'label' => $dto->label,
             'description' => $dto->description,
             'vendor' => $dto->vendor,

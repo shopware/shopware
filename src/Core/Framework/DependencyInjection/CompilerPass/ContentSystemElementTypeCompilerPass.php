@@ -4,11 +4,13 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeSourceDirectory;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * @internal
@@ -20,6 +22,8 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
 
     private const CORE_DEFINITIONS_DIRECTORY = __DIR__ . '/../../ContentSystem/Layout/Type/Definitions';
 
+    private const CORE_PREFIX = 'Sw';
+
     public function process(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition(YamlTypeLoader::class)) {
@@ -28,7 +32,7 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
 
         $directories = [];
 
-        $this->loadFromDirectory(self::CORE_DEFINITIONS_DIRECTORY, 'core', $directories);
+        $this->loadFromDirectory(self::CORE_DEFINITIONS_DIRECTORY, 'core', self::CORE_PREFIX, $directories);
         $this->loadFromBundleMetadata($container, $directories);
         $this->loadFromPlugins($container, $directories);
         $this->loadFromApps($container, $directories);
@@ -39,7 +43,7 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
     /**
      * Active plugins excluded — loaded separately via loadFromPlugins to support custom type directories.
      *
-     * @param array<string, string> $directories
+     * @param list<Definition> $directories
      */
     private function loadFromBundleMetadata(ContainerBuilder $container, array &$directories): void
     {
@@ -65,19 +69,19 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
                 continue;
             }
 
-            $this->loadFromDirectory($metadata['path'] . '/' . self::STANDARD_TYPE_DIRECTORY, 'bundle:' . $bundleName, $directories);
+            $this->loadFromDirectory($metadata['path'] . '/' . self::STANDARD_TYPE_DIRECTORY, 'bundle:' . $bundleName, self::CORE_PREFIX, $directories);
         }
     }
 
     /**
-     * @param array<string, string> $directories
+     * @param list<Definition> $directories
      */
     private function loadFromPlugins(ContainerBuilder $container, array &$directories): void
     {
         foreach ($this->getActivePluginClasses($container) as $pluginClass => $pluginMeta) {
             $relativeDirectory = $pluginClass::getContentTypeDirectory();
 
-            $this->loadFromDirectory($pluginMeta['path'] . '/' . $relativeDirectory, 'plugin:' . $pluginMeta['name'], $directories);
+            $this->loadFromDirectory($pluginMeta['path'] . '/' . $relativeDirectory, 'plugin:' . $pluginMeta['name'], $pluginMeta['name'], $directories);
         }
     }
 
@@ -130,7 +134,7 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
     }
 
     /**
-     * @param array<string, string> $directories
+     * @param list<Definition> $directories
      */
     private function loadFromApps(ContainerBuilder $container, array &$directories): void
     {
@@ -152,15 +156,17 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
         }
 
         foreach ($apps as $app) {
-            $this->loadFromDirectory(\sprintf('%s/%s/%s', $projectDirectory, $app['path'], self::STANDARD_TYPE_DIRECTORY), 'app:' . $app['name'], $directories);
+            $this->loadFromDirectory(\sprintf('%s/%s/%s', $projectDirectory, $app['path'], self::STANDARD_TYPE_DIRECTORY), 'app:' . $app['name'], $app['name'], $directories);
         }
     }
 
     /**
-     * @param array<string, string> $directories
+     * @param list<Definition> $directories
      */
-    private function loadFromDirectory(string $directory, string $source, array &$directories): void
+    private function loadFromDirectory(string $directory, string $source, string $prefix, array &$directories): void
     {
-        $directories[$source] = $directory;
+        $definition = new Definition(ElementTypeSourceDirectory::class, [$source, $directory, $prefix]);
+
+        $directories[] = $definition;
     }
 }

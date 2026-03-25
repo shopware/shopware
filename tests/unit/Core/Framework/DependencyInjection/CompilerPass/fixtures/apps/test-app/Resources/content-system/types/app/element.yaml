@@ -1,5 +1,4 @@
 meta:
-  name: "Sw:App:Element"
   label: "App Element"
   description: "An app element for unit tests."
   vendor: "test-vendor"

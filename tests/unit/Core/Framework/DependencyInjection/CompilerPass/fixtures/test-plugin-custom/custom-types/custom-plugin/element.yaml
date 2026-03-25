@@ -1,5 +1,4 @@
 meta:
-  name: "Sw:CustomPlugin:Element"
   label: "Custom Plugin Element"
   description: "A custom plugin element for unit tests."
   vendor: "shopware AG"

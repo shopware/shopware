@@ -20,11 +20,12 @@ use Symfony\Component\Yaml\Yaml;
 class YamlTypeLoader extends AbstractContentSystemElementTypeLoader
 {
     /**
-     * @param array<string, string> $directories source label => absolute path
+     * @param list<ElementTypeSourceDirectory> $directories
      */
     public function __construct(
         private readonly ElementTypeSpecificationSerializer $serializer,
         private readonly ValidatorInterface $validator,
+        private readonly ElementTypeNameResolver $nameResolver,
         private readonly array $directories = [],
     ) {
     }
@@ -34,69 +35,82 @@ class YamlTypeLoader extends AbstractContentSystemElementTypeLoader
      */
     public function load(): array
     {
-        $definitions = [];
+        $all = [];
         $seenNames = [];
 
-        foreach ($this->directories as $source => $path) {
-            $filesystem = new Filesystem($path);
-            $directoryDefinitions = $this->loadDirectory($filesystem, $source);
+        foreach ($this->directories as $sourceDir) {
+            $dtos = $this->loadDtosFromDirectory($sourceDir->path, $sourceDir->source, $sourceDir->prefix);
 
-            foreach ($directoryDefinitions as $specification) {
-                $name = $specification->name();
-
-                if (isset($seenNames[$name])) {
-                    throw ContentSystemException::elementTypeDuplicate($name, $seenNames[$name], $source);
+            foreach ($dtos as $resolved) {
+                if (isset($seenNames[$resolved->name])) {
+                    throw ContentSystemException::elementTypeDuplicate(
+                        $resolved->name,
+                        $seenNames[$resolved->name],
+                        $resolved->source
+                    );
                 }
-
-                $seenNames[$name] = $source;
-                $definitions[] = $specification;
+                $seenNames[$resolved->name] = $resolved->source;
+                $all[] = $resolved->toSpecification();
             }
         }
 
-        return $definitions;
+        return $all;
     }
 
     /**
      * @return list<ContentSystemElementTypeSpecification>
      */
-    private function loadDirectory(Filesystem $filesystem, string $source): array
+    public function loadFromDirectory(string $directory, string $source, string $prefix): array
     {
+        return $this->loadBatchFromDirectory($directory, $source, $prefix)->toSpecifications();
+    }
+
+    /**
+     * @return list<ResolvedElementTypeSpecificationDto>
+     */
+    public function loadDtosFromDirectory(string $directory, string $source, string $prefix): array
+    {
+        return $this->loadBatchFromDirectory($directory, $source, $prefix)->items;
+    }
+
+    public function loadBatchFromDirectory(string $directory, string $source, string $prefix): ResolvedElementTypeSpecificationDtoCollection
+    {
+        $filesystem = new Filesystem($directory);
+
         if (!$filesystem->has()) {
-            return [];
+            return new ResolvedElementTypeSpecificationDtoCollection([]);
         }
 
-        $files = $filesystem->findFiles('*.yaml', '.');
+        $files = array_merge(
+            $filesystem->findFiles('*.yaml', '.'),
+            $filesystem->findFiles('*.yml', '.'),
+        );
 
         if ($files === []) {
-            return [];
+            return new ResolvedElementTypeSpecificationDtoCollection([]);
         }
 
-        $definitions = [];
+        $resolved = [];
         $seenNames = [];
 
         foreach ($files as $fileInfo) {
             $data = $this->parseFile($filesystem, $fileInfo->getRelativePathname());
             $dto = $this->serializer->denormalize($data);
 
-            $violations = $this->validator->validate($dto);
-            if ($violations->count() > 0) {
-                throw ContentSystemException::elementTypeInvalid(
-                    $dto->name ?: '<unknown>',
-                    $violations
-                );
-            }
-
-            $name = $dto->name;
+            $name = $this->nameResolver->resolve($fileInfo->getRelativePathname(), $prefix);
 
             if (isset($seenNames[$name])) {
                 throw ContentSystemException::elementTypeDuplicate($name, $seenNames[$name], $fileInfo->getFilename());
             }
 
             $seenNames[$name] = $fileInfo->getFilename();
-            $definitions[] = $dto->toContentSystemElementTypeSpecification($source);
+            $resolved[] = new ResolvedElementTypeSpecificationDto($name, $source, $dto);
         }
 
-        return $definitions;
+        $batch = new ResolvedElementTypeSpecificationDtoCollection($resolved);
+        $batch->validate($this->validator);
+
+        return $batch;
     }
 
     /**

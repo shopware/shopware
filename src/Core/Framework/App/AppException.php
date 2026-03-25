@@ -19,7 +19,6 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * @internal
@@ -69,8 +68,8 @@ class AppException extends HttpException
     final public const SHOP_ID_CHANGE_STRATEGY_NOT_FOUND = 'FRAMEWORK__APP_SHOP_ID_CHANGE_STRATEGY_NOT_FOUND';
     final public const APP_URL_INVALID = 'FRAMEWORK__APP_URL_INVALID';
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
-    final public const ELEMENT_TYPE_COLLISION = 'FRAMEWORK__APP_ELEMENT_TYPE_COLLISION';
-    final public const ELEMENT_TYPE_INVALID = 'FRAMEWORK__APP_ELEMENT_TYPE_INVALID';
+    final public const CONTENT_SYSTEM_ELEMENT_TYPE_COLLISION = 'FRAMEWORK__APP_ELEMENT_TYPE_COLLISION';
+    final public const CONTENT_SYSTEM_ELEMENT_TYPE_LOAD_FAILED = 'FRAMEWORK__APP_ELEMENT_TYPE_LOAD_FAILED';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -571,28 +570,24 @@ class AppException extends HttpException
         );
     }
 
-    public static function elementTypeCollision(string $name, string $existingSource, string $newSource): self
+    public static function contentSystemElementTypeCollision(string $name, string $existingSource, string $newSource): self
     {
         return new self(
             Response::HTTP_CONFLICT,
-            self::ELEMENT_TYPE_COLLISION,
+            self::CONTENT_SYSTEM_ELEMENT_TYPE_COLLISION,
             'Element type "{{ name }}" is already registered by "{{ existingSource }}", cannot register again from "{{ newSource }}"',
             ['name' => $name, 'existingSource' => $existingSource, 'newSource' => $newSource]
         );
     }
 
-    public static function elementTypeInvalid(string $name, ConstraintViolationListInterface $violations): self
+    public static function contentSystemElementTypeLoadFailed(string $file, string $reason, ?\Throwable $previous = null): self
     {
-        $messages = [];
-        foreach ($violations as $violation) {
-            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::ELEMENT_TYPE_INVALID,
-            'Element type "{{ name }}" is invalid: {{ reason }}',
-            ['name' => $name, 'reason' => implode('; ', $messages)]
+            self::CONTENT_SYSTEM_ELEMENT_TYPE_LOAD_FAILED,
+            'Failed to load element type from "{{ file }}": {{ reason }}',
+            ['file' => $file, 'reason' => $reason],
+            $previous
         );
     }
 }

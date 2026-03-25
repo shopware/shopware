@@ -6,12 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Validation\ContentSystemElementTypeAppValidator;
 use Shopware\Core\Framework\App\Validation\Error\ContentSystemElementTypeSchemaError;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Util\Filesystem;
 
 /**
  * @internal
@@ -19,18 +19,19 @@ use Shopware\Core\Framework\Util\Filesystem;
 #[CoversClass(ContentSystemElementTypeAppValidator::class)]
 class ContentSystemElementTypeAppValidatorTest extends TestCase
 {
-    #[TestDox('returns empty error collection when loader succeeds')]
-    public function testValidateReturnsEmptyCollectionOnSuccess(): void
+    #[TestDox('returns no errors when types directory is valid')]
+    public function testReturnsNoErrorsWhenTypesDirectoryIsValid(): void
     {
         $loader = $this->createMock(YamlTypeLoader::class);
         $loader->expects($this->atLeastOnce())
-            ->method('load')
-            ->with(static::callback(function (Filesystem $fs): bool {
-                return $fs->location === '/app/path/Resources/content-system/types';
-            }));
+            ->method('loadFromDirectory')
+            ->with(
+                '/app/path/Resources/content-system/types',
+                'app:TestApp',
+                'TestApp',
+            );
 
-        $manifest = static::createStub(Manifest::class);
-        $manifest->method('getPath')->willReturn('/app/path');
+        $manifest = $this->buildManifest('/app/path', 'TestApp');
 
         $validator = new ContentSystemElementTypeAppValidator($loader);
         $errors = $validator->validate($manifest, Context::createDefaultContext());
@@ -38,15 +39,14 @@ class ContentSystemElementTypeAppValidatorTest extends TestCase
         static::assertCount(0, $errors->getElements());
     }
 
-    #[TestDox('returns error when loader throws ContentSystemException')]
-    public function testValidateReturnsErrorOnContentSystemException(): void
+    #[TestDox('returns schema error when types directory contains invalid definitions')]
+    public function testReturnsSchemaErrorWhenTypesDirectoryIsInvalid(): void
     {
         $loader = static::createStub(YamlTypeLoader::class);
-        $loader->method('load')
+        $loader->method('loadFromDirectory')
             ->willThrowException(ContentSystemException::elementTypeLoadFailed('broken.yaml', 'Invalid YAML syntax'));
 
-        $manifest = static::createStub(Manifest::class);
-        $manifest->method('getPath')->willReturn('/app/path');
+        $manifest = $this->buildManifest('/app/path', 'TestApp');
 
         $validator = new ContentSystemElementTypeAppValidator($loader);
         $errors = $validator->validate($manifest, Context::createDefaultContext());
@@ -57,5 +57,33 @@ class ContentSystemElementTypeAppValidatorTest extends TestCase
         static::assertInstanceOf(ContentSystemElementTypeSchemaError::class, $error);
         static::assertStringContainsString('/app/path/Resources/content-system/types', $error->getMessage());
         static::assertSame('manifest-invalid-element-type-schema', $error->getMessageKey());
+    }
+
+    #[TestDox('propagates non-content-system exceptions without catching')]
+    public function testPropagatesNonContentSystemExceptions(): void
+    {
+        $loader = static::createStub(YamlTypeLoader::class);
+        $loader->method('loadFromDirectory')
+            ->willThrowException(new \RuntimeException('Unexpected filesystem error'));
+
+        $manifest = $this->buildManifest('/app/path', 'TestApp');
+
+        $validator = new ContentSystemElementTypeAppValidator($loader);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Unexpected filesystem error');
+        $validator->validate($manifest, Context::createDefaultContext());
+    }
+
+    private function buildManifest(string $path, string $appName): Manifest
+    {
+        $metadata = static::createStub(Metadata::class);
+        $metadata->method('getName')->willReturn($appName);
+
+        $manifest = static::createStub(Manifest::class);
+        $manifest->method('getPath')->willReturn($path);
+        $manifest->method('getMetadata')->willReturn($metadata);
+
+        return $manifest;
     }
 }

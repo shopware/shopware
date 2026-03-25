@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeCollection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\Context;
@@ -15,8 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * @internal
@@ -32,78 +32,56 @@ class ContentSystemElementTypePersister implements PersisterInterface
     public function __construct(
         private readonly EntityRepository $contentElementTypeRepository,
         private readonly ElementTypeSpecificationSerializer $serializer,
-        private readonly ValidatorInterface $validator,
         private readonly AbstractContentSystemElementTypeRegistry $registry,
         private readonly Connection $connection,
+        private readonly YamlTypeLoader $loader,
     ) {
     }
 
     public function persist(AppLifecycleContext $context): void
     {
         $appId = $context->app->getId();
+        $typesDir = $context->appFilesystem->path(self::TYPES_DIRECTORY);
 
-        if (!$context->appFilesystem->has(self::TYPES_DIRECTORY)) {
-            return;
+        try {
+            $resolvedDtos = $this->loader->loadDtosFromDirectory(
+                $typesDir,
+                'app:' . $context->app->getName(),
+                $context->app->getName(),
+            );
+        } catch (ContentSystemException $e) {
+            throw AppException::contentSystemElementTypeLoadFailed(self::TYPES_DIRECTORY, $e->getMessage(), $e);
         }
 
-        $files = $context->appFilesystem->findFiles('*.yaml', self::TYPES_DIRECTORY);
-
-        if ($files === []) {
+        if ($resolvedDtos === []) {
             return;
         }
 
         $existing = $this->getExistingTypes($appId, $context->context);
-
         $upserts = [];
         $processedNames = [];
 
-        foreach ($files as $fileInfo) {
-            $content = $context->appFilesystem->read(self::TYPES_DIRECTORY, $fileInfo->getRelativePathname());
-            $data = Yaml::parse($content);
-
-            if (!\is_array($data)) {
-                continue;
-            }
-
-            $dto = $this->serializer->denormalize($data);
-
-            $violations = $this->validator->validate($dto);
-            if ($violations->count() > 0) {
-                throw AppException::elementTypeInvalid(
-                    $dto->name ?: '<unknown>',
-                    $violations
-                );
-            }
-
-            $name = $dto->name;
-            $normalized = $this->serializer->normalize($dto);
+        foreach ($resolvedDtos as $resolvedDto) {
+            $normalized = $this->serializer->normalize($resolvedDto->dto);
             $hash = Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR));
 
-            $this->checkCollision($name, $appId);
+            $this->checkCollision($resolvedDto->name, $appId);
+            $processedNames[$resolvedDto->name] = true;
 
-            $processedNames[$name] = true;
-
-            $existingEntity = $existing->filterByProperty('name', $name)->first();
+            $existingEntity = $existing->filterByProperty('name', $resolvedDto->name)->first();
 
             if ($existingEntity !== null && $existingEntity->getHash() === $hash) {
                 continue;
             }
 
-            $payload = [
-                'name' => $name,
+            $upserts[] = [
+                'id' => $existingEntity?->getId() ?? Uuid::randomHex(),
+                'name' => $resolvedDto->name,
                 'schema' => $normalized,
                 'hash' => $hash,
                 'active' => $context->app->isActive(),
                 'appId' => $appId,
             ];
-
-            if ($existingEntity !== null) {
-                $payload['id'] = $existingEntity->getId();
-            } else {
-                $payload['id'] = Uuid::randomHex();
-            }
-
-            $upserts[] = $payload;
         }
 
         if ($upserts !== []) {
@@ -137,7 +115,7 @@ class ContentSystemElementTypePersister implements PersisterInterface
     private function checkCollision(string $name, string $appId): void
     {
         if ($this->registry->has($name)) {
-            throw AppException::elementTypeCollision($name, 'core/plugin', 'app');
+            throw AppException::contentSystemElementTypeCollision($name, 'core/plugin', 'app');
         }
 
         $existingAppName = $this->connection->fetchOne(
@@ -148,7 +126,7 @@ class ContentSystemElementTypePersister implements PersisterInterface
         );
 
         if ($existingAppName !== false) {
-            throw AppException::elementTypeCollision($name, $existingAppName, 'app');
+            throw AppException::contentSystemElementTypeCollision($name, $existingAppName, 'app');
         }
     }
 }

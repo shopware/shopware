@@ -235,9 +235,12 @@
         <!-- Element Type System -->
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer"/>
 
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver"/>
+
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer"/>
             <argument type="service" id="validator"/>
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver"/>
             <argument key="$directories" type="collection"/>
             <tag name="content_system.type_loader"/>
         </service>

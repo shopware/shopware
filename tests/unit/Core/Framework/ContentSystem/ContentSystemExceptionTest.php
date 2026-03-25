@@ -219,24 +219,23 @@ class ContentSystemExceptionTest extends TestCase
             'Sw:Product:Card',
         ];
 
-        yield 'element type invalid with string reason' => [
-            ContentSystemException::elementTypeInvalid('Sw:Bad:Type', 'missing field'),
-            Response::HTTP_BAD_REQUEST,
-            'CONTENT_SYSTEM__ELEMENT_TYPE_INVALID',
-            'Sw:Bad:Type',
-        ];
-
-        yield 'element type invalid with violation list' => [
-            ContentSystemException::elementTypeInvalid(
-                'Sw:Bad:Type',
+        yield 'element types invalid with batch violations' => [
+            ContentSystemException::elementTypesInvalid(
                 new ConstraintViolationList([
-                    new ConstraintViolation('must not be blank', null, [], null, 'meta.name', null),
-                    new ConstraintViolation('must not be blank', null, [], null, 'meta.label', null),
+                    new ConstraintViolation('must not be blank', null, [], null, '[Sw:Bad:A].label', null),
+                    new ConstraintViolation('too short', null, [], null, '[Sw:Bad:B].vendor', null),
                 ])
             ),
             Response::HTTP_BAD_REQUEST,
-            'CONTENT_SYSTEM__ELEMENT_TYPE_INVALID',
-            'meta.name: must not be blank; meta.label: must not be blank',
+            'CONTENT_SYSTEM__ELEMENT_TYPES_INVALID',
+            '[Sw:Bad:A].label: must not be blank; [Sw:Bad:B].vendor: too short',
+        ];
+
+        yield 'element type invalid filename' => [
+            ContentSystemException::elementTypeInvalidFilename('bad segment', 'path/to/file.yaml'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__ELEMENT_TYPE_INVALID_FILENAME',
+            'bad segment',
         ];
 
         yield 'element type not found' => [

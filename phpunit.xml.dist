@@ -155,6 +155,7 @@
             <directory suffix="LoaderConfig.php">src/Core/Checkout/Shipping/ContentSystem/DataLoader/</directory>
             <directory suffix="LoaderConfig.php">src/Core/System/Currency/ContentSystem/DataLoader/</directory>
             <directory suffix="LoaderConfig.php">src/Core/System/Language/ContentSystem/DataLoader/</directory>
+            <file>src/Core/Framework/ContentSystem/Layout/Type/Loader/ResolvedElementTypeSpecificationDto.php</file>
         </exclude>
     </source>
     <php>

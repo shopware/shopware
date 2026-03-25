@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DbalException;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
@@ -24,10 +25,10 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
      * Fixtures root directory. Sub-directories mirror the directory layout expected by the compiler pass.
      *
      * fixtures/
-     *   bundle-a/Resources/content-system/types/ — standard bundle path (type: Sw:Test:Element)
-     *   test-plugin/Resources/content-system/types/ — default plugin path (type: Sw:Plugin:Element)
-     *   test-plugin-custom/custom-types/ — custom plugin path (type: Sw:CustomPlugin:Element)
-     *   apps/test-app/Resources/content-system/types/ — app path (type: Sw:App:Element)
+     *   bundle-a/Resources/content-system/types/ — standard bundle path, ships element types
+     *   test-plugin/Resources/content-system/types/ — default plugin path, ships element types
+     *   test-plugin-custom/custom-types/ — custom plugin path, ships element types
+     *   apps/test-app/Resources/content-system/types/ — app path, ships element types
      */
     private const FIXTURES_DIR = __DIR__ . '/fixtures';
 
@@ -43,7 +44,6 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
     {
         $container = $this->buildContainer('prod');
         $container->setParameter('kernel.bundles_metadata', [
-            // bundle-a ships 'Sw:Test:Element' at Resources/content-system/types/
             'BundleA' => ['path' => self::FIXTURES_DIR . '/bundle-a'],
         ]);
         $container->setParameter('kernel.active_plugins', []);
@@ -51,8 +51,10 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         $this->pass->process($container);
 
         $directories = $this->extractDirectories($container);
-        static::assertArrayHasKey('bundle:BundleA', $directories);
-        static::assertSame(self::FIXTURES_DIR . '/bundle-a/Resources/content-system/types', $directories['bundle:BundleA']);
+        $bundleDir = $this->findBySource($directories, 'bundle:BundleA');
+        static::assertNotNull($bundleDir);
+        static::assertSame(self::FIXTURES_DIR . '/bundle-a/Resources/content-system/types', $bundleDir->getArgument(1));
+        static::assertSame('Sw', $bundleDir->getArgument(2));
     }
 
     #[TestDox('loads active plugins from their configured type directory')]
@@ -61,7 +63,6 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         $container = $this->buildContainer('prod');
         $container->setParameter('kernel.bundles_metadata', []);
         $container->setParameter('kernel.active_plugins', [
-            // test-plugin ships 'Sw:Plugin:Element' at Resources/content-system/types/
             FixturePlugin::class => [
                 'name' => 'FixturePlugin',
                 'path' => self::FIXTURES_DIR . '/test-plugin',
@@ -72,11 +73,13 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         $this->pass->process($container);
 
         $directories = $this->extractDirectories($container);
-        static::assertArrayHasKey('plugin:FixturePlugin', $directories);
+        $pluginDir = $this->findBySource($directories, 'plugin:FixturePlugin');
+        static::assertNotNull($pluginDir);
+        static::assertSame('FixturePlugin', $pluginDir->getArgument(2));
     }
 
-    #[TestDox('loads app types from filesystem in dev environment')]
-    public function testAppLoadingInDevEnvironment(): void
+    #[TestDox('registers app type directory from filesystem in dev environment')]
+    public function testRegistersAppTypeDirectoryInDevEnvironment(): void
     {
         $container = $this->buildContainer('dev');
         $container->setParameter('kernel.bundles_metadata', []);
@@ -94,7 +97,9 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         $this->pass->process($container);
 
         $directories = $this->extractDirectories($container);
-        static::assertArrayHasKey('app:TestApp', $directories);
+        $appDir = $this->findBySource($directories, 'app:TestApp');
+        static::assertNotNull($appDir);
+        static::assertSame('TestApp', $appDir->getArgument(2));
     }
 
     #[TestDox('skips active-plugin bundles during bundle-metadata loading')]
@@ -102,7 +107,7 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
     {
         $container = $this->buildContainer('prod');
         $container->setParameter('kernel.bundles_metadata', [
-            // MyPlugin path points at the fixture bundle, but it is an active plugin → skipped
+            // MyPlugin path points at the fixture bundle, but it is an active plugin — skipped
             'MyPlugin' => ['path' => self::FIXTURES_DIR . '/bundle-a'],
         ]);
         $container->setParameter('kernel.active_plugins', [
@@ -117,16 +122,15 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         $this->pass->process($container);
 
         $directories = $this->extractDirectories($container);
-        static::assertArrayNotHasKey('bundle:MyPlugin', $directories);
+        static::assertNull($this->findBySource($directories, 'bundle:MyPlugin'));
     }
 
-    #[TestDox('uses the overridden path for plugins with a custom type directory')]
-    public function testPluginWithCustomTypeDirectoryIsRespected(): void
+    #[TestDox('uses custom type directory when plugin overrides default')]
+    public function testUsesCustomTypeDirectoryWhenPluginOverridesDefault(): void
     {
         $container = $this->buildContainer('prod');
         $container->setParameter('kernel.bundles_metadata', []);
         $container->setParameter('kernel.active_plugins', [
-            // test-plugin-custom ships 'Sw:CustomPlugin:Element' at custom-types/
             FixturePluginWithCustomTypeDir::class => [
                 'name' => 'FixturePluginWithCustomTypeDir',
                 'path' => self::FIXTURES_DIR . '/test-plugin-custom',
@@ -137,12 +141,14 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         $this->pass->process($container);
 
         $directories = $this->extractDirectories($container);
-        static::assertArrayHasKey('plugin:FixturePluginWithCustomTypeDir', $directories);
-        static::assertSame(self::FIXTURES_DIR . '/test-plugin-custom/custom-types', $directories['plugin:FixturePluginWithCustomTypeDir']);
+        $pluginDir = $this->findBySource($directories, 'plugin:FixturePluginWithCustomTypeDir');
+        static::assertNotNull($pluginDir);
+        static::assertSame(self::FIXTURES_DIR . '/test-plugin-custom/custom-types', $pluginDir->getArgument(1));
+        static::assertSame('FixturePluginWithCustomTypeDir', $pluginDir->getArgument(2));
     }
 
-    #[TestDox('skips app loading when environment is not dev')]
-    public function testAppLoadingIsSkippedInProductionEnvironment(): void
+    #[TestDox('skips app loading in production environment')]
+    public function testSkipsAppLoadingInProductionEnvironment(): void
     {
         $container = $this->buildContainer('prod');
         $container->setParameter('kernel.bundles_metadata', []);
@@ -155,12 +161,12 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         $this->pass->process($container);
 
         $directories = $this->extractDirectories($container);
-        $appKeys = array_filter(array_keys($directories), static fn (string $key) => str_starts_with($key, 'app:'));
-        static::assertSame([], array_values($appKeys));
+        $appSources = array_filter($directories, static fn (Definition $dir) => str_starts_with($dir->getArgument(0), 'app:'));
+        static::assertSame([], array_values($appSources));
     }
 
-    #[TestDox('returns early without loading any directories when YamlTypeLoader definition is missing')]
-    public function testProcessReturnsEarlyWhenYamlLoaderIsMissing(): void
+    #[TestDox('registers no directories when the type loader service is absent')]
+    public function testDoesNotRegisterDirectoriesWhenTypeLoaderIsNotDefined(): void
     {
         $container = new ContainerBuilder();
         $container->setParameter('kernel.bundles_metadata', []);
@@ -168,13 +174,12 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         $container->setParameter('kernel.environment', 'prod');
 
         // No YamlTypeLoader definition — must not throw
+        $this->expectNotToPerformAssertions();
         $this->pass->process($container);
-
-        static::assertFalse($container->hasDefinition(YamlTypeLoader::class));
     }
 
-    #[TestDox('swallows DB exception during app loading')]
-    public function testAppLoadingContinuesWhenDbQueryFails(): void
+    #[TestDox('continues compiling when database is unavailable during app loading')]
+    public function testContinuesCompilingWhenDatabaseIsUnavailable(): void
     {
         $container = $this->buildContainer('dev');
         $container->setParameter('kernel.bundles_metadata', []);
@@ -190,7 +195,8 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
 
         // Verify core directory was still collected even when app loading fails
         $directories = $this->extractDirectories($container);
-        static::assertArrayHasKey('core', $directories);
+        $coreDir = $this->findBySource($directories, 'core');
+        static::assertNotNull($coreDir);
     }
 
     #[TestDox('throws when kernel.project_dir is not a string during app loading')]
@@ -200,7 +206,6 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         $container->setParameter('kernel.bundles_metadata', []);
         $container->setParameter('kernel.active_plugins', []);
         $container->setParameter('kernel.project_dir', 123);
-
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
             ['path' => 'test-app', 'name' => 'TestApp'],
@@ -208,7 +213,6 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         $container->set(Connection::class, $connection);
 
         $this->expectExceptionObject(DependencyInjectionException::projectDirNotInContainer());
-
         $this->pass->process($container);
     }
 
@@ -224,61 +228,58 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
         $this->pass->process($container);
     }
 
-    #[TestDox('throws when kernel.active_plugins is not an array')]
-    public function testThrowsWhenActivePluginsIsNotAnArray(): void
+    /**
+     * @return iterable<string, array{array<string, mixed>, mixed, DependencyInjectionException}>
+     */
+    public static function throwsForInvalidActivePluginsProvider(): iterable
     {
-        $container = $this->buildContainer('prod');
-        $container->setParameter('kernel.bundles_metadata', ['SomeBundle' => ['path' => '/some/path']]);
-        $container->setParameter('kernel.active_plugins', 'not-an-array');
-
-        $this->expectExceptionObject(DependencyInjectionException::parameterHasWrongType(
-            'kernel.active_plugins',
-            'array',
-            'string'
-        ));
-
-        $this->pass->process($container);
+        yield 'active_plugins is not an array' => [
+            ['SomeBundle' => ['path' => '/some/path']],
+            'not-an-array',
+            DependencyInjectionException::parameterHasWrongType('kernel.active_plugins', 'array', 'string'),
+        ];
+        yield 'plugin key is not a valid class' => [
+            [],
+            [
+                'NonExistentClass\\That\\DoesNotExist' => [
+                    'name' => 'MyPlugin',
+                    'path' => '/my-plugin',
+                    'class' => 'NonExistentClass\\That\\DoesNotExist',
+                ],
+            ],
+            DependencyInjectionException::parameterHasWrongType(
+                'kernel.active_plugins',
+                'array<class-string, array>',
+                'entry key "NonExistentClass\\That\\DoesNotExist" is not a valid class'
+            ),
+        ];
+        yield 'plugin entry missing required metadata fields' => [
+            [],
+            [
+                FixturePlugin::class => [
+                    'name' => 'FixturePlugin',
+                ],
+            ],
+            DependencyInjectionException::parameterHasWrongType(
+                'kernel.active_plugins',
+                'array{name: string, path: string, class: string}',
+                \sprintf('entry for "%s" has missing or invalid metadata', FixturePlugin::class)
+            ),
+        ];
     }
 
-    #[TestDox('throws when a plugin entry key is not a valid class-string')]
-    public function testThrowsWhenPluginKeyIsNotAValidClass(): void
+    /**
+     * @param array<string, mixed> $bundlesMetadata
+     */
+    #[DataProvider('throwsForInvalidActivePluginsProvider')]
+    #[TestDox('throws for invalid active plugins configuration')]
+    public function testThrowsForInvalidActivePluginsConfiguration(array $bundlesMetadata, mixed $activePlugins, DependencyInjectionException $expectedException): void
     {
         $container = $this->buildContainer('prod');
-        $container->setParameter('kernel.bundles_metadata', []);
-        $container->setParameter('kernel.active_plugins', [
-            'NonExistentClass\\That\\DoesNotExist' => [
-                'name' => 'MyPlugin',
-                'path' => '/my-plugin',
-                'class' => 'NonExistentClass\\That\\DoesNotExist',
-            ],
-        ]);
+        $container->setParameter('kernel.bundles_metadata', $bundlesMetadata);
+        $container->setParameter('kernel.active_plugins', $activePlugins);
 
-        $this->expectExceptionObject(DependencyInjectionException::parameterHasWrongType(
-            'kernel.active_plugins',
-            'array<class-string, array>',
-            'entry key "NonExistentClass\\That\\DoesNotExist" is not a valid class'
-        ));
-
-        $this->pass->process($container);
-    }
-
-    #[TestDox('throws when a plugin entry is missing required metadata fields')]
-    public function testThrowsWhenPluginMetadataIsMissingFields(): void
-    {
-        $container = $this->buildContainer('prod');
-        $container->setParameter('kernel.bundles_metadata', []);
-        $container->setParameter('kernel.active_plugins', [
-            FixturePlugin::class => [
-                'name' => 'FixturePlugin',
-                // Missing 'path' and 'class' fields
-            ],
-        ]);
-
-        $this->expectExceptionObject(DependencyInjectionException::parameterHasWrongType(
-            'kernel.active_plugins',
-            'array{name: string, path: string, class: string}',
-            \sprintf('entry for "%s" has missing or invalid metadata', FixturePlugin::class)
-        ));
+        $this->expectExceptionObject($expectedException);
 
         $this->pass->process($container);
     }
@@ -295,11 +296,25 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
     }
 
     /**
-     * @return array<string, string>
+     * @return list<Definition>
      */
     private function extractDirectories(ContainerBuilder $container): array
     {
         return $container->getDefinition(YamlTypeLoader::class)->getArgument('$directories');
+    }
+
+    /**
+     * @param list<Definition> $directories
+     */
+    private function findBySource(array $directories, string $source): ?Definition
+    {
+        foreach ($directories as $dir) {
+            if ($dir->getArgument(0) === $source) {
+                return $dir;
+            }
+        }
+
+        return null;
     }
 }
 

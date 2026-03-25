@@ -16,83 +16,34 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\SlotSpec
 #[CoversClass(ElementTypeSpecificationDto::class)]
 class ElementTypeSpecificationDtoTest extends TestCase
 {
-    #[TestDox('maps property keys to schema')]
-    public function testMapsPropertyKeysToSchema(): void
+    #[TestDox('converts DTO to specification preserving name, source, property keys, and slot count')]
+    public function testConvertsToSpecificationPreservingStructure(): void
     {
-        $dto = $this->createDto(
+        $dto = new ElementTypeSpecificationDto(
+            'Product Card',
+            'A product card.',
+            'shopware AG',
+            'card',
+            'commerce',
+            new CopilotSpecificationDto('Summary.', ['Hint.']),
             [
-                'title' => new PropertySpecificationDto('title', 'string', false, true, 'Title', '', null, null, null),
+                'custom_key' => new PropertySpecificationDto('different_name', 'string', true, false, 'Title', '', null, null, null),
                 'layout' => new PropertySpecificationDto('layout', 'string', false, false, 'Layout', '', ['box', 'list'], 'box', null),
             ],
-            [],
-        );
-
-        $schema = $dto->toContentSystemElementTypeSpecification('test')->toSchema();
-
-        static::assertCount(2, $schema['properties']);
-        static::assertArrayHasKey('title', $schema['properties']);
-        static::assertArrayHasKey('layout', $schema['properties']);
-    }
-
-    #[TestDox('includes slots in schema')]
-    public function testIncludesSlotsInSchema(): void
-    {
-        $dto = $this->createDto(
-            [],
             [new SlotSpecificationDto('media', 1, ['Sw:Media:Image'], 'Media slot.')],
         );
 
-        $schema = $dto->toContentSystemElementTypeSpecification('test')->toSchema();
+        $specification = $dto->toContentSystemElementTypeSpecification('Sw:Product:Card', 'plugin:MyPlugin');
 
-        static::assertCount(1, $schema['slots']);
-    }
-
-    #[TestDox('returns empty properties and slots when none are defined')]
-    public function testReturnsEmptyCollectionsWhenNoneAreDefined(): void
-    {
-        $dto = $this->createDto([], []);
-        $schema = $dto->toContentSystemElementTypeSpecification('test')->toSchema();
-
-        static::assertSame([], $schema['properties']);
-        static::assertSame([], $schema['slots']);
-    }
-
-    #[TestDox('passes source label through to specification')]
-    public function testSourceIsPassedThroughToSpecification(): void
-    {
-        $dto = new ElementTypeSpecificationDto(
-            'Sw:Content:Text',
-            'Text',
-            '',
-            'vendor',
-            null,
-            null,
-            new CopilotSpecificationDto('', []),
-            [],
-            [],
-        );
-
-        $specification = $dto->toContentSystemElementTypeSpecification('plugin:MyPlugin');
-
+        static::assertSame('Sw:Product:Card', $specification->name());
         static::assertSame('plugin:MyPlugin', $specification->source());
-    }
 
-    /**
-     * @param array<string, PropertySpecificationDto> $properties
-     * @param list<SlotSpecificationDto> $slots
-     */
-    private function createDto(array $properties, array $slots): ElementTypeSpecificationDto
-    {
-        return new ElementTypeSpecificationDto(
-            'Sw:Product:Card',
-            'Card',
-            'Card.',
-            'shopware AG',
-            null,
-            null,
-            new CopilotSpecificationDto('', []),
-            $properties,
-            $slots,
-        );
+        $schema = $specification->toSchema();
+
+        // Property keys come from the outer array key, not PropertySpecificationDto::name
+        static::assertArrayHasKey('custom_key', $schema['properties']);
+        static::assertArrayNotHasKey('different_name', $schema['properties']);
+        static::assertCount(2, $schema['properties']);
+        static::assertCount(1, $schema['slots']);
     }
 }

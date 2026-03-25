@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Loader;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\Log\Package;
@@ -42,24 +41,23 @@ class DatabaseTypeLoader extends AbstractContentSystemElementTypeLoader
              WHERE t.active = 1'
         );
 
-        $definitions = [];
+        $resolved = [];
 
         foreach ($rows as $row) {
             $schema = json_decode($row['schema'], true, 512, \JSON_THROW_ON_ERROR);
-
             $dto = $this->serializer->denormalize($schema);
+            $name = $row['name'] ?: '<unknown>';
 
-            $violations = $this->validator->validate($dto);
-            if ($violations->count() > 0) {
-                throw ContentSystemException::elementTypeInvalid(
-                    $dto->name ?: '<unknown>',
-                    $violations
-                );
-            }
-
-            $definitions[] = $dto->toContentSystemElementTypeSpecification('app:' . $row['app_name']);
+            $resolved[] = new ResolvedElementTypeSpecificationDto(
+                $name,
+                'app:' . $row['app_name'],
+                $dto,
+            );
         }
 
-        return $definitions;
+        $batch = new ResolvedElementTypeSpecificationDtoCollection($resolved);
+        $batch->validate($this->validator);
+
+        return $batch->toSpecifications();
     }
 }

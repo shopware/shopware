@@ -23,7 +23,7 @@ class FinishController extends InstallerController
         private readonly SystemLocker $systemLocker,
         private readonly Client $client,
         private readonly string $appUrl,
-        private readonly string $adminPathName = 'admin'
+        private readonly string $adminPathName = 'admin',
     ) {
     }
 

@@ -135,6 +135,14 @@ export default {
             return this.salesChannel && this.salesChannel.typeId === Defaults.productComparisonTypeId;
         },
 
+        isAgenticCommerce() {
+            return this.salesChannel && this.salesChannel.typeId === Defaults.agenticCommerceTypeId;
+        },
+
+        isProductExportChannel() {
+            return this.isProductComparison || this.isAgenticCommerce;
+        },
+
         isHeadlessSalesChannel() {
             return this.salesChannel?.typeId === Defaults.apiSalesChannelTypeId;
         },
@@ -520,13 +528,21 @@ export default {
         },
 
         templateSelectOptions() {
-            return this.templateOptions.map((templateOption) => {
-                return {
-                    value: templateOption.name,
-                    id: templateOption.name,
-                    label: this.$tc(templateOption.translationKey),
-                };
-            });
+            return this.templateOptions
+                .filter((exportTemplate) => {
+                    if (this.isAgenticCommerce) {
+                        return exportTemplate.salesChannelTypeId === Defaults.agenticCommerceTypeId;
+                    }
+
+                    return !exportTemplate.salesChannelTypeId;
+                })
+                .map((templateOption) => {
+                    return {
+                        value: templateOption.name,
+                        id: templateOption.name,
+                        label: this.$tc(templateOption.translationKey),
+                    };
+                });
         },
     },
 

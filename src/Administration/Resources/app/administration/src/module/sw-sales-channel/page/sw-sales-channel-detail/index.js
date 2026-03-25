@@ -97,6 +97,14 @@ export default {
             return this.salesChannel.typeId === Defaults.apiSalesChannelTypeId;
         },
 
+        isAgenticCommerce() {
+            if (!this.salesChannel) {
+                return this.$route.params.typeId === Defaults.agenticCommerceTypeId;
+            }
+
+            return this.salesChannel.typeId === Defaults.agenticCommerceTypeId;
+        },
+
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
@@ -228,7 +236,7 @@ export default {
                 return;
             }
 
-            this.productComparison.selectedTemplate = this.productComparison.templates[templateName];
+            this.productComparison.selectedTemplate = { ...this.productComparison.templates[templateName] };
             const contentChanged = Object.keys(this.productComparison.selectedTemplate).some((value) => {
                 return this.productExport[value] !== this.productComparison.selectedTemplate[value];
             });
@@ -247,9 +255,17 @@ export default {
         },
 
         onTemplateModalConfirm() {
-            Object.keys(this.productComparison.selectedTemplate).forEach((value) => {
-                this.productExport[value] = this.productComparison.selectedTemplate[value];
+            const selectedTemplate = this.productComparison.selectedTemplate;
+
+            Object.keys(selectedTemplate).forEach((key) => {
+                if (key === 'providerName') {
+                    this.productExport.provider = selectedTemplate[key];
+                    return;
+                }
+
+                this.productExport[key] = selectedTemplate[key];
             });
+
             this.onTemplateModalClose();
 
             this.createNotificationInfo({
@@ -294,7 +310,9 @@ export default {
         },
 
         prepareSaveData() {
-            if (this.isProductComparison && !this.salesChannel.productExports.length) {
+            const needsProductExport = this.isProductComparison || this.isAgenticCommerce;
+
+            if (needsProductExport && !this.salesChannel.productExports.length) {
                 this.salesChannel.productExports.add(this.productExport);
             }
 

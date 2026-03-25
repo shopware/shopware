@@ -234,6 +234,31 @@
         },
         "cliCommand": "CLI-Befehl zur Erstellung des Produktexports"
       },
+      "agenticCommerce": {
+        "tabIntegration": "Integration",
+        "buttonResetTemplate": "Auf Standard zurücksetzen",
+        "resetTemplateSuccess": "Template wurde auf Standard zurückgesetzt. Bitte speichern, um die Änderungen zu übernehmen.",
+        "errorLoadingTemplate": "Standard-Template konnte nicht geladen werden.",
+        "templates": {
+          "template-label": {
+            "open-ai": "OpenAI (JSONL)"
+          }
+        },
+        "integration": {
+          "stepByStepTitle": "Schritt für Schritt",
+          "feedUrlLabel": "Export-URL",
+          "providers": {
+            "open-ai": {
+              "cardTitle": "OpenAI-Verbindung",
+              "introduction": {
+                "title": "Anleitung: Einrichten und verbinden",
+                "description": "Dieser Verkaufskanal generiert einen JSONL-Produkt-Feed, damit Produkte in den ChatGPT-Suchergebnissen erscheinen können. Dazu müssen Sie sich als Merchant bewerben und die Feed URL mit OpenAI teilen. Alles Weitere wird in der folgenden Schritt-für-Schritt-Anleitung erklärt."
+              },
+              "stepByStep": "<li>Bewirb dich als Merchant unter <a href=\"https://chatgpt.com/merchants/\" target=\"_blank\" rel=\"noopener noreferrer\">chatgpt.com/merchants</a></li><li>Kopiere die Export-URL (unten) und teile diese mit OpenAI gemäß der <a href=\"https://developers.openai.com/commerce/product-feeds\" target=\"_blank\" rel=\"noopener noreferrer\">Produkt-Feed-Dokumentation</a></li><li>Stelle sicher, dass die Export-URL öffentlich erreichbar ist</li>"
+            }
+          }
+        }
+      },
       "hreflang": {
         "title": "Hreflang",
         "titleCard": "Hreflang-Integration",

@@ -407,21 +407,19 @@ class PromotionCalculator
 
         foreach ($result as $package) {
             $cartItems = $package->getCartItems()->getElements();
-            $isValidPackage = true;
 
             foreach ($package->getMetaData() as $key => $item) {
-                if (!\array_key_exists($key, $cartItems)) {
-                    if (!\array_key_exists($item->getLineItemId(), $splitItems)) {
-                        $isValidPackage = false;
-                        break;
-                    }
-
-                    $cartItems[$key] = $splitItems[$item->getLineItemId()];
+                if (\array_key_exists($key, $cartItems)) {
+                    continue;
                 }
-            }
 
-            if (!$isValidPackage) {
-                continue;
+                $lineItemId = $item->getLineItemId();
+
+                if (!\array_key_exists($lineItemId, $splitItems)) {
+                    continue 2;
+                }
+
+                $cartItems[$key] = $splitItems[$lineItemId];
             }
 
             // assign instead of add for performance reasons

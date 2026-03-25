@@ -47,7 +47,7 @@ class MailActionController extends AbstractController
         $extension = new MailSendSubscriberConfig(
             false,
             $data['documentIds'] ?? [],
-            $data['mediaIds'] ?? [],
+            [],
         );
 
         $data['attachmentsConfig'] = new MailAttachmentsConfig(

@@ -2,7 +2,7 @@
 
 {% block base_content %}
     {% block page_account %}
-        <div class="account account-content row">
+        <div class="account account-content row"{% if context.imitatingUserId %} data-checkout-customer-comment-reset="true"{% endif %}>
             {% block page_account_sidebar %}
                 <div class="account-content-aside col-lg-3 col-xl-2 d-none d-lg-block">
                     {% if context.customer and not context.customer.guest %}

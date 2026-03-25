@@ -175,26 +175,26 @@ type Exact<T, Shape> = T extends Shape ? (Exclude<keyof T, keyof Shape> extends 
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function createExtendableSetup<
-    PROPS extends Record<string, unknown>,
-    CONTEXT,
-    COMPONENT_NAME extends keyof ComponentPublicApiMapping,
-    SETUP_RESULT extends ComponentPublicApiMapping[COMPONENT_NAME],
-    PRIVATE_SETUP_RESULT extends object,
+    TProps extends Record<string, unknown>,
+    TContext,
+    TComponentName extends keyof ComponentPublicApiMapping,
+    TSetupResult extends ComponentPublicApiMapping[TComponentName],
+    TPrivateSetupResult extends object,
 >(
     options: {
-        name: COMPONENT_NAME;
-        props: PROPS;
-        context?: CONTEXT;
+        name: TComponentName;
+        props: TProps;
+        context?: TContext;
     },
     originalSetup: (
-        props: PROPS,
-        context: CONTEXT,
+        props: TProps,
+        context: TContext,
     ) => {
-        public?: Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]>;
-        private?: PRIVATE_SETUP_RESULT;
+        public?: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>;
+        private?: TPrivateSetupResult;
     },
-): ToRefs<Reactive<Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]> & PRIVATE_SETUP_RESULT>> {
-    const componentContext = options.context ? options.context : (getComponentContext() as CONTEXT);
+): ToRefs<Reactive<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult>> {
+    const componentContext = options.context ? options.context : (getComponentContext() as TContext);
     // Call the original setup function
     const originalSetupResultRaw = originalSetup(options.props, componentContext);
 
@@ -215,11 +215,11 @@ export function createExtendableSetup<
     });
 
     const originalSetupResultPublic =
-        originalSetupResultRaw.public ?? ({} as Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]>);
-    const originalSetupResultPrivate = originalSetupResultRaw.private ?? ({} as PRIVATE_SETUP_RESULT);
+        originalSetupResultRaw.public ?? ({} as Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>);
+    const originalSetupResultPrivate = originalSetupResultRaw.private ?? ({} as TPrivateSetupResult);
 
     // Merge public and private properties
-    const originalSetupResult: Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]> & PRIVATE_SETUP_RESULT = {
+    const originalSetupResult: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult = {
         ...originalSetupResultPublic,
         ...originalSetupResultPrivate,
     };
@@ -293,30 +293,30 @@ export function createExtendableSetup<
              *  Filter the wrappedState to only include public setup result
              *  and add the private ones in the "_private" property
              */
-            type previousStateResultForExtensionsType = Exact<SETUP_RESULT, ComponentPublicApiMapping[COMPONENT_NAME]> & {
-                _private: PRIVATE_SETUP_RESULT;
+            type PreviousStateResultForExtensions = Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & {
+                _private: TPrivateSetupResult;
             };
 
             const wrappedStateAsRecord = wrappedState as Record<string, unknown>;
             const publicStateKeys = Object.keys(originalSetupResultPublic);
 
-            const previousStateResultForExtensions = Object.keys(wrappedState).reduce<previousStateResultForExtensionsType>(
+            const previousStateResultForExtensions = Object.keys(wrappedState).reduce<PreviousStateResultForExtensions>(
                 (acc, key) => {
                     if (publicStateKeys.includes(key)) {
                         (acc as Record<string, unknown>)[key] = wrappedStateAsRecord[key];
                     }
                     return acc;
                 },
-                { _private: {} as PRIVATE_SETUP_RESULT } as previousStateResultForExtensionsType,
+                { _private: {} as TPrivateSetupResult } as PreviousStateResultForExtensions,
             );
-            previousStateResultForExtensions._private = Object.keys(wrappedState).reduce<PRIVATE_SETUP_RESULT>(
+            previousStateResultForExtensions._private = Object.keys(wrappedState).reduce<TPrivateSetupResult>(
                 (acc, key) => {
                     if (!publicStateKeys.includes(key)) {
                         (acc as Record<string, unknown>)[key] = wrappedStateAsRecord[key];
                     }
                     return acc;
                 },
-                {} as PRIVATE_SETUP_RESULT,
+                {} as TPrivateSetupResult,
             );
 
             // Apply the override with a destructured copy of the wrapped state to prevent calling himself
@@ -422,12 +422,12 @@ type ExtractedProps<T> = Omit<
  * Function to add an override for a specific component
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function overrideComponentSetup<ORIGINAL_COMPONENT>() {
-    return function <COMPONENT_NAME extends keyof ComponentPublicApiMapping>(
-        componentName: COMPONENT_NAME,
+export function overrideComponentSetup<TOriginalComponent>() {
+    return function <TComponentName extends keyof ComponentPublicApiMapping>(
+        componentName: TComponentName,
         override: (
-            previousState: ComponentPublicApiMapping[COMPONENT_NAME],
-            props: ExtractedProps<ORIGINAL_COMPONENT>,
+            previousState: ComponentPublicApiMapping[TComponentName],
+            props: ExtractedProps<TOriginalComponent>,
             context: SetupContext,
         ) => ReturnType<OverrideFn>,
     ): void {

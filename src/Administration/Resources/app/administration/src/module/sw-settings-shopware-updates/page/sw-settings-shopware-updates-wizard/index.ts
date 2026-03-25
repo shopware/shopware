@@ -122,6 +122,11 @@ export default Component.wrapComponentConfig({
     },
 
     methods: {
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _navigateTo(url: string) {
+            window.location.href = url;
+        },
+
         createdComponent() {
             void this.updateService.checkForUpdates().then((response) => {
                 this.updateInfo = response;
@@ -231,7 +236,7 @@ export default Component.wrapComponentConfig({
         },
 
         redirectToPage(url: string) {
-            window.location.href = url;
+            this._navigateTo(url);
         },
     },
 });

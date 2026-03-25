@@ -35,13 +35,11 @@ export default {
             default: null,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         label: {
             required: false,
             default: true,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         disabled: {
             required: false,
             default: false,
@@ -76,7 +74,6 @@ export default {
                 if (priceForCurrency) {
                     priceForCurrency = newPurchasePrice;
                 } else {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.price.push(newPurchasePrice);
                 }
 

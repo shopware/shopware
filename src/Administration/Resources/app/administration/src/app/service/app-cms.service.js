@@ -51,7 +51,6 @@ export default class AppCmsService {
         this.appCmsBlocksService = appCmsBlocksService;
         this.vueAdapter = vueAdapter;
 
-        // eslint-disable-next-line no-constructor-return
         return this.requestAppSystemBlocks().then((blocks) => {
             if (!blocks) {
                 return this;

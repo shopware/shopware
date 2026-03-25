@@ -5,7 +5,6 @@
 import positionIdentifiers from './position-identifiers.json';
 import dataSetIds from './data-sets.json';
 
-/* eslint-disable max-len */
 const missingTests = [
     'src/app/adapter/view/sw-vue-devtools.ts',
     'src/app/component/media/sw-media-add-thumbnail-form/index.js',
@@ -231,7 +230,6 @@ const missingTests = [
     'src/module/sw-cms/blocks/image/image-slider/preview/index.js',
     'src/module/sw-cms/blocks/sidebar/sidebar-filter/preview/index.js',
     'src/module/sw-cms/component/index.ts',
-    'src/module/sw-cms/component/sw-cms-mapping-field/index.ts',
     'src/module/sw-cms/component/sw-cms-page-select/index.ts',
     'src/module/sw-cms/component/sw-cms-product-box-preview/index.ts',
     'src/module/sw-cms/component/sw-cms-section/sw-cms-section-config/index.ts',

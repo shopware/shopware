@@ -57,14 +57,16 @@
         "label-checkbox": "Share personal data"
       },
       "opt-out-info": {
-        "snippet": "You can change your preferences at any time: manage Store Data settings under {setting}, and Personal Data settings under {profile}.",
+        "snippet": "You can change your preferences at any time: manage Store Data settings under {settings}, and Personal Data settings under {profile}.",
         "settings": "Settings – Privacy",
         "profile": "Your Profile – Privacy Preferences"
       },
       "actions": {
         "share-all-data": "Allow All",
         "share-nothing": "Reject All",
-        "save-preferences": "Save Preferences"
+        "save-preferences": "Save Preferences",
+        "give-consent": "Give Consent",
+        "decline": "Decline"
       }
     }
   },

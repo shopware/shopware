@@ -28,10 +28,6 @@ export class Telemetry {
     }
 
     initialize() {
-        if (!Shopware.Feature.isActive('PRODUCT_ANALYTICS')) {
-            return;
-        }
-
         if (this.isInitialized) {
             throw new Error('Telemetry is already initialized');
         }
@@ -54,6 +50,16 @@ export class Telemetry {
 
     track(eventData: EventPayload<'programmatic'>) {
         this.dispatchEvent('programmatic', eventData);
+    }
+
+    identify() {
+        const sessionStore = Shopware.Store.get('session');
+
+        this.dispatchEvent('identify', {
+            userId: sessionStore.currentUser?.id || null,
+            locale: sessionStore.currentLocale,
+            isAdmin: sessionStore.currentUser?.admin || null,
+        });
     }
 
     private initializePageChanges(): void {
@@ -79,13 +85,7 @@ export class Telemetry {
         const loginService = Shopware.Service('loginService');
 
         loginService.addOnLoginListener(() => {
-            const currentUser = Shopware.Store.get('session').currentUser;
-
-            this.dispatchEvent('identify', {
-                userId: currentUser?.id || null,
-                locale: null,
-                isAdmin: currentUser?.admin || null,
-            });
+            this.identify();
         });
 
         loginService.addOnLogoutListener(() => {
@@ -133,10 +133,6 @@ export class Telemetry {
     }
 
     private dispatchEvent<N extends EventTypes>(eventType: N, eventData: EventPayload<N>): void {
-        if (!Shopware.Feature.isActive('PRODUCT_ANALYTICS')) {
-            return;
-        }
-
         Shopware.Utils.EventBus.emit('telemetry', new TelemetryEvent<N>(eventType, eventData));
     }
 

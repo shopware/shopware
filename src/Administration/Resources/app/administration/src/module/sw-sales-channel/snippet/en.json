@@ -344,9 +344,9 @@
       "inheritLabel": "Inherit tracking codes from linked storefront",
       "inheritHelpText": "When enabled, the affiliate and campaign codes configured on this channel's linked storefront sales channel are used in the feed URLs. The codes below will be ignored.",
       "affiliateCodeLabel": "Affiliate code",
-      "affiliateCodePlaceholder": "Enter affiliate code …",
+      "affiliateCodePlaceholder": "Enter affiliate code…",
       "campaignCodeLabel": "Campaign code",
-      "campaignCodePlaceholder": "Enter campaign code …"
+      "campaignCodePlaceholder": "Enter campaign code…"
     }
   },
   "sw-privileges": {

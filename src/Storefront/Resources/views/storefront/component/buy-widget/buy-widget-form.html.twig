@@ -102,7 +102,7 @@
                                value="{{ product.manufacturer ? product.manufacturer.getName() : '' }}">
 
                         {# Google Analytics supports up to 5 category levels. We take the first 5 from the breadcrumb. #}
-                        {% if page is defined and page.product is defined and page.product.seoCategory is defined %}
+                        {% if page is defined and page.product is defined and page.product.seoCategory %}
                             {% set breadcrumb = sw_breadcrumb_full(page.product.seoCategory, context)|slice(0, 5) %}
                             {% for i, category in breadcrumb %}
                                 <input type="hidden"

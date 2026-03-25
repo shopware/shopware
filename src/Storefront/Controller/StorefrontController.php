@@ -191,10 +191,14 @@ abstract class StorefrontController extends AbstractController
         $params = RequestParamHelper::get($request, $param);
 
         if (\is_string($params)) {
-            $params = json_decode($params, true);
+            try {
+                $params = json_decode($params, true, flags: \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                $params = [];
+            }
         }
 
-        if (empty($params) || \is_numeric($params)) {
+        if ($params === null || \is_numeric($params)) {
             $params = [];
         }
 
@@ -318,5 +322,20 @@ abstract class StorefrontController extends AbstractController
     protected function getSystemConfigService(): SystemConfigService
     {
         return $this->container->get(SystemConfigService::class);
+    }
+
+    /**
+     * Because some email-clients try to fetch previews for links in mails,
+     * they send a HEAD-request. But because Symfony is routing HEAD-requests
+     * as GET-requests, a subscriber would be confirmed without clicking the link,
+     * only by the HEAD-request.
+     * To determine if the current request is a "HEAD" request or a "GET" request, this
+     * helper method exists.
+     *
+     * Beware: $request->getMethod() or $request->getRealMethod() will both return "GET".
+     */
+    protected function isHeadRequest(): bool
+    {
+        return isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'HEAD';
     }
 }

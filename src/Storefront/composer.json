@@ -27,7 +27,7 @@
     "require": {
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
         "cocur/slugify": "^4.7.0",
-        "doctrine/dbal": "~4.3.1",
+        "doctrine/dbal": "~4.4.0",
         "meyfa/php-svg": "^0.16.1",
         "scssphp/scssphp": "v1.12.0",
         "shopware/core": "*",
@@ -50,7 +50,8 @@
         "symfony/mime": "~7.4.0",
         "twig/intl-extra": "^3.10.0",
         "twig/string-extra": "^3.10.0",
-        "twig/twig": "^3.21.1"
+        "twig/twig": "^3.21.1",
+        "symfony/ux-twig-component": "~2.32.0"
     },
     "require-dev": {
         "symfony/css-selector": "~7.4.0",

@@ -77,9 +77,8 @@ class FinishController extends InstallerController
                     json_encode($loginTokenData, \JSON_THROW_ON_ERROR),
                     time() + $data['expires_in'],
                     $cookiePath,
-                    $appUrlInfo['host'],
-                    null,
-                    false
+                    $appUrlInfo['host'] ?? null,
+                    httpOnly: false
                 )
             );
         } catch (TransferException) {

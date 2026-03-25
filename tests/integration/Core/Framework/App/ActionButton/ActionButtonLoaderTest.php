@@ -55,7 +55,7 @@ class ActionButtonLoaderTest extends TestCase
 
         $loadedActionButtons = $this->actionButtonLoader->loadActionButtonsForView('order', 'detail', $this->context);
 
-        usort($loadedActionButtons, fn (array $a, array $b): int => $a['app'] <=> $b['app']);
+        usort($loadedActionButtons, static fn (array $a, array $b): int => $a['app'] <=> $b['app']);
 
         static::assertSame([
             [

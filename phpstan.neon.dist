@@ -37,10 +37,6 @@ parameters:
         # PHPStan rule test files
         - tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
 
-        # Compatibility traits for Redis can be removed, once we are requiring Redis 6.0.0
-        - src/Core/Test/Stub/Redis/RedisCompatibility.php
-        - src/Core/Test/Stub/Redis/RedisMultiCompatibility.php
-
     universalObjectCratesClasses:
         - Shopware\Core\Content\Product\Hook\Pricing\ProductProxy
 
@@ -131,7 +127,6 @@ parameters:
         - # tests are allowed to add dummy classes in the same file
             message: '#Multiple class\/interface\/trait is not allowed in single file#'
             paths:
-                - src/**/Test/**
                 - tests/**
 
         # implementation of symfony flashbag interface which does not define iterable types
@@ -176,9 +171,9 @@ parameters:
                 - src/Core/Framework/DataAbstractionLayer/Dbal/EntityAggregator.php
                 - src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntityAggregatorHydrator.php
 
-        - # those private methods are called from the trait "RedisCompatibility"
-            identifier: method.unused
-            path: src/Core/Test/Stub/Redis/RedisStub.php
+        - # PHPdocs are inherited from https://github.com/JetBrains/phpstorm-stubs/tree/master/redis and should be updated there
+            identifier: missingType.iterableValue
+            path: src/Core/Test/Stub/Redis
 
         - # It is checked before if the entity supports custom fields, but it is not possible for PHPStan to recognize this
             message: '#Call to an undefined method TElement of Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::.*CustomFields.*\(\)#'
@@ -201,3 +196,29 @@ parameters:
 
         - # XML config format will be migrated step by step, so we ignore errors for now, see https://github.com/shopware/shopware/issues/13072
             message: '#deprecated class Symfony\\Component\\DependencyInjection\\Loader\\XmlFileLoader#'
+
+        # Script service generator test fixtures intentionally omit @internal so the generator can read their docblocks,
+        # and some fixtures have mismatched @return types for behaviours testing purpose
+        -
+            identifier: shopware.internalClass
+            path: tests/unit/Core/DevOps/Docs/Script/_fixtures/*
+        -
+            identifier: return.phpDocType
+            path: tests/unit/Core/DevOps/Docs/Script/_fixtures/*
+        -
+            identifier: missingType.iterableValue
+            path: tests/unit/Core/DevOps/Docs/Script/_fixtures/*
+        # Hook fixtures intentionally omit native property types to test the @var annotation fallback and the untyped property exception path
+        -
+            identifier: shopware.propertyNativeType
+            path: tests/unit/Core/DevOps/Docs/Script/_fixtures/hooks/*
+        -
+            identifier: missingType.property
+            path: tests/unit/Core/DevOps/Docs/Script/_fixtures/hooks/*
+
+        # Many tests are checking DAL write errors with `WriteException` containing `WriteConstraintViolationException`.
+        # As `WriteException` can also contain other exceptions, it is hard to teach PHPStan without touching each test, that in those tests only `WriteConstraintViolationException` are present.
+        # A Generic type for `WriteException` is not applicable, as it can contain different exceptions types at the same time.
+        -
+            message: "#Offset 'source' might not exist on array{status: string, code: #"
+            path: tests

@@ -15,13 +15,22 @@ use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
- * @phpstan-type PluginInfo array{ baseClass: string, name: string, active: bool, path: string, version: string|null, autoload: array<string, string[]>, managedByComposer: bool, composerName: string }
+ * @phpstan-type PluginInfo array{
+ *     baseClass: string,
+ *     name: string,
+ *     active: bool,
+ *     path: string,
+ *     version: string|null,
+ *     autoload: array<string, string[]>,
+ *     managedByComposer: bool,
+ *     composerName: string
+ * }
  */
 #[Package('framework')]
 abstract class KernelPluginLoader extends Bundle
 {
     /**
-     * @var array<int, PluginInfo>
+     * @var list<PluginInfo>
      */
     protected array $pluginInfos = [];
 
@@ -45,7 +54,7 @@ abstract class KernelPluginLoader extends Bundle
     final public function getPluginDir(string $projectDir): string
     {
         // absolute path
-        if (mb_strpos($this->pluginDir, '/') === 0) {
+        if (str_starts_with($this->pluginDir, '/')) {
             return $this->pluginDir;
         }
 
@@ -55,7 +64,7 @@ abstract class KernelPluginLoader extends Bundle
     /**
      * Basic information required for instantiating the plugins
      *
-     * @return array<int, PluginInfo>
+     * @return list<PluginInfo>
      */
     final public function getPluginInfos(): array
     {
@@ -73,7 +82,7 @@ abstract class KernelPluginLoader extends Bundle
 
     /**
      * @param array<string, mixed> $kernelParameters
-     * @param array<int, string> $loadedBundles
+     * @param list<string> $loadedBundles
      *
      * @return \Traversable<Bundle>
      */
@@ -89,7 +98,7 @@ abstract class KernelPluginLoader extends Bundle
             $additionalBundles = $plugin->getAdditionalBundles($additionalBundleParameters);
             [$preLoaded, $postLoaded] = $this->splitBundlesIntoPreAndPost($additionalBundles);
 
-            foreach ([...\array_values($preLoaded), $plugin, ...\array_values($postLoaded)] as $bundle) {
+            foreach ([...$preLoaded, $plugin, ...$postLoaded] as $bundle) {
                 if (!\in_array($bundle->getName(), $loadedBundles, true)) {
                     yield $bundle;
                     $loadedBundles[] = $bundle->getName();
@@ -112,7 +121,7 @@ abstract class KernelPluginLoader extends Bundle
         }
 
         $this->loadPluginInfos();
-        if (empty($this->pluginInfos)) {
+        if ($this->pluginInfos === []) {
             $this->initialized = true;
 
             return;
@@ -279,7 +288,6 @@ abstract class KernelPluginLoader extends Bundle
                 continue;
             }
 
-            /** @var Plugin $plugin */
             $plugin = new $className((bool) $pluginData['active'], $pluginData['path'], $projectDir);
 
             if (!$plugin instanceof Plugin) {
@@ -293,9 +301,9 @@ abstract class KernelPluginLoader extends Bundle
     }
 
     /**
-     * @param Bundle[] $bundles
+     * @param list<Bundle> $bundles
      *
-     * @return array<Bundle[]>
+     * @return array{list<Bundle>, list<Bundle>}
      */
     private function splitBundlesIntoPreAndPost(array $bundles): array
     {
@@ -313,6 +321,6 @@ abstract class KernelPluginLoader extends Bundle
         \ksort($pre);
         \ksort($post);
 
-        return [$pre, $post];
+        return [array_values($pre), array_values($post)];
     }
 }

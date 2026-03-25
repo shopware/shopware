@@ -37,7 +37,7 @@ class QuerySigner
         }
 
         $unsignedUri = Uri::withQueryValues(new Uri($uri), [
-            'shop-id' => $this->shopIdProvider->getShopId(),
+            'shop-id' => $this->shopIdProvider->getShopId()->id,
             'shop-url' => $this->shopUrl,
             'timestamp' => (string) (new \DateTime())->getTimestamp(),
             'sw-version' => $this->shopwareVersion,
@@ -45,7 +45,7 @@ class QuerySigner
             'in-app-purchases' => \urlencode($this->inAppPurchase->getJWTByExtension($app->getName()) ?? ''),
             AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $context->getLanguageId(),
             AuthMiddleware::SHOPWARE_USER_LANGUAGE => $this->localeProvider->getLocaleFromContext($context),
-            'sw-user-id' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : '',
+            'sw-user-id' => $context->getSource() instanceof AdminApiSource ? ($context->getSource()->getUserId() ?? '') : '',
         ]);
 
         return Uri::withQueryValue(

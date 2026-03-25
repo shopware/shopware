@@ -28,7 +28,9 @@ class CustomerGroupStorerTest extends TestCase
 {
     private CustomerGroupStorer $storer;
 
-    /** @var MockObject&EntityRepository<CustomerGroupCollection> */
+    /**
+     * @var MockObject&EntityRepository<CustomerGroupCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private MockObject&EventDispatcherInterface $dispatcher;

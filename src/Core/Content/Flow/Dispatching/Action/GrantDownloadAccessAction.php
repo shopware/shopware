@@ -86,12 +86,12 @@ class GrantDownloadAccessAction extends FlowAction implements DelayableAction
             }
         }
 
-        if (empty($downloadIds)) {
+        if ($downloadIds === []) {
             return;
         }
 
         $this->orderLineItemDownloadRepository->update(
-            array_map(fn (string $id): array => ['id' => $id, 'accessGranted' => $config['value']], array_unique($downloadIds)),
+            array_map(static fn (string $id): array => ['id' => $id, 'accessGranted' => $config['value']], array_unique($downloadIds)),
             $context
         );
     }

@@ -51,6 +51,22 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     .gallery-slider-image {
         display: block;
     }
+
+    &.has-vertical-align {
+        display: flex;
+
+        &.is-align-top {
+            align-items: flex-start;
+        }
+
+        &.is-align-center {
+            align-items: center;
+        }
+
+        &.is-align-bottom {
+            align-items: flex-end;
+        }
+    }
 }
 
 .gallery-slider-item,

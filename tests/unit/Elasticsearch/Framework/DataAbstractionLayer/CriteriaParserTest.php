@@ -658,7 +658,7 @@ EOT,
             [
                 'script' => [
                     'script' => [
-                        'inline' => <<<EOT
+                        'source' => <<<EOT
 String getPercentageKey(def accessors, def doc) {
     for (accessor in accessors) {
         def key = accessor['key'];
@@ -1115,7 +1115,7 @@ EOT,
         $sortedFilterArray = $sortedFilter->toArray();
 
         // Unset the 'source' key before comparison.
-        unset($sortedFilterArray['script']['script']['inline']);
+        unset($sortedFilterArray['script']['script']['source']);
 
         static::assertEquals($expectedFilter, $sortedFilterArray);
     }
@@ -1290,6 +1290,24 @@ EOT,
                     'query' => [
                         'term' => [
                             'unit.shortCode.2fbb5fe2e29a4d70aa5854ce7ce3e20b' => 'value',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'EqualsFilter null on nested association field' => [
+            new EqualsFilter('unit.id', null),
+            [
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'nested' => [
+                                'path' => 'unit',
+                                'query' => [
+                                    'exists' => ['field' => 'unit.id'],
+                                ],
+                            ],
                         ],
                     ],
                 ],

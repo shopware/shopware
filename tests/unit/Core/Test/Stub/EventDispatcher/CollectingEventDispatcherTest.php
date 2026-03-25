@@ -20,7 +20,7 @@ class CollectingEventDispatcherTest extends TestCase
 
         static::assertEmpty($dispatcher->getListeners());
 
-        $callable = function (): void {};
+        $callable = static function (): void {};
 
         $dispatcher->addListener('event.name', $callable, 10);
         static::assertSame(['10' => [$callable]], $dispatcher->getListeners('event.name'));

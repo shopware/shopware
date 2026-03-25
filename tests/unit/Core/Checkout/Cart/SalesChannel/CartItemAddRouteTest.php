@@ -86,7 +86,7 @@ class CartItemAddRouteTest extends TestCase
         $cartLocker
             ->expects($this->once())
             ->method('locked')
-            ->willReturnCallback(fn (SalesChannelContext $context, \Closure $closure) => $closure());
+            ->willReturnCallback(static fn (SalesChannelContext $context, \Closure $closure) => $closure());
 
         $cartItemAddRoute = $this->createCartItemAddRoute(null, $cartLocker);
 
@@ -110,7 +110,7 @@ class CartItemAddRouteTest extends TestCase
         $rateLimiter
             ->expects($this->exactly($expectedCacheKey === null ? 0 : 1))
             ->method('ensureAccepted')
-            ->willReturnCallback(function (string $route, string $key) use ($expectedCacheKey): void {
+            ->willReturnCallback(static function (string $route, string $key) use ($expectedCacheKey): void {
                 static::assertSame($route, RateLimiter::CART_ADD_LINE_ITEM);
                 static::assertSame($expectedCacheKey, $key);
             });
@@ -120,12 +120,12 @@ class CartItemAddRouteTest extends TestCase
             ->expects($this->atLeastOnce())
             ->method('create')
             ->willReturnCallback(
-                fn ($dataBag): LineItem => new LineItem($dataBag['id'], $dataBag['type'], $dataBag['referencedId'] ?? null, $dataBag['quantity'])
+                static fn ($dataBag): LineItem => new LineItem($dataBag['id'], $dataBag['type'], $dataBag['referencedId'] ?? null, $dataBag['quantity'])
             );
 
         if ($cartLocker === null) {
             $cartLocker = $this->createMock(CartLocker::class);
-            $cartLocker->method('locked')->willReturnCallback(fn (SalesChannelContext $context, \Closure $closure) => $closure());
+            $cartLocker->method('locked')->willReturnCallback(static fn (SalesChannelContext $context, \Closure $closure) => $closure());
         }
 
         return new CartItemAddRoute(

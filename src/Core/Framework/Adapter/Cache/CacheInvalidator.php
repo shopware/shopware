@@ -7,6 +7,8 @@ use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\AbstractInvalidatorStorage;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCache;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\PlatformRequest;
@@ -38,7 +40,8 @@ class CacheInvalidator
         private readonly bool $softPurge,
         private readonly bool $useDelayedCache,
         private readonly bool $tagInvalidationLogEnabled,
-        private readonly BacktraceCollector $backtraceCollector
+        private readonly BacktraceCollector $backtraceCollector,
+        private readonly ?AbstractReverseProxyGateway $reverseProxyGateway = null
     ) {
         $this->httpCacheStore = new Psr16Cache($httpCacheStore);
     }
@@ -50,7 +53,7 @@ class CacheInvalidator
     {
         $tags = array_filter(array_unique($tags));
 
-        if (empty($tags)) {
+        if ($tags === []) {
             return;
         }
 
@@ -83,11 +86,19 @@ class CacheInvalidator
     {
         $tags = $this->cache->loadAndDelete();
 
-        if (empty($tags)) {
+        if ($tags === []) {
             return $tags;
         }
 
         $this->purge($tags);
+
+        /**
+         * when we want to invalidate the expired cache tags, we also want to invalidate the reverse proxy cache immediately
+         * flush happens usually on __destruct, meaning after response was sent to the client
+         *
+         * @see ReverseProxyCache::__destruct
+         */
+        $this->reverseProxyGateway?->flush();
 
         return $tags;
     }
@@ -117,7 +128,7 @@ class CacheInvalidator
 
         if ($this->tagInvalidationLogEnabled) {
             $callerFrame = $this->backtraceCollector->getFirstFrame(
-                fn (array $frame) => !isset($frame['class'], $frame['function'])
+                static fn (array $frame) => !isset($frame['class'], $frame['function'])
                     || $frame['class'] === self::class
             );
 

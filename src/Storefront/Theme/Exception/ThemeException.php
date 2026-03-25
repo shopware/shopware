@@ -24,6 +24,7 @@ class ThemeException extends HttpException
     public const ERROR_LOADING_FROM_PLUGIN_REGISTRY = 'THEME__ERROR_LOADING_THEME_FROM_PLUGIN_REGISTRY';
     public const THEME_ASSIGNMENT = 'THEME__THEME_ASSIGNMENT';
     public const THEME_CREATION_FAILURE = 'THEME__THEME_CREATION_FAILURE';
+    public const INVALID_THEME_BUNDLE = 'THEME__INVALID_THEME_BUNDLE';
 
     /**
      * @deprecated tag:v6.8.0 - will be removed, as the exception is no longer needed, use RestrictDeleteViolationException instead
@@ -33,7 +34,7 @@ class ThemeException extends HttpException
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
             Feature::deprecatedMethodMessage(
-                __CLASS__,
+                self::class,
                 __METHOD__,
                 'v6.8.0.0',
                 RestrictDeleteViolationException::class
@@ -89,11 +90,7 @@ class ThemeException extends HttpException
 
     public static function themeCompileException(string $themeName, string $message = '', ?\Throwable $e = null): ThemeCompileException
     {
-        return new ThemeCompileException(
-            $themeName,
-            $message,
-            $e,
-        );
+        return new ThemeCompileException($themeName, $message, $e);
     }
 
     /**
@@ -124,11 +121,11 @@ class ThemeException extends HttpException
         $message = 'Unable to deactivate or uninstall theme "{{ themeName }}".';
         $message .= ' Remove the following assignments between theme and sales channel assignments: {{ assignments }}.';
         $assignments = '';
-        if (\count($themeSalesChannel) > 0) {
+        if ($themeSalesChannel !== []) {
             $assignments .= self::formatSalesChannelAssignments($themeSalesChannel, $assignedSalesChannels);
         }
 
-        if (\count($childThemeSalesChannel) > 0) {
+        if ($childThemeSalesChannel !== []) {
             $assignments .= self::formatSalesChannelAssignments($childThemeSalesChannel, $assignedSalesChannels);
         }
         $parameters['assignments'] = $assignments;
@@ -168,6 +165,23 @@ class ThemeException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::THEME_CREATION_FAILURE,
             $message,
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return only self
+     */
+    public static function invalidThemeBundle(string $themeName): self|InvalidThemeBundleException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new InvalidThemeBundleException($themeName);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_THEME_BUNDLE,
+            'Unable to find the theme.json for "{{ themeName }}"',
+            ['themeName' => $themeName],
         );
     }
 

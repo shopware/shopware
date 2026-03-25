@@ -378,7 +378,7 @@ class VersionManager
                 }
 
                 $nested = array_filter($nested);
-                if (empty($nested)) {
+                if ($nested === []) {
                     continue;
                 }
 
@@ -394,7 +394,7 @@ class VersionManager
                     $nested[] = ['id' => $item['id']];
                 }
 
-                if (empty($nested)) {
+                if ($nested === []) {
                     continue;
                 }
 
@@ -416,8 +416,8 @@ class VersionManager
             }
         }
 
-        /** @phpstan-ignore empty.variable (might be overridden by reference) */
-        if (!empty($extensions)) {
+        /** @phpstan-ignore notIdentical.alwaysFalse (might be overridden by reference) */
+        if ($extensions !== []) {
             $payload['extensions'] = $extensions;
         }
 
@@ -524,13 +524,13 @@ class VersionManager
     }
 
     /**
-     * @param array<string, string> $payload
+     * @param array<string, mixed> $payload
      *
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
     private function addVersionToPayload(array $payload, EntityDefinition $definition, string $versionId): array
     {
-        $fields = $definition->getFields()->filter(fn (Field $field) => $field instanceof VersionField || $field instanceof ReferenceVersionField);
+        $fields = $definition->getFields()->filter(static fn (Field $field) => $field instanceof VersionField || $field instanceof ReferenceVersionField);
 
         foreach ($fields as $field) {
             $payload[$field->getPropertyName()] = $versionId;
@@ -577,7 +577,7 @@ class VersionManager
         int $childCounter = 1
     ): void {
         // add all cascade delete associations
-        $cascades = $definition->getFields()->filter(function (Field $field) {
+        $cascades = $definition->getFields()->filter(static function (Field $field) {
             $flag = $field->getFlag(CascadeDelete::class);
 
             return $flag ? $flag->isCloneRelevant() : false;
@@ -662,9 +662,9 @@ class VersionManager
 
     /**
      * @param array<string> $entityId
-     * @param array<string|int, mixed> $payload
+     * @param array<string, mixed> $payload
      *
-     * @return array<string|int, mixed>
+     * @return array<string, mixed>
      */
     private function addTranslationToPayload(array $entityId, array $payload, EntityDefinition $definition, VersionCommitEntity $commit): array
     {
@@ -738,7 +738,7 @@ class VersionManager
     }
 
     /**
-     * @return array{insert:array<string, array<int, mixed>>, update:array<string, array<int, mixed>>, delete:array<string, array<int, mixed>>}
+     * @return array{insert:array<string, list<array<string, mixed>>>, update:array<string, list<array<string, mixed>>>, delete:array<string, list<array<string, mixed>>>}
      */
     private function buildWrites(VersionCommitCollection $commits): array
     {
@@ -760,7 +760,7 @@ class VersionManager
                         }
 
                         $payload = $data->getPayload();
-                        if (empty($payload)) {
+                        if ($payload === null || $payload === []) {
                             break;
                         }
                         $payload = $this->addVersionToPayload($payload, $definition, Defaults::LIVE_VERSION);
@@ -783,7 +783,7 @@ class VersionManager
     }
 
     /**
-     * @param array{insert:array<string, array<int, mixed>>, update:array<string, array<int, mixed>>, delete:array<string, array<int, mixed>>} $writes
+     * @param array{insert:array<string, list<array<string, mixed>>>, update:array<string, list<array<string, mixed>>>, delete:array<string, list<array<string, mixed>>>} $writes
      */
     private function executeWrites(array $writes, WriteContext $liveContext): WriteResult
     {
@@ -801,7 +801,7 @@ class VersionManager
             $operations[] = new SyncOperation('delete-' . $entity, $entity, 'delete', $payload);
         }
 
-        if (empty($operations)) {
+        if ($operations === []) {
             return new WriteResult([], [], []);
         }
 

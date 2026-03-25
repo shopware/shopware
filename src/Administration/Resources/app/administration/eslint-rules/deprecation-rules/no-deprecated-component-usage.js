@@ -20,6 +20,7 @@ const { handleMtPasswordField } = require("./no-deprecated-component-usage-check
 const { handleMtUrlField } = require("./no-deprecated-component-usage-checks/mt-url-field.check");
 const { handleMtProgressBar } = require("./no-deprecated-component-usage-checks/mt-progress-bar.check");
 const { handleMtFloatingUi } = require("./no-deprecated-component-usage-checks/mt-floating-ui.check");
+const { handleSwEntityListing } = require("./no-deprecated-component-usage-checks/sw-entity-listing.check");
 
 /* eslint-disable max-len */
 
@@ -46,7 +47,7 @@ module.exports = {
     },
     /** @param {RuleContext} context */
     create(context) {
-        return context.parserServices.defineTemplateBodyVisitor(
+        return context.sourceCode.parserServices.defineTemplateBodyVisitor(
             // Event handlers for <template> tags
             {
                 VElement(node) {
@@ -88,6 +89,8 @@ module.exports = {
                     handleMtProgressBar(context, node);
                     // Handle mt-floating-ui
                     handleMtFloatingUi(context, node);
+                    // Handle sw-entity-listing
+                    handleSwEntityListing(context, node);
                 },
             }
         )

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Event\ServiceInstalledEvent;
 use Shopware\Core\Service\Event\ServiceUpdatedEvent;
+use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -44,6 +45,7 @@ class ServiceLifecycle
         private readonly ServiceSourceResolver $sourceResolver,
         private readonly AppStateService $appStateService,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly RequirementsValidator $requirementsValidator,
     ) {
     }
 
@@ -59,6 +61,13 @@ class ServiceLifecycle
             $appInfo = $this->serviceClientFactory->newFor($serviceEntry)->latestAppInfo();
         } catch (ServiceException $e) {
             // noop - errors will be recorded in the service
+
+            return false;
+        }
+
+        // do not install invalid releases
+        if (!$this->requirementsValidator->isValidSet($appInfo->requirements)) {
+            $this->logger->debug(\sprintf('Cannot install service "%s" because of invalid requirements: "%s"', $serviceEntry->name, implode(', ', $appInfo->requirements)));
 
             return false;
         }
@@ -86,7 +95,7 @@ class ServiceLifecycle
 
             return true;
         } catch (\Exception $e) {
-            $this->logger->debug(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->warning(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }
@@ -113,6 +122,13 @@ class ServiceLifecycle
         // if it's the same version, bail
         if ($app->getVersion() === $latestAppInfo->revision) {
             return true;
+        }
+
+        // do not update invalid releases
+        if (!$this->requirementsValidator->isValidSet($latestAppInfo->requirements)) {
+            $this->logger->debug(\sprintf('Cannot update service "%s" because of invalid requirements: "%s"', $serviceEntry->name, implode(', ', $latestAppInfo->requirements)));
+
+            return false;
         }
 
         try {

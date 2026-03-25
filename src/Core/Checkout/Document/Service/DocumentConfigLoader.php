@@ -48,8 +48,9 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
 
     public function load(string $documentType, string $salesChannelId, Context $context): DocumentConfiguration
     {
-        if (!empty($this->configs[$documentType][$salesChannelId])) {
-            return $this->configs[$documentType][$salesChannelId];
+        $config = $this->configs[$documentType][$salesChannelId] ?? null;
+        if ($config instanceof DocumentConfiguration) {
+            return $config;
         }
 
         $criteria = (new Criteria())
@@ -63,7 +64,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
 
         $globalConfig = $documentConfigs->filterByProperty('global', true)->first();
 
-        $salesChannelConfig = $documentConfigs->filter(fn (DocumentBaseConfigEntity $config) => ((int) $config->getSalesChannels()?->count()) > 0)->first();
+        $salesChannelConfig = $documentConfigs->filter(static fn (DocumentBaseConfigEntity $config) => ((int) $config->getSalesChannels()?->count()) > 0)->first();
 
         $config = DocumentConfigurationFactory::createConfiguration([], $globalConfig, $salesChannelConfig);
 

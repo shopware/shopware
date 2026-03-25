@@ -35,7 +35,7 @@ class StopwordTokenFilter extends AbstractTokenFilter
      */
     public function filter(array $tokens, Context $context): array
     {
-        if (empty($tokens)) {
+        if ($tokens === []) {
             return $tokens;
         }
 
@@ -64,7 +64,7 @@ class StopwordTokenFilter extends AbstractTokenFilter
         foreach ($tokens as $tag) {
             $tag = trim($tag);
 
-            if (empty($tag) || mb_strlen($tag) < $minSearchTermLength) {
+            if ($tag === '' || mb_strlen($tag) < $minSearchTermLength) {
                 continue;
             }
 
@@ -87,7 +87,7 @@ class StopwordTokenFilter extends AbstractTokenFilter
             LIMIT 1
         ', ['languageId' => Uuid::fromHexToBytes($languageId)]);
 
-        if (empty($config)) {
+        if ($config === false) {
             return null;
         }
 

@@ -86,7 +86,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
      */
     private function createSeoMapping(SalesChannelContext $context, array $mapping): array
     {
-        if (empty($mapping)) {
+        if ($mapping === []) {
             return [];
         }
 

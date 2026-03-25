@@ -140,7 +140,7 @@ class ProductFeatureBuilder
             }
         }
 
-        if (empty($required)) {
+        if ($required === []) {
             return;
         }
 
@@ -228,7 +228,7 @@ class ProductFeatureBuilder
             }
         );
 
-        if (empty($properties)) {
+        if ($properties === []) {
             return null;
         }
 
@@ -247,7 +247,7 @@ class ProductFeatureBuilder
     /**
      * @throws CartException
      *
-     * @return array{label: string, value: array{id: string, type: string, content: mixed}, type: string}
+     * @return array{label: string, value: array{id: string, type: string, content: mixed}, type: string}|null
      */
     private function getCustomField(string $name, CartDataCollection $data, SalesChannelProductEntity $product): ?array
     {
@@ -284,7 +284,7 @@ class ProductFeatureBuilder
     }
 
     /**
-     * @return array{label: string, value: array{price: float, purchaseUnit: float, referenceUnit: float, unitName: ?string}, type: string}
+     * @return array{label: string, value: array{price: float, purchaseUnit: float, referenceUnit: float, unitName: ?string}, type: string}|null
      */
     private function getReferencePrice(LineItem $lineItem, SalesChannelProductEntity $product): ?array
     {

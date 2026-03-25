@@ -36,7 +36,7 @@ class NavigationLoader implements NavigationLoaderInterface
      *
      * @throws CategoryNotFoundException
      */
-    public function load(string $activeId, SalesChannelContext $context, string $rootId, int $depth = 2): Tree
+    public function load(string $activeId, SalesChannelContext $context, string $rootId, int $depth = NavigationLoaderInterface::DEFAULT_DEPTH): Tree
     {
         $request = new Request();
         $request->query->set('buildTree', 'false');
@@ -58,7 +58,7 @@ class NavigationLoader implements NavigationLoaderInterface
         return $event->getNavigation();
     }
 
-    private function getTree(?string $rootId, CategoryCollection $categories, ?CategoryEntity $active): Tree
+    private function getTree(string $rootId, CategoryCollection $categories, ?CategoryEntity $active): Tree
     {
         $parents = [];
         $items = [];
@@ -66,12 +66,15 @@ class NavigationLoader implements NavigationLoaderInterface
             $item = clone $this->treeItem;
             $item->setCategory($category);
 
-            $parents[$category->getParentId()][$category->getId()] = $item;
+            $categoryParentId = $category->getParentId();
+            if ($categoryParentId !== null) {
+                $parents[$categoryParentId][$category->getId()] = $item;
+            }
             $items[$category->getId()] = $item;
         }
 
         foreach ($parents as $parentId => $children) {
-            if (empty($parentId)) {
+            if ($parentId === '') {
                 continue;
             }
 

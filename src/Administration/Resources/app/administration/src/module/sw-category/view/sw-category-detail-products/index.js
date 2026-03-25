@@ -80,6 +80,12 @@ export default {
             return new Criteria(1, 10).addAssociation('options.group').addAssociation('manufacturer');
         },
 
+        productStreamCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('internal', false));
+            return criteria;
+        },
+
         productStreamInvalidError() {
             if (this.productStreamInvalid) {
                 return new ShopwareError({
@@ -126,7 +132,6 @@ export default {
             );
 
             try {
-                // eslint-disable-next-line no-new
                 new URL(this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoUrl'));
             } catch {
                 return helpText;
@@ -231,6 +236,12 @@ export default {
             }
 
             return null;
+        },
+
+        onUpdateProductAssignmentType(value) {
+            if (value === 'product') {
+                this.category.productStreamId = null;
+            }
         },
     },
 };

@@ -471,4 +471,15 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             }),
         );
     });
+
+    it('should consider criteria filters via updateCriteria', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const filter = Criteria.equals('foo', 'bar');
+        wrapper.vm.updateCriteria([filter]);
+        await flushPromises();
+
+        expect(wrapper.vm.filterCriteria).toContainEqual(filter);
+    });
 });

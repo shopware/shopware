@@ -59,7 +59,6 @@ export default {
         inherit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -359,6 +358,7 @@ export default {
             bind.inheritedValue = this.getInheritedValue(element);
             bind.isInheritanceField = mapInheritance?.isInheritField;
             bind.isInherited = mapInheritance?.isInherited;
+            bind.disabled = mapInheritance?.isInherited || element.config?.disabled;
 
             // Handle datepicker date/datetime value format
             if (element.type === 'date') {

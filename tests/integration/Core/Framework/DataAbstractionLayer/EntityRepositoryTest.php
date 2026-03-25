@@ -72,7 +72,7 @@ class EntityRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        /** @var EntityRepository<CategoryCollection> */
+        /** @var EntityRepository<CategoryCollection> $categoryRepository */
         $categoryRepository = $this->createRepository(CategoryDefinition::class);
 
         $this->categoryRepository = $categoryRepository;
@@ -99,7 +99,7 @@ class EntityRepositoryTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $products
+     * @param list<array<string, mixed>> $products
      * @param array<string> $expected
      */
     #[DataProvider('productPropertiesQueryProvider')]
@@ -1573,7 +1573,7 @@ class EntityRepositoryTest extends TestCase
         $snippetRepo = $this->createRepository(SnippetDefinition::class);
         $snippetSetId = $this->getSnippetSetIdForLocale('en-GB');
 
-        static::expectException(WriteException::class);
+        $this->expectException(WriteException::class);
         $snippetRepo->create([
             [
                 'id' => Uuid::randomHex(),
@@ -1616,7 +1616,7 @@ class EntityRepositoryTest extends TestCase
                 'taxStatus' => 'gross',
                 'totalPrice' => 100,
                 'positionPrice' => 1,
-            ]),
+            ], \JSON_THROW_ON_ERROR),
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             'state_id' => Uuid::randomBytes(),
             'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
@@ -1646,7 +1646,7 @@ class EntityRepositoryTest extends TestCase
             'order_id' => Uuid::fromHexToBytes($orderId),
             'payment_method_id' => Uuid::fromHexToBytes($payment),
             'state_id' => $stateId,
-            'amount' => json_encode(['unitPrice' => 100]),
+            'amount' => json_encode(['unitPrice' => 100], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
     }

@@ -82,8 +82,8 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('customerId', $customer->getId()));
         $ids = $this->customerRecoveryRepository->searchIds($criteria, $context->getContext())->getIds();
-        if (!empty($ids)) {
-            $this->customerRecoveryRepository->delete(array_map(fn ($id) => ['id' => $id], $ids), $context->getContext());
+        if ($ids !== []) {
+            $this->customerRecoveryRepository->delete(array_map(static fn ($id) => ['id' => $id], $ids), $context->getContext());
         }
 
         return new SuccessResponse();
@@ -142,7 +142,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
             return;
         }
 
-        $compareValue = $data[$equalityValidation->propertyPath] ?? null;
+        $compareValue = $data[$equalityValidation->propertyPath ?? ''] ?? null;
         if ($data[$field] === $compareValue) {
             return;
         }

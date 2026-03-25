@@ -6,6 +6,7 @@ import './sw-order-address-selection.scss';
  * @sw-package checkout
  */
 
+const { ShopwareError } = Shopware.Classes;
 const { EntityDefinition, Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
@@ -116,7 +117,6 @@ export default {
                 })
                 .filter((item) => item !== null);
 
-            // eslint-disable-next-line no-unused-expressions
             this.address &&
                 addresses.unshift({
                     label: this.addressLabel(this.address),
@@ -176,6 +176,14 @@ export default {
                 return Promise.resolve();
             }
 
+            if (!this.isValidAddress(this.currentAddress)) {
+                this.createNotificationError({
+                    message: this.$tc('sw-customer.notification.requiredFields'),
+                });
+
+                return Promise.reject();
+            }
+
             // edit order address
             if (this.currentAddress.id === this.address.id) {
                 return this.orderRepository
@@ -190,14 +198,6 @@ export default {
                             message: this.$tc('sw-order.detail.messageSaveError'),
                         });
                     });
-            }
-
-            if (!this.isValidAddress(this.currentAddress)) {
-                this.createNotificationError({
-                    message: this.$tc('sw-customer.notification.requiredFields'),
-                });
-
-                return Promise.reject();
             }
 
             const address =
@@ -219,9 +219,26 @@ export default {
 
         isValidAddress(address) {
             const ignoreFields = ['createdAt'];
-            const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields('customer_address'));
+            const entityName = address.getEntityName();
+            const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields(entityName));
+            let isValid = true;
 
-            return requiredAddressFields.every((field) => ignoreFields.includes(field) || required(address[field]));
+            requiredAddressFields.forEach((field) => {
+                if (ignoreFields.includes(field) || required(address[field])) {
+                    return;
+                }
+
+                isValid = false;
+
+                Shopware.Store.get('error').addApiError({
+                    expression: `${entityName}.${this.currentAddress.id}.${field}`,
+                    error: new ShopwareError({
+                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                    }),
+                });
+            });
+
+            return isValid;
         },
 
         onChangeDefaultAddress(data) {

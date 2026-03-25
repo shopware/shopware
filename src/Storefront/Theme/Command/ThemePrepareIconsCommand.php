@@ -19,6 +19,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
+use function Symfony\Component\String\s;
+
 #[AsCommand(
     name: 'theme:prepare-icons',
     description: 'Prepare the theme icons',
@@ -26,20 +28,18 @@ use Symfony\Component\Finder\Finder;
 #[Package('framework')]
 class ThemePrepareIconsCommand extends Command
 {
-    private SymfonyStyle $io;
-
     protected function configure(): void
     {
-        $this->addArgument('path', InputArgument::REQUIRED, 'Path');
-        $this->addArgument('package', InputArgument::REQUIRED, 'Package name');
-        $this->addOption('fillcolor', 'f', InputOption::VALUE_REQUIRED, 'color for fill attribute in use tag');
-        $this->addOption('fillrule', 'r', InputOption::VALUE_REQUIRED, 'fill-rule attribute for use tag');
-        $this->addOption('cleanup', 'c', InputOption::VALUE_REQUIRED, 'cleanup all unnecessary attributes cleanup=true');
+        $this->addArgument('path', InputArgument::REQUIRED, 'Path')
+            ->addArgument('package', InputArgument::REQUIRED, 'Package name')
+            ->addOption('fillcolor', 'f', InputOption::VALUE_REQUIRED, 'color for fill attribute in use tag')
+            ->addOption('fillrule', 'r', InputOption::VALUE_REQUIRED, 'fill-rule attribute for use tag')
+            ->addOption('cleanup', 'c', InputOption::VALUE_REQUIRED, 'cleanup all unnecessary attributes cleanup=true');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->io = new SymfonyStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $path = rtrim((string) $input->getArgument('path'), '/') . '/';
         $package = $input->getArgument('package');
 
@@ -47,39 +47,29 @@ class ThemePrepareIconsCommand extends Command
         $fillrule = $input->getOption('fillrule');
         $verbose = $input->getOption('verbose');
 
-        if (
-            !empty($input->getOption('cleanup'))
-            && $input->getOption('cleanup') !== 'true'
-            && $input->getOption('cleanup') !== 'false'
-        ) {
-            $this->io->writeln(
-                'Option cleanup can either be "true" or "false" but option is "'
-                . $input->getOption('cleanup') . '" and will be handled as "false"'
-            );
+        $cleanup = $input->getOption('cleanup');
+        if (\is_string($cleanup) && $cleanup !== 'true' && $cleanup !== 'false') {
+            $io->writeln(\sprintf('Option cleanup can either be "true" or "false" but option is "%s" and will be handled as "false"', $cleanup));
         }
 
-        $cleanup = $input->getOption('cleanup') === 'true';
+        $cleanup = $cleanup === 'true';
 
         if ($cleanup) {
-            $this->io->writeln(
-                'Cleanup is set. Processed Icons will be automatically cleaned. Please check the outcome.'
-            );
+            $io->writeln('Cleanup is set. Processed Icons will be automatically cleaned. Please check the outcome.');
         }
 
-        $this->io = new SymfonyStyle($input, $output);
-
-        $this->io->writeln('Start Icon preparation');
+        $io->writeln('Start Icon preparation');
         $svgReader = new SVGReader();
 
         $fs = new Filesystem();
         $fs->mkdir($path . 'processed/');
-        $this->io->writeln('Created sub directory "processed" in working directory ' . str_replace(__DIR__, '', $path) . '.');
-        $this->io->writeln('The processed icons will be written in the "processed" sub directory.');
+        $io->writeln('Created sub directory "processed" in working directory ' . str_replace(__DIR__, '', $path) . '.');
+        $io->writeln('The processed icons will be written in the "processed" sub directory.');
 
         $files = (new Finder())->files()->in($path)->name('*.svg')->exclude('processed');
         $processedCount = 0;
         if ($files->count() === 0) {
-            $this->io->warning('No svg files found in ' . $path);
+            $io->warning('No svg files found in ' . $path);
 
             return self::SUCCESS;
         }
@@ -87,27 +77,27 @@ class ThemePrepareIconsCommand extends Command
         foreach ($files as $file) {
             $svg = $file->getContents();
 
-            if (empty($svg)) {
-                $this->io->warning('Could not read ' . $file . '.You have to handle this file by hand.');
+            if ($svg === '') {
+                $io->warning('Could not read ' . $file . '.You have to handle this file by hand.');
 
                 continue;
             }
 
             try {
                 $svg = $svgReader->parseString($svg);
-                if (!($svg instanceof SVG)) {
-                    $this->io->warning('Could not read ' . $file . '.You have to handle this file by hand.');
+                if (!$svg instanceof SVG) {
+                    $io->warning('Could not read ' . $file . '.You have to handle this file by hand.');
 
                     continue;
                 }
-            } catch (\Exception $e) {
-                $this->io->warning($e->getMessage() . ' ' . $file . \PHP_EOL . 'You have to handle this file by hand.');
+            } catch (\Throwable $e) {
+                $io->warning($e->getMessage() . ' ' . $file . \PHP_EOL . 'You have to handle this file by hand.');
 
                 continue;
             }
 
             $defs = $svg->getDocument()->getChild(0);
-            if (!($defs instanceof SVGDefs)) {
+            if (!$defs instanceof SVGDefs) {
                 $defs = new SVGDefs();
                 foreach ($this->getChildren($svg->getDocument()) as $documentChild) {
                     $svg->getDocument()->removeChild($documentChild);
@@ -119,7 +109,7 @@ class ThemePrepareIconsCommand extends Command
             $child = $defs->getChild(0);
 
             if ($child->getAttribute('id') === null || $cleanup) {
-                $id = 'icons-' . $package . '-' . self::toKebabCase($file->getBasename('.svg'));
+                $id = 'icons-' . $package . '-' . s($file->getBasename('.svg'))->kebab()->toString();
                 $child->setAttribute('id', $id);
             } else {
                 $id = $child->getAttribute('id');
@@ -157,12 +147,12 @@ class ThemePrepareIconsCommand extends Command
             $fs->dumpFile($path . 'processed/' . $file->getBasename(), $svg->toXMLString(false));
 
             if ($verbose) {
-                $this->io->writeln('Icon ' . $file . ' processed');
+                $io->writeln('Icon ' . $file . ' processed');
             }
             ++$processedCount;
         }
 
-        $this->io->success('Processed ' . $processedCount . ' icons');
+        $io->success('Processed ' . $processedCount . ' icons');
 
         return self::SUCCESS;
     }
@@ -191,10 +181,5 @@ class ThemePrepareIconsCommand extends Command
         }
 
         return $children;
-    }
-
-    private static function toKebabCase(string $str): string
-    {
-        return (string) preg_replace('/[^a-z0-9\-]/', '-', strtolower($str));
     }
 }

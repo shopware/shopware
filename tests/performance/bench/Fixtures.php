@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS `php_bench` (
                 ->get(Connection::class)
                 ->fetchOne('SELECT ids FROM php_bench WHERE `key` = :key', ['key' => 'ids']);
 
+            /** @phpstan-ignore shopware.unserializeUsage */
             self::$ids = \unserialize($ids);
             \assert(self::$ids instanceof IdsCollection);
         }

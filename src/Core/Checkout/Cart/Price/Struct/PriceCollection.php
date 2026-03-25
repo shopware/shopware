@@ -88,14 +88,14 @@ class PriceCollection extends Collection
 
     public function getUnitPriceAmount(): float
     {
-        $prices = $this->map(fn (CalculatedPrice $price) => $price->getUnitPrice());
+        $prices = $this->map(static fn (CalculatedPrice $price) => $price->getUnitPrice());
 
         return FloatComparator::cast(array_sum($prices));
     }
 
     public function getTotalPriceAmount(): float
     {
-        $prices = $this->map(fn (CalculatedPrice $price) => $price->getTotalPrice());
+        $prices = $this->map(static fn (CalculatedPrice $price) => $price->getTotalPrice());
 
         return FloatComparator::cast(array_sum($prices));
     }

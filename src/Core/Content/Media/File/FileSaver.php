@@ -176,7 +176,7 @@ class FileSaver
                 }
             }
 
-            if (!empty($thumbnails)) {
+            if ($thumbnails !== []) {
                 foreach ($thumbnails as $thumbnailId => $thumbnailPath) {
                     $event->thumbnailWithMimeType(
                         mediaId: $media->getId(),
@@ -186,7 +186,7 @@ class FileSaver
                     );
                 }
 
-                $updateData['thumbnails'] = array_map(function ($id, $path) {
+                $updateData['thumbnails'] = array_map(static function ($id, $path) {
                     return ['id' => $id, 'path' => $path];
                 }, array_keys($thumbnails), $thumbnails);
             }

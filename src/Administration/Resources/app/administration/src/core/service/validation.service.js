@@ -56,6 +56,8 @@ export function regex(value, expression) {
 /**
  * Checks if the value is a valid email address.
  *
+ * @deprecated tag:v6.8.0 - Will be removed, use ValidationApiService.validateEmailAddress instead.
+ *
  * @memberOf module:core/service/validation
  * @param value
  * @returns {boolean}

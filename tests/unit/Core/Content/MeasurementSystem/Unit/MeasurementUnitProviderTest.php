@@ -24,7 +24,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(MeasurementUnitProvider::class)]
 class MeasurementUnitProviderTest extends TestCase
 {
-    /** @var EntityRepository<EntityCollection<MeasurementDisplayUnitEntity>>&MockObject */
+    /**
+     * @var EntityRepository<EntityCollection<MeasurementDisplayUnitEntity>>&MockObject
+     */
     private EntityRepository&MockObject $repository;
 
     private MeasurementUnitProvider $provider;

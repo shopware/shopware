@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -13,14 +14,15 @@ use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\Traits\MigrationUntouchedDbTestTrait;
 use Shopware\Core\Migration\V6_3\Migration1536233560BasicData;
+use Shopware\Tests\Migration\MigrationUntouchedDbTestTrait;
 
 /**
  * @internal
  */
 #[Package('framework')]
 #[Group('slow')]
+#[RunTestsInSeparateProcesses]
 #[CoversClass(MigrationCollection::class)]
 class MigrationForeignDefaultLanguageTest extends TestCase
 {

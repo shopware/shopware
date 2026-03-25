@@ -57,7 +57,7 @@ class BenchExtension implements ExtensionInterface
             // Find all newly declared classes (fixes bug where parent class was incorrectly picked up)
             $newClasses = array_diff($declaredAfter, $declaredBefore);
 
-            if (empty($newClasses)) {
+            if ($newClasses === []) {
                 continue;
             }
 

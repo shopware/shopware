@@ -190,10 +190,6 @@ parameters:
             paths:
                 - tests/**
 
-        - # RedisArray has missing methods in the stub. See https://github.com/phpredis/phpredis/discussions/2736
-            message: '#Call to an undefined method Predis\\ClientInterface\|Redis\|RedisArray\|RedisCluster\|Relay\\Cluster\|Relay\\Relay::#'
-            identifier: method.notFound
-
         - # XML config format will be migrated step by step, so we ignore errors for now, see https://github.com/shopware/shopware/issues/13072
             message: '#deprecated class Symfony\\Component\\DependencyInjection\\Loader\\XmlFileLoader#'
 
@@ -208,6 +204,7 @@ parameters:
         -
             identifier: missingType.iterableValue
             path: tests/unit/Core/DevOps/Docs/Script/_fixtures/*
+
         # Hook fixtures intentionally omit native property types to test the @var annotation fallback and the untyped property exception path
         -
             identifier: shopware.propertyNativeType
@@ -222,3 +219,9 @@ parameters:
         -
             message: "#Offset 'source' might not exist on array{status: string, code: #"
             path: tests
+
+        - # Bug in PHPStan. See https://github.com/phpstan/phpstan-phpunit/issues/286
+            message: '#Method Shopware\\Tests\\Integration\\Elasticsearch.*Test::test.*Search\(\) invoked with \d parameters, \d required#'
+            paths:
+                - tests/integration/Elasticsearch/Admin/AdminSearchControllerTest.php
+                - tests/integration/Elasticsearch/Product/ProductSearchQueryBuilderTest.php

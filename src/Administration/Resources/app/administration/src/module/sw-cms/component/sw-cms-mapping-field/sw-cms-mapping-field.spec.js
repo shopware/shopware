@@ -33,8 +33,8 @@ async function createWrapper(config = { source: 'mapped', value: 'category.custo
                 stubs: {
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
-                    'mt-icon': true,
-                    'mt-banner': true,
+                    'sw-icon': true,
+                    'sw-alert': true,
                 },
             },
         },

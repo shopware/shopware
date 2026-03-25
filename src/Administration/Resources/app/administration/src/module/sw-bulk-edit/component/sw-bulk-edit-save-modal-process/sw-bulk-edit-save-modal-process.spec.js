@@ -393,5 +393,64 @@ describe('sw-bulk-edit-save-modal-process', () => {
             expect(documentIdsInPayload).toContain(documentIds[0]);
             expect(documentIdsInPayload).toContain(documentIds[1]);
         });
+
+        it('should show notification message when deleting documents that have depending documents', async () => {
+            const errorMessage = 'cannot delete: credit_note 1000 (id1), credit_note 1001 (id2)';
+            const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+
+            syncServiceMock.sync.mockRejectedValueOnce({
+                response: {
+                    data: {
+                        errors: [
+                            {
+                                status: '422',
+                                code: 'ERROR_CODE',
+                                detail: errorMessage,
+                            },
+                        ],
+                    },
+                },
+            });
+
+            wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(notificationSpy).toHaveBeenCalledTimes(1);
+            expect(notificationSpy).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    variant: 'error',
+                    message: errorMessage,
+                }),
+            );
+        });
+
+        it('should truncate notification message when deleting documents that have more than 10 depending documents', async () => {
+            const dependentDocuments = Array.from({ length: 12 }, (_, index) => `credit_note ${1000 + index} (id${index})`);
+            const errorMessage = 'cannot delete: ' + dependentDocuments.join(', ');
+
+            const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+
+            syncServiceMock.sync.mockRejectedValueOnce({
+                response: {
+                    data: {
+                        errors: [
+                            {
+                                status: '422',
+                                code: 'ERROR_CODE',
+                                detail: errorMessage,
+                            },
+                        ],
+                    },
+                },
+            });
+
+            wrapper = await createWrapper();
+            await flushPromises();
+
+            const notificationMessage = notificationSpy.mock.calls[0][0].message;
+            expect(notificationMessage).toContain('cannot delete: credit_note 1000 (id0), credit_note 1001 (id1), ');
+            expect(notificationMessage).toContain('... (and 2 more)');
+            expect(notificationMessage).not.toContain('), credit_note 1010 (id10), credit_note 1011 (id11)');
+        });
     });
 });

@@ -25,6 +25,7 @@ export default {
         'changes-apply',
         'title-set',
         'buttons-update',
+        'redirect',
     ],
 
     data() {
@@ -119,16 +120,13 @@ export default {
         async createdComponent() {
             this.updateButtons();
             this.setTitle();
-            // await this.createDocuments();
-            // await this.deleteDocuments();
             try {
                 await this.createDocuments();
                 await this.deleteDocuments();
                 this.$emit('changes-apply');
-            } catch (error) {
+            } catch (_error) {
                 this.$emit('redirect', 'error');
             }
-            // this.$emit('changes-apply');
         },
 
         setTitle() {
@@ -171,13 +169,13 @@ export default {
                 await this.createDocument('invoice', invoiceDocuments);
             }
 
-                if (stornoDocuments.length > 0) {
-                    await this.createDocument('storno', stornoDocuments);
-                }
+            if (stornoDocuments.length > 0) {
+                await this.createDocument('storno', stornoDocuments);
+            }
 
-                if (creditNoteDocuments.length > 0) {
-                    await this.createDocument('credit_note', creditNoteDocuments);
-                }
+            if (creditNoteDocuments.length > 0) {
+                await this.createDocument('credit_note', creditNoteDocuments);
+            }
 
             if (deliveryNoteDocuments.length > 0) {
                 await this.createDocument('delivery_note', deliveryNoteDocuments);
@@ -261,7 +259,7 @@ export default {
 
             const remainingDependentDocuments = dependentDocuments.length - this.maxDependentDocumentsToShow;
 
-            return `${dependentDocuments.slice(0, this.maxDependentDocumentsToShow)}
+            return `${dependentDocuments.slice(0, this.maxDependentDocumentsToShow).join(', ')}
                 ... (and ${remainingDependentDocuments} more)`;
         },
     },

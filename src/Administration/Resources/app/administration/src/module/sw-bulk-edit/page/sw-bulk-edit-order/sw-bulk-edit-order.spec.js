@@ -7,6 +7,33 @@ import Criteria from 'src/core/data/criteria.data';
 
 const selectedOrderId = Shopware.Utils.createId();
 
+const documentIds = [
+    'document-id-1',
+    'document-id-2',
+];
+
+const deleteDocumentTypesFixtures = [
+    {
+        id: 'invoice-id',
+        technicalName: 'invoice',
+        translated: { name: 'Invoice' },
+        selected: true,
+    },
+];
+
+const documentRepositoryMock = {
+    searchIds: jest.fn(() =>
+        Promise.resolve({
+            data: documentIds,
+            total: documentIds.length,
+        }),
+    ),
+};
+
+const syncServiceMock = {
+    sync: jest.fn(() => Promise.resolve()),
+};
+
 function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
 }
@@ -16,7 +43,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     let routes;
     const searchIdsSpy = jest.fn();
 
-    async function createWrapper(isResponseError = false) {
+    async function createWrapper(isResponseError = false, selectedDocumentTypesForDeletion = []) {
         // delete global $router and $routes mocks
         delete config.global.mocks.$router;
         delete config.global.mocks.$route;
@@ -27,6 +54,16 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         });
         router.push('/');
         await router.isReady();
+
+        Shopware.Store.get('swBulkEdit').selectedIds = [selectedOrderId];
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
+            type: 'delete',
+            value: [...selectedDocumentTypesForDeletion],
+        });
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
+            type: 'delete',
+            isChanged: selectedDocumentTypesForDeletion.length > 0,
+        });
 
         return mount(await wrapTestComponent('sw-bulk-edit-order', { sync: true }), {
             global: {
@@ -138,6 +175,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                                 };
                             }
 
+                            if (entity === 'document') {
+                                return documentRepositoryMock;
+                            }
+
                             return {
                                 create: () => {
                                     if (entity === 'custom_field_set') {
@@ -231,7 +272,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                         startEventListener: () => {},
                         stopEventListener: () => {},
                     },
-                    syncService: {},
+                    syncService: syncServiceMock,
                 },
             },
             props: {
@@ -821,5 +862,56 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         await flushPromises();
 
         expect(resetSpy).toHaveBeenCalled();
+    });
+
+    describe('delete documents', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+        });
+
+        it('should show additional warning message when deleting documents', async () => {
+            wrapper = await createWrapper(false, deleteDocumentTypesFixtures);
+            await flushPromises();
+
+            const deleteDocumentsCheckbox = wrapper.find(
+                '.sw-bulk-edit-change-field-delete .sw-bulk-edit-change-field-renderer__change-field input',
+            );
+            expect(deleteDocumentsCheckbox.exists()).toBe(true);
+            await deleteDocumentsCheckbox.setValue('checked');
+
+            await flushPromises();
+
+            const additionalWarningText = wrapper.find('.sw-bulk-edit-save-modal__warning p');
+            expect(additionalWarningText.exists()).toBe(true);
+            expect(additionalWarningText.text()).toBe('sw-bulk-edit.modal.warningTextDocumentDeletion');
+        });
+
+        it('should show error message in modal when deleting documents that have depending documents', async () => {
+            syncServiceMock.sync.mockRejectedValueOnce({
+                response: {
+                    data: {
+                        errors: [
+                            {
+                                status: '422',
+                                code: 'ERROR_CODE',
+                                detail: 'Detailed error message',
+                            },
+                        ],
+                    },
+                },
+            });
+            wrapper = await createWrapper(false, deleteDocumentTypesFixtures);
+            await flushPromises();
+
+            await wrapper
+                .find('.sw-bulk-edit-change-field-delete .sw-bulk-edit-change-field-renderer__change-field input')
+                .setValue('checked');
+            await flushPromises();
+
+            await wrapper.find('.sw-bulk-edit-save-modal .mt-button--primary').trigger('click');
+            await flushPromises();
+
+            expect(wrapper.find('.sw-bulk-edit-save-modal .sw-bulk-edit-save-modal-error').exists()).toBe(true);
+        });
     });
 });

@@ -173,8 +173,8 @@
             "productPriceLabel": "Erweiterte Preise",
             "violationModal": {
                 "title": "Dein Profil ist noch nicht gültig",
-                "missingRequiredFields": "Du musst Zuordnungen zu den unten aufgeführten Pflichtfeldern hinzufügen, um das Profil zu speichern:",
-                "duplicateMappings": "Du hast doppelte Zuordnungen in den folgenden Feldern. Bitte entferne die Duplikate, um das Profil zu speichern:"
+                "missingRequiredFields": "Du musst Zuordnungen zu den unten aufgeführten <strong>Pflichtfeldern</strong> hinzufügen, um das Profil zu speichern:",
+                "duplicateMappings": "Du hast <strong>doppelte Zuordnungen</strong> in den folgenden Feldern. Bitte entferne die Duplikate, um das Profil zu speichern:"
             },
             "importSettingsHeadline": "Import-Einstellungen",
             "fieldIndicatorsHeadline": "Feld-Indikatoren",

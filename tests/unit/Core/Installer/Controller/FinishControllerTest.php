@@ -4,7 +4,10 @@ namespace Shopware\Tests\Unit\Core\Installer\Controller;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\TransferException;
+use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response as GuzzleResponse;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Controller\FinishController;
 use Shopware\Core\Installer\Finish\SystemLocker;
@@ -13,16 +16,17 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
+/**
+ * @internal
+ */
 #[CoversClass(FinishController::class)]
 class FinishControllerTest extends TestCase
 {
-    private SystemLocker $systemLocker;
-    private Client $client;
+    private SystemLocker&MockObject $systemLocker;
 
     protected function setUp(): void
     {
         $this->systemLocker = $this->createMock(SystemLocker::class);
-        $this->client = $this->createMock(Client::class);
     }
 
     public function testFinishWithCompletedParameterRendersTemplate(): void
@@ -30,7 +34,7 @@ class FinishControllerTest extends TestCase
         $controller = $this->getMockBuilder(FinishController::class)
             ->setConstructorArgs([
                 $this->systemLocker,
-                $this->client,
+                new Client(),
                 'https://example.com',
                 'admin',
             ])
@@ -38,7 +42,7 @@ class FinishControllerTest extends TestCase
             ->getMock();
 
         $controller
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('renderInstaller')
             ->with('@Installer/installer/finish.html.twig', [])
             ->willReturn(new Response('rendered'));
@@ -47,28 +51,23 @@ class FinishControllerTest extends TestCase
 
         $response = $controller->finish($request);
 
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('rendered', $response->getContent());
     }
 
     public function testFinishLocksSystemAndRedirectsWithCookie(): void
     {
         $this->systemLocker
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('lock');
 
-        $this->client
-            ->expects(static::once())
-            ->method('post')
-            ->willReturn(new GuzzleResponse(
-                200,
-                [],
-                json_encode([
-                    'access_token' => 'access',
-                    'refresh_token' => 'refresh',
-                    'expires_in' => 3600,
-                ], \JSON_THROW_ON_ERROR)
-            ));
+        $client = new Client(['handler' => new MockHandler([new GuzzleResponse(
+            body: json_encode([
+                'access_token' => 'access',
+                'refresh_token' => 'refresh',
+                'expires_in' => 3600,
+            ], \JSON_THROW_ON_ERROR)
+        )])]);
 
         $session = new Session(new MockArraySessionStorage());
         $session->set('ADMIN_USER', [
@@ -79,18 +78,10 @@ class FinishControllerTest extends TestCase
         $request = new Request();
         $request->setSession($session);
 
-        $controller = $this->createController(
-            'https://example.com',
-            'admin'
-        );
+        $response = $this->createController($client)->finish($request);
 
-        $response = $controller->finish($request);
-
-        static::assertSame(302, $response->getStatusCode());
-        static::assertSame(
-            'https://example.com/admin',
-            $response->headers->get('Location')
-        );
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertSame('https://example.com/admin', $response->headers->get('Location'));
 
         $cookies = $response->headers->getCookies();
         static::assertCount(1, $cookies);
@@ -101,21 +92,16 @@ class FinishControllerTest extends TestCase
     public function testFinishUsesCustomAdminPathNameForRedirectAndCookiePath(): void
     {
         $this->systemLocker
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('lock');
 
-        $this->client
-            ->expects(static::once())
-            ->method('post')
-            ->willReturn(new GuzzleResponse(
-                200,
-                [],
-                json_encode([
-                    'access_token' => 'access',
-                    'refresh_token' => 'refresh',
-                    'expires_in' => 600,
-                ], \JSON_THROW_ON_ERROR)
-            ));
+        $client = new Client(['handler' => new MockHandler([new GuzzleResponse(
+            body: json_encode([
+                'access_token' => 'access',
+                'refresh_token' => 'refresh',
+                'expires_in' => 600,
+            ], \JSON_THROW_ON_ERROR)
+        )])]);
 
         $session = new Session(new MockArraySessionStorage());
         $session->set('ADMIN_USER', [
@@ -126,17 +112,11 @@ class FinishControllerTest extends TestCase
         $request = new Request();
         $request->setSession($session);
 
-        $controller = $this->createController(
-            'https://example.com/shop',
-            'custom-admin'
-        );
+        $controller = $this->createController($client, 'https://example.com/shop', 'custom-admin');
 
         $response = $controller->finish($request);
 
-        static::assertSame(
-            'https://example.com/shop/custom-admin',
-            $response->headers->get('Location')
-        );
+        static::assertSame('https://example.com/shop/custom-admin', $response->headers->get('Location'));
 
         $cookies = $response->headers->getCookies();
         static::assertCount(1, $cookies);
@@ -147,15 +127,10 @@ class FinishControllerTest extends TestCase
     public function testFinishIgnoresTransferException(): void
     {
         $this->systemLocker
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('lock');
 
-        $this->client
-            ->expects(static::once())
-            ->method('post')
-            ->willThrowException(
-                $this->createMock(TransferException::class)
-            );
+        $client = new Client(['handler' => new MockHandler([new TransferException()])]);
 
         $session = new Session(new MockArraySessionStorage());
         $session->set('ADMIN_USER', [
@@ -166,25 +141,22 @@ class FinishControllerTest extends TestCase
         $request = new Request();
         $request->setSession($session);
 
-        $controller = $this->createController(
-            'https://example.com',
-            'admin'
-        );
-
-        $response = $controller->finish($request);
+        $response = $this->createController($client)->finish($request);
 
         static::assertSame(302, $response->getStatusCode());
         static::assertCount(0, $response->headers->getCookies());
     }
 
-    private function createController(string $appUrl, string $adminPathName): FinishController
-    {
+    private function createController(
+        Client $client,
+        string $appUrl = 'https://example.com',
+        string $adminPathName = 'admin'
+    ): FinishController {
         return new FinishController(
             $this->systemLocker,
-            $this->client,
+            $client,
             $appUrl,
             $adminPathName
         );
     }
 }
-

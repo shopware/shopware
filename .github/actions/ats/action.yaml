@@ -85,8 +85,6 @@ inputs:
 
 runs:
     using: "composite"
-    using: "docker"
-    image: "docker://mcr.microsoft.com/playwright:v1.58.2-noble"
     steps:
         - uses: shopware/octo-sts-action@main
           id: create-pr-token
@@ -183,13 +181,30 @@ runs:
 
         - name: Run your tests
           shell: bash
-          working-directory: ${{ inputs.directory }}
           env:
               CURRENTS_PROJECT_ID: ${{ inputs.currents-project-id }}
               CURRENTS_RECORD_KEY: ${{ inputs.currents-record-key }}
               CURRENTS_BUILD_ID: "${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}${{ matrix.major && 'major' }}"
               ATS_CMD: ${{ inputs.use-currents && 'pwc' || 'playwright'}}
-          run: npx $ATS_CMD test --project=${{ inputs.project }} --workers=${{ inputs.workers }} --shard=${{ inputs.shard }}/${{ inputs.shard-count }} ${{ inputs.extra-options }}
+          run: |
+              docker run --rm \
+               --init \
+               --ipc=host \
+               -e CURRENTS_PROJECT_ID \
+               -e CURRENTS_RECORD_KEY \
+               -e CURRENTS_BUILD_ID \
+               -e FEATURE_ALL \
+               -e REDIS_URL \
+               -e MAILER_DSN \
+               -e MAILPIT_BASE_URL \
+               -e SHOPWARE_HTTP_CACHE_ENABLED \
+               -e SHOPWARE_DISABLE_UPDATE_CHECK \
+               -e BLUE_GREEN_DEPLOYMENT \
+               -e ENABLE_SERVICES \
+               -v "${{ github.workspace }}:/work" \
+               -w "/work/${{ inputs.directory }}" \
+               mcr.microsoft.com/playwright:v1.58.2-noble \
+               bash -lc 'npx $ATS_CMD test --project=${{ inputs.project }} --workers=${{ inputs.workers }} --shard=${{ inputs.shard }}/${{ inputs.shard-count }} ${{ inputs.extra-options }}'
           continue-on-error: ${{ contains(inputs.project, 'visual') }} # Visual tests are allowed to fail; the results will be uploaded regardless and checked regularly
 
         - uses: actions/upload-artifact@v4

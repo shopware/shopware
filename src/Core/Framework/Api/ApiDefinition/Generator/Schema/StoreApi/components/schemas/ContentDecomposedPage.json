@@ -1,0 +1,40 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentDecomposedPage": {
+                "type": "object",
+                "description": "Layout metadata with element skeletons, deduplicated property data, and element-to-data mappings.",
+                "properties": {
+                    "layoutId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "layoutName": {
+                        "type": "string"
+                    },
+                    "layoutVersion": {
+                        "type": ["string", "null"]
+                    },
+                    "skeletons": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/ContentElement" }
+                    },
+                    "data": {
+                        "type": "object"
+                    },
+                    "assignments": {
+                        "type": "object"
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["content_decomposed_page"]
+                    }
+                },
+                "required": ["apiAlias", "layoutId", "layoutName", "skeletons", "data", "assignments"]
+            }
+        }
+    }
+}

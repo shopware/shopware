@@ -85,8 +85,8 @@ inputs:
 
 runs:
     using: "composite"
-    #container:
-    #  image: mcr.microsoft.com/playwright:v1.58.2-noble
+    container:
+        image: mcr.microsoft.com/playwright:v1.58.2-noble
     #  options: --user 1001
     steps:
         - uses: shopware/octo-sts-action@main
@@ -172,10 +172,10 @@ runs:
           shell: bash
           run: sudo apt-get update --allow-releaseinfo-change
 
-        - name: Install Playwright Browsers
-          shell: bash
-          working-directory: ${{ inputs.directory }}
-          run: npx playwright install --with-deps chromium
+        #- name: Install Playwright Browsers
+        #  shell: bash
+        #  working-directory: ${{ inputs.directory }}
+        #  run: npx playwright install --with-deps chromium
 
         - name: Prepare Product Analytics consent preconditions
           if: ${{ inputs.project == 'Platform' }}

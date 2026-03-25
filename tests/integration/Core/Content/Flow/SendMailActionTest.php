@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Flow;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
@@ -38,6 +37,8 @@ use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
+use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\RevocationRequest\Event\RevocationRequestEvent;
 use Shopware\Core\Defaults;
@@ -925,22 +926,27 @@ class SendMailActionTest extends TestCase
         $mailTemplateId = $this->retrieveMailTemplateId();
 
         $mediaId = Uuid::randomHex();
-        $mediaPath = 'media/_test/' . $mediaId . '.png';
+        $mediaPath = __DIR__ . '/../ImportExport/fixtures/shopware-logo.png';
+
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
+        static::assertIsString($tempFile);
+
+        \copy($mediaPath, $tempFile);
+
+        $fileSize = \filesize($tempFile);
+        static::assertIsInt($fileSize);
+
+        $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
 
         static::getContainer()->get('media.repository')->create([
             [
                 'id' => $mediaId,
-                'fileName' => 'test-mail-attachment',
                 'fileExtension' => 'png',
                 'mimeType' => 'image/png',
-                'fileSize' => 10,
+                'fileSize' => $fileSize,
                 'path' => $mediaPath,
             ],
         ], $context);
-
-        /** @var FilesystemOperator $filesystem */
-        $filesystem = static::getContainer()->get('shopware.filesystem.public');
-        $filesystem->write($mediaPath, 'fake image content');
 
         static::getContainer()->get('mail_template_media.repository')->create([
             [
@@ -952,10 +958,17 @@ class SendMailActionTest extends TestCase
             ],
         ], $context);
 
+        static::getContainer()->get(FileSaver::class)->persistFileToMedia(
+            $mediaFile,
+            'test-file',
+            $mediaId,
+            $context
+        );
+
         $transportDecorator = new MailerTransportDecorator(
             $this->createMock(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
-            $filesystem,
+            static::getContainer()->get('shopware.filesystem.public'),
             $this->documentRepository
         );
 
@@ -984,11 +997,12 @@ class SendMailActionTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions.stateMachineState');
 
-        /** @var OrderEntity $order */
-        $order = $this->orderRepository->search($criteria, $context)->first();
+        $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
+        static::assertNotNull($order);
 
         $event = new CheckoutOrderPlacedEvent($salesChannelContext, $order);
         $flowFactory = static::getContainer()->get(FlowFactory::class);
+
         $flow = $flowFactory->create($event);
         $flow->setConfig([
             'mailTemplateId' => $mailTemplateId,
@@ -999,8 +1013,6 @@ class SendMailActionTest extends TestCase
 
         static::assertInstanceOf(Email::class, $mailService->mail);
         static::assertCount(1, $mailService->mail->getAttachments());
-
-        $filesystem->delete($mediaPath);
     }
 
     private function createCustomer(Context $context): string

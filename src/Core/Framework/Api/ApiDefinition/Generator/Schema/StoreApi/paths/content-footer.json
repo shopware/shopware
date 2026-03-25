@@ -1,0 +1,130 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/content-footer": {
+            "get": {
+                "tags": ["Content"],
+                "summary": "Fetch rendered footer content layout",
+                "description": "Loads and renders the footer content layout with full element trees. Uses domain-aware resolution to find the appropriate footer assignment for the current sales channel and domain.",
+                "operationId": "readContentFooter",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Footer layout metadata with fully hydrated element trees.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentPage" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [{ "ApiKey": [] }]
+            }
+        },
+        "/content-footer-decomposed": {
+            "get": {
+                "tags": ["Content"],
+                "summary": "Fetch rendered footer content layout (decomposed format)",
+                "description": "Loads and renders the footer content with decomposed format: skeletons + deduplicated data + assignments. Uses domain-aware resolution. Optimized for bandwidth efficiency.",
+                "operationId": "readContentFooterDecomposed",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Footer layout metadata with element skeletons, deduplicated property data, and element-to-data mappings.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentDecomposedPage" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [{ "ApiKey": [] }]
+            }
+        },
+        "/content-footer-skeleton": {
+            "get": {
+                "tags": ["Content"],
+                "summary": "Fetch footer content layout skeleton (without hydration)",
+                "description": "Returns footer layout structure without hydrated data. Uses domain-aware resolution. Useful for layout preview, client-side hydration, or structure inspection.",
+                "operationId": "readContentFooterSkeleton",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Footer layout metadata with element trees before hydration.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentSkeletonPage" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [{ "ApiKey": [] }]
+            }
+        },
+        "/content-footer-data": {
+            "get": {
+                "tags": ["Content"],
+                "summary": "Fetch footer content data only (without skeleton)",
+                "description": "Returns only the hydrated data and element-to-property assignments for the footer. Uses domain-aware resolution. Useful when client already has the skeleton and only needs refreshed data.",
+                "operationId": "readContentFooterData",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Footer layout metadata with deduplicated property data and element-to-data mappings.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/ContentDataPage" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [{ "ApiKey": [] }]
+            }
+        }
+    }
+}

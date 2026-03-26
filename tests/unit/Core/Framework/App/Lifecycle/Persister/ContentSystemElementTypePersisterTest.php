@@ -14,14 +14,18 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemElementTypePers
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ResolvedElementTypeSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\CopilotSpecificationDto;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\ElementTypeSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Util\Filesystem;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\Validation;
@@ -51,7 +55,7 @@ class ContentSystemElementTypePersisterTest extends TestCase
         );
     }
 
-    #[TestDox('inserts new element type with correct payload and invalidates registry')]
+    #[TestDox('inserts new element type with correct payload')]
     public function testInsertsNewTypeWhenNoneExist(): void
     {
         /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
@@ -60,11 +64,7 @@ class ContentSystemElementTypePersisterTest extends TestCase
             new AppContentSystemElementTypeCollection(),
         ]);
 
-        $registry = static::createMock(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('all')->willReturn([]);
-        $registry->expects($this->once())->method('invalidate');
-
-        $persister = $this->buildPersister($repo, registry: $registry);
+        $persister = $this->buildPersister($repo);
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
 
         static::assertCount(1, $repo->upserts);
@@ -73,20 +73,16 @@ class ContentSystemElementTypePersisterTest extends TestCase
         static::assertSame('DemoApp:Hero', $payload['name']);
         static::assertTrue($payload['active']);
         static::assertSame($this->ids->get('app'), $payload['appId']);
-        static::assertArrayHasKey('id', $payload);
-        static::assertArrayHasKey('schema', $payload);
-        static::assertArrayHasKey('hash', $payload);
+        static::assertIsString($payload['id']);
+        static::assertIsArray($payload['schema']);
+        static::assertIsString($payload['hash']);
     }
 
     #[TestDox('updates existing type when hash changes')]
     public function testUpdatesExistingTypeWhenHashChanges(): void
     {
-        $existing = new AppContentSystemElementTypeEntity();
-        $existing->setId($this->ids->create('type-hero'));
-        $existing->setName('DemoApp:Hero');
+        $existing = $this->buildExistingEntity('type-hero', 'DemoApp:Hero');
         $existing->setHash('outdated-hash-value');
-        $existing->setSchema([]);
-        $existing->setAppId($this->ids->get('app'));
 
         /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
@@ -108,55 +104,36 @@ class ContentSystemElementTypePersisterTest extends TestCase
     #[TestDox('skips upsert when stored hash matches current file hash')]
     public function testSkipsUpsertWhenHashMatches(): void
     {
+        $spec = $this->loader->loadDtosFromDirectory(
+            self::FIXTURES_DIR . '/Resources/content-system/types',
+            'app:DemoApp',
+            'DemoApp',
+        );
+        static::assertCount(1, $spec);
+
+        $hash = Hasher::hash(json_encode($this->serializer->normalize($spec[0]->dto), \JSON_THROW_ON_ERROR));
+
+        $seeded = $this->buildExistingEntity('type-hero', 'DemoApp:Hero');
+        $seeded->setHash($hash);
+        $seeded->setSchema($this->serializer->normalize($spec[0]->dto));
+
         /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
-            new AppContentSystemElementTypeCollection(),
-            new AppContentSystemElementTypeCollection(),
-        ]);
-
-        $registry = static::createMock(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('all')->willReturn([]);
-        $registry->expects($this->once())->method('invalidate');
-
-        $persister = $this->buildPersister($repo, registry: $registry);
-        $persister->persist($this->buildContext($this->buildRealFilesystem()));
-
-        static::assertCount(1, $repo->upserts);
-        $firstPassPayload = $repo->upserts[0][0];
-
-        $seeded = new AppContentSystemElementTypeEntity();
-        $seeded->setId($firstPassPayload['id']);
-        $seeded->setName($firstPassPayload['name']);
-        $seeded->setHash($firstPassPayload['hash']);
-        $seeded->setSchema($firstPassPayload['schema']);
-        $seeded->setAppId($firstPassPayload['appId']);
-
-        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo2 */
-        $repo2 = new StaticEntityRepository([
             new AppContentSystemElementTypeCollection([$seeded]),
             new AppContentSystemElementTypeCollection(),
         ]);
 
-        $registry2 = static::createMock(AbstractContentSystemElementTypeRegistry::class);
-        $registry2->method('all')->willReturn([]);
-        $registry2->expects($this->never())->method('invalidate');
+        $persister = $this->buildPersister($repo);
+        $persister->persist($this->buildContext($this->buildRealFilesystem()));
 
-        $persister2 = $this->buildPersister($repo2, registry: $registry2);
-        $persister2->persist($this->buildContext($this->buildRealFilesystem()));
-
-        static::assertSame([], $repo2->upserts);
-        static::assertSame([], $repo2->deletes);
+        static::assertSame([], $repo->upserts);
+        static::assertSame([], $repo->deletes);
     }
 
     #[TestDox('deletes stored types that are no longer present in the app filesystem')]
     public function testDeletesTypesNotPresentInFiles(): void
     {
-        $obsolete = new AppContentSystemElementTypeEntity();
-        $obsolete->setId($this->ids->create('type-old'));
-        $obsolete->setName('App:Old:Type');
-        $obsolete->setHash('some-hash');
-        $obsolete->setSchema([]);
-        $obsolete->setAppId($this->ids->get('app'));
+        $obsolete = $this->buildExistingEntity('type-old', 'App:Old:Type');
 
         /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
@@ -164,15 +141,101 @@ class ContentSystemElementTypePersisterTest extends TestCase
             new AppContentSystemElementTypeCollection(),
         ]);
 
-        $registry = static::createMock(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('all')->willReturn([]);
-        $registry->expects($this->once())->method('invalidate');
-
-        $persister = $this->buildPersister($repo, registry: $registry);
+        $persister = $this->buildPersister($repo);
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
 
         static::assertCount(1, $repo->deletes);
         static::assertSame([['id' => $this->ids->get('type-old')]], $repo->deletes[0]);
+    }
+
+    #[TestDox('upserts only the changed type when multiple types exist and one hash matches')]
+    public function testUpsertsOnlyChangedTypeWhenMultipleTypesExist(): void
+    {
+        $unchangedDto = new ElementTypeSpecificationDto(
+            label: 'Unchanged Hero',
+            description: 'Hero that stays the same',
+            vendor: 'DemoApp',
+            icon: null,
+            category: null,
+            copilot: new CopilotSpecificationDto(summary: 'unchanged hero', hints: []),
+            properties: [],
+            slots: [],
+        );
+
+        $changedDto = new ElementTypeSpecificationDto(
+            label: 'Changed Banner',
+            description: 'Banner that will be updated',
+            vendor: 'DemoApp',
+            icon: null,
+            category: null,
+            copilot: new CopilotSpecificationDto(summary: 'changed banner', hints: []),
+            properties: [],
+            slots: [],
+        );
+
+        $resolvedUnchanged = new ResolvedElementTypeSpecificationDto(
+            name: 'DemoApp:Hero',
+            source: 'app:DemoApp',
+            dto: $unchangedDto,
+        );
+
+        $resolvedChanged = new ResolvedElementTypeSpecificationDto(
+            name: 'DemoApp:Banner',
+            source: 'app:DemoApp',
+            dto: $changedDto,
+        );
+
+        $loader = static::createStub(YamlTypeLoader::class);
+        $loader->method('loadDtosFromDirectory')->willReturn([$resolvedUnchanged, $resolvedChanged]);
+
+        $matchingHash = Hasher::hash(json_encode($this->serializer->normalize($unchangedDto), \JSON_THROW_ON_ERROR));
+
+        $existingHero = $this->buildExistingEntity('type-hero', 'DemoApp:Hero');
+        $existingHero->setHash($matchingHash);
+        $existingHero->setSchema($this->serializer->normalize($unchangedDto));
+
+        $existingBanner = $this->buildExistingEntity('type-banner', 'DemoApp:Banner');
+        $existingBanner->setHash('outdated-hash');
+
+        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
+        $repo = new StaticEntityRepository([
+            new AppContentSystemElementTypeCollection([$existingHero, $existingBanner]),
+            new AppContentSystemElementTypeCollection(),
+        ]);
+
+        $registry = static::createMock(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('all')->willReturn([]);
+        $registry->expects($this->once())->method('invalidate');
+
+        $persister = $this->buildPersister($repo, loader: $loader, registry: $registry);
+        $persister->persist($this->buildContext($this->buildRealFilesystem()));
+
+        static::assertCount(1, $repo->upserts);
+        $payload = $repo->upserts[0][0];
+
+        static::assertSame($this->ids->get('type-banner'), $payload['id']);
+        static::assertSame('DemoApp:Banner', $payload['name']);
+        static::assertSame([], $repo->deletes);
+    }
+
+    #[TestDox('upserts with active false when app is inactive')]
+    public function testUpsertsWithActiveFalseWhenAppIsInactive(): void
+    {
+        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
+        $repo = new StaticEntityRepository([
+            new AppContentSystemElementTypeCollection(),
+            new AppContentSystemElementTypeCollection(),
+        ]);
+
+        $persister = $this->buildPersister($repo);
+        $persister->persist($this->buildContext($this->buildRealFilesystem(), active: false));
+
+        static::assertCount(1, $repo->upserts);
+        $payload = $repo->upserts[0][0];
+
+        static::assertSame('DemoApp:Hero', $payload['name']);
+        static::assertFalse($payload['active']);
+        static::assertSame($this->ids->get('app'), $payload['appId']);
     }
 
     #[TestDox('deletes all existing types when app ships no YAML files')]
@@ -181,22 +244,14 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $loader = static::createStub(YamlTypeLoader::class);
         $loader->method('loadDtosFromDirectory')->willReturn([]);
 
-        $orphan = new AppContentSystemElementTypeEntity();
-        $orphan->setId($this->ids->create('type-orphan'));
-        $orphan->setName('DemoApp:Orphan');
-        $orphan->setHash('some-hash');
-        $orphan->setSchema([]);
-        $orphan->setAppId($this->ids->get('app'));
+        $orphan = $this->buildExistingEntity('type-orphan', 'DemoApp:Orphan');
 
         /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemElementTypeCollection([$orphan]),
         ]);
 
-        $registry = static::createMock(AbstractContentSystemElementTypeRegistry::class);
-        $registry->expects($this->once())->method('invalidate');
-
-        $persister = $this->buildPersister($repo, loader: $loader, registry: $registry);
+        $persister = $this->buildPersister($repo, loader: $loader);
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
 
         static::assertSame([], $repo->upserts);
@@ -215,14 +270,35 @@ class ContentSystemElementTypePersisterTest extends TestCase
             new AppContentSystemElementTypeCollection(),
         ]);
 
-        $registry = static::createMock(AbstractContentSystemElementTypeRegistry::class);
-        $registry->expects($this->never())->method('invalidate');
-
-        $persister = $this->buildPersister($repo, loader: $loader, registry: $registry);
+        $persister = $this->buildPersister($repo, loader: $loader);
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
 
         static::assertSame([], $repo->upserts);
         static::assertSame([], $repo->deletes);
+    }
+
+    #[TestDox('skips inactive app type with null app entity during collision check')]
+    public function testSkipsInactiveTypeWithNullAppDuringCollisionCheck(): void
+    {
+        $orphanedEntity = new AppContentSystemElementTypeEntity();
+        $orphanedEntity->setId($this->ids->create('orphaned-type'));
+        $orphanedEntity->setName('DemoApp:Hero');
+        $orphanedEntity->setHash('hash');
+        $orphanedEntity->setSchema([]);
+        $orphanedEntity->setActive(false);
+        $orphanedEntity->setAppId($this->ids->create('deleted-app'));
+
+        /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
+        $repo = new StaticEntityRepository([
+            new AppContentSystemElementTypeCollection(),
+            new AppContentSystemElementTypeCollection([$orphanedEntity]),
+        ]);
+
+        $persister = $this->buildPersister($repo);
+        $persister->persist($this->buildContext($this->buildRealFilesystem()));
+
+        static::assertCount(1, $repo->upserts);
+        static::assertSame('DemoApp:Hero', $repo->upserts[0][0]['name']);
     }
 
     #[TestDox('throws AppException when loader fails with ContentSystemException')]
@@ -244,8 +320,8 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
     }
 
-    #[TestDox('lets ContentSystemException from collision detector propagate')]
-    public function testCollisionPropagation(): void
+    #[TestDox('throws when type name collides with already registered type')]
+    public function testThrowsWhenTypeNameCollidesWithRegisteredType(): void
     {
         $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $registry->method('all')->willReturn([
@@ -271,12 +347,14 @@ class ContentSystemElementTypePersisterTest extends TestCase
 
         $persister = $this->buildPersister($repo, registry: $registry);
 
-        $this->expectException(ContentSystemException::class);
+        $this->expectExceptionObject(
+            ContentSystemException::elementTypeDuplicate('DemoApp:Hero', 'core', 'app:DemoApp')
+        );
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
     }
 
-    #[TestDox('passes inactive app type names to collision detector for validation')]
-    public function testInactiveAppTypeCollision(): void
+    #[TestDox('throws collision exception when inactive app occupies the same type name')]
+    public function testThrowsWhenInactiveAppTypeNameCollides(): void
     {
         $inactiveEntity = new AppContentSystemElementTypeEntity();
         $inactiveEntity->setId($this->ids->create('inactive-type'));
@@ -302,8 +380,22 @@ class ContentSystemElementTypePersisterTest extends TestCase
 
         $persister = $this->buildPersister($repo, registry: $registry);
 
-        $this->expectException(ContentSystemException::class);
+        $this->expectExceptionObject(
+            ContentSystemException::elementTypeDuplicate('DemoApp:Hero', 'app:OtherApp', 'app:DemoApp')
+        );
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
+    }
+
+    private function buildExistingEntity(string $idKey, string $name): AppContentSystemElementTypeEntity
+    {
+        $entity = new AppContentSystemElementTypeEntity();
+        $entity->setId($this->ids->create($idKey));
+        $entity->setName($name);
+        $entity->setHash('some-hash');
+        $entity->setSchema([]);
+        $entity->setAppId($this->ids->get('app'));
+
+        return $entity;
     }
 
     /**
@@ -330,12 +422,12 @@ class ContentSystemElementTypePersisterTest extends TestCase
         );
     }
 
-    private function buildContext(Filesystem $filesystem): AppLifecycleContext
+    private function buildContext(Filesystem $filesystem, bool $active = true): AppLifecycleContext
     {
         $app = new AppEntity();
         $app->setId($this->ids->get('app'));
         $app->setName('DemoApp');
-        $app->setActive(true);
+        $app->setActive($active);
 
         return new AppLifecycleContext(
             manifest: static::createStub(Manifest::class),

@@ -17,8 +17,8 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeColl
 #[CoversClass(ElementTypeCollisionDetector::class)]
 class ElementTypeCollisionDetectorTest extends TestCase
 {
-    #[TestDox('passes without exception when proposed names do not conflict')]
-    public function testNoCollision(): void
+    #[TestDox('accepts proposed names when no collision exists')]
+    public function testValidatePassesWhenNamesDoNotConflict(): void
     {
         $detector = new ElementTypeCollisionDetector(
             $this->buildRegistry(['Sw:Existing' => 'core']),
@@ -33,24 +33,8 @@ class ElementTypeCollisionDetectorTest extends TestCase
         );
     }
 
-    #[TestDox('throws when a proposed name collides with an active registered type')]
-    public function testActiveTypeCollision(): void
-    {
-        $detector = new ElementTypeCollisionDetector(
-            $this->buildRegistry(['Sw:Hero' => 'core']),
-        );
-
-        $this->expectException(ContentSystemException::class);
-
-        $detector->validate(
-            ['Sw:Hero' => 'app:MyApp'],
-            null,
-            [],
-        );
-    }
-
     #[TestDox('skips collision when the registered type source matches excludeSource')]
-    public function testExcludedSourceBypass(): void
+    public function testValidatePassesWhenRegisteredSourceMatchesExcludeSource(): void
     {
         $detector = new ElementTypeCollisionDetector(
             $this->buildRegistry(['App:Hero' => 'app:MyApp']),
@@ -65,14 +49,50 @@ class ElementTypeCollisionDetectorTest extends TestCase
         );
     }
 
+    #[TestDox('accepts empty proposed map without checking registry')]
+    public function testValidatePassesWhenProposedMapIsEmpty(): void
+    {
+        $detector = new ElementTypeCollisionDetector(
+            $this->buildRegistry(['Sw:Hero' => 'core']),
+        );
+
+        $this->expectNotToPerformAssertions();
+
+        $detector->validate(
+            [],
+            null,
+            ['App:Other' => 'app:OtherApp'],
+        );
+    }
+
+    #[TestDox('throws when a proposed name collides with an active registered type')]
+    public function testValidateThrowsWhenNameCollidesWithActiveType(): void
+    {
+        $detector = new ElementTypeCollisionDetector(
+            $this->buildRegistry(['Sw:Hero' => 'core']),
+        );
+
+        $this->expectExceptionObject(
+            ContentSystemException::elementTypeDuplicate('Sw:Hero', 'core', 'app:MyApp')
+        );
+
+        $detector->validate(
+            ['Sw:Hero' => 'app:MyApp'],
+            null,
+            [],
+        );
+    }
+
     #[TestDox('throws when a proposed name collides with an additional registered name')]
-    public function testAdditionalRegisteredCollision(): void
+    public function testValidateThrowsWhenNameCollidesWithAdditionalRegistered(): void
     {
         $detector = new ElementTypeCollisionDetector(
             $this->buildRegistry([]),
         );
 
-        $this->expectException(ContentSystemException::class);
+        $this->expectExceptionObject(
+            ContentSystemException::elementTypeDuplicate('App:Hero', 'app:OtherApp', 'app:MyApp')
+        );
 
         $detector->validate(
             ['App:Hero' => 'app:MyApp'],
@@ -81,19 +101,57 @@ class ElementTypeCollisionDetectorTest extends TestCase
         );
     }
 
-    #[TestDox('excludeSource does not skip additional registered entries')]
-    public function testExcludeSourceDoesNotAffectAdditionalRegistered(): void
+    #[TestDox('throws for additional registered collision even when excludeSource matches')]
+    public function testValidateThrowsForAdditionalRegisteredEvenWithMatchingExcludeSource(): void
     {
         $detector = new ElementTypeCollisionDetector(
             $this->buildRegistry([]),
         );
 
-        $this->expectException(ContentSystemException::class);
+        $this->expectExceptionObject(
+            ContentSystemException::elementTypeDuplicate('App:Hero', 'app:MyApp', 'app:MyApp')
+        );
 
         $detector->validate(
             ['App:Hero' => 'app:MyApp'],
             'app:MyApp',
             ['App:Hero' => 'app:MyApp'],
+        );
+    }
+
+    #[TestDox('throws for colliding name even when first proposed name passes')]
+    public function testValidateThrowsForSecondProposedNameWhenFirstPasses(): void
+    {
+        $detector = new ElementTypeCollisionDetector(
+            $this->buildRegistry(['App:Hero' => 'core']),
+        );
+
+        $this->expectExceptionObject(
+            ContentSystemException::elementTypeDuplicate('App:Hero', 'core', 'app:MyApp')
+        );
+
+        $detector->validate(
+            ['App:Safe' => 'app:MyApp', 'App:Hero' => 'app:MyApp'],
+            null,
+            [],
+        );
+    }
+
+    #[TestDox('throws when excludeSource does not match the colliding registered source')]
+    public function testValidateThrowsWhenExcludeSourceDoesNotMatchExistingSource(): void
+    {
+        $detector = new ElementTypeCollisionDetector(
+            $this->buildRegistry(['Sw:Hero' => 'core']),
+        );
+
+        $this->expectExceptionObject(
+            ContentSystemException::elementTypeDuplicate('Sw:Hero', 'core', 'app:MyApp')
+        );
+
+        $detector->validate(
+            ['Sw:Hero' => 'app:MyApp'],
+            'app:MyApp',
+            [],
         );
     }
 

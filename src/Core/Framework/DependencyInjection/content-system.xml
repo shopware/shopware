@@ -237,6 +237,10 @@
 
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver"/>
 
+        <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector">
+            <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry"/>
+        </service>
+
         <service id="Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader">
             <argument type="service" id="Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer"/>
             <argument type="service" id="validator"/>

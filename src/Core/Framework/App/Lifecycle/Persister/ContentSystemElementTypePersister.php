@@ -2,18 +2,21 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeCollection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ResolvedElementTypeSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\ElementTypeSpecificationDto;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,68 +34,40 @@ class ContentSystemElementTypePersister implements PersisterInterface
      */
     public function __construct(
         private readonly EntityRepository $contentElementTypeRepository,
-        private readonly ElementTypeSpecificationSerializer $serializer,
-        private readonly AbstractContentSystemElementTypeRegistry $registry,
-        private readonly Connection $connection,
         private readonly YamlTypeLoader $loader,
+        private readonly ElementTypeCollisionDetector $collisionDetector,
+        private readonly AbstractContentSystemElementTypeRegistry $registry,
+        private readonly ElementTypeSpecificationSerializer $serializer,
     ) {
     }
 
     public function persist(AppLifecycleContext $context): void
     {
         $appId = $context->app->getId();
-        $typesDir = $context->appFilesystem->path(self::TYPES_DIRECTORY);
 
-        try {
-            $resolvedDtos = $this->loader->loadDtosFromDirectory(
-                $typesDir,
-                'app:' . $context->app->getName(),
-                $context->app->getName(),
-            );
-        } catch (ContentSystemException $e) {
-            throw AppException::contentSystemElementTypeLoadFailed(self::TYPES_DIRECTORY, $e->getMessage(), $e);
-        }
+        $resolvedDtos = $this->loadDtos($context);
+        $existing = $this->getExistingTypes($appId, $context->context);
 
-        if ($resolvedDtos === []) {
+        if ($resolvedDtos === [] && $existing->count() === 0) {
             return;
         }
 
-        $existing = $this->getExistingTypes($appId, $context->context);
-        $upserts = [];
-        $processedNames = [];
+        if ($resolvedDtos !== []) {
+            $proposedNames = $this->buildProposedNames($resolvedDtos);
+            $inactiveNames = $this->loadInactiveAppTypeNames($appId, $context->context);
 
-        foreach ($resolvedDtos as $resolvedDto) {
-            $normalized = $this->serializer->normalize($resolvedDto->dto);
-            $hash = Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR));
-
-            $this->checkCollision($resolvedDto->name, $appId);
-            $processedNames[$resolvedDto->name] = true;
-
-            $existingEntity = $existing->filterByProperty('name', $resolvedDto->name)->first();
-
-            if ($existingEntity !== null && $existingEntity->getHash() === $hash) {
-                continue;
-            }
-
-            $upserts[] = [
-                'id' => $existingEntity?->getId() ?? Uuid::randomHex(),
-                'name' => $resolvedDto->name,
-                'schema' => $normalized,
-                'hash' => $hash,
-                'active' => $context->app->isActive(),
-                'appId' => $appId,
-            ];
+            $this->collisionDetector->validate(
+                $proposedNames,
+                'app:' . $context->app->getName(),
+                $inactiveNames,
+            );
         }
+
+        $upserts = $this->buildUpserts($resolvedDtos, $existing, $context);
+        $deleteIds = $this->buildDeletes($resolvedDtos, $existing);
 
         if ($upserts !== []) {
             $this->contentElementTypeRepository->upsert($upserts, $context->context);
-        }
-
-        $deleteIds = [];
-        foreach ($existing as $existingEntity) {
-            if (!isset($processedNames[$existingEntity->getName()])) {
-                $deleteIds[] = ['id' => $existingEntity->getId()];
-            }
         }
 
         if ($deleteIds !== []) {
@@ -104,6 +79,24 @@ class ContentSystemElementTypePersister implements PersisterInterface
         }
     }
 
+    /**
+     * @return list<ResolvedElementTypeSpecificationDto>
+     */
+    private function loadDtos(AppLifecycleContext $context): array
+    {
+        $typesDir = $context->appFilesystem->path(self::TYPES_DIRECTORY);
+
+        try {
+            return $this->loader->loadDtosFromDirectory(
+                $typesDir,
+                'app:' . $context->app->getName(),
+                $context->app->getName(),
+            );
+        } catch (ContentSystemException $e) {
+            throw AppException::contentSystemElementTypeLoadFailed(self::TYPES_DIRECTORY, $e->getMessage(), $e);
+        }
+    }
+
     private function getExistingTypes(string $appId, Context $context): AppContentSystemElementTypeCollection
     {
         $criteria = new Criteria();
@@ -112,21 +105,106 @@ class ContentSystemElementTypePersister implements PersisterInterface
         return $this->contentElementTypeRepository->search($criteria, $context)->getEntities();
     }
 
-    private function checkCollision(string $name, string $appId): void
+    /**
+     * @param list<ResolvedElementTypeSpecificationDto> $resolvedDtos
+     *
+     * @return array<string, string>
+     */
+    private function buildProposedNames(array $resolvedDtos): array
     {
-        if ($this->registry->has($name)) {
-            throw AppException::contentSystemElementTypeCollision($name, 'core/plugin', 'app');
+        $names = [];
+
+        foreach ($resolvedDtos as $dto) {
+            $names[$dto->name] = $dto->source;
         }
 
-        $existingAppName = $this->connection->fetchOne(
-            'SELECT a.name FROM app_content_system_element_type t
-             INNER JOIN app a ON t.app_id = a.id
-             WHERE t.name = :name AND t.app_id != :appId',
-            ['name' => $name, 'appId' => Uuid::fromHexToBytes($appId)]
-        );
+        return $names;
+    }
 
-        if ($existingAppName !== false) {
-            throw AppException::contentSystemElementTypeCollision($name, $existingAppName, 'app');
+    /**
+     * @return array<string, string> name => 'app:<AppName>' source label
+     */
+    private function loadInactiveAppTypeNames(string $excludeAppId, Context $context): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('active', false));
+        $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('appId', $excludeAppId)]));
+        $criteria->addAssociation('app');
+
+        /** @var AppContentSystemElementTypeCollection $entities */
+        $entities = $this->contentElementTypeRepository->search($criteria, $context)->getEntities();
+
+        $names = [];
+
+        foreach ($entities as $entity) {
+            $app = $entity->getApp();
+            if ($app === null) {
+                continue;
+            }
+
+            $names[$entity->getName()] = 'app:' . $app->getName();
         }
+
+        return $names;
+    }
+
+    private function computeHash(ElementTypeSpecificationDto $dto): string
+    {
+        return Hasher::hash(json_encode($this->serializer->normalize($dto), \JSON_THROW_ON_ERROR));
+    }
+
+    /**
+     * @param list<ResolvedElementTypeSpecificationDto> $resolvedDtos
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function buildUpserts(
+        array $resolvedDtos,
+        AppContentSystemElementTypeCollection $existing,
+        AppLifecycleContext $context,
+    ): array {
+        $upserts = [];
+
+        foreach ($resolvedDtos as $resolvedDto) {
+            $hash = $this->computeHash($resolvedDto->dto);
+            $existingEntity = $existing->filterByProperty('name', $resolvedDto->name)->first();
+
+            if ($existingEntity !== null && $existingEntity->getHash() === $hash) {
+                continue;
+            }
+
+            $upserts[] = [
+                'id' => $existingEntity?->getId() ?? Uuid::randomHex(),
+                'name' => $resolvedDto->name,
+                'schema' => $this->serializer->normalize($resolvedDto->dto),
+                'hash' => $hash,
+                'active' => $context->app->isActive(),
+                'appId' => $context->app->getId(),
+            ];
+        }
+
+        return $upserts;
+    }
+
+    /**
+     * @param list<ResolvedElementTypeSpecificationDto> $resolvedDtos
+     *
+     * @return list<array{id: string}>
+     */
+    private function buildDeletes(array $resolvedDtos, AppContentSystemElementTypeCollection $existing): array
+    {
+        $processedNames = [];
+        foreach ($resolvedDtos as $dto) {
+            $processedNames[$dto->name] = true;
+        }
+
+        $deleteIds = [];
+        foreach ($existing as $existingEntity) {
+            if (!isset($processedNames[$existingEntity->getName()])) {
+                $deleteIds[] = ['id' => $existingEntity->getId()];
+            }
+        }
+
+        return $deleteIds;
     }
 }

@@ -48,6 +48,7 @@ parameters:
             paths:
                 - tests/unit
                 - tests/integration
+                - tests/devops
                 - src/Core/Framework/Test/TestCaseBase/*.php
         -
             message: '#Service ".*" is private#'

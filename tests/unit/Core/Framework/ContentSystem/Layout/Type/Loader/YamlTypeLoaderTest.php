@@ -211,7 +211,7 @@ class YamlTypeLoaderTest extends TestCase
         ]);
 
         $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessageMatches('/\[Sw:A:InvalidA\].*\[Sw:B:InvalidB\]/s');
+        $this->expectExceptionMessageMatches('/(?=.*\[Sw:A:InvalidA\])(?=.*\[Sw:B:InvalidB\])/s');
         $loader->load();
     }
 

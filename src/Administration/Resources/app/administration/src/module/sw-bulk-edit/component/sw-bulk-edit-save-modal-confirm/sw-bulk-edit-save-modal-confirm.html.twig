@@ -34,12 +34,17 @@
     {% endblock %}
 
     <mt-banner
+        v-if="hasDocumentDeletionSelected"
+        variant="attention"
+        class="sw-bulk-edit-save-modal__warning-document-deletion"
+    >
+        {{ $t('sw-bulk-edit.modal.warningTextDocumentDeletion') }}
+    </mt-banner>
+
+    <mt-banner
         variant="attention"
         class="sw-bulk-edit-save-modal__warning"
     >
-        <p v-if="hasDocumentDeletionSelected">
-            {{ $t('sw-bulk-edit.modal.warningTextDocumentDeletion') }}
-        </p>
         {{ $t('sw-bulk-edit.modal.warningText') }}
     </mt-banner>
 </div>

@@ -869,7 +869,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             jest.clearAllMocks();
         });
 
-        it('should show additional warning message when deleting documents', async () => {
+        it('should show additional warning banner when deleting documents', async () => {
+
             wrapper = await createWrapper(false, deleteDocumentTypesFixtures);
             await flushPromises();
 
@@ -881,9 +882,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
             await flushPromises();
 
-            const additionalWarningText = wrapper.find('.sw-bulk-edit-save-modal__warning p');
-            expect(additionalWarningText.exists()).toBe(true);
-            expect(additionalWarningText.text()).toBe('sw-bulk-edit.modal.warningTextDocumentDeletion');
+            const additionalWarningBanner = wrapper.find('.sw-bulk-edit-save-modal__warning-document-deletion');
+            expect(additionalWarningBanner.exists()).toBe(true);
+            expect(additionalWarningBanner.text()).toBe('sw-bulk-edit.modal.warningTextDocumentDeletion');
         });
 
         it('should show error message in modal when deleting documents that have depending documents', async () => {

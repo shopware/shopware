@@ -740,7 +740,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.native-content').exists()).toBeTruthy();
         });
 
-        it('asserts default → shim → native DOM order when shim is registered before native mounts (same setup as the test above)', async () => {
+        it('renders content in the correct DOM order: default, then shim, then native', async () => {
             // The shim is always registered before mount (boot time), so it is
             // added to the block context first. The native extension mounts later
             // and is stacked on top of the shim.

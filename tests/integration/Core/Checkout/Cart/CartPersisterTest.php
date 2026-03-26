@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Statement;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
@@ -40,7 +39,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(CartPersister::class)]
 class CartPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;

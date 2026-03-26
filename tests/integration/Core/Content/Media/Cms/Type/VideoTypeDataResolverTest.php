@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Cms\Type;
 
 use League\Flysystem\FilesystemOperator;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -32,7 +31,6 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(VideoCmsElementResolver::class)]
 class VideoTypeDataResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

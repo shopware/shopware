@@ -2,10 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\Api;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
-use Shopware\Core\Content\Media\Api\MediaUploadV2Controller;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -21,7 +19,6 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(MediaUploadV2Controller::class)]
 #[Package('discovery')]
 class MediaUploadV2ControllerTest extends TestCase
 {

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework\RateLimiter;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\AuthorizationServer;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -43,7 +42,6 @@ use Symfony\Component\RateLimiter\Storage\CacheStorage;
 /**
  * @internal
  */
-#[CoversClass(RateLimiter::class)]
 #[Group('slow')]
 class RateLimiterTest extends TestCase
 {

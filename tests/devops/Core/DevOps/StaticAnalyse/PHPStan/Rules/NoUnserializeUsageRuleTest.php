@@ -4,7 +4,6 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoUnserializeUsageRule;
 use Shopware\Core\Framework\Log\Package;
 
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\Log\Package;
  * @extends RuleTestCase<NoUnserializeUsageRule>
  */
 #[Package('framework')]
-#[CoversClass(NoUnserializeUsageRule::class)]
 class NoUnserializeUsageRuleTest extends RuleTestCase
 {
     public function testRule(): void

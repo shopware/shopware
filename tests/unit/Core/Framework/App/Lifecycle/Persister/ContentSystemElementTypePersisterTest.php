@@ -166,8 +166,8 @@ class ContentSystemElementTypePersisterTest extends TestCase
         static::assertSame([], $repo->deletes);
     }
 
-    #[TestDox('wraps ContentSystemException from loader into AppException')]
-    public function testWrapsContentSystemExceptionIntoAppException(): void
+    #[TestDox('throws AppException when loader fails with ContentSystemException')]
+    public function testThrowsAppExceptionWhenLoaderFails(): void
     {
         $loaderException = ContentSystemException::elementTypeLoadFailed('hero.yaml', 'Invalid YAML syntax');
 
@@ -179,13 +179,10 @@ class ContentSystemElementTypePersisterTest extends TestCase
 
         $persister = $this->buildPersister($repo, loader: $loader);
 
-        try {
-            $persister->persist($this->buildContext($this->buildRealFilesystem()));
-            static::fail('Expected AppException');
-        } catch (AppException $e) {
-            static::assertSame('FRAMEWORK__APP_ELEMENT_TYPE_LOAD_FAILED', $e->getErrorCode());
-            static::assertSame($loaderException, $e->getPrevious());
-        }
+        $this->expectExceptionObject(
+            AppException::contentSystemElementTypeLoadFailed('Resources/content-system/types', $loaderException->getMessage(), $loaderException)
+        );
+        $persister->persist($this->buildContext($this->buildRealFilesystem()));
     }
 
     #[TestDox('throws when the type name collides with a core or plugin type in the registry')]

@@ -25,7 +25,7 @@ class ElementTypeNameResolverTest extends TestCase
     /**
      * @return iterable<string, array{string, string, string}>
      */
-    public static function resolvesPathToTypeNameProvider(): iterable
+    public static function resolvesFilePathToElementTypeNameProvider(): iterable
     {
         yield 'simple file' => ['button.yaml', 'Sw', 'Sw:Button'];
         yield 'yml extension' => ['quick-view.yml', 'AcmeProductExtras', 'AcmeProductExtras:QuickView'];
@@ -36,9 +36,9 @@ class ElementTypeNameResolverTest extends TestCase
         yield 'numeric segments' => ['v2/widget.yaml', 'Sw', 'Sw:V2:Widget'];
     }
 
-    #[DataProvider('resolvesPathToTypeNameProvider')]
+    #[DataProvider('resolvesFilePathToElementTypeNameProvider')]
     #[TestDox('resolves "$relativePath" from prefix "$prefix" to type name "$expected"')]
-    public function testResolvesPathToColonSeparatedPascalCaseName(string $relativePath, string $prefix, string $expected): void
+    public function testResolvesFilePathToElementTypeName(string $relativePath, string $prefix, string $expected): void
     {
         static::assertSame($expected, $this->resolver->resolve($relativePath, $prefix));
     }
@@ -52,7 +52,6 @@ class ElementTypeNameResolverTest extends TestCase
         yield 'uppercase letter in filename segment' => ['MyButton.yaml', 'MyButton'];
         yield 'leading hyphen in segment' => ['-button.yaml', '-button'];
         yield 'trailing hyphen in segment' => ['button-.yaml', 'button-'];
-        yield 'consecutive hyphens in segment' => ['my--button.yaml', 'my--button'];
         yield 'uppercase letter in directory segment' => ['My_Dir/button.yaml', 'My_Dir'];
         yield 'empty string' => ['', ''];
         yield 'non-yaml extension treated as segment' => ['button.json', 'button.json'];

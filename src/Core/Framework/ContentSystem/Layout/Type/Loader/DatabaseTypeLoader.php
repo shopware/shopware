@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Loader;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\Log\Package;
@@ -44,9 +45,15 @@ class DatabaseTypeLoader extends AbstractContentSystemElementTypeLoader
         $resolved = [];
 
         foreach ($rows as $row) {
-            $schema = json_decode($row['schema'], true, 512, \JSON_THROW_ON_ERROR);
-            $dto = $this->serializer->denormalize($schema);
             $name = $row['name'] ?: '<unknown>';
+
+            try {
+                $schema = json_decode($row['schema'], true, 512, \JSON_THROW_ON_ERROR);
+            } catch (\JsonException $e) {
+                throw ContentSystemException::elementTypeLoadFailed($name, $e->getMessage(), $e);
+            }
+
+            $dto = $this->serializer->denormalize($schema);
 
             $resolved[] = new ResolvedElementTypeSpecificationDto(
                 $name,

@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeSourceDirectory;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ResolvedElementTypeSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Symfony\Component\Filesystem\Filesystem;
@@ -60,17 +59,22 @@ class YamlTypeLoaderTest extends TestCase
         static::assertArrayHasKey('TestPlugin:Plugin:Element', $byName);
     }
 
-    #[TestDox('assigns correct source label and returns resolved DTOs when loading from a single directory')]
-    public function testLoadsSpecificationsFromSingleDirectoryWithSourceLabel(): void
+    #[TestDox('returns resolved DTOs with correct name and source when loading from a single directory')]
+    public function testLoadsDtosFromSingleDirectory(): void
     {
         $loader = $this->createLoader([]);
 
         $dtos = $loader->loadDtosFromDirectory(self::BUNDLE_A_TYPES_DIR, 'test-source', 'Sw');
 
         static::assertCount(1, $dtos);
-        static::assertInstanceOf(ResolvedElementTypeSpecificationDto::class, $dtos[0]);
         static::assertSame('Sw:Test:Element', $dtos[0]->name);
         static::assertSame('test-source', $dtos[0]->source);
+    }
+
+    #[TestDox('returns specifications with correct name and source when loading from a single directory')]
+    public function testLoadsSpecificationsFromSingleDirectory(): void
+    {
+        $loader = $this->createLoader([]);
 
         $definitions = $loader->loadFromDirectory(self::BUNDLE_A_TYPES_DIR, 'test-source', 'Sw');
 

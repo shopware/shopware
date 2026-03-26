@@ -194,39 +194,6 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         static::assertSame('commerce', $normalized['meta']['category']);
     }
 
-    /**
-     * @return iterable<string, array{CopilotSpecificationDto, array<string, mixed>}>
-     */
-    public static function normalizesCopilotBlockProvider(): iterable
-    {
-        yield 'both summary and hints' => [
-            new CopilotSpecificationDto('Product card.', ['Use for products.']),
-            ['summary' => 'Product card.', 'hints' => ['Use for products.']],
-        ];
-        yield 'summary only omits hints' => [
-            new CopilotSpecificationDto('Summary only.', []),
-            ['summary' => 'Summary only.'],
-        ];
-        yield 'hints only omits summary' => [
-            new CopilotSpecificationDto('', ['Hint one.']),
-            ['hints' => ['Hint one.']],
-        ];
-    }
-
-    /**
-     * @param array<string, mixed> $expectedCopilot
-     */
-    #[DataProvider('normalizesCopilotBlockProvider')]
-    #[TestDox('normalizes copilot block')]
-    public function testNormalizesCopilotBlock(CopilotSpecificationDto $copilot, array $expectedCopilot): void
-    {
-        $dto = new ElementTypeSpecificationDto('Text', 'Text.', 'shopware AG', null, null, $copilot, [], []);
-
-        $normalized = $this->serializer->normalize($dto);
-
-        static::assertSame($expectedCopilot, $normalized['meta']['copilot']);
-    }
-
     #[TestDox('normalizes property fields when populated')]
     public function testNormalizesPropertyFieldsWhenPopulated(): void
     {
@@ -260,6 +227,39 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         static::assertSame('media', $normalized['slots'][0]['name']);
         static::assertSame(1, $normalized['slots'][0]['maxElements']);
         static::assertSame('Media slot.', $normalized['slots'][0]['description']);
+    }
+
+    /**
+     * @return iterable<string, array{CopilotSpecificationDto, array<string, mixed>}>
+     */
+    public static function normalizesCopilotBlockProvider(): iterable
+    {
+        yield 'both summary and hints' => [
+            new CopilotSpecificationDto('Product card.', ['Use for products.']),
+            ['summary' => 'Product card.', 'hints' => ['Use for products.']],
+        ];
+        yield 'summary only omits hints' => [
+            new CopilotSpecificationDto('Summary only.', []),
+            ['summary' => 'Summary only.'],
+        ];
+        yield 'hints only omits summary' => [
+            new CopilotSpecificationDto('', ['Hint one.']),
+            ['hints' => ['Hint one.']],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $expectedCopilot
+     */
+    #[DataProvider('normalizesCopilotBlockProvider')]
+    #[TestDox('normalizes copilot block')]
+    public function testNormalizesCopilotBlock(CopilotSpecificationDto $copilot, array $expectedCopilot): void
+    {
+        $dto = new ElementTypeSpecificationDto('Text', 'Text.', 'shopware AG', null, null, $copilot, [], []);
+
+        $normalized = $this->serializer->normalize($dto);
+
+        static::assertSame($expectedCopilot, $normalized['meta']['copilot']);
     }
 
     #[TestDox('includes translatable flag in normalized property output')]

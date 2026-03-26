@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\CopilotSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\ElementTypeSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\PropertySpecificationDto;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\SlotSpecificationDto;
 
 /**
  * @internal
@@ -16,34 +15,50 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\SlotSpec
 #[CoversClass(ElementTypeSpecificationDto::class)]
 class ElementTypeSpecificationDtoTest extends TestCase
 {
-    #[TestDox('converts DTO to specification preserving name, source, property keys, and slot count')]
-    public function testConvertsToSpecificationPreservingStructure(): void
+    #[TestDox('uses outer array key as property key in specification')]
+    public function testUsesOuterArrayKeyAsPropertyKey(): void
     {
         $dto = new ElementTypeSpecificationDto(
             'Product Card',
             'A product card.',
             'shopware AG',
-            'card',
-            'commerce',
-            new CopilotSpecificationDto('Summary.', ['Hint.']),
+            null,
+            null,
+            new CopilotSpecificationDto('Summary.', []),
             [
                 'custom_key' => new PropertySpecificationDto('different_name', 'string', true, false, 'Title', '', null, null, null),
-                'layout' => new PropertySpecificationDto('layout', 'string', false, false, 'Layout', '', ['box', 'list'], 'box', null),
+                'second_key' => new PropertySpecificationDto('other_name', 'string', false, false, 'Other', '', null, null, null),
             ],
-            [new SlotSpecificationDto('media', 1, ['Sw:Media:Image'], 'Media slot.')],
+            [],
         );
 
-        $specification = $dto->toContentSystemElementTypeSpecification('Sw:Product:Card', 'plugin:MyPlugin');
+        $schema = $dto->toContentSystemElementTypeSpecification('Sw:Product:Card', 'core')->toSchema();
 
-        static::assertSame('Sw:Product:Card', $specification->name());
-        static::assertSame('plugin:MyPlugin', $specification->source());
-
-        $schema = $specification->toSchema();
-
-        // Property keys come from the outer array key, not PropertySpecificationDto::name
         static::assertArrayHasKey('custom_key', $schema['properties']);
         static::assertArrayNotHasKey('different_name', $schema['properties']);
         static::assertCount(2, $schema['properties']);
-        static::assertCount(1, $schema['slots']);
+    }
+
+    #[TestDox('produces empty properties and slots when none provided')]
+    public function testProducesEmptyCollectionsWhenNoneProvided(): void
+    {
+        $schema = $this->buildMinimalDto()->toContentSystemElementTypeSpecification('Sw:Empty', 'core')->toSchema();
+
+        static::assertSame([], $schema['properties']);
+        static::assertSame([], $schema['slots']);
+    }
+
+    private function buildMinimalDto(): ElementTypeSpecificationDto
+    {
+        return new ElementTypeSpecificationDto(
+            'Test',
+            'A test element.',
+            'shopware AG',
+            null,
+            null,
+            new CopilotSpecificationDto('Test.', []),
+            [],
+            [],
+        );
     }
 }

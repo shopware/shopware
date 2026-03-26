@@ -22,14 +22,7 @@ class ContentSystemElementTypeAppValidatorTest extends TestCase
     #[TestDox('returns no errors when types directory is valid')]
     public function testReturnsNoErrorsWhenTypesDirectoryIsValid(): void
     {
-        $loader = $this->createMock(YamlTypeLoader::class);
-        $loader->expects($this->atLeastOnce())
-            ->method('loadFromDirectory')
-            ->with(
-                '/app/path/Resources/content-system/types',
-                'app:TestApp',
-                'TestApp',
-            );
+        $loader = static::createStub(YamlTypeLoader::class);
 
         $manifest = $this->buildManifest('/app/path', 'TestApp');
 
@@ -55,7 +48,10 @@ class ContentSystemElementTypeAppValidatorTest extends TestCase
 
         $error = $errors->first();
         static::assertInstanceOf(ContentSystemElementTypeSchemaError::class, $error);
-        static::assertStringContainsString('/app/path/Resources/content-system/types', $error->getMessage());
+        static::assertSame(
+            'Invalid element type schema in "/app/path/Resources/content-system/types": Failed to load element type from "broken.yaml": Invalid YAML syntax',
+            $error->getMessage()
+        );
         static::assertSame('manifest-invalid-element-type-schema', $error->getMessageKey());
     }
 

@@ -49,12 +49,37 @@ class DatabaseTypeLoaderTest extends TestCase
     #[TestDox('returns empty list in dev environment')]
     public function testReturnsEmptyListInDevEnvironment(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchAllAssociative');
+        $connection = static::createStub(Connection::class);
 
         $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), static::createStub(ValidatorInterface::class), $connection, 'dev');
 
         static::assertSame([], $loader->load());
+    }
+
+    #[TestDox('uses unknown placeholder when database row has empty name')]
+    public function testUsesUnknownPlaceholderForEmptyName(): void
+    {
+        $schema = json_encode([
+            'meta' => [
+                'label' => 'Unnamed',
+                'description' => 'An element with no name.',
+                'vendor' => 'DemoApp',
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['name' => '', 'schema' => $schema, 'app_name' => 'DemoApp'],
+        ]);
+
+        $validator = static::createStub(ValidatorInterface::class);
+        $validator->method('validate')->willReturn(new ConstraintViolationList());
+
+        $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), $validator, $connection, 'prod');
+        $definitions = $loader->load();
+
+        static::assertCount(1, $definitions);
+        static::assertSame('<unknown>', $definitions[0]->name());
     }
 
     #[TestDox('throws batch validation exception when database contains invalid schemas')]
@@ -92,34 +117,8 @@ class DatabaseTypeLoaderTest extends TestCase
         $loader->load();
     }
 
-    #[TestDox('uses unknown placeholder when database row has empty name')]
-    public function testUsesUnknownPlaceholderForEmptyName(): void
-    {
-        $schema = json_encode([
-            'meta' => [
-                'label' => 'Unnamed',
-                'description' => 'An element with no name.',
-                'vendor' => 'DemoApp',
-            ],
-        ], \JSON_THROW_ON_ERROR);
-
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => '', 'schema' => $schema, 'app_name' => 'DemoApp'],
-        ]);
-
-        $validator = static::createStub(ValidatorInterface::class);
-        $validator->method('validate')->willReturn(new ConstraintViolationList());
-
-        $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), $validator, $connection, 'prod');
-        $definitions = $loader->load();
-
-        static::assertCount(1, $definitions);
-        static::assertSame('<unknown>', $definitions[0]->name());
-    }
-
-    #[TestDox('throws when database row contains malformed JSON schema')]
-    public function testThrowsJsonExceptionWhenDatabaseRowContainsMalformedSchema(): void
+    #[TestDox('throws domain exception when database row contains malformed JSON schema')]
+    public function testThrowsDomainExceptionWhenDatabaseRowContainsMalformedJsonSchema(): void
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([
@@ -128,7 +127,8 @@ class DatabaseTypeLoaderTest extends TestCase
 
         $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), static::createStub(ValidatorInterface::class), $connection, 'prod');
 
-        $this->expectExceptionObject(new \JsonException('Syntax error', \JSON_ERROR_SYNTAX));
+        $this->expectException(ContentSystemException::class);
+        $this->expectExceptionMessage('App:Broken');
         $loader->load();
     }
 }

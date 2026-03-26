@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(ResolvedElementTypeSpecificationDtoCollection::class)]
 class ResolvedElementTypeSpecificationDtoCollectionTest extends TestCase
 {
-    #[TestDox('validate does not throw when all DTOs are valid')]
+    #[TestDox('passes without throwing when all DTOs are valid')]
     public function testValidatePassesForValidDtos(): void
     {
         $batch = new ResolvedElementTypeSpecificationDtoCollection([
@@ -31,12 +31,36 @@ class ResolvedElementTypeSpecificationDtoCollectionTest extends TestCase
         $validator = static::createStub(ValidatorInterface::class);
         $validator->method('validate')->willReturn(new ConstraintViolationList());
 
-        $batch->validate($validator);
-
         $this->expectNotToPerformAssertions();
+        $batch->validate($validator);
     }
 
-    #[TestDox('validate throws with prefixed property paths when DTOs have violations')]
+    #[TestDox('converts each item to a specification value object')]
+    public function testToSpecificationsConvertsEachItem(): void
+    {
+        $batch = new ResolvedElementTypeSpecificationDtoCollection([
+            $this->buildResolved('Sw:Alpha', 'core'),
+            $this->buildResolved('Sw:Beta', 'plugin:MyPlugin'),
+        ]);
+
+        $specs = $batch->toSpecifications();
+
+        static::assertCount(2, $specs);
+        static::assertSame('Sw:Alpha', $specs[0]->name());
+        static::assertSame('core', $specs[0]->source());
+        static::assertSame('Sw:Beta', $specs[1]->name());
+        static::assertSame('plugin:MyPlugin', $specs[1]->source());
+    }
+
+    #[TestDox('returns empty list for empty collection')]
+    public function testToSpecificationsReturnsEmptyForEmptyCollection(): void
+    {
+        $batch = new ResolvedElementTypeSpecificationDtoCollection([]);
+
+        static::assertSame([], $batch->toSpecifications());
+    }
+
+    #[TestDox('throws with element-name-prefixed property paths when DTOs have violations')]
     public function testValidateThrowsWithPrefixedPaths(): void
     {
         $batch = new ResolvedElementTypeSpecificationDtoCollection([
@@ -58,31 +82,6 @@ class ResolvedElementTypeSpecificationDtoCollectionTest extends TestCase
             ])
         ));
         $batch->validate($validator);
-    }
-
-    #[TestDox('toSpecifications converts all items to value objects')]
-    public function testToSpecificationsConvertsAllItems(): void
-    {
-        $batch = new ResolvedElementTypeSpecificationDtoCollection([
-            $this->buildResolved('Sw:Alpha', 'core'),
-            $this->buildResolved('Sw:Beta', 'plugin:MyPlugin'),
-        ]);
-
-        $specs = $batch->toSpecifications();
-
-        static::assertCount(2, $specs);
-        static::assertSame('Sw:Alpha', $specs[0]->name());
-        static::assertSame('core', $specs[0]->source());
-        static::assertSame('Sw:Beta', $specs[1]->name());
-        static::assertSame('plugin:MyPlugin', $specs[1]->source());
-    }
-
-    #[TestDox('toSpecifications returns empty list for empty collection')]
-    public function testToSpecificationsReturnsEmptyForEmptyCollection(): void
-    {
-        $batch = new ResolvedElementTypeSpecificationDtoCollection([]);
-
-        static::assertSame([], $batch->toSpecifications());
     }
 
     private function buildResolved(string $name, string $source): ResolvedElementTypeSpecificationDto

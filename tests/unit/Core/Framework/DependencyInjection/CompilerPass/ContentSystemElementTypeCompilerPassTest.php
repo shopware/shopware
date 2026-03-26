@@ -166,7 +166,7 @@ class ContentSystemElementTypeCompilerPassTest extends TestCase
     }
 
     #[TestDox('registers no directories when the type loader service is absent')]
-    public function testDoesNotRegisterDirectoriesWhenTypeLoaderIsNotDefined(): void
+    public function testSkipsRegistrationWhenTypeLoaderServiceIsAbsent(): void
     {
         $container = new ContainerBuilder();
         $container->setParameter('kernel.bundles_metadata', []);

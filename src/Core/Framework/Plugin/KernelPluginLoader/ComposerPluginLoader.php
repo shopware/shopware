@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Util\IOStreamHelper;
 class ComposerPluginLoader extends KernelPluginLoader
 {
     /**
-     * @return array<PluginInfo>
+     * @return list<PluginInfo>
      */
     public function fetchPluginInfos(): array
     {

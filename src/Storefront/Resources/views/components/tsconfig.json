@@ -1,0 +1,11 @@
+{
+  "extends": "../../app/storefront/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "../../app/storefront",
+    "paths": {
+      "shopware": ["src/shopware.ts"]
+    },
+    "typeRoots": ["../../app/storefront/node_modules/@types"]
+  },
+  "include": ["**/*"]
+}

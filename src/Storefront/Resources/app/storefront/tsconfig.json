@@ -10,6 +10,9 @@
     "forceConsistentCasingInFileNames": true,
     "noUncheckedIndexedAccess": true,
     "baseUrl": "./",
+    "paths": {
+      "shopware": ["./src/shopware.ts"]
+    }
   },
   "exclude": [
     "node_modules"
@@ -19,6 +22,7 @@
     "scripts/**/*",
     ".storybook/**/*",
     "build/*.ts",
-    "vite.components.config.ts"
+    "vite.components.config.ts",
+    "../../views/components/**/*"
   ]
 }

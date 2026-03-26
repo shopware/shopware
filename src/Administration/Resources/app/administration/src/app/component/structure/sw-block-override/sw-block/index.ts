@@ -120,7 +120,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         const template = computed(() => {
             if (!props.name) {
-                return null;
+                throw new Error('[sw-block] The "name" prop is required when "extends" is not set.');
             }
 
             // shimSlots come before nativeBlocks so that Twig plugin overrides (registered

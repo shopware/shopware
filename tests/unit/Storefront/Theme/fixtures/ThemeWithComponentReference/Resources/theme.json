@@ -1,0 +1,7 @@
+{
+  "name": "Theme with component reference",
+  "author": "Shopware AG",
+  "style": [
+    "@Components/Sw/Alert/index.scss"
+  ]
+}

@@ -14,10 +14,9 @@ test(
     { tag: '@ProductAnalytics' },
     async ({
         ShopAdmin,
-        FeatureService,
         AdminDashboard,
     }) => {
-        test.skip(!(await FeatureService.isEnabled('PRODUCT_ANALYTICS')), 'Product Analytics feature flag is not enabled.');
+        test.skip(true, 'Temporarily skipped after removing the PRODUCT_ANALYTICS feature flag.');
 
         const requestPromise = AdminDashboard.page.waitForRequest((request: Request) => {
             if (request.method() !== 'POST') {

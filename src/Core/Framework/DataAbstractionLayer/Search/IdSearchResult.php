@@ -139,7 +139,7 @@ class IdSearchResult extends Struct
 
     public function getScore(string $id): float
     {
-        $score = $this->getDataFieldOfId($id, '_score');
+        $score = $this->getDataFieldOfId($id, Criteria::SCORE_FIELD);
 
         if ($score === null) {
             throw DataAbstractionLayerException::scoreNotFound($id);

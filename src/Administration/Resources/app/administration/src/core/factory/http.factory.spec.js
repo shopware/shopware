@@ -440,4 +440,73 @@ describe('core/factory/http.factory.js', () => {
             expect(console.warn).toHaveBeenCalled();
         });
     });
+
+    describe('refreshTokenInterceptor', () => {
+        let loginService;
+        let originalShopwareService;
+
+        beforeEach(() => {
+            originalShopwareService = Shopware.Service;
+
+            loginService = {
+                refreshToken: jest.fn().mockResolvedValue('new-token'),
+                subscribeToTokenRefresh: jest.fn((successCb) => {
+                    successCb('new-token');
+                }),
+                logout: jest.fn(),
+            };
+
+            Shopware.Service = jest.fn(() => loginService);
+        });
+
+        afterEach(() => {
+            Shopware.Service = originalShopwareService;
+        });
+
+        it('should not retry 401 responses with SSO_LOGIN__TOKEN_NOT_FOUND error code', async () => {
+            mock.onGet('/api/sbp/shop-info').reply(401, {
+                errors: [
+                    {
+                        code: 'SSO_LOGIN__TOKEN_NOT_FOUND',
+                        detail: 'Cannot get token from user.',
+                    },
+                ],
+            });
+
+            const getError = async () => {
+                try {
+                    await httpClient.get('/api/sbp/shop-info');
+                    throw new Error('Expected error to be thrown');
+                } catch (error) {
+                    return error;
+                }
+            };
+
+            const error = await getError();
+            expect(error.response.status).toBe(401);
+            expect(error.response.data.errors[0].code).toBe('SSO_LOGIN__TOKEN_NOT_FOUND');
+
+            expect(mock.history.get).toHaveLength(1);
+            expect(loginService.refreshToken).not.toHaveBeenCalled();
+        });
+
+        it('should not retry a 401 request more than once after token refresh', async () => {
+            mock.onGet('/api/some-endpoint').reply(401, {});
+
+            const getError = async () => {
+                try {
+                    await httpClient.get('/api/some-endpoint');
+                    throw new Error('Expected error to be thrown');
+                } catch (error) {
+                    return error;
+                }
+            };
+
+            const error = await getError();
+            expect(error.response.status).toBe(401);
+            expect(mock.history.get).toHaveLength(2);
+            expect(loginService.refreshToken).toHaveBeenCalledTimes(1);
+            expect(loginService.subscribeToTokenRefresh).toHaveBeenCalledTimes(1);
+        });
+    });
 });

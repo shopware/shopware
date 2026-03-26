@@ -333,20 +333,6 @@ describe('sw-bulk-edit-save-modal-process', () => {
             jest.clearAllMocks();
         });
 
-        it('should call deleteDocuments when component is created', async () => {
-            await createWrapper();
-            await flushPromises();
-
-            wrapper.vm.deleteDocuments = jest.fn();
-
-            await wrapper.vm.createdComponent();
-            await flushPromises();
-
-            expect(wrapper.vm.deleteDocuments).toHaveBeenCalled();
-
-            wrapper.vm.deleteDocuments.mockRestore();
-        });
-
         it('should not call searchIds for document when no document type is selected', async () => {
             await createWrapper([]);
             await flushPromises();

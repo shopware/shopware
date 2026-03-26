@@ -77,4 +77,33 @@ describe('sw-bulk-edit-order-documents-delete-documents', () => {
 
         expect(wrapper.findAll('.mt-field__checkbox')).toHaveLength(documentTypesFixtures.length);
     });
+
+    it('should be able to select document types', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const checkboxes = wrapper.find('input');
+        await checkboxes.setValue('checked');
+        await flushPromises();
+
+        expect(wrapper.find('input').element.checked).toBe(true);
+    });
+
+    it('should not render checkboxes when fetching document types fails', async () => {
+        documentTypeRepositoryMock.search.mockRejectedValueOnce(new Error('failed to fetch document types'));
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findAll('.mt-field__checkbox')).toHaveLength(0);
+    });
+
+    it('should render no checkboxes when no document types exists', async () => {
+        documentTypeRepositoryMock.search.mockResolvedValueOnce(
+            new EntityCollection('', 'document_type', Context.api, null, [], 0),
+        );
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findAll('.mt-field__checkbox')).toHaveLength(0);
+    });
 });

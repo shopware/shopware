@@ -1,5 +1,6 @@
 /**
  * @sw-package after-sales
+ * @private
  */
 import template from './sw-bulk-edit-order-documents-delete-documents.html.twig';
 
@@ -14,6 +15,12 @@ export default {
     mixins: [
         Shopware.Mixin.getByName('notification'),
     ],
+
+    data() {
+        return {
+            isLoading: false,
+        };
+    },
 
     computed: {
         documentTypeRepository() {
@@ -46,7 +53,9 @@ export default {
 
     methods: {
         createdComponent() {
-            this.getDocumentTypes()
+            this.isLoading = true;
+            this.documentTypeRepository
+                .search(this.documentTypeCriteria)
                 .then((documentTypes) => {
                     documentTypes.forEach((documentType) => {
                         documentType.selected = false;
@@ -58,11 +67,10 @@ export default {
                     this.createNotificationError({
                         message: error.message,
                     });
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-        },
-
-        getDocumentTypes() {
-            return this.documentTypeRepository.search(this.documentTypeCriteria);
         },
     },
 };

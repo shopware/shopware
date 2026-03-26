@@ -124,7 +124,7 @@ export default {
                 await this.createDocuments();
                 await this.deleteDocuments();
                 this.$emit('changes-apply');
-            } catch (_error) {
+            } catch {
                 this.$emit('redirect', 'error');
             }
         },

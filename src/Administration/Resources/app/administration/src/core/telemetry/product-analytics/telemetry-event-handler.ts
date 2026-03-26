@@ -35,7 +35,6 @@ export default function createTelemetryEventHandler(
             client.track('login');
         },
         logout: () => {
-            client.useBeaconTransport();
             client.track('logout');
             client.flush();
         },

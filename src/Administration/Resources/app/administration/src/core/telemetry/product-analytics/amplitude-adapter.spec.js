@@ -6,7 +6,6 @@ jest.mock('@amplitude/analytics-browser', () => ({
         track: jest.fn(),
         flush: jest.fn(),
         setOptOut: jest.fn(),
-        setTransport: jest.fn(),
         getUserId: jest.fn(),
         setUserId: jest.fn(),
     }),
@@ -74,13 +73,6 @@ describe('src/core/telemetry/product-analytics/amplitude-adapter', () => {
 
         adapter.setOptOut(true);
         expect(mockInstance.setOptOut).toHaveBeenCalledWith(true);
-    });
-
-    it('useBeaconTransport sets beacon transport', () => {
-        const adapter = new AmplitudeAdapter('https://s', 'en');
-
-        adapter.useBeaconTransport();
-        expect(mockInstance.setTransport).toHaveBeenCalledWith('beacon');
     });
 
     it('tracks events only when initialized', () => {

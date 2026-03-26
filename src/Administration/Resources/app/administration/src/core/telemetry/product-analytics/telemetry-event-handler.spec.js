@@ -10,7 +10,6 @@ describe('src/core/telemetry/amplitude/telemetry-event-handler.ts', () => {
             track: jest.fn(),
             identify: jest.fn(),
             flush: jest.fn(),
-            useBeaconTransport: jest.fn(),
         };
 
         Shopware.Store.get('context').app.config.shopId = 'shop-id-1';
@@ -40,10 +39,9 @@ describe('src/core/telemetry/amplitude/telemetry-event-handler.ts', () => {
         expect(client.track).toHaveBeenCalledWith('login');
     });
 
-    it('tracks logout event with beacon transport', () => {
+    it('tracks logout event', () => {
         pushTelemetryEventToAmplitude(new TelemetryEvent('logout', {}));
 
-        expect(client.useBeaconTransport).toHaveBeenCalled();
         expect(client.track).toHaveBeenCalledWith('logout');
         expect(client.flush).toHaveBeenCalled();
     });

@@ -266,7 +266,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
         $result = $this->client->bulk($arguments);
 
-        if (\is_array($result) && ((bool) $result['errors'] ?? false) !== false) {
+        if (\is_array($result) && ((bool) ($result['errors'] ?? false)) !== false) {
             $errors = $this->parseErrors($result);
 
             throw ElasticsearchException::indexingError($errors);

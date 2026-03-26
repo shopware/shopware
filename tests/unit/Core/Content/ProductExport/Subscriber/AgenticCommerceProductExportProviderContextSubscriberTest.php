@@ -6,11 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderBodyContextEvent;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
-use Shopware\Core\Content\ProductExport\Provider\AbstractProductExportProvider;
-use Shopware\Core\Content\ProductExport\Provider\ProductExportProviderRegistry;
-use Shopware\Core\Content\ProductExport\Subscriber\ProductExportProviderContextSubscriber;
+use Shopware\Core\Content\ProductExport\Provider\AbstractAgenticCommerceProductExportProvider;
+use Shopware\Core\Content\ProductExport\Provider\AgenticCommerceProductExportProviderRegistry;
+use Shopware\Core\Content\ProductExport\Subscriber\AgenticCommerceProductExportProviderContextSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -20,21 +21,21 @@ use Shopware\Core\Test\Generator;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(ProductExportProviderContextSubscriber::class)]
-class ProductExportProviderContextSubscriberTest extends TestCase
+#[CoversClass(AgenticCommerceProductExportProviderContextSubscriber::class)]
+class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void
     {
         static::assertSame(
             [ProductExportRenderBodyContextEvent::class => 'extendBodyContext'],
-            ProductExportProviderContextSubscriber::getSubscribedEvents()
+            AgenticCommerceProductExportProviderContextSubscriber::getSubscribedEvents()
         );
     }
 
     public function testExtendBodyContextAddsProviderSpecificContext(): void
     {
-        $subscriber = new ProductExportProviderContextSubscriber(
-            new ProductExportProviderRegistry([
+        $subscriber = new AgenticCommerceProductExportProviderContextSubscriber(
+            new AgenticCommerceProductExportProviderRegistry([
                 $this->createProvider(),
             ])
         );
@@ -52,15 +53,16 @@ class ProductExportProviderContextSubscriberTest extends TestCase
 
         $subscriber->extendBodyContext($event);
 
-        static::assertSame('open-ai', $event->getContext()['providerKey']);
+        static::assertInstanceOf(ArrayStruct::class, $event->getContext()['provider']);
+        static::assertSame('open-ai', $event->getContext()['provider']->get('name'));
         static::assertSame($productExport, $event->getContext()['productExport']);
         static::assertSame($salesChannelContext, $event->getContext()['context']);
     }
 
     public function testExtendBodyContextDoesNothingWithoutProviderKey(): void
     {
-        $subscriber = new ProductExportProviderContextSubscriber(
-            new ProductExportProviderRegistry([
+        $subscriber = new AgenticCommerceProductExportProviderContextSubscriber(
+            new AgenticCommerceProductExportProviderRegistry([
                 $this->createProvider(),
             ])
         );
@@ -77,13 +79,13 @@ class ProductExportProviderContextSubscriberTest extends TestCase
 
         $subscriber->extendBodyContext($event);
 
-        static::assertArrayNotHasKey('providerKey', $event->getContext());
+        static::assertArrayNotHasKey('provider', $event->getContext());
     }
 
     public function testExtendBodyContextDoesNothingWhenContextIsIncomplete(): void
     {
-        $subscriber = new ProductExportProviderContextSubscriber(
-            new ProductExportProviderRegistry([
+        $subscriber = new AgenticCommerceProductExportProviderContextSubscriber(
+            new AgenticCommerceProductExportProviderRegistry([
                 $this->createProvider(),
             ])
         );
@@ -99,8 +101,8 @@ class ProductExportProviderContextSubscriberTest extends TestCase
 
     public function testExtendBodyContextDoesNothingWhenProviderIsNotRegistered(): void
     {
-        $subscriber = new ProductExportProviderContextSubscriber(
-            new ProductExportProviderRegistry([])
+        $subscriber = new AgenticCommerceProductExportProviderContextSubscriber(
+            new AgenticCommerceProductExportProviderRegistry([])
         );
 
         $productExport = new ProductExportEntity();
@@ -116,7 +118,7 @@ class ProductExportProviderContextSubscriberTest extends TestCase
 
         $subscriber->extendBodyContext($event);
 
-        static::assertArrayNotHasKey('providerKey', $event->getContext());
+        static::assertArrayNotHasKey('provider', $event->getContext());
     }
 
     private function createSalesChannelContext(): SalesChannelContext
@@ -130,9 +132,9 @@ class ProductExportProviderContextSubscriberTest extends TestCase
         );
     }
 
-    private function createProvider(): AbstractProductExportProvider
+    private function createProvider(): AbstractAgenticCommerceProductExportProvider
     {
-        return new class('open-ai') extends AbstractProductExportProvider {
+        return new class('open-ai') extends AbstractAgenticCommerceProductExportProvider {
             public function __construct(private readonly string $technicalName)
             {
             }
@@ -142,14 +144,11 @@ class ProductExportProviderContextSubscriberTest extends TestCase
                 return $this->technicalName;
             }
 
-            public function extendRenderContext(
+            protected function buildProviderContext(
                 ProductExportEntity $productExport,
                 SalesChannelContext $salesChannelContext,
-                array $renderContext
             ): array {
-                $renderContext['providerKey'] = $this->technicalName;
-
-                return $renderContext;
+                return [];
             }
         };
     }

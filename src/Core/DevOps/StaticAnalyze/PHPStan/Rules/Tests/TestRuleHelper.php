@@ -34,7 +34,7 @@ class TestRuleHelper
             'Shopware\\Tests\\Migration\\',
 
             'Shopware\\Commercial\\Tests\\Unit\\',
-            'Shopware\\Commercial\\Migration\\Test\\',
+            'Shopware\\Commercial\\Tests\\Migration\\',
 
             'Swag\\SaasRufus\\Test\\Migration\\',
             'Swag\\SaasRufus\\Test\\Unit\\',

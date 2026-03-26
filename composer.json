@@ -299,6 +299,7 @@
         "storefront:unit:watch": "Launches the interactive jest unit test-suite watcher for the Storefront",
         "storefront:components:unit": "Launches the Vitest unit test-suite for Storefront components",
         "storefront:components:unit:watch": "Launches the interactive Vitest unit test-suite watcher for Storefront components",
+        "storefront:components:dev-server": "Starts the Vite dev server for Storefront components (port 5175 by default, override with STOREFRONT_COMPONENTS_VITE_PORT)",
         "storefront:storybook": "Runs the Storybook development server for the Storefront component library",
         "stylelint": "Codestyle checks all SCSS files of Administration and Storefront",
         "stylelint:admin": "Code Style checks for all Admin SCSS files",
@@ -490,6 +491,10 @@
         "storefront:components:unit:watch": [
             "Composer\\Config::disableProcessTimeout",
             "@npm:storefront run unit:components:watch"
+        ],
+        "storefront:components:dev-server": [
+            "Composer\\Config::disableProcessTimeout",
+            "@npm:storefront run dev:components"
         ],
         "storefront:storybook": [
             "Composer\\Config::disableProcessTimeout",

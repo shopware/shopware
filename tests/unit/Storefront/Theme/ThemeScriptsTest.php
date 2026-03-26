@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -24,16 +25,20 @@ class ThemeScriptsTest extends TestCase
 
     private ThemeRuntimeConfigService&MockObject $themeRuntimeConfigService;
 
+    private FilesystemOperator&MockObject $tempFilesystem;
+
     private ThemeScripts $themeScripts;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $this->tempFilesystem = $this->createMock(FilesystemOperator::class);
         $this->requestStack = new RequestStack();
         $this->themeScripts = new ThemeScripts(
             $this->requestStack,
             $this->themeRuntimeConfigService,
+            $this->tempFilesystem,
         );
     }
 
@@ -156,5 +161,30 @@ class ThemeScriptsTest extends TestCase
         $this->themeRuntimeConfigService->method('getResolvedRuntimeConfig')->willReturn($themeRuntimeConfig);
 
         static::assertSame($importMap, $this->themeScripts->getComponentImportMap());
+    }
+
+    public function testGetDevImportMapReturnsNullWhenFlagFileAbsent(): void
+    {
+        $this->tempFilesystem->method('fileExists')->with('cache/storefront_components.dev.json')->willReturn(false);
+
+        static::assertNull($this->themeScripts->getDevImportMap());
+    }
+
+    public function testGetDevImportMapReturnsParsedMapWhenFlagFilePresent(): void
+    {
+        $devMap = ['imports' => ['shopware' => 'http://localhost:5176/src/shopware.ts']];
+
+        $this->tempFilesystem->method('fileExists')->with('cache/storefront_components.dev.json')->willReturn(true);
+        $this->tempFilesystem->method('read')->with('cache/storefront_components.dev.json')->willReturn((string) json_encode($devMap));
+
+        static::assertSame($devMap, $this->themeScripts->getDevImportMap());
+    }
+
+    public function testGetDevImportMapReturnsNullForInvalidJson(): void
+    {
+        $this->tempFilesystem->method('fileExists')->with('cache/storefront_components.dev.json')->willReturn(true);
+        $this->tempFilesystem->method('read')->with('cache/storefront_components.dev.json')->willReturn('not json {{{');
+
+        static::assertNull($this->themeScripts->getDevImportMap());
     }
 }

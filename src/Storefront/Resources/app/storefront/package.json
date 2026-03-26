@@ -12,7 +12,8 @@
   "license": "MIT",
   "scripts": {
     "build:shopware": "vite build --config vite.shopware.config.ts",
-    "build:components": "node build/build-components.js",
+        "build:components": "node build/build-components.js",
+        "dev:components": "vite --config vite.components.config.ts",
     "development": "NODE_ENV=development webpack --config webpack.config.js",
     "hot": "NODE_ENV=development MODE=hot webpack-dev-server --config webpack.config.js",
     "hot-proxy": "NODE_ENV=development MODE=hot node ./build/start-hot-reload.js",

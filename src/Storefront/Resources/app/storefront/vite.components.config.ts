@@ -2,8 +2,15 @@ import path from 'node:path';
 import { defineConfig, type UserConfig } from 'vite';
 import { glob } from 'tinyglobby';
 import { componentMapPlugin } from './build/component-map-plugin';
+import { devImportMapPlugin } from './build/dev-import-map-plugin';
+import { extensionModuleResolverPlugin } from './build/extension-module-resolver-plugin';
 
 export const componentRoot = path.resolve(import.meta.dirname, '../../views/components');
+
+// Allow the dev server to serve files from the Resources/ tree and the
+// project root (needed for /@fs/ URLs to extension component sources).
+const resourcesRoot = path.resolve(import.meta.dirname, '../..'); // Resources/
+const projectRoot = path.resolve(import.meta.dirname, '../../../../../'); // repo root
 
 export async function buildComponentEntries(): Promise<Record<string, string>> {
     const files = await glob('**/*.{js,ts}', {
@@ -20,9 +27,9 @@ export async function buildComponentEntries(): Promise<Record<string, string>> {
     );
 }
 
-export default defineConfig(async (): Promise<UserConfig> => {
+export default defineConfig(async ({ command }): Promise<UserConfig> => {
     const entries = await buildComponentEntries();
-
+    const isServe = command === 'serve';
     return {
         build: {
             outDir: 'dist-es/components',
@@ -48,6 +55,26 @@ export default defineConfig(async (): Promise<UserConfig> => {
         },
         plugins: [
             componentMapPlugin(),
+            devImportMapPlugin(projectRoot),
+            extensionModuleResolverPlugin(projectRoot),
         ],
+        resolve: {
+            alias: isServe ? {
+                // In dev server mode resolve 'shopware' to the actual source file
+                // so Vite can transform /@fs/ component files that import from it.
+                // In production builds 'shopware' stays external (resolved via
+                // the runtime import map).
+                shopware: path.resolve(import.meta.dirname, 'src/shopware.ts'),
+            } : {},
+        },
+        server: {
+            port: Number(process.env.STOREFRONT_COMPONENTS_VITE_PORT ?? 5175),
+            cors: true,
+            fs: {
+                // Allow Vite to serve component sources from any bundle under
+                // the project root via the /@fs/ prefix.
+                allow: [resourcesRoot, projectRoot],
+            },
+        },
     };
 });

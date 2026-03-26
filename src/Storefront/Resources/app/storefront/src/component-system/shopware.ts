@@ -87,10 +87,10 @@ class Shopware extends EventEmitter {
 
         try {
             /**
-             * This import has to be ignored by webpack.
-             * It is used for true native ES modules.
+             * This import has to be ignored by both bundlers — the component URL
+             * is a runtime value resolved via the import map, not a static path.
              */
-            const module = await import(/* webpackIgnore: true */ componentName) as { default?: typeof ShopwareComponent };
+            const module = await import(/* webpackIgnore: true */ /* @vite-ignore */ componentName) as { default?: typeof ShopwareComponent };
             component = module.default;
         } catch (error) {
             console.error(`Failed to import component ${componentName}:`, error);

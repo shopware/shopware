@@ -66,6 +66,7 @@
         <service id="Shopware\Storefront\Theme\ThemeScripts">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
+            <argument type="service" id="shopware.filesystem.temp"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeMergedConfigBuilder">

@@ -20,6 +20,7 @@ class TemplateConfigAccessor
         private readonly ThemeConfigValueAccessor $themeConfigAccessor,
         private readonly ThemeScripts $themeScripts,
         private readonly Packages $packages,
+        private readonly string $kernelEnvironment = 'prod',
     ) {
     }
 
@@ -62,21 +63,29 @@ class TemplateConfigAccessor
     /**
      * Returns the full import map data: top-level imports and optional scoped imports for extensions.
      *
-     * The stored map contains theme-relative paths; this method converts them to full URLs using
-     * the Symfony asset Packages service so that the browser receives absolute or CDN-prefixed URLs.
+     * When the Vite component dev server is running it writes a flag file that
+     * IS the import map (all entries already contain full dev-server URLs).
+     * That map is returned verbatim — no asset URL conversion is applied.
      *
-     * Shape:
-     * [
-     *   'imports' => ['Sw:Product:Listing' => 'https://...', 'shopware' => 'https://...', ...],
-     *   'scopes'  => ['/theme/prefix/js/components/MyPlugin/' => ['some-lib' => 'https://...']],
-     * ]
-     *
+     * In production the stored map contains theme-relative paths; this method
+     * converts them to full URLs using the Symfony asset Packages service so
+     * that the browser receives absolute or CDN-prefixed URLs.
+
      * `scopes` is omitted when no extension vendor chunks are present.
      *
      * @return array{imports: array<string, string>, scopes?: array<string, array<string, string>>}
      */
     public function componentImportMap(): array
     {
+        // Vite dev server running: the flag file IS the complete import map.
+        // Only active in the dev environment — never in production or test.
+        if ($this->kernelEnvironment === 'dev') {
+            $devMap = $this->themeScripts->getDevImportMap();
+            if ($devMap !== null) {
+                return $devMap;
+            }
+        }
+
         $stored = $this->themeScripts->getComponentImportMap();
 
         if ($stored === null) {

@@ -151,11 +151,11 @@ A plugin uses `Component.override()` and only redefines the blocks it wants to c
 Shopware.Component.override('sw-product-detail', {
     template: `
 {% block sw_product_detail_content_tabs %}
-    {% parent %}
+{% parent %}
 
-    <sw-card title="Custom Tab">
-        <my-custom-component :product="product" />
-    </sw-card>
+<sw-card title="Custom Tab">
+    <my-custom-component :product="product" />
+</sw-card>
 {% endblock %}
 `,
 });

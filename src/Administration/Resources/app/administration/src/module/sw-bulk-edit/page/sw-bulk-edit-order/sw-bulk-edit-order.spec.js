@@ -870,7 +870,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         });
 
         it('should show additional warning banner when deleting documents', async () => {
-
             wrapper = await createWrapper(false, deleteDocumentTypesFixtures);
             await flushPromises();
 

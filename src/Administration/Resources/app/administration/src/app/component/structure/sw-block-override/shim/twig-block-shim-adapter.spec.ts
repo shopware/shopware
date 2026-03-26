@@ -278,6 +278,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             const wrapper = await createWrapper({ blockName: 'shim_parent_last' });
 
             expect(wrapper.find('.override-content + .default-content').exists()).toBeTruthy();
+            expect(wrapper.find('.default-content + .override-content').exists()).toBeFalsy();
         });
 
         it('renders only the override content when {% parent %} is absent even if default content exists', async () => {

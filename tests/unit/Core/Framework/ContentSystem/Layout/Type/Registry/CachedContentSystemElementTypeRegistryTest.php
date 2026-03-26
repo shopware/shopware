@@ -6,8 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CachedContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CachedContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -22,7 +22,7 @@ class CachedContentSystemElementTypeRegistryTest extends TestCase
     public function testAllDelegatesToInnerOnCacheMiss(): void
     {
         $spec = $this->createSpec('Sw:Content:Text');
-        $inner = $this->createStub(AbstractContentSystemElementTypeRegistry::class);
+        $inner = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $inner->method('all')->willReturn(['Sw:Content:Text' => $spec]);
 
         $cache = new ArrayAdapter();
@@ -52,7 +52,7 @@ class CachedContentSystemElementTypeRegistryTest extends TestCase
     public function testHasReturnsTrueForCachedType(): void
     {
         $spec = $this->createSpec('Sw:Content:Text');
-        $inner = $this->createStub(AbstractContentSystemElementTypeRegistry::class);
+        $inner = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $inner->method('all')->willReturn(['Sw:Content:Text' => $spec]);
 
         $cache = new ArrayAdapter();
@@ -65,7 +65,7 @@ class CachedContentSystemElementTypeRegistryTest extends TestCase
     public function testGetReturnsSpecificationFromCache(): void
     {
         $spec = $this->createSpec('Sw:Content:Text');
-        $inner = $this->createStub(AbstractContentSystemElementTypeRegistry::class);
+        $inner = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $inner->method('all')->willReturn(['Sw:Content:Text' => $spec]);
 
         $cache = new ArrayAdapter();
@@ -92,7 +92,7 @@ class CachedContentSystemElementTypeRegistryTest extends TestCase
     #[TestDox('returns false for an unknown type')]
     public function testHasReturnsFalseForUnknownType(): void
     {
-        $inner = $this->createStub(AbstractContentSystemElementTypeRegistry::class);
+        $inner = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $inner->method('all')->willReturn([]);
 
         $cache = new ArrayAdapter();
@@ -104,7 +104,7 @@ class CachedContentSystemElementTypeRegistryTest extends TestCase
     #[TestDox('throws for an unknown type')]
     public function testGetThrowsForUnknownType(): void
     {
-        $inner = $this->createStub(AbstractContentSystemElementTypeRegistry::class);
+        $inner = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $inner->method('all')->willReturn([]);
 
         $cache = new ArrayAdapter();

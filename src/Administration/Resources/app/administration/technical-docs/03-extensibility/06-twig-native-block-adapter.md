@@ -271,11 +271,11 @@ if (props.name) {
     // Bridge legacy Twig overrides targeting this block name
     if (hasBlockEntries(props.name)) {
         const entries = getBlockEntries(props.name);
-        const shimSlots = entries.map(entry => createShimSlot(entry, props.name!));
+        const shimSlots = entries.map(entry => createShimSlot(entry, props.name));
 
-        shimSlots.forEach(slot => addBlock(props.name!, slot));
+        shimSlots.forEach(slot => addBlock(props.name, slot));
         onBeforeUnmount(() => {
-            shimSlots.forEach(slot => removeBlock(props.name!, slot));
+            shimSlots.forEach(slot => removeBlock(props.name, slot));
         });
     }
 

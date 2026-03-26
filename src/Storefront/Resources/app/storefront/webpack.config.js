@@ -202,13 +202,15 @@ const coreConfig = {
                                     options: {
                                         sourceMap: true,
                                         sassOptions: {
-                                            silenceDeprecations: [
-                                                'import',
-                                                'global-builtin',
-                                                'color-functions',
-                                                'mixed-decls',
-                                                'slash-div',
-                                            ],
+                                            ...(!isDebugMode ? {
+                                                silenceDeprecations: [
+                                                    'import',
+                                                    'global-builtin',
+                                                    'color-functions',
+                                                    'mixed-decls',
+                                                    'slash-div',
+                                                ],
+                                            } : {}),
                                         },
                                     },
                                 },

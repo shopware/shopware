@@ -20,7 +20,6 @@
     "lint:js:fix": "npm run lint:js -- --fix",
     "lint:scss": "stylelint --config stylelint.config.js ./src/scss --cache",
     "lint:scss-fix": "npm run lint:scss -- --fix",
-    "build": "NODE_ENV=production webpack --config webpack.config.js",
     "production": "NODE_ENV=production webpack --config webpack.config.js",
     "unit": "jest --config jest.config.js --ci",
     "unit-watch": "jest --config jest.config.js --watch",

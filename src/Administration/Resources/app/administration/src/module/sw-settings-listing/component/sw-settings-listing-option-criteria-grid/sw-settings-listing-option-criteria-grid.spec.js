@@ -263,4 +263,14 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
             },
         ]);
     });
+
+    it('should default time-based fields to descending order', async () => {
+        const createdAtTemplate = wrapper.vm.getCriteriaTemplate('product.createdAt');
+        const releaseDateTemplate = wrapper.vm.getCriteriaTemplate('product.releaseDate');
+        const nameTemplate = wrapper.vm.getCriteriaTemplate('product.name');
+
+        expect(createdAtTemplate.order).toBe('desc');
+        expect(releaseDateTemplate.order).toBe('desc');
+        expect(nameTemplate.order).toBe('asc');
+    });
 });

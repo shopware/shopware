@@ -307,9 +307,13 @@ export default {
         },
 
         getCriteriaTemplate(fieldName) {
+            // For time-based fields, default to descending (newest first)
+            const timeBasedFields = ['product.createdAt', 'product.releaseDate'];
+            const defaultOrder = timeBasedFields.includes(fieldName) ? 'desc' : 'asc';
+
             return {
                 field: fieldName,
-                order: 'asc',
+                order: defaultOrder,
                 priority: 1,
                 naturalSorting: 0,
             };

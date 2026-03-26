@@ -34,6 +34,9 @@
     "modal": {
       "title": "Verkaufskanal anlegen",
       "buttonAddChannel": "Verkaufskanal anlegen",
+      "buttonAdd": "Hinzufügen",
+      "linkDetails": "Details",
+      "badgeNew": "Neu",
       "titleDetailPrefix": "{name} - Details",
       "buttonShowDetails": "Details",
       "buttonBack": "Zurück",

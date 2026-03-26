@@ -10,16 +10,20 @@
     }
 
     .sw-sales-channel-modal-detail__header-icon {
-        background: $color-gray-100;
-        width: 64px;
+        align-items: center;
+        background: var(--color-elevation-surface-raised, #fff);
+        border: 1px solid var(--color-border-secondary-default, #e2e3e9);
+        border-radius: 6px;
+        display: flex;
         height: 64px;
-        border-radius: 8px;
+        justify-content: center;
+        width: 64px;
 
         .mt-icon {
-            color: $color-gray-900;
+            color: var(--color-icon-primary-default, #{$color-gray-900});
             height: 24px;
+            margin: 0;
             width: 24px;
-            margin: 20px;
         }
     }
 

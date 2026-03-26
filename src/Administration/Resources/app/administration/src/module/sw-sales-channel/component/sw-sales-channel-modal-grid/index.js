@@ -50,6 +50,10 @@ export default {
         salesChannelTypeRepository() {
             return this.repositoryFactory.create('sales_channel_type');
         },
+
+        agenticCommerceTypeId() {
+            return Defaults.agenticCommerceTypeId;
+        },
     },
 
     created() {
@@ -65,6 +69,7 @@ export default {
             };
             this.salesChannelTypeRepository.search(new Criteria(1, 500), context).then((response) => {
                 this.total = response.total;
+                // Keep DAL/search result order; do not sort or reorder types for the modal list.
                 this.salesChannelTypes = response;
                 this.isLoading = false;
             });

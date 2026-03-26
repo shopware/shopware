@@ -34,6 +34,9 @@
     "modal": {
       "title": "Add Sales Channel",
       "buttonAddChannel": "Add Sales Channel",
+      "buttonAdd": "Add",
+      "linkDetails": "Details",
+      "badgeNew": "New",
       "titleDetailPrefix": "{name} - details",
       "buttonShowDetails": "Show details",
       "buttonBack": "Back",

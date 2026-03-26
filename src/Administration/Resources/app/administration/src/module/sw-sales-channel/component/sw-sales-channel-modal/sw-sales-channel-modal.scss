@@ -13,6 +13,8 @@
     .sw-modal__footer {
         a {
             color: $color-shopware-brand-500;
+            text-decoration: underline;
+            text-decoration-skip-ink: none;
         }
     }
 

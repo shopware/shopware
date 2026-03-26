@@ -18,7 +18,8 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
     public function __construct(
         protected AbstractDocumentRenderer $invoiceRenderer,
         protected AbstractDocumentRenderer $electronicRenderer,
-        protected ZugferdEmbeddedService $zugferdEmbeddedService
+        protected ZugferdEmbeddedService $zugferdEmbeddedService,
+        protected string $shopwareVersion,
     ) {
     }
 
@@ -41,7 +42,8 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
             $context,
             $rendererConfig,
             $invoice,
-            $this->electronicRenderer
+            $this->electronicRenderer,
+            $this->shopwareVersion
         );
     }
 }

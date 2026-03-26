@@ -3,21 +3,25 @@ import { defineConfig, type UserConfig } from 'vite';
 import { glob } from 'tinyglobby';
 import { componentMapPlugin } from './build/component-map-plugin';
 
-const componentRoot = path.resolve(import.meta.dirname, '../../views/components');
+export const componentRoot = path.resolve(import.meta.dirname, '../../views/components');
 
-export default defineConfig(async (): Promise<UserConfig> => {
+export async function buildComponentEntries(): Promise<Record<string, string>> {
     const files = await glob('**/*.{js,ts}', {
         cwd: componentRoot,
         ignore: ['**/*.test.{js,ts}', '**/*.stories.*'],
     });
 
-    const entries = Object.fromEntries(
+    return Object.fromEntries(
         files.map(file => [
             // Key mirrors the source path without extension, preserving directory structure.
             file.replace(/\.(js|ts)$/, ''),
             path.join(componentRoot, file),
         ]),
     );
+}
+
+export default defineConfig(async (): Promise<UserConfig> => {
+    const entries = await buildComponentEntries();
 
     return {
         build: {

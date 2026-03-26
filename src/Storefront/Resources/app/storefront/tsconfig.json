@@ -11,7 +11,9 @@
     "noUncheckedIndexedAccess": true,
     "baseUrl": "./",
     "paths": {
-      "shopware": ["./src/shopware.ts"]
+      "shopware": ["./src/shopware.ts"],
+      "vitest": ["./node_modules/vitest/dist/index.d.ts"],
+      "vitest/*": ["./node_modules/vitest/dist/*"]
     }
   },
   "exclude": [
@@ -23,6 +25,8 @@
     ".storybook/**/*",
     "build/*.ts",
     "vite.components.config.ts",
+    "vitest.config.ts",
+    "__mocks__/*.ts",
     "../../views/components/**/*"
   ]
 }

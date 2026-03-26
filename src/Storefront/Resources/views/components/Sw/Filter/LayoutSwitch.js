@@ -20,15 +20,15 @@ export default class LayoutSwitch extends ShopwareComponent {
 
     onChangeLayout(event) {
         const layout = event.currentTarget.getAttribute('data-layout');
-        this.changeLayout(layout);
+        this.changeLayout(layout, event.currentTarget);
     }
 
-    changeLayout(layout) {
+    changeLayout(layout, activeButton) {
         this.buttons.forEach((button) => {
             button.classList.remove('is--active');
         });
 
-        event.currentTarget.classList.add('is--active');
+        activeButton.classList.add('is--active');
 
         Shopware.emit(`LayoutSwitch:Change`, this.options.paramName, layout);
 

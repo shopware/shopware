@@ -98,6 +98,34 @@ class TemplateConfigAccessorTest extends TestCase
         static::assertArrayNotHasKey('storefront', $result);
     }
 
+    public function testComponentImportMapStripsIndexSuffixForIndexComponents(): void
+    {
+        $themeScripts = $this->createMock(ThemeScripts::class);
+        $themeScripts->method('getThemeScripts')->willReturn([
+            'js/components/Sw/Product/Detail/Reviews/index.js',
+            'js/components/Sw/Product/Detail/BuyBox/index.js',
+            'js/components/Sw/Product/BuyButton.js',
+        ]);
+
+        $packages = $this->createMock(Packages::class);
+        $packages->method('getUrl')
+            ->willReturnCallback(static fn (string $path) => 'http://localhost/' . $path);
+
+        $accessor = $this->createAccessor(packages: $packages, themeScripts: $themeScripts);
+        $result = $accessor->componentImportMap();
+
+        static::assertArrayHasKey('Sw:Product:Detail:Reviews', $result);
+        static::assertSame('http://localhost/js/components/Sw/Product/Detail/Reviews/index.js', $result['Sw:Product:Detail:Reviews']);
+
+        static::assertArrayHasKey('Sw:Product:Detail:BuyBox', $result);
+        static::assertSame('http://localhost/js/components/Sw/Product/Detail/BuyBox/index.js', $result['Sw:Product:Detail:BuyBox']);
+
+        static::assertArrayNotHasKey('Sw:Product:Detail:Reviews:index', $result);
+        static::assertArrayNotHasKey('Sw:Product:Detail:BuyBox:index', $result);
+
+        static::assertArrayHasKey('Sw:Product:BuyButton', $result);
+    }
+
     public function testComponentImportMapReturnsEmptyWhenNoComponentScripts(): void
     {
         $themeScripts = $this->createMock(ThemeScripts::class);

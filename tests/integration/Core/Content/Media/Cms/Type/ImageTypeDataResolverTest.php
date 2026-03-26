@@ -92,6 +92,36 @@ class ImageTypeDataResolverTest extends TestCase
         static::assertEquals($expectedCriteria, $mediaCriteria);
     }
 
+    public function testCollectWithMappedMediaCustomFieldId(): void
+    {
+        $product = new ProductEntity();
+        $product->setCustomFields(['heroImage' => 'media123']);
+
+        $resolverContext = new EntityResolverContext(
+            $this->createMock(SalesChannelContext::class),
+            new Request(),
+            $this->createMock(ProductDefinition::class),
+            $product,
+        );
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_MAPPED, 'product.customFields.heroImage'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('image');
+        $slot->setFieldConfig($fieldConfig);
+
+        $criteriaCollection = $this->imageResolver->collect($slot, $resolverContext);
+
+        static::assertNotNull($criteriaCollection);
+
+        $expectedCriteria = new Criteria(['media123']);
+        $mediaCriteria = $criteriaCollection->all()[MediaDefinition::class]['media_' . $slot->getUniqueIdentifier()];
+
+        static::assertEquals($expectedCriteria, $mediaCriteria);
+    }
+
     public function testEnrichWithEmptyConfig(): void
     {
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
@@ -373,6 +403,49 @@ class ImageTypeDataResolverTest extends TestCase
         $imageStruct = $slot->getData();
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
         static::assertEmpty($imageStruct->getUrl());
+        static::assertSame('media123', $imageStruct->getMediaId());
+        static::assertSame($media, $imageStruct->getMedia());
+    }
+
+    public function testMediaWithMappedCustomFieldId(): void
+    {
+        $media = new MediaEntity();
+        $media->setUniqueIdentifier('media123');
+
+        $product = new ProductEntity();
+        $product->setCustomFields(['heroImage' => 'media123']);
+
+        $resolverContext = new EntityResolverContext(
+            $this->createMock(SalesChannelContext::class),
+            new Request(),
+            $this->createMock(ProductDefinition::class),
+            $product,
+        );
+
+        $mediaSearchResult = new EntitySearchResult(
+            'media',
+            1,
+            new MediaCollection([$media]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $result = new ElementDataCollection();
+        $result->add('media_id', $mediaSearchResult);
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_MAPPED, 'product.customFields.heroImage'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('image');
+        $slot->setFieldConfig($fieldConfig);
+
+        $this->imageResolver->enrich($slot, $resolverContext, $result);
+
+        $imageStruct = $slot->getData();
+        static::assertInstanceOf(ImageStruct::class, $imageStruct);
         static::assertSame('media123', $imageStruct->getMediaId());
         static::assertSame($media, $imageStruct->getMedia());
     }

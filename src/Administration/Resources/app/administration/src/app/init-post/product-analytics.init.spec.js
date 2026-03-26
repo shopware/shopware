@@ -11,10 +11,10 @@ const mockFlush = jest.fn();
 const mockClearStorage = jest.fn();
 
 jest.mock('src/core/telemetry/product-analytics/consent-event-handler', () => {
-    return jest.fn().mockReturnValue('consent-event-handler');
+    return jest.fn(() => jest.fn());
 });
 jest.mock('src/core/telemetry/product-analytics/telemetry-event-handler', () => {
-    return jest.fn().mockReturnValue('telemetry-event-handler');
+    return jest.fn(() => jest.fn());
 });
 
 jest.mock('src/core/telemetry/product-analytics/gateway-client', () => {
@@ -85,6 +85,10 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
         return { onSpy, offSpy };
     }
 
+    function getRegisteredHandler(mockedFactory, index = 0) {
+        return mockedFactory.mock.results[index]?.value;
+    }
+
     describe('initialization', () => {
         it('does not initialize if gateway url is missing', async () => {
             Shopware.Store.get('context').app.analyticsGatewayUrl = null;
@@ -103,9 +107,12 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
 
             watchHandle = await initProductAnalytics();
 
+            const registeredConsentHandler = getRegisteredHandler(consentEventHandler);
+
             expect(consentEventHandler).toHaveBeenCalled();
             expect(onSpy).toHaveBeenCalledTimes(1);
-            expect(onSpy).toHaveBeenCalledWith('consent', 'consent-event-handler');
+            expect(registeredConsentHandler).toEqual(expect.any(Function));
+            expect(onSpy).toHaveBeenCalledWith('consent', registeredConsentHandler);
         });
 
         it('does not initialize client without product analytics consent', async () => {
@@ -122,9 +129,12 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
 
             watchHandle = await initProductAnalytics();
 
+            const registeredTelemetryHandler = getRegisteredHandler(telemetryEventHandler);
+
             expect(mockInit).toHaveBeenCalled();
             expect(onSpy).toHaveBeenCalledTimes(2);
-            expect(onSpy).toHaveBeenNthCalledWith(2, 'telemetry', 'telemetry-event-handler');
+            expect(registeredTelemetryHandler).toEqual(expect.any(Function));
+            expect(onSpy).toHaveBeenNthCalledWith(2, 'telemetry', registeredTelemetryHandler);
             expect(offSpy).not.toHaveBeenCalled();
             expect(mockDeleteUser).not.toHaveBeenCalled();
             expect(mockClearStorage).not.toHaveBeenCalled();
@@ -136,15 +146,17 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
 
             watchHandle = await initProductAnalytics();
 
+            const registeredTelemetryHandler = getRegisteredHandler(telemetryEventHandler);
+
             expect(mockInit).toHaveBeenCalled();
-            expect(onSpy).toHaveBeenNthCalledWith(2, 'telemetry', 'telemetry-event-handler');
+            expect(onSpy).toHaveBeenNthCalledWith(2, 'telemetry', registeredTelemetryHandler);
             expect(offSpy).not.toHaveBeenCalled();
 
             useConsentStore().consents.product_analytics.status = 'revoked';
             await flushPromises();
 
             expect(offSpy).toHaveBeenCalled();
-            expect(offSpy).toHaveBeenCalledWith('telemetry', 'telemetry-event-handler');
+            expect(offSpy).toHaveBeenCalledWith('telemetry', registeredTelemetryHandler);
         });
 
         it('sends delete user request when consent is revoked', async () => {

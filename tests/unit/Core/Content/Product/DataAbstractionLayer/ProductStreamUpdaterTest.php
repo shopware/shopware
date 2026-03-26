@@ -554,6 +554,9 @@ class ProductStreamUpdaterTest extends TestCase
         $language = new LanguageEntity();
         $language->setId(Defaults::LANGUAGE_SYSTEM);
 
-        return new StaticEntityRepository([new LanguageCollection([$language])]);
+        /** @var StaticEntityRepository<LanguageCollection> $repo */
+        $repo = new StaticEntityRepository([new LanguageCollection([$language])]);
+
+        return $repo;
     }
 }

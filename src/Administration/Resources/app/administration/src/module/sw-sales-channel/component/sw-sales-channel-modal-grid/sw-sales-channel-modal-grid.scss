@@ -1,55 +1,150 @@
 @import "~scss/variables";
 
 .sw-sales-channel-modal-grid {
+    &.sw-grid.sw-grid--table {
+        border-radius: 0;
+    }
+
+    /* Keep default block layout on .sw-grid__body so row order matches the API collection (no flex reordering). */
+    .sw-grid__body .sw-grid-row:not(:last-child) {
+        margin-bottom: var(--scale-size-4, 4px);
+    }
+
     .sw-grid-row {
-        border-bottom: 0;
+        align-items: center;
+        background: transparent;
+        border: 0 none;
+        border-radius: 0;
+
+        &:nth-child(even) {
+            background: transparent;
+        }
+
+        &:last-child {
+            border-bottom: 0 none;
+        }
+
+        &:hover {
+            background: var(--color-interaction-secondary-hover, #f5f7fa);
+        }
     }
 
     .sw-grid-column .sw-grid__cell-content {
-        padding: 10px;
+        padding: var(--scale-size-8, 8px);
+    }
+
+    .sw-sales-channel-modal-grid__item-content {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        width: 100%;
+    }
+
+    .sw-sales-channel-modal-grid__item-name-row {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--scale-size-8, 8px);
     }
 
     .sw-sales-channel-modal-grid__item-name {
-        font-size: $font-size-m;
-        margin-bottom: 0;
-        color: $color-darkgray-200;
-        font-weight: normal;
+        color: var(--color-text-primary-default, #{$color-darkgray-200});
         cursor: pointer;
+        font-size: var(--font-size-s, #{$font-size-m});
+        font-weight: var(--font-weight-medium, 500);
+        margin-bottom: 0;
 
         &:hover {
-            color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default, #{$color-shopware-brand-500});
         }
     }
 
     .sw-sales-channel-modal-grid__item-description {
-        color: $color-darkgray-200;
-        font-size: $font-size-xs;
-        margin-top: 5px;
+        color: var(--color-text-secondary-default, #{$color-darkgray-200});
         cursor: pointer;
+        font-size: var(--font-size-xs, #{$font-size-xs});
+        line-height: var(--font-line-height-xs, 22px);
+        margin-top: 0;
+
+        &:hover {
+            color: var(--color-text-brand-default, #{$color-shopware-brand-500});
+        }
     }
 
     .sw-sales-channel-modal-grid__icon-column .sw-grid__cell-content {
-        padding: 10px 0;
         cursor: pointer;
+        padding: var(--scale-size-8, 8px);
     }
 
     .sw-sales-channel-modal-grid__icon {
-        background: $color-gray-100;
-        width: 64px;
-        height: 64px;
-        border-radius: 8px;
+        align-items: center;
+        background: var(--color-elevation-surface-raised, #fff);
+        border: 1px solid var(--color-border-secondary-default, #e2e3e9);
+        border-radius: 6px;
+        display: flex;
+        height: 48px;
+        justify-content: center;
+        width: 48px;
 
         .mt-icon {
-            color: $color-gray-900;
-            height: 24px;
-            width: 24px;
-            margin: 20px;
+            color: var(--color-icon-primary-default, #{$color-gray-900});
+            height: 18px;
+            margin: 0;
+            width: 18px;
         }
+    }
+
+    .sw-sales-channel-modal-grid__badge-new {
+        align-items: center;
+        background: var(--color-background-positive-default, #e1ffe0);
+        border: 1px solid var(--color-border-positive-default, #36d046);
+        border-radius: var(--border-radius-round, 9999px);
+        color: var(--color-text-primary-default, #1e1e24);
+        display: inline-flex;
+        font-size: var(--font-size-2xs, 12px);
+        font-weight: var(--font-weight-semibold, 600);
+        gap: var(--scale-size-4, 4px);
+        line-height: var(--font-line-height-2xs, 18px);
+        padding: 0 var(--scale-size-8, 8px);
+        white-space: nowrap;
     }
 
     .sw-sales-channel-modal-grid__actions {
         .sw-grid__cell-content {
-            grid-gap: 5px;
+            display: flex;
+            justify-content: flex-end;
+        }
+    }
+
+    .sw-sales-channel-modal-grid__action-group {
+        align-items: center;
+        display: flex;
+        flex-shrink: 0;
+        gap: var(--scale-size-16, 16px);
+    }
+
+    /*
+     * sw-grid-column defaults: cell links use icon color and no underline until hover.
+     * Details must read as a real text link: brand blue + always underlined (matches Figma / global .link).
+     */
+    .sw-grid-column .sw-grid__cell-content a.sw-sales-channel-modal-grid__details-link {
+        color: var(--color-text-brand-default, #{$color-shopware-brand-500});
+        cursor: pointer;
+        font-size: var(--font-size-xs, #{$font-size-xs});
+        font-weight: var(--font-weight-medium, 500);
+        line-height: 22px;
+        text-decoration: underline;
+        text-decoration-skip-ink: none;
+        white-space: nowrap;
+
+        &:hover,
+        &:focus-visible {
+            color: var(--color-text-brand-hover, #{$color-shopware-brand-600});
+            text-decoration: underline;
+        }
+
+        &:visited {
+            color: var(--color-text-brand-default, #{$color-shopware-brand-500});
         }
     }
 }

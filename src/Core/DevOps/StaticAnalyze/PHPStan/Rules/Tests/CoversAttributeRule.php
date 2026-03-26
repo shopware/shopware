@@ -40,7 +40,7 @@ class CoversAttributeRule implements Rule
         if ($hasCovers && !$isUnitTest) {
             return [
                 RuleErrorBuilder::message('Only Unit & Migration test classes can have CoversClass, CoversFunction or CoversNothing attribute')
-                    ->identifier('shopware.testCovers')
+                    ->identifier('shopware.unexpectedTestCovers')
                     ->build(),
             ];
         }
@@ -52,7 +52,7 @@ class CoversAttributeRule implements Rule
         if ($isUnitTest && !$hasCovers) {
             return [
                 RuleErrorBuilder::message('Unit & Migration test classes must have CoversClass, CoversFunction or CoversNothing attribute')
-                    ->identifier('shopware.testCovers')
+                    ->identifier('shopware.expectedTestCovers')
                     ->build(),
             ];
         }

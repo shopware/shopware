@@ -203,7 +203,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
     /**
      * Prepare a defined number of test data.
      *
-     * @return array<string, array<string, mixed>>
+     * @return non-empty-array<string, array<string, mixed>>
      */
     private function prepareHeaderFooterTestData(int $num = 1, string $add = ''): array
     {
@@ -222,6 +222,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
                 'footerHtml' => \sprintf('<h1>Test footer %d %s </h1>', $i, $add),
             ];
         }
+        static::assertNotSame([], $data);
 
         return $data;
     }

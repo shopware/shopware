@@ -20,7 +20,8 @@ class MessageHandlerFinalRule
     {
         return PHPat::rule()
             ->classes(Selector::appliesAttribute(AsMessageHandler::class))
-            ->shouldBeFinal()
+            ->should()
+            ->beFinal()
             ->because('MessageHandlers must be final, so they cannot be extended/overwritten.');
     }
 }

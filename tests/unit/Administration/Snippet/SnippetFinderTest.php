@@ -85,6 +85,7 @@ class SnippetFinderTest extends TestCase
 
         $expectedSnippets = $this->getSnippetFixtures();
         $key = array_key_first($expectedSnippets);
+        static::assertNotNull($key);
         static::assertSame($expectedSnippets[$key], $snippets[$key]);
     }
 

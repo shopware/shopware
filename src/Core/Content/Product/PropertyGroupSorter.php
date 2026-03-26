@@ -66,7 +66,6 @@ class PropertyGroupSorter extends AbstractPropertyGroupSorter
             $sorted[$groupId]->getOptions()->add($normalizedOption);
         }
 
-        /** @phpstan-ignore argument.type (Partial loading is broken here. will be fixed with https://github.com/shopware/shopware/pull/15240) */
         $collection = new PropertyGroupCollection($sorted);
         $collection->sortByPositions();
         $collection->sortByConfig($localeCode);

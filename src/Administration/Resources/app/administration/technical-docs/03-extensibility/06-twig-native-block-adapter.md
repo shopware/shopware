@@ -404,18 +404,3 @@ Mapping:
 |------|--------|
 | `{% block name %}...{% endblock %}` | `<sw-block extends="name">...</sw-block>` |
 | `{% parent %}` | `<sw-block-parent />` |
-
----
-
-## Implementation Effort
-
-| Task | Estimate |
-|---|---|
-| `twig-block-index.ts` + `reconstruct-twig-template.ts` | 1.5 days |
-| `create-shim-slot.ts` | 1–2 days |
-| `async-component.factory.ts` hook | 0.5 days |
-| `sw-block/index.ts` bridge | 0.5 days |
-| Deprecation warning deduplication | 0.5 days |
-| Unit + integration tests | 2–3 days |
-| Documentation & migration guide | 0.5 days |
-| **Total** | **~6–8.5 days** |

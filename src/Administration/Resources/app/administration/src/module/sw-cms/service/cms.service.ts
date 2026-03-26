@@ -235,11 +235,22 @@ class CmsService {
 
         const customFields = await customFieldRepository.search(criteria, Shopware.Context.api);
         customFields.forEach((customField: Entity<'custom_field'>) => {
-            const propSchema: Property = {
-                type: customField.type,
-            };
+            const customFieldConfig = customField.config as { customFieldType?: string } | undefined;
 
-            this.handlePrimitivesMapping(propSchema, mappings, `${entityName}.customFields`, customField.name);
+            if (customFieldConfig?.customFieldType === 'media') {
+                this.addToMappingEntity(mappings, { entity: 'media' }, `${entityName}.customFields`, customField.name);
+
+                return;
+            }
+
+            this.handlePrimitivesMapping(
+                {
+                    type: customField.type,
+                },
+                mappings,
+                `${entityName}.customFields`,
+                customField.name,
+            );
         });
     }
 

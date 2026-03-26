@@ -44,23 +44,7 @@ class TemplateConfigAccessorTest extends TestCase
         static::assertSame('custom-value', $accessor->config('my.custom.key', 'sales-channel-id'));
     }
 
-    public function testScriptsFiltersOutComponentScripts(): void
-    {
-        $themeScripts = $this->createMock(ThemeScripts::class);
-        $themeScripts->method('getThemeScripts')->willReturn([
-            'js/storefront/storefront.js',
-            'js/components/Sw/Button.js',
-            'js/components/Sw/Alert/index.js',
-            'js/app.js',
-        ]);
-
-        $accessor = $this->createAccessor(themeScripts: $themeScripts);
-        $result = $accessor->scripts();
-
-        static::assertSame(['js/storefront/storefront.js', 'js/app.js'], $result);
-    }
-
-    public function testScriptsReturnsAllScriptsWhenNoneAreComponents(): void
+    public function testScriptsDelegatesToThemeScripts(): void
     {
         $themeScripts = $this->createMock(ThemeScripts::class);
         $themeScripts->method('getThemeScripts')->willReturn([
@@ -73,70 +57,100 @@ class TemplateConfigAccessorTest extends TestCase
         static::assertSame(['js/storefront/storefront.js', 'js/app.js'], $accessor->scripts());
     }
 
-    public function testComponentImportMapBuildsTagToUrlMap(): void
+    public function testScriptsReturnsEmptyArrayWhenNoScripts(): void
     {
         $themeScripts = $this->createMock(ThemeScripts::class);
-        $themeScripts->method('getThemeScripts')->willReturn([
-            'js/storefront/storefront.js',
-            'js/components/Sw/Button.js',
-            'js/components/Sw/Product/BuyButton.js',
-        ]);
-
-        $packages = $this->createMock(Packages::class);
-        $packages->method('getUrl')
-            ->willReturnCallback(static fn (string $path) => 'http://localhost/' . $path);
-
-        $accessor = $this->createAccessor(packages: $packages, themeScripts: $themeScripts);
-        $result = $accessor->componentImportMap();
-
-        static::assertArrayHasKey('Sw:Button', $result);
-        static::assertSame('http://localhost/js/components/Sw/Button.js', $result['Sw:Button']);
-
-        static::assertArrayHasKey('Sw:Product:BuyButton', $result);
-        static::assertSame('http://localhost/js/components/Sw/Product/BuyButton.js', $result['Sw:Product:BuyButton']);
-
-        static::assertArrayNotHasKey('storefront', $result);
-    }
-
-    public function testComponentImportMapStripsIndexSuffixForIndexComponents(): void
-    {
-        $themeScripts = $this->createMock(ThemeScripts::class);
-        $themeScripts->method('getThemeScripts')->willReturn([
-            'js/components/Sw/Product/Detail/Reviews/index.js',
-            'js/components/Sw/Product/Detail/BuyBox/index.js',
-            'js/components/Sw/Product/BuyButton.js',
-        ]);
-
-        $packages = $this->createMock(Packages::class);
-        $packages->method('getUrl')
-            ->willReturnCallback(static fn (string $path) => 'http://localhost/' . $path);
-
-        $accessor = $this->createAccessor(packages: $packages, themeScripts: $themeScripts);
-        $result = $accessor->componentImportMap();
-
-        static::assertArrayHasKey('Sw:Product:Detail:Reviews', $result);
-        static::assertSame('http://localhost/js/components/Sw/Product/Detail/Reviews/index.js', $result['Sw:Product:Detail:Reviews']);
-
-        static::assertArrayHasKey('Sw:Product:Detail:BuyBox', $result);
-        static::assertSame('http://localhost/js/components/Sw/Product/Detail/BuyBox/index.js', $result['Sw:Product:Detail:BuyBox']);
-
-        static::assertArrayNotHasKey('Sw:Product:Detail:Reviews:index', $result);
-        static::assertArrayNotHasKey('Sw:Product:Detail:BuyBox:index', $result);
-
-        static::assertArrayHasKey('Sw:Product:BuyButton', $result);
-    }
-
-    public function testComponentImportMapReturnsEmptyWhenNoComponentScripts(): void
-    {
-        $themeScripts = $this->createMock(ThemeScripts::class);
-        $themeScripts->method('getThemeScripts')->willReturn([
-            'js/storefront/storefront.js',
-            'js/app.js',
-        ]);
+        $themeScripts->method('getThemeScripts')->willReturn([]);
 
         $accessor = $this->createAccessor(themeScripts: $themeScripts);
 
-        static::assertSame([], $accessor->componentImportMap());
+        static::assertSame([], $accessor->scripts());
+    }
+
+    public function testComponentImportMapConvertsRelativePathsToFullUrls(): void
+    {
+        $themeScripts = $this->createMock(ThemeScripts::class);
+        $themeScripts->method('getComponentImportMap')->willReturn([
+            'imports' => [
+                'shopware' => 'js/shopware/shopware.js',
+                'Sw:Button' => 'js/components/Sw/Button.js',
+                'Sw:Product:BuyButton' => 'js/components/Sw/Product/BuyButton.js',
+            ],
+        ]);
+
+        $packages = $this->createMock(Packages::class);
+        $packages->method('getUrl')
+            ->willReturnCallback(static fn (string $path) => 'https://cdn.example.com/' . $path);
+
+        $accessor = $this->createAccessor(packages: $packages, themeScripts: $themeScripts);
+        $result = $accessor->componentImportMap();
+
+        static::assertArrayHasKey('imports', $result);
+        static::assertSame('https://cdn.example.com/js/shopware/shopware.js', $result['imports']['shopware']);
+        static::assertSame('https://cdn.example.com/js/components/Sw/Button.js', $result['imports']['Sw:Button']);
+        static::assertSame('https://cdn.example.com/js/components/Sw/Product/BuyButton.js', $result['imports']['Sw:Product:BuyButton']);
+        static::assertArrayNotHasKey('scopes', $result);
+    }
+
+    public function testComponentImportMapConvertsVendorScopesToFullUrls(): void
+    {
+        $themeScripts = $this->createMock(ThemeScripts::class);
+        $themeScripts->method('getComponentImportMap')->willReturn([
+            'imports' => [
+                'shopware' => 'js/shopware/shopware.js',
+                'debounce' => 'js/components/MyPlugin/vendor/debounce-abc123.js',
+                'MyPlugin:Wusel:Counter' => 'js/components/MyPlugin/Wusel/Counter.js',
+            ],
+            'scopes' => [
+                'js/components/MyPlugin/' => [
+                    'debounce' => 'js/components/MyPlugin/vendor/debounce-abc123.js',
+                ],
+            ],
+        ]);
+
+        $packages = $this->createMock(Packages::class);
+        $packages->method('getUrl')
+            ->willReturnCallback(static fn (string $path) => 'https://cdn.example.com/' . $path);
+
+        $accessor = $this->createAccessor(packages: $packages, themeScripts: $themeScripts);
+        $result = $accessor->componentImportMap();
+
+        static::assertArrayHasKey('scopes', $result);
+        $scopeUrl = 'https://cdn.example.com/js/components/MyPlugin/';
+        static::assertArrayHasKey($scopeUrl, $result['scopes']);
+        static::assertSame(
+            'https://cdn.example.com/js/components/MyPlugin/vendor/debounce-abc123.js',
+            $result['scopes'][$scopeUrl]['debounce']
+        );
+    }
+
+    public function testComponentImportMapReturnsEmptyImportsWhenNoBuildPresent(): void
+    {
+        $themeScripts = $this->createMock(ThemeScripts::class);
+        $themeScripts->method('getComponentImportMap')->willReturn(null);
+
+        $accessor = $this->createAccessor(themeScripts: $themeScripts);
+        $result = $accessor->componentImportMap();
+
+        static::assertSame(['imports' => []], $result);
+        static::assertArrayNotHasKey('scopes', $result);
+    }
+
+    public function testComponentImportMapOmitsScopesWhenEmpty(): void
+    {
+        $themeScripts = $this->createMock(ThemeScripts::class);
+        $themeScripts->method('getComponentImportMap')->willReturn([
+            'imports' => ['Sw:Button' => 'js/components/Sw/Button.js'],
+        ]);
+
+        $packages = $this->createMock(Packages::class);
+        $packages->method('getUrl')->willReturnCallback(static fn (string $p) => 'https://cdn.example.com/' . $p);
+
+        $accessor = $this->createAccessor(packages: $packages, themeScripts: $themeScripts);
+        $result = $accessor->componentImportMap();
+
+        static::assertArrayHasKey('imports', $result);
+        static::assertArrayNotHasKey('scopes', $result);
     }
 
     public function testThemeDelegatesToThemeConfigAccessor(): void

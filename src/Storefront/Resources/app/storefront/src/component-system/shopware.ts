@@ -403,4 +403,6 @@ class Shopware extends EventEmitter {
     }
 }
 
-window.Shopware = new Shopware();
+const shopware: Shopware = new Shopware();
+window.Shopware = shopware;
+export { shopware as Shopware };

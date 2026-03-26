@@ -69,7 +69,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                 $path = \ltrim(\mb_substr($path, \mb_strlen($this->projectDir)), '/');
             }
 
-            $bundles[$bundle->getName()] = [
+            $entry = [
                 'basePath' => $path . '/',
                 'views' => ['Resources/views'],
                 'technicalName' => \str_replace('_', '-', $bundle->getContainerPrefix()),
@@ -86,6 +86,13 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                     'styleFiles' => $this->getStyleFiles($bundle->getName(), $this->stripProjectDir($bundle->getPath())),
                 ],
             ];
+
+            $components = $this->getComponentsConfig($bundle->getPath());
+            if ($components !== null) {
+                $entry['components'] = $components;
+            }
+
+            $bundles[$bundle->getName()] = $entry;
         }
 
         return $bundles;
@@ -100,7 +107,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         foreach ($this->activeAppsLoader->getActiveApps() as $app) {
             $absolutePath = $this->projectDir . '/' . $app['path'];
 
-            $configs[$app['name']] = [
+            $appEntry = [
                 'basePath' => $app['path'] . '/',
                 'views' => ['Resources/views'],
                 'technicalName' => str_replace('_', '-', $this->asSnakeCase($app['name'])),
@@ -112,9 +119,34 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                     'styleFiles' => $this->getStyleFiles($app['name'], $app['path']),
                 ],
             ];
+
+            $components = $this->getComponentsConfig($absolutePath);
+            if ($components !== null) {
+                $appEntry['components'] = $components;
+            }
+
+            $configs[$app['name']] = $appEntry;
         }
 
         return $configs;
+    }
+
+    /**
+     * Returns the components config if the bundle has a components directory, null otherwise.
+     *
+     * @return array{path: string, hasPackageJson: bool}|null
+     */
+    private function getComponentsConfig(string $bundleAbsolutePath): ?array
+    {
+        $componentsDir = $bundleAbsolutePath . '/Resources/views/components';
+        if (!\is_dir($componentsDir)) {
+            return null;
+        }
+
+        return [
+            'path' => 'Resources/views/components',
+            'hasPackageJson' => \is_file($bundleAbsolutePath . '/Resources/app/storefront/package.json'),
+        ];
     }
 
     private function isTheme(string $path): bool

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponent;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\ThemeException;
@@ -54,6 +55,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly LoggerInterface $logger,
         private readonly AbstractThemePathBuilder $themePathBuilder,
         private readonly AbstractScssCompiler $scssCompiler,
+        private readonly string $storefrontJsDir,
         private readonly array $customAllowedRegex = [],
         private readonly bool $validate = false,
         private readonly string $visibility = Visibility::PUBLIC,
@@ -151,6 +153,70 @@ class ThemeCompiler implements ThemeCompilerInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function buildComponentImportMap(): ?array
+    {
+        // The shopware runtime module is the prerequisite for the whole component system.
+        $shopwareRuntimePath = $this->storefrontJsDir . '/dist-es/shopware/shopware.js';
+        if (!$this->localFilesystem->exists($shopwareRuntimePath)) {
+            return null;
+        }
+
+        $imports = [];
+        $scopes = [];
+
+        // Core vendor map → top-level specifier imports.
+        $coreVendorMap = $this->readVendorMap($this->storefrontJsDir);
+        if ($coreVendorMap !== null) {
+            foreach ($coreVendorMap as $specifier => $chunkPath) {
+                $imports[$specifier] = 'js/components/' . $chunkPath;
+            }
+        }
+
+        // The shopware singleton is always a shared top-level import.
+        $imports['shopware'] = 'js/shopware/shopware.js';
+
+        foreach ($this->groupComponentsByStorefrontDir() as $storefrontDir => $components) {
+            $namespace = $components[0]->namespace;
+            $isCore = $namespace === 'Storefront';
+            $hasViteBuild = $this->hasViteBuild($storefrontDir);
+
+            if (!$isCore) {
+                // Extension vendor map → scoped specifier imports under the extension's URL prefix.
+                $extVendorMap = $this->readVendorMap($storefrontDir);
+                if ($extVendorMap !== null && $extVendorMap !== []) {
+                    $scopeKey = 'js/components/' . $namespace . '/';
+                    foreach ($extVendorMap as $specifier => $chunkPath) {
+                        $scopes[$scopeKey][$specifier] = 'js/components/' . $chunkPath;
+                    }
+                }
+            }
+
+            foreach ($components as $component) {
+                $hasScript = $hasViteBuild || $this->localFilesystem->exists($component->getScriptPath());
+                if (!$hasScript) {
+                    continue;
+                }
+
+                $relativePath = 'js/components/'
+                    . str_replace(\DIRECTORY_SEPARATOR, '/', $component->getRelativeNamespacePath())
+                    . '.js';
+
+                $imports[$component->getTag()] = $relativePath;
+            }
+        }
+
+        $result = ['imports' => $imports];
+
+        if ($scopes !== []) {
+            $result['scopes'] = $scopes;
+        }
+
+        return $result;
+    }
+
+    /**
      * @return list<CopyBatchInput>
      */
     private function copyScriptFilesToTheme(
@@ -203,24 +269,124 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private function copyComponentScriptFiles(string $themePrefix): array
     {
-        $componentScriptFiles = $this->twigComponentHelper->getComponents();
-        $themeComponentsPath = 'theme/' . $themePrefix . '/js/components/';
+        $themeJsPath = 'theme/' . $themePrefix . '/js/';
+        $themeComponentsPath = $themeJsPath . 'components/';
 
         $copyFiles = [];
 
-        foreach ($componentScriptFiles as $component) {
-            $componentPath = $component->getScriptPath();
+        foreach ($this->groupComponentsByStorefrontDir() as $storefrontDir => $components) {
+            $isCore = $components[0]->namespace === 'Storefront';
+            $distComponentsDir = $storefrontDir . '/dist-es/components/';
 
-            if (!$this->localFilesystem->exists($componentPath)) {
+            if ($this->hasViteBuild($storefrontDir)) {
+                // Vite build present: all files are already in the correct namespace-prefixed
+                // structure, so a flat recursive copy is all that is needed.
+                foreach ((new Finder())->files()->in($distComponentsDir) as $file) {
+                    $relativePath = $file->getRelativePathname();
+                    if (str_starts_with($relativePath, '.vite' . \DIRECTORY_SEPARATOR)) {
+                        continue;
+                    }
+                    $copyFiles[] = new CopyBatchInput(
+                        $file->getPathname(),
+                        [$themeComponentsPath . str_replace(\DIRECTORY_SEPARATOR, '/', $relativePath)],
+                        $this->visibility
+                    );
+                }
+
+                // Only core Storefront ships the shopware runtime module.
+                if ($isCore) {
+                    $shopwareSrc = $storefrontDir . '/dist-es/shopware/shopware.js';
+                    if ($this->localFilesystem->exists($shopwareSrc)) {
+                        $copyFiles[] = new CopyBatchInput(
+                            $shopwareSrc,
+                            [$themeJsPath . 'shopware/shopware.js'],
+                            $this->visibility
+                        );
+                    }
+                }
+
                 continue;
             }
 
-            $componentTargetPath = $themeComponentsPath . $component->getRelativeNamespacePath() . '.js';
-
-            $copyFiles[] = new CopyBatchInput($componentPath, [$componentTargetPath], $this->visibility);
+            // No Vite build: fall back to raw source files for each component.
+            foreach ($components as $component) {
+                $sourcePath = $component->getScriptPath();
+                if (!$this->localFilesystem->exists($sourcePath)) {
+                    continue;
+                }
+                $targetRelPath = str_replace(\DIRECTORY_SEPARATOR, '/', $component->getRelativeNamespacePath()) . '.js';
+                $copyFiles[] = new CopyBatchInput($sourcePath, [$themeComponentsPath . $targetRelPath], $this->visibility);
+            }
         }
 
         return $copyFiles;
+    }
+
+    /**
+     * Returns true when the given storefront directory contains a complete Vite component build
+     * (i.e. dist-es/components/.vite/manifest.json exists).
+     *
+     * manifest.json is always emitted by Vite when `manifest: true` is set in the config, even
+     * when there are no external npm dependencies (which would mean no vendor-map.json).
+     * Using it as the canonical "build present" signal is therefore more reliable than checking
+     * for vendor-map.json, which is only emitted when vendor chunks exist.
+     */
+    private function hasViteBuild(string $storefrontDir): bool
+    {
+        return $this->localFilesystem->exists($storefrontDir . '/dist-es/components/.vite/manifest.json');
+    }
+
+    /**
+     * Groups all registered Twig components by their storefront directory.
+     *
+     * Components carry their storefrontDir set at discovery time (TwigComponentBundlePass
+     * for bundles, TwigComponentHelper for apps), so no path-parsing is needed here.
+     *
+     * @return array<string, list<TwigComponent>>
+     */
+    private function groupComponentsByStorefrontDir(): array
+    {
+        $groups = [];
+
+        foreach ($this->twigComponentHelper->getComponents() as $component) {
+            $storefrontDir = $component->storefrontDir !== '' ? $component->storefrontDir : $this->storefrontJsDir;
+            $groups[$storefrontDir][] = $component;
+        }
+
+        return $groups;
+    }
+
+    /**
+     * Reads the vendor-map.json emitted by componentMapPlugin for a given bundle's
+     * storefront directory.  Returns null if no Vite build is present or the file
+     * cannot be parsed.
+     *
+     * The file is a flat specifier → chunk-path map, e.g.:
+     *   { "debounce": "ComponentTestApp/vendor/debounce-abc123.js" }
+     *
+     * This is the only build artefact PHP cannot derive on its own — the content-hashed
+     * chunk filename is opaque without it.
+     *
+     * @return array<string, string>|null
+     */
+    private function readVendorMap(string $storefrontDir): ?array
+    {
+        $path = $storefrontDir . '/dist-es/components/.vite/vendor-map.json';
+
+        if (!$this->localFilesystem->exists($path)) {
+            return null;
+        }
+
+        $content = file_get_contents($path);
+        if ($content === false) {
+            return null;
+        }
+
+        try {
+            return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return null;
+        }
     }
 
     /**
@@ -588,6 +754,6 @@ PHP_EOL;
         $themeScriptCopyFiles = $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
         $componentScriptCopyFiles = $this->copyComponentScriptFiles($themePrefix);
 
-        return [...$themeScriptCopyFiles, ...$componentScriptCopyFiles];
+        return array_values([...$themeScriptCopyFiles, ...$componentScriptCopyFiles]);
     }
 }

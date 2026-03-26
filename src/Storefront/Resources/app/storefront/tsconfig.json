@@ -17,6 +17,8 @@
   "include": [
     "src/**/*",
     "scripts/**/*",
-    ".storybook/**/*"
+    ".storybook/**/*",
+    "build/*.ts",
+    "vite.components.config.ts"
   ]
 }

@@ -213,6 +213,11 @@ class ThemeFileResolver
         array &$processedFiles
     ): void {
         if (str_starts_with($bundleRelative['bundle'], 'Components')) {
+            // Component scripts are handled by ThemeCompiler::buildComponentImportMap(); skip silently.
+            if ($fileType !== self::STYLE_FILES) {
+                return;
+            }
+
             $resolvedComponentFile = $this->resolveComponentSingleFile($filepath, $fileType);
 
             if ($resolvedComponentFile === null) {
@@ -361,16 +366,21 @@ class ThemeFileResolver
     }
 
     /**
-     * Resolves all registered Twig components and appends their script or style files.
+     * Resolves all registered Twig components and appends their SCSS style files.
+     *
+     * Component scripts are intentionally excluded: the full component import map is built
+     * by ThemeCompiler::buildComponentImportMap() and stored in ThemeRuntimeConfig.
      *
      * @param array<string, bool> $processedFiles
      */
     private function addFilesFromComponents(string $fileType, array &$processedFiles, FileCollection $resolvedFiles): void
     {
+        if ($fileType !== self::STYLE_FILES) {
+            return;
+        }
+
         foreach ($this->twigComponentHelper->getComponents() as $component) {
-            $componentPath = $fileType === self::SCRIPT_FILES
-                ? $component->getScriptPath()
-                : $component->getStylePath();
+            $componentPath = $component->getStylePath();
 
             if ($this->localFilesystem->exists($componentPath) && !isset($processedFiles[$componentPath])) {
                 $processedFiles[$componentPath] = true;
@@ -442,11 +452,19 @@ class ThemeFileResolver
         }
     }
 
+    /**
+     * Resolves a single component SCSS file referenced as @Components/path or @Components:Bundle/path.
+     *
+     * Script files are intentionally not resolved here — component JS is owned by ThemeCompiler.
+     */
     private function resolveComponentSingleFile(string $filepath, string $fileType): ?File
     {
+        if ($fileType !== self::STYLE_FILES) {
+            return null;
+        }
+
         $processedFilepath = $filepath;
         $componentBundleNamespace = null;
-        $resolvedFile = null;
 
         // Extract bundle for specific bundle namespace reference like "@Components:BundleName/path"
         if (str_starts_with($filepath, '@Components:')) {
@@ -455,7 +473,6 @@ class ThemeFileResolver
                 $slashPos = strpos($filepath, '/', $colonPos);
                 if ($slashPos !== false) {
                     $componentBundleNamespace = substr($filepath, $colonPos + 1, $slashPos - $colonPos - 1);
-                    // Convert to @Components/path format for parseBundleRelativePath
                     $processedFilepath = '@Components' . substr($filepath, $slashPos);
                 }
             }
@@ -464,34 +481,26 @@ class ThemeFileResolver
         $relative = $this->parseBundleRelativePath($processedFilepath);
         $requestedRelativePath = $relative['path'] ?? null;
 
-        if ($requestedRelativePath !== null) {
-            foreach ($this->twigComponentHelper->getComponents() as $component) {
-                // If bundle namespace is specified, filter by it
-                if ($componentBundleNamespace !== null && $component->namespace !== $componentBundleNamespace) {
-                    continue;
-                }
+        if ($requestedRelativePath === null) {
+            return null;
+        }
 
-                $componentFilePath = null;
+        foreach ($this->twigComponentHelper->getComponents() as $component) {
+            if ($componentBundleNamespace !== null && $component->namespace !== $componentBundleNamespace) {
+                continue;
+            }
 
-                // Get the appropriate path based on file type
-                if ($fileType === self::SCRIPT_FILES) {
-                    $componentFilePath = $component->getScriptPath();
-                } elseif ($fileType === self::STYLE_FILES) {
-                    $componentFilePath = $component->getStylePath();
-                }
+            $componentFilePath = $component->getStylePath();
+            $bundleRelativeComponentPath = $component->namespace . '/' . TwigComponentHelper::COMPONENT_DIRECTORY . $requestedRelativePath;
 
-                $bundleRelativeComponentPath = $component->namespace . '/' . TwigComponentHelper::COMPONENT_DIRECTORY . $requestedRelativePath;
+            if ($this->localFilesystem->exists($componentFilePath) && str_ends_with($componentFilePath, $bundleRelativeComponentPath)) {
+                $namespaceDir = $component->getRelativeNamespaceDirectory();
 
-                if ($componentFilePath !== null && $this->localFilesystem->exists($componentFilePath) && str_ends_with($componentFilePath, $bundleRelativeComponentPath)) {
-                    $namespaceDir = $component->getRelativeNamespaceDirectory();
-                    $assetName = $namespaceDir !== '' ? $namespaceDir : null;
-                    $resolvedFile = new File($componentFilePath, [], $assetName);
-                    break;
-                }
+                return new File($componentFilePath, [], $namespaceDir !== '' ? $namespaceDir : null);
             }
         }
 
-        return $resolvedFile;
+        return null;
     }
 
     private function isInclude(string $file): bool

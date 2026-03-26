@@ -94,7 +94,8 @@ class ThemeService implements ResetInterface
                 $themeConfig,
                 $context,
                 true,
-                $configurationCollection
+                $configurationCollection,
+                $this->themeCompiler->buildComponentImportMap(),
             );
         }
     }

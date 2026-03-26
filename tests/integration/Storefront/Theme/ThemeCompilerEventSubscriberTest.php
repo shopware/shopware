@@ -67,6 +67,7 @@ class ThemeCompilerEventSubscriberTest extends TestCase
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
+            '', // storefrontJsDir
             [],
             false
         );

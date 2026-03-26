@@ -83,8 +83,12 @@ class TwigComponentBundlePass implements CompilerPassInterface
                 }
             }
 
+            // The storefrontDir is derived from the bundle root at build time so that
+            // ThemeCompiler never has to parse it back out of the component template path.
+            $storefrontDir = Path::canonicalize(Path::join($meta['path'], 'Resources/app/storefront'));
+
             // Collect anonymous component templates
-            array_push($bundleComponents, ...$this->scanComponentDirectory($componentDir, $bundleName));
+            array_push($bundleComponents, ...$this->scanComponentDirectory($componentDir, $bundleName, $storefrontDir));
         }
 
         $container->setParameter('storefront.bundle_components', $bundleComponents);
@@ -97,9 +101,9 @@ class TwigComponentBundlePass implements CompilerPassInterface
     /**
      * Returns all anonymous component templates found in a single bundle's components directory.
      *
-     * @return list<array{name: string, namespace: string, path: string}>
+     * @return list<array{name: string, namespace: string, path: string, storefrontDir: string}>
      */
-    private function scanComponentDirectory(string $componentDir, string $bundleName): array
+    private function scanComponentDirectory(string $componentDir, string $bundleName, string $storefrontDir): array
     {
         $finder = new Finder();
 
@@ -123,6 +127,7 @@ class TwigComponentBundlePass implements CompilerPassInterface
                 'name' => TwigComponentHelper::getComponentNameFromPath($relativePath),
                 'namespace' => $bundleName,
                 'path' => Path::canonicalize($file->getPathname()),
+                'storefrontDir' => $storefrontDir,
             ];
         }
 

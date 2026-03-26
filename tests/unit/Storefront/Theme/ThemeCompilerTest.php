@@ -710,6 +710,100 @@ class ThemeCompilerTest extends TestCase
         static::assertEquals($originalCollection, $collection);
     }
 
+    // ===================================
+    // buildComponentImportMap() Tests
+    // ===================================
+
+    public function testBuildComponentImportMapReturnsNullWhenShopwareRuntimeMissing(): void
+    {
+        // localFilesystem->exists() returns false (the setUp default) → no shopware.js → null
+        $result = $this->createThemeCompiler()->buildComponentImportMap();
+
+        static::assertNull($result);
+    }
+
+    public function testBuildComponentImportMapReturnsBaseStructureWithShopwareEntry(): void
+    {
+        // Only shopware.js exists; no components have scripts; no vendor maps.
+        $this->localFilesystem = $this->createMock(LocalFilesystem::class);
+        $this->localFilesystem->method('exists')->willReturnCallback(
+            static fn (string $path): bool => str_ends_with($path, 'shopware.js')
+        );
+
+        $result = $this->createThemeCompiler()->buildComponentImportMap();
+
+        static::assertNotNull($result);
+        static::assertSame(['shopware' => 'js/shopware/shopware.js'], $result['imports']);
+        static::assertArrayNotHasKey('scopes', $result);
+    }
+
+    public function testBuildComponentImportMapIncludesComponentsWithScriptFile(): void
+    {
+        $component = new TwigComponent('Sw:Button', '/base/Storefront/Resources/views/components/Sw/Button.html.twig', 'Storefront');
+
+        $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $this->twigComponentHelper->method('getComponents')->willReturn(new TwigComponentCollection([$component]));
+
+        // shopware.js present; component script present; no manifest (no Vite build).
+        $this->localFilesystem = $this->createMock(LocalFilesystem::class);
+        $this->localFilesystem->method('exists')->willReturnCallback(
+            static fn (string $path): bool => str_ends_with($path, 'shopware.js') || str_ends_with($path, 'Button.js')
+        );
+
+        $result = $this->createThemeCompiler()->buildComponentImportMap();
+
+        static::assertNotNull($result);
+        static::assertArrayHasKey('Sw:Button', $result['imports']);
+        static::assertSame('js/components/Sw/Button.js', $result['imports']['Sw:Button']);
+        static::assertArrayNotHasKey('scopes', $result);
+    }
+
+    public function testBuildComponentImportMapSkipsComponentsWithNoScriptFile(): void
+    {
+        $component = new TwigComponent('Sw:Badge', '/base/Storefront/Resources/views/components/Sw/Badge.html.twig', 'Storefront');
+
+        $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $this->twigComponentHelper->method('getComponents')->willReturn(new TwigComponentCollection([$component]));
+
+        // Only shopware.js exists; component script does not.
+        $this->localFilesystem = $this->createMock(LocalFilesystem::class);
+        $this->localFilesystem->method('exists')->willReturnCallback(
+            static fn (string $path): bool => str_ends_with($path, 'shopware.js')
+        );
+
+        $result = $this->createThemeCompiler()->buildComponentImportMap();
+
+        static::assertNotNull($result);
+        static::assertArrayNotHasKey('Sw:Badge', $result['imports']);
+    }
+
+    public function testBuildComponentImportMapIncludesExtensionComponentsWhenViteBuildPresent(): void
+    {
+        $component = new TwigComponent(
+            'Widget:Counter',
+            '/ext/MyPlugin/Resources/views/components/Widget/Counter.html.twig',
+            'MyPlugin',
+            '/ext/MyPlugin/Resources/app/storefront',
+        );
+
+        $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $this->twigComponentHelper->method('getComponents')->willReturn(new TwigComponentCollection([$component]));
+
+        // shopware.js exists + manifest exists for the extension (Vite build present).
+        $this->localFilesystem = $this->createMock(LocalFilesystem::class);
+        $this->localFilesystem->method('exists')->willReturnCallback(
+            static fn (string $path): bool => str_ends_with($path, 'shopware.js')
+                || str_ends_with($path, 'manifest.json')
+        );
+
+        $result = $this->createThemeCompiler()->buildComponentImportMap();
+
+        static::assertNotNull($result);
+        // Extension component should be included because hasViteBuild() returned true.
+        static::assertArrayHasKey('MyPlugin:Widget:Counter', $result['imports']);
+        static::assertSame('js/components/MyPlugin/Widget/Counter.js', $result['imports']['MyPlugin:Widget:Counter']);
+    }
+
     public function testCopyComponentScriptFilesIncludesComponentsWithScriptPath(): void
     {
         $this->setupBasicFileResolution();
@@ -724,9 +818,12 @@ class ThemeCompilerTest extends TestCase
         $this->twigComponentHelper->method('getComponents')
             ->willReturn(new TwigComponentCollection([$component]));
 
-        // Recreate the mock so exists() returns true without conflicts from setUp's willReturn(false).
+        // Return false for the Vite manifest so copyComponentScriptFiles uses the no-Vite fallback,
+        // but return true for any component script path.
         $this->localFilesystem = $this->createMock(LocalFilesystem::class);
-        $this->localFilesystem->method('exists')->willReturn(true);
+        $this->localFilesystem->method('exists')->willReturnCallback(
+            static fn (string $path): bool => !str_ends_with($path, 'manifest.json')
+        );
 
         // Replace the filesystem adapter with one that also implements WriteBatchInterface.
         // CopyBatch::copy detects this and calls writeBatch() instead of fopen() on the
@@ -977,7 +1074,11 @@ class ThemeCompilerTest extends TestCase
         $this->scssPhpCompiler->method('compileString')->willReturn('compiled css');
 
         $localFilesystem = $this->createMock(LocalFilesystem::class);
-        $localFilesystem->method('exists')->willReturn(true);
+        // Return false for Vite manifest so copyComponentScriptFiles uses the no-Vite fallback,
+        // but return true for the actual component script path (php://temp).
+        $localFilesystem->method('exists')->willReturnCallback(
+            static fn (string $path): bool => !str_ends_with($path, 'manifest.json')
+        );
 
         $compiler = new ThemeCompiler(
             $this->filesystem,
@@ -993,6 +1094,7 @@ class ThemeCompilerTest extends TestCase
             $this->logger,
             $this->pathBuilder,
             $this->scssPhpCompiler,
+            '', // storefrontJsDir
             [],
             false,
             Visibility::PUBLIC,
@@ -1033,6 +1135,7 @@ class ThemeCompilerTest extends TestCase
             $this->logger,
             $pathBuilder ?? $this->pathBuilder,
             $this->scssPhpCompiler,
+            '', // storefrontJsDir
             [], // customAllowedRegex
             false, // validate
             Visibility::PUBLIC,

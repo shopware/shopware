@@ -36,7 +36,7 @@ class TwigComponentHelper
         $components = new TwigComponentCollection();
 
         foreach ($this->bundleComponents as $data) {
-            $components->add(new TwigComponent($data['name'], $data['path'], $data['namespace']));
+            $components->add(new TwigComponent($data['name'], $data['path'], $data['namespace'], $data['storefrontDir'] ?? ''));
         }
 
         foreach ($this->findAppComponentsByTemplate() as $component) {
@@ -66,6 +66,12 @@ class TwigComponentHelper
         $components = [];
 
         foreach ($this->getAppDirs() as $normalizedDir => $namespace) {
+            // Compute once per app: go two levels up from views/components to Resources,
+            // then navigate to app/storefront. $normalizedDir ends with Resources/views/components.
+            $storefrontDir = Path::canonicalize(
+                Path::join($this->projectDir, Path::getDirectory(Path::getDirectory($normalizedDir)), 'app/storefront')
+            );
+
             try {
                 $items = $this->localFilesystem->listContents($normalizedDir, true);
             } catch (\Throwable) {
@@ -94,7 +100,7 @@ class TwigComponentHelper
                 $componentName = self::getComponentNameFromPath($relativePath);
 
                 $absolutePath = Path::canonicalize(Path::join($this->projectDir, $filePath));
-                $component = new TwigComponent($componentName, $absolutePath, $namespace);
+                $component = new TwigComponent($componentName, $absolutePath, $namespace, $storefrontDir);
 
                 $components[$component->getTag()] = $component;
             }

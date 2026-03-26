@@ -53,52 +53,57 @@ class TemplateConfigAccessor
         $scripts = [];
 
         foreach ($this->themeScripts->getThemeScripts() as $script) {
-            if (!str_starts_with($script, 'js/components/')) {
-                $scripts[] = $script;
-            }
+            $scripts[] = $script;
         }
 
         return $scripts;
     }
 
     /**
-     * @return array<string, mixed>
+     * Returns the full import map data: top-level imports and optional scoped imports for extensions.
+     *
+     * The stored map contains theme-relative paths; this method converts them to full URLs using
+     * the Symfony asset Packages service so that the browser receives absolute or CDN-prefixed URLs.
+     *
+     * Shape:
+     * [
+     *   'imports' => ['Sw:Product:Listing' => 'https://...', 'shopware' => 'https://...', ...],
+     *   'scopes'  => ['/theme/prefix/js/components/MyPlugin/' => ['some-lib' => 'https://...']],
+     * ]
+     *
+     * `scopes` is omitted when no extension vendor chunks are present.
+     *
+     * @return array{imports: array<string, string>, scopes?: array<string, array<string, string>>}
      */
     public function componentImportMap(): array
     {
-        $componentImportMap = [];
-        $themeScripts = $this->themeScripts->getThemeScripts();
+        $stored = $this->themeScripts->getComponentImportMap();
 
-        // Filter theme scripts to component scripts only.
-        $componentScripts = array_filter($themeScripts, function ($script) {
-            return str_contains($script, 'js/components/');
-        });
-
-        // Create import map based on component tag.
-        foreach ($componentScripts as $componentScript) {
-            $componentTag = $this->getComponentTagFromScriptPath($componentScript);
-            $componentImportMap[$componentTag] = $this->packages->getUrl($componentScript, 'theme');
+        if ($stored === null) {
+            return ['imports' => []];
         }
 
-        return $componentImportMap;
-    }
+        $imports = array_map(
+            fn (string $path): string => $this->packages->getUrl($path, 'theme'),
+            $stored['imports']
+        );
 
-    /**
-     * Derives the component tag from the script path.
-     * Example: js/components/Sw/Product/BuyButton.js => Sw:Product:BuyButton
-     * Example: js/components/Sw/Product/Detail/Reviews/index.js => Sw:Product:Detail:Reviews
-     */
-    private function getComponentTagFromScriptPath(string $path): string
-    {
-        $tag = str_replace('js/components/', '', $path);
-        $tag = str_replace('.js', '', $tag);
-        $tag = str_replace('/', ':', $tag);
-
-        if (str_ends_with($tag, ':index')) {
-            $tag = substr($tag, 0, -\strlen(':index'));
+        $scopes = [];
+        foreach ($stored['scopes'] ?? [] as $scopePath => $entries) {
+            $scopeUrl = $this->packages->getUrl($scopePath, 'theme');
+            $scopes[$scopeUrl] = array_map(
+                fn (string $path): string => $this->packages->getUrl($path, 'theme'),
+                $entries
+            );
         }
 
-        return $tag;
+        $result = ['imports' => $imports];
+
+        if ($scopes !== []) {
+            $result['scopes'] = $scopes;
+        }
+
+        return $result;
     }
 
     /**

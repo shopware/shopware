@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Log\Package;
  *     viewInheritance?: array<string>,
  *     scriptFiles?: array<string>|null,
  *     iconSets?: array<string, array{path: string, namespace: string}>,
+ *     componentImportMap?: array{imports: array<string, string>, scopes?: array<string, array<string, string>>}|null,
  *     updatedAt?: \DateTimeInterface|null
  * }
  * @phpstan-type ThemeRuntimeConfigArrayOverrides array{
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\Log\Package;
  *     viewInheritance?: array<string>,
  *     scriptFiles?: array<string>|null,
  *     iconSets?: array<string, array{path: string, namespace: string}>,
+ *     componentImportMap?: array{imports: array<string, string>, scopes?: array<string, array<string, string>>}|null,
  *     updatedAt?: \DateTimeInterface|null
  * }
  */
@@ -54,7 +56,16 @@ class ThemeRuntimeConfig
          * @var array<string, array{path: string, namespace: string}>
          */
         public readonly array $iconSets,
-        public readonly \DateTimeInterface $updatedAt
+        public readonly \DateTimeInterface $updatedAt,
+        /**
+         * Pre-built component import map stored as theme-relative paths.
+         * Built once by ThemeCompiler::buildComponentImportMap() at compile time and stored here
+         * so that TemplateConfigAccessor can convert paths to full URLs at request time without
+         * re-reading any build artefacts.
+         *
+         * @var array{imports: array<string, string>, scopes?: array<string, array<string, string>>}|null
+         */
+        public readonly ?array $componentImportMap = null,
     ) {
     }
 
@@ -71,6 +82,7 @@ class ThemeRuntimeConfig
             $data['scriptFiles'] ?? null,
             $data['iconSets'] ?? [],
             $data['updatedAt'] ?? new \DateTimeImmutable(),
+            $data['componentImportMap'] ?? null,
         );
     }
 
@@ -89,6 +101,7 @@ class ThemeRuntimeConfig
             \array_key_exists('scriptFiles', $data) ? $data['scriptFiles'] : $this->scriptFiles,
             $data['iconSets'] ?? $this->iconSets,
             $data['updatedAt'] ?? $this->updatedAt,
+            \array_key_exists('componentImportMap', $data) ? $data['componentImportMap'] : $this->componentImportMap,
         );
     }
 }

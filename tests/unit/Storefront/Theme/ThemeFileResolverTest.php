@@ -751,57 +751,43 @@ class ThemeFileResolverTest extends TestCase
         static::assertStringNotContainsString('/Storefront/Resources/views/components/', (string) $resolvedPath);
     }
 
-    public function testResolveScriptFilesWithComponentsPlaceholder(): void
+    public function testResolveScriptFilesWithComponentsPlaceholderIsNoOp(): void
     {
+        // @Components in script files is intentionally a no-op since 6.7:
+        // component JS is owned by ThemeCompiler::buildComponentImportMap(), not by ThemeFileResolver.
         $config = new StorefrontPluginConfiguration('TestTheme');
         $config->setScriptFiles(FileCollection::createFromArray(['@Components']));
         $config->setStyleFiles(new FileCollection());
 
         $configCollection = new StorefrontPluginConfigurationCollection([$config]);
 
-        $component = new class('Sw:Button', '/base/Storefront/Resources/views/components/Sw/Button.html.twig', 'Storefront') extends TwigComponent {
-            public function getScriptPath(): string
-            {
-                return '/base/Storefront/Resources/views/components/Sw/Button/index.js';
-            }
-        };
-
         $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
-        $twigComponentHelper->method('getComponents')
-            ->willReturn(new TwigComponentCollection([$component]));
-
-        $localFilesystem = $this->createMock(Filesystem::class);
-        $localFilesystem->method('exists')->willReturn(true);
+        $twigComponentHelper->expects($this->never())->method('getComponents');
 
         $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
-        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper, $localFilesystem);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
 
         $result = $resolver->resolveScriptFiles($config, $configCollection, false);
 
-        static::assertCount(1, $result);
-        static::assertStringContainsString('Sw/Button/index.js', (string) $result->first()?->getFilepath());
+        static::assertCount(0, $result);
     }
 
-    public function testComponentsPlaceholderSkipsComponentsWithNullScriptPath(): void
+    public function testComponentsSingleFileReferenceInScriptFilesIsIgnored(): void
     {
+        // @Components:Bundle/path.js in script files is silently skipped,
+        // consistent with @Components (whole namespace) being a no-op for scripts.
+        // Component JS is owned by ThemeCompiler::buildComponentImportMap().
         $config = new StorefrontPluginConfiguration('TestTheme');
-        $config->setScriptFiles(FileCollection::createFromArray(['@Components']));
+        $config->setScriptFiles(FileCollection::createFromArray(['@Components:Storefront/Sw/Badge/index.js']));
         $config->setStyleFiles(new FileCollection());
 
         $configCollection = new StorefrontPluginConfigurationCollection([$config]);
 
-        // Component with no .js file alongside its template — filesystem reports it does not exist
-        $component = new TwigComponent('Sw:Badge', '/base/Storefront/Resources/views/components/Sw/Badge/index.html.twig', 'Storefront');
-
         $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
-        $twigComponentHelper->method('getComponents')
-            ->willReturn(new TwigComponentCollection([$component]));
-
-        $localFilesystem = $this->createMock(Filesystem::class);
-        $localFilesystem->method('exists')->willReturn(false);
+        $twigComponentHelper->expects($this->never())->method('getComponents');
 
         $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
-        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper, $localFilesystem);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
 
         $result = $resolver->resolveScriptFiles($config, $configCollection, false);
 
@@ -993,37 +979,25 @@ class ThemeFileResolverTest extends TestCase
         static::assertStringContainsString('Button.css', (string) $result->first()?->getFilepath());
     }
 
-    public function testResolveComponentSingleFileForScriptFilesType(): void
+    public function testResolveComponentSingleFileForScriptFilesTypeIsIgnored(): void
     {
-        // The reference @Components:MyPlugin/Custom/Test.js resolves to a component
-        // whose getScriptPath() ends with "MyPlugin/Resources/views/components/Custom/Test.js"
+        // @Components:MyPlugin/Custom/Test.scss resolves correctly in STYLE_FILES context.
+        // The equivalent JS path in SCRIPT_FILES context is silently skipped:
+        // processBundleRelativeFile() returns early for non-STYLE_FILES before inspecting components.
         $config = new StorefrontPluginConfiguration('TestTheme');
         $config->setScriptFiles(FileCollection::createFromArray(['@Components:MyPlugin/Custom/Test.js']));
         $config->setStyleFiles(new FileCollection());
 
         $configCollection = new StorefrontPluginConfigurationCollection([$config]);
 
-        $component = new class('Custom:Test', '/plugin/MyPlugin/Resources/views/components/Custom/Test.html.twig', 'MyPlugin') extends TwigComponent {
-            public function getScriptPath(): string
-            {
-                // Must end with "MyPlugin/Resources/views/components/Custom/Test.js" for the path matching
-                return '/plugin/MyPlugin/Resources/views/components/Custom/Test.js';
-            }
-        };
-
         $twigComponentHelper = $this->createMock(TwigComponentHelper::class);
-        $twigComponentHelper->method('getComponents')
-            ->willReturn(new TwigComponentCollection([$component]));
-
-        $localFilesystem = $this->createMock(Filesystem::class);
-        $localFilesystem->method('exists')->willReturn(true);
+        $twigComponentHelper->expects($this->never())->method('getComponents');
 
         $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
-        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper, $localFilesystem);
+        $resolver = new ThemeFileResolver($themeFilesystemResolver, $twigComponentHelper);
 
         $result = $resolver->resolveScriptFiles($config, $configCollection, false);
 
-        static::assertCount(1, $result);
-        static::assertStringContainsString('Custom/Test.js', (string) $result->first()?->getFilepath());
+        static::assertCount(0, $result);
     }
 }

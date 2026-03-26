@@ -358,7 +358,9 @@
         "build:js:storefront": [
             "@php bin/console bundle:dump",
             "@php bin/console feature:dump",
+            "@npm:storefront run build:shopware",
             "@npm:storefront run production",
+            "@npm:storefront run build:components",
             "cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js",
             "@php bin/console theme:compile --sync || true",
             "@php bin/console assets:install"

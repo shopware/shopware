@@ -213,6 +213,45 @@ class ThemeRuntimeConfigStorageTest extends TestCase
         static::assertNotNull($this->storage->getByName($technicalName2));
     }
 
+    public function testSaveAndGetByNameWithComponentImportMap(): void
+    {
+        $importMap = [
+            'imports' => [
+                'shopware' => 'js/shopware/shopware.js',
+                'Sw:Button' => 'js/components/Sw/Button.js',
+                'debounce' => 'js/components/MyPlugin/vendor/debounce-abc123.js',
+            ],
+            'scopes' => [
+                'js/components/MyPlugin/' => [
+                    'debounce' => 'js/components/MyPlugin/vendor/debounce-abc123.js',
+                ],
+            ],
+        ];
+
+        $config = $this->createThemeRuntimeConfig()->with(['componentImportMap' => $importMap]);
+        static::assertNotNull($config->technicalName);
+        $this->storage->save($config);
+
+        $retrieved = $this->storage->getByName($config->technicalName);
+
+        static::assertNotNull($retrieved);
+        static::assertSame($importMap, $retrieved->componentImportMap);
+        $this->assertThemeRuntimeConfigEquals($config, $retrieved);
+    }
+
+    public function testSaveAndGetByNameWithNullComponentImportMap(): void
+    {
+        $config = $this->createThemeRuntimeConfig();
+        static::assertNull($config->componentImportMap);
+        static::assertNotNull($config->technicalName);
+        $this->storage->save($config);
+
+        $retrieved = $this->storage->getByName($config->technicalName);
+
+        static::assertNotNull($retrieved);
+        static::assertNull($retrieved->componentImportMap);
+    }
+
     /**
      * @param ThemeRuntimeConfigArrayOverrides $overrides
      */
@@ -245,6 +284,7 @@ class ThemeRuntimeConfigStorageTest extends TestCase
         static::assertSame($expected->viewInheritance, $actual->viewInheritance);
         static::assertSame($expected->scriptFiles, $actual->scriptFiles);
         static::assertSame($expected->iconSets, $actual->iconSets);
+        static::assertSame($expected->componentImportMap, $actual->componentImportMap);
         static::assertSame(
             $expected->updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             $actual->updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT)

@@ -19,6 +19,10 @@ use Shopware\Core\Framework\Log\Package;
  *            entryFilePath: string|null,
  *            webpack: string|null,
  *            styleFiles: string[],
+ *         },
+ *         components?: array{
+ *             path: string,
+ *             hasPackageJson: bool,
  *         }
  *     }
  */

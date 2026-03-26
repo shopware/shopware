@@ -1,11 +1,11 @@
-/**
- * @sw-package checkout
- */
-import template from './sw-bulk-edit-order-documents-download-documents.html.twig';
+import template from './sw-bulk-edit-order-documents-delete-documents.html.twig';
 
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @sw-package after-sales
+ * @private
+ */
 export default {
     template,
 
@@ -14,6 +14,12 @@ export default {
     mixins: [
         Shopware.Mixin.getByName('notification'),
     ],
+
+    data() {
+        return {
+            isLoading: false,
+        };
+    },
 
     computed: {
         documentTypeRepository() {
@@ -29,11 +35,11 @@ export default {
 
         documentTypes: {
             get() {
-                return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download?.value;
+                return Shopware.Store.get('swBulkEdit')?.orderDocuments?.delete?.value;
             },
             set(documentTypes) {
                 Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
-                    type: 'download',
+                    type: 'delete',
                     value: documentTypes,
                 });
             },
@@ -46,7 +52,9 @@ export default {
 
     methods: {
         createdComponent() {
-            this.getDocumentTypes()
+            this.isLoading = true;
+            this.documentTypeRepository
+                .search(this.documentTypeCriteria)
                 .then((documentTypes) => {
                     documentTypes.forEach((documentType) => {
                         documentType.selected = false;
@@ -58,11 +66,10 @@ export default {
                     this.createNotificationError({
                         message: error.message,
                     });
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-        },
-
-        getDocumentTypes() {
-            return this.documentTypeRepository.search(this.documentTypeCriteria);
         },
     },
 };

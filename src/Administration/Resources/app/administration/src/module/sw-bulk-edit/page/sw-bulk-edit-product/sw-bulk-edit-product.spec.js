@@ -325,6 +325,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                             return Promise.resolve();
                         },
                     },
+                    syncService: {},
                 },
             },
             props: {

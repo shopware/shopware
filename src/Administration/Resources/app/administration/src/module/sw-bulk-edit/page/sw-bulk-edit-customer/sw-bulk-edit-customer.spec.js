@@ -184,6 +184,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                         startEventListener: () => {},
                         stopEventListener: () => {},
                     },
+                    syncService: {},
                 },
             },
             props: {

@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Checkout\DocumentV2;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal
  */
-#[Package('TODO')]
+#[Package('after-sales')]
 class RenderResult
 {
     /**

@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\Checkout\DocumentV2;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
+ * @internal
  * Document types implemented by shopware
  */
+#[Package('after-sales')]
 enum DocumentType: string
 {
     case Invoice = 'invoice';

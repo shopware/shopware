@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Checkout\DocumentV2;
 
-use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('TODO')]
+#[Package('after-sales')]
 class DocumentGenerator
 {
     /**
@@ -24,11 +21,10 @@ class DocumentGenerator
 
     /**
      * @param iterable<AbstractDocumentRenderer> $renderers
-     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         iterable $renderers,
-        private readonly EntityRepository $orderRepository,
+        private readonly DocumentDataProviderCollector $dataProviderCollector,
     ) {
         // todo: build this lookup table in a custom compiler pass / service locator,
         // based on the tag attributes in the container
@@ -66,19 +62,18 @@ class DocumentGenerator
         $neededFormats = $this->resolveNeededFormats($renderers, $formats);
         $orderedRenderers = $this->topologicalSortRenderers($renderers, $neededFormats);
 
-        $orderCriteria = new Criteria([$orderId]);
-        // todo: use order version passed in
-        foreach ($orderedRenderers as $renderer) {
-            $renderer->enrichOrderCriteria($docType, $orderCriteria);
-        }
-
-        // generate document contents
-        $generationContext = $this->getDocumentGenerationContext($orderCriteria, $docType, $docNumber, $context);
+        $renderInput = $this->dataProviderCollector->collectFor(
+            $docType,
+            $orderId,
+            $orderVersionId,
+            $context,
+            $docNumber,
+        );
         $renderState = new RenderState();
         foreach ($orderedRenderers as $renderer) {
             echo 'rendering ' . $renderer->getFormat() . \PHP_EOL;
 
-            $renderResult = $renderer->renderToString($generationContext, $renderState);
+            $renderResult = $renderer->renderToString($renderInput, $renderState);
             $renderState->setRenderedContent($renderer->getFormat(), $renderResult);
 
             echo 'content: ' . $renderResult->documentContent . \PHP_EOL;
@@ -88,9 +83,13 @@ class DocumentGenerator
         foreach ($formats as $format) {
             $renderer = $renderers[$format];
             $renderResult = $renderState->getRenderedContent($format);
+            if (!$renderResult instanceof RenderResult) {
+                // todo: error handling
+                throw new \RuntimeException('Missing renderer result for format: ' . $format);
+            }
 
             echo 'PERSIST to file: ' . $format . ' content: ' . $renderResult->documentContent . \PHP_EOL;
-            $renderer->persistToFile($generationContext, $renderResult);
+            $renderer->persistToFile($renderInput, $renderResult);
         }
     }
 
@@ -181,29 +180,5 @@ class DocumentGenerator
         }
 
         return array_reverse($sorted);
-    }
-
-    private function getDocumentGenerationContext(Criteria $orderCriteria, string $docType, ?string $docNumber, Context $context): DocumentGenerationContext
-    {
-        $order = $this->orderRepository->search($orderCriteria, $context)->first();
-        if (!$order instanceof OrderEntity) {
-            // todo: error handling
-            throw new \RuntimeException('Order not found');
-        }
-
-        if ($docNumber === null) {
-            $docNumber = '1001'; // todo: retrieve actual doc number
-        }
-
-        return new DocumentGenerationContext($order, $docType, $this->getDocumentConfig($docType, $context), $docNumber);
-    }
-
-    private function getDocumentConfig(string $docType, Context $context): DocumentConfig
-    {
-        // todo: build actual config
-        return new DocumentConfig(
-            'prefix',
-            'suffix',
-        );
     }
 }

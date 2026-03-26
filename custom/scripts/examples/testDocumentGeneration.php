@@ -20,7 +20,7 @@ class testDocumentGeneration extends BaseScript
         $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
         $context = Context::createCLIContext();
 
-        $orderId = '019cf72e720372baa50645ed166486ad';
+        $orderId = '019d252f797f705a8008445ef11db3da';
         $orderVersionId = 'todo';
 
         $documentGenerator->generate($orderId, $orderVersionId, DocumentType::Invoice->value, [DocumentFormat::EmbeddedZugferd->value], $context);

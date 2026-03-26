@@ -3,11 +3,12 @@
 namespace Shopware\Core\Checkout\DocumentV2;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('TODO')]
+#[Package('after-sales')]
 abstract class AbstractDocumentRenderer
 {
     /**
@@ -49,10 +50,10 @@ abstract class AbstractDocumentRenderer
      * Render for a single specific document type + format and return the document as a string.
      * (registered) Dependencies can be retrieved from the @see RenderState
      */
-    abstract public function renderToString(DocumentGenerationContext $generationContext, RenderState $renderState): RenderResult;
+    abstract public function renderToString(RenderInput $renderInput, RenderState $renderState): RenderResult;
 
     /**
      * Persist the rendered document to a file, returning its shopware media id.
      */
-    abstract public function persistToFile(DocumentGenerationContext $generationContext, RenderResult $renderResult): string;
+    abstract public function persistToFile(RenderInput $renderInput, RenderResult $renderResult): string;
 }

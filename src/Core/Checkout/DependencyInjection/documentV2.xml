@@ -6,25 +6,40 @@
 
     <services>
 
-        <service id="Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer">
-            <tag name="shopware.documentV2.renderer" type="invoice" format="html"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\DocumentV2\Renderer\InvoicePdfRenderer">
-            <tag name="shopware.documentV2.renderer" type="invoice" format="pdf"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\DocumentV2\Renderer\InvoiceZugferdXmlRenderer">
-            <tag name="shopware.documentV2.renderer" type="invoice" format="zugferd_xml"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\DocumentV2\Renderer\InvoiceEmbeddedZugferdRenderer">
-            <tag name="shopware.documentV2.renderer" type="invoice" format="embedded_zugferd"/>
-        </service>
 
         <service id="Shopware\Core\Checkout\DocumentV2\DocumentGenerator">
             <argument type="tagged_iterator" tag="shopware.documentV2.renderer"/>
+            <argument type="service" id="Shopware\Core\Checkout\DocumentV2\DocumentDataProviderCollector"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\DocumentV2\DocumentDataProviderCollector">
+            <argument type="tagged_iterator" tag="shopware.documentV2.provider"/>
             <argument type="service" id="order.repository"/>
+        </service>
+
+        <!-- data providers -->
+        <service id="Shopware\Core\Checkout\DocumentV2\DataProvider\InvoiceDataProvider">
+            <tag name="shopware.documentV2.provider"/>
+        </service>
+
+        <!-- renderers -->
+        <service id="Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
+            <argument type="service" id="twig"/>
+
+            <tag name="shopware.documentV2.renderer"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\DocumentV2\Renderer\InvoicePdfRenderer">
+            <tag name="shopware.documentV2.renderer"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\DocumentV2\Renderer\InvoiceZugferdXmlRenderer">
+            <tag name="shopware.documentV2.renderer"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\DocumentV2\Renderer\InvoiceEmbeddedZugferdRenderer">
+            <tag name="shopware.documentV2.renderer"/>
         </service>
 
     </services>

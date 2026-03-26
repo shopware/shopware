@@ -2,17 +2,29 @@
 
 namespace Shopware\Core\Checkout\DocumentV2;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
+ * @internal
  * Document formats implemented by shopware
  */
+#[Package('after-sales')]
 enum DocumentFormat: string
 {
-    /** Normal human-readable PDF */
+    /**
+     * Normal human-readable PDF
+     */
     case Pdf = 'pdf';
-    /** accessible HTML to conform A11Y standards */
+    /**
+     * accessible HTML to conform A11Y standards
+     */
     case Html = 'html';
-    /** human-readable PDF with embedded ZUGFeRD XML */
+    /**
+     * human-readable PDF with embedded ZUGFeRD XML
+     */
     case EmbeddedZugferd = 'embedded_zugferd';
-    /** ZUGFeRD XML file */
+    /**
+     * ZUGFeRD XML file
+     */
     case ZugferdXml = 'zugferd_xml';
 }

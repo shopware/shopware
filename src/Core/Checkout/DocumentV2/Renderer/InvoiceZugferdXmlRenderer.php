@@ -4,15 +4,16 @@ namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
 use Shopware\Core\Checkout\DocumentV2\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
-use Shopware\Core\Checkout\DocumentV2\DocumentGenerationContext;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\RenderState;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('TODO')]
+#[Package('after-sales')]
 class InvoiceZugferdXmlRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = DocumentType::Invoice->value;
@@ -28,13 +29,15 @@ class InvoiceZugferdXmlRenderer extends AbstractDocumentRenderer
         return self::FORMAT;
     }
 
-    public function renderToString(DocumentGenerationContext $generationContext, RenderState $renderState): RenderResult
+    public function renderToString(RenderInput $renderInput, RenderState $renderState): RenderResult
     {
-        // TODO: Implement renderToString() method.
-        return new RenderResult('<zugferd xml>');
+        // todo: do zugferd stuff here
+        // todo: maybe also render with twig?
+
+        return new RenderResult('<zugferd xml/>');
     }
 
-    public function persistToFile(DocumentGenerationContext $generationContext, RenderResult $renderResult): string
+    public function persistToFile(RenderInput $renderInput, RenderResult $renderResult): string
     {
         // TODO: Implement persistToFile() method.
         return 'uuid-of-media-entity';

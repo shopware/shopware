@@ -4,15 +4,16 @@ namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
 use Shopware\Core\Checkout\DocumentV2\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
-use Shopware\Core\Checkout\DocumentV2\DocumentGenerationContext;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\RenderState;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('TODO')]
+#[Package('after-sales')]
 class InvoiceEmbeddedZugferdRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = DocumentType::Invoice->value;
@@ -33,16 +34,24 @@ class InvoiceEmbeddedZugferdRenderer extends AbstractDocumentRenderer
         return [InvoicePdfRenderer::FORMAT, InvoiceZugferdXmlRenderer::FORMAT];
     }
 
-    public function renderToString(DocumentGenerationContext $generationContext, RenderState $renderState): RenderResult
+    public function renderToString(RenderInput $renderInput, RenderState $renderState): RenderResult
     {
         // TODO: Implement renderToString() method.
         $pdfResult = $renderState->getRenderedContent(InvoicePdfRenderer::FORMAT);
+        if (!$pdfResult instanceof RenderResult) {
+            // todo: error handling
+            throw new \RuntimeException('Missing pdf renderer result');
+        }
         $zugferdXmlResult = $renderState->getRenderedContent(InvoiceZugferdXmlRenderer::FORMAT);
+        if (!$zugferdXmlResult instanceof RenderResult) {
+            // todo: error handling
+            throw new \RuntimeException('Missing zugferdXml renderer result');
+        }
 
         return new RenderResult($pdfResult->documentContent . $zugferdXmlResult->documentContent);
     }
 
-    public function persistToFile(DocumentGenerationContext $generationContext, RenderResult $renderResult): string
+    public function persistToFile(RenderInput $renderInput, RenderResult $renderResult): string
     {
         // TODO: Implement persistToFile() method.
         return 'uuid-of-media-entity';

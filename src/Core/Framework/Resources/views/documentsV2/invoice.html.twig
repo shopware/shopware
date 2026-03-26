@@ -1,0 +1,11 @@
+{# Just for prototyping, in the real implementation we would likely want to use the original templates #}
+
+Hello from HTML renderer.
+
+Doc number: {{ docNumber }}
+
+{% if data.invoice.intraCommunityDelivery %}
+    Its an intra community delivery
+{% else %}
+    No intra community doesn't apply
+{% endif %}

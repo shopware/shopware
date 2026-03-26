@@ -181,8 +181,10 @@ runs:
               CURRENTS_RECORD_KEY: ${{ inputs.currents-record-key }}
               CURRENTS_BUILD_ID: "${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}${{ matrix.major && 'major' }}"
               ATS_CMD: ${{ inputs.use-currents && 'pwc' || 'playwright'}}
-          with:
-              entrypoint: npx $ATS_CMD test --project=${{ inputs.project }} --workers=${{ inputs.workers }} --shard=${{ inputs.shard }}/${{ inputs.shard-count }} ${{ inputs.extra-options }}
+
+        - name: Run your testsforreal
+          shell: bash
+          run: npx $ATS_CMD test --project=${{ inputs.project }} --workers=${{ inputs.workers }} --shard=${{ inputs.shard }}/${{ inputs.shard-count }} ${{ inputs.extra-options }}
           continue-on-error: ${{ contains(inputs.project, 'visual') }} # Visual tests are allowed to fail; the results will be uploaded regardless and checked regularly
 
         - uses: actions/upload-artifact@v4

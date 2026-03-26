@@ -21,10 +21,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 #[Package('framework')]
@@ -34,6 +38,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
      * @internal
      *
      * @param EntityRepository<ProductCollection> $repository
+     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         private readonly Connection $connection,
@@ -41,6 +46,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         private readonly EntityRepository $repository,
         private readonly MessageBusInterface $messageBus,
         private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
+        private readonly EntityRepository $languageRepository,
         private readonly bool $indexingEnabled,
     ) {
     }
@@ -96,7 +102,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         );
 
         try {
-            $newMatches = $message->getContext()->enableInheritance(fn (Context $context): array => $this->repository->searchIds($criteria, $context)->getIds());
+            $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $criteria);
         } catch (UnmappedFieldException) {
             // invalid filter, remove all mappings
             $newMatches = [];
@@ -186,8 +192,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $considerInheritance = $context->considerInheritance();
-        $context->setConsiderInheritance(true);
+        $languageContexts = $this->getLanguageContexts($context);
+
         foreach ($streams as $stream) {
             $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
             if (empty($filter)) {
@@ -201,13 +207,13 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             }
 
             try {
-                $matches = $this->repository->searchIds($criteria, $context);
+                $matchedIds = $this->collectMatchingIdsInLanguageContexts($languageContexts, $criteria);
             } catch (UnmappedFieldException) {
                 // skip if filter field is not found
                 continue;
             }
 
-            foreach ($matches->getIds() as $id) {
+            foreach ($matchedIds as $id) {
                 $insert->addInsert('product_stream_mapping', [
                     'product_id' => Uuid::fromHexToBytes($id),
                     'product_version_id' => $version,
@@ -215,7 +221,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 ]);
             }
         }
-        $context->setConsiderInheritance($considerInheritance);
 
         RetryableTransaction::retryable($this->connection, function () use ($ids, $insert): void {
             $this->connection->executeStatement(
@@ -236,6 +241,59 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     public function getDecorated(): EntityIndexer
     {
         throw new DecorationPatternException(static::class);
+    }
+
+    /**
+     * @return list<Context>
+     */
+    private function getLanguageContexts(Context $context): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new NandFilter([new EqualsFilter('salesChannels.id', null)]));
+        $languages = $this->languageRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        return array_values($languages->map(
+            fn (LanguageEntity $language): Context => $this->createLanguageContext($context, $language)
+        ));
+    }
+
+    private function createLanguageContext(Context $context, LanguageEntity $language): Context
+    {
+        $languageContext = new Context(
+            $context->getSource(),
+            $context->getRuleIds(),
+            $context->getCurrencyId(),
+            array_values(array_unique(array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]))),
+            $context->getVersionId(),
+            $context->getCurrencyFactor(),
+            $context->considerInheritance(),
+            $context->getTaxState(),
+            $context->getRounding(),
+        );
+
+        $languageContext->setExtensions($context->getExtensions());
+
+        return $languageContext;
+    }
+
+    /**
+     * @param list<Context> $languageContexts
+     *
+     * @return list<string>
+     */
+    private function collectMatchingIdsInLanguageContexts(array $languageContexts, Criteria $criteria): array
+    {
+        $matches = [];
+
+        foreach ($languageContexts as $languageContext) {
+            $languageMatches = $languageContext->enableInheritance(
+                fn (Context $context): array => $this->repository->searchIds($criteria, $context)->getIds()
+            );
+
+            $matches = [...$matches, ...$languageMatches];
+        }
+
+        return array_values(array_unique($matches));
     }
 
     /**

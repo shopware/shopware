@@ -3,9 +3,7 @@
 namespace Shopware\Core\Framework\App\Flow\Action\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
-use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\XmlReader;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
@@ -48,7 +46,6 @@ class Parameter extends XmlElement
 
             $values[self::kebabCaseToCamelCase($attribute->name)] = XmlUtils::phpize($attribute->value);
         }
-
 
         return $values;
     }

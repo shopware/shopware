@@ -740,7 +740,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.native-content').exists()).toBeTruthy();
         });
 
-        it('stacks a Twig shim override on top of an existing native <sw-block extends>', async () => {
+        it('asserts default → shim → native DOM order when shim is registered before native mounts (same setup as the test above)', async () => {
             // The shim is always registered before mount (boot time), so it is
             // added to the block context first. The native extension mounts later
             // and is stacked on top of the shim.
@@ -1215,7 +1215,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.level-1 .level-2 .level-3').exists()).toBeTruthy();
         });
 
-        it('renders a {% parent %} inside a nested {% block %} as <sw-block-parent />', async () => {
+        it('renders {% parent %} in the outer block before a nested {% block %} as <sw-block-parent />', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `
                     {% block shim_nested_with_parent %}

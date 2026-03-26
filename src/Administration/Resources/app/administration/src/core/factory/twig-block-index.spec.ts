@@ -39,7 +39,7 @@ describe('core/factory/twig-block-index.ts', () => {
             expect(hasBlockEntries('block_b')).toBe(true);
         });
 
-        it('stores the component name in each block entry', () => {
+        it('stores the component name on the block entry', () => {
             indexTwigBlocksFromTemplate(
                 'sw-product-detail',
                 `

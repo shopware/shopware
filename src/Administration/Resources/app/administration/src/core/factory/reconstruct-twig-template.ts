@@ -31,7 +31,7 @@ export type TwigToken = {
          * `extendTag({ type: 'parent' })`, this is `'parent'`. For built-in
          * Twig logic tags the value is `'Twig.logic.type.<tag>'`.
          */
-        type?: string;
+        type?: 'parent' | (string & {});
         /**
          * Present on `{% block name %}` tokens — contains the block's name.
          * This is how template.factory.js identifies block tokens.
@@ -42,15 +42,10 @@ export type TwigToken = {
 };
 
 /**
- * Reconstructs the inner Vue-compatible template string from a TwigJS token array.
- *
- * - `raw` tokens pass through verbatim (HTML, Vue directives, {{ }} interpolation).
- * - `logic` tokens with `token.type === 'parent'` become `<sw-block-parent />`.
- *   (The `{% parent %}` custom tag is registered with `type: 'parent'` via
- *   `Twig.extendTag` in `template.factory.js`; TwigJS stores this type verbatim.)
- * - `logic` tokens that have a `blockName` property are nested `{% block %}` tags;
- *   recurse into their `output` array.
- * - All other logic tokens (if, for, set, …) collapse to `''` (known limitation).
+ * Stringifies a TwigJS token array into a Vue-compatible HTML fragment.
+ * Converts `{% parent %}` to `<sw-block-parent />`, recurses into nested
+ * `{% block %}` tokens, and collapses unsupported control-flow tags
+ * (`{% if %}`, `{% for %}`, …) to empty strings.
  *
  * @private
  */

@@ -244,7 +244,7 @@ All of the above must use Vue equivalents instead:
 <div v-for="item in items" :key="item.id">...</div>
 ```
 
-> **Note:** Vue interpolation (`{{ }}`) does work in the final rendered HTML — it is only the Twig `{{ }}` token that is stripped. After TwigJS resolves the blocks, the output HTML string is handed to Vue, which then processes its own `{{ }}` syntax normally.
+> **Note:** Vue interpolation (`{{ }}`) does work in the final rendered HTML — it is only the Twig `{{ }}` token that is ignored. After TwigJS resolves the blocks, the output HTML string is handed to Vue, which then processes its own `{{ }}` syntax normally.
 
 ---
 

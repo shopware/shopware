@@ -56,7 +56,7 @@ class ClientFactoryTest extends TestCase
      */
     private function getGuzzleConfig(Client $client): array
     {
-        $transportProperty = new \ReflectionProperty($client, 'httpTransport');
+        $transportProperty = new \ReflectionProperty(Client::class, 'httpTransport');
         $transport = $transportProperty->getValue($client);
 
         static::assertInstanceOf(HttpTransport::class, $transport);

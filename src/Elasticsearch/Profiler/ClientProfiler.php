@@ -2,17 +2,12 @@
 
 namespace Shopware\Elasticsearch\Profiler;
 
-use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
 use OpenSearch\Client;
-use OpenSearch\EndpointFactoryInterface;
-use OpenSearch\HttpTransport;
-use OpenSearch\Namespaces\NamespaceBuilderInterface;
-use OpenSearch\TransportInterface;
-use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\UriInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Elasticsearch\Framework\ConfiguredClient;
 
 /**
  * @phpstan-type RequestInfo array{url: string, request: array<string, mixed>, response: array<string, mixed>, time: float, backtrace: string, client?: string}
@@ -25,21 +20,17 @@ class ClientProfiler extends Client
      */
     private array $requests = [];
 
-    private readonly ?UriInterface $baseUri;
+    private readonly UriInterface $baseUri;
 
-    public function __construct(Client $client)
+    public function __construct(ConfiguredClient $client)
     {
-        /** @var array<NamespaceBuilderInterface> $namespaces */
-        $namespaces = $client->registeredNamespaces;
+        parent::__construct(
+            $client->getConfiguredTransport(),
+            $client->getConfiguredEndpointFactory(),
+            $client->getConfiguredRegisteredNamespaces()
+        );
 
-        /** @var TransportInterface $transport */
-        $transport = self::readProperty($client, 'httpTransport');
-        /** @var EndpointFactoryInterface $endpointFactory */
-        $endpointFactory = self::readProperty($client, 'endpointFactory');
-
-        parent::__construct($transport, $endpointFactory, $namespaces);
-
-        $this->baseUri = self::resolveBaseUri($transport);
+        $this->baseUri = $client->getBaseUri();
     }
 
     /**
@@ -147,45 +138,6 @@ class ClientProfiler extends Client
         return $response;
     }
 
-    private static function readProperty(object $object, string $property): mixed
-    {
-        $reflection = new \ReflectionProperty(Client::class, $property);
-
-        return $reflection->getValue($object);
-    }
-
-    private static function resolveBaseUri(TransportInterface $transport): ?UriInterface
-    {
-        if (!$transport instanceof HttpTransport) {
-            return null;
-        }
-
-        $reflection = new \ReflectionProperty(HttpTransport::class, 'client');
-        $httpClient = $reflection->getValue($transport);
-
-        return self::resolveBaseUriFromClient($httpClient);
-    }
-
-    private static function resolveBaseUriFromClient(mixed $httpClient): ?UriInterface
-    {
-        if ($httpClient instanceof GuzzleClient) {
-            $reflection = new \ReflectionProperty(GuzzleClient::class, 'config');
-            /** @var array<string, mixed> $config */
-            $config = $reflection->getValue($httpClient);
-            $baseUri = $config['base_uri'] ?? null;
-
-            return $baseUri instanceof UriInterface ? $baseUri : null;
-        }
-
-        if ($httpClient instanceof ClientInterface && property_exists($httpClient, 'client')) {
-            $reflection = new \ReflectionProperty($httpClient, 'client');
-
-            return self::resolveBaseUriFromClient($reflection->getValue($httpClient));
-        }
-
-        return null;
-    }
-
     /**
      * @param array<string, mixed> $params
      */
@@ -252,9 +204,7 @@ class ClientProfiler extends Client
     private function resolveUrl(string $path, string $query): string
     {
         $pathWithQuery = $query === '' ? $path : $path . '?' . $query;
-        $uri = $this->baseUri !== null
-            ? UriResolver::resolve($this->baseUri, new Uri($pathWithQuery))
-            : new Uri($pathWithQuery);
+        $uri = UriResolver::resolve($this->baseUri, new Uri($pathWithQuery));
 
         return (string) $uri;
     }

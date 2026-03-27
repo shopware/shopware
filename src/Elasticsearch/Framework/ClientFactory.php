@@ -6,6 +6,7 @@ use AsyncAws\Core\Configuration;
 use AsyncAws\Core\Credentials\ChainProvider;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\HttpFactory;
+use GuzzleHttp\Psr7\Uri;
 use OpenSearch\Client;
 use OpenSearch\EndpointFactory;
 use OpenSearch\HttpClient\GuzzleHttpClientFactory;
@@ -45,13 +46,14 @@ class ClientFactory
 
         $httpFactory = new HttpFactory();
         $serializer = new SmartSerializer();
+        $endpointFactory = new EndpointFactory($serializer);
         $requestFactory = new RequestFactory($httpFactory, $httpFactory, $httpFactory, $serializer);
         $transport = (new TransportFactory())
             ->setHttpClient($httpClient)
             ->setRequestFactory($requestFactory)
             ->create();
 
-        return new Client($transport, new EndpointFactory($serializer), []);
+        return new ConfiguredClient($transport, $endpointFactory, [], new Uri($host));
     }
 
     /**

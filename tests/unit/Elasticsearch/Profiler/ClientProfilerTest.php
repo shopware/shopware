@@ -7,7 +7,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\Response;
-use OpenSearch\Client;
+use GuzzleHttp\Psr7\Uri;
 use OpenSearch\EndpointFactory;
 use OpenSearch\RequestFactory;
 use OpenSearch\Serializers\SmartSerializer;
@@ -15,6 +15,7 @@ use OpenSearch\TransportFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Elasticsearch\Framework\ConfiguredClient;
 use Shopware\Elasticsearch\Profiler\ClientProfiler;
 
 /**
@@ -128,10 +129,11 @@ class ClientProfilerTest extends TestCase
         ];
     }
 
-    private function createClient(): Client
+    private function createClient(): ConfiguredClient
     {
         $httpFactory = new HttpFactory();
         $serializer = new SmartSerializer();
+        $endpointFactory = new EndpointFactory($serializer);
         $requestFactory = new RequestFactory($httpFactory, $httpFactory, $httpFactory, $serializer);
         $httpClient = new GuzzleClient([
             'base_uri' => 'http://localhost:9200/',
@@ -142,6 +144,6 @@ class ClientProfilerTest extends TestCase
             ->setRequestFactory($requestFactory)
             ->create();
 
-        return new Client($transport, new EndpointFactory($serializer), []);
+        return new ConfiguredClient($transport, $endpointFactory, [], new Uri('http://localhost:9200/'));
     }
 }

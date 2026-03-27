@@ -28,6 +28,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\Validator\SCSSValidator;
 use Symfony\Component\Asset\Package as AssetPackage;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem as LocalFilesystem;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
@@ -390,14 +391,11 @@ class ThemeCompiler implements ThemeCompilerInterface
             return null;
         }
 
-        $content = file_get_contents($path);
-        if ($content === false) {
-            return null;
-        }
-
         try {
+            $content = $this->localFilesystem->readFile($path);
+
             return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException) {
+        } catch (IOException|\JsonException) {
             return null;
         }
     }

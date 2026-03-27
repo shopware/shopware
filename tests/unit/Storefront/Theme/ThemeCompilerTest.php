@@ -36,6 +36,7 @@ use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem as LocalFilesystem;
 
 /**
@@ -805,6 +806,62 @@ class ThemeCompilerTest extends TestCase
         // Extension component should be included because hasViteBuild() returned true.
         static::assertArrayHasKey('MyPlugin:Widget:Counter', $result['imports']);
         static::assertSame($urlPrefix . '/js/components/MyPlugin/Widget/Counter.js', $result['imports']['MyPlugin:Widget:Counter']);
+    }
+
+    public function testBuildComponentImportMapPopulatesVendorMapIntoScopes(): void
+    {
+        $component = new TwigComponent(
+            'Widget:Counter',
+            '/ext/MyPlugin/Resources/views/components/Widget/Counter.html.twig',
+            'MyPlugin',
+            '/ext/MyPlugin/Resources/app/storefront',
+        );
+
+        $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $this->twigComponentHelper->method('getComponents')->willReturn(new TwigComponentCollection([$component]));
+
+        $this->localFilesystem = $this->createMock(LocalFilesystem::class);
+        $this->localFilesystem->method('exists')->willReturn(true);
+        $this->localFilesystem->method('readFile')->willReturnCallback(
+            static fn (string $path): string => str_ends_with($path, 'vendor-map.json')
+                ? '{"debounce":"MyPlugin/vendor/debounce-abc123.js"}'
+                : ''
+        );
+
+        $result = $this->createThemeCompiler()->buildComponentImportMap(TestDefaults::SALES_CHANNEL, 'theme-id');
+
+        $urlPrefix = $this->expectedUrlPrefix();
+        static::assertNotNull($result);
+        static::assertArrayHasKey('scopes', $result);
+        $scopeKey = $urlPrefix . '/js/components/MyPlugin/';
+        static::assertArrayHasKey($scopeKey, $result['scopes']);
+        static::assertSame(
+            $urlPrefix . '/js/components/MyPlugin/vendor/debounce-abc123.js',
+            $result['scopes'][$scopeKey]['debounce']
+        );
+    }
+
+    public function testBuildComponentImportMapHandlesVendorMapReadFailureGracefully(): void
+    {
+        $component = new TwigComponent(
+            'Widget:Counter',
+            '/ext/MyPlugin/Resources/views/components/Widget/Counter.html.twig',
+            'MyPlugin',
+            '/ext/MyPlugin/Resources/app/storefront',
+        );
+
+        $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $this->twigComponentHelper->method('getComponents')->willReturn(new TwigComponentCollection([$component]));
+
+        $this->localFilesystem = $this->createMock(LocalFilesystem::class);
+        $this->localFilesystem->method('exists')->willReturn(true);
+        $this->localFilesystem->method('readFile')->willThrowException(new IOException('Permission denied'));
+
+        $result = $this->createThemeCompiler()->buildComponentImportMap(TestDefaults::SALES_CHANNEL, 'theme-id');
+
+        // The import map should still be built; scopes should be absent because the vendor map could not be read.
+        static::assertNotNull($result);
+        static::assertArrayNotHasKey('scopes', $result);
     }
 
     public function testCopyComponentScriptFilesIncludesComponentsWithScriptPath(): void

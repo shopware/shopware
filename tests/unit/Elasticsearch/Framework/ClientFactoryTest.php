@@ -28,6 +28,16 @@ class ClientFactoryTest extends TestCase
         static::assertFalse($config['verify']);
     }
 
+    public function testBuildClientWithoutConfiguredHostFallsBackToLocalhost(): void
+    {
+        $client = ClientFactory::createClient('', new NullLogger(), false, ['verify_server_cert' => false, 'sigV4' => ['enabled' => false]]);
+
+        static::assertSame(
+            ['http://localhost:9200/'],
+            array_map(static fn (\Psr\Http\Message\UriInterface $uri): string => (string) $uri, $this->getHttpClient($client)->getHosts())
+        );
+    }
+
     public function testBuildHttpsClient(): void
     {
         $client = ClientFactory::createClient('https://test', new NullLogger(), true, ['verify_server_cert' => true, 'cert_path' => 'cert.pem', 'cert_key_path' => 'cert.key', 'sigV4' => ['enabled' => true]]);

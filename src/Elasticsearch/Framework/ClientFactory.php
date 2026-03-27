@@ -26,7 +26,7 @@ class ClientFactory
     {
         $hosts = array_values(array_filter(array_map('trim', explode(',', $hosts))));
         if ($hosts === []) {
-            throw ElasticsearchException::invalidHostConfiguration('At least one OpenSearch host must be configured.');
+            $hosts = ['localhost:9200'];
         }
 
         $hostUris = array_map(self::normalizeHost(...), $hosts);

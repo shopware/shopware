@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Configuration;
 use League\OAuth2\Server\ResponseTypes\BearerTokenResponse;
 use Nyholm\Psr7\Response as Psr7Response;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\AccessTokenRepository;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
@@ -39,7 +38,6 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ShopwareRefreshTokenGrantType::class)]
 class ShopwareRefreshTokenGrantTypeTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

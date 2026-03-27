@@ -126,7 +126,7 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
-            new ThemeAssignedEvent($themeId, TestDefaults::SALES_CHANNEL)
+            new ThemeAssignedEvent($themeId, TestDefaults::SALES_CHANNEL, $this->context)
         );
 
         $this->themeCompilerMock->expects($this->once())->method('compileTheme')->with(
@@ -160,7 +160,7 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
-            new ThemeAssignedEvent($themeId, TestDefaults::SALES_CHANNEL)
+            new ThemeAssignedEvent($themeId, TestDefaults::SALES_CHANNEL, $this->context)
         );
 
         $this->themeCompilerMock->expects($this->never())->method('compileTheme');
@@ -435,7 +435,7 @@ class ThemeServiceTest extends TestCase
             ]);
 
         $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
-            new ThemeConfigChangedEvent($themeId, ['test' => ['value' => ['test']]])
+            new ThemeConfigChangedEvent($themeId, ['test' => ['value' => ['test']]], $this->context)
         );
 
         $this->themeCompilerMock->expects($this->exactly(2))->method('compileTheme');
@@ -510,7 +510,7 @@ class ThemeServiceTest extends TestCase
             ]);
 
         $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
-            new ThemeConfigChangedEvent($themeId, ['test' => ['value' => ['test']]])
+            new ThemeConfigChangedEvent($themeId, ['test' => ['value' => ['test']]], $this->context)
         );
 
         $this->themeCompilerMock->expects($this->exactly(2))->method('compileTheme');
@@ -577,7 +577,7 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->eventDispatcherMock->expects($this->once())->method('dispatch')->with(
-            new ThemeConfigResetEvent($themeId)
+            new ThemeConfigResetEvent($themeId, $this->context)
         );
 
         $this->themeRepositoryMock->expects($this->once())->method('update')->with(

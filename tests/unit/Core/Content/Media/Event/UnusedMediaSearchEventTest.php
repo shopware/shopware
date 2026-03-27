@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -17,8 +18,15 @@ class UnusedMediaSearchEventTest extends TestCase
 {
     public function testGetIds(): void
     {
-        $event = new UnusedMediaSearchEvent(['1', '2', '3']);
+        $event = new UnusedMediaSearchEvent(['1', '2', '3'], Context::createDefaultContext());
         static::assertSame(['1', '2', '3'], $event->getUnusedIds());
+    }
+
+    public function testGetContext(): void
+    {
+        $context = Context::createDefaultContext();
+        $event = new UnusedMediaSearchEvent(['1'], $context);
+        static::assertSame($context, $event->getContext());
     }
 
     /**
@@ -28,7 +36,7 @@ class UnusedMediaSearchEventTest extends TestCase
     #[DataProvider('removeIdsProvider')]
     public function testRemoveIds(array $idsToRemove, array $expectedIds): void
     {
-        $event = new UnusedMediaSearchEvent(['1', '2', '3']);
+        $event = new UnusedMediaSearchEvent(['1', '2', '3'], Context::createDefaultContext());
         $event->markAsUsed($idsToRemove);
         static::assertSame($expectedIds, $event->getUnusedIds());
     }

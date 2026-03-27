@@ -3,16 +3,24 @@
 namespace Shopware\Core\Content\ImportExport\Event;
 
 use Shopware\Core\Content\ImportExport\Message\ImportExportMessage;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('fundamentals@after-sales')]
-class ImportExportExceptionImportExportHandlerEvent extends Event
+class ImportExportExceptionImportExportHandlerEvent extends Event implements ShopwareEvent
 {
     public function __construct(
         private ?\Throwable $exception,
-        private readonly ImportExportMessage $message
+        private readonly ImportExportMessage $message,
+        private readonly Context $context
     ) {
+    }
+
+    public function getContext(): Context
+    {
+        return $this->context;
     }
 
     public function getException(): ?\Throwable

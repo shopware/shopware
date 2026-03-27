@@ -64,7 +64,7 @@ class DocumentTemplateRenderer
             $parameters['context'] = $salesChannelContext;
         }
 
-        $documentTemplateRendererParameterEvent = new DocumentTemplateRendererParameterEvent($parameters);
+        $documentTemplateRendererParameterEvent = new DocumentTemplateRendererParameterEvent($parameters, $context ?? Context::createDefaultContext());
         $this->eventDispatcher->dispatch($documentTemplateRendererParameterEvent);
         $parameters['extensions'] = $documentTemplateRendererParameterEvent->getExtensions();
 

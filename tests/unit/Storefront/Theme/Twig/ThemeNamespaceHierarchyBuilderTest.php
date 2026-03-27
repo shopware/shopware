@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
@@ -76,7 +77,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
     public function testOnRenderingDocument(array $parameters, array $expectedThemes, ?string $usingTheme): void
     {
         $request = Request::createFromGlobals();
-        $event = new DocumentTemplateRendererParameterEvent($parameters);
+        $event = new DocumentTemplateRendererParameterEvent($parameters, Context::createDefaultContext());
 
         $expectedDB = [
             'themeName' => $usingTheme,

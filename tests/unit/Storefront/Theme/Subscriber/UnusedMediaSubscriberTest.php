@@ -75,7 +75,7 @@ class UnusedMediaSubscriberTest extends TestCase
                 return $themeConfigMap[$themeId];
             });
 
-        $event = new UnusedMediaSearchEvent([$mediaId1, $mediaId2, $mediaId3, $mediaId4, $mediaId5]);
+        $event = new UnusedMediaSearchEvent([$mediaId1, $mediaId2, $mediaId3, $mediaId4, $mediaId5], Context::createDefaultContext());
         $listener = new UnusedMediaSubscriber($themeRepository, $themeService);
         $listener->removeUsedMedia($event);
 

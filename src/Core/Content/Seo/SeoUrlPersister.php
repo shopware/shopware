@@ -131,7 +131,7 @@ class SeoUrlPersister
         // thereby preserving the canonical SEO URL for Entity A.
         $this->updateCanonicalSeoUrls($inuseSeoUrls, $languageId);
 
-        $this->eventDispatcher->dispatch(new SeoUrlUpdateEvent($updates));
+        $this->eventDispatcher->dispatch(new SeoUrlUpdateEvent($updates, $context));
     }
 
     /**

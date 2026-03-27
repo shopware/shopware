@@ -2,17 +2,26 @@
 
 namespace Shopware\Core\Content\Media\Event;
 
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('discovery')]
-class UnusedMediaSearchEvent extends Event
+class UnusedMediaSearchEvent extends Event implements ShopwareEvent
 {
     /**
      * @param list<string> $ids
      */
-    public function __construct(private array $ids)
+    public function __construct(
+        private array $ids,
+        private readonly Context $context
+    ) {
+    }
+
+    public function getContext(): Context
     {
+        return $this->context;
     }
 
     /**

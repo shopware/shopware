@@ -3,11 +3,13 @@
 namespace Shopware\Core\Content\ImportExport\Event;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('fundamentals@after-sales')]
-class ImportExportBeforeExportRecordEvent extends Event
+class ImportExportBeforeExportRecordEvent extends Event implements ShopwareEvent
 {
     /**
      * @param array<string, mixed> $record
@@ -17,7 +19,13 @@ class ImportExportBeforeExportRecordEvent extends Event
         private readonly Config $config,
         private array $record,
         private readonly array $originalRecord,
+        private readonly Context $context,
     ) {
+    }
+
+    public function getContext(): Context
+    {
+        return $this->context;
     }
 
     /**

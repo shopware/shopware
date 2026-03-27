@@ -69,7 +69,7 @@ class UnusedMediaPurger
 
             $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
             $ids = $this->filterOutNewMedia($ids, $gracePeriodDays, $context);
-            $ids = $this->dispatchEvent($ids);
+            $ids = $this->dispatchEvent($ids, $context);
 
             return yield $this->searchMedia($ids, $context);
         }
@@ -79,7 +79,7 @@ class UnusedMediaPurger
         while (($ids = $iterator->fetchIds()) !== null) {
             /** @phpstan-ignore argument.type (we can't narrow down argument type to list<string> in while loop) */
             $ids = $this->filterOutNewMedia($ids, $gracePeriodDays, $context);
-            $unusedIds = $this->dispatchEvent($ids);
+            $unusedIds = $this->dispatchEvent($ids, $context);
 
             if ($unusedIds === []) {
                 continue;
@@ -177,7 +177,7 @@ class UnusedMediaPurger
 
             $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
 
-            return yield $this->dispatchEvent($ids);
+            return yield $this->dispatchEvent($ids, $context);
         }
 
         // Use last ID instead of offset for cursor-based pagination, which allows deletion of records between batches
@@ -194,7 +194,7 @@ class UnusedMediaPurger
             }
 
             $lastId = end($ids);
-            $unusedIds = $this->dispatchEvent($ids);
+            $unusedIds = $this->dispatchEvent($ids, $context);
 
             yield $unusedIds;
         }
@@ -205,9 +205,9 @@ class UnusedMediaPurger
      *
      * @return list<string>
      */
-    private function dispatchEvent(array $ids): array
+    private function dispatchEvent(array $ids, Context $context): array
     {
-        $event = new UnusedMediaSearchEvent(array_values($ids));
+        $event = new UnusedMediaSearchEvent(array_values($ids), $context);
         $this->eventDispatcher->dispatch($event);
 
         return $event->getUnusedIds();

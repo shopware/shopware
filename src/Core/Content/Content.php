@@ -39,6 +39,7 @@ class Content extends Bundle
         $loader->load('mail_template.xml');
         $loader->load('delivery_time.xml');
         $loader->load('import_export.xml');
+        $loader->load('import_export_v2.xml');
         $loader->load('contact_form.xml');
         $loader->load('revocation_request_form.xml');
         $loader->load('sitemap.xml');

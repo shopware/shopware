@@ -1,0 +1,95 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Shopware\Core\Content\ImportExportV2\Profile\ImportExportV2ProfileDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExportV2\Job\Run\ImportExportV2RunDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExportV2\Job\Artifact\ImportExportV2ArtifactDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExportV2\Format\Json\JsonImportReader"/>
+        <service id="Shopware\Core\Content\ImportExportV2\Format\Json\JsonExportWriter"/>
+        <service id="Shopware\Core\Content\ImportExportV2\Format\Json\JsonFormat">
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Format\Json\JsonImportReader"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Format\Json\JsonExportWriter"/>
+            <tag name="shopware.import_export_v2.format"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExportV2\Format\Csv\CsvImportReader"/>
+        <service id="Shopware\Core\Content\ImportExportV2\Format\Csv\CsvExportWriter"/>
+        <service id="Shopware\Core\Content\ImportExportV2\Format\Csv\CsvFormat">
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Format\Csv\CsvImportReader"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Format\Csv\CsvExportWriter"/>
+            <tag name="shopware.import_export_v2.format"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExportV2\Format\FormatRegistry">
+            <argument type="tagged_iterator" tag="shopware.import_export_v2.format"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExportV2\Job\Mapping\EntityPathHelper"/>
+
+        <service id="Shopware\Core\Content\ImportExportV2\Job\Mapping\ImportEntityMapper">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Job\Mapping\EntityPathHelper"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExportV2\Job\Mapping\ExportEntityMapper">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Job\Mapping\EntityPathHelper"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExportV2\Job\Validation\ImportRecordValidator">
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Job\Mapping\ImportEntityMapper"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExportV2\Job\Service\EntityWriter">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExportV2\Job\Service\ImportRunProcessor">
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Format\FormatRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Job\Mapping\ImportEntityMapper"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Job\Validation\ImportRecordValidator"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Job\Service\EntityWriter"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExportV2\Job\Service\ExportRunProcessor">
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Format\FormatRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Job\Mapping\ExportEntityMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExportV2\Controller\ImportExportV2ActionController" public="true">
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Job\Service\RunService"/>
+            <argument type="service" id="import_export_v2_profile.repository"/>
+            <argument type="service" id="import_export_v2_artifact.repository"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExportV2\Job\Message\ProcessRunHandler">
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Job\Service\RunService"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExportV2\Job\Service\RunService" public="true">
+            <argument type="service" id="import_export_v2_profile.repository"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Format\FormatRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Job\Service\ImportRunProcessor"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExportV2\Job\Service\ExportRunProcessor"/>
+            <argument type="service" id="import_export_v2_run.repository"/>
+            <argument type="service" id="import_export_v2_artifact.repository"/>
+            <argument type="service" id="messenger.default_bus"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+    </services>
+</container>

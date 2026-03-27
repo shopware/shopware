@@ -2,7 +2,7 @@
 
 namespace Shopware\Elasticsearch\Product;
 
-use OpenSearch\Common\Exceptions\BadRequest400Exception;
+use OpenSearch\Exception\BadRequestHttpException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,7 +24,7 @@ class ElasticsearchProductException extends HttpException
         );
     }
 
-    public static function cannotChangeFieldType(BadRequest400Exception $previous): self
+    public static function cannotChangeFieldType(BadRequestHttpException $previous): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
@@ -35,7 +35,7 @@ class ElasticsearchProductException extends HttpException
         );
     }
 
-    public static function cannotChangeCustomFieldType(BadRequest400Exception $previous): self
+    public static function cannotChangeCustomFieldType(BadRequestHttpException $previous): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,

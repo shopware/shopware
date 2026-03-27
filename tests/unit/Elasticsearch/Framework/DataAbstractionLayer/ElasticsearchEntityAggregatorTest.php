@@ -115,10 +115,10 @@ class ElasticsearchEntityAggregatorTest extends TestCase
         $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => false,
                 'body' => [
                     'timeout' => '10s',
                     'size' => 0,
+                    'track_total_hits' => false,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([]);
@@ -163,10 +163,10 @@ class ElasticsearchEntityAggregatorTest extends TestCase
         $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => false,
                 'body' => [
                     'timeout' => '10s',
                     'size' => 0,
+                    'track_total_hits' => false,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([

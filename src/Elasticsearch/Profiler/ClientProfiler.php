@@ -3,12 +3,15 @@
 namespace Shopware\Elasticsearch\Profiler;
 
 use OpenSearch\Client;
-use OpenSearch\Connections\ConnectionInterface;
+use OpenSearch\EndpointFactoryInterface;
+use OpenSearch\HttpTransport;
 use OpenSearch\Namespaces\NamespaceBuilderInterface;
+use OpenSearch\TransportInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Elasticsearch\Framework\LastRequestAwareHttpClientInterface;
 
 /**
- * @phpstan-type RequestInfo array{url: string, request: array<string, mixed>, response: array<string, mixed>, time: float, backtrace: string}
+ * @phpstan-type RequestInfo array{url: string, request: array<string, mixed>, response: array<string, mixed>, time: float, backtrace: string, client?: string}
  */
 #[Package('framework')]
 class ClientProfiler extends Client
@@ -18,12 +21,21 @@ class ClientProfiler extends Client
      */
     private array $requests = [];
 
+    private readonly ?LastRequestAwareHttpClientInterface $httpClient;
+
     public function __construct(Client $client)
     {
         /** @var array<NamespaceBuilderInterface> $namespaces */
         $namespaces = $client->registeredNamespaces;
 
-        parent::__construct($client->transport, $client->endpoints, $namespaces);
+        /** @var TransportInterface $transport */
+        $transport = self::readProperty($client, 'httpTransport');
+        /** @var EndpointFactoryInterface $endpointFactory */
+        $endpointFactory = self::readProperty($client, 'endpointFactory');
+
+        parent::__construct($transport, $endpointFactory, $namespaces);
+
+        $this->httpClient = self::resolveHttpClient($transport);
     }
 
     /**
@@ -39,7 +51,7 @@ class ClientProfiler extends Client
         $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
         $this->requests[] = [
-            'url' => $this->assembleElasticsearchUrl($this->transport->getConnection(), $request),
+            'url' => $this->getLastRequestUrl() ?? '',
             'request' => $request,
             'response' => $response,
             'time' => microtime(true) - $time,
@@ -61,10 +73,8 @@ class ClientProfiler extends Client
 
         $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
-        $connection = $this->transport->getConnection();
-
         $this->requests[] = [
-            'url' => \sprintf('%s://%s:%d/_msearch', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort()),
+            'url' => $this->getLastRequestUrl() ?? '',
             'request' => $params,
             'response' => $response,
             'time' => microtime(true) - $time,
@@ -99,11 +109,8 @@ class ClientProfiler extends Client
 
         $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
-        $connection = $this->transport->getConnection();
-
         $this->requests[] = [
-            'url' => \sprintf('%s://%s:%d/_bulk', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort()),
-            'client' => $this->transport->getConnection()->getHost(),
+            'url' => $this->getLastRequestUrl() ?? '',
             'request' => $params,
             'response' => $response,
             'time' => microtime(true) - $time,
@@ -125,11 +132,8 @@ class ClientProfiler extends Client
 
         $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
-        $connection = $this->transport->getConnection();
-
         $this->requests[] = [
-            'url' => \sprintf('%s://%s:%d/_scripts/%s', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort(), $params['id']),
-            'client' => $this->transport->getConnection()->getHost(),
+            'url' => $this->getLastRequestUrl() ?? '',
             'request' => $params,
             'response' => $response,
             'time' => microtime(true) - $time,
@@ -139,26 +143,33 @@ class ClientProfiler extends Client
         return $response;
     }
 
-    /**
-     * @param array{index?: string, body?: array<string, mixed>} $request
-     */
-    private function assembleElasticsearchUrl(ConnectionInterface $connection, array $request): string
+    private static function readProperty(object $object, string $property): mixed
     {
-        $path = $connection->getPath() ?? '';
+        $reflection = new \ReflectionProperty(Client::class, $property);
 
-        if (isset($request['index'])) {
-            if (\is_array($request['index'])) {
-                $request['index'] = implode(',', array_map('trim', $request['index']));
-            }
+        return $reflection->getValue($object);
+    }
 
-            $path .= $request['index'] . '/_search';
-            unset($request['index']);
+    private static function resolveHttpClient(TransportInterface $transport): ?LastRequestAwareHttpClientInterface
+    {
+        if (!$transport instanceof HttpTransport) {
+            return null;
         }
 
-        if (isset($request['body'])) {
-            unset($request['body']);
+        $reflection = new \ReflectionProperty(HttpTransport::class, 'client');
+        $httpClient = $reflection->getValue($transport);
+
+        if ($httpClient instanceof LastRequestAwareHttpClientInterface) {
+            return $httpClient;
         }
 
-        return \sprintf('%s://%s:%d/%s?%s', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort(), $path, http_build_query($request));
+        return null;
+    }
+
+    private function getLastRequestUrl(): ?string
+    {
+        $uri = $this->httpClient?->getLastRequestUri();
+
+        return $uri !== null ? (string) $uri : null;
     }
 }

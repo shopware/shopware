@@ -3,8 +3,8 @@
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use OpenSearch\Client;
-use OpenSearch\Common\Exceptions\BadRequest400Exception;
-use OpenSearch\Common\Exceptions\Missing404Exception;
+use OpenSearch\Exception\BadRequestHttpException;
+use OpenSearch\Exception\NotFoundHttpException;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -52,7 +52,7 @@ class IndexMappingUpdater
                     'index' => $indexName,
                     'body' => $this->indexMappingProvider->build($definition, $context),
                 ]);
-            } catch (BadRequest400Exception $exception) {
+            } catch (BadRequestHttpException $exception) {
                 $errorMessage = $exception->getMessage();
 
                 $mapperConflicted = str_contains($errorMessage, 'conflicts with existing mapper:\n\tCannot update parameter');
@@ -67,7 +67,7 @@ class IndexMappingUpdater
                 }
 
                 $this->elasticsearchHelper->logAndThrowException($exception);
-            } catch (Missing404Exception $exception) {
+            } catch (NotFoundHttpException $exception) {
                 $this->elasticsearchHelper->logAndThrowException($exception);
             }
         }

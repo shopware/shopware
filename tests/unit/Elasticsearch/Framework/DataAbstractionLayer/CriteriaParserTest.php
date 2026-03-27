@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
 use OpenSearchDSL\Aggregation\Bucketing\CompositeAggregation;
 use OpenSearchDSL\Sort\FieldSort;
+use OpenSearchDSL\Sort\NestedSort;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -1046,13 +1047,13 @@ EOT,
 
         yield 'nested translated field' => [
             new FieldSorting('product_manufacturer.products.name', FieldSorting::ASCENDING),
-            new FieldSort('products.name.' . Defaults::LANGUAGE_SYSTEM, FieldSorting::ASCENDING, null, ['nested' => ['path' => 'products']]),
+            new FieldSort('products.name.' . Defaults::LANGUAGE_SYSTEM, FieldSorting::ASCENDING, new NestedSort('products')),
             null,
         ];
 
         yield 'nested translated field with root prefix' => [
             new FieldSorting('products.name', FieldSorting::ASCENDING),
-            new FieldSort('products.name.' . Defaults::LANGUAGE_SYSTEM, FieldSorting::ASCENDING, null, ['nested' => ['path' => 'products']]),
+            new FieldSort('products.name.' . Defaults::LANGUAGE_SYSTEM, FieldSorting::ASCENDING, new NestedSort('products')),
             null,
         ];
 

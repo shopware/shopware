@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
 use OpenSearch\Client;
-use OpenSearch\Common\Exceptions\BadRequest400Exception;
+use OpenSearch\Exception\BadRequestHttpException;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -257,7 +257,7 @@ class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
         $indices->expects($this->once())->method('get')->willReturn(['sw_product_index' => ['mappings' => []]]);
         $indices->expects($this->once())
             ->method('putMapping')
-            ->willThrowException(new BadRequest400Exception('mapper [customFields.lang1.field] cannot be changed from type [long] to [text]'));
+            ->willThrowException(new BadRequestHttpException('mapper [customFields.lang1.field] cannot be changed from type [long] to [text]'));
 
         $client = $this->createMock(Client::class);
         $client->method('indices')->willReturn($indices);

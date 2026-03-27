@@ -2,14 +2,21 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Profiler;
 
-use GuzzleHttp\Ring\Future\FutureArray;
-use OpenSearch\ClientBuilder;
+use GuzzleHttp\Psr7\HttpFactory;
+use GuzzleHttp\Psr7\Response;
+use OpenSearch\Client;
+use OpenSearch\EndpointFactory;
+use OpenSearch\RequestFactory;
+use OpenSearch\Serializers\SmartSerializer;
+use OpenSearch\TransportFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Shopware\Elasticsearch\Framework\RoundRobinHostHttpClient;
 use Shopware\Elasticsearch\Profiler\ClientProfiler;
-
-use function React\Promise\resolve;
 
 /**
  * @internal
@@ -23,17 +30,7 @@ class ClientProfilerTest extends TestCase
     #[DataProvider('providerSearchQueries')]
     public function testSearching(string|array $index, string $expectedUrl): void
     {
-        $builder = new ClientBuilder();
-        $builder->setHandler(static fn () => new FutureArray(resolve([
-            'status' => 200,
-            'body' => fopen('php://memory', 'r'),
-            'transfer_stats' => [
-                'total_time' => 0,
-            ],
-            'effective_url' => 'http://localhost:9200/test/_search',
-        ])));
-
-        $profiler = new ClientProfiler($builder->build());
+        $profiler = new ClientProfiler($this->createClient());
 
         $request = ['index' => $index, 'body' => ['query' => ['match_all' => []]]];
         $profiler->search($request);
@@ -53,17 +50,7 @@ class ClientProfilerTest extends TestCase
     #[DataProvider('providerMSearchQueries')]
     public function testMSearching(string|array $index, string $expectedUrl): void
     {
-        $builder = new ClientBuilder();
-        $builder->setHandler(static fn () => new FutureArray(resolve([
-            'status' => 200,
-            'body' => fopen('php://memory', 'r'),
-            'transfer_stats' => [
-                'total_time' => 0,
-            ],
-            'effective_url' => 'http://localhost:9200/_msearch',
-        ])));
-
-        $profiler = new ClientProfiler($builder->build());
+        $profiler = new ClientProfiler($this->createClient());
 
         $request = ['index' => $index, 'body' => ['query' => ['match_all' => []]]];
         $profiler->msearch($request);
@@ -80,24 +67,14 @@ class ClientProfilerTest extends TestCase
     public function testBulk(): void
     {
         $index = 'testIndex';
-        $builder = new ClientBuilder();
-        $builder->setHandler(static fn () => new FutureArray(resolve([
-            'status' => 200,
-            'body' => fopen('php://memory', 'r'),
-            'transfer_stats' => [
-                'total_time' => 0,
-            ],
-            'effective_url' => 'http://localhost:9200/_bulk',
-        ])));
-
-        $profiler = new ClientProfiler($builder->build());
+        $profiler = new ClientProfiler($this->createClient());
 
         $request = ['index' => $index, 'body' => ['index' => ['_id' => 'XYZ'], ['field' => 'value']]];
         $profiler->bulk($request);
 
         static::assertCount(1, $profiler->getCalledRequests());
         $requests = $profiler->getCalledRequests();
-        static::assertSame('http://localhost:9200/_bulk', $requests[0]['url']);
+        static::assertSame('http://localhost:9200/testIndex/_bulk', $requests[0]['url']);
         static::assertSame($request, $requests[0]['request']);
 
         $profiler->resetRequests();
@@ -106,17 +83,7 @@ class ClientProfilerTest extends TestCase
 
     public function testPutScript(): void
     {
-        $builder = new ClientBuilder();
-        $builder->setHandler(static fn () => new FutureArray(resolve([
-            'status' => 200,
-            'body' => fopen('php://memory', 'r'),
-            'transfer_stats' => [
-                'total_time' => 0,
-            ],
-            'effective_url' => 'http://localhost:9200/_scripts',
-        ])));
-
-        $profiler = new ClientProfiler($builder->build());
+        $profiler = new ClientProfiler($this->createClient());
 
         $params = ['id' => 'numeric_translated_field_sorting', 'body' => ['script' => ['lang' => 'painless', 'source' => 'return doc[params.field].value;']]];
         $profiler->putScript($params);
@@ -137,12 +104,12 @@ class ClientProfilerTest extends TestCase
     {
         yield 'index string' => [
             'test',
-            'http://localhost:9200/test/_search?',
+            'http://localhost:9200/test/_search',
         ];
 
         yield 'index array' => [
             ['test', 'test2'],
-            'http://localhost:9200/test,test2/_search?',
+            'http://localhost:9200/test%2Ctest2/_search',
         ];
     }
 
@@ -153,12 +120,31 @@ class ClientProfilerTest extends TestCase
     {
         yield 'index string' => [
             'test',
-            'http://localhost:9200/_msearch',
+            'http://localhost:9200/test/_msearch',
         ];
 
         yield 'index array' => [
             ['test', 'test2'],
-            'http://localhost:9200/_msearch',
+            'http://localhost:9200/test%2Ctest2/_msearch',
         ];
+    }
+
+    private function createClient(): Client
+    {
+        $httpFactory = new HttpFactory();
+        $serializer = new SmartSerializer();
+        $requestFactory = new RequestFactory($httpFactory, $httpFactory, $httpFactory, $serializer);
+        $httpClient = new RoundRobinHostHttpClient(new class implements ClientInterface {
+            public function sendRequest(RequestInterface $request): ResponseInterface
+            {
+                return new Response(200, ['Content-Type' => 'application/json'], '{}');
+            }
+        }, [new \GuzzleHttp\Psr7\Uri('http://localhost:9200/')]);
+        $transport = (new TransportFactory())
+            ->setHttpClient($httpClient)
+            ->setRequestFactory($requestFactory)
+            ->create();
+
+        return new Client($transport, new EndpointFactory($serializer), []);
     }
 }

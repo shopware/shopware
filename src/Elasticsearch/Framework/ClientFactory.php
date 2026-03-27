@@ -4,10 +4,17 @@ namespace Shopware\Elasticsearch\Framework;
 
 use AsyncAws\Core\Configuration;
 use AsyncAws\Core\Credentials\ChainProvider;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Psr7\HttpFactory;
 use OpenSearch\Client;
-use OpenSearch\ClientBuilder;
+use OpenSearch\EndpointFactory;
+use OpenSearch\HttpClient\GuzzleHttpClientFactory;
+use OpenSearch\RequestFactory;
+use OpenSearch\Serializers\SmartSerializer;
+use OpenSearch\TransportFactory;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Elasticsearch\ElasticsearchException;
 
 #[Package('framework')]
 class ClientFactory
@@ -17,30 +24,14 @@ class ClientFactory
      */
     public static function createClient(string $hosts, LoggerInterface $logger, bool $debug, array $sslConfig): Client
     {
-        $hosts = array_filter(explode(',', $hosts));
-
-        $clientBuilder = ClientBuilder::create();
-        $clientBuilder->setHosts($hosts);
-
-        if ($debug) {
-            $clientBuilder->setTracer($logger);
+        $hosts = array_values(array_filter(array_map('trim', explode(',', $hosts))));
+        if ($hosts === []) {
+            throw ElasticsearchException::invalidHostConfiguration('At least one OpenSearch host must be configured.');
         }
 
-        $clientBuilder->setLogger($logger);
+        $hostUris = array_map(self::normalizeHost(...), $hosts);
+        $httpClient = self::createHttpClient($hostUris, $logger, $debug, $sslConfig);
 
-        if ($sslConfig['verify_server_cert'] === false) {
-            $clientBuilder->setSSLVerification(false);
-        }
-
-        if (isset($sslConfig['cert_path'])) {
-            $clientBuilder->setSSLCert($sslConfig['cert_path'], $sslConfig['cert_password'] ?? null);
-        }
-
-        if (isset($sslConfig['cert_key_path'])) {
-            $clientBuilder->setSSLKey($sslConfig['cert_key_path'], $sslConfig['cert_key_password'] ?? null);
-        }
-
-        // Apply SigV4 signing if configured
         if ($sslConfig['sigV4']['enabled'] ?? false) {
             $region = $sslConfig['sigV4']['region'] ?? '';
             $service = $sslConfig['sigV4']['service'] ?? 'es';
@@ -54,10 +45,71 @@ class ClientFactory
 
             $credentialProvider = ChainProvider::createDefaultChain(null, $logger);
 
-            $signer = new AsyncAwsSigner($configuration, $logger, $service, $region, $credentialProvider);
-            $clientBuilder->setHandler($signer);
+            $httpClient = new AsyncAwsSigner($configuration, $logger, $service, $region, $credentialProvider, $httpClient);
         }
 
-        return $clientBuilder->build();
+        $httpClient = new RoundRobinHostHttpClient($httpClient, $hostUris);
+
+        $httpFactory = new HttpFactory();
+        $serializer = new SmartSerializer();
+        $requestFactory = new RequestFactory($httpFactory, $httpFactory, $httpFactory, $serializer);
+        $transport = (new TransportFactory())
+            ->setHttpClient($httpClient)
+            ->setRequestFactory($requestFactory)
+            ->create();
+
+        return new Client($transport, new EndpointFactory($serializer), []);
+    }
+
+    /**
+     * @param non-empty-list<string> $hosts
+     * @param array{verify_server_cert: bool, cert_path?: string, cert_password?: string, cert_key_path?: string, cert_key_password?: string} $sslConfig
+     */
+    private static function createHttpClient(array $hosts, LoggerInterface $logger, bool $debug, array $sslConfig): GuzzleClient
+    {
+        $options = [
+            'base_uri' => $hosts[0],
+            'verify' => $sslConfig['verify_server_cert'],
+        ];
+
+        if (isset($sslConfig['cert_path'])) {
+            $options['cert'] = [$sslConfig['cert_path'], $sslConfig['cert_password'] ?? ''];
+        }
+
+        if (isset($sslConfig['cert_key_path'])) {
+            $options['ssl_key'] = [$sslConfig['cert_key_path'], $sslConfig['cert_key_password'] ?? ''];
+        }
+
+        return (new GuzzleHttpClientFactory(logger: $debug ? $logger : null))->create($options);
+    }
+
+    private static function normalizeHost(string $host): string
+    {
+        if (!str_contains($host, '://')) {
+            $host = 'http://' . $host;
+        }
+
+        $parts = parse_url($host);
+        if ($parts === false || !isset($parts['host'])) {
+            throw ElasticsearchException::invalidHostConfiguration(\sprintf('Invalid OpenSearch host "%s".', $host));
+        }
+
+        $scheme = $parts['scheme'] ?? 'http';
+        $port = $parts['port'] ?? 9200;
+        $path = $parts['path'] ?? '';
+        $path = rtrim($path, '/');
+        $userInfo = '';
+
+        if (isset($parts['user'])) {
+            $userInfo = $parts['user'];
+
+            if (isset($parts['pass'])) {
+                $userInfo .= ':' . $parts['pass'];
+            }
+
+            $userInfo .= '@';
+        }
+
+        return \sprintf('%s://%s%s:%d%s/', $scheme, $userInfo, $parts['host'], $port, $path);
     }
 }

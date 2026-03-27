@@ -581,7 +581,6 @@ $event = new ThemeAssignedEvent($themeId, $salesChannelId, $context);
 - `Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent`
 - `Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent`
 - `Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent`
-- `Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent`
 - `Shopware\Storefront\Theme\Event\ThemeAssignedEvent`
 - `Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent`
 - `Shopware\Storefront\Theme\Event\ThemeConfigResetEvent`

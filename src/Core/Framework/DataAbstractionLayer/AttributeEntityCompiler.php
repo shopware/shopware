@@ -91,20 +91,20 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 class AttributeEntityCompiler
 {
     private const FIELD_ATTRIBUTES = [
+        OneToMany::class,
+        ManyToMany::class,
+        ManyToOne::class,
+        OneToOne::class,
         Translations::class,
         AutoIncrement::class,
         Serialized::class,
         ForeignKey::class,
         Version::class,
         Password::class,
-        ListFieldAttr::class,
         Field::class,
-        OneToMany::class,
-        ManyToMany::class,
-        ManyToOne::class,
-        OneToOne::class,
         State::class,
         ReferenceVersion::class,
+        ListFieldAttr::class,
         CustomFieldsAttr::class,
     ];
 
@@ -242,33 +242,33 @@ class AttributeEntityCompiler
         }
 
         return match ($field->type) {
-            FieldType::INT => IntField::class,
+            FieldType::UUID => IdField::class,
             FieldType::TEXT => LongTextField::class,
+            FieldType::INT => IntField::class,
             FieldType::FLOAT => FloatField::class,
             FieldType::BOOL => BoolField::class,
-            FieldType::DATETIME => DateTimeField::class,
-            FieldType::UUID => IdField::class,
-            AutoIncrement::TYPE => AutoIncrementField::class,
-            CustomFieldsAttr::TYPE => CustomFields::class,
-            Serialized::TYPE => SerializedField::class,
             FieldType::ENUM => EnumField::class,
             FieldType::JSON => JsonField::class,
+            FieldType::DATETIME => DateTimeField::class,
             FieldType::DATE => DateField::class,
             FieldType::DATE_INTERVAL => DateIntervalField::class,
             FieldType::TIME_ZONE => TimeZoneField::class,
             FieldType::EMAIL => EmailField::class,
             FieldType::PRICE => PriceField::class,
-            Password::TYPE => PasswordField::class,
-            ListFieldAttr::TYPE => ListField::class,
             OneToMany::TYPE => OneToManyAssociationField::class,
             OneToOne::TYPE => OneToOneAssociationField::class,
             ManyToOne::TYPE => ManyToOneAssociationField::class,
             ManyToMany::TYPE => ManyToManyAssociationField::class,
+            AutoIncrement::TYPE => AutoIncrementField::class,
+            Serialized::TYPE => SerializedField::class,
+            Password::TYPE => PasswordField::class,
             ForeignKey::TYPE => FkField::class,
             State::TYPE => StateMachineStateField::class,
             Version::TYPE => VersionField::class,
             ReferenceVersion::TYPE => ReferenceVersionField::class,
             Translations::TYPE => TranslationsAssociationField::class,
+            CustomFieldsAttr::TYPE => CustomFields::class,
+            ListFieldAttr::TYPE => ListField::class,
             default => StringField::class,
         };
     }
@@ -276,8 +276,11 @@ class AttributeEntityCompiler
     /**
      * @return list<mixed>
      */
-    private function getFieldArgs(string $entity, OneToMany|ManyToMany|ManyToOne|OneToOne|Field|Serialized|AutoIncrement|Password|ListFieldAttr $field, \ReflectionProperty $property): array
-    {
+    private function getFieldArgs(
+        string $entity,
+        OneToMany|ManyToMany|ManyToOne|OneToOne|Field|Serialized|AutoIncrement|Password|ListFieldAttr $field,
+        \ReflectionProperty $property
+    ): array {
         if ($field->column) {
             $column = $field->column;
             $fk = $column;

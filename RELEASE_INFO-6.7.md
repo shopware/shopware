@@ -208,13 +208,14 @@ In v6.8.0.0, `silent` parameter in SystemConfigService methods will default to `
 A new scheduled task `customer.cleanup_customer_recovery` has been added that automatically removes expired customer recovery records from the database on a daily basis.
 
 Customer recovery records (password reset tokens) expire after 2 hours. Previously these records were never removed, causing the `customer_recovery` table to grow indefinitely. The new task deletes all records older than 48 hours.
+
 ### New attribute field types for entity definitions
 
 The attribute-based entity definition system now supports additional field types:
 
 - `FieldType::EMAIL` maps to `EmailField` for email validation
 - `#[Password]` attribute for password fields with configurable hashing algorithm, hash options, and scope
-- `#[ListField]` attribute for storing arrays/lists with optional typed field specification
+- `#[ListField]` attribute for storing lists with optional typed field specification
 - `FieldType::PRICE` maps to `PriceField` for price storage
 
 ### Inheritance added to product main categories

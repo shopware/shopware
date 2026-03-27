@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -192,6 +193,6 @@ class AttributeEntity extends EntityStruct
     /**
      * @var list<string>|null
      */
-    #[ListFieldAttr(fieldType: \Shopware\Core\Framework\DataAbstractionLayer\Field\StringField::class)]
+    #[ListFieldAttr(fieldType: StringField::class)]
     public ?array $tags = null;
 }

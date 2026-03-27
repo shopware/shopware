@@ -29,6 +29,7 @@ interface SwBulkState {
         delivery_note: OrderDocument;
         credit_note: OrderDocument;
         download: OrderDownloadDocument;
+        delete: OrderDownloadDocument;
     };
     selectedIds: string[];
 }
@@ -80,6 +81,10 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
                     isChanged: false,
                     value: [],
                 },
+                delete: {
+                    isChanged: false,
+                    value: [],
+                },
             },
             selectedIds: [],
         } as SwBulkState;
@@ -97,10 +102,10 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
             value,
         }:
             | {
-                  type: Exclude<keyof SwBulkState['orderDocuments'], 'download'>;
+                  type: Exclude<keyof SwBulkState['orderDocuments'], 'download' | 'delete'>;
                   value: OrderDocument['value'];
               }
-            | { type: 'download'; value: OrderDownloadDocument['value'] }) {
+            | { type: 'download' | 'delete'; value: OrderDownloadDocument['value'] }) {
             this.orderDocuments[type].value = value;
         },
         resetOrderDocumentsIsChanged() {
@@ -120,7 +125,7 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
                     ([
                         key,
                         value,
-                    ]) => key !== 'download' && value.isChanged === true,
+                    ]) => !['download', 'delete'].includes(key) && value.isChanged === true,
                 )
                 .map(
                     ([

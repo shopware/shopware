@@ -198,6 +198,14 @@ export default {
                         changeLabel: this.$tc('sw-bulk-edit.order.documents.downloadDocuments.label'),
                     },
                 },
+                {
+                    name: 'delete',
+                    labelHelpText: this.$tc('sw-bulk-edit.order.documents.deleteDocuments.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents-delete-documents',
+                        changeLabel: this.$tc('sw-bulk-edit.order.documents.deleteDocuments.label'),
+                    },
+                },
             ];
         },
 

@@ -21,6 +21,14 @@ async function createWrapper() {
                         },
                         generate: () => null,
                     },
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                iterateIds: () => Promise.resolve(),
+                                syncDeleted: () => Promise.resolve(),
+                            };
+                        },
+                    },
                 },
             },
         },
@@ -37,12 +45,15 @@ describe('sw-bulk-edit-save-modal-process', () => {
 
     it('should create documents when component created', async () => {
         wrapper.vm.createDocuments = jest.fn();
+        wrapper.vm.deleteDocuments = jest.fn();
 
         await wrapper.vm.createdComponent();
         await flushPromises();
 
         expect(wrapper.vm.createDocuments).toHaveBeenCalled();
+        expect(wrapper.vm.deleteDocuments).toHaveBeenCalled();
         wrapper.vm.createDocuments.mockRestore();
+        wrapper.vm.deleteDocuments.mockRestore();
     });
 
     it('should not be able to create documents', async () => {
@@ -268,5 +279,69 @@ describe('sw-bulk-edit-save-modal-process', () => {
                 },
             },
         ]);
+    });
+
+    it('should compute selectedDeleteDocumentTypes correctly', async () => {
+        expect(wrapper.vm.selectedDeleteDocumentTypes).toEqual([]);
+
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
+            type: 'delete',
+            isChanged: true,
+        });
+
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
+            type: 'delete',
+            value: [
+                {
+                    id: '1',
+                    name: 'Invoice',
+                    selected: true,
+                    technicalName: 'invoice',
+                    translated: {
+                        name: 'Invoice',
+                    },
+                },
+            ],
+        });
+
+        expect(wrapper.vm.selectedDeleteDocumentTypes).toStrictEqual([
+            {
+                id: '1',
+                name: 'Invoice',
+                selected: true,
+                technicalName: 'invoice',
+                translated: {
+                    name: 'Invoice',
+                },
+            },
+        ]);
+    });
+
+    it('should delete selected document types', async () => {
+        wrapper.vm.deleteDocumentsByType = jest.fn(() => Promise.resolve());
+
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
+            type: 'delete',
+            value: [
+                {
+                    id: '1',
+                    selected: true,
+                    technicalName: 'invoice',
+                },
+                {
+                    id: '2',
+                    selected: true,
+                    technicalName: 'delivery_note',
+                },
+            ],
+        });
+
+        await wrapper.vm.deleteDocuments();
+
+        expect(wrapper.vm.deleteDocumentsByType).toHaveBeenNthCalledWith(1, '1');
+        expect(wrapper.vm.deleteDocumentsByType).toHaveBeenNthCalledWith(2, '2');
+        expect(wrapper.vm.document.delete.isReached).toBe(100);
+
+        wrapper.vm.deleteDocumentsByType.mockRestore();
     });
 });

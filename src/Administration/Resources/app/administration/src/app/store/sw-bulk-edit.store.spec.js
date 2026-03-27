@@ -47,5 +47,6 @@ describe('src/app/store/sw-bulk-edit.store', () => {
         expect(store.orderDocuments.delivery_note.isChanged).toBe(false);
         expect(store.orderDocuments.credit_note.isChanged).toBe(false);
         expect(store.orderDocuments.download.isChanged).toBe(false);
+        expect(store.orderDocuments.delete.isChanged).toBe(false);
     });
 });

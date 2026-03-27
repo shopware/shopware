@@ -10,7 +10,7 @@ const { chunk: chunkArray } = Shopware.Utils.array;
 export default {
     template,
 
-    inject: ['orderDocumentApiService'],
+    inject: ['orderDocumentApiService', 'repositoryFactory'],
 
     emits: [
         'changes-apply',
@@ -34,17 +34,28 @@ export default {
                 credit_note: {
                     isReached: 0,
                 },
+                delete: {
+                    isReached: 0,
+                },
             },
         };
     },
 
     computed: {
+        documentRepository() {
+            return this.repositoryFactory.create('document');
+        },
+
         selectedIds() {
             return Shopware.Store.get('swBulkEdit').selectedIds;
         },
 
         documentTypes() {
             return Shopware.Store.get('swBulkEdit')?.orderDocuments?.download?.value;
+        },
+
+        deleteDocumentTypes() {
+            return Shopware.Store.get('swBulkEdit')?.orderDocuments?.delete?.value;
         },
 
         documentTypeConfigs() {
@@ -69,6 +80,14 @@ export default {
             });
 
             return selectedDocumentTypes;
+        },
+
+        selectedDeleteDocumentTypes() {
+            if (!this.deleteDocumentTypes?.length) {
+                return [];
+            }
+
+            return this.deleteDocumentTypes.filter((documentType) => documentType.selected);
         },
 
         createDocumentPayload() {
@@ -98,6 +117,7 @@ export default {
             this.updateButtons();
             this.setTitle();
             await this.createDocuments();
+            await this.deleteDocuments();
             this.$emit('changes-apply');
         },
 
@@ -173,6 +193,35 @@ export default {
             ).then(() => {
                 this.document[documentType].isReached = 100;
             });
+        },
+
+        async deleteDocuments() {
+            if (this.selectedDeleteDocumentTypes.length <= 0) {
+                return;
+            }
+
+            const percentages = Math.round(100 / this.selectedDeleteDocumentTypes.length);
+
+            for (const documentType of this.selectedDeleteDocumentTypes) {
+                await this.deleteDocumentsByType(documentType.id);
+                this.document.delete.isReached += percentages;
+            }
+
+            this.document.delete.isReached = 100;
+        },
+
+        deleteDocumentsByType(documentTypeId) {
+            return this.documentRepository.iterateIds(this.documentDeleteCriteria(documentTypeId), (ids) => {
+                return this.documentRepository.syncDeleted(ids);
+            });
+        },
+
+        documentDeleteCriteria(documentTypeId) {
+            const criteria = new Shopware.Data.Criteria(1, 50);
+            criteria.addFilter(Shopware.Data.Criteria.equals('documentTypeId', documentTypeId));
+            criteria.addFilter(Shopware.Data.Criteria.equalsAny('orderId', this.selectedIds));
+
+            return criteria;
         },
     },
 };

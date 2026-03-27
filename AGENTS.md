@@ -61,3 +61,53 @@ shopware/
 | **Changelog**          | `composer lint:changelog`     | Manual fix required                          |
 | **Snippets**           | `composer translation:lint`   | Manual fix required                          |
 | **Prettier** (Admin)   | `composer format:admin`       | `composer format:admin:fix`                  |
+
+## Cursor Cloud specific instructions
+
+### Services overview
+
+All services run via Docker Compose (`compose.yaml`). The `web` container (`ghcr.io/shopware/docker-dev:php8.4-node24-caddy`) includes PHP 8.4, Node 24, Caddy, and Composer. All `composer` and `bin/console` commands must be prefixed with `docker compose exec web`.
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| web | 8000 | Shopware (Caddy + PHP-FPM) |
+| database | 3306 | MariaDB |
+| adminer | 9080 | DB admin UI |
+| mailer | 8025 | Mailpit |
+| valkey | — | Cache (Valkey/Redis) |
+| opensearch | — | Search (disabled by default) |
+
+### Starting the environment
+
+```bash
+sudo dockerd &>/tmp/dockerd.log &
+sleep 3
+docker compose up -d
+```
+
+If the database is fresh (no `shopware` schema), run initial setup:
+
+```bash
+docker compose exec web composer setup
+```
+
+This runs `composer install`, database install, npm ci for admin/storefront, JS builds, theme compile, and asset install. It takes ~2 minutes.
+
+### Running commands
+
+All PHP/Composer/Node commands run inside the `web` container:
+
+```bash
+docker compose exec web <command>
+```
+
+See `CONTRIBUTING.md` for the full command reference (`composer ecs`, `composer phpstan`, `composer admin:unit`, `composer storefront:unit`, etc.).
+
+### Key gotchas
+
+- **PHPUnit `--filter` requires `--testsuite`**: Use `docker compose exec web php vendor/bin/phpunit --testsuite unit --filter="YourTestClass"`. Without `--testsuite`, duplicate test-file registration warnings cause "No tests executed".
+- **Admin Jest extra args**: `composer admin:unit` does not forward extra CLI args to Jest. To run a subset, use `docker compose exec web bash -c 'cd src/Administration/Resources/app/administration && npx jest --config jest.config.js --testPathPattern="your/pattern"'` after running `docker compose exec web composer framework:schema:dump` first.
+- **Admin ESLint pre-existing warning**: There is 1 pre-existing ESLint error in `test/_helper_/componentWrapper/index.js` (missing file extension). This is in the test helper, not in production code.
+- **Admin login**: username `admin`, password `shopware`.
+- **Storefront watcher**: `docker compose exec web composer watch:storefront` (port 9998). **Admin watcher**: `docker compose exec web composer watch:admin` (port 5173).
+- **Docker daemon**: Must be started manually in Cloud VMs with `sudo dockerd`. The VM uses fuse-overlayfs storage driver and iptables-legacy.

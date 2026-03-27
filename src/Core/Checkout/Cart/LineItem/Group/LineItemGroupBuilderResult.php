@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @phpstan-type ResultArray array<string, array{groups: list<LineItemGroup>, total: list<LineItemQuantity>}>
+ * @phpstan-type ResultArray array<string, array{groups: list<LineItemGroup>, total: array<string, LineItemQuantity>}>
  * @phpstan-type CountResultArray array<string, array{count: int}>
  */
 #[Package('checkout')]
@@ -75,7 +75,7 @@ class LineItemGroupBuilderResult
             return [];
         }
 
-        return $this->results[$key]['total'];
+        return array_values($this->results[$key]['total']);
     }
 
     /**

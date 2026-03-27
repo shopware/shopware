@@ -330,7 +330,8 @@ class OrderConverter
             $orderShippingAddressId = $order->getDeliveries()?->first()?->getShippingOrderAddressId() ?? '';
         }
 
-        $orderAddresses = $this->orderAddressRepository->search(new Criteria(\array_filter([$orderBillingAddressId, $orderShippingAddressId])), $context)->getEntities();
+        $orderAddressIds = array_values(array_filter([$orderBillingAddressId, $orderShippingAddressId]));
+        $orderAddresses = $this->orderAddressRepository->search(new Criteria($orderAddressIds), $context)->getEntities();
         $orderBillingAddress = $orderAddresses->get($orderBillingAddressId);
         $orderShippingAddress = $orderShippingAddressId ? $orderAddresses->get($orderShippingAddressId) : null;
 

@@ -32,7 +32,7 @@ class FileCollection extends Collection
      */
     public function getFilepaths(): array
     {
-        return $this->map(static fn (File $element) => $element->getFilepath());
+        return array_values($this->map(static fn (File $element) => $element->getFilepath()));
     }
 
     /**

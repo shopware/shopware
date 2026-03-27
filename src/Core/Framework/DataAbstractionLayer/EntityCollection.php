@@ -44,7 +44,7 @@ class EntityCollection extends Collection
     }
 
     /**
-     * @return list<string>
+     * @return array<string, string>
      */
     public function getIds(): array
     {

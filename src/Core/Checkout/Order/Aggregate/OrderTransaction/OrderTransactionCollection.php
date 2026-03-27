@@ -22,7 +22,7 @@ class OrderTransactionCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string, string>
      */
     public function getOrderIds(): array
     {
@@ -35,7 +35,7 @@ class OrderTransactionCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string, string>
      */
     public function getPaymentMethodIds(): array
     {

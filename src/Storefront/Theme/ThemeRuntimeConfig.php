@@ -17,8 +17,8 @@ use Shopware\Core\Framework\Log\Package;
  *     themeId: string,
  *     technicalName: ?string,
  *     resolvedConfig?: array<string, mixed>,
- *     viewInheritance?: array<string>,
- *     scriptFiles?: array<string>|null,
+ *     viewInheritance?: list<string>,
+ *     scriptFiles?: list<string>|null,
  *     iconSets?: array<string, array{path: string, namespace: string}>,
  *     updatedAt?: \DateTimeInterface|null
  * }
@@ -26,8 +26,8 @@ use Shopware\Core\Framework\Log\Package;
  *     themeId?: string,
  *     technicalName?: string|null,
  *     resolvedConfig?: array<string, mixed>,
- *     viewInheritance?: array<string>,
- *     scriptFiles?: array<string>|null,
+ *     viewInheritance?: list<string>,
+ *     scriptFiles?: list<string>|null,
  *     iconSets?: array<string, array{path: string, namespace: string}>,
  *     updatedAt?: \DateTimeInterface|null
  * }

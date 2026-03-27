@@ -17,7 +17,7 @@ class ProductCrossSellingAssignedProductsCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string, string>
      */
     public function getProductIds(): array
     {

@@ -8,14 +8,14 @@ use Shopware\Core\Framework\Log\Package;
 class TaxProviderRegistry
 {
     /**
-     * @var list<AbstractTaxProvider> key is providerIdentifier
+     * @var array<class-string<AbstractTaxProvider>, AbstractTaxProvider>
      */
     private array $providers = [];
 
     /**
      * @internal
      *
-     * @param list<AbstractTaxProvider> $providers
+     * @param iterable<AbstractTaxProvider> $providers
      */
     public function __construct(iterable $providers)
     {

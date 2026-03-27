@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 class PropertyGroupOptionCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string, string>
      */
     public function getPropertyGroupIds(): array
     {
@@ -27,7 +27,7 @@ class PropertyGroupOptionCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string, string>
      */
     public function getMediaIds(): array
     {

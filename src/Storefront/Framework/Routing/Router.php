@@ -47,7 +47,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
      */
     public function warmUp(string $cacheDir, ?string $buildDir = null): array
     {
-        return $this->decorated->warmUp($cacheDir, $buildDir);
+        return array_values($this->decorated->warmUp($cacheDir, $buildDir));
     }
 
     /**

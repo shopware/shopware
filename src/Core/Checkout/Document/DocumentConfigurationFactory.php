@@ -34,6 +34,7 @@ class DocumentConfigurationFactory
      */
     public static function mergeConfiguration(DocumentConfiguration $baseConfig, DocumentBaseConfigEntity|DocumentConfiguration|array $additionalConfig): DocumentConfiguration
     {
+        /** @var array<string, bool|int|string|array<array-key, mixed>|null> $additionalConfigArray */
         $additionalConfigArray = [];
         if (\is_array($additionalConfig)) {
             $additionalConfigArray = $additionalConfig;
@@ -103,9 +104,9 @@ class DocumentConfigurationFactory
     }
 
     /**
-     * @param list<bool|int|string|array<array-key, mixed>|null> $config
+     * @param array<string, bool|int|string|array<array-key, mixed>|null> $config
      *
-     * @return list<bool|int|string|array<array-key, mixed>|null>
+     * @return array<string, bool|int|string|array<array-key, mixed>|null>
      */
     private static function cleanConfig(array $config): array
     {

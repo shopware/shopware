@@ -43,7 +43,9 @@ class UserConfigController extends AbstractController
     #[Route(path: '/api/_info/config-me', name: 'api.config_me.get', defaults: ['auth_required' => true], methods: ['GET'])]
     public function getConfigMe(Context $context, Request $request): Response
     {
-        $userConfigs = $this->getOwnUserConfig($context, $request->query->all('keys'));
+        /** @var list<string> $keys */
+        $keys = array_values($request->query->all('keys'));
+        $userConfigs = $this->getOwnUserConfig($context, $keys);
 
         $data = [];
         foreach ($userConfigs as $userConfig) {

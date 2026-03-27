@@ -16,7 +16,7 @@ class EntityIndexingMessage implements AsyncMessageInterface, DeduplicatableMess
     private readonly Context $context;
 
     /**
-     * @var list<string>
+     * @var array<int, string>
      */
     private array $skip = [];
 
@@ -77,7 +77,7 @@ class EntityIndexingMessage implements AsyncMessageInterface, DeduplicatableMess
     }
 
     /**
-     * @return list<string>
+     * @return array<int, string>
      */
     public function getSkip(): array
     {
@@ -85,7 +85,7 @@ class EntityIndexingMessage implements AsyncMessageInterface, DeduplicatableMess
     }
 
     /**
-     * @param list<string> $skip
+     * @param array<int, string> $skip
      */
     public function setSkip(array $skip): void
     {

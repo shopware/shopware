@@ -34,7 +34,7 @@ class Context extends Struct
     protected array $extensions = [];
 
     /**
-     * @param list<string> $ruleIds
+     * @param array<int, string> $ruleIds
      * @param non-empty-list<string> $languageIdChain
      */
     public function __construct(
@@ -68,7 +68,7 @@ class Context extends Struct
      * Extension are not serialized, as they could be anything and make problems during serialization,
      * for symfony serializer they are exlcuded by the #[Exclude] attribute already
      *
-     * @return array<string, mixed>
+     * @return list<array<int, string>|bool|float|CashRoundingConfig|ContextSource|string>
      */
     public function __serialize(): array
     {
@@ -88,7 +88,7 @@ class Context extends Struct
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param list<array<int, string>|bool|float|CashRoundingConfig|ContextSource|string> $data
      */
     public function __unserialize(array $data): void
     {
@@ -148,7 +148,7 @@ class Context extends Struct
     }
 
     /**
-     * @return list<string>
+     * @return array<int, string>
      */
     public function getRuleIds(): array
     {

@@ -143,10 +143,11 @@ class CustomerGroupRegistrationActionController
      */
     private function getRequestCustomerIds(Request $request): array
     {
-        $customerIds = $request->request->all('customerIds');
+        /** @var non-empty-list<string> $customerIds */
+        $customerIds = array_values($request->request->all('customerIds'));
 
         if ($customerIds !== []) {
-            $customerIds = array_unique($customerIds);
+            $customerIds = array_values(array_unique($customerIds));
         }
 
         if ($customerIds === []) {

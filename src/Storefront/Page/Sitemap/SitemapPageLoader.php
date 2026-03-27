@@ -30,7 +30,7 @@ class SitemapPageLoader
     public function load(Request $request, SalesChannelContext $context): SitemapPage
     {
         $page = new SitemapPage();
-        $page->setSitemaps($this->sitemapRoute->load($request, $context)->getSitemaps()->getElements());
+        $page->setSitemaps(array_values($this->sitemapRoute->load($request, $context)->getSitemaps()->getElements()));
 
         $this->eventDispatcher->dispatch(
             new SitemapPageLoadedEvent($page, $context, $request)

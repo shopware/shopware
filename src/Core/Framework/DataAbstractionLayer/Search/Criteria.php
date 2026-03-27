@@ -93,7 +93,7 @@ class Criteria extends Struct implements \Stringable
     protected array $associations = [];
 
     /**
-     * @var list<IDStructure>
+     * @var array<array-key, IDStructure>
      */
     protected array $ids = [];
 
@@ -119,7 +119,7 @@ class Criteria extends Struct implements \Stringable
     protected array $fields = [];
 
     /**
-     * @param list<IDStructure>|null $ids
+     * @param array<array-key, IDStructure>|null $ids
      */
     public function __construct(?array $ids = null, protected int $nestingLevel = 0)
     {
@@ -142,7 +142,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @return list<IDStructure>
+     * @return array<array-key, IDStructure>
      */
     public function getIds(): array
     {
@@ -473,7 +473,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param list<IDStructure> $ids
+     * @param array<array-key, IDStructure> $ids
      */
     public function setIds(array $ids): self
     {
@@ -496,7 +496,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param list<IDStructure> $ids
+     * @param array<array-key, IDStructure> $ids
      */
     public function cloneForRead(array $ids = []): Criteria
     {
@@ -644,7 +644,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param list<list<CriteriaPartInterface>> $parts
+     * @param list<iterable<CriteriaPartInterface>> $parts
      *
      * @return list<string>
      */
@@ -664,7 +664,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param array<string, mixed> $ids
+     * @param array<array-key, IDStructure> $ids
      */
     private function validateIds(array $ids): void
     {

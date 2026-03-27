@@ -37,7 +37,7 @@ class CustomEntityEnrichmentServiceTest extends TestCase
     private AdminUiXmlSchema $adminUiXmlSchema;
 
     /**
-     * @var Entity[]
+     * @var array<Entity>
      */
     private array $customEntities;
 

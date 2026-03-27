@@ -1058,7 +1058,7 @@ class EntityReader implements EntityReaderInterface
     /**
      * @param EntityCollection<Entity> $collection
      *
-     * @return array<string, string[]>
+     * @return array<string, array<string>>
      */
     private function fetchPaginatedOneToManyMapping(
         EntityDefinition $definition,

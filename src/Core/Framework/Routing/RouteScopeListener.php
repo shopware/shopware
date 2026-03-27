@@ -17,7 +17,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class RouteScopeListener implements EventSubscriberInterface
 {
     /**
-     * @var RouteScopeWhitelistInterface[]
+     * @var array<RouteScopeWhitelistInterface>
      */
     private readonly array $allowLists;
 

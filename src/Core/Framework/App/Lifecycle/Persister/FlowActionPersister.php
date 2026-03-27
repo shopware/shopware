@@ -80,7 +80,7 @@ class FlowActionPersister implements PersisterInterface
     }
 
     /**
-     * @param string[] $ids
+     * @param array<string> $ids
      */
     private function deleteOldAppFlowActions(array $ids, Context $context): void
     {

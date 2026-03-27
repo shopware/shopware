@@ -55,7 +55,7 @@ abstract class InstallerController extends AbstractController
     }
 
     /**
-     * @return array{label: string, active: bool, isCompleted: bool}[]
+     * @return array<array{label: string, active: bool, isCompleted: bool}>
      */
     private function getMenuData(Request $request): array
     {

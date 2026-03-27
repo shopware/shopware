@@ -106,7 +106,7 @@ class ZugferdDocumentTest extends TestCase
     }
 
     /**
-     * @param string[] $expected
+     * @param array<string> $expected
      */
     #[DataProvider('dataProviderDifferentType')]
     public function testDifferentTaxCalculationType(string $calculationType, bool $isGross, array $expected): void
@@ -179,7 +179,7 @@ class ZugferdDocumentTest extends TestCase
     }
 
     /**
-     * @return array<array{0: string, 1: bool, 2: string[]}>
+     * @return array<array{0: string, 1: bool, 2: array<string>}>
      */
     public static function dataProviderDifferentType(): array
     {
@@ -359,7 +359,7 @@ class ZugferdDocumentTest extends TestCase
     }
 
     /**
-     * @param string[] $expected
+     * @param array<string> $expected
      */
     private function validateDocument(\DOMDocument $document, array $expected): void
     {

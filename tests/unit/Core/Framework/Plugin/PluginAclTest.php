@@ -34,7 +34,7 @@ class PluginAclTest extends TestCase
     ];
 
     /**
-     * @var Plugin[]
+     * @var array<Plugin>
      */
     private array $plugins = [];
 

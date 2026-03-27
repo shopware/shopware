@@ -37,7 +37,7 @@ class EntityDefinitionService
     }
 
     /**
-     * @return EntityDefinition[]
+     * @return array<EntityDefinition>
      */
     public function getAllowedEntityDefinitions(): array
     {

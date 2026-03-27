@@ -55,7 +55,7 @@ class Migration1742897274RegistrationSalutationToggleConfigTest extends TestCase
     }
 
     /**
-     * @return mixed[]
+     * @return array<mixed>
      */
     private function getConditionValues(): array
     {

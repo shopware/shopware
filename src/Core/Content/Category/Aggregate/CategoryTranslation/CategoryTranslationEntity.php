@@ -146,7 +146,7 @@ class CategoryTranslationEntity extends TranslationEntity
     }
 
     /**
-     * @return string[]|null
+     * @return array<string>|null
      */
     public function getBreadcrumb(): ?array
     {

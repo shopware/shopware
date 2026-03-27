@@ -63,7 +63,7 @@ class AdministrationTest extends TestCase
     }
 
     /**
-     * @param CompilerPassInterface[] $initialPasses
+     * @param array<CompilerPassInterface> $initialPasses
      *
      * @return array<int, string>
      */

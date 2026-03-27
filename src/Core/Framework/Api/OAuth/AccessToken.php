@@ -20,7 +20,7 @@ class AccessToken implements AccessTokenEntityInterface
     /**
      * @internal
      *
-     * @param ScopeEntityInterface[] $scopes
+     * @param array<ScopeEntityInterface> $scopes
      * @param non-empty-string|null $userIdentifier
      */
     public function __construct(
@@ -44,7 +44,7 @@ class AccessToken implements AccessTokenEntityInterface
     }
 
     /**
-     * @return ScopeEntityInterface[]
+     * @return array<ScopeEntityInterface>
      */
     public function getScopes(): array
     {

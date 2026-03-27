@@ -308,7 +308,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function fetchPermissions(string $userId): array
     {
@@ -354,7 +354,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     }
 
     /**
-     * @return string[]|null
+     * @return array<string>|null
      */
     private function fetchPermissionsIntegrationByApp(?string $integrationId): ?array
     {
@@ -377,7 +377,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function fetchIntegrationPermissions(string $integrationId): array
     {

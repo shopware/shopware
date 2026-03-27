@@ -456,9 +456,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     }
 
     /**
-     * @param LineItem[] $lineItems
+     * @param array<LineItem> $lineItems
      *
-     * @return mixed[]
+     * @return array<mixed>
      */
     private function getNotCompleted(CartDataCollection $data, array $lineItems, string $hash): array
     {

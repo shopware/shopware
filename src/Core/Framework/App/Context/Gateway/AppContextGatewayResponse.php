@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Struct\Struct;
 final class AppContextGatewayResponse extends Struct
 {
     /**
-     * @param ContextGatewayCommand[] $commands
+     * @param array<ContextGatewayCommand> $commands
      *
      * @internal
      */
@@ -23,7 +23,7 @@ final class AppContextGatewayResponse extends Struct
     }
 
     /**
-     * @return ContextGatewayCommand[]
+     * @return array<ContextGatewayCommand>
      */
     public function getCommands(): array
     {
@@ -39,7 +39,7 @@ final class AppContextGatewayResponse extends Struct
     }
 
     /**
-     * @param ContextGatewayCommand[] $commands
+     * @param array<ContextGatewayCommand> $commands
      */
     public function merge(array $commands): void
     {

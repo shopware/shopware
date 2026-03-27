@@ -80,7 +80,7 @@ class StringFieldSerializer extends AbstractFieldSerializer
     /**
      * @param StringField $field
      *
-     * @return Constraint[]
+     * @return array<Constraint>
      */
     protected function getConstraints(Field $field): array
     {

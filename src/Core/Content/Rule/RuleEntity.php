@@ -37,7 +37,7 @@ class RuleEntity extends Entity
     protected string|Rule|null $payload = null;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected ?array $moduleTypes = null;
 
@@ -52,7 +52,7 @@ class RuleEntity extends Entity
     protected bool $invalid;
 
     /**
-     * @var string[]|null
+     * @var array<string>|null
      */
     protected ?array $areas = null;
 
@@ -177,7 +177,7 @@ class RuleEntity extends Entity
     }
 
     /**
-     * @return string[]|null
+     * @return array<string>|null
      */
     public function getAreas(): ?array
     {
@@ -185,7 +185,7 @@ class RuleEntity extends Entity
     }
 
     /**
-     * @param string[] $areas
+     * @param array<string> $areas
      */
     public function setAreas(array $areas): void
     {
@@ -193,7 +193,7 @@ class RuleEntity extends Entity
     }
 
     /**
-     * @return string[]|null
+     * @return array<string>|null
      */
     public function getModuleTypes(): ?array
     {
@@ -201,7 +201,7 @@ class RuleEntity extends Entity
     }
 
     /**
-     * @param string[]|null $moduleTypes
+     * @param array<string>|null $moduleTypes
      */
     public function setModuleTypes(?array $moduleTypes): void
     {

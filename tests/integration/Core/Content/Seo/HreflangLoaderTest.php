@@ -552,7 +552,7 @@ class HreflangLoaderTest extends TestCase
     }
 
     /**
-     * @return LanguageEntity[]
+     * @return array<LanguageEntity>
      */
     private function getFirstAndLastLanguages(): array
     {

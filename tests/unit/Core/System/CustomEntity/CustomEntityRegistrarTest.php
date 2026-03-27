@@ -50,7 +50,7 @@ class CustomEntityRegistrarTest extends TestCase
     {
         $container = new Container();
 
-        /** @var DynamicEntityDefinition[] $definitions */
+        /** @var array<DynamicEntityDefinition> $definitions */
         $definitions = [
             DynamicEntityDefinition::create('ce_test_one', [], [], $container),
             DynamicEntityDefinition::create('ce_test_two', [], [], $container),
@@ -98,7 +98,7 @@ class CustomEntityRegistrarTest extends TestCase
     {
         $container = new Container();
 
-        /** @var DynamicEntityDefinition[] $definitions */
+        /** @var array<DynamicEntityDefinition> $definitions */
         $definitions = [
             DynamicEntityDefinition::create('ce_test_one', [], [], $container),
             DynamicEntityDefinition::create('ce_test_two', [], [], $container),

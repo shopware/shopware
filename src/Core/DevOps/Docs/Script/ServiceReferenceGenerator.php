@@ -138,7 +138,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
     }
 
     /**
-     * @return Method[]
+     * @return array<Method>
      */
     protected function getServiceStubMethodDocs(): array
     {

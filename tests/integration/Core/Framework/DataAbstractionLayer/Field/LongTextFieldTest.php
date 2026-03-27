@@ -26,7 +26,7 @@ class LongTextFieldTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @param Flag[] $flags
+     * @param array<Flag> $flags
      */
     #[DataProvider('exceptionCases')]
     public function testLongTextFieldSerializerThrowsWriteConstraintException(bool|string|null $input, ?string $expected, array $flags = []): void
@@ -55,7 +55,7 @@ class LongTextFieldTest extends TestCase
     }
 
     /**
-     * @param Flag[] $flags
+     * @param array<Flag> $flags
      */
     #[DataProvider('longTextFieldDataProvider')]
     public function testLongTextFieldSerializerEncodesValue(bool|string|null $input, ?string $expected, array $flags = []): void
@@ -77,7 +77,7 @@ class LongTextFieldTest extends TestCase
     }
 
     /**
-     * @return array<string, array{bool|string|null, ?string, Flag[]}>
+     * @return array<string, array{bool|string|null, ?string, array<Flag>}>
      */
     public static function exceptionCases(): array
     {
@@ -91,7 +91,7 @@ class LongTextFieldTest extends TestCase
     }
 
     /**
-     * @return array<string, array{bool|string|null, ?string, Flag[]}>
+     * @return array<string, array{bool|string|null, ?string, array<Flag>}>
      */
     public static function longTextFieldDataProvider(): array
     {
@@ -115,7 +115,7 @@ class LongTextFieldTest extends TestCase
     }
 
     /**
-     * @param Flag[] $flags
+     * @param array<Flag> $flags
      */
     private function getLongTextField(string $name, array $flags = []): LongTextField
     {

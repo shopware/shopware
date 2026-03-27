@@ -8,12 +8,12 @@ use Shopware\Core\Framework\Log\Package;
 class JsonApiEncodingResult implements \JsonSerializable
 {
     /**
-     * @var Record[]
+     * @var array<Record>
      */
     protected array $data = [];
 
     /**
-     * @var Record[]
+     * @var array<Record>
      */
     protected array $included = [];
 
@@ -39,7 +39,7 @@ class JsonApiEncodingResult implements \JsonSerializable
     }
 
     /**
-     * @return Record[]
+     * @return array<Record>
      */
     public function getData(): array
     {
@@ -47,7 +47,7 @@ class JsonApiEncodingResult implements \JsonSerializable
     }
 
     /**
-     * @return Record[]
+     * @return array<Record>
      */
     public function getIncluded(): array
     {

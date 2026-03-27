@@ -136,7 +136,7 @@ class ProductPricingHookTest extends TestCase
 class ProductPricingHookExtension extends ProductPricingHook
 {
     /**
-     * @param ProductProxy[] $products
+     * @param array<ProductProxy> $products
      */
     public function __construct(
         array $products,

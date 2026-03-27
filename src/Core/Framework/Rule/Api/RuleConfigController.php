@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class RuleConfigController extends AbstractController
 {
     /**
-     * @var array<string, mixed[]>
+     * @var array<string, array<mixed>>
      */
     private array $config = [];
 

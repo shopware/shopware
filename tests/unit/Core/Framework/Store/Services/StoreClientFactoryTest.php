@@ -50,7 +50,7 @@ class StoreClientFactoryTest extends TestCase
     }
 
     /**
-     * @param MiddlewareInterface[] $middlewares
+     * @param array<MiddlewareInterface> $middlewares
      *
      * @return array{base_uri: string, headers: array<string, string>, handler: HandlerStack}
      */

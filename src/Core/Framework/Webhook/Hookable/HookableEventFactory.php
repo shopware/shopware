@@ -31,7 +31,7 @@ class HookableEventFactory
     }
 
     /**
-     * @return Hookable[]
+     * @return array<Hookable>
      */
     public function createHookablesFor(object $event): array
     {
@@ -59,7 +59,7 @@ class HookableEventFactory
     }
 
     /**
-     * @return Hookable[]
+     * @return array<Hookable>
      */
     private function wrapEntityWrittenEvent(EntityWrittenContainerEvent $event): array
     {

@@ -243,7 +243,7 @@ class MeasurementUnitProviderTest extends TestCase
     }
 
     /**
-     * @param MeasurementDisplayUnitEntity[] $entities
+     * @param array<MeasurementDisplayUnitEntity> $entities
      *
      * @return EntityCollection<MeasurementDisplayUnitEntity>
      */

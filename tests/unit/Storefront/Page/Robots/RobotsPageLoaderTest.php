@@ -513,7 +513,7 @@ class RobotsPageLoaderTest extends TestCase
     /**
      * Creates standard two-domain setup for example.com and example.com/en
      *
-     * @return SalesChannelDomainEntity[]
+     * @return array<SalesChannelDomainEntity>
      */
     private function createStandardDomains(string $salesChannelId1 = 'test-sales-channel-id-1', string $salesChannelId2 = 'test-sales-channel-id-2'): array
     {
@@ -526,7 +526,7 @@ class RobotsPageLoaderTest extends TestCase
     /**
      * Sets up the RobotsPageLoader with given domains and optional config
      *
-     * @param SalesChannelDomainEntity[] $domains
+     * @param array<SalesChannelDomainEntity> $domains
      * @param array<string, string|array<int, string>> $config
      */
     private function setupLoaderWithDomains(array $domains, array $config = []): RobotsPageLoader

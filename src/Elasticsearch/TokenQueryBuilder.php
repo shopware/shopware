@@ -50,7 +50,7 @@ class TokenQueryBuilder
     }
 
     /**
-     * @param SearchFieldConfig[] $configs
+     * @param array<SearchFieldConfig> $configs
      */
     public function build(string $entity, string $token, array $configs, Context $context): ?BuilderInterface
     {
@@ -254,7 +254,7 @@ class TokenQueryBuilder
     }
 
     /**
-     * @param string[] $languageIdChain
+     * @param array<string> $languageIdChain
      */
     private function translatedQuery(Field $field, string $token, SearchFieldConfig $config, array $languageIdChain): ?BuilderInterface
     {

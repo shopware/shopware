@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 trait MimeTypeValidationTrait
 {
     /**
-     * @param array<string, string[]> $allowedMimeTypes
+     * @param array<string, array<string>> $allowedMimeTypes
      */
     protected function checkMimeType(UploadedFile $file, array $allowedMimeTypes): bool
     {

@@ -26,7 +26,7 @@ class LineItemFactoryRegistry
     private readonly DataValidationDefinition $validatorDefinition;
 
     /**
-     * @param LineItemFactoryInterface[]|iterable $handlers
+     * @param iterable<LineItemFactoryInterface> $handlers
      *
      * @internal
      */

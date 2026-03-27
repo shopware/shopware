@@ -40,7 +40,7 @@ class FlowExecutor
     private readonly array $actions;
 
     /**
-     * @param FlowAction[] $actions
+     * @param array<FlowAction> $actions
      */
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,

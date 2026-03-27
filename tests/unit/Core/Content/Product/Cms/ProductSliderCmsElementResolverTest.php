@@ -31,7 +31,7 @@ class ProductSliderCmsElementResolverTest extends TestCase
     private LoggerInterface&MockObject $logger;
 
     /**
-     * @var AbstractProductSliderProcessor[]
+     * @var array<AbstractProductSliderProcessor>
      */
     private array $processors = [];
 

@@ -12,7 +12,7 @@ use Twig\TwigFunction;
 class PcreExtension extends AbstractExtension
 {
     /**
-     * @return TwigFilter[]
+     * @return array<TwigFilter>
      */
     public function getFilters(): array
     {
@@ -29,7 +29,7 @@ class PcreExtension extends AbstractExtension
     }
 
     /**
-     * @return string|string[]
+     * @return string|array<string>
      */
     public function pregReplace(string $subject, string $pattern, string $replacement): string|array
     {

@@ -47,7 +47,7 @@ class ApiClient
         }
 
         try {
-            /** @var array{title: string, body: string, date: string, version: string, fixedVulnerabilities: VersionFixedVulnerabilities[]} $github */
+            /** @var array{title: string, body: string, date: string, version: string, fixedVulnerabilities: array<VersionFixedVulnerabilities>} $github */
             $github = $this->client->request('GET', 'https://releases.shopware.com/changelog/' . $this->determineLatestShopwareVersion() . '.json')->toArray();
         } catch (ClientException $e) {
             if ($e->getCode() === Response::HTTP_NOT_FOUND || $e->getCode() === Response::HTTP_FORBIDDEN) {

@@ -398,7 +398,7 @@ class NavigationPageSeoUrlTest extends TestCase
     /**
      * @param array<string, string> $ids
      *
-     * @return mixed[]
+     * @return array<mixed>
      */
     private function getSeoUrls(array $ids, ?string $salesChannelId): array
     {

@@ -30,7 +30,7 @@ class ConfigurationRequirementsValidatorTest extends TestCase
 
     /**
      * @param array<string, string> $iniValues
-     * @param SystemCheck[] $expectedChecks
+     * @param array<SystemCheck> $expectedChecks
      */
     #[DataProvider('configRequirements')]
     public function testValidateRequirements(array $iniValues, array $expectedChecks): void

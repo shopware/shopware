@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class ImportResult
 {
     /**
-     * @param EntityWrittenContainerEvent[] $results
+     * @param array<EntityWrittenContainerEvent> $results
      * @param array<int, array<string, mixed>> $failedRecords
      */
     public function __construct(public readonly array $results, public readonly array $failedRecords)

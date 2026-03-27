@@ -175,7 +175,6 @@ class DaysSinceLastOrderRuleTest extends TestCase
             $this->context
         );
 
-        /** @var CustomerCollection|CustomerEntity[] $result */
         $result = $customerRepository->search(
             new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
             $defaultContext
@@ -215,8 +214,8 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $orderRepository->create($orderData, $defaultContext);
         $criteria = new Criteria([$orderData[0]['orderCustomer']['customer']['id']]);
 
-        /** @var CustomerEntity $customer */
         $customer = $customerRepository->search($criteria, $defaultContext)->getEntities()->first();
+        static::assertNotNull($customer);
 
         return $customer;
     }

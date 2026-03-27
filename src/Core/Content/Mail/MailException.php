@@ -23,7 +23,7 @@ class MailException extends HttpException
     final public const MAIL_OAUTH_ERROR = 'MAIL__OAUTH_ERROR';
 
     /**
-     * @param string[] $validOptions
+     * @param array<string> $validOptions
      */
     public static function givenSendMailOptionIsInvalid(string $option, array $validOptions): ShopwareHttpException
     {

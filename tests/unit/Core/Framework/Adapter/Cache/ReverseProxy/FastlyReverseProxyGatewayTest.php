@@ -65,7 +65,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
     }
 
     /**
-     * @param string[] $tags
+     * @param array<string> $tags
      */
     #[DataProvider('providerTags')]
     public function testInvalidate(array $tags, string $prefix = ''): void
@@ -105,7 +105,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<int, string|string[]>>
+     * @return iterable<string, array<int, string|array<string>>>
      */
     public static function providerTags(): iterable
     {

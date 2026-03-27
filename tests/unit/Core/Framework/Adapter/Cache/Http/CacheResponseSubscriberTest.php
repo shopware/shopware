@@ -184,7 +184,7 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     /**
-     * @param string[] $whitelist
+     * @param array<string> $whitelist
      */
     #[DataProvider('maintenanceRequest')]
     public function testMaintenanceRequest(bool $active, array $whitelist, bool $shouldBeCached): void
@@ -222,7 +222,7 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<int, bool|string[]>>
+     * @return iterable<string, array<int, bool|array<string>>>
      */
     public static function maintenanceRequest(): iterable
     {

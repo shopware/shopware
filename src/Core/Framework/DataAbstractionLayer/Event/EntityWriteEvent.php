@@ -34,7 +34,7 @@ class EntityWriteEvent extends Event implements ShopwareEvent
     private array $ids = [];
 
     /**
-     * @param WriteCommand[] $commands
+     * @param array<WriteCommand> $commands
      */
     private function __construct(
         private readonly WriteContext $writeContext,

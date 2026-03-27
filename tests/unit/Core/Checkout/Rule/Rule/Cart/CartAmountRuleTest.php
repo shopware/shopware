@@ -158,7 +158,7 @@ class CartAmountRuleTest extends TestCase
     }
 
     /**
-     * @return array<string[]>
+     * @return array<array<string>>
      */
     public static function unsupportedOperators(): array
     {

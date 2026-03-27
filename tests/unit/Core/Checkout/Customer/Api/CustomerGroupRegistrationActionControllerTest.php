@@ -69,7 +69,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
     }
 
     /**
-     * @param CustomerEntity[] $customers
+     * @param array<CustomerEntity> $customers
      */
     #[DataProvider('groupRegistrationActionDataProvider')]
     public function testGroupRegistrationAcceptMatches(?int $expectedResCode, ?array $customers, Request $request, ?string $errorMessage): void
@@ -91,7 +91,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
     }
 
     /**
-     * @param CustomerEntity[] $customers
+     * @param array<CustomerEntity> $customers
      */
     #[DataProvider('groupRegistrationActionDataProvider')]
     public function testGroupRegistrationDeclineMatches(?int $expectedResCode, ?array $customers, Request $request, ?string $errorMessage): void
@@ -206,7 +206,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
     }
 
     /**
-     * @param string[] $customerId
+     * @param array<string> $customerId
      */
     private static function createRequest(array $customerId, bool $silentError = false): Request
     {

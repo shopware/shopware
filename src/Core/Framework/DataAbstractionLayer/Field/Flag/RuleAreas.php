@@ -25,7 +25,7 @@ class RuleAreas extends Flag
     final public const LANDING_PAGE_AREA = 'landing-page';
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     private readonly array $areas;
 
@@ -40,7 +40,7 @@ class RuleAreas extends Flag
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getAreas(): array
     {

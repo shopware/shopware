@@ -14,7 +14,7 @@ class TaxProviderExceptions extends ShopwareHttpException
     private const MESSAGE_TEMPLATE = 'There were %d errors while fetching taxes from providers: ' . \PHP_EOL . '%s';
 
     /**
-     * @var array<string, \Throwable[]>
+     * @var array<string, array<\Throwable>>
      */
     private array $exceptions = [];
 
@@ -34,7 +34,7 @@ class TaxProviderExceptions extends ShopwareHttpException
     }
 
     /**
-     * @return \Throwable[]
+     * @return array<\Throwable>
      */
     public function getErrorsForTaxProvider(string $taxProvider): array
     {

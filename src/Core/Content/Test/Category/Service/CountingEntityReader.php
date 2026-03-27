@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 class CountingEntityReader implements EntityReaderInterface
 {
     /**
-     * @var int[]
+     * @var array<int>
      */
     private static array $count = [];
 

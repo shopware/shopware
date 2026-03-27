@@ -14,9 +14,9 @@ class FilterSorterPriceAsc extends AbstractPriceSorter
     }
 
     /**
-     * @param array<string, LineItemQuantity[]> $map
+     * @param array<string, array<LineItemQuantity>> $map
      *
-     * @return array<string, LineItemQuantity[]>
+     * @return array<string, array<LineItemQuantity>>
      */
     protected function sortPriceMap(array $map): array
     {

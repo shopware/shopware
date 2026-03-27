@@ -584,7 +584,7 @@ class FirstRunWizardControllerTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed>[] $data
+     * @param array<array<string, mixed>> $data
      */
     private function createPluginCollection(array $data): PluginCollection
     {
@@ -601,7 +601,7 @@ class FirstRunWizardControllerTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed>[] $pluginData
+     * @param array<array<string, mixed>> $pluginData
      *
      * @return EntitySearchResult<PluginCollection>
      */

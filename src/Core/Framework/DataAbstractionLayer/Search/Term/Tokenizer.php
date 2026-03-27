@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 class Tokenizer implements TokenizerInterface
 {
     /**
-     * @param string[] $preservedChars
+     * @param array<string> $preservedChars
      *
      * @internal
      *

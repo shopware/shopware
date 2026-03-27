@@ -16,7 +16,7 @@ class ResponseFactoryRegistry
     private const SALES_CHANNEL_DEFAULT_RESPONSE_TYPE = 'application/json';
 
     /**
-     * @var ResponseFactoryInterface[]
+     * @var array<ResponseFactoryInterface>
      */
     private readonly array $responseFactories;
 

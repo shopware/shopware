@@ -11,7 +11,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class HtmlSanitizer implements ResetInterface
 {
     /**
-     * @var \HTMLPurifier[]
+     * @var array<\HTMLPurifier>
      */
     private array $purifiers = [];
 

@@ -80,7 +80,7 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @return LineItem[]
+     * @return array<LineItem>
      */
     public function filterFlatByType(string $type): array
     {
@@ -149,7 +149,7 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @return LineItem[]
+     * @return array<LineItem>
      */
     public function getFlat(): array
     {
@@ -191,7 +191,7 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @return LineItem[]
+     * @return array<LineItem>
      */
     public function filterGoodsFlat(): array
     {

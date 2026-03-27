@@ -411,7 +411,7 @@ class ServiceSourceResolverTest extends TestCase
     /**
      * Sets up common expectations for successful download scenarios
      *
-     * @param string[] $chunks
+     * @param array<string> $chunks
      */
     private function successfulDownloadVersionCommonExpectations(
         MockObject $client,
@@ -455,7 +455,7 @@ class ServiceSourceResolverTest extends TestCase
     }
 
     /**
-     * @param string[] $chunks
+     * @param array<string> $chunks
      *
      * @return \Generator<ChunkInterface>
      */

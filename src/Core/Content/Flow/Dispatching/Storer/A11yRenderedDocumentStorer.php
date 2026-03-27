@@ -60,7 +60,7 @@ class A11yRenderedDocumentStorer extends FlowStorer
     }
 
     /**
-     * @return A11yDocument[]
+     * @return array<A11yDocument>
      */
     private function lazyLoad(StorableFlow $storableFlow): array
     {
@@ -81,7 +81,7 @@ class A11yRenderedDocumentStorer extends FlowStorer
     }
 
     /**
-     * @return A11yDocument[]
+     * @return array<A11yDocument>
      */
     private function loadA11yDocuments(Criteria $criteria, Context $context): array
     {

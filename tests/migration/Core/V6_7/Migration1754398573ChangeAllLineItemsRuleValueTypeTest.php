@@ -108,7 +108,7 @@ class Migration1754398573ChangeAllLineItemsRuleValueTypeTest extends TestCase
     }
 
     /**
-     * @return mixed[]
+     * @return array<mixed>
      */
     private function getConditionValues(): array
     {

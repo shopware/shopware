@@ -181,7 +181,7 @@ class DocumentException extends HttpException
     }
 
     /**
-     * @param array<string, string[]> $violations
+     * @param array<string, array<string>> $violations
      */
     public static function electronicInvoiceViolation(int $count, array $violations): self
     {

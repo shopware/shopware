@@ -300,7 +300,7 @@ class RequestTransformerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, string[]>
+     * @return iterable<string, array<string>>
      */
     public static function seoRedirectProvider(): iterable
     {

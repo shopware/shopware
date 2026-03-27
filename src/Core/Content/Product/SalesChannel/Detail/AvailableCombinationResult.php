@@ -33,7 +33,7 @@ class AvailableCombinationResult extends Struct
     protected array $combinationDetails = [];
 
     /**
-     * @param string[] $optionIds
+     * @param array<string> $optionIds
      */
     public function hasCombination(array $optionIds): bool
     {
@@ -41,7 +41,7 @@ class AvailableCombinationResult extends Struct
     }
 
     /**
-     * @param string[] $optionIds
+     * @param array<string> $optionIds
      */
     public function addCombination(array $optionIds, bool $available): void
     {

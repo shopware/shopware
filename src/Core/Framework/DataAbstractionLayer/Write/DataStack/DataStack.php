@@ -35,7 +35,7 @@ use Shopware\Core\Framework\Log\Package;
 class DataStack
 {
     /**
-     * @var KeyValuePair[]
+     * @var array<KeyValuePair>
      */
     private array $data = [];
 

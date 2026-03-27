@@ -279,7 +279,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
     }
 
     /**
-     * @return CashRoundingConfig[]
+     * @return array<CashRoundingConfig>
      */
     private function getCashRounding(CurrencyEntity $currency, ShippingLocation $shippingLocation, Context $context): array
     {

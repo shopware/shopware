@@ -34,7 +34,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class EntityDeletedEventHelperTest extends TestCase
 {
     /**
-     * @var EntityDefinition[]
+     * @var array<EntityDefinition>
      */
     private array $entityDefinitions = [];
 
@@ -116,7 +116,7 @@ class EntityDeletedEventHelperTest extends TestCase
     }
 
     /**
-     * @param string[] $deleteIds
+     * @param array<string> $deleteIds
      */
     private function createDeleteEvent(array $deleteIds): EntityDeleteEvent
     {

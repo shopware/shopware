@@ -27,7 +27,7 @@ class EntityCacheKeyGenerator
     }
 
     /**
-     * @param string[] $areas
+     * @param array<string> $areas
      */
     public function getSalesChannelContextHash(SalesChannelContext $context, array $areas = []): string
     {

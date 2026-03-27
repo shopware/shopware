@@ -255,7 +255,7 @@ class TranslationMetadataLoaderTest extends TestCase
     }
 
     /**
-     * @return array{locale: string, updatedAt: string, progress: int}[]
+     * @return array<array{locale: string, updatedAt: string, progress: int}>
      */
     private function readMetadataFromLocalFilesystem(): array
     {

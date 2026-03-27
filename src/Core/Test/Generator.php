@@ -60,7 +60,7 @@ class Generator extends TestCase
     final public const LANGUAGE_INFO_LOCALE_CODE = 'en-GB';
 
     /**
-     * @param array<string, string[]> $areaRuleIds
+     * @param array<string, array<string>> $areaRuleIds
      * @param array<array-key, mixed> $overrides
      */
     public static function generateSalesChannelContext(

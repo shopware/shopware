@@ -51,7 +51,7 @@ class ElasticsearchException extends HttpException
     }
 
     /**
-     * @param array{reason: string}|array{reason: string}[] $items
+     * @param array{reason: string}|array<array{reason: string}> $items
      */
     public static function indexingError(array $items): self
     {

@@ -17,7 +17,7 @@ class RemoveEventListenerTest extends TestCase
 {
     /**
      * @param array<array{event:string, method:string}> $listeners
-     * @param string[] $remove
+     * @param array<string> $remove
      * @param array<array{event:string, method:string}> $expected
      */
     #[DataProvider('removeProvider')]

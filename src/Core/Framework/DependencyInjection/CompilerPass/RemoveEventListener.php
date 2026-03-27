@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 abstract class RemoveEventListener
 {
     /**
-     * @param array<string[]> $remove
+     * @param array<array<string>> $remove
      */
     public static function remove(ContainerBuilder $builder, string $serviceId, array $remove): void
     {

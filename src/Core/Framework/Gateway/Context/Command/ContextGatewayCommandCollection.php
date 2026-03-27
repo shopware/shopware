@@ -27,7 +27,7 @@ class ContextGatewayCommandCollection extends Collection
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getCommandTypes(): array
     {

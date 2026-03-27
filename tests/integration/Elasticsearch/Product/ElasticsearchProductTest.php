@@ -488,7 +488,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<int, array<MultiFilter|string[]>>
+     * @return array<int, array<MultiFilter|array<string>>>
      */
     public static function multiFilterWithOneToManyRelationProvider(): array
     {
@@ -2881,7 +2881,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @param array{ids: string[]} $case
+     * @param array{ids: array<string>} $case
      */
     private function assertSorting(string $message, IdsCollection $ids, SalesChannelContext $context, array $case, string $direction): void
     {

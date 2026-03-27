@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
 class TraceableTransport implements MetricTransportInterface
 {
     /**
-     * @var Metric[]
+     * @var array<Metric>
      */
     private array $metrics = [];
 
@@ -21,7 +21,7 @@ class TraceableTransport implements MetricTransportInterface
     }
 
     /**
-     * @return Metric[]
+     * @return array<Metric>
      */
     public function getEmittedMetrics(): array
     {

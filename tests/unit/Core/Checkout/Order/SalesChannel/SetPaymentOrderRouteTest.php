@@ -373,7 +373,7 @@ class SetPaymentOrderRouteTest extends TestCase
     }
 
     /**
-     * @return array<string, Request[]>
+     * @return array<string, array<Request>>
      */
     public static function requestDataProvider(): array
     {

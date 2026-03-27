@@ -12,12 +12,12 @@ use Shopware\Core\Framework\ShopwareHttpException;
 class ExportInvalidException extends ShopwareHttpException
 {
     /**
-     * @var ErrorMessage[]
+     * @var array<ErrorMessage>
      */
     protected array $errorMessages;
 
     /**
-     * @param Error[] $errors
+     * @param array<Error> $errors
      */
     public function __construct(
         ProductExportEntity $productExportEntity,
@@ -48,7 +48,7 @@ class ExportInvalidException extends ShopwareHttpException
     }
 
     /**
-     * @return ErrorMessage[]
+     * @return array<ErrorMessage>
      */
     public function getErrorMessages(): array
     {

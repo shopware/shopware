@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 interface SitemapListerInterface
 {
     /**
-     * @return Sitemap[]
+     * @return array<Sitemap>
      */
     public function getSitemaps(SalesChannelContext $salesChannelContext): array;
 }

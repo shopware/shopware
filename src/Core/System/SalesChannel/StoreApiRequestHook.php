@@ -16,7 +16,7 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 abstract class StoreApiRequestHook extends Hook implements SalesChannelContextAware
 {
     /**
-     * @return string[]
+     * @return array<string>
      */
     public static function getServiceIds(): array
     {

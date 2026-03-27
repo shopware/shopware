@@ -206,7 +206,7 @@ class GoodsCountRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, mixed[]>
+     * @return array<string, array<mixed>>
      */
     public static function getLineItemScopeTestData(): array
     {

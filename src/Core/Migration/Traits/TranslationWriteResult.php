@@ -8,8 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 class TranslationWriteResult
 {
     /**
-     * @param string[] $englishLanguages
-     * @param string[] $germanLanguages
+     * @param array<string> $englishLanguages
+     * @param array<string> $germanLanguages
      */
     public function __construct(
         private readonly array $englishLanguages,

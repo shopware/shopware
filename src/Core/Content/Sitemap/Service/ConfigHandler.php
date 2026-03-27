@@ -18,7 +18,7 @@ class ConfigHandler
     /**
      * @internal
      *
-     * @param ConfigHandlerInterface[] $configHandlers
+     * @param array<ConfigHandlerInterface> $configHandlers
      */
     public function __construct(private readonly iterable $configHandlers)
     {

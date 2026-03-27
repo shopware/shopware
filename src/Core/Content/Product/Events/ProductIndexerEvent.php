@@ -12,8 +12,8 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
     /**
      * @internal
      *
-     * @param string[] $ids
-     * @param string[] $skip
+     * @param array<string> $ids
+     * @param array<string> $skip
      */
     public function __construct(
         private readonly array $ids,
@@ -23,8 +23,8 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
     }
 
     /**
-     * @param string[] $ids
-     * @param string[] $skip
+     * @param array<string> $ids
+     * @param array<string> $skip
      */
     public static function create(array $ids, Context $context, array $skip): self
     {
@@ -37,7 +37,7 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getIds(): array
     {
@@ -45,7 +45,7 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getSkip(): array
     {

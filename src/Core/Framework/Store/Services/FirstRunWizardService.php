@@ -133,7 +133,7 @@ class FirstRunWizardService
      * @throws StoreLicenseDomainMissingException
      * @throws ClientException
      *
-     * @return StorePluginStruct[]
+     * @return array<StorePluginStruct>
      */
     public function getLanguagePlugins(
         PluginCollection $pluginCollection,
@@ -149,7 +149,7 @@ class FirstRunWizardService
      * @throws StoreLicenseDomainMissingException
      * @throws ClientException
      *
-     * @return StorePluginStruct[]
+     * @return array<StorePluginStruct>
      */
     public function getDemoDataPlugins(
         PluginCollection $pluginCollection,
@@ -274,7 +274,7 @@ class FirstRunWizardService
     /**
      * @param array<string, mixed> $extensions
      *
-     * @return StorePluginStruct[]
+     * @return array<StorePluginStruct>
      */
     private function mapExtensionData(
         array $extensions,

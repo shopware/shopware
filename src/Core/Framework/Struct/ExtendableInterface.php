@@ -14,7 +14,7 @@ interface ExtendableInterface
     public function addExtension(string $name, Struct $extension): void;
 
     /**
-     * @param Struct[] $extensions
+     * @param array<Struct> $extensions
      */
     public function addExtensions(array $extensions): void;
 
@@ -26,7 +26,7 @@ interface ExtendableInterface
      * Returns all stored extension structures of this class.
      * The array has to be an associated array with name and extension instance.
      *
-     * @return Struct[]
+     * @return array<Struct>
      */
     public function getExtensions(): array;
 }

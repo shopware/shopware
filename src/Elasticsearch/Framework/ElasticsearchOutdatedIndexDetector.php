@@ -68,7 +68,7 @@ class ElasticsearchOutdatedIndexDetector
     }
 
     /**
-     * @return array{aliases: array<string>, settings: array<mixed>}[]
+     * @return array<array{aliases: array<string>, settings: array<mixed>}>
      */
     private function getAllIndices(): array
     {

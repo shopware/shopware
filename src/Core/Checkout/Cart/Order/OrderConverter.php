@@ -506,9 +506,9 @@ class OrderConverter
     }
 
     /**
-     * @param string[] $ruleIds
+     * @param array<string> $ruleIds
      *
-     * @return array<string, string[]>
+     * @return array<string, array<string>>
      */
     private function fetchRuleAreas(array $ruleIds, Context $context): array
     {

@@ -106,7 +106,7 @@ class MailErrorEvent extends Event implements LogAware, ScalarValuesAware, FlowE
     }
 
     /**
-     * @return mixed[]|null
+     * @return array<mixed>|null
      */
     public function getTemplateData(): ?array
     {

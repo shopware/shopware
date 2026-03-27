@@ -15,10 +15,10 @@ use Shopware\Core\Framework\Struct\Collection;
 class RuleIdMatcher
 {
     /**
-     * @param (IdAware&RuleIdAware)[] $options
-     * @param string[] $ruleIds
+     * @param array<IdAware&RuleIdAware> $options
+     * @param array<string> $ruleIds
      *
-     * @return (IdAware&RuleIdAware)[]
+     * @return array<IdAware&RuleIdAware>
      */
     public function filter(array $options, array $ruleIds): array
     {
@@ -31,7 +31,7 @@ class RuleIdMatcher
      * @template T of Collection<covariant (IdAware&RuleIdAware)>
      *
      * @param T $options
-     * @param string[] $ruleIds
+     * @param array<string> $ruleIds
      *
      * @return T
      */

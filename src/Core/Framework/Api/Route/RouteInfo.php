@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 readonly class RouteInfo
 {
     /**
-     * @param string[] $methods
+     * @param array<string> $methods
      */
     public function __construct(
         public string $path,

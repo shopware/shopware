@@ -26,7 +26,7 @@ class StructEncoder implements ResetInterface
     private array $protections = [];
 
     /**
-     * @var ?array<string, string[]>
+     * @var ?array<string, array<string>>
      */
     private ?array $blockedCustomFields = null;
 

@@ -118,7 +118,7 @@ class TranslatorTest extends TestCase
     }
 
     /**
-     * @param string[] $dbSnippetSetIds
+     * @param array<string> $dbSnippetSetIds
      */
     #[DataProvider('getSnippetSetIdRequestProvider')]
     public function testGetSnippetId(array $dbSnippetSetIds, ?string $expectedSnippetSetId, ?string $locale, ?string $requestSnippetSetId): void
@@ -224,7 +224,7 @@ class TranslatorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<string, string|string[]|null>>
+     * @return iterable<string, array<string, string|array<string>|null>>
      */
     public static function getSnippetSetIdRequestProvider(): iterable
     {

@@ -22,7 +22,7 @@ class ApiRouteInfoResolver
     /**
      * This method is SLOW and usage in recurrently used code should be avoided.
      *
-     * @return RouteInfo[]
+     * @return array<RouteInfo>
      */
     public function getApiRoutes(string $apiScope): array
     {

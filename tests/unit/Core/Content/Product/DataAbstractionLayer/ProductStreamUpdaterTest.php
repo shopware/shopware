@@ -144,7 +144,7 @@ class ProductStreamUpdaterTest extends TestCase
     }
 
     /**
-     * @param string[] $ids
+     * @param array<string> $ids
      * @param array<int, array<string, bool|string>> $filters
      */
     #[DataProvider('filterProvider')]
@@ -183,7 +183,7 @@ class ProductStreamUpdaterTest extends TestCase
     }
 
     /**
-     * @param string[] $ids
+     * @param array<string> $ids
      * @param array<int, array<string, bool|string>> $filters
      */
     #[DataProvider('filterProvider')]
@@ -247,9 +247,9 @@ class ProductStreamUpdaterTest extends TestCase
     }
 
     /**
-     * @param string[] $oldMatches
-     * @param string[] $newMatches
-     * @param string[] $manyToManyUpdatedIds
+     * @param array<string> $oldMatches
+     * @param array<string> $newMatches
+     * @param array<string> $manyToManyUpdatedIds
      */
     #[DataProvider('transactionalProvider')]
     public function testTransactionalHandle(array $oldMatches, array $newMatches, array $manyToManyUpdatedIds, int $numOfTransactional): void

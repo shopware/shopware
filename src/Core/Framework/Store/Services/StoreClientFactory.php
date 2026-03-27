@@ -25,7 +25,7 @@ class StoreClientFactory
     }
 
     /**
-     * @param MiddlewareInterface[] $middlewares
+     * @param array<MiddlewareInterface> $middlewares
      */
     public function create(iterable $middlewares = []): ClientInterface
     {

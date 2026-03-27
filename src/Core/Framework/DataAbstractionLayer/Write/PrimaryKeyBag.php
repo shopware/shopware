@@ -17,7 +17,7 @@ class PrimaryKeyBag
     private array $primaryKeys = [];
 
     /**
-     * @var array<string, array[]>
+     * @var array<string, array<array>>
      */
     private array $existences = [];
 

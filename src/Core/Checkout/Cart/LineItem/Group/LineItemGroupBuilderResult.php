@@ -65,7 +65,7 @@ class LineItemGroupBuilderResult
      * Gets a list of all found line item quantity entries
      * for the provided group definition.
      *
-     * @return LineItemQuantity[]
+     * @return array<LineItemQuantity>
      */
     public function getGroupTotalResult(LineItemGroupDefinition $groupDefinition): array
     {
@@ -82,7 +82,7 @@ class LineItemGroupBuilderResult
      * Gets a list of all found groups of the
      * provided group definition
      *
-     * @return LineItemGroup[]
+     * @return array<LineItemGroup>
      */
     public function getGroupResult(LineItemGroupDefinition $groupDefinition): array
     {
@@ -157,7 +157,7 @@ class LineItemGroupBuilderResult
      * 2 GROUPS of A and 1 GROUP of B would mean a count of 1 for
      * the whole set combination of A and B.
      *
-     * @param LineItemGroupDefinition[] $definitions
+     * @param array<LineItemGroupDefinition> $definitions
      */
     public function getLowestCommonGroupCountDenominator(array $definitions): int
     {

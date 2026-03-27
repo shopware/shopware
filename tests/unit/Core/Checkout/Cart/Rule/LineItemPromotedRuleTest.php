@@ -61,7 +61,7 @@ class LineItemPromotedRuleTest extends TestCase
     }
 
     /**
-     * @return array<bool[]>
+     * @return array<array<bool>>
      */
     public static function matchTestData(): array
     {

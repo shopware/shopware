@@ -15,7 +15,7 @@ class StoreLicenseViolationStruct extends Struct
     protected string $text;
 
     /**
-     * @var StoreActionStruct[]
+     * @var array<StoreActionStruct>
      */
     protected array $actions;
 

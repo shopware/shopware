@@ -181,7 +181,7 @@ class LanguageValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param WriteCommand[] $commands
+     * @param array<WriteCommand> $commands
      *
      * @return array<string>
      */

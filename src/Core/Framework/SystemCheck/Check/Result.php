@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class Result extends Struct
 {
     /**
-     * @param mixed[] $extra
+     * @param array<mixed> $extra
      */
     public function __construct(
         public readonly string $name,

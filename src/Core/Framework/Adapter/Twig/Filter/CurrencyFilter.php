@@ -25,7 +25,7 @@ class CurrencyFilter extends AbstractExtension
     }
 
     /**
-     * @return TwigFilter[]
+     * @return array<TwigFilter>
      */
     public function getFilters()
     {

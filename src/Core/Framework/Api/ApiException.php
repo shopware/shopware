@@ -179,7 +179,7 @@ class ApiException extends HttpException
     }
 
     /**
-     * @param string[] $allow
+     * @param array<string> $allow
      */
     public static function methodNotAllowed(array $allow, string $message): SymfonyHttpException
     {

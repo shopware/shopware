@@ -538,9 +538,9 @@ class DocumentControllerTest extends TestCase
     }
 
     /**
-     * @param array<string, string[]> $data
+     * @param array<string, array<string>> $data
      *
-     * @return mixed[]
+     * @return array<mixed>
      */
     private function getDocumentIds(array $data): array
     {

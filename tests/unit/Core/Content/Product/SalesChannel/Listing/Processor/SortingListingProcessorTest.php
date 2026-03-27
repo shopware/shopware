@@ -36,7 +36,7 @@ class SortingListingProcessorTest extends TestCase
     private string $testId;
 
     /**
-     * @param FieldSorting[] $expected
+     * @param array<FieldSorting> $expected
      */
     #[DataProvider('prepareProvider')]
     public function testPrepare(string $sorting, bool $testWithAvailableSortings, array $expected): void
@@ -308,7 +308,7 @@ class SortingListingProcessorTest extends TestCase
     }
 
     /**
-     * @return ProductSortingEntity[]
+     * @return array<ProductSortingEntity>
      */
     private function buildAvailableSortings(): array
     {

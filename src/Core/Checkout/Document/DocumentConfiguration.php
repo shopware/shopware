@@ -296,7 +296,7 @@ class DocumentConfiguration extends Struct
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getAddressParts(): array
     {

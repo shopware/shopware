@@ -129,7 +129,7 @@ class Migration1711418838ReplaceSortingOptionKeysWithSortingOptionIdsInCmsSlotsT
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function getSortingIds(): array
     {

@@ -16,7 +16,7 @@ use Symfony\Component\Finder\Finder;
 class OpenApiFileLoader
 {
     /**
-     * @param string[] $paths
+     * @param array<string> $paths
      */
     public function __construct(private readonly array $paths)
     {

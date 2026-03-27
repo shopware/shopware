@@ -52,7 +52,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param mixed[] $options
+     * @param array<mixed> $options
      */
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {

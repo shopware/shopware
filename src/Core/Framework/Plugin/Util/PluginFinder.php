@@ -28,7 +28,7 @@ class PluginFinder
     }
 
     /**
-     * @return PluginFromFileSystemStruct[]
+     * @return array<PluginFromFileSystemStruct>
      */
     public function findPlugins(
         string $pluginDir,
@@ -118,7 +118,7 @@ class PluginFinder
     ): array {
         $composer = Factory::createComposer($projectDir, $composerIO);
 
-        /** @var CompletePackageInterface[] $composerPackages */
+        /** @var array<CompletePackageInterface> $composerPackages */
         // @phpstan-ignore varTag.type (getPackages always returns an array of CompletePackageInterface)
         $composerPackages = $composer
             ->getRepositoryManager()

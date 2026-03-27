@@ -100,7 +100,7 @@ trait AssignArrayTrait
     /**
      * @template T
      *
-     * @param \ReflectionType[] $types
+     * @param array<\ReflectionType> $types
      * @param class-string<T> $expectedClass
      *
      * @return (class-string&T)|class-string<T>|null

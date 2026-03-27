@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class ProductSortingCollection extends EntityCollection
 {
     /**
-     * @param string[] $keys
+     * @param array<string> $keys
      */
     public function sortByKeyArray(array $keys): void
     {

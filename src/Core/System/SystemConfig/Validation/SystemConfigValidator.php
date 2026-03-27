@@ -73,7 +73,7 @@ class SystemConfigValidator
      * @param array<string, mixed> $formConfig
      * @param array<string> $inputConfigKeys
      *
-     * @return array<string, Constraint[]>
+     * @return array<string, array<Constraint>>
      */
     private function prepareValidationConstraints(array $formConfig, array $inputConfigKeys, bool $allowNulls): array
     {

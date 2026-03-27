@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class CustomerProfileValidationFactoryTest extends TestCase
 {
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $accountTypes;
 

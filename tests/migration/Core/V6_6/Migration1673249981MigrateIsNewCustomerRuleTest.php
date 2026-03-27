@@ -72,7 +72,7 @@ class Migration1673249981MigrateIsNewCustomerRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, mixed>[]
+     * @return array<array<string, mixed>>
      */
     private function getIsNewCustomerConditions(): array
     {

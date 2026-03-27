@@ -44,7 +44,7 @@ class RuleCollection extends EntityCollection
     }
 
     /**
-     * @return array<string, string[]>
+     * @return array<string, array<string>>
      */
     public function getIdsByArea(): array
     {

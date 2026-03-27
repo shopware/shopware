@@ -420,7 +420,7 @@ class CacheInvalidationSubscriber
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function getDeletedPropertyFilterTags(EntityWrittenContainerEvent $event): array
     {

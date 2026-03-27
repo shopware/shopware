@@ -104,7 +104,7 @@ class IconCacheTwigFilterTest extends TestCase
     }
 
     /**
-     * @param Bundle[] $bundles
+     * @param array<Bundle> $bundles
      */
     private function createFinder(array $bundles): Environment
     {

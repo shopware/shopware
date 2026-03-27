@@ -38,7 +38,7 @@ final class DocumentRoute extends AbstractDocumentRoute
      * @internal
      *
      * @param EntityRepository<DocumentCollection> $documentRepository
-     * @param AbstractDocumentTypeRenderer[] $renderers
+     * @param array<AbstractDocumentTypeRenderer> $renderers
      */
     public function __construct(
         private readonly DocumentGenerator $documentGenerator,

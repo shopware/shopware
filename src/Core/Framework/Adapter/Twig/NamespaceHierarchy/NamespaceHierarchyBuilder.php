@@ -10,7 +10,7 @@ class NamespaceHierarchyBuilder
     /**
      * @internal
      *
-     * @param TemplateNamespaceHierarchyBuilderInterface[] $namespaceHierarchyBuilders
+     * @param array<TemplateNamespaceHierarchyBuilderInterface> $namespaceHierarchyBuilders
      */
     public function __construct(private readonly iterable $namespaceHierarchyBuilders)
     {

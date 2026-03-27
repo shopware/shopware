@@ -14,7 +14,7 @@ class ProductExportValidator implements ProductExportValidatorInterface
     /**
      * @internal
      *
-     * @param ValidatorInterface[] $validators
+     * @param array<ValidatorInterface> $validators
      */
     public function __construct(private readonly iterable $validators)
     {

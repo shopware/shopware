@@ -104,7 +104,7 @@ class CustomerException extends HttpException
     }
 
     /**
-     * @param string[] $ids
+     * @param array<string> $ids
      */
     public static function customersNotFound(array $ids): self
     {

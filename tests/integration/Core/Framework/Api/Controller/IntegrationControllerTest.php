@@ -7,11 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\System\Integration\IntegrationCollection;
-use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -22,6 +22,16 @@ use Symfony\Component\HttpFoundation\Response;
 class IntegrationControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
+
+    /**
+     * @var EntityRepository<IntegrationCollection>
+     */
+    private EntityRepository $repository;
+
+    protected function setUp(): void
+    {
+        $this->repository = static::getContainer()->get('integration.repository');
+    }
 
     protected function tearDown(): void
     {
@@ -76,8 +86,7 @@ class IntegrationControllerTest extends TestCase
             'admin' => false,
         ];
 
-        static::getContainer()->get('integration.repository')
-            ->create([$integration], $context);
+        $this->repository->create([$integration], $context);
 
         $client = $this->getBrowser();
 
@@ -91,11 +100,8 @@ class IntegrationControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
-        /** @var IntegrationCollection|IntegrationEntity[] $assigned */
-        $assigned = static::getContainer()->get('integration.repository')
-            ->search(new Criteria([$ids->get('integration')]), $context);
+        $assigned = $this->repository->search(new Criteria([$ids->get('integration')]), $context);
 
-        static::assertNotNull($assigned);
         static::assertCount(1, $assigned);
         static::assertNotNull($assigned->first());
         static::assertTrue($assigned->first()->getAdmin());
@@ -169,8 +175,7 @@ class IntegrationControllerTest extends TestCase
             'admin' => false,
         ];
 
-        static::getContainer()->get('integration.repository')
-            ->create([$integration], $context);
+        $this->repository->create([$integration], $context);
 
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['integration:update']);
         $client = $this->getBrowser();
@@ -193,9 +198,7 @@ class IntegrationControllerTest extends TestCase
         $criteria = new Criteria([$ids->get('integration')]);
         $criteria->addAssociation('aclRoles');
 
-        /** @var IntegrationCollection|IntegrationEntity[] $assigned */
-        $assigned = static::getContainer()->get('integration.repository')
-            ->search($criteria, $context);
+        $assigned = $this->repository->search($criteria, $context);
 
         static::assertNotNull($assigned->first());
         static::assertNotNull($assigned->first()->getAclRoles());
@@ -220,8 +223,7 @@ class IntegrationControllerTest extends TestCase
             'admin' => false,
         ];
 
-        static::getContainer()->get('integration.repository')
-            ->create([$integration], $context);
+        $this->repository->create([$integration], $context);
 
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['integration:create']);
         $client = $this->getBrowser();
@@ -236,9 +238,7 @@ class IntegrationControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
-        /** @var IntegrationCollection|IntegrationEntity[] $assigned */
-        $assigned = static::getContainer()->get('integration.repository')
-            ->search(new Criteria([$ids->get('integration')]), $context);
+        $assigned = $this->repository->search(new Criteria([$ids->get('integration')]), $context);
 
         static::assertCount(1, $assigned);
         static::assertNotNull($assigned->first());

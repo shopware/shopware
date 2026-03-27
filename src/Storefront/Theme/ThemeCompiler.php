@@ -394,7 +394,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     }
 
     /**
-     * @param array{fields?: array{value: string|array<mixed>|null, scss?: bool, type: string}[]} $config
+     * @param array{fields?: array<array{value: string|array<mixed>|null, scss?: bool, type: string}>} $config
      *
      * @throws FilesystemException
      */

@@ -38,7 +38,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
 {
     /**
-     * @var FieldSerializerInterface[]
+     * @var array<FieldSerializerInterface>
      */
     private array $serializers;
 

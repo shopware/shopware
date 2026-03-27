@@ -20,7 +20,7 @@ class CustomEntityConfigurationException extends HttpException
     /**
      * @deprecated tag:v6.8.0 - will be removed, use {@see \Shopware\Core\System\CustomEntity\CustomEntityException::entityNotGiven} instead
      *
-     * @param string[] $entities
+     * @param array<string> $entities
      */
     public static function entityNotGiven(string $configFileName, array $entities): self
     {
@@ -47,7 +47,7 @@ class CustomEntityConfigurationException extends HttpException
     /**
      * @deprecated tag:v6.8.0 - will be removed, use {@see \Shopware\Core\System\CustomEntity\CustomEntityException::duplicateReferences} instead
      *
-     * @param string[] $duplicates
+     * @param array<string> $duplicates
      */
     public static function duplicateReferences(
         string $configFileName,
@@ -82,7 +82,7 @@ class CustomEntityConfigurationException extends HttpException
     /**
      * @deprecated tag:v6.8.0 - will be removed, use {@see \Shopware\Core\System\CustomEntity\CustomEntityException::invalidReferences} instead
      *
-     * @param string[] $invalidRefs
+     * @param array<string> $invalidRefs
      */
     public static function invalidReferences(
         string $configFileName,

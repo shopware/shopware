@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 class VariantTypesNotAllowedException extends ShopwareHttpException
 {
     /**
-     * @param array{variantType: string, extensionName: string, extensionId: int}[] $typeViolations
+     * @param array<array{variantType: string, extensionName: string, extensionId: int}> $typeViolations
      */
     public function __construct(array $typeViolations)
     {

@@ -195,7 +195,6 @@ class OrderTotalAmountRuleTest extends TestCase
             $defaultContext
         );
 
-        /** @var CustomerCollection|CustomerEntity[] $result */
         $result = $customerRepository->search(
             new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
             $defaultContext
@@ -215,7 +214,6 @@ class OrderTotalAmountRuleTest extends TestCase
             $defaultContext
         );
 
-        /** @var CustomerCollection|CustomerEntity[] $result */
         $result = $customerRepository->search(
             new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
             $defaultContext
@@ -258,7 +256,6 @@ class OrderTotalAmountRuleTest extends TestCase
             $defaultContext
         );
 
-        /** @var CustomerCollection|CustomerEntity[] $result */
         $result = $customerRepository->search(
             new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
             $defaultContext
@@ -272,7 +269,6 @@ class OrderTotalAmountRuleTest extends TestCase
             ['id' => $orderId],
         ], $defaultContext);
 
-        /** @var CustomerCollection|CustomerEntity[] $result */
         $result = $customerRepository->search(
             new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
             $defaultContext

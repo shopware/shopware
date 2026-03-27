@@ -46,7 +46,7 @@ class PostWriteValidationEventTest extends TestCase
     }
 
     /**
-     * @param CommandConfig[] $commands
+     * @param array<CommandConfig> $commands
      * @param array<string, array<array<string, string>>> $assertions
      */
     #[DataProvider('getPrimaryKeysProvider')]
@@ -62,7 +62,7 @@ class PostWriteValidationEventTest extends TestCase
     }
 
     /**
-     * @param CommandConfig[] $commands
+     * @param array<CommandConfig> $commands
      * @param array<string, array<array<string, string>>> $assertions
      */
     #[DataProvider('getPrimaryKeysProvider')]
@@ -78,7 +78,7 @@ class PostWriteValidationEventTest extends TestCase
     }
 
     /**
-     * @param CommandConfig[] $commands
+     * @param array<CommandConfig> $commands
      * @param array<string, array<array<string, string>>> $assertions
      */
     #[DataProvider('getDeletedPrimaryKeysProvider')]
@@ -304,7 +304,7 @@ class PostWriteValidationEventTest extends TestCase
     }
 
     /**
-     * @param CommandConfig[] $commandsArray
+     * @param array<CommandConfig> $commandsArray
      *
      * @return list<WriteCommand>
      */

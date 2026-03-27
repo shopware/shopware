@@ -116,7 +116,7 @@ class RedisIncrementer extends AbstractIncrementer
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function getKeys(string $cluster): array
     {

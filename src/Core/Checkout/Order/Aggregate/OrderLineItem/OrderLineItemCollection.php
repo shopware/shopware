@@ -62,7 +62,7 @@ class OrderLineItemCollection extends EntityCollection
     }
 
     /**
-     * @return OrderLineItemEntity[]
+     * @return array<OrderLineItemEntity>
      */
     public function filterGoodsFlat(): array
     {
@@ -126,7 +126,7 @@ class OrderLineItemCollection extends EntityCollection
     }
 
     /**
-     * @return OrderLineItemEntity[]
+     * @return array<OrderLineItemEntity>
      */
     private function buildFlat(?OrderLineItemCollection $lineItems): array
     {

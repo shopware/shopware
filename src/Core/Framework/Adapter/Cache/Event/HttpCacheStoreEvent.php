@@ -12,7 +12,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class HttpCacheStoreEvent extends Event
 {
     /**
-     * @param string[] $tags
+     * @param array<string> $tags
      */
     public function __construct(
         public readonly CacheItemInterface $item,

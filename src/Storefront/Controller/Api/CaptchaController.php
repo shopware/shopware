@@ -17,7 +17,7 @@ class CaptchaController extends AbstractController
     /**
      * @internal
      *
-     * @param AbstractCaptcha[] $captchas
+     * @param array<AbstractCaptcha> $captchas
      */
     public function __construct(private readonly iterable $captchas)
     {

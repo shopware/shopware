@@ -97,7 +97,7 @@ class ExtensionCompatibility
     }
 
     /**
-     * @return ExtensionStruct[]
+     * @return array<ExtensionStruct>
      */
     public function getExtensionsToDeactivate(Version $update, Context $context, string $deactivationFilter = self::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE): array
     {

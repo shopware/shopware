@@ -355,7 +355,7 @@ class NavigationLoaderTest extends TestCase
     }
 
     /**
-     * @param TreeItem[] $items
+     * @param array<TreeItem> $items
      *
      * @return list<string>
      */

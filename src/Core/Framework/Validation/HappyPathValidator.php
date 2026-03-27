@@ -37,7 +37,7 @@ class HappyPathValidator implements ValidatorInterface
     }
 
     /**
-     * @param Constraint|Constraint[]|null $constraints
+     * @param Constraint|array<Constraint>|null $constraints
      */
     public function validate(
         mixed $value,
@@ -98,7 +98,7 @@ class HappyPathValidator implements ValidatorInterface
     }
 
     /**
-     * @param Constraint|Constraint[]|null $constraint
+     * @param Constraint|array<Constraint>|null $constraint
      */
     private function normalizeValueIfRequired(mixed $value, Constraint|array|null $constraint): mixed
     {
@@ -125,7 +125,7 @@ class HappyPathValidator implements ValidatorInterface
     }
 
     /**
-     * @param Constraint|Constraint[]|null $constraint
+     * @param Constraint|array<Constraint>|null $constraint
      */
     private function validateConstraint(mixed $value, Constraint|array|null $constraint): bool
     {

@@ -117,7 +117,7 @@ class CriteriaQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private function orderListing(string $dir, SalesChannelContext $context): array
     {

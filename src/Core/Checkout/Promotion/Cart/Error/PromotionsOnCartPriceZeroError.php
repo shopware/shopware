@@ -11,7 +11,7 @@ class PromotionsOnCartPriceZeroError extends Error
     private const KEY = 'promotions-on-cart-price-zero-error';
 
     /**
-     * @param string[] $promotions
+     * @param array<string> $promotions
      */
     public function __construct(protected array $promotions)
     {
@@ -44,7 +44,7 @@ class PromotionsOnCartPriceZeroError extends Error
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getPromotions(): array
     {

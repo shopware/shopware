@@ -218,7 +218,7 @@ class FeatureTest extends TestCase
     }
 
     /**
-     * @return array{0: string, 1: bool}[]
+     * @return array<array{0: string, 1: bool}>
      */
     public static function featureAllDataProvider(): array
     {

@@ -35,7 +35,7 @@ class IdsCollection
     /**
      * @param list<string> $keys
      *
-     * @return array{id: string}[]
+     * @return array<array{id: string}>
      */
     public function getIdArray(array $keys, bool $bytes = false): array
     {

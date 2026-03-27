@@ -163,7 +163,7 @@ class ElasticsearchIndexer
     /**
      * @param array<mixed> $result
      *
-     * @return array{index: string, id: string, type: string, reason: string}[]
+     * @return array<array{index: string, id: string, type: string, reason: string}>
      */
     private function parseErrors(array $result): array
     {

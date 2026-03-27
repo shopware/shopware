@@ -61,7 +61,7 @@ class DemodataCompilerPassTest extends TestCase
     }
 
     /**
-     * @return array{0: ?string, 1: ?int, 2: ?string}[]
+     * @return array<array{0: ?string, 1: ?int, 2: ?string}>
      */
     public static function definitionProvider(): iterable
     {

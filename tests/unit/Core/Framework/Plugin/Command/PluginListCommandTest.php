@@ -184,7 +184,7 @@ class PluginListCommandTest extends TestCase
     }
 
     /**
-     * @param PluginEntity[] $entities
+     * @param array<PluginEntity> $entities
      */
     private function setupEntityCollection(array $entities): void
     {

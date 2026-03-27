@@ -16,7 +16,7 @@ class TreeItem extends Struct
     public ?string $afterId = null;
 
     /**
-     * @param TreeItem[] $children
+     * @param array<TreeItem> $children
      */
     public function __construct(
         protected ?CategoryEntity $category,
@@ -46,7 +46,7 @@ class TreeItem extends Struct
     }
 
     /**
-     * @return TreeItem[]
+     * @return array<TreeItem>
      */
     public function getChildren(): array
     {
@@ -61,7 +61,7 @@ class TreeItem extends Struct
     }
 
     /**
-     * @param TreeItem[] $children
+     * @param array<TreeItem> $children
      */
     public function setChildren(array $children): void
     {

@@ -21,7 +21,7 @@ class SecurityExtension extends AbstractExtension
     }
 
     /**
-     * @return TwigFilter[]
+     * @return array<TwigFilter>
      */
     public function getFilters(): array
     {

@@ -31,9 +31,9 @@ abstract class AbstractPriceSorter implements FilterSorterInterface
     }
 
     /**
-     * @param array<string, LineItemQuantity[]> $map
+     * @param array<string, array<LineItemQuantity>> $map
      *
-     * @return array<string, LineItemQuantity[]>
+     * @return array<string, array<LineItemQuantity>>
      */
     abstract protected function sortPriceMap(array $map): array;
 

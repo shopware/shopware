@@ -241,7 +241,7 @@ class PromotionCollector implements CartDataCollectorInterface
      *
      * @throws InconsistentCriteriaIdsException
      *
-     * @return PromotionEntity[]
+     * @return array<PromotionEntity>
      */
     private function searchPromotionsAuto(CartDataCollection $data, SalesChannelContext $context): array
     {

@@ -201,7 +201,7 @@ class DummyContext extends SalesChannelContext
     }
 
     /**
-     * @param array<string, string[]> $rules
+     * @param array<string, array<string>> $rules
      */
     public function setAreaRuleIdsFluent(array $rules): self
     {

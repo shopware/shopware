@@ -21,7 +21,7 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent, \IteratorAg
     protected string $name;
 
     /**
-     * @param TEntity[] $entities
+     * @param array<TEntity> $entities
      */
     public function __construct(
         protected EntityDefinition $definition,
@@ -37,7 +37,7 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent, \IteratorAg
     }
 
     /**
-     * @return TEntity[]
+     * @return array<TEntity>
      */
     public function getEntities(): array
     {

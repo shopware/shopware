@@ -38,7 +38,7 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
     }
 
     /**
-     * @param string[] $ids
+     * @param array<string> $ids
      */
     #[DataProvider('beforeDeletionEventDataProvider')]
     public function testBeforeDeletionEvent(

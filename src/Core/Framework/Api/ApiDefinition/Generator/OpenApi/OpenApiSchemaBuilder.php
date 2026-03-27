@@ -56,7 +56,7 @@ class OpenApiSchemaBuilder
     }
 
     /**
-     * @return Server[]
+     * @return array<Server>
      */
     private function createServers(string $api): array
     {
@@ -105,7 +105,7 @@ EOF,
     }
 
     /**
-     * @return Schema[]
+     * @return array<Schema>
      */
     private function getDefaultSchemas(): array
     {
@@ -376,7 +376,7 @@ EOF,
     }
 
     /**
-     * @return SecurityScheme[]
+     * @return array<SecurityScheme>
      */
     private function createSecurityScheme(string $api): array
     {
@@ -425,7 +425,7 @@ EOF,
     }
 
     /**
-     * @return OpenApiResponse[]
+     * @return array<OpenApiResponse>
      */
     private function createDefaultResponses(): array
     {

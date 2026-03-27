@@ -34,7 +34,7 @@ abstract class AbstractElasticsearchDefinition
     abstract public function getEntityDefinition(): EntityDefinition;
 
     /**
-     * @return array{_source?: array{includes: string[]}, properties: array<mixed>}
+     * @return array{_source?: array{includes: array<string>}, properties: array<mixed>}
      */
     abstract public function getMapping(Context $context): array;
 

@@ -28,7 +28,7 @@ class CacheInvalidator
     /**
      * @internal
      *
-     * @param CacheItemPoolInterface[] $adapters
+     * @param array<CacheItemPoolInterface> $adapters
      */
     public function __construct(
         private readonly array $adapters,

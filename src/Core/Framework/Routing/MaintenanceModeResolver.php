@@ -45,7 +45,7 @@ class MaintenanceModeResolver
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     private static function getIps(Request $request): array
     {

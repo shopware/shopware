@@ -69,7 +69,7 @@ final class ExtendsTokenParser extends AbstractTokenParser
     }
 
     /**
-     * @return array{template: string, scopes: string[]}
+     * @return array{template: string, scopes: array<string>}
      */
     private function getOptions(TokenStream $stream): array
     {
@@ -99,7 +99,7 @@ final class ExtendsTokenParser extends AbstractTokenParser
     }
 
     /**
-     * @param string[] $scopes
+     * @param array<string> $scopes
      */
     private function shouldEndFile(array $scopes, string $source): bool
     {

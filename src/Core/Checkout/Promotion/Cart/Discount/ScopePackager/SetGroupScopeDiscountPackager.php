@@ -110,7 +110,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
     }
 
     /**
-     * @param LineItemQuantity[] $groupItems
+     * @param array<LineItemQuantity> $groupItems
      */
     private function splitQuantities(array $groupItems): LineItemQuantityCollection
     {
@@ -132,7 +132,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
      *
      * @param array<mixed> $groups
      *
-     * @return LineItemGroupDefinition[]
+     * @return array<LineItemGroupDefinition>
      */
     private function buildGroupDefinitionList(array $groups): array
     {

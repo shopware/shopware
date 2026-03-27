@@ -105,7 +105,7 @@ class VariantListingIndexerTest extends TestCase
     }
 
     /**
-     * @param string[] $listingProperties
+     * @param array<string> $listingProperties
      */
     private function createProduct(array $listingProperties): void
     {
@@ -363,8 +363,8 @@ class VariantListingIndexerTest extends TestCase
 class Listing
 {
     /**
-     * @param string[] $ids
-     * @param string[] $optionIds
+     * @param array<string> $ids
+     * @param array<string> $optionIds
      */
     public function __construct(
         public array $ids,

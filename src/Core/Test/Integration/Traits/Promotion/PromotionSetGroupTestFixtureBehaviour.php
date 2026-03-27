@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 trait PromotionSetGroupTestFixtureBehaviour
 {
     /**
-     * @param RuleEntity[] $rules
+     * @param array<RuleEntity> $rules
      */
     private function createSetGroup(string $packagerKey, float $value, string $sorterKey, array $rules): PromotionSetGroupEntity
     {

@@ -98,9 +98,9 @@ class SearchKeywordUpdater implements ResetInterface
 
     /**
      * @param array<string> $ids
-     * @param ProductEntity[] $existingProducts
+     * @param array<ProductEntity> $existingProducts
      *
-     * @return ProductEntity[]
+     * @return array<ProductEntity>
      */
     private function updateLanguage(array $ids, Context $context, array $existingProducts): array
     {
@@ -326,7 +326,7 @@ class SearchKeywordUpdater implements ResetInterface
     /**
      * Sort languages so default language comes first, then languages that don't inherit and last inherited languages
      *
-     * @return LanguageEntity[]
+     * @return array<LanguageEntity>
      */
     private function sortLanguages(LanguageCollection $languages): array
     {

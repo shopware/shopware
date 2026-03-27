@@ -14,7 +14,7 @@ class ImageSliderStruct extends Struct
     protected ?array $navigation = null;
 
     /**
-     * @var ImageSliderItemStruct[]|null
+     * @var array<ImageSliderItemStruct>|null
      */
     protected ?array $sliderItems = [];
 
@@ -31,7 +31,7 @@ class ImageSliderStruct extends Struct
     }
 
     /**
-     * @return ImageSliderItemStruct[]|null
+     * @return array<ImageSliderItemStruct>|null
      */
     public function getSliderItems(): ?array
     {
@@ -39,7 +39,7 @@ class ImageSliderStruct extends Struct
     }
 
     /**
-     * @param ImageSliderItemStruct[]|null $sliderItems
+     * @param array<ImageSliderItemStruct>|null $sliderItems
      */
     public function setSliderItems(?array $sliderItems): void
     {

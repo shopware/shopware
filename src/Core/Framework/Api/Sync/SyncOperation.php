@@ -54,7 +54,7 @@ class SyncOperation extends Struct
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getSupportedActions(): array
     {

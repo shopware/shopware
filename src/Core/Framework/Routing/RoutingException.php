@@ -105,7 +105,7 @@ class RoutingException extends HttpException
     }
 
     /**
-     * @param string[] $privileges
+     * @param array<string> $privileges
      */
     public static function missingPrivileges(array $privileges): self
     {

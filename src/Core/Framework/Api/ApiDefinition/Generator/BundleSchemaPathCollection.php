@@ -24,7 +24,7 @@ class BundleSchemaPathCollection
     /**
      * @param Api $api
      *
-     * @return string[]
+     * @return array<string>
      */
     public function getSchemaPaths(string $api, ?string $bundleName): array
     {

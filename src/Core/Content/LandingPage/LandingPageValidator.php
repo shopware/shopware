@@ -60,7 +60,7 @@ class LandingPageValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param WriteCommand[] $commands
+     * @param array<WriteCommand> $commands
      */
     private function hasAnotherValidCommand(array $commands, WriteCommand $command): bool
     {

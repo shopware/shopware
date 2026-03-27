@@ -14,7 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class PartialSalesChannelEntityLoadedEvent extends SalesChannelEntityLoadedEvent
 {
     /**
-     * @param PartialEntity[] $entities
+     * @param array<PartialEntity> $entities
      */
     public function __construct(
         EntityDefinition $definition,

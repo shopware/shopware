@@ -111,7 +111,7 @@ class PromotionException extends HttpException
     }
 
     /**
-     * @param string[] $ids
+     * @param array<string> $ids
      */
     public static function promotionsNotFound(array $ids): self
     {
@@ -124,7 +124,7 @@ class PromotionException extends HttpException
     }
 
     /**
-     * @param string[] $ids
+     * @param array<string> $ids
      */
     public static function discountsNotFound(array $ids): self
     {

@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Struct\Collection;
 class StubCollection extends Collection
 {
     /**
-     * @param Stub[] $stubs
+     * @param array<Stub> $stubs
      */
     public function __construct(array $stubs = [])
     {

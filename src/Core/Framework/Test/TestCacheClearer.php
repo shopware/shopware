@@ -20,12 +20,12 @@ class TestCacheClearer
     protected Filesystem $filesystem;
 
     /**
-     * @var CacheItemPoolInterface[]
+     * @var array<CacheItemPoolInterface>
      */
     protected array $adapters;
 
     /**
-     * @param CacheItemPoolInterface[] $adapters
+     * @param array<CacheItemPoolInterface> $adapters
      */
     public function __construct(
         array $adapters,

@@ -30,7 +30,7 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
     /**
      * @internal
      *
-     * @param string[] $hosts
+     * @param array<string> $hosts
      */
     public function __construct(
         private readonly array $hosts,
@@ -76,7 +76,7 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
     }
 
     /**
-     * @param string[] $tags
+     * @param array<string> $tags
      */
     public function tag(array $tags, string $url, Response $response): void
     {

@@ -21,7 +21,7 @@ class TemplateScopeDetector
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     public function getScopes(): array
     {

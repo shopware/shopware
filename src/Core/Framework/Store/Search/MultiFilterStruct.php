@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 class MultiFilterStruct extends FilterStruct
 {
     /**
-     * @var FilterStruct[]
+     * @var array<FilterStruct>
      */
     protected array $queries;
 

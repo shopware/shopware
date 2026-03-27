@@ -288,7 +288,7 @@ class LineItemTransformerTest extends TestCase
     }
 
     /**
-     * @param string[] $states
+     * @param array<string> $states
      */
     private function buildOrderLineItemEntity(string $id, string $type, ?string $parentId, int $quantity = 1, array $states = [], string $productType = ProductDefinition::TYPE_PHYSICAL): OrderLineItemEntity
     {

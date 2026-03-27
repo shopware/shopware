@@ -4,6 +4,7 @@ import { glob } from 'tinyglobby';
 import { componentMapPlugin } from './build/component-map-plugin';
 import { devImportMapPlugin } from './build/dev-import-map-plugin';
 import { extensionModuleResolverPlugin } from './build/extension-module-resolver-plugin';
+import { scopedSubpathExportsPlugin } from './build/scoped-subpath-exports-plugin';
 
 export const componentRoot = path.resolve(import.meta.dirname, '../../views/components');
 
@@ -57,6 +58,7 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => {
             componentMapPlugin(),
             devImportMapPlugin(projectRoot),
             extensionModuleResolverPlugin(projectRoot),
+            scopedSubpathExportsPlugin(path.resolve(import.meta.dirname, 'node_modules')),
         ],
         resolve: {
             alias: isServe ? {

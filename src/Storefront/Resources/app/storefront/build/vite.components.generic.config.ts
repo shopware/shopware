@@ -26,6 +26,7 @@ import { createRequire } from 'node:module';
 import { defineConfig, type UserConfig } from 'vite';
 import { glob } from 'tinyglobby';
 import { componentMapPlugin } from './component-map-plugin';
+import { scopedSubpathExportsPlugin } from './scoped-subpath-exports-plugin';
 
 const componentRoot = process.env.COMPONENT_ROOT;
 const outDir = process.env.OUT_DIR;
@@ -106,6 +107,18 @@ export default defineConfig(async (): Promise<UserConfig> => {
                 },
             },
         },
-        plugins: [extensionNodeModulesPlugin(), componentMapPlugin()],
+        plugins: [
+            // scopedSubpathExportsPlugin must come before extensionNodeModulesPlugin so
+            // scoped subpath imports are resolved to their ESM entry via `exports` before
+            // the CJS fallback resolver can return a .cjs path instead.
+            scopedSubpathExportsPlugin(
+                // Extension's own node_modules first, then the core Storefront's shared
+                // node_modules as fallback for packages the extension doesn't vendor itself.
+                path.join(storefrontAppDir, 'node_modules'),
+                path.resolve(import.meta.dirname, '..', 'node_modules'),
+            ),
+            extensionNodeModulesPlugin(),
+            componentMapPlugin(),
+        ],
     };
 });

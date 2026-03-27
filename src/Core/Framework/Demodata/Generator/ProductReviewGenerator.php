@@ -38,7 +38,7 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param list<mixed> $options
+     * @param array<string, mixed> $options
      */
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {

@@ -29,7 +29,7 @@ class CmsSlotEntity extends Entity
     protected string $blockId;
 
     /**
-     * @var list<mixed>|null
+     * @var array<string, mixed>|null
      */
     protected ?array $config = null;
 
@@ -87,7 +87,7 @@ class CmsSlotEntity extends Entity
     }
 
     /**
-     * @return list<mixed>|null
+     * @return array<string, mixed>|null
      */
     public function getConfig(): ?array
     {
@@ -95,7 +95,7 @@ class CmsSlotEntity extends Entity
     }
 
     /**
-     * @param list<mixed> $config
+     * @param array<string, mixed> $config
      */
     public function setConfig(array $config): void
     {

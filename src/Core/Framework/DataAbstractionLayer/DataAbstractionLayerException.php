@@ -215,7 +215,7 @@ class DataAbstractionLayerException extends HttpException
     }
 
     /**
-     * @param list<mixed> $ids
+     * @param array<string, mixed> $ids
      */
     public static function invalidCriteriaIds(array $ids, string $reason): self
     {

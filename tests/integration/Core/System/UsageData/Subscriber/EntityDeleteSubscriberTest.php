@@ -216,7 +216,7 @@ class EntityDeleteSubscriberTest extends TestCase
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function insertTestProduct(IdsCollection $idsCollection, string $versionId): array
     {

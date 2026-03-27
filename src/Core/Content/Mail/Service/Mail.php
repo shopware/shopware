@@ -16,11 +16,11 @@ class Mail extends Email
     private array $attachmentUrls = [];
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function __serialize(): array
     {
-        /** @var list<mixed> $data */
+        /** @var array<string, mixed> $data */
         $data = parent::__serialize();
 
         $data[] = $this->mailAttachmentsConfig;
@@ -30,7 +30,7 @@ class Mail extends Email
     }
 
     /**
-     * @param list<mixed> $data
+     * @param array<string, mixed> $data
      */
     public function __unserialize(array $data): void
     {

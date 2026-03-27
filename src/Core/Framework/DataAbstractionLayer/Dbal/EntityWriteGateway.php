@@ -366,7 +366,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     }
 
     /**
-     * @param list<mixed> $array
+     * @param array<string, mixed> $array
      */
     private function isAssociative(array $array): bool
     {

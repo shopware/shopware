@@ -18,7 +18,7 @@ final class Json
     /**
      * @throws UtilException when the JSON is invalid, not an array or not an object with sequential keys
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public static function decodeToList(string $value): array
     {

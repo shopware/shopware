@@ -85,12 +85,12 @@ class DoctrineExtension extends AbstractExtension
     /**
      * Return a query with the parameters replaced
      *
-     * @param list<mixed>|Data $parameters
+     * @param array<string, mixed>|Data $parameters
      */
     public function replaceQueryParameters(string $query, array|Data $parameters = []): string
     {
         if ($parameters instanceof Data) {
-            /** @var list<mixed> */
+            /** @var array<string, mixed> */
             // @phpstan-ignore varTag.type (Symfony's Data::getValue return type is missing the content type of array)
             $parameters = $parameters->getValue(true);
         }

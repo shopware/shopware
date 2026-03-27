@@ -32,8 +32,8 @@ use Symfony\Component\Filesystem\Filesystem;
 class AppAdministrationSnippetPersisterTest extends TestCase
 {
     /**
-     * @param list<mixed> $snippetData
-     * @param list<mixed> $localeData
+     * @param array<string, mixed> $snippetData
+     * @param array<string, mixed> $localeData
      * @param array<string, string> $snippets
      */
     #[DataProvider('persisterDataProvider')]
@@ -159,7 +159,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{list<mixed>, list<mixed>, AppEntity, array<string, string>}>
+     * @return iterable<string, array{array<string, mixed>, array<string, mixed>, AppEntity, array<string, string>}>
      */
     public static function persisterDataProvider(): iterable
     {
@@ -292,7 +292,7 @@ class AppAdministrationSnippetPersisterTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{list<mixed>, SnippetException}>
+     * @return iterable<string, array{array<string, mixed>, SnippetException}>
      */
     public static function persisterExceptionDataProvider(): iterable
     {

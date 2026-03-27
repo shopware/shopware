@@ -84,7 +84,7 @@ class ProductSortingEntityTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $fields
+     * @param array<string, mixed> $fields
      * @param list<FieldSorting> $expected
      */
     #[DataProvider('dalSortingProvider')]
@@ -177,7 +177,7 @@ class ProductSortingEntityTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $fields
+     * @param array<string, mixed> $fields
      * @param list<FieldSorting> $expected
      */
     #[DataProvider('dalSortingDefaultSortBScoreProvider')]

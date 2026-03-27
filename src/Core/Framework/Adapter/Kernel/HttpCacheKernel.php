@@ -24,7 +24,7 @@ class HttpCacheKernel extends HttpCache
     /**
      * @internal
      *
-     * @param list<mixed> $options
+     * @param array<string, mixed> $options
      */
     public function __construct(
         HttpKernelInterface $kernel,

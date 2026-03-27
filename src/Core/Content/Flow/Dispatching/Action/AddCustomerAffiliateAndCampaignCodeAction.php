@@ -52,7 +52,7 @@ class AddCustomerAffiliateAndCampaignCodeAction extends FlowAction implements De
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function getAffiliateAndCampaignCodeFromCustomerId(string $customerId): array
     {

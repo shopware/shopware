@@ -61,9 +61,9 @@ class Migration1703850843FixSearchConfig extends MigrationStep
     }
 
     /**
-     * @param list<mixed> $items
+     * @param array<string, mixed> $items
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private static function filterEmpty(array $items): array
     {

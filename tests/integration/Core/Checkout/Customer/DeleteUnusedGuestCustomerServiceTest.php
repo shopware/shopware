@@ -252,7 +252,7 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $customer
+     * @param array<string, mixed> $customer
      */
     private function createOrderForCustomer(array $customer): string
     {

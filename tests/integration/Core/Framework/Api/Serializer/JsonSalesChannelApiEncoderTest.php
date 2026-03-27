@@ -151,9 +151,9 @@ class JsonSalesChannelApiEncoderTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $haystack
+     * @param array<string, mixed> $haystack
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function arrayRemove(array $haystack, string $keyToRemove): array
     {
@@ -171,9 +171,9 @@ class JsonSalesChannelApiEncoderTest extends TestCase
     }
 
     /**
-     * @param list<list<mixed>> $array
+     * @param list<array<string, mixed>> $array
      *
-     * @return list<list<mixed>>
+     * @return list<array<string, mixed>>
      */
     private function removeIncludedExtensions(array $array): array
     {

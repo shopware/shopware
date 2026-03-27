@@ -564,7 +564,7 @@ class OrderRouteTest extends TestCase
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function getOrderData(string $orderId, string $customerId, string $email): array
     {

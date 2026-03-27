@@ -370,7 +370,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $options
+     * @param array<string, mixed> $options
      */
     private function createSalesChannelContext(array $options = []): SalesChannelContext
     {

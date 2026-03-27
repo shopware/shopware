@@ -18,7 +18,7 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
     }
 
     /**
-     * @param array{ hits?: array{ hits: array<int, array{_id?: string, _score?: float, _source?: list<mixed>, inner_hits?: array{ inner?: list<mixed>}}>}, aggregations?: array<string, array<string, mixed>>} $result
+     * @param array{ hits?: array{ hits: array<int, array{_id?: string, _score?: float, _source?: array<string, mixed>, inner_hits?: array{ inner?: array<string, mixed>}}>}, aggregations?: array<string, array<string, mixed>>} $result
      */
     public function hydrate(EntityDefinition $definition, Criteria $criteria, Context $context, array $result): IdSearchResult
     {
@@ -50,9 +50,9 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
     }
 
     /**
-     * @param array{ hits: array{ hits: array<int, array{ inner_hits?: array{ inner?: list<mixed>}}>}} $result
+     * @param array{ hits: array{ hits: array<int, array{ inner_hits?: array{ inner?: array<string, mixed>}}>}} $result
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function extractHits(array $result): array
     {
@@ -66,7 +66,7 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
                 continue;
             }
 
-            /** @var array{ hits: array{ hits: array<int, list<mixed>>}} $inner */
+            /** @var array{ hits: array{ hits: array<int, array<string, mixed>>}} $inner */
             $inner = $hit['inner_hits']['inner'];
 
             $innerHits = $this->extractHits($inner);
@@ -80,7 +80,7 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
     }
 
     /**
-     * @param array{ hits: array{ hits: list<mixed>, total?: array{ value: int } }, aggregations?: array<string, array<string, mixed>>} $result
+     * @param array{ hits: array{ hits: array<string, mixed>, total?: array{ value: int } }, aggregations?: array<string, array<string, mixed>>} $result
      */
     private function getTotalValue(Criteria $criteria, array $result): int
     {

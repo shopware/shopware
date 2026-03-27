@@ -68,7 +68,7 @@ class Context extends Struct
      * Extension are not serialized, as they could be anything and make problems during serialization,
      * for symfony serializer they are exlcuded by the #[Exclude] attribute already
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function __serialize(): array
     {
@@ -88,7 +88,7 @@ class Context extends Struct
     }
 
     /**
-     * @param list<mixed> $data
+     * @param array<string, mixed> $data
      */
     public function __unserialize(array $data): void
     {

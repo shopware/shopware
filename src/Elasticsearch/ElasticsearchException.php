@@ -153,7 +153,7 @@ class ElasticsearchException extends HttpException
     }
 
     /**
-     * @param list<mixed> $config
+     * @param array<string, mixed> $config
      */
     public static function indexCreationFailed(string $index, array $config, \Throwable $exception): self
     {

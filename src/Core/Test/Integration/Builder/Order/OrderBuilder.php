@@ -43,17 +43,17 @@ class OrderBuilder
     protected CalculatedPrice $shippingCosts;
 
     /**
-     * @var list<mixed>
+     * @var array<string, mixed>
      */
     protected array $lineItems = [];
 
     /**
-     * @var list<mixed>
+     * @var array<string, mixed>
      */
     protected array $transactions = [];
 
     /**
-     * @var list<mixed>
+     * @var array<string, mixed>
      */
     protected array $addresses = [];
 
@@ -109,7 +109,7 @@ class OrderBuilder
     }
 
     /**
-     * @param list<mixed> $customParams
+     * @param array<string, mixed> $customParams
      */
     public function addTransaction(string $key, array $customParams = []): self
     {
@@ -146,7 +146,7 @@ class OrderBuilder
     }
 
     /**
-     * @param list<mixed> $customParams
+     * @param array<string, mixed> $customParams
      */
     public function addAddress(string $key, array $customParams = []): self
     {

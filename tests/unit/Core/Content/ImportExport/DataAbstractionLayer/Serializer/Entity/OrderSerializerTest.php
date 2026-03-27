@@ -55,8 +55,8 @@ class OrderSerializerTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|Struct|null $entity
-     * @param list<mixed> $expected
+     * @param array<string, mixed>|Struct|null $entity
+     * @param array<string, mixed> $expected
      */
     #[DataProvider('serializeDataProvider')]
     public function testSerialize($entity, array $expected): void
@@ -73,7 +73,7 @@ class OrderSerializerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{entity: Struct|list<mixed>|null, expected: array<string, mixed>}>
+     * @return iterable<string, array{entity: Struct|array<string, mixed>|null, expected: array<string, mixed>}>
      */
     public static function serializeDataProvider(): iterable
     {

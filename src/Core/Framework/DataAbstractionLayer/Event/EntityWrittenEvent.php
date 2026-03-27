@@ -43,7 +43,7 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
 
     /**
      * @param list<EntityWriteResult<IDStructure>> $writeResults
-     * @param list<mixed> $errors
+     * @param array<string, mixed> $errors
      */
     public function __construct(
         protected string $entityName,
@@ -66,7 +66,7 @@ class EntityWrittenEvent extends NestedEvent implements GenericEvent
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getErrors(): array
     {

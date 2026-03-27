@@ -37,7 +37,7 @@ class SecurityExtension extends AbstractExtension
      * @param iterable<mixed> $array
      * @param string|callable(mixed): mixed|\Closure $function
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function map(?iterable $array, string|callable|\Closure $function): ?array
     {
@@ -126,7 +126,7 @@ class SecurityExtension extends AbstractExtension
      * @param iterable<mixed> $array
      * @param string|callable(mixed): mixed|\Closure $arrow
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function sort(?iterable $array, string|callable|\Closure|null $arrow = null): ?array
     {

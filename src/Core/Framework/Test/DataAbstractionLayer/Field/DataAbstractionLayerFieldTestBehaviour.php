@@ -127,7 +127,7 @@ trait DataAbstractionLayerFieldTestBehaviour
     protected function registerDefinitionWithExtensions(string $definitionClass, string ...$extensionsClasses): EntityDefinition
     {
         $definition = $this->registerDefinition($definitionClass);
-        $this->registerDefinitionExtensions($extensionsClasses, $definitionClass, $definition);
+        $this->registerDefinitionExtensions(array_values($extensionsClasses), $definitionClass, $definition);
 
         return $definition;
     }
@@ -139,7 +139,7 @@ trait DataAbstractionLayerFieldTestBehaviour
     protected function registerSalesChannelDefinitionWithExtensions(string $definitionClass, string ...$extensionsClasses): EntityDefinition
     {
         $definition = static::getContainer()->get(SalesChannelDefinitionInstanceRegistry::class)->get($definitionClass);
-        $this->registerDefinitionExtensions($extensionsClasses, $definitionClass, $definition);
+        $this->registerDefinitionExtensions(array_values($extensionsClasses), $definitionClass, $definition);
 
         return $definition;
     }

@@ -63,9 +63,9 @@ trait AssignArrayTrait
     }
 
     /**
-     * @param list<mixed> $value
+     * @param array<array-key, mixed> $value
      *
-     * @return AssignArrayInterface|list<mixed>
+     * @return AssignArrayInterface|array<string, mixed>
      */
     private function createStruct(\ReflectionType $type, array $value): AssignArrayInterface|array
     {
@@ -110,7 +110,7 @@ trait AssignArrayTrait
         foreach ($types as $type) {
             $type = match (true) {
                 $type instanceof \ReflectionNamedType => $type,
-                $type instanceof \ReflectionUnionType => $this->getPropertyClassType($type->getTypes(), $expectedClass),
+                $type instanceof \ReflectionUnionType => $this->getPropertyClassType(array_values($type->getTypes()), $expectedClass),
                 default => null,
             };
 

@@ -98,7 +98,7 @@ class CampaignCodeOfOrderRuleTest extends TestCase
     }
 
     /**
-     * @return \Traversable<list<mixed>>
+     * @return \Traversable<array<string, mixed>>
      */
     public static function getCaseTestMatchValues(): \Traversable
     {

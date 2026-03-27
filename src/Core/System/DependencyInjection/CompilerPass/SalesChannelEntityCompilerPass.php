@@ -136,7 +136,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * @param array<string, list<mixed>> $taggedServiceIds
+     * @param array<string, array<string, mixed>> $taggedServiceIds
      *
      * @return array<string, array{entityName: string, fallback?: string}>
      */

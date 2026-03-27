@@ -365,7 +365,7 @@ class PriceFieldSerializerTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|PriceCollection $data
+     * @param array<string, mixed>|PriceCollection $data
      */
     private function encode(array|PriceCollection $data): string
     {

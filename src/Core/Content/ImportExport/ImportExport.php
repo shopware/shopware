@@ -456,7 +456,7 @@ class ImportExport
 
     /**
      * @param list<Entity|array<int|string, mixed>> $records
-     * @param array<int, list<mixed>> $failedRecords
+     * @param array<int, array<string, mixed>> $failedRecords
      */
     private function exportChunk(
         Config $config,

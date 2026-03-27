@@ -84,7 +84,7 @@ trait PromotionIntegrationTestBehaviour
      * Gets all promotion codes that have been added
      * to the current session.
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getSessionCodes(): array
     {

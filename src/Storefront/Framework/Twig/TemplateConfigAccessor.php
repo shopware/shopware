@@ -24,7 +24,7 @@ class TemplateConfigAccessor
     }
 
     /**
-     * @return string|bool|list<mixed>|float|int|null
+     * @return string|bool|array<string, mixed>|float|int|null
      */
     public function config(string $key, ?string $salesChannelId)
     {

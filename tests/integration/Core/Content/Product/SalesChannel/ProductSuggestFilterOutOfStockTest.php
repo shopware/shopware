@@ -173,7 +173,7 @@ class ProductSuggestFilterOutOfStockTest extends TestCase
     }
 
     /**
-     * @param array<int, array{combination:list<mixed>, stock: int}> $options
+     * @param array<int, array{combination:array<string, mixed>, stock: int}> $options
      * @param list<string> $listingGroups
      */
     private function createProduct(string $key, array $options, array $listingGroups): void

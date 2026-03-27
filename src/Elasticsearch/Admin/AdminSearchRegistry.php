@@ -445,7 +445,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function buildMapping(AbstractAdminIndexer $indexer): array
     {

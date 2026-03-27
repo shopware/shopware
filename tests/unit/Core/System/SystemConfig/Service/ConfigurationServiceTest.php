@@ -29,12 +29,12 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 class ConfigurationServiceTest extends TestCase
 {
     /**
-     * @var list<mixed>
+     * @var array<string, mixed>
      */
     private array $serverVarsBackup;
 
     /**
-     * @var list<mixed>
+     * @var array<string, mixed>
      */
     private array $envVarsBackup;
 
@@ -330,9 +330,9 @@ class ConfigurationServiceTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $config
+     * @param array<string, mixed> $config
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getConfiguration(array $config): array
     {
@@ -363,7 +363,7 @@ class ConfigurationServiceTest extends TestCase
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function getConfigWithoutValues(): array
     {
@@ -431,7 +431,7 @@ class ConfigurationServiceTest extends TestCase
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function getAppConfig(): array
     {

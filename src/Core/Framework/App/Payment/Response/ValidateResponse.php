@@ -13,12 +13,12 @@ class ValidateResponse extends AbstractResponse
     /**
      * This will be sent with the capture call for the app to identify the verified payment
      *
-     * @var list<mixed>
+     * @var array<string, mixed>
      */
     protected array $preOrderPayment = [];
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getPreOrderPayment(): array
     {

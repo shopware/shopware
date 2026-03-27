@@ -49,7 +49,7 @@ class ConfigSet extends Command
     }
 
     /**
-     * @return list<mixed>|bool|float|int|string|null $value
+     * @return array<string, mixed>|bool|float|int|string|null $value
      */
     protected function handleDecode(InputInterface $input): array|bool|float|int|string|null
     {

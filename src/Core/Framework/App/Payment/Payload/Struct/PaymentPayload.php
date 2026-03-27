@@ -23,7 +23,7 @@ class PaymentPayload implements PaymentPayloadInterface
     protected OrderTransactionEntity $orderTransaction;
 
     /**
-     * @param list<mixed> $requestData
+     * @param array<string, mixed> $requestData
      */
     public function __construct(
         OrderTransactionEntity $orderTransaction,
@@ -47,7 +47,7 @@ class PaymentPayload implements PaymentPayloadInterface
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getRequestData(): array
     {

@@ -49,7 +49,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * @return list<mixed>|null
+     * @return array<string, mixed>|null
      */
     public function decode(Field $field, mixed $value): ?array
     {
@@ -66,7 +66,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * @param list<mixed> $values
+     * @param array<string, mixed> $values
      */
     protected function validateTypes(ListField $field, array $values, WriteParameterBag $parameters): void
     {

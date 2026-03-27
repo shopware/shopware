@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @phpstan-type ResultArray array<string, array{groups: array<LineItemGroup>, total: array<LineItemQuantity>}>
+ * @phpstan-type ResultArray array<string, array{groups: list<LineItemGroup>, total: list<LineItemQuantity>}>
  * @phpstan-type CountResultArray array<string, array{count: int}>
  */
 #[Package('checkout')]

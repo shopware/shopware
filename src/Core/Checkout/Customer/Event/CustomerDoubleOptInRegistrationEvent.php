@@ -57,7 +57,7 @@ class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannel
     }
 
     /**
-     * @return array<string, scalar|list<mixed>|null>
+     * @return array<string, scalar|array<string, mixed>|null>
      */
     public function getValues(): array
     {

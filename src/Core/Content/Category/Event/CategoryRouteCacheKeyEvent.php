@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 class CategoryRouteCacheKeyEvent extends StoreApiRouteCacheKeyEvent
 {
     /**
-     * @param list<mixed> $parts
+     * @param array<string, mixed> $parts
      */
     public function __construct(
         protected string $navigationId,

@@ -144,7 +144,7 @@ class SyncOperationTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $operations
+     * @param array<string, mixed> $operations
      * @param list<string> $expectedErrors
      */
     #[DataProvider('invalidOperationProvider')]

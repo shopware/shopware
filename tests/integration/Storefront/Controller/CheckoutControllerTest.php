@@ -101,7 +101,7 @@ class CheckoutControllerTest extends TestCase
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public static function customerComments(): array
     {
@@ -336,7 +336,7 @@ class CheckoutControllerTest extends TestCase
     }
 
     /**
-     * @return list<list<mixed>>
+     * @return list<array<string, mixed>>
      */
     public static function errorDataProvider(): array
     {

@@ -77,7 +77,7 @@ class OpenApiValidationCommand extends Command
     }
 
     /**
-     * @param array<string, string|list<mixed>> $messages
+     * @param array<string, string|array<string, mixed>> $messages
      */
     private function renderErrorMessages(ShopwareStyle $style, array $messages): void
     {

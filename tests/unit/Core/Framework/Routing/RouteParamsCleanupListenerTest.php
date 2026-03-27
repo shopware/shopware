@@ -18,7 +18,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 class RouteParamsCleanupListenerTest extends TestCase
 {
     /**
-     * @param list<mixed> $attributes
+     * @param array<string, mixed> $attributes
      */
     #[DataProvider('provideListens')]
     public function testListener(Request $request, array $attributes): void

@@ -191,7 +191,7 @@ class Migration1703850843FixSearchConfigTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|null $modules
+     * @param array<string, mixed>|null $modules
      *
      * @return array<string, mixed>
      */
@@ -207,7 +207,7 @@ class Migration1703850843FixSearchConfigTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $fields
+     * @param array<string, mixed> $fields
      *
      * @return array<string, mixed>
      */
@@ -217,7 +217,7 @@ class Migration1703850843FixSearchConfigTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $fields
+     * @param array<string, mixed> $fields
      *
      * @return \Generator<string, array<string, mixed>>
      */

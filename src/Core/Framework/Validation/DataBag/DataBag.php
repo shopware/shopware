@@ -53,7 +53,7 @@ class DataBag extends ParameterBag
     }
 
     /**
-     * @param list<mixed> $parameters
+     * @param array<string, mixed> $parameters
      */
     public function add(array $parameters = []): void
     {
@@ -79,9 +79,9 @@ class DataBag extends ParameterBag
     }
 
     /**
-     * @param list<mixed> $parameters
+     * @param array<string, mixed> $parameters
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function wrapArrayParameters(array $parameters): array
     {

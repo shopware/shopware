@@ -46,7 +46,7 @@ class JsonEntityEncoderTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @return list<list<mixed>>
+     * @return list<array<string, mixed>>
      */
     public static function emptyInputProvider(): array
     {

@@ -52,7 +52,7 @@ class AddOrderAffiliateAndCampaignCodeAction extends FlowAction implements Delay
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function getAffiliateAndCampaignCodeFromOrderId(string $orderId): array
     {

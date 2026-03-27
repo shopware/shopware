@@ -67,7 +67,7 @@ class ScriptResponse
     }
 
     /**
-     * @param list<mixed>|ArrayFacade<mixed> $body
+     * @param array<string, mixed>|ArrayFacade<mixed> $body
      */
     public function setBody(array|ArrayFacade $body): void
     {

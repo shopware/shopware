@@ -110,7 +110,7 @@ class WriteResultMerger
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function getMergeableTranslationPayload(EntityWriteResult $translationResult): array
     {

@@ -45,7 +45,7 @@ class OrderLineItemCollection extends EntityCollection
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getPayloadsProperty(string $property): array
     {

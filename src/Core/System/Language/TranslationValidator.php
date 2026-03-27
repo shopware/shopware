@@ -120,7 +120,7 @@ class TranslationValidator implements EventSubscriberInterface
 
     /**
      * @param array<string, string> $parameters
-     * @param list<mixed>|null $invalidValue
+     * @param array<string, mixed>|null $invalidValue
      */
     private function buildViolation(
         string $messageTemplate,

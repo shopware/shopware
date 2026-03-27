@@ -31,17 +31,17 @@ use Symfony\Component\Validator\Validation;
 class StaticEntityRepository extends EntityRepository
 {
     /**
-     * @var list<list<mixed>>
+     * @var list<array<string, mixed>>
      */
     public array $upserts = [];
 
     /**
-     * @var list<list<mixed>>
+     * @var list<array<string, mixed>>
      */
     public array $updates = [];
 
     /**
-     * @var list<list<mixed>>
+     * @var list<array<string, mixed>>
      */
     public array $creates = [];
 
@@ -231,9 +231,9 @@ class StaticEntityRepository extends EntityRepository
     }
 
     /**
-     * @param list<mixed> $payload
+     * @param array<string, mixed> $payload
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function getDummyPrimaryKeys(array $payload): array
     {

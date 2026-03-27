@@ -89,7 +89,7 @@ class ListFieldSerializerTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|null $expected
+     * @param array<string, mixed>|null $expected
      */
     #[DataProvider('decodeProvider')]
     public function testDecode(ListField $field, ?string $input, ?array $expected): void
@@ -104,7 +104,7 @@ class ListFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return list<array{0: ListField, 1: string|null, 2: list<mixed>|null}>
+     * @return list<array{0: ListField, 1: string|null, 2: array<string, mixed>|null}>
      */
     public static function decodeProvider(): array
     {

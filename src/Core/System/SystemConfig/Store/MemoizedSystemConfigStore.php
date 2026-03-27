@@ -14,7 +14,7 @@ use Symfony\Contracts\Service\ResetInterface;
 final class MemoizedSystemConfigStore implements EventSubscriberInterface, ResetInterface
 {
     /**
-     * @var array<string, list<mixed>>
+     * @var array<string, array<string, mixed>>
      */
     private array $configs = [];
 

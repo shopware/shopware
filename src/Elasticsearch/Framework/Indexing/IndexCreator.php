@@ -16,14 +16,14 @@ use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexCreatedEve
 class IndexCreator
 {
     /**
-     * @var list<mixed>
+     * @var array<string, mixed>
      */
     private readonly array $config;
 
     /**
      * @internal
      *
-     * @param list<mixed> $config
+     * @param array<string, mixed> $config
      */
     public function __construct(
         private readonly Client $client,

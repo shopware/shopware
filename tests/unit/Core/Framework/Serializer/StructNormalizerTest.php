@@ -96,7 +96,7 @@ class StructNormalizerTest extends TestCase
     }
 
     /**
-     * @return list<list<mixed>>
+     * @return list<array<string, mixed>>
      */
     public static function denormalizeShouldReturnNonArraysProvider(): array
     {

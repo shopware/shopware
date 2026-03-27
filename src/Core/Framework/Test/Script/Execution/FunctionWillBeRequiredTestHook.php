@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Script\Execution\OptionalFunctionHook;
 class FunctionWillBeRequiredTestHook extends OptionalFunctionHook
 {
     /**
-     * @param list<mixed> $data
+     * @param array<string, mixed> $data
      */
     public function __construct(
         private readonly string $name,

@@ -306,7 +306,7 @@ class CartTaxTest extends TestCase
      * float $countryCompanyTaxFreeFrom
      * int $quantity
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public static function dataTestHandlingTaxFreeInStorefrontWithCountryBaseCurrencyUSD(): array
     {
@@ -336,7 +336,7 @@ class CartTaxTest extends TestCase
      * ?array vatIds
      * ?bool checkVatIdPattern
      *
-     * @return list<list<mixed>>
+     * @return list<array<string, mixed>>
      */
     public static function dataTestHandlingTaxFreeInStorefront(): array
     {

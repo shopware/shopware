@@ -23,7 +23,7 @@ class TwigVariableParser
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function parse(string $template): array
     {
@@ -40,9 +40,9 @@ class TwigVariableParser
 
     /**
      * @param list<Node> $nodes
-     * @param list<mixed> $aliases
+     * @param array<string, mixed> $aliases
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function getVariables(iterable $nodes, array $aliases = []): array
     {

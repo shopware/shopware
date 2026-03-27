@@ -10,7 +10,7 @@ interface SeoUrlPlaceholderHandlerInterface
 {
     /**
      * @param string $name
-     * @param list<mixed> $parameters
+     * @param array<string, mixed> $parameters
      */
     public function generate($name, array $parameters = []): string;
 

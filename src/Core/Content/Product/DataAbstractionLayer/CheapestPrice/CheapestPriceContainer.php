@@ -15,12 +15,12 @@ use Shopware\Core\Framework\Struct\Struct;
 class CheapestPriceContainer extends Struct
 {
     /**
-     * @var list<mixed>
+     * @var array<string, mixed>
      */
     protected array $value;
 
     /**
-     * @var list<mixed>|null
+     * @var array<string, mixed>|null
      */
     protected ?array $default = null;
 
@@ -30,7 +30,7 @@ class CheapestPriceContainer extends Struct
     private ?array $ruleIds = null;
 
     /**
-     * @param list<mixed> $value
+     * @param array<string, mixed> $value
      */
     public function __construct(array $value)
     {
@@ -165,7 +165,7 @@ class CheapestPriceContainer extends Struct
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getValue(): array
     {
@@ -173,7 +173,7 @@ class CheapestPriceContainer extends Struct
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getPricesForVariant(string $variantId): array
     {
@@ -189,7 +189,7 @@ class CheapestPriceContainer extends Struct
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getDefault(): ?array
     {
@@ -225,9 +225,9 @@ class CheapestPriceContainer extends Struct
     }
 
     /**
-     * @param list<mixed> $prices
+     * @param array<string, mixed> $prices
      *
-     * @return list<mixed>|null
+     * @return array<string, mixed>|null
      */
     private function filterByRuleId(array $prices, string $ruleId, bool &$defaultWasAdded): ?array
     {
@@ -247,7 +247,7 @@ class CheapestPriceContainer extends Struct
     }
 
     /**
-     * @param list<mixed> $price
+     * @param array<string, mixed> $price
      */
     private function getPriceValue(array $price, Context $context): ?float
     {
@@ -267,9 +267,9 @@ class CheapestPriceContainer extends Struct
     }
 
     /**
-     * @param list<mixed> $collection
+     * @param array<string, mixed> $collection
      *
-     * @return list<mixed>|null
+     * @return array<string, mixed>|null
      */
     private function getCurrencyPrice(array $collection, string $currencyId, bool $fallback = true): ?array
     {
@@ -287,7 +287,7 @@ class CheapestPriceContainer extends Struct
     }
 
     /**
-     * @param list<mixed> $price
+     * @param array<string, mixed> $price
      */
     private function isVariantPriceAvailableInSalesChannel(array $price, string $salesChannelId): bool
     {

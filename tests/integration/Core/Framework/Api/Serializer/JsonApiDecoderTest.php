@@ -76,7 +76,7 @@ class JsonApiDecoderTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $input
+     * @param array<string, mixed> $input
      */
     #[DataProvider('inputWithoutDataOnRootProvider')]
     public function testInputWithoutDataOnRoot(array $input): void
@@ -88,7 +88,7 @@ class JsonApiDecoderTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $input
+     * @param array<string, mixed> $input
      */
     #[DataProvider('resourceIdentifierWIthInvalidStructureProvider')]
     public function testResourceIdentifierWithInvalidStructure(array $input): void

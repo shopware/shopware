@@ -9,7 +9,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 trait TaxAddToSalesChannelTestBehaviour
 {
     /**
-     * @param list<mixed> $taxData
+     * @param array<string, mixed> $taxData
      */
     protected function addTaxDataToSalesChannel(SalesChannelContext $salesChannelContext, array $taxData): void
     {

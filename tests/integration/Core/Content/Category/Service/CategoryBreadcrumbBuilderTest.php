@@ -615,7 +615,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $products
+     * @param array<string, mixed> $products
      */
     private function createTestProduct(array $products = [], bool $fillAll = true): void
     {

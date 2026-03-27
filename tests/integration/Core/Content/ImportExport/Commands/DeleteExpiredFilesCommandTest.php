@@ -173,7 +173,7 @@ class DeleteExpiredFilesCommandTest extends TestCase
     /**
      * Prepare a defined number of test data.
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     protected function prepareImportExportFileTestData(int $num = 1): array
     {

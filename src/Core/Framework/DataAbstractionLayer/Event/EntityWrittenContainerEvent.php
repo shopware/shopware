@@ -19,7 +19,7 @@ class EntityWrittenContainerEvent extends NestedEvent
 
     /**
      * @param NestedEventCollection<EntityWrittenEvent<IDStructure>> $events
-     * @param list<mixed> $errors
+     * @param array<string, mixed> $errors
      */
     public function __construct(
         protected Context $context,
@@ -63,7 +63,7 @@ class EntityWrittenContainerEvent extends NestedEvent
 
     /**
      * @param array<string, list<EntityWriteResult>> $identifiers
-     * @param list<mixed> $errors
+     * @param array<string, mixed> $errors
      */
     public static function createWithWrittenEvents(array $identifiers, Context $context, array $errors, bool $cloned = false): self
     {
@@ -76,7 +76,7 @@ class EntityWrittenContainerEvent extends NestedEvent
 
     /**
      * @param array<string, list<EntityWriteResult>> $identifiers
-     * @param list<mixed> $errors
+     * @param array<string, mixed> $errors
      */
     public static function createWithDeletedEvents(array $identifiers, Context $context, array $errors): self
     {
@@ -112,7 +112,7 @@ class EntityWrittenContainerEvent extends NestedEvent
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getErrors(): array
     {
@@ -204,7 +204,7 @@ class EntityWrittenContainerEvent extends NestedEvent
 
     /**
      * @param array<string, list<EntityWriteResult>> $identifiers
-     * @param list<mixed> $errors
+     * @param array<string, mixed> $errors
      */
     private static function createEvents(array $identifiers, Context $context, array $errors, string $event): self
     {

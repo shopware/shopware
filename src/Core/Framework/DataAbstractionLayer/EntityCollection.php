@@ -196,7 +196,7 @@ class EntityCollection extends Collection
      *  ]
      * ```
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getCustomFieldsValue(string $field): array
     {

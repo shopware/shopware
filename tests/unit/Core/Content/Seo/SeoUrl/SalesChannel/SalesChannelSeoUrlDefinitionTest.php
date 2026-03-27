@@ -144,7 +144,7 @@ class SalesChannelSeoUrlDefinitionTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $filters
+     * @param array<string, mixed> $filters
      */
     private function findEqualsFilter(array $filters, string $field): ?EqualsFilter
     {

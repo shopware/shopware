@@ -53,7 +53,7 @@ class SearchKeywordUpdaterTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $productData
+     * @param array<string, mixed> $productData
      * @param list<string> $englishKeywords
      * @param list<string> $germanKeywords
      * @param list<string> $additionalDictionaries
@@ -75,7 +75,7 @@ class SearchKeywordUpdaterTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $productData
+     * @param array<string, mixed> $productData
      * @param list<string> $englishKeywords
      * @param list<string> $germanKeywords
      * @param list<string> $additionalDictionaries

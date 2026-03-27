@@ -98,7 +98,7 @@ WHERE custom_field_set_relation.entity_name = :entity
      *
      * @throws \JsonException
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public static function parseJson(array $record, string $field): array
     {

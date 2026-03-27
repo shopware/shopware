@@ -35,7 +35,7 @@ trait UpdateMailTrait
         }
 
         $translations = $this->getTranslationIds($connection, $languages, $update->getType());
-        if (empty($translations)) {
+        if ($translations === []) {
             return;
         }
 
@@ -58,7 +58,7 @@ trait UpdateMailTrait
     private function updateEnMail(Connection $connection, MailUpdate $update): void
     {
         $languages = array_merge([Defaults::LANGUAGE_SYSTEM], $this->getLanguageIds($connection, 'en-GB'));
-        $languages = array_unique(array_filter($languages));
+        $languages = array_values(array_unique(array_filter($languages)));
 
         if ($languages === []) {
             return;
@@ -87,14 +87,14 @@ trait UpdateMailTrait
     private function updateEnMailSubject(Connection $connection, MailSubjectUpdate $update): void
     {
         $languages = array_merge([Defaults::LANGUAGE_SYSTEM], $this->getLanguageIds($connection, 'en-GB'));
-        $languages = array_unique(array_filter($languages));
+        $languages = array_values(array_unique(array_filter($languages)));
 
         if ($languages === []) {
             return;
         }
 
         $translations = $this->getTranslationIds($connection, $languages, $update->getType());
-        if (empty($translations)) {
+        if ($translations === []) {
             return;
         }
 
@@ -142,7 +142,7 @@ trait UpdateMailTrait
     /**
      * @param list<string> $languageIds
      *
-     * @return list<mixed>
+     * @return list<array<string, mixed>>
      */
     private function getTranslationIds(Connection $connection, array $languageIds, string $type): array
     {

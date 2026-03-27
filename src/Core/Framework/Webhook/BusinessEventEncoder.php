@@ -162,7 +162,7 @@ class BusinessEventEncoder
      * @param array<string, mixed> $dataType
      * @param array<string, mixed> $property
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function encodeArray(array $dataType, array $property): array
     {

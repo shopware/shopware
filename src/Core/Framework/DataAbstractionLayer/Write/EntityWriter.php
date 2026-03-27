@@ -339,7 +339,7 @@ class EntityWriter implements EntityWriterInterface
     }
 
     /**
-     * @param list<mixed> $ids
+     * @param array<string, mixed> $ids
      *
      * @return list<array<string, string>>
      */
@@ -385,7 +385,7 @@ class EntityWriter implements EntityWriterInterface
     }
 
     /**
-     * @param list<mixed> $ids
+     * @param array<string, mixed> $ids
      *
      * @return array<string, list<EntityWriteResult>>
      */

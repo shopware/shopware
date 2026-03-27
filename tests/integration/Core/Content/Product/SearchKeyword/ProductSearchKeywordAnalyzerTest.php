@@ -340,7 +340,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function getConfigFieldsByLanguageId(string $searchConfigId): array
     {

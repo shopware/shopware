@@ -64,7 +64,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param float|bool|int|string|list<mixed>|null $expected
+     * @param float|bool|int|string|array<string, mixed>|null $expected
      */
     #[DataProvider('differentTypesProvider')]
     public function testSetGetDifferentTypes(array|float|bool|int|string|null $expected): void
@@ -93,7 +93,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|bool|int|float|string|null $writtenValue
+     * @param array<string, mixed>|bool|int|float|string|null $writtenValue
      */
     #[DataProvider('getStringProvider')]
     public function testGetString($writtenValue, string $expected): void
@@ -125,7 +125,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param float|bool|int|string|list<mixed>|null $writtenValue
+     * @param float|bool|int|string|array<string, mixed>|null $writtenValue
      */
     #[DataProvider('getIntProvider')]
     public function testGetInt(array|float|bool|int|string|null $writtenValue, int $expected): void
@@ -157,7 +157,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param float|bool|int|string|list<mixed>|null $writtenValue
+     * @param float|bool|int|string|array<string, mixed>|null $writtenValue
      */
     #[DataProvider('getFloatProvider')]
     public function testGetFloat(array|float|bool|int|string|null $writtenValue, float $expected): void
@@ -190,7 +190,7 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param float|bool|int|string|list<mixed>|null $writtenValue
+     * @param float|bool|int|string|array<string, mixed>|null $writtenValue
      */
     #[DataProvider('getBoolProvider')]
     public function testGetBool(array|float|bool|int|string|null $writtenValue, bool $expected): void

@@ -118,7 +118,7 @@ class MySQLFactory
     }
 
     /**
-     * @return Params&array{driverOptions: list<mixed>}
+     * @return Params&array{driverOptions: array<string, mixed>}
      */
     private static function parseDsn(DsnParser $dsnParser, string $url): array
     {

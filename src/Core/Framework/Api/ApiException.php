@@ -238,7 +238,7 @@ class ApiException extends HttpException
     }
 
     /**
-     * @param list<mixed> $payload
+     * @param array<string, mixed> $payload
      */
     public static function resourceNotFound(string $entity, array $payload): ShopwareHttpException
     {

@@ -158,7 +158,7 @@ class Client implements ResetInterface
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function fetchServices(int $page): ?array
     {
@@ -191,7 +191,7 @@ class Client implements ResetInterface
     }
 
     /**
-     * @param list<mixed> $content
+     * @param array<string, mixed> $content
      */
     private function validateServicesResponse(array $content): bool
     {

@@ -140,7 +140,7 @@ class ClientRepositoryTest extends TestCase
     }
 
     /**
-     * @return iterable<string, list<mixed>>
+     * @return iterable<string, array<string, mixed>>
      */
     public static function validateClientDataProvider(): iterable
     {
@@ -151,7 +151,7 @@ class ClientRepositoryTest extends TestCase
     }
 
     /**
-     * @return iterable<string, list<mixed>>
+     * @return iterable<string, array<string, mixed>>
      */
     public static function getClientEntityDataProvider(): iterable
     {

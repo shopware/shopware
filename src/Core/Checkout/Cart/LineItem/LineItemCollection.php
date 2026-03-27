@@ -134,7 +134,7 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return array<string, array<string, mixed>>
      */
     public function getPayload(): array
     {
@@ -208,7 +208,7 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @return list<string>
+     * @return array<string, string>
      */
     public function getTypes(): array
     {
@@ -218,7 +218,7 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @return list<string>
+     * @return array<string, string>
      */
     public function getReferenceIds(): array
     {

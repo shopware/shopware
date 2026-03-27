@@ -132,7 +132,7 @@ class ConnectionProfilerTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $types
+     * @param array<string, mixed> $types
      */
     #[DataProvider('paramProvider')]
     public function testCollectQueries(mixed $param, array $types, mixed $expected): void
@@ -169,7 +169,7 @@ class ConnectionProfilerTest extends TestCase
     }
 
     /**
-     * @return list<array{0: mixed, 1: list<mixed>, 2: mixed}>
+     * @return list<array{0: mixed, 1: array<string, mixed>, 2: mixed}>
      */
     public static function paramProvider(): array
     {
@@ -207,7 +207,7 @@ class ConnectionProfilerTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $types
+     * @param array<string, mixed> $types
      */
     #[DataProvider('paramProvider')]
     public function testSerialization(mixed $param, array $types, mixed $expected): void
@@ -244,7 +244,7 @@ class ConnectionProfilerTest extends TestCase
     }
 
     /**
-     * @param list<array{sql: string, params: list<mixed>|null, types: list<mixed>|null, executionMS?: int}> $queries
+     * @param list<array{sql: string, params: array<string, mixed>|null, types: array<string, mixed>|null, executionMS?: int}> $queries
      */
     private function createCollector(array $queries): ConnectionProfiler
     {

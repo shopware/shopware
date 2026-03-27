@@ -19,7 +19,7 @@ final class StockData extends Struct
     }
 
     /**
-     * @param array{productId: string, stock: int, available: bool, minPurchase?: int, maxPurchase?: int, isCloseout?: bool, extraData?: list<mixed>} $info
+     * @param array{productId: string, stock: int, available: bool, minPurchase?: int, maxPurchase?: int, isCloseout?: bool, extraData?: array<string, mixed>} $info
      */
     public static function fromArray(array $info): self
     {

@@ -107,7 +107,7 @@ class SalesChannelEntity extends Entity
     protected ?LanguageCollection $languages = null;
 
     /**
-     * @var list<mixed>|null
+     * @var array<string, mixed>|null
      */
     protected ?array $configuration = null;
 
@@ -116,7 +116,7 @@ class SalesChannelEntity extends Entity
     protected bool $maintenance;
 
     /**
-     * @var list<mixed>|null
+     * @var array<string, mixed>|null
      */
     protected ?array $maintenanceIpWhitelist = null;
 
@@ -330,7 +330,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @return list<mixed>|null
+     * @return array<string, mixed>|null
      */
     public function getConfiguration(): ?array
     {
@@ -338,7 +338,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @param list<mixed> $configuration
+     * @param array<string, mixed> $configuration
      */
     public function setConfiguration(array $configuration): void
     {
@@ -366,7 +366,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @return list<mixed>|null
+     * @return array<string, mixed>|null
      */
     public function getMaintenanceIpWhitelist(): ?array
     {
@@ -374,7 +374,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @param list<mixed>|null $maintenanceIpWhitelist
+     * @param array<string, mixed>|null $maintenanceIpWhitelist
      */
     public function setMaintenanceIpWhitelist(?array $maintenanceIpWhitelist): void
     {

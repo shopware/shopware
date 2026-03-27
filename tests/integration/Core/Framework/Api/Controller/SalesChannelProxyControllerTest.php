@@ -1330,7 +1330,7 @@ class SalesChannelProxyControllerTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $payload
+     * @param array<string, mixed> $payload
      */
     private function addSingleLineItem(KernelBrowser $browser, string $salesChannelId, array $payload = [], ?string $contextToken = null): void
     {
@@ -1363,7 +1363,7 @@ class SalesChannelProxyControllerTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $ids
+     * @param array<string, mixed> $ids
      */
     private function storeAPIRemoveLineItems(KernelBrowser $browser, array $ids, ?string $contextToken = null): void
     {
@@ -1400,7 +1400,7 @@ class SalesChannelProxyControllerTest extends TestCase
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function getCart(KernelBrowser $browser, string $salesChannelId): array
     {
@@ -1412,7 +1412,7 @@ class SalesChannelProxyControllerTest extends TestCase
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function getStoreApiCart(KernelBrowser $browser, string $salesChannelId, string $contextToken): array
     {

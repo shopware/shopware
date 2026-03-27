@@ -116,7 +116,7 @@ class TemplateFinderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, list<mixed>>
+     * @return iterable<string, array<string, mixed>>
      */
     public static function bundleTemplatesMappingProvider(): iterable
     {

@@ -1095,7 +1095,7 @@ json
     }
 
     /**
-     * @param list<mixed> $result
+     * @param array<string, mixed> $result
      */
     private function assertSnippetResult(
         array $result,
@@ -1137,7 +1137,7 @@ json
     }
 
     /**
-     * @param list<mixed> $result
+     * @param array<string, mixed> $result
      */
     private function assertFirstSnippetSetIdEquals(array $result, string $fooId): void
     {

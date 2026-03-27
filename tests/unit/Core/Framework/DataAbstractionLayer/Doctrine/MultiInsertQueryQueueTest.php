@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
  *      }>
  * @phpstan-type Queries list<array{
  *          query: string,
- *          values: list<mixed>,
+ *          values: array<string, mixed>,
  *          types?: list<ParameterType>
  *      }>
  */

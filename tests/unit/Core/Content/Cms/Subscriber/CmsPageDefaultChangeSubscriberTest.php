@@ -69,7 +69,7 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $connectionData
+     * @param array<string, mixed> $connectionData
      */
     #[DataProvider('beforeSystemConfigChangedEventDataProvider')]
     public function testBeforeSystemConfigChangedEvent(
@@ -202,7 +202,7 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
     }
 
     /**
-     * @param list<array{method: string, with: list<mixed>, willReturn: mixed}> $configurations
+     * @param list<array{method: string, with: array<string, mixed>, willReturn: mixed}> $configurations
      */
     private function getConnectionMock(array $configurations = []): Connection
     {

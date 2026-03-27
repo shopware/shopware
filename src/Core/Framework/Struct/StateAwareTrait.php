@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 trait StateAwareTrait
 {
     /**
-     * @var list<string>
+     * @var array<string, string>
      */
     protected array $states = [];
 

@@ -140,7 +140,7 @@ class Migration1721202771UpdateDefaultSearchConfigTest extends TestCase
     }
 
     /**
-     * @param list<mixed>|null $modules
+     * @param array<string, mixed>|null $modules
      *
      * @return array<string, mixed>
      */
@@ -166,7 +166,7 @@ class Migration1721202771UpdateDefaultSearchConfigTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $fields
+     * @param array<string, mixed> $fields
      *
      * @return \Generator<string, array<string, mixed>>
      */

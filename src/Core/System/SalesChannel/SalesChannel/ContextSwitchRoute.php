@@ -160,7 +160,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
     }
 
     /**
-     * @param list<mixed> $parameters
+     * @param array<string, mixed> $parameters
      */
     private function checkNewDomain(array $parameters, SalesChannelContext $context): ?string
     {

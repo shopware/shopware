@@ -16,7 +16,7 @@ trait ProductFeatureSetFixtures
     use EntityFixturesBase;
 
     /**
-     * @var list<mixed>
+     * @var array<string, mixed>
      */
     public array $featureSetFixtures;
 

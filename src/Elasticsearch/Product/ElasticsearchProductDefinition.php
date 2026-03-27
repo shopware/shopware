@@ -667,7 +667,7 @@ SQL;
                 $variantCustomFields[$languageId] ?? [],
             ];
 
-            /** @var list<mixed>|string $chain */
+            /** @var array<string, mixed>|string $chain */
             foreach ($chains as $chain) {
                 // chain is empty string, when no custom fields are set
                 if ($chain === '') {

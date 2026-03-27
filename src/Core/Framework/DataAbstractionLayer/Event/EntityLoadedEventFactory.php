@@ -24,7 +24,7 @@ class EntityLoadedEventFactory
     }
 
     /**
-     * @param list<mixed> $entities
+     * @param array<string, mixed> $entities
      */
     public function create(array $entities, Context $context): EntityLoadedContainerEvent
     {
@@ -38,7 +38,7 @@ class EntityLoadedEventFactory
     }
 
     /**
-     * @param list<mixed> $entities
+     * @param array<string, mixed> $entities
      */
     public function createPartial(array $entities, Context $context): EntityLoadedContainerEvent
     {
@@ -52,7 +52,7 @@ class EntityLoadedEventFactory
     }
 
     /**
-     * @param list<mixed> $entities
+     * @param array<string, mixed> $entities
      *
      * @return list<EntityLoadedContainerEvent>
      */
@@ -73,7 +73,7 @@ class EntityLoadedEventFactory
     }
 
     /**
-     * @param list<mixed> $entities
+     * @param array<string, mixed> $entities
      *
      * @return list<EntityLoadedContainerEvent>
      */
@@ -109,7 +109,7 @@ class EntityLoadedEventFactory
     }
 
     /**
-     * @param list<mixed> $entities
+     * @param array<string, mixed> $entities
      * @param array<string, list<Entity>> $mapping
      */
     private function recursion(array $entities, array &$mapping): void

@@ -166,7 +166,7 @@ class StorefrontRoutingTest extends TestCase
      * @param array<int, string> $keys
      * @param array<string, array<int, bool|string>> $config
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private static function generateCases(array $keys, array $config): array
     {

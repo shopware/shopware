@@ -212,7 +212,7 @@ class AssignArrayTraitTest extends TestCase
     {
         $class = (new class extends Struct implements \JsonSerializable, \Countable {
             /**
-             * @var list<mixed>
+             * @var array<string, mixed>
              */
             protected array $property;
 

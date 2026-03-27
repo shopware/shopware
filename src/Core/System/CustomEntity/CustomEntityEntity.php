@@ -26,12 +26,12 @@ class CustomEntityEntity extends Entity
     protected ?string $labelProperty = null;
 
     /**
-     * @var list<mixed>
+     * @var array<string, mixed>
      */
     protected array $fields;
 
     /**
-     * @var array<string, list<mixed>>|null
+     * @var array<string, array<string, mixed>>|null
      */
     protected ?array $flags = null;
 
@@ -83,7 +83,7 @@ class CustomEntityEntity extends Entity
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getFields(): array
     {
@@ -91,7 +91,7 @@ class CustomEntityEntity extends Entity
     }
 
     /**
-     * @param list<mixed> $fields
+     * @param array<string, mixed> $fields
      */
     public function setFields(array $fields): void
     {
@@ -99,7 +99,7 @@ class CustomEntityEntity extends Entity
     }
 
     /**
-     * @return array<string, list<mixed>>|null
+     * @return array<string, array<string, mixed>>|null
      */
     public function getFlags(): ?array
     {
@@ -107,7 +107,7 @@ class CustomEntityEntity extends Entity
     }
 
     /**
-     * @param array<string, list<mixed>>|null $flags
+     * @param array<string, array<string, mixed>>|null $flags
      */
     public function setFlags(?array $flags): void
     {

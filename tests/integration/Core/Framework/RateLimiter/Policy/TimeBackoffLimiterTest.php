@@ -27,7 +27,7 @@ class TimeBackoffLimiterTest extends TestCase
     use SalesChannelApiTestBehaviour;
 
     /**
-     * @var list<mixed>
+     * @var array<string, mixed>
      */
     private array $config;
 

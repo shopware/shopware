@@ -267,7 +267,7 @@ class PromotionCollector implements CartDataCollectorInterface
      * or are loaded directly from the database if a certain code is new
      * and has not yet been fetched.
      *
-     * @param list<mixed> $allCodes
+     * @param array<string, mixed> $allCodes
      *
      * @throws InconsistentCriteriaIdsException
      */

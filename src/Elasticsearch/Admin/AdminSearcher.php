@@ -219,7 +219,7 @@ class AdminSearcher
     }
 
     /**
-     * @param list<mixed> $rawResponse
+     * @param array<string, mixed> $rawResponse
      *
      * @return array<string, array{total: int, hits: array<int, array{id: string, score: float, parameters: array<string, mixed>, entityName: string }>}>
      */

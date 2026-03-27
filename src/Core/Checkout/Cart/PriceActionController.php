@@ -126,7 +126,7 @@ class PriceActionController extends AbstractController
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function calculatePrice(float $price, float $taxRate, int $quantity, string $output, bool $preCalculated): array
     {

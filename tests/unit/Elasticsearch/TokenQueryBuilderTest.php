@@ -615,7 +615,7 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $query
+     * @param array<string, mixed> $query
      * @param array<string, mixed> $explainPayload
      *
      * @return array{nested: non-empty-array<string, mixed>}
@@ -637,7 +637,7 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private static function match(string $field, string|int|float $query, int|float $boost, int|string|null $fuzziness = null, string $operator = 'or', ?int $maxExpansions = null, ?string $analyzer = null): array
     {
@@ -675,9 +675,9 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $queries
+     * @param array<string, mixed> $queries
      *
-     * @return array{dis_max: array{queries: list<mixed>}}
+     * @return array{dis_max: array{queries: array<string, mixed>}}
      */
     private static function disMax(array $queries, float|int|null $boost = null): array
     {
@@ -695,9 +695,9 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $queries
+     * @param array<string, mixed> $queries
      *
-     * @return array{ bool: array<string, list<mixed>> }
+     * @return array{ bool: array<string, array<string, mixed>> }
      */
     private static function bool(array $queries): array
     {

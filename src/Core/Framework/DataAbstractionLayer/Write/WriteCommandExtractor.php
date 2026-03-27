@@ -57,9 +57,9 @@ class WriteCommandExtractor
     }
 
     /**
-     * @param list<mixed> $rawData
+     * @param array<string, mixed> $rawData
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function normalize(EntityDefinition $definition, array $rawData, WriteParameterBag $parameters): array
     {
@@ -75,9 +75,9 @@ class WriteCommandExtractor
     }
 
     /**
-     * @param list<mixed> $data
+     * @param array<string, mixed> $data
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function normalizeSingle(EntityDefinition $definition, array $data, WriteParameterBag $parameters): array
     {

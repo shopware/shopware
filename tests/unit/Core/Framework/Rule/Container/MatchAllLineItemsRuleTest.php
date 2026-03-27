@@ -73,7 +73,7 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, list<mixed>>
+     * @return array<string, array<string, mixed>>
      */
     public static function getCartScopeTestData(): array
     {
@@ -116,7 +116,7 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, list<mixed>>
+     * @return array<string, array<string, mixed>>
      */
     public static function getLineItemScopeTestData(): array
     {
@@ -174,7 +174,7 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, list<mixed>>
+     * @return array<string, array<string, mixed>>
      */
     public static function getCartScopeTestMinimumShouldMatchData(): array
     {
@@ -218,7 +218,7 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, list<mixed>>
+     * @return array<string, array<string, mixed>>
      */
     public static function getLineItemScopeTestMinimumShouldMatchData(): array
     {

@@ -439,7 +439,7 @@ class RequestTransformerTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $salesChannels
+     * @param array<string, mixed> $salesChannels
      */
     private function createSalesChannels(array $salesChannels): EntityWrittenContainerEvent
     {

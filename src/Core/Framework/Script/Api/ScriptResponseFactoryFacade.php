@@ -34,7 +34,7 @@ class ScriptResponseFactoryFacade
     /**
      * The `json()` method allows you to create a JSON-Response.
      *
-     * @param list<mixed> $data The data that should be sent in the response as array.
+     * @param array<string, mixed> $data The data that should be sent in the response as array.
      * @param int $code The HTTP-Status-Code of the response, defaults to 200.
      *
      * @return ScriptResponse The created response object, remember to assign it to the hook with `hook.setResponse()`.
@@ -55,7 +55,7 @@ class ScriptResponseFactoryFacade
      * The `redirect()` method allows you to create a RedirectResponse.
      *
      * @param string $route The name of the route that should be redirected to.
-     * @param list<mixed> $parameters The parameters needing to generate the URL of the route as an associative array.
+     * @param array<string, mixed> $parameters The parameters needing to generate the URL of the route as an associative array.
      * @param int $code he HTTP-Status-Code of the response, defaults to 302.
      *
      * @return ScriptResponse The created response object, remember to assign it to the hook with `hook.setResponse()`.
@@ -80,7 +80,7 @@ class ScriptResponseFactoryFacade
      * or if the Storefront-bundle is not installed.
      *
      * @param string $view The name of the twig template you want to render e.g. `@Storefront/storefront/page/content/detail.html.twig`
-     * @param list<mixed> $parameters The parameters you want to pass to the template, ensure that you pass the `page` parameter from the hook to the templates.
+     * @param array<string, mixed> $parameters The parameters you want to pass to the template, ensure that you pass the `page` parameter from the hook to the templates.
      *
      * @return ScriptResponse The created response object with the rendered template as content, remember to assign it to the hook with `hook.setResponse()`.
      *

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 class MessageStorer extends FlowStorer
 {
     /**
-     * @param list<mixed> $stored
+     * @param array<string, mixed> $stored
      *
      * @return array<string, mixed>
      */

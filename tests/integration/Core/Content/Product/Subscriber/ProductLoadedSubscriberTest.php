@@ -104,9 +104,9 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $product
-     * @param list<mixed> $expected
-     * @param list<mixed> $unexpected
+     * @param array<string, mixed> $product
+     * @param array<string, mixed> $expected
+     * @param array<string, mixed> $unexpected
      */
     #[DataProvider('propertyCases')]
     public function testSortProperties(array $product, array $expected, array $unexpected, Criteria $criteria): void
@@ -155,9 +155,9 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $product
-     * @param list<mixed> $expected
-     * @param list<mixed> $unexpected
+     * @param array<string, mixed> $product
+     * @param array<string, mixed> $expected
+     * @param array<string, mixed> $unexpected
      */
     #[DataProvider('propertyCases')]
     public function testSortPropertiesPartial(array $product, array $expected, array $unexpected, Criteria $criteria): void
@@ -210,7 +210,7 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public static function propertyCases(): array
     {
@@ -360,8 +360,8 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $product
-     * @param list<mixed> $expected
+     * @param array<string, mixed> $product
+     * @param array<string, mixed> $expected
      * @param non-empty-list<string> $languageChain
      */
     #[DataProvider('variationCases')]
@@ -418,7 +418,7 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public static function variationCases(): array
     {
@@ -1347,7 +1347,7 @@ class ProductLoadedSubscriberTest extends TestCase
     /**
      * @throws \JsonException
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function objectToArray(object $obj): array
     {

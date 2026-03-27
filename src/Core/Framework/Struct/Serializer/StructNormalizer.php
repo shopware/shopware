@@ -102,7 +102,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 
     /**
      * @param class-string<object> $class
-     * @param list<mixed> $arguments
+     * @param array<string, mixed> $arguments
      */
     private function createInstance(string $class, array $arguments): Struct
     {

@@ -13,7 +13,7 @@ class CsvReader extends AbstractReader
     private int $offset = 0;
 
     /**
-     * @var list<mixed>
+     * @var array<string, mixed>
      */
     private array $header = [];
 
@@ -31,7 +31,7 @@ class CsvReader extends AbstractReader
     /**
      * @param resource $resource
      *
-     * @return iterable<list<mixed>>
+     * @return iterable<array<string, mixed>>
      */
     public function read(Config $config, $resource, int $offset): iterable
     {
@@ -93,7 +93,7 @@ class CsvReader extends AbstractReader
     /**
      * @param resource $resource
      *
-     * @return list<mixed>|null
+     * @return array<string, mixed>|null
      */
     private function readSingleRecord($resource, int $offset): ?array
     {
@@ -121,9 +121,9 @@ class CsvReader extends AbstractReader
     }
 
     /**
-     * @param list<mixed> $record
+     * @param array<string, mixed> $record
      *
-     * @return list<mixed>|null
+     * @return array<string, mixed>|null
      */
     private function mapRecord(array $record): ?array
     {

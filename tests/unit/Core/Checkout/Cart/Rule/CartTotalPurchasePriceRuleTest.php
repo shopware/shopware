@@ -61,7 +61,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, list<mixed>>
+     * @return iterable<string, array<string, mixed>>
      */
     public static function provideLineItemTestCases(): iterable
     {

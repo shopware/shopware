@@ -66,7 +66,7 @@ class ElasticsearchCustomFieldsMappingHelper
     }
 
     /**
-     * @param array<string, list<mixed>> $newCreatedFields
+     * @param array<string, array<string, mixed>> $newCreatedFields
      */
     public function createFieldsInIndices(array $newCreatedFields): void
     {
@@ -88,7 +88,7 @@ class ElasticsearchCustomFieldsMappingHelper
     }
 
     /**
-     * @param array<string, list<mixed>> $newCreatedFields
+     * @param array<string, array<string, mixed>> $newCreatedFields
      * @param list<string> $indices
      * @param list<string> $languageIds
      */

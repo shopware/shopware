@@ -27,7 +27,7 @@ class CategoryBuilder
     protected ?string $name;
 
     /**
-     * @var array{id: string}|list<mixed>|null
+     * @var array{id: string}|array<string, mixed>|null
      */
     protected ?array $cmsPage = null;
 
@@ -89,7 +89,7 @@ class CategoryBuilder
     }
 
     /**
-     * @param list<mixed> $value
+     * @param array<string, mixed> $value
      */
     public function slot(string $key, array $value, string $languageId = Defaults::LANGUAGE_SYSTEM): self
     {

@@ -452,7 +452,7 @@ class SalesChannelProxyController extends AbstractController
         $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $payload = $this->contextPersister->load($contextToken, $salesChannelId);
-        /** @var list<mixed>|null $requestPermissions */
+        /** @var array<string, mixed>|null $requestPermissions */
         $requestPermissions = $request->request->all()[SalesChannelContextService::PERMISSIONS] ?? null;
 
         if (\in_array(SalesChannelContextService::PERMISSIONS, $payload, true) && !$requestPermissions) {

@@ -275,7 +275,7 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function getFieldArgs(
         string $entity,

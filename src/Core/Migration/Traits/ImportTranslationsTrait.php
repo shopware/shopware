@@ -13,10 +13,10 @@ trait ImportTranslationsTrait
     protected function importTranslation(string $table, Translations $translations, Connection $connection): TranslationWriteResult
     {
         $germanIds = $this->getLanguageIds($connection, 'de-DE');
-        $englishIds = array_unique(array_diff(
+        $englishIds = array_values(array_unique(array_diff(
             array_merge($this->getLanguageIds($connection, 'en-GB'), [Defaults::LANGUAGE_SYSTEM]),
             $germanIds
-        ));
+        )));
 
         $columns = [];
         $values = [];
@@ -71,6 +71,6 @@ trait ImportTranslationsTrait
                 AND locale.code = :locale
         ', ['locale' => $locale]);
 
-        return array_unique(array_filter($ids));
+        return array_values(array_unique(array_filter($ids)));
     }
 }

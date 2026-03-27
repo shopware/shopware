@@ -59,7 +59,7 @@ class BaseSalesChannelContextFactoryTest extends TestCase
 {
     /**
      * @param array<string, mixed> $options
-     * @param array<string, list<mixed>> $entitySearchResult
+     * @param array<string, array<string, mixed>> $entitySearchResult
      * @param false|array<string, mixed> $fetchDataResult
      */
     #[DataProvider('factoryCreationDataProvider')]

@@ -52,7 +52,7 @@ class SystemConfigService implements ResetInterface
     }
 
     /**
-     * @return list<mixed>|bool|float|int|string|null
+     * @return array<string, mixed>|bool|float|int|string|null
      */
     public function get(string $key, ?string $salesChannelId = null)
     {
@@ -121,7 +121,7 @@ class SystemConfigService implements ResetInterface
      *
      * gets all available shop configs and returns them as an array
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function all(?string $salesChannelId = null): array
     {
@@ -133,7 +133,7 @@ class SystemConfigService implements ResetInterface
      *
      * @throws SystemConfigException
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getDomain(string $domain, ?string $salesChannelId = null, bool $inherit = false): array
     {
@@ -199,7 +199,7 @@ class SystemConfigService implements ResetInterface
     }
 
     /**
-     * @param list<mixed>|bool|float|int|string|null $value
+     * @param array<string, mixed>|bool|float|int|string|null $value
      *
      * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
      */
@@ -216,7 +216,7 @@ class SystemConfigService implements ResetInterface
     }
 
     /**
-     * @param array<string, list<mixed>|bool|float|int|string|null> $values
+     * @param array<string, array<string, mixed>|bool|float|int|string|null> $values
      *
      * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
      */
@@ -382,7 +382,7 @@ class SystemConfigService implements ResetInterface
     }
 
     /**
-     * @param list<mixed> $config
+     * @param array<string, mixed> $config
      */
     public function saveConfig(array $config, string $prefix, bool $override): void
     {
@@ -414,7 +414,7 @@ class SystemConfigService implements ResetInterface
     }
 
     /**
-     * @param list<mixed> $config
+     * @param array<string, mixed> $config
      */
     public function deleteExtensionConfiguration(string $extensionName, array $config): void
     {

@@ -63,7 +63,7 @@ class StoreClientFactory
     private static function mapResponse(callable $fn): callable
     {
         return static function (callable $handler) use ($fn): callable {
-            /** @var callable(RequestInterface, list<mixed>): Promise $handler */
+            /** @var callable(RequestInterface, array<string, mixed>): Promise $handler */
             return static function (RequestInterface $request, array $options) use ($handler, $fn) {
                 return $handler($request, $options)->then(static fn ($response) => $fn($response, $request));
             };

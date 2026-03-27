@@ -1972,7 +1972,7 @@ class RecalculationServiceTest extends TestCase
     }
 
     /**
-     * @return array{0: OrderEntity, 1: list<mixed>}
+     * @return array{0: OrderEntity, 1: array<string, mixed>}
      */
     private function applyAutomaticPromotions(string $orderId, string $versionId, ?string $promotionId): array
     {

@@ -24,8 +24,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 class IndexCreatorTest extends TestCase
 {
     /**
-     * @param list<mixed> $constructorConfig
-     * @param list<mixed> $expectedConfig
+     * @param array<string, mixed> $constructorConfig
+     * @param array<string, mixed> $expectedConfig
      */
     #[DataProvider('providerCreateIndices')]
     public function testIndexCreation(array $constructorConfig, array $expectedConfig): void
@@ -282,7 +282,7 @@ class IndexCreatorTest extends TestCase
     }
 
     /**
-     * @return iterable<list<mixed>>
+     * @return iterable<array<string, mixed>>
      */
     public static function providerCreateIndices(): iterable
     {

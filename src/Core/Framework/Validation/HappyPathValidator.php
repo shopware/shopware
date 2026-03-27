@@ -222,7 +222,7 @@ class HappyPathValidator implements ValidatorInterface
 
                     if (($existsInArray || $existsInArrayAccess) && property_exists($fieldConstraint, 'constraints')) {
                         if ((is_countable($fieldConstraint->constraints) ? \count($fieldConstraint->constraints) : 0) > 0) {
-                            /** @var list<mixed>|\ArrayAccess<string|int, mixed> $value */
+                            /** @var array<string, mixed>|\ArrayAccess<string|int, mixed> $value */
                             if (!$this->validateConstraint($value[$field], $fieldConstraint->constraints)) {
                                 return false;
                             }

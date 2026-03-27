@@ -169,7 +169,7 @@ class RuleValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param list<mixed> $payload
+     * @param array<string, mixed> $payload
      */
     private function getConditionType(?RuleConditionEntity $condition, array $payload): ?string
     {
@@ -182,9 +182,9 @@ class RuleValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param list<mixed> $payload
+     * @param array<string, mixed> $payload
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function getConditionValue(?RuleConditionEntity $condition, array $payload): array
     {
@@ -198,7 +198,7 @@ class RuleValidator implements EventSubscriberInterface
 
     /**
      * @param array<string, list<Constraint>> $fieldValidations
-     * @param list<mixed> $payload
+     * @param array<string, mixed> $payload
      * @param list<string> $missingProperties
      */
     private function validateConsistence(array $fieldValidations, array $payload, ConstraintViolationList $violationList, array $missingProperties): void
@@ -283,7 +283,7 @@ class RuleValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param list<mixed> $payload
+     * @param array<string, mixed> $payload
      */
     private function setScriptConstraints(
         ScriptRule $ruleInstance,

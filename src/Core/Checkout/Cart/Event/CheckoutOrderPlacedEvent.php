@@ -108,6 +108,6 @@ class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, Sales
             return [];
         }
 
-        return array_filter($extension->getDocumentIds());
+        return array_values(array_filter($extension->getDocumentIds()));
     }
 }

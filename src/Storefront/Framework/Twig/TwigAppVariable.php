@@ -106,7 +106,7 @@ class TwigAppVariable extends AppVariable
     /**
      * @param string|list<string>|null $types
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getFlashes(string|array|null $types = null): array
     {

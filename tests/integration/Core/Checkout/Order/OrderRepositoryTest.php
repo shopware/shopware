@@ -242,7 +242,7 @@ class OrderRepositoryTest extends TestCase
     }
 
     /**
-     * @return list<list<mixed>>
+     * @return list<array<string, mixed>>
      */
     private function getOrderData(string $orderId, Context $context): array
     {

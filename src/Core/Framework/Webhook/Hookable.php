@@ -60,7 +60,7 @@ interface Hookable
     public function getName(): string;
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getWebhookPayload(?AppEntity $app = null): array;
 

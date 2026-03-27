@@ -161,7 +161,7 @@ class ElasticsearchIndexer
     }
 
     /**
-     * @param list<mixed> $result
+     * @param array<string, mixed> $result
      *
      * @return list<array{index: string, id: string, type: string, reason: string}>
      */

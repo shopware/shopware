@@ -40,7 +40,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
      */
     public function getMatchingItems(DiscountLineItem $discount, Cart $cart, SalesChannelContext $context): DiscountPackageCollection
     {
-        /** @var list<mixed> $groups */
+        /** @var array<string, mixed> $groups */
         $groups = $discount->getPayloadValue('setGroups');
 
         $groupDefinitions = $this->buildGroupDefinitionList($groups);
@@ -86,7 +86,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
      * Gets the group definition for the provided groupId
      * within the list of available set groups from the payload.
      *
-     * @param list<mixed> $groups
+     * @param array<string, mixed> $groups
      */
     private function getGroupDefinition(string $groupId, array $groups): LineItemGroupDefinition
     {
@@ -130,7 +130,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
      * Gets a list of in-memory group definitions
      * from the list of group settings from the payload
      *
-     * @param list<mixed> $groups
+     * @param array<string, mixed> $groups
      *
      * @return list<LineItemGroupDefinition>
      */
@@ -151,7 +151,7 @@ class SetGroupScopeDiscountPackager extends DiscountPackager
     }
 
     /**
-     * @param RuleCollection|list<mixed>|null $rules
+     * @param RuleCollection|array<string, mixed>|null $rules
      */
     private function getRules(RuleCollection|array|null $rules): RuleCollection
     {

@@ -33,7 +33,7 @@ class ConfigExtension extends AbstractExtension
     /**
      * @param array<string, mixed> $context
      *
-     * @return string|bool|list<mixed>|float|int|null
+     * @return string|bool|array<string, mixed>|float|int|null
      */
     public function config(array $context, string $key)
     {

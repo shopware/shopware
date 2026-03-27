@@ -76,7 +76,7 @@ class AdminExtensionApiController extends AbstractController
             $targetUrl,
             $requestDataBag->getString('entity'),
             $requestDataBag->getString('action'),
-            $ids->all(),
+            array_values($ids->all()),
             Uuid::randomHex()
         );
 

@@ -542,7 +542,7 @@ class SyncControllerTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $payload
+     * @param array<string, mixed> $payload
      */
     #[DataProvider('invalidOperationProvider')]
     public function testItThrows400WithInvalidSyncOperation(string $key, string $entity, string $action, array $payload, string $actor): void

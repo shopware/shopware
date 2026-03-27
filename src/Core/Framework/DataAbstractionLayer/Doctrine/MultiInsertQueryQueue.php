@@ -168,7 +168,7 @@ class MultiInsertQueryQueue
      * @param list<string> $columns
      * @param list<DataRow> $rows
      *
-     * @return array{placeholders: list<string>, values: list<mixed>, types: list<ParameterType>}
+     * @return array{placeholders: list<string>, values: array<string, mixed>, types: list<ParameterType>}
      */
     private function prepareValues(array $columns, array $rows): array
     {

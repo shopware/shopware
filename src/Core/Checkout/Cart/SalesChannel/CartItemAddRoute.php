@@ -53,7 +53,7 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
             if ($items === null) {
                 $items = [];
 
-                /** @var list<mixed> $item */
+                /** @var array<string, mixed> $item */
                 foreach ($request->request->all('items') as $item) {
                     $items[] = $this->lineItemFactory->create($item, $context);
                 }

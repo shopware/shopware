@@ -27,7 +27,7 @@ class SearchCasesTest extends TestCase
     private static IdsCollection $ids;
 
     /**
-     * @param list<mixed> $products
+     * @param array<string, mixed> $products
      */
     #[DataProvider('numbersProvider')]
     public function testSearch(array $products, string $term, string $best): void

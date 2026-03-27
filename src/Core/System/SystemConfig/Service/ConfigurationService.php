@@ -44,7 +44,7 @@ class ConfigurationService
      * @throws BundleConfigNotFoundException
      * @throws UtilException when config.xml exists but contains invalid XML
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getConfiguration(string $domain, Context $context): array
     {
@@ -100,7 +100,7 @@ class ConfigurationService
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getResolvedConfiguration(string $domain, Context $context, ?string $salesChannelId = null): array
     {
@@ -161,7 +161,7 @@ class ConfigurationService
     }
 
     /**
-     * @return list<mixed>|null
+     * @return array<string, mixed>|null
      */
     private function fetchConfiguration(string $scope, ?string $configName, Context $context): ?array
     {
@@ -190,9 +190,9 @@ class ConfigurationService
     }
 
     /**
-     * @param list<mixed> $config
+     * @param array<string, mixed> $config
      *
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function enrichValues(array $config, ?string $salesChannelId): array
     {

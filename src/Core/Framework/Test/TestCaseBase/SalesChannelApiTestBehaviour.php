@@ -68,7 +68,7 @@ trait SalesChannelApiTestBehaviour
     }
 
     /**
-     * @param list<mixed> $salesChannelOverride
+     * @param array<string, mixed> $salesChannelOverride
      */
     public function createCustomSalesChannelBrowser(array $salesChannelOverride = []): KernelBrowser
     {
@@ -85,8 +85,8 @@ trait SalesChannelApiTestBehaviour
     }
 
     /**
-     * @param list<mixed> $salesChannelOverride
-     * @param list<mixed> $options
+     * @param array<string, mixed> $salesChannelOverride
+     * @param array<string, mixed> $options
      */
     public function createSalesChannelContext(array $salesChannelOverride = [], array $options = []): SalesChannelContext
     {
@@ -139,7 +139,7 @@ trait SalesChannelApiTestBehaviour
     }
 
     /**
-     * @param list<mixed> $salesChannelOverrides
+     * @param array<string, mixed> $salesChannelOverrides
      */
     protected function createSalesChannelBrowser(
         ?KernelInterface $kernel = null,

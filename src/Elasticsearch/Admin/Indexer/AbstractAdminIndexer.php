@@ -30,9 +30,9 @@ abstract class AbstractAdminIndexer
     abstract public function getEntity(): string;
 
     /**
-     * @param array{ properties?: array<string, list<mixed>> } $mapping
+     * @param array{ properties?: array<string, array<string, mixed>> } $mapping
      *
-     * @return array{ properties?: array<string, list<mixed>> }
+     * @return array{ properties?: array<string, array<string, mixed>> }
      */
     public function mapping(array $mapping): array
     {
@@ -167,7 +167,7 @@ abstract class AbstractAdminIndexer
     }
 
     /**
-     * @param array<string, list<mixed>> $properties
+     * @param array<string, array<string, mixed>> $properties
      *
      * @return list<string>
      */

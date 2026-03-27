@@ -288,7 +288,7 @@ class CmsAwareAndAdminUiTest extends TestCase
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     private function jsonDecode(string $json): array
     {

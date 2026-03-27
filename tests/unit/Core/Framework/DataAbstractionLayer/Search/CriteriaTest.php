@@ -85,7 +85,7 @@ class CriteriaTest extends TestCase
     }
 
     /**
-     * @param list<mixed> $ids
+     * @param array<string, mixed> $ids
      */
     #[DataProvider('invalidCriteriaIdsProvider')]
     public function testInvalidIdFormatsThrowException(array $ids): void
@@ -117,7 +117,7 @@ class CriteriaTest extends TestCase
     }
 
     /**
-     * @return iterable<string, list<mixed>>
+     * @return iterable<string, array<string, mixed>>
      */
     public static function invalidCriteriaIdsProvider(): iterable
     {

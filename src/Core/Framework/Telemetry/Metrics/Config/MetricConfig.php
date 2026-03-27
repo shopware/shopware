@@ -26,7 +26,7 @@ readonly class MetricConfig
 {
     /**
      * @param array<string, mixed> $parameters
-     * @param array<string, array{allowed_values: list<mixed>}> $labels
+     * @param array<string, array{allowed_values: array<string, mixed>}> $labels
      */
     public function __construct(
         public string $name,

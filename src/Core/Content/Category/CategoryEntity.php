@@ -34,7 +34,7 @@ class CategoryEntity extends Entity
     protected ?string $name = null;
 
     /**
-     * @var list<mixed>|null
+     * @var array<string, mixed>|null
      */
     protected ?array $breadcrumb = null;
 
@@ -78,7 +78,7 @@ class CategoryEntity extends Entity
     protected ?ProductStreamEntity $productStream = null;
 
     /**
-     * @var list<mixed>|null
+     * @var array<string, mixed>|null
      */
     protected ?array $slotConfig = null;
 
@@ -363,7 +363,7 @@ class CategoryEntity extends Entity
     }
 
     /**
-     * @return list<mixed>|null
+     * @return array<string, mixed>|null
      */
     public function getSlotConfig(): ?array
     {
@@ -371,7 +371,7 @@ class CategoryEntity extends Entity
     }
 
     /**
-     * @param list<mixed> $slotConfig
+     * @param array<string, mixed> $slotConfig
      */
     public function setSlotConfig(array $slotConfig): void
     {
@@ -484,7 +484,7 @@ class CategoryEntity extends Entity
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getBreadcrumb(): array
     {
@@ -492,7 +492,7 @@ class CategoryEntity extends Entity
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function getPlainBreadcrumb(): array
     {
@@ -519,7 +519,7 @@ class CategoryEntity extends Entity
     }
 
     /**
-     * @param list<mixed>|null $breadcrumb
+     * @param array<string, mixed>|null $breadcrumb
      */
     public function setBreadcrumb(?array $breadcrumb): void
     {
@@ -527,7 +527,7 @@ class CategoryEntity extends Entity
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {

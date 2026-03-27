@@ -106,7 +106,7 @@ class StatesUpdater
     }
 
     /**
-     * @param list<mixed> $product
+     * @param array<string, mixed> $product
      *
      * @return list<string>
      */

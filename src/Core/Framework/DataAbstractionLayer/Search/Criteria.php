@@ -664,7 +664,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param list<mixed> $ids
+     * @param array<string, mixed> $ids
      */
     private function validateIds(array $ids): void
     {

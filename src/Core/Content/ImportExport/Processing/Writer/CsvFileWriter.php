@@ -32,7 +32,7 @@ class CsvFileWriter extends AbstractFileWriter
     }
 
     /**
-     * @param list<string>|list<mixed> $data
+     * @param list<string>|array<string, mixed> $data
      */
     private function writeToBuffer(array $data): void
     {

@@ -32,7 +32,7 @@ class CreditLineItemFactory implements LineItemFactoryInterface
     }
 
     /**
-     * @param list<mixed> $data
+     * @param array<string, mixed> $data
      */
     public function create(array $data, SalesChannelContext $context): LineItem
     {
@@ -49,7 +49,7 @@ class CreditLineItemFactory implements LineItemFactoryInterface
     }
 
     /**
-     * @param list<mixed> $data
+     * @param array<string, mixed> $data
      */
     public function update(LineItem $lineItem, array $data, SalesChannelContext $context): void
     {

@@ -12,12 +12,12 @@ trait TestBuilderTrait
     protected IdsCollection $ids;
 
     /**
-     * @var list<mixed>
+     * @var array<string, mixed>
      */
     protected array $_dynamic = [];
 
     /**
-     * @param list<mixed>|object|string|float|int|bool|null $value
+     * @param array<string, mixed>|object|string|float|int|bool|null $value
      */
     public function add(string $key, $value): self
     {
@@ -27,7 +27,7 @@ trait TestBuilderTrait
     }
 
     /**
-     * @return list<mixed>
+     * @return array<string, mixed>
      */
     public function build(): array
     {

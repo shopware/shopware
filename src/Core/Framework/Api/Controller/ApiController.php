@@ -982,7 +982,7 @@ class ApiController extends AbstractController
     }
 
     /**
-     * @param list<mixed> $array
+     * @param array<string, mixed> $array
      */
     private function isCollection(array $array): bool
     {

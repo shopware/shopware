@@ -164,6 +164,9 @@ class DeliveryCostRoute extends AbstractDeliveryCostRoute
         return $validProductId;
     }
 
+    /**
+     * @param list<string>|null $shippingMethodIds
+     */
     private function loadShippingMethods(SalesChannelContext $context, ?array $shippingMethodIds = null): ShippingMethodCollection
     {
         $criteria = (new Criteria($shippingMethodIds))

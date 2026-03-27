@@ -2,6 +2,234 @@
     "openapi": "3.1.0",
     "info": [],
     "paths": {
+        "/checkout/delivery-cost/{productId}": {
+            "get": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Calculate delivery costs for a product",
+                "description": "Calculates delivery costs for a single product using the currently selected shipping method.",
+                "operationId": "readDeliveryCostByProduct",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "The product identifier.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The calculated delivery costs.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "shippingCost",
+                                            "deliveryDate",
+                                            "shippingMethod"
+                                        ],
+                                        "properties": {
+                                            "shippingCost": {
+                                                "$ref": "#/components/schemas/CalculatedPrice"
+                                            },
+                                            "deliveryDate": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "earliest": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "latest": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                }
+                                            },
+                                            "shippingMethod": {
+                                                "$ref": "#/components/schemas/ShippingMethod"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Calculate delivery costs for a product",
+                "description": "Calculates delivery costs for a single product across all available shipping methods.",
+                "operationId": "readDeliveryCostsByProduct",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "The product identifier.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The calculated delivery costs.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "shippingCost",
+                                            "deliveryDate",
+                                            "shippingMethod"
+                                        ],
+                                        "properties": {
+                                            "shippingCost": {
+                                                "$ref": "#/components/schemas/CalculatedPrice"
+                                            },
+                                            "deliveryDate": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "earliest": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "latest": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                }
+                                            },
+                                            "shippingMethod": {
+                                                "$ref": "#/components/schemas/ShippingMethod"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
+        "/checkout/delivery-cost/cart": {
+            "get": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Calculate delivery costs for the cart",
+                "description": "Calculates delivery costs for the current cart across available shipping methods.",
+                "operationId": "readDeliveryCostsByCart",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The calculated delivery costs.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "shippingCost",
+                                            "deliveryDate",
+                                            "shippingMethod"
+                                        ],
+                                        "properties": {
+                                            "shippingCost": {
+                                                "$ref": "#/components/schemas/CalculatedPrice"
+                                            },
+                                            "deliveryDate": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "earliest": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "latest": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                }
+                                            },
+                                            "shippingMethod": {
+                                                "$ref": "#/components/schemas/ShippingMethod"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
         "/checkout/cart": {
             "get": {
                 "tags": [

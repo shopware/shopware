@@ -14,11 +14,12 @@ const projectRoot = path.resolve(__dirname, '../../../../../');
 
 type BundleEntry = {
     basePath?: string;
-    components?: { path: string };
 };
 
+const COMPONENTS_PATH = 'Resources/views/components';
+
 /**
- * Collect the views/components root for every bundle that declares one in
+ * Collect the views/components root for every bundle that has one in
  * var/plugins.json.  Falls back to the core Storefront path only when the
  * plugins manifest is absent (e.g. during a fresh checkout before bundle:dump).
  */
@@ -33,9 +34,12 @@ function resolveComponentRoots(): string[] {
     const plugins = JSON.parse(fs.readFileSync(pluginsJson, 'utf-8')) as Record<string, BundleEntry>;
 
     return Object.values(plugins)
-        .filter(bundle => bundle.components?.path)
+        .filter(bundle => {
+            const absRoot = path.join(projectRoot, bundle.basePath ?? '', COMPONENTS_PATH);
+            return fs.existsSync(absRoot);
+        })
         .map(bundle => {
-            const absRoot = path.join(projectRoot, bundle.basePath ?? '', bundle.components!.path);
+            const absRoot = path.join(projectRoot, bundle.basePath ?? '', COMPONENTS_PATH);
             // Vitest resolves include globs relative to the config file directory,
             // so we must use a relative path here.
             return path.relative(__dirname, absRoot);
@@ -50,7 +54,7 @@ export default defineConfig(async () => {
     return mergeConfig(
         {
             build: {
-                rollupOptions: {
+                rolldownOptions: {
                     input: entries,
                 },
             },

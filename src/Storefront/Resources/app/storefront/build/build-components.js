@@ -239,7 +239,7 @@ function componentMapPlugin() {
                 emptyOutDir: true,
                 manifest: true,
                 sourcemap: process.env.NODE_ENV !== 'production',
-                rollupOptions: {
+                rolldownOptions: {
                     input: entries,
                     preserveEntrySignatures: 'exports-only',
                     external: ['shopware'],

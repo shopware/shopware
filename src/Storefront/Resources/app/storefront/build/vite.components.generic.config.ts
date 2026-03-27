@@ -76,7 +76,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
         ignore: ['**/*.test.{js,ts}', '**/*.stories.*'],
     });
 
-    // For extensions the Rollup entry name becomes {Namespace}/{componentName}
+    // For extensions the entry name becomes {Namespace}/{componentName}
     // (e.g. ComponentTestApp/Wusel/Counter) so that entryFileNames '[name].js'
     // produces the namespace-prefixed output path without further rewriting.
     const entries = Object.fromEntries(
@@ -93,7 +93,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
             emptyOutDir: true,
             manifest: true,
             sourcemap: process.env.NODE_ENV !== 'production',
-            rollupOptions: {
+            rolldownOptions: {
                 input: entries,
                 preserveEntrySignatures: 'exports-only',
                 external: ['shopware'],

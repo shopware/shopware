@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { Plugin } from 'rollup';
+import type { Plugin } from 'vite';
 
 /**
  * Extracts the npm package name from a resolved module ID (absolute file path).

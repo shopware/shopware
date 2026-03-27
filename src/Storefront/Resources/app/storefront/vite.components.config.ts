@@ -36,7 +36,7 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => {
             emptyOutDir: true,
             manifest: true,
             sourcemap: process.env.NODE_ENV !== 'production',
-            rollupOptions: {
+            rolldownOptions: {
                 input: entries,
                 // Keep all exports on entry chunks even though nothing inside the build imports
                 // them — they are consumed at runtime via dynamic import() by the Shopware

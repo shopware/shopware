@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\DevOps\Core\DevOps\Docs\Command\App;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Docs\App\DocsAppEventCommand;
 use Shopware\Core\Framework\Feature;
@@ -12,7 +11,6 @@ use Shopware\Core\Framework\Util\Hasher;
 /**
  * @internal
  */
-#[CoversClass(DocsAppEventCommand::class)]
 class DocsAppEventCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

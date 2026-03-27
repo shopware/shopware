@@ -248,6 +248,21 @@ Both `AwsS3v3Factory` and `PresignedUploadUrlGenerator` are wired via DI to the 
 the `shopware.filesystem.s3.client` service to provide a custom Symfony HTTP client with
 custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
 
+### Events now implement `ShopwareEvent` and provide `getContext()`
+
+Subscribers to the events below couldn't access the framework context — ruling out DAL repository calls or anything requiring a `Context`. The events now implement `ShopwareEvent` and receive `Context` via their constructor.
+
+- `Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent`
+- `Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent`
+- `Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportExportHandlerEvent`
+- `Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent`
+- `Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent`
+- `Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent`
+- `Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent`
+- `Shopware\Storefront\Theme\Event\ThemeAssignedEvent`
+- `Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent`
+- `Shopware\Storefront\Theme\Event\ThemeConfigResetEvent`
+
 ## Administration
 
 ### CMS data mapping source for media custom fields

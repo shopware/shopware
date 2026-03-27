@@ -561,6 +561,31 @@ shopware:
           type: 'mysql'
 ```
 
+## Events now require `Context` constructor parameter
+
+The events below received `Context` as a new required constructor parameter and now implement `ShopwareEvent`. If you instantiate any of these events directly, add `Context` as the last argument:
+
+**Before:**
+```php
+$event = new ThemeAssignedEvent($themeId, $salesChannelId);
+```
+
+**After:**
+```php
+$event = new ThemeAssignedEvent($themeId, $salesChannelId, $context);
+```
+
+- `Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent`
+- `Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent`
+- `Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportExportHandlerEvent`
+- `Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent`
+- `Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent`
+- `Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent`
+- `Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent`
+- `Shopware\Storefront\Theme\Event\ThemeAssignedEvent`
+- `Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent`
+- `Shopware\Storefront\Theme\Event\ThemeConfigResetEvent`
+
 ### Changed Exception Classes towards domain exceptions
 
 The following exception classes were removed and replaced by domain exceptions:

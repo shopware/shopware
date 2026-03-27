@@ -156,6 +156,7 @@
  "sw_bulk_edit_order_custom_field_card",
  "sw_bulk_edit_order_documents",
  "sw_bulk_edit_order_documents_container",
+ "sw_bulk_edit_order_documents_delete_documents",
  "sw_bulk_edit_order_documents_download_documents",
  "sw_bulk_edit_order_documents_download_documents_content",
  "sw_bulk_edit_order_documents_generate_invoice",

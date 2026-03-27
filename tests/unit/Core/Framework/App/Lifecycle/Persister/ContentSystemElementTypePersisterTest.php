@@ -24,6 +24,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\CopilotS
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\ElementTypeSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -60,8 +63,24 @@ class ContentSystemElementTypePersisterTest extends TestCase
     {
         /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
-            new AppContentSystemElementTypeCollection(),
-            new AppContentSystemElementTypeCollection(),
+            static function (Criteria $criteria, Context $context): AppContentSystemElementTypeCollection {
+                static::assertCount(1, $criteria->getFilters());
+                $filter = $criteria->getFilters()[0];
+                static::assertInstanceOf(EqualsFilter::class, $filter);
+                static::assertSame('appId', $filter->getField());
+
+                return new AppContentSystemElementTypeCollection();
+            },
+            static function (Criteria $criteria, Context $context): AppContentSystemElementTypeCollection {
+                $filters = $criteria->getFilters();
+                static::assertCount(2, $filters);
+                static::assertInstanceOf(EqualsFilter::class, $filters[0]);
+                static::assertSame('active', $filters[0]->getField());
+                static::assertInstanceOf(NotFilter::class, $filters[1]);
+                static::assertArrayHasKey('app', $criteria->getAssociations());
+
+                return new AppContentSystemElementTypeCollection();
+            },
         ]);
 
         $persister = $this->buildPersister($repo);
@@ -109,7 +128,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
             'app:DemoApp',
             'DemoApp',
         );
-        static::assertCount(1, $spec);
 
         $hash = Hasher::hash(json_encode($this->serializer->normalize($spec[0]->dto), \JSON_THROW_ON_ERROR));
 

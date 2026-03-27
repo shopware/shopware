@@ -34,8 +34,6 @@ class ElementSlotsFieldSerializerTest extends TestCase
 {
     private ElementSlotsFieldSerializer $serializer;
 
-    private ElementSlotsFieldSerializer $serializerWithPassthroughValidator;
-
     /**
      * @var ContentElementFieldSerializer&Stub
      */
@@ -54,17 +52,6 @@ class ElementSlotsFieldSerializerTest extends TestCase
 
         $this->serializer = new ElementSlotsFieldSerializer($validator, $definitionRegistry, $this->elementSerializer);
 
-        // Passthrough validator never raises violations — used when encoding SlotContent objects
-        // (the Type('array') constraint would otherwise reject them before serializer conversion)
-        $passthroughValidator = static::createStub(ValidatorInterface::class);
-        $passthroughValidator->method('validate')->willReturn(new ConstraintViolationList());
-
-        $this->serializerWithPassthroughValidator = new ElementSlotsFieldSerializer(
-            $passthroughValidator,
-            $definitionRegistry,
-            $this->elementSerializer
-        );
-
         $this->existence = new EntityExistence('content_layout', ['id' => 'test'], true, false, false, []);
         $this->parameters = static::createStub(WriteParameterBag::class);
     }
@@ -81,10 +68,19 @@ class ElementSlotsFieldSerializerTest extends TestCase
             ->method('serializeContentElement')
             ->willReturn(['id' => 'elem-1', 'component' => 'text', 'properties' => []]);
 
+        $passthroughValidator = static::createStub(ValidatorInterface::class);
+        $passthroughValidator->method('validate')->willReturn(new ConstraintViolationList());
+
+        $serializer = new ElementSlotsFieldSerializer(
+            $passthroughValidator,
+            static::createStub(DefinitionInstanceRegistry::class),
+            $this->elementSerializer,
+        );
+
         $kvPair = new KeyValuePair('slots', ['default' => $slotContent], false);
 
         $result = iterator_to_array(
-            $this->serializerWithPassthroughValidator->encode($field, $this->existence, $kvPair, $this->parameters)
+            $serializer->encode($field, $this->existence, $kvPair, $this->parameters)
         );
 
         static::assertArrayHasKey('slots', $result);

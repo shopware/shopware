@@ -65,7 +65,7 @@ jobs:
       - name: Run Jest Admin ${{ matrix.test-type }}
         run: npm --prefix src/Administration/Resources/app/administration run ${{ matrix.test-type }} -- --silent
       - name: Upload coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         if: ${{ matrix.test-type == 'unit' }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

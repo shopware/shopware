@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Loader;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\ElementTypeSpecificationDtoCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -39,18 +40,18 @@ class YamlTypeLoader extends AbstractContentSystemElementTypeLoader
         $seenNames = [];
 
         foreach ($this->directories as $sourceDir) {
-            $dtos = $this->loadDtosFromDirectory($sourceDir->path, $sourceDir->source, $sourceDir->prefix);
+            $resolvedSpecificationDtos = $this->loadDtosFromDirectory($sourceDir->path, $sourceDir->source, $sourceDir->prefix);
 
-            foreach ($dtos as $resolved) {
-                if (isset($seenNames[$resolved->name])) {
+            foreach ($resolvedSpecificationDtos as $resolvedSpecificationDto) {
+                if (isset($seenNames[$resolvedSpecificationDto->name])) {
                     throw ContentSystemException::elementTypeDuplicate(
-                        $resolved->name,
-                        $seenNames[$resolved->name],
-                        $resolved->source
+                        $resolvedSpecificationDto->name,
+                        $seenNames[$resolvedSpecificationDto->name],
+                        $resolvedSpecificationDto->source
                     );
                 }
-                $seenNames[$resolved->name] = $resolved->source;
-                $all[] = $resolved->toSpecification();
+                $seenNames[$resolvedSpecificationDto->name] = $resolvedSpecificationDto->source;
+                $all[] = $resolvedSpecificationDto->toSpecification();
             }
         }
 
@@ -62,7 +63,10 @@ class YamlTypeLoader extends AbstractContentSystemElementTypeLoader
      */
     public function loadFromDirectory(string $directory, string $source, string $prefix): array
     {
-        return $this->loadBatchFromDirectory($directory, $source, $prefix)->toSpecifications();
+        return array_map(
+            static fn (ResolvedElementTypeSpecificationDto $resolvedSpecificationDto) => $resolvedSpecificationDto->toSpecification(),
+            $this->loadDtosFromDirectory($directory, $source, $prefix),
+        );
     }
 
     /**
@@ -70,15 +74,10 @@ class YamlTypeLoader extends AbstractContentSystemElementTypeLoader
      */
     public function loadDtosFromDirectory(string $directory, string $source, string $prefix): array
     {
-        return $this->loadBatchFromDirectory($directory, $source, $prefix)->items;
-    }
-
-    public function loadBatchFromDirectory(string $directory, string $source, string $prefix): ResolvedElementTypeSpecificationDtoCollection
-    {
         $filesystem = new Filesystem($directory);
 
         if (!$filesystem->has()) {
-            return new ResolvedElementTypeSpecificationDtoCollection([]);
+            return [];
         }
 
         $files = array_merge(
@@ -87,10 +86,10 @@ class YamlTypeLoader extends AbstractContentSystemElementTypeLoader
         );
 
         if ($files === []) {
-            return new ResolvedElementTypeSpecificationDtoCollection([]);
+            return [];
         }
 
-        $resolved = [];
+        $resolvedSpecificationDtos = [];
         $seenNames = [];
 
         foreach ($files as $fileInfo) {
@@ -104,13 +103,20 @@ class YamlTypeLoader extends AbstractContentSystemElementTypeLoader
             }
 
             $seenNames[$name] = $fileInfo->getFilename();
-            $resolved[] = new ResolvedElementTypeSpecificationDto($name, $source, $dto);
+            $resolvedSpecificationDtos[] = new ResolvedElementTypeSpecificationDto($name, $source, $dto);
         }
 
-        $batch = new ResolvedElementTypeSpecificationDtoCollection($resolved);
-        $batch->validate($this->validator);
+        $specificationDtos = [];
+        foreach ($resolvedSpecificationDtos as $resolvedSpecificationDto) {
+            $specificationDtos[$resolvedSpecificationDto->name] = $resolvedSpecificationDto->dto;
+        }
 
-        return $batch;
+        $violations = $this->validator->validate(new ElementTypeSpecificationDtoCollection($specificationDtos));
+        if ($violations->count() > 0) {
+            throw ContentSystemException::elementTypesInvalid($violations);
+        }
+
+        return $resolvedSpecificationDtos;
     }
 
     /**

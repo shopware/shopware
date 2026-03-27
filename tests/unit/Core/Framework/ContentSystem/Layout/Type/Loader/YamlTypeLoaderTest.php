@@ -193,7 +193,7 @@ class YamlTypeLoaderTest extends TestCase
         ]);
 
         $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessage('[Sw:Invalid].label');
+        $this->expectExceptionMessage('types[Sw:Invalid].label');
         $loader->load();
     }
 
@@ -211,7 +211,7 @@ class YamlTypeLoaderTest extends TestCase
         ]);
 
         $this->expectException(ContentSystemException::class);
-        $this->expectExceptionMessageMatches('/(?=.*\[Sw:A:InvalidA\])(?=.*\[Sw:B:InvalidB\])/s');
+        $this->expectExceptionMessageMatches('/(?=.*types\[Sw:A:InvalidA\])(?=.*types\[Sw:B:InvalidB\])/s');
         $loader->load();
     }
 

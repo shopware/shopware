@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\ElementTypeSpecificationDtoCollection;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -42,7 +43,7 @@ class DatabaseTypeLoader extends AbstractContentSystemElementTypeLoader
              WHERE t.active = 1'
         );
 
-        $resolved = [];
+        $resolvedSpecificationDtos = [];
 
         foreach ($rows as $row) {
             $name = $row['name'] ?: '<unknown>';
@@ -55,16 +56,26 @@ class DatabaseTypeLoader extends AbstractContentSystemElementTypeLoader
 
             $dto = $this->serializer->denormalize($schema);
 
-            $resolved[] = new ResolvedElementTypeSpecificationDto(
+            $resolvedSpecificationDtos[] = new ResolvedElementTypeSpecificationDto(
                 $name,
                 'app:' . $row['app_name'],
                 $dto,
             );
         }
 
-        $batch = new ResolvedElementTypeSpecificationDtoCollection($resolved);
-        $batch->validate($this->validator);
+        $specificationDtos = [];
+        foreach ($resolvedSpecificationDtos as $resolvedSpecificationDto) {
+            $specificationDtos[$resolvedSpecificationDto->name] = $resolvedSpecificationDto->dto;
+        }
 
-        return $batch->toSpecifications();
+        $violations = $this->validator->validate(new ElementTypeSpecificationDtoCollection($specificationDtos));
+        if ($violations->count() > 0) {
+            throw ContentSystemException::elementTypesInvalid($violations);
+        }
+
+        return array_map(
+            static fn (ResolvedElementTypeSpecificationDto $resolvedSpecificationDto) => $resolvedSpecificationDto->toSpecification(),
+            $resolvedSpecificationDtos,
+        );
     }
 }

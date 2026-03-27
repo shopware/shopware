@@ -100,7 +100,8 @@ class DatabaseTypeLoaderTest extends TestCase
         ]);
 
         $violations = new ConstraintViolationList([
-            new ConstraintViolation('This value should not be blank.', null, [], null, 'label', ''),
+            new ConstraintViolation('This value should not be blank.', null, [], null, 'types[App:Bad:TypeA].label', ''),
+            new ConstraintViolation('This value should not be blank.', null, [], null, 'types[App:Bad:TypeB].label', ''),
         ]);
 
         $validator = static::createStub(ValidatorInterface::class);
@@ -108,12 +109,7 @@ class DatabaseTypeLoaderTest extends TestCase
 
         $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), $validator, $connection, 'prod');
 
-        $this->expectExceptionObject(ContentSystemException::elementTypesInvalid(
-            new ConstraintViolationList([
-                new ConstraintViolation('This value should not be blank.', null, [], null, '[App:Bad:TypeA].label', ''),
-                new ConstraintViolation('This value should not be blank.', null, [], null, '[App:Bad:TypeB].label', ''),
-            ])
-        ));
+        $this->expectExceptionObject(ContentSystemException::elementTypesInvalid($violations));
         $loader->load();
     }
 

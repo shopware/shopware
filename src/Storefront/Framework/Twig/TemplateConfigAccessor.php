@@ -7,7 +7,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
-use Symfony\Component\Asset\Packages;
 
 #[Package('framework')]
 class TemplateConfigAccessor
@@ -19,7 +18,6 @@ class TemplateConfigAccessor
         private readonly SystemConfigService $systemConfigService,
         private readonly ThemeConfigValueAccessor $themeConfigAccessor,
         private readonly ThemeScripts $themeScripts,
-        private readonly Packages $packages,
         private readonly string $kernelEnvironment = 'prod',
     ) {
     }
@@ -65,13 +63,11 @@ class TemplateConfigAccessor
      *
      * When the Vite component dev server is running it writes a flag file that
      * IS the import map (all entries already contain full dev-server URLs).
-     * That map is returned verbatim — no asset URL conversion is applied.
+     * That map is returned verbatim.
      *
-     * In production the stored map contains theme-relative paths; this method
-     * converts them to full URLs using the Symfony asset Packages service so
-     * that the browser receives absolute or CDN-prefixed URLs.
-
-     * `scopes` is omitted when no extension vendor chunks are present.
+     * In production the stored map already contains full URLs pre-computed at theme
+     * compile time by ThemeCompiler::buildComponentImportMap(), so no URL conversion
+     * is required here. `scopes` is omitted when no extension vendor chunks are present.
      *
      * @return array{imports: array<string, string>, scopes?: array<string, array<string, string>>}
      */
@@ -86,33 +82,7 @@ class TemplateConfigAccessor
             }
         }
 
-        $stored = $this->themeScripts->getComponentImportMap();
-
-        if ($stored === null) {
-            return ['imports' => []];
-        }
-
-        $imports = array_map(
-            fn (string $path): string => $this->packages->getUrl($path, 'theme'),
-            $stored['imports']
-        );
-
-        $scopes = [];
-        foreach ($stored['scopes'] ?? [] as $scopePath => $entries) {
-            $scopeUrl = $this->packages->getUrl($scopePath, 'theme');
-            $scopes[$scopeUrl] = array_map(
-                fn (string $path): string => $this->packages->getUrl($path, 'theme'),
-                $entries
-            );
-        }
-
-        $result = ['imports' => $imports];
-
-        if ($scopes !== []) {
-            $result['scopes'] = $scopes;
-        }
-
-        return $result;
+        return $this->themeScripts->getComponentImportMap() ?? ['imports' => []];
     }
 
     /**

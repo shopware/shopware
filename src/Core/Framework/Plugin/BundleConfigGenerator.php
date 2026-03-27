@@ -87,11 +87,6 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                 ],
             ];
 
-            $components = $this->getComponentsConfig($bundle->getPath());
-            if ($components !== null) {
-                $entry['components'] = $components;
-            }
-
             $bundles[$bundle->getName()] = $entry;
         }
 
@@ -120,33 +115,10 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                 ],
             ];
 
-            $components = $this->getComponentsConfig($absolutePath);
-            if ($components !== null) {
-                $appEntry['components'] = $components;
-            }
-
             $configs[$app['name']] = $appEntry;
         }
 
         return $configs;
-    }
-
-    /**
-     * Returns the components config if the bundle has a components directory, null otherwise.
-     *
-     * @return array{path: string, hasPackageJson: bool}|null
-     */
-    private function getComponentsConfig(string $bundleAbsolutePath): ?array
-    {
-        $componentsDir = $bundleAbsolutePath . '/Resources/views/components';
-        if (!\is_dir($componentsDir)) {
-            return null;
-        }
-
-        return [
-            'path' => 'Resources/views/components',
-            'hasPackageJson' => \is_file($bundleAbsolutePath . '/Resources/app/storefront/package.json'),
-        ];
     }
 
     private function isTheme(string $path): bool

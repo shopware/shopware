@@ -5,8 +5,9 @@ import { glob } from 'tinyglobby';
 
 type BundleEntry = {
     basePath?: string;
-    components?: { path: string };
 };
+
+const COMPONENTS_PATH = 'Resources/views/components';
 
 /**
  * Converts a component file path (relative to its component root) to the
@@ -31,9 +32,9 @@ function fileToTag(relPath: string, namespace: string | undefined): string {
  * every bare specifier (`shopware`, `Sw:Header:Navbar`, …) to the running
  * dev server.
  *
- * When the dev server stops or crashes the file is removed.  The Storefront
- * then transparently falls back to the production import map that was
- * compiled by `theme:compile`.
+ * When the dev server stops the file is removed. The Storefront then
+ * transparently falls back to the production import map that was compiled
+ * by `theme:compile`.
  */
 export function devImportMapPlugin(projectRoot: string): Plugin {
     const flagFile = path.join(projectRoot, 'var/cache/storefront_components.dev.json');
@@ -76,13 +77,11 @@ export function devImportMapPlugin(projectRoot: string): Plugin {
                     : {};
 
                 for (const [bundleName, bundle] of Object.entries(bundles)) {
-                    if (!bundle.components?.path) continue;
-
                     // The core Storefront bundle uses bare component names
                     // (e.g. 'Sw:Header:Navbar'); all other bundles are prefixed
                     // with their bundle name as a namespace.
                     const namespace = bundleName === 'Storefront' ? undefined : bundleName;
-                    const compRoot = path.join(projectRoot, bundle.basePath ?? '', bundle.components.path);
+                    const compRoot = path.join(projectRoot, bundle.basePath ?? '', COMPONENTS_PATH);
 
                     if (!fs.existsSync(compRoot)) continue;
 
@@ -114,10 +113,9 @@ export function devImportMapPlugin(projectRoot: string): Plugin {
             server.httpServer?.once('listening', () => void write());
 
             // Clean up on graceful shutdown and common signals.
-            server.httpServer?.once('close', cleanup);
-            process.once('exit', cleanup);
-            process.once('SIGINT', () => { cleanup(); process.exit(0); });
-            process.once('SIGTERM', () => { cleanup(); process.exit(0); });
+            server.httpServer?.once('close', () => { cleanup(); });
+            process.once('SIGINT', () => { cleanup(); });
+            process.once('SIGTERM', () => { cleanup(); });
         },
     };
 }

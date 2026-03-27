@@ -58,10 +58,8 @@ class ThemeRuntimeConfig
         public readonly array $iconSets,
         public readonly \DateTimeInterface $updatedAt,
         /**
-         * Pre-built component import map stored as theme-relative paths.
-         * Built once by ThemeCompiler::buildComponentImportMap() at compile time and stored here
-         * so that TemplateConfigAccessor can convert paths to full URLs at request time without
-         * re-reading any build artefacts.
+         * Pre-built component import map with full URLs, computed once by
+         * ThemeCompiler::buildComponentImportMap() at theme compile time.
          *
          * @var array{imports: array<string, string>, scopes?: array<string, array<string, string>>}|null
          */

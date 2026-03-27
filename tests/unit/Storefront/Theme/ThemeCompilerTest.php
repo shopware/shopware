@@ -717,7 +717,7 @@ class ThemeCompilerTest extends TestCase
     public function testBuildComponentImportMapReturnsNullWhenShopwareRuntimeMissing(): void
     {
         // localFilesystem->exists() returns false (the setUp default) → no shopware.js → null
-        $result = $this->createThemeCompiler()->buildComponentImportMap();
+        $result = $this->createThemeCompiler()->buildComponentImportMap(TestDefaults::SALES_CHANNEL, 'theme-id');
 
         static::assertNull($result);
     }
@@ -730,10 +730,11 @@ class ThemeCompilerTest extends TestCase
             static fn (string $path): bool => str_ends_with($path, 'shopware.js')
         );
 
-        $result = $this->createThemeCompiler()->buildComponentImportMap();
+        $result = $this->createThemeCompiler()->buildComponentImportMap(TestDefaults::SALES_CHANNEL, 'theme-id');
 
+        $urlPrefix = $this->expectedUrlPrefix();
         static::assertNotNull($result);
-        static::assertSame(['shopware' => 'js/shopware/shopware.js'], $result['imports']);
+        static::assertSame(['shopware' => $urlPrefix . '/js/shopware/shopware.js'], $result['imports']);
         static::assertArrayNotHasKey('scopes', $result);
     }
 
@@ -750,11 +751,12 @@ class ThemeCompilerTest extends TestCase
             static fn (string $path): bool => str_ends_with($path, 'shopware.js') || str_ends_with($path, 'Button.js')
         );
 
-        $result = $this->createThemeCompiler()->buildComponentImportMap();
+        $result = $this->createThemeCompiler()->buildComponentImportMap(TestDefaults::SALES_CHANNEL, 'theme-id');
 
+        $urlPrefix = $this->expectedUrlPrefix();
         static::assertNotNull($result);
         static::assertArrayHasKey('Sw:Button', $result['imports']);
-        static::assertSame('js/components/Sw/Button.js', $result['imports']['Sw:Button']);
+        static::assertSame($urlPrefix . '/js/components/Sw/Button.js', $result['imports']['Sw:Button']);
         static::assertArrayNotHasKey('scopes', $result);
     }
 
@@ -771,7 +773,7 @@ class ThemeCompilerTest extends TestCase
             static fn (string $path): bool => str_ends_with($path, 'shopware.js')
         );
 
-        $result = $this->createThemeCompiler()->buildComponentImportMap();
+        $result = $this->createThemeCompiler()->buildComponentImportMap(TestDefaults::SALES_CHANNEL, 'theme-id');
 
         static::assertNotNull($result);
         static::assertArrayNotHasKey('Sw:Badge', $result['imports']);
@@ -796,12 +798,13 @@ class ThemeCompilerTest extends TestCase
                 || str_ends_with($path, 'manifest.json')
         );
 
-        $result = $this->createThemeCompiler()->buildComponentImportMap();
+        $result = $this->createThemeCompiler()->buildComponentImportMap(TestDefaults::SALES_CHANNEL, 'theme-id');
 
+        $urlPrefix = $this->expectedUrlPrefix();
         static::assertNotNull($result);
         // Extension component should be included because hasViteBuild() returned true.
         static::assertArrayHasKey('MyPlugin:Widget:Counter', $result['imports']);
-        static::assertSame('js/components/MyPlugin/Widget/Counter.js', $result['imports']['MyPlugin:Widget:Counter']);
+        static::assertSame($urlPrefix . '/js/components/MyPlugin/Widget/Counter.js', $result['imports']['MyPlugin:Widget:Counter']);
     }
 
     public function testCopyComponentScriptFilesIncludesComponentsWithScriptPath(): void
@@ -1118,6 +1121,15 @@ class ThemeCompilerTest extends TestCase
     // ===================================
     // Helper Methods
     // ===================================
+
+    /**
+     * Returns the expected URL prefix used by buildComponentImportMap() in tests.
+     * The test compiler uses UrlPackage('http://localhost') as the 'theme' package.
+     */
+    private function expectedUrlPrefix(): string
+    {
+        return 'http://localhost/theme/' . $this->pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-id');
+    }
 
     private function createThemeCompiler(?MD5ThemePathBuilder $pathBuilder = null): ThemeCompiler
     {

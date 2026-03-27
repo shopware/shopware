@@ -20,10 +20,6 @@ use Shopware\Core\Framework\Log\Package;
  *            webpack: string|null,
  *            styleFiles: string[],
  *         },
- *         components?: array{
- *             path: string,
- *             hasPackageJson: bool,
- *         }
  *     }
  */
 #[Package('framework')]

@@ -4,9 +4,10 @@ import type { Plugin } from 'vite';
 
 type BundleEntry = {
     basePath?: string;
-    components?: { path: string };
     storefront?: { path: string };
 };
+
+const COMPONENTS_PATH = 'Resources/views/components';
 
 /**
  * Vite plugin that resolves bare-specifier imports (e.g.
@@ -26,7 +27,11 @@ export function extensionModuleResolverPlugin(projectRoot: string): Plugin {
     const pluginsJson = path.join(projectRoot, 'var/plugins.json');
     const nodeModulesPaths: string[] = fs.existsSync(pluginsJson)
         ? Object.values(JSON.parse(fs.readFileSync(pluginsJson, 'utf-8')) as Record<string, BundleEntry>)
-            .filter(b => b.components?.path && b.storefront?.path)
+            .filter(b => {
+                if (!b.storefront?.path) return false;
+                const compRoot = path.join(projectRoot, b.basePath ?? '', COMPONENTS_PATH);
+                return fs.existsSync(compRoot);
+            })
             .map(b => {
                 const storefrontSrc = path.join(projectRoot, b.basePath ?? '', b.storefront!.path);
                 return path.join(storefrontSrc, '..', 'node_modules');

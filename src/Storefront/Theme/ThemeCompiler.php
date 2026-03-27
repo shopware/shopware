@@ -155,13 +155,26 @@ class ThemeCompiler implements ThemeCompilerInterface
     /**
      * {@inheritdoc}
      */
-    public function buildComponentImportMap(): ?array
+    public function buildComponentImportMap(string $salesChannelId, string $themeId): ?array
     {
         // The shopware runtime module is the prerequisite for the whole component system.
         $shopwareRuntimePath = $this->storefrontJsDir . '/dist-es/shopware/shopware.js';
         if (!$this->localFilesystem->exists($shopwareRuntimePath)) {
             return null;
         }
+
+        // Build the URL prefix once: {assetBaseUrl}/theme/{themePathHash}
+        // The theme path hash already changes on every recompile, so the URLs are
+        // implicitly cache-busted without needing a per-file version query string.
+        $themeBaseUrl = '';
+        foreach ($this->packages as $key => $package) {
+            if ($key === 'theme') {
+                $themeBaseUrl = $package->getUrl('');
+                break;
+            }
+        }
+        $urlPrefix = $themeBaseUrl . '/theme/' . $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
+        $toUrl = static fn (string $relativePath): string => $urlPrefix . '/' . $relativePath;
 
         $imports = [];
         $scopes = [];
@@ -170,12 +183,12 @@ class ThemeCompiler implements ThemeCompilerInterface
         $coreVendorMap = $this->readVendorMap($this->storefrontJsDir);
         if ($coreVendorMap !== null) {
             foreach ($coreVendorMap as $specifier => $chunkPath) {
-                $imports[$specifier] = 'js/components/' . $chunkPath;
+                $imports[$specifier] = $toUrl('js/components/' . $chunkPath);
             }
         }
 
         // The shopware singleton is always a shared top-level import.
-        $imports['shopware'] = 'js/shopware/shopware.js';
+        $imports['shopware'] = $toUrl('js/shopware/shopware.js');
 
         foreach ($this->groupComponentsByStorefrontDir() as $storefrontDir => $components) {
             $namespace = $components[0]->namespace;
@@ -186,9 +199,9 @@ class ThemeCompiler implements ThemeCompilerInterface
                 // Extension vendor map → scoped specifier imports under the extension's URL prefix.
                 $extVendorMap = $this->readVendorMap($storefrontDir);
                 if ($extVendorMap !== null && $extVendorMap !== []) {
-                    $scopeKey = 'js/components/' . $namespace . '/';
+                    $scopeKey = $toUrl('js/components/' . $namespace . '/');
                     foreach ($extVendorMap as $specifier => $chunkPath) {
-                        $scopes[$scopeKey][$specifier] = 'js/components/' . $chunkPath;
+                        $scopes[$scopeKey][$specifier] = $toUrl('js/components/' . $chunkPath);
                     }
                 }
             }
@@ -203,7 +216,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                     . str_replace(\DIRECTORY_SEPARATOR, '/', $component->getRelativeNamespacePath())
                     . '.js';
 
-                $imports[$component->getTag()] = $relativePath;
+                $imports[$component->getTag()] = $toUrl($relativePath);
             }
         }
 

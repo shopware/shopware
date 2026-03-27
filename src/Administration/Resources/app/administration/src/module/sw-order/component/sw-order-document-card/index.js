@@ -3,6 +3,7 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import { getCurrentInstance } from 'vue';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
+import { DOCUMENT_TYPES } from '../../order.types';
 
 /**
  * @sw-package checkout
@@ -11,6 +12,18 @@ import './sw-order-document-card.scss';
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapGetters } = Shopware.Component.getComponentHelper();
+
+/**
+ * @private
+ */
+export const ZUGFERD_COMPONENT_MAPPING = {
+    [DOCUMENT_TYPES.ZUGFERD_INVOICE]: DOCUMENT_TYPES.INVOICE,
+    [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE]: DOCUMENT_TYPES.INVOICE,
+    [DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE]: DOCUMENT_TYPES.CANCELLATION_INVOICE,
+    [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE]: DOCUMENT_TYPES.CANCELLATION_INVOICE,
+    [DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE]: DOCUMENT_TYPES.CREDIT_NOTE,
+    [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE]: DOCUMENT_TYPES.CREDIT_NOTE,
+};
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -108,6 +121,15 @@ export default {
 
             if (`sw-order-document-settings-${subComponentName}-modal` in getCurrentInstance().appContext.components) {
                 return `sw-order-document-settings-${subComponentName}-modal`;
+            }
+
+            const zugferdSubComponentName = ZUGFERD_COMPONENT_MAPPING[this.currentDocumentType.technicalName]?.replace(
+                /_/g,
+                '-',
+            );
+
+            if (this.$.appContext.components[`sw-order-document-settings-${zugferdSubComponentName}-modal`]) {
+                return `sw-order-document-settings-${zugferdSubComponentName}-modal`;
             }
 
             return 'sw-order-document-settings-modal';
@@ -232,7 +254,11 @@ export default {
         },
 
         isXmlDocument() {
-            return this.currentDocumentType?.technicalName === 'zugferd_invoice';
+            return [
+                DOCUMENT_TYPES.ZUGFERD_INVOICE,
+                DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
+                DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
+            ].includes(this.currentDocumentType?.technicalName);
         },
     },
 
@@ -294,9 +320,10 @@ export default {
 
         documentTypeAvailable(documentType) {
             return (
-                (documentType.technicalName !== 'storno' && documentType.technicalName !== 'credit_note') ||
-                ((documentType.technicalName === 'storno' ||
-                    (documentType.technicalName === 'credit_note' && this.creditItems.length !== 0)) &&
+                (documentType.technicalName !== DOCUMENT_TYPES.CANCELLATION_INVOICE &&
+                    documentType.technicalName !== DOCUMENT_TYPES.CREDIT_NOTE) ||
+                ((documentType.technicalName === DOCUMENT_TYPES.CANCELLATION_INVOICE ||
+                    (documentType.technicalName === DOCUMENT_TYPES.CREDIT_NOTE && this.creditItems.length !== 0)) &&
                     this.invoiceExists())
             );
         },
@@ -304,9 +331,9 @@ export default {
         invoiceExists() {
             return this.documents.some((document) => {
                 return (
-                    document.documentType.technicalName === 'invoice' ||
-                    document.documentType.technicalName === 'zugferd_invoice' ||
-                    document.documentType.technicalName === 'zugferd_embedded_invoice'
+                    document.documentType.technicalName === DOCUMENT_TYPES.INVOICE ||
+                    document.documentType.technicalName === DOCUMENT_TYPES.ZUGFERD_INVOICE ||
+                    document.documentType.technicalName === DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE
                 );
             });
         },

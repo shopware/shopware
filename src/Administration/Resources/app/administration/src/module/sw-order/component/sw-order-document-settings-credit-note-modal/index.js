@@ -1,5 +1,6 @@
 import template from './sw-order-document-settings-credit-note-modal.html.twig';
 import './sw-order-document-settings-credit-note-modal.scss';
+import { DOCUMENT_TYPES } from '../../order.types';
 
 /**
  * @sw-package checkout
@@ -54,9 +55,9 @@ export default {
         invoices() {
             return this.order.documents.filter((document) => {
                 return (
-                    document.documentType.technicalName === 'invoice' ||
-                    document.documentType.technicalName === 'zugferd_invoice' ||
-                    document.documentType.technicalName === 'zugferd_embedded_invoice'
+                    document.documentType.technicalName === DOCUMENT_TYPES.INVOICE ||
+                    document.documentType.technicalName === DOCUMENT_TYPES.ZUGFERD_INVOICE ||
+                    document.documentType.technicalName === DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE
                 );
             });
         },
@@ -86,7 +87,17 @@ export default {
             this.invoiceNumbers = [...new Set(invoiceNumbers)].sort();
         },
 
-        onCreateDocument(additionalAction = false) {
+        async reserveDocumentNumber(isPreview = false) {
+            const { number } = await this.numberRangeService.reserve(
+                `document_${DOCUMENT_TYPES.CREDIT_NOTE}`,
+                this.order.salesChannelId,
+                isPreview,
+            );
+
+            return number;
+        },
+
+        async onCreateDocument(additionalAction = false) {
             this.$emit('loading-document');
 
             const selectedInvoice = this.invoices.find((item) => {
@@ -94,22 +105,22 @@ export default {
             });
 
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
-                this.numberRangeService
-                    .reserve(`document_${this.currentDocumentType.technicalName}`, this.order.salesChannelId, false)
-                    .then((response) => {
-                        this.documentConfig.custom.creditNoteNumber = response.number;
-                        if (response.number !== this.documentConfig.documentNumber) {
-                            this.createNotificationInfo({
-                                message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
-                            });
-                        }
-                        this.documentConfig.documentNumber = response.number;
-                        this.callDocumentCreate(additionalAction, selectedInvoice?.id);
+                const number = await this.reserveDocumentNumber();
+
+                this.documentConfig.custom.creditNoteNumber = number;
+
+                if (number !== this.documentConfig.documentNumber) {
+                    this.createNotificationInfo({
+                        message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
                     });
+                }
+
+                this.documentConfig.documentNumber = number;
             } else {
                 this.documentConfig.custom.creditNoteNumber = this.documentConfig.documentNumber;
-                this.callDocumentCreate(additionalAction, selectedInvoice?.id);
             }
+
+            this.callDocumentCreate(additionalAction, selectedInvoice?.id);
         },
     },
 };

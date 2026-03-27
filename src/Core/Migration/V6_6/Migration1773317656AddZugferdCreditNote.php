@@ -3,8 +3,8 @@
 namespace Shopware\Core\Migration\V6_6;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
-use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdCreditNoteRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedCreditNoteRenderer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -15,26 +15,26 @@ use Shopware\Core\Migration\Traits\Translations;
 /**
  * @internal
  */
-#[Package('framework')]
-class Migration1730790665ElectronicInvoice extends MigrationStep
+#[Package('after-sales')]
+class Migration1773317656AddZugferdCreditNote extends MigrationStep
 {
     use ImportTranslationsTrait;
 
     public function getCreationTimestamp(): int
     {
-        return 1730790665;
+        return 1773317656;
     }
 
     public function update(Connection $connection): void
     {
         $types = [
-            ZugferdRenderer::TYPE => [
-                'de' => ['name' => 'Rechnung: ZUGFeRD E-Rechnung'],
-                'en' => ['name' => 'Invoice: ZUGFeRD E-invoice'],
+            ZugferdCreditNoteRenderer::TYPE => [
+                'de' => ['name' => 'ZUGFeRD Gutschrift'],
+                'en' => ['name' => 'ZUGFeRD Credit Note'],
             ],
-            ZugferdEmbeddedRenderer::TYPE => [
-                'de' => ['name' => 'Rechnung: PDF mit eingebetteter ZUGFeRD E-Rechnung'],
-                'en' => ['name' => 'Invoice: PDF with embedded ZUGFeRD E-invoice'],
+            ZugferdEmbeddedCreditNoteRenderer::TYPE => [
+                'de' => ['name' => 'ZUGFeRD Gutschrift (eingebettet)'],
+                'en' => ['name' => 'ZUGFeRD Credit Note (embedded)'],
             ],
         ];
 
@@ -63,8 +63,8 @@ class Migration1730790665ElectronicInvoice extends MigrationStep
         $connection->insert('document_type', ['id' => $typeId, 'technical_name' => $technicalName, 'created_at' => $createdAt]);
 
         $translation = new Translations(
-            array_merge(['document_type_id' => $typeId], $translations['de']),
-            array_merge(['document_type_id' => $typeId], $translations['en'])
+            \array_merge(['document_type_id' => $typeId], $translations['de']),
+            \array_merge(['document_type_id' => $typeId], $translations['en'])
         );
 
         $this->importTranslation('document_type_translation', $translation, $connection);

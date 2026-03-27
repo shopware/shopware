@@ -11,16 +11,16 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 #[Package('after-sales')]
-class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
+class ZugferdEmbeddedCreditNoteRenderer extends AbstractDocumentRenderer
 {
-    public const TYPE = 'zugferd_embedded_invoice';
+    public const TYPE = 'zugferd_embedded_credit_note';
 
     /**
      * @internal
      */
     public function __construct(
-        protected AbstractDocumentRenderer $invoiceRenderer,
-        protected AbstractDocumentRenderer $electronicRenderer,
+        protected AbstractDocumentRenderer $creditNoteRenderer,
+        protected AbstractDocumentRenderer $zugferdCreditNoteRenderer,
         protected ZugferdEmbeddedService $zugferdEmbeddedService,
         protected string $shopwareVersion,
     ) {
@@ -38,15 +38,19 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
 
     public function render(array $operations, Context $context, DocumentRendererConfig $rendererConfig): RendererResult
     {
-        $invoice = $this->invoiceRenderer->render($operations, $context, $rendererConfig);
+        $creditNote = $this->creditNoteRenderer->render(
+            $operations,
+            $context,
+            $rendererConfig
+        );
 
         return $this->zugferdEmbeddedService->embed(
             $operations,
             $context,
             $rendererConfig,
-            $invoice,
-            $this->electronicRenderer,
-            $this->shopwareVersion
+            $creditNote,
+            $this->zugferdCreditNoteRenderer,
+            $this->shopwareVersion,
         );
     }
 
@@ -71,7 +75,7 @@ class ZugferdEmbeddedRenderer extends AbstractDocumentRenderer
             $context,
             $rendererConfig,
             $result,
-            $this->electronicRenderer,
+            $this->zugferdCreditNoteRenderer,
             $this->shopwareVersion
         );
 

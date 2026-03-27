@@ -53,6 +53,8 @@ class ZugferdDocument
 
     protected float $paidAmount = 0.0;
 
+    protected bool $allowNegativeProductLineItems = false;
+
     /**
      * @var array{chargeAmount: CalculatedPrice[], lineTotalAmount: CalculatedPrice[], allowanceAmount: CalculatedPrice[]}
      */
@@ -134,6 +136,17 @@ class ZugferdDocument
         return $this;
     }
 
+    public function withInvoiceReference(string $reference, ?\DateTimeInterface $issueDate = null): self
+    {
+        $this->zugferdBuilder->addDocumentInvoiceReferencedDocument(
+            $reference,
+            null,
+            $issueDate
+        );
+
+        return $this;
+    }
+
     public function withSellerInformation(DocumentConfiguration $documentConfig): self
     {
         $sellerAddress = [
@@ -167,8 +180,14 @@ class ZugferdDocument
         $tax = $price?->getCalculatedTaxes()?->first();
         $product = $lineItem->getProduct();
 
-        if ($price === null || ($totalNet = $this->getPriceWithFallback($tax, $price)) < 0) {
-            throw DocumentException::generationError('Price can\'t be negative or null: ' . $lineItem->getLabel());
+        if ($price === null) {
+            throw DocumentException::generationError('Price can\'t be null: ' . $lineItem->getLabel());
+        }
+
+        $totalNet = $this->getPriceWithFallback($tax, $price);
+
+        if (!$this->allowNegativeProductLineItems && $totalNet < 0) {
+            throw DocumentException::generationError('Price can\'t be negative: ' . $lineItem->getLabel());
         }
 
         $this->addMappedPrice(self::LINE_TOTAL_AMOUNT, $price);
@@ -176,7 +195,11 @@ class ZugferdDocument
 
         $this->zugferdBuilder
             ->addNewPosition($parentPosition . $lineItem->getPosition())
-            ->setDocumentPositionNetPrice(\round($totalNet / $lineItem->getQuantity(), 2), $lineItem->getQuantity(), ZugferdUnitCodes::REC20_PIECE)
+            ->setDocumentPositionNetPrice(
+                \round($totalNet / $lineItem->getQuantity(), 2),
+                $lineItem->getProduct()?->getPurchaseUnit() ?? 1,
+                ZugferdUnitCodes::REC20_PIECE
+            )
             ->setDocumentPositionQuantity($lineItem->getQuantity(), ZugferdUnitCodes::REC20_PIECE)
             ->addDocumentPositionTax($this->getTaxCode($tax), 'VAT', $tax?->getTaxRate() ?? 0.0)
             ->setDocumentPositionLineSummation($totalNet)
@@ -233,8 +256,35 @@ class ZugferdDocument
         return $this;
     }
 
-    public function withGeneralOrderData(?\DateTime $deliveryDate, string $documentDate, string $documentNumber, string $isoCode): self
+    public function withDocumentInformation(
+        string $documentDate,
+        string $documentNumber,
+        string $isoCode,
+        string $documentType
+    ): self {
+        $this->zugferdBuilder->setDocumentInformation(
+            $documentNumber,
+            $documentType,
+            new \DateTime($documentDate),
+            $isoCode,
+        );
+
+        return $this;
+    }
+
+    public function withDocumentSupplyChainEvent(\DateTime $deliveryDate): self
     {
+        $this->zugferdBuilder->setDocumentSupplyChainEvent($deliveryDate);
+
+        return $this;
+    }
+
+    public function withGeneralOrderData(
+        ?\DateTime $deliveryDate,
+        string $documentDate,
+        string $documentNumber,
+        string $isoCode,
+    ): self {
         $this->zugferdBuilder
             ->setDocumentInformation($documentNumber, ZugferdInvoiceType::INVOICE, new \DateTime($documentDate), $isoCode)
             ->setDocumentSupplyChainEvent($deliveryDate);
@@ -296,6 +346,13 @@ class ZugferdDocument
     public function getBuilder(): ZugferdDocumentBuilder
     {
         return $this->zugferdBuilder;
+    }
+
+    public function allowNegativeProductLineItems(): self
+    {
+        $this->allowNegativeProductLineItems = true;
+
+        return $this;
     }
 
     /**
@@ -373,13 +430,19 @@ class ZugferdDocument
 
     private function summary(OrderEntity $order, AmountCalculator $calculator): void
     {
-        if ($this->paidAmount > $order->getAmountTotal()) {
+        if ($this->paidAmount > $order->getAmountTotal() && !$this->allowNegativeProductLineItems) {
             throw DocumentException::generationError('Paid amount is greater than order total amount.');
         }
 
-        $lineTotal = abs($this->calculateTaxes(self::LINE_TOTAL_AMOUNT, $order, $calculator));
-        $chargeAmount = abs($this->calculateTaxes(self::CHARGE_AMOUNT, $order, $calculator));
-        $allowanceAmount = abs($this->calculateTaxes(self::ALLOWANCE_AMOUNT, $order, $calculator));
+        $lineTotal = $this->calculateTaxes(self::LINE_TOTAL_AMOUNT, $order, $calculator);
+        $chargeAmount = $this->calculateTaxes(self::CHARGE_AMOUNT, $order, $calculator);
+        $allowanceAmount = $this->calculateTaxes(self::ALLOWANCE_AMOUNT, $order, $calculator);
+
+        if ($order->getAmountTotal() >= 0.0) {
+            $lineTotal = abs($lineTotal);
+            $chargeAmount = abs($chargeAmount);
+            $allowanceAmount = abs($allowanceAmount);
+        }
 
         $this->zugferdBuilder
             ->setDocumentSummation(

@@ -79,7 +79,7 @@ class ValidPropertyConstraintsValidatorTest extends TestCase
         $validator = new ValidPropertyConstraintsValidator();
         $validator->initialize(static::createStub(ExecutionContextInterface::class));
 
-        $this->expectException(UnexpectedTypeException::class);
+        $this->expectExceptionObject(new UnexpectedTypeException(new NotBlank(), ValidPropertyConstraints::class));
         $validator->validate(
             new PropertySpecificationDto('x', 'string', false, false, 'X', 'X.', null, null, null),
             new NotBlank(),
@@ -92,7 +92,7 @@ class ValidPropertyConstraintsValidatorTest extends TestCase
         $validator = new ValidPropertyConstraintsValidator();
         $validator->initialize(static::createStub(ExecutionContextInterface::class));
 
-        $this->expectException(UnexpectedTypeException::class);
+        $this->expectExceptionObject(new UnexpectedTypeException('not-a-dto', PropertySpecificationDto::class));
         $validator->validate('not-a-dto', new ValidPropertyConstraints());
     }
 

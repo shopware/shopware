@@ -83,7 +83,7 @@ class ContentSystemElementTypeRegistryTest extends TestCase
     {
         $registry = new ContentSystemElementTypeRegistry([]);
 
-        $this->expectException(DecorationPatternException::class);
+        $this->expectExceptionObject(new DecorationPatternException(ContentSystemElementTypeRegistry::class));
         $registry->getDecorated();
     }
 

@@ -69,7 +69,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                 $path = \ltrim(\mb_substr($path, \mb_strlen($this->projectDir)), '/');
             }
 
-            $entry = [
+            $bundles[$bundle->getName()] = [
                 'basePath' => $path . '/',
                 'views' => ['Resources/views'],
                 'technicalName' => \str_replace('_', '-', $bundle->getContainerPrefix()),
@@ -86,8 +86,6 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                     'styleFiles' => $this->getStyleFiles($bundle->getName(), $this->stripProjectDir($bundle->getPath())),
                 ],
             ];
-
-            $bundles[$bundle->getName()] = $entry;
         }
 
         return $bundles;
@@ -102,7 +100,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         foreach ($this->activeAppsLoader->getActiveApps() as $app) {
             $absolutePath = $this->projectDir . '/' . $app['path'];
 
-            $appEntry = [
+            $configs[$app['name']] = [
                 'basePath' => $app['path'] . '/',
                 'views' => ['Resources/views'],
                 'technicalName' => str_replace('_', '-', $this->asSnakeCase($app['name'])),
@@ -114,8 +112,6 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                     'styleFiles' => $this->getStyleFiles($app['name'], $app['path']),
                 ],
             ];
-
-            $configs[$app['name']] = $appEntry;
         }
 
         return $configs;

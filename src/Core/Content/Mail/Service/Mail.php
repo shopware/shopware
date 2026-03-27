@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Mail\Service;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mime\Email;
+use function PHPStan\dumpType;
 
 #[Package('after-sales')]
 class Mail extends Email
@@ -16,20 +17,22 @@ class Mail extends Email
     private array $attachmentUrls = [];
 
     /**
-     * @return mixed[]
+     * @return list<mixed>
      */
     public function __serialize(): array
     {
+        /** @var list<mixed> $data */
         $data = parent::__serialize();
 
         $data[] = $this->mailAttachmentsConfig;
         $data[] = $this->attachmentUrls;
 
+
         return $data;
     }
 
     /**
-     * @param mixed[] $data
+     * @param list<mixed> $data
      */
     public function __unserialize(array $data): void
     {

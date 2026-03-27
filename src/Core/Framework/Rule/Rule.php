@@ -67,7 +67,7 @@ abstract class Rule extends Struct
      *   'propertyName2' => [new Constraint(), new OtherConstraint()],
      *  ]
      *
-     * @return array<string, array<Constraint>>
+     * @return array<string, list<Constraint>>
      */
     abstract public function getConstraints(): array;
 

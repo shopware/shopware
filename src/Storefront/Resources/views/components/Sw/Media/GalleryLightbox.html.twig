@@ -5,6 +5,7 @@
 {% props
     mediaItems,
     thumbnailSize = 70,
+    thumbnailNavigationPosition = 'left',
 %}
 
 {% set galleryLightboxCVA = cva({
@@ -45,6 +46,7 @@
                 :showFullScreenGallery="false"
                 :showMagnifier="false"
                 :useSchemaMarkup="false"
+                :thumbnailNavigationPosition="thumbnailNavigationPosition"
             />
         </div>
     </twig:block>

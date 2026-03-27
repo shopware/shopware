@@ -134,14 +134,9 @@
         {# ludtwig-ignore twig-json-encode-escape-js #}
         {% block layout_head_component_importmap %}
             {% if feature('STOREFRONT_COMPONENTS') %}
-                {% set importMap = component_import_map() %}
-                {% set importMap = importMap|merge({
-                    '@shopware-ag/dive': asset('assets/js/dive/dive.mjs', 'theme'),
-                    '@shopware-ag/dive/quickview': asset('assets/js/dive/quickview/index.mjs', 'theme'),
-                }) %}
                 <script type="importmap">
                     {
-                        "imports": {{ importMap|json_encode|raw }}
+                        "imports": {{ component_import_map()|json_encode|raw }}
                     }
                 </script>
             {% endif %}

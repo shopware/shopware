@@ -1,18 +1,50 @@
 {# ludtwig-ignore-file #}
 {# @sw-package framework #}
 {# @internal #}
+{# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
 
 {% props
     media,
     mediaHeight = 240,
     lightIntensity = config('core.media.defaultLightIntensity'),
     previewMode = false,
+    enableAugmentedReality = config('core.media.defaultEnableAugmentedReality'),
+    defaultArPlacement = config('core.media.defaultARPlacement'),
 %}
 
-{% set spatialGalleryViewerOptions = {
+{% set spatialBaseViewerOptions = {
     modelUrl: media.url,
     lightIntensity: config('core.media.defaultLightIntensity'),
     sliderPosition: 0,
+} %}
+
+{% set arViewerBaseOptions = {
+    snippets: {
+        arErrors: {
+            desktopNotSupported: {
+                reason: 'spatial.ar.errors.desktopNotSupported.reason'|trans|striptags,
+                solution: 'spatial.ar.errors.desktopNotSupported.solution'|trans|striptags
+            },
+            notSafariOnIOS: {
+                reason: 'spatial.ar.errors.notSafariOnIOS.reason'|trans|striptags,
+                solution: 'spatial.ar.errors.notSafariOnIOS.solution'|trans|striptags
+            },
+            IOSVersionMismatch: {
+                reason: 'spatial.ar.errors.IOSVersionMismatch.reason'|trans|striptags,
+                solution: 'spatial.ar.errors.IOSVersionMismatch.solution'|trans|striptags
+            },
+            unknownIOSError: {
+                reason: 'spatial.ar.errors.unknownIOSError.reason'|trans|striptags,
+                solution: 'spatial.ar.errors.unknownIOSError.solution'|trans|striptags
+            },
+            unknownARError: {
+                reason: 'spatial.ar.errors.unknownARError.reason'|trans|striptags,
+                solution: 'spatial.ar.errors.unknownARError.solution'|trans|striptags
+            }
+        },
+        openArView: 'spatial.ar.openArView'|trans|striptags,
+        launchingArView: 'spatial.ar.launchingArView'|trans|striptags,
+    }
 } %}
 
 {% set spatialCVA = cva({
@@ -32,23 +64,51 @@
 {% if not previewMode %}
     {% set defaultAttributes = defaultAttributes|merge({
         'data-component': 'Sw:Media:Spatial',
-        'data-component-options': spatialGalleryViewerOptions|json_encode,
     }) %}
 {% endif %}
 
 <div {{ attributes.defaults(defaultAttributes) }}>
     {% if previewMode %}
-        <div class="sw-media-spatial__preview-overlay">
-            <strong>3D</strong>
-        </div>
+        <twig:Sw:Icon 
+            name="3d-placeholder"
+            size="fluid"
+        />
+        <span class="sw-media-spatial__badge badge bg-secondary">3D</span>
     {% else %}
         <canvas 
             data-spatial-base-viewer="true" 
-            data-spatial-base-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
+            data-spatial-base-viewer-options='{{ spatialBaseViewerOptions|json_encode }}'
             class="sw-media-spatial__canvas">
         </canvas>
+
+        {% if media.config.spatial.arReady ?? enableAugmentedReality %}           
+           {% set arViewerOptions = arViewerBaseOptions|merge({
+                spatialArId: media.id,
+                arPlacement: media.config.spatial.arPlacement || defaultArPlacement,
+                modelUrl: media.url,
+            }) %}
+
+            <button
+                data-spatial-ar-viewer="true"
+                data-spatial-ar-viewer-options='{{ arViewerOptions|json_encode }}'
+                class="sw-media-spatial__ar btn btn-light"
+            >
+                <twig:Sw:Icon name="augmented" size="sm" />
+                <span id="ar-button-text">{{ 'spatial.ar.openArView'|trans|striptags }}</span>
+            </button>
+        {% endif %}
+
         <div class="sw-media-spatial__loader spinner-border text-primary" role="status">
             <span class="visually-hidden">{{ 'global.default.loading'|trans|striptags }}</span>
         </div>
+
+        {% set qrCodeOptions = {
+            params: {
+                autostartAr: media.id
+            }
+        } %}
+
+        <twig:Sw:Media:ArQrModal :qrCodeOptions="qrCodeOptions" />
+        <twig:Sw:Media:ArViewModal :qrCodeOptions="qrCodeOptions" />
     {% endif %}
 </div>

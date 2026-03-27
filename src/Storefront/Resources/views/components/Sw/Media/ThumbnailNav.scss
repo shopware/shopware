@@ -5,6 +5,7 @@
     --sw-thumbnail-nav-thumbnail-border-width: 2px;
     --sw-thumbnail-nav-scroll-control-size: 40px;
     --sw-thumbnail-nav-gap: #{map-get($spacers, 2)};
+    --sw-thumbnail-nav-padding: calc(var(--sw-thumbnail-nav-thumbnail-border-width) * 2);
     align-self: stretch; 
     height: 100%;
     position: relative;
@@ -28,7 +29,7 @@
 }
 
 .sw-thumbnail-nav__button {
-    padding: 2px;
+    padding: var(--sw-thumbnail-nav-thumbnail-border-width);
     margin: 0;
     border: var(--sw-thumbnail-nav-thumbnail-border-width) solid var(--sw-thumbnail-nav-thumbnail-border-color);
     width: var(--sw-thumbnail-nav-thumbnail-size);
@@ -45,6 +46,12 @@
     &:hover,
     &.is--active {
         border-color: var(--sw-thumbnail-nav-thumbnail-hover-border-color);
+    }
+
+    &:focus-visible {
+        outline: var(--sw-thumbnail-nav-thumbnail-border-width) solid var(--sw-thumbnail-nav-thumbnail-hover-border-color);
+        outline-offset: calc(var(--sw-thumbnail-nav-thumbnail-border-width) * -2);
+        border-color: var(--bs-primary-border-subtle);
     }
 }
 

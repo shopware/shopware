@@ -54,7 +54,7 @@
 }
 
 .sw-media-gallery--single-media {
-    display: block;
+    grid-template-columns: auto;
 }
 
 .sw-media-gallery__previews-wrapper {
@@ -115,10 +115,10 @@
 
 .sw-media-gallery__preview {
     display: block;
-}
 
-.sw-media-gallery__preview {
-    cursor: zoom-in;
+    &:has(canvas) {
+        cursor: all-scroll;
+    }
 }
 
 .sw-media-gallery__nav-button {

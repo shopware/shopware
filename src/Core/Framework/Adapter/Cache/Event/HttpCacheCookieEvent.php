@@ -30,7 +30,7 @@ class HttpCacheCookieEvent
     public bool $doNotStore = false;
 
     /**
-     * @param array<string, string|array<string>|null> $parts
+     * @param array<string, string|list<string>|null> $parts
      */
     public function __construct(
         public readonly Request $request,
@@ -40,7 +40,7 @@ class HttpCacheCookieEvent
     }
 
     /**
-     * @return string|array<string>|null
+     * @return string|list<string>|null
      */
     public function get(string $key): string|array|null
     {
@@ -48,7 +48,7 @@ class HttpCacheCookieEvent
     }
 
     /**
-     * @param string|array<string> $value
+     * @param string|list<string> $value
      */
     public function add(string $key, string|array $value): void
     {
@@ -61,7 +61,7 @@ class HttpCacheCookieEvent
     }
 
     /**
-     * @return array<string, string|array<string>|null>
+     * @return array<string, string|list<string>|null>
      */
     public function getParts(): array
     {

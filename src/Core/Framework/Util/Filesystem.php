@@ -63,7 +63,7 @@ class Filesystem
      * @param string $name The pattern to search for, eg '*.json'
      * @param string $in The relative directory to search in
      *
-     * @return array<SplFileInfo>
+     * @return list<SplFileInfo>
      */
     public function findFiles(string $name, string $in): array
     {

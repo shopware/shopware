@@ -36,7 +36,7 @@ final class RuleConfig extends Struct
     public const UNIT_AGE = 'age';
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $operators = null;
 
@@ -48,7 +48,7 @@ final class RuleConfig extends Struct
     protected array $fields = [];
 
     /**
-     * @param array<string> $operators
+     * @param list<string> $operators
      */
     public function operatorSet(array $operators, bool $addEmptyOperator = false, bool $isMatchAny = false): self
     {
@@ -75,7 +75,7 @@ final class RuleConfig extends Struct
     }
 
     /**
-     * @param array<string|int> $options
+     * @param list<string|int> $options
      * @param array<string, mixed> $config
      */
     public function selectField(string $name, array $options, bool $multi = false, array $config = []): self

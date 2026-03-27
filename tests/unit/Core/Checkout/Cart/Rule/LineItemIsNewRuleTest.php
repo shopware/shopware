@@ -69,7 +69,7 @@ class LineItemIsNewRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<bool>>
+     * @return array<string, list<bool>>
      */
     public static function getLineItemScopeTestData(): array
     {
@@ -122,7 +122,7 @@ class LineItemIsNewRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<bool>>
+     * @return array<string, list<bool>>
      */
     public static function getCartRuleScopeTestData(): array
     {

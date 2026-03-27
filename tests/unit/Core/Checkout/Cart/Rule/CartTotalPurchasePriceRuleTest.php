@@ -41,7 +41,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
     }
 
     /**
-     * @param array<float> $prices
+     * @param list<float> $prices
      */
     #[DataProvider('provideLineItemTestCases')]
     public function testMatchWithCartRuleScope(string $operator, array $prices, float $total, bool $matches): void
@@ -61,7 +61,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<mixed>>
+     * @return iterable<string, list<mixed>>
      */
     public static function provideLineItemTestCases(): iterable
     {

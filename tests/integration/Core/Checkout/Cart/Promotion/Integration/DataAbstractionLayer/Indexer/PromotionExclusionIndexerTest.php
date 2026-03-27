@@ -92,7 +92,7 @@ class PromotionExclusionIndexerTest extends TestCase
     /**
      * creates a promotion with exclusions and name
      *
-     * @param array<string> $exclusions
+     * @param list<string> $exclusions
      */
     private function createPromotion(array $exclusions, string $name): string
     {

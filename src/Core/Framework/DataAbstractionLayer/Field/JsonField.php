@@ -11,7 +11,7 @@ class JsonField extends Field implements StorageAware
 {
     /**
      * @param list<Field> $propertyMapping
-     * @param array<mixed>|null $default
+     * @param list<mixed>|null $default
      */
     public function __construct(
         protected string $storageName,
@@ -36,7 +36,7 @@ class JsonField extends Field implements StorageAware
     }
 
     /**
-     * @return array<mixed>|null
+     * @return list<mixed>|null
      */
     public function getDefault(): ?array
     {

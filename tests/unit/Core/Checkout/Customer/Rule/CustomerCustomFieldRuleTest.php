@@ -140,7 +140,7 @@ class CustomerCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @param array<int>|bool|string|null $customFieldValueInCustomer
+     * @param list<int>|bool|string|null $customFieldValueInCustomer
      */
     #[DataProvider('customFieldCheckoutScopeProvider')]
     public function testCustomFieldCheckoutScope(
@@ -205,7 +205,7 @@ class CustomerCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return list<list<string>>
      */
     public static function getStringRuleValueWhichShouldBeConsideredAsTrueProvider(): array
     {
@@ -219,7 +219,7 @@ class CustomerCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return list<list<string>>
      */
     public static function getStringRuleValueWhichShouldBeConsideredAsFalseProvider(): array
     {
@@ -242,7 +242,7 @@ class CustomerCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @param array<int>|bool|string|null $customFieldValue
+     * @param list<int>|bool|string|null $customFieldValue
      */
     private static function setupBoolRule(array|bool|string|null $customFieldValue): CustomerCustomFieldRule
     {
@@ -262,7 +262,7 @@ class CustomerCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @param array<int>|bool|string|null $customFieldValue
+     * @param list<int>|bool|string|null $customFieldValue
      */
     private static function setupStringRule(array|bool|string|null $customFieldValue): CustomerCustomFieldRule
     {
@@ -283,7 +283,7 @@ class CustomerCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @param array<int>|bool|string|null $customFieldValue
+     * @param list<int>|bool|string|null $customFieldValue
      * @param array<string, string> $config
      */
     private static function setupSelectRule(array|bool|string|null $customFieldValue, array $config = []): CustomerCustomFieldRule

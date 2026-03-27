@@ -162,7 +162,7 @@ class TestCollectionWithSelfReference extends SerializationFixture
     }
 
     /**
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     protected function getJsonFixtures(): array
     {

@@ -129,7 +129,7 @@ class VariantListingConfigFieldSerializerTest extends TestCase
      *
      * @throws \JsonException
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function encode(array $data): array
     {

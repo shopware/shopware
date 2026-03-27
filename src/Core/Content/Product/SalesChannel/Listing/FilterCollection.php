@@ -54,7 +54,7 @@ class FilterCollection extends Collection
     }
 
     /**
-     * @return array<DALFilter>
+     * @return list<DALFilter>
      */
     public function getFilters(): array
     {

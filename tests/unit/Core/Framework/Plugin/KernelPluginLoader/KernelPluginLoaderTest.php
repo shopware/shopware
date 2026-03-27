@@ -81,7 +81,7 @@ class KernelPluginLoaderTest extends TestCase
     }
 
     /**
-     * @return iterable<array<bool>>
+     * @return iterable<list<bool>>
      */
     public static function classLoaderDataProvider(): iterable
     {

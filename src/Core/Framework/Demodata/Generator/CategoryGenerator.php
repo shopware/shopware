@@ -83,7 +83,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
     /**
      * @param list<string> $pageIds
-     * @param array<string> $tags
+     * @param list<string> $tags
      *
      * @return array<string, mixed>
      */
@@ -114,7 +114,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      *
      * @return array<string, mixed>
      */
@@ -137,7 +137,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getIds(string $table): array
     {
@@ -202,7 +202,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
     /**
      * @param list<string> $pageIds
-     * @param array<string> $tags
+     * @param list<string> $tags
      *
      * @return list<array<string, mixed>>
      */

@@ -22,7 +22,7 @@ class CustomFieldSetGateway
     }
 
     /**
-     * @param array<string> $setIds
+     * @param list<string> $setIds
      *
      * @return array<string, list<array{id: string, name: string, type: string}>>
      */
@@ -47,9 +47,9 @@ class CustomFieldSetGateway
     }
 
     /**
-     * @param array<string> $setIds
+     * @param list<string> $setIds
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function fetchAppOwnedFieldSetIds(array $setIds): array
     {
@@ -65,7 +65,7 @@ class CustomFieldSetGateway
     }
 
     /**
-     * @param array<string> $customFieldIds
+     * @param list<string> $customFieldIds
      *
      * @return array<string, string>
      */
@@ -82,7 +82,7 @@ class CustomFieldSetGateway
     }
 
     /**
-     * @param array<string> $fieldSetIds
+     * @param list<string> $fieldSetIds
      *
      * @return array<string, list<string>>
      */
@@ -104,7 +104,7 @@ class CustomFieldSetGateway
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function fetchLanguageIds(): array
     {

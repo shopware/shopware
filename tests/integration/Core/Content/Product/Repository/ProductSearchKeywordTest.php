@@ -83,7 +83,7 @@ class ProductSearchKeywordTest extends TestCase
     }
 
     /**
-     * @param array<string> $searchKeyword
+     * @param list<string> $searchKeyword
      */
     private function createProduct(string $id, array $searchKeyword): void
     {

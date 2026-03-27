@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class DeliveryTimeTranslationCollection extends EntityCollection
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getDeliveryTimeIds(): array
     {
@@ -25,7 +25,7 @@ class DeliveryTimeTranslationCollection extends EntityCollection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getLanguageIds(): array
     {

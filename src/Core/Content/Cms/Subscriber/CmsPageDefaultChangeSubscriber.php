@@ -24,7 +24,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     public static array $defaultCmsPageConfigKeys = [
         ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT,
@@ -57,7 +57,7 @@ class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var array<string> $cmsPageIds */
+        /** @var list<string> $cmsPageIds */
         $cmsPageIds = $event->getIds(CmsPageDefinition::ENTITY_NAME);
 
         // no cms page is affected by this deletion event
@@ -129,9 +129,9 @@ class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $cmsPageIds
+     * @param list<string> $cmsPageIds
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function cmsPageIsDefault(array $cmsPageIds): array
     {

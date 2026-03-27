@@ -23,7 +23,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implements EventSubscriberInterface, ResetInterface
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $ruleIds = [];
 

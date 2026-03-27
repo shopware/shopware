@@ -35,7 +35,7 @@ class FastlyMediaReverseProxy implements MediaReverseProxy
     }
 
     /**
-     * @param array<string> $urls
+     * @param list<string> $urls
      */
     public function ban(array $urls): void
     {

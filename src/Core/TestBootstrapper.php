@@ -40,7 +40,7 @@ class TestBootstrapper
     private ?OutputInterface $output = null;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $activePlugins = [];
 

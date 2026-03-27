@@ -505,7 +505,7 @@ class DefinitionValidator
     }
 
     /**
-     * @param array<Column> $columns
+     * @param list<Column> $columns
      */
     private function getColumnByName(string $name, array $columns): ?Column
     {

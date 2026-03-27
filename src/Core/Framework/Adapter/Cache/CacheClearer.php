@@ -28,7 +28,7 @@ class CacheClearer
     /**
      * @internal
      *
-     * @param array<CacheItemPoolInterface> $adapters
+     * @param list<CacheItemPoolInterface> $adapters
      */
     public function __construct(
         private readonly array $adapters,

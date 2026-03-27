@@ -23,7 +23,7 @@ class AvailableCombinationResult extends Struct
     protected array $optionIds = [];
 
     /**
-     * @var array<string, array<string>>
+     * @var array<string, list<string>>
      */
     protected array $combinations = [];
 
@@ -33,7 +33,7 @@ class AvailableCombinationResult extends Struct
     protected array $combinationDetails = [];
 
     /**
-     * @param array<string> $optionIds
+     * @param list<string> $optionIds
      */
     public function hasCombination(array $optionIds): bool
     {
@@ -41,7 +41,7 @@ class AvailableCombinationResult extends Struct
     }
 
     /**
-     * @param array<string> $optionIds
+     * @param list<string> $optionIds
      */
     public function addCombination(array $optionIds, bool $available): void
     {
@@ -63,7 +63,7 @@ class AvailableCombinationResult extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getHashes(): array
     {
@@ -71,7 +71,7 @@ class AvailableCombinationResult extends Struct
     }
 
     /**
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     public function getCombinations(): array
     {
@@ -79,7 +79,7 @@ class AvailableCombinationResult extends Struct
     }
 
     /**
-     * @param array<string> $optionIds
+     * @param list<string> $optionIds
      */
     public function isAvailable(array $optionIds): bool
     {
@@ -87,7 +87,7 @@ class AvailableCombinationResult extends Struct
     }
 
     /**
-     * @param array<string> $optionIds
+     * @param list<string> $optionIds
      */
     private function calculateHash(array $optionIds): string
     {

@@ -96,7 +96,7 @@ class StructNormalizerTest extends TestCase
     }
 
     /**
-     * @return array<list<mixed>>
+     * @return list<list<mixed>>
      */
     public static function denormalizeShouldReturnNonArraysProvider(): array
     {
@@ -236,7 +236,7 @@ class AdvancedTestStruct extends TestStruct
     protected array $subClasses = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $meta = [];
 
@@ -257,7 +257,7 @@ class AdvancedTestStruct extends TestStruct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getMeta(): array
     {
@@ -265,7 +265,7 @@ class AdvancedTestStruct extends TestStruct
     }
 
     /**
-     * @param array<string> $meta
+     * @param list<string> $meta
      */
     public function setMeta(array $meta): void
     {

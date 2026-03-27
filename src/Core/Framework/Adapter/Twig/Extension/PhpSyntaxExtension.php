@@ -49,7 +49,7 @@ class PhpSyntaxExtension extends AbstractExtension
     }
 
     /**
-     * @return array<TwigFilter>
+     * @return list<TwigFilter>
      */
     public function getFilters()
     {
@@ -122,7 +122,7 @@ class PhpSyntaxExtension extends AbstractExtension
     }
 
     /**
-     * @return array<TwigFunction>
+     * @return list<TwigFunction>
      */
     public function getFunctions()
     {

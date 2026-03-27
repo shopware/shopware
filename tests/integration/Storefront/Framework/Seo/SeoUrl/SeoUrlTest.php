@@ -571,7 +571,7 @@ class SeoUrlTest extends TestCase
     }
 
     /**
-     * @param array<array{expected: string|null, categoryId: string}> $cases
+     * @param list<array{expected: string|null, categoryId: string}> $cases
      * @param EntityRepository<CategoryCollection> $categoryRepository
      */
     private function runChecks(array $cases, EntityRepository $categoryRepository, Context $context, string $salesChannelId): void

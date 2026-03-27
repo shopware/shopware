@@ -12,7 +12,7 @@ class IndexMappingProvider
     /**
      * @internal
      *
-     * @param array<mixed> $mapping
+     * @param list<mixed> $mapping
      */
     public function __construct(
         private readonly array $mapping,
@@ -20,7 +20,7 @@ class IndexMappingProvider
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function build(AbstractElasticsearchDefinition $definition, Context $context): array
     {

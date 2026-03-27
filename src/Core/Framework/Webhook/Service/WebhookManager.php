@@ -127,7 +127,7 @@ class WebhookManager implements ResetInterface
     }
 
     /**
-     * @param array<Webhook> $webhooksForEvent
+     * @param list<Webhook> $webhooksForEvent
      */
     private function dispatchWebhooksToQueue(
         array $webhooksForEvent,
@@ -190,7 +190,7 @@ class WebhookManager implements ResetInterface
     }
 
     /**
-     * @param array<Webhook> $webhooksForEvent
+     * @param list<Webhook> $webhooksForEvent
      */
     private function callWebhooksSynchronous(
         array $webhooksForEvent,

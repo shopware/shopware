@@ -98,7 +98,7 @@ class EntityRepositoryTest extends TestCase
 
     /**
      * @param list<array<string, mixed>> $products
-     * @param array<string> $expected
+     * @param list<string> $expected
      */
     #[DataProvider('productPropertiesQueryProvider')]
     public function testProductPropertiesQueries(array $products, Criteria $criteria, array $expected): void
@@ -285,7 +285,7 @@ class EntityRepositoryTest extends TestCase
     }
 
     /**
-     * @param array<array{payment: string, state:string}> $transactions
+     * @param list<array{payment: string, state:string}> $transactions
      */
     #[DataProvider('orderTransactionsProvider')]
     public function testOrderTransactionsQueries(array $transactions, Criteria $criteria, bool $match): void

@@ -97,7 +97,7 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
     }
 
     /**
-     * @return array<int, array<string|null>>
+     * @return array<int, list<string|null>>
      */
     private function fetchAllUserStoreTokens(): array
     {

@@ -494,7 +494,7 @@ class EntityAggregator implements EntityAggregatorInterface
     }
 
     /**
-     * @param array<array<string, mixed>> $rows
+     * @param list<array<string, mixed>> $rows
      */
     private function hydrateResult(
         Aggregation $aggregation,
@@ -564,7 +564,7 @@ class EntityAggregator implements EntityAggregatorInterface
     }
 
     /**
-     * @param array<array<string, mixed>> $rows
+     * @param list<array<string, mixed>> $rows
      */
     private function hydrateEntityAggregation(
         EntityAggregation $aggregation,
@@ -588,7 +588,7 @@ class EntityAggregator implements EntityAggregatorInterface
     }
 
     /**
-     * @param array<array<string, mixed>> $rows
+     * @param list<array<string, mixed>> $rows
      */
     private function hydrateDateHistogramAggregation(
         DateHistogramAggregation $aggregation,
@@ -627,7 +627,7 @@ class EntityAggregator implements EntityAggregatorInterface
     }
 
     /**
-     * @param array<array<string, mixed>> $rows
+     * @param list<array<string, mixed>> $rows
      */
     private function hydrateTermsAggregation(
         TermsAggregation $aggregation,
@@ -674,9 +674,9 @@ class EntityAggregator implements EntityAggregatorInterface
     }
 
     /**
-     * @param array<array<string, mixed>> $rows
+     * @param list<array<string, mixed>> $rows
      *
-     * @return array<array{count: int, buckets: list<array<string, mixed>>}>
+     * @return list<array{count: int, buckets: list<array<string, mixed>>}>
      */
     private function groupBuckets(BucketAggregation $aggregation, array $rows): array
     {
@@ -704,7 +704,7 @@ class EntityAggregator implements EntityAggregatorInterface
     }
 
     /**
-     * @param array<array<string, string>> $rows
+     * @param list<array<string, string>> $rows
      */
     private function hydrateRangeAggregation(RangeAggregation $aggregation, array $rows): RangeResult
     {

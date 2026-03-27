@@ -93,7 +93,7 @@ class TranslationValidator implements EventSubscriberInterface
     }
 
     /**
-     * @return array<FkField>
+     * @return list<FkField>
      */
     private function getFkFields(EntityTranslationDefinition $definition): array
     {
@@ -120,7 +120,7 @@ class TranslationValidator implements EventSubscriberInterface
 
     /**
      * @param array<string, string> $parameters
-     * @param array<mixed>|null $invalidValue
+     * @param list<mixed>|null $invalidValue
      */
     private function buildViolation(
         string $messageTemplate,

@@ -91,7 +91,7 @@ class AppJWTGenerateRoute
     }
 
     /**
-     * @return array{app_secret: non-empty-string, privileges: array<string>}
+     * @return array{app_secret: non-empty-string, privileges: list<string>}
      */
     private function fetchAppDetails(string $name): array
     {

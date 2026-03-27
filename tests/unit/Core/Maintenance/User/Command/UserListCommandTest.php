@@ -97,7 +97,7 @@ class UserListCommandTest extends TestCase
     }
 
     /**
-     * @param array<string> $roles
+     * @param list<string> $roles
      */
     private function createUser(
         string $email,

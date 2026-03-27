@@ -17,7 +17,7 @@ trait SnapshotTesting
     final public const TYPE_XML = 'xml';
 
     /**
-     * @param array<array{type: string, actual: array<mixed>|string, normalize?: callable, transform?: callable}> $assertions
+     * @param list<array{type: string, actual: list<mixed>|string, normalize?: callable, transform?: callable}> $assertions
      */
     protected function assertSnapshot(string $name, array $assertions): void
     {
@@ -76,7 +76,7 @@ trait SnapshotTesting
     }
 
     /**
-     * @param array<mixed>|string $actual
+     * @param list<mixed>|string $actual
      *
      * @throws \JsonException
      *
@@ -119,7 +119,7 @@ trait SnapshotTesting
     }
 
     /**
-     * @param array<mixed>|string $data
+     * @param list<mixed>|string $data
      *
      * @throws \JsonException
      */
@@ -165,7 +165,7 @@ trait SnapshotTesting
     /**
      * @throws \JsonException
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private static function transformJson(string $content): array
     {

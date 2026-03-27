@@ -87,7 +87,7 @@ class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     public static function mailTypeProvider(): array
     {
@@ -163,7 +163,7 @@ class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getMailTemplateType(): array
     {

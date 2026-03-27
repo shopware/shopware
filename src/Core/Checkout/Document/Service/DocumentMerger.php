@@ -45,7 +45,7 @@ final class DocumentMerger
     }
 
     /**
-     * @param array<string> $documentIds
+     * @param list<string> $documentIds
      */
     public function merge(array $documentIds, Context $context): ?RenderedDocument
     {
@@ -169,7 +169,7 @@ final class DocumentMerger
     }
 
     /**
-     * @param array<string> $documentIds
+     * @param list<string> $documentIds
      */
     private function prepareDocumentsForMerge(array $documentIds, Context $context): DocumentCollection
     {

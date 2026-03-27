@@ -31,27 +31,27 @@ use Symfony\Component\Validator\Validation;
 class StaticEntityRepository extends EntityRepository
 {
     /**
-     * @var array<array<mixed>>
+     * @var list<list<mixed>>
      */
     public array $upserts = [];
 
     /**
-     * @var array<array<mixed>>
+     * @var list<list<mixed>>
      */
     public array $updates = [];
 
     /**
-     * @var array<array<mixed>>
+     * @var list<list<mixed>>
      */
     public array $creates = [];
 
     /**
-     * @var array<array<string, mixed|null>>
+     * @var list<array<string, mixed|null>>
      */
     public array $deletes = [];
 
     /**
-     * @param array<callable(Criteria, Context): (ResultTypes)|ResultTypes> $searches
+     * @param list<callable(Criteria, Context): (ResultTypes)|ResultTypes> $searches
      */
     public function __construct(
         public array $searches,
@@ -202,7 +202,7 @@ class StaticEntityRepository extends EntityRepository
     }
 
     /**
-     * @param array<array<string, mixed|null>> $data
+     * @param list<array<string, mixed|null>> $data
      */
     private function getDummyWriteResults(array $data, string $operation, Context $context): NestedEventCollection
     {
@@ -231,9 +231,9 @@ class StaticEntityRepository extends EntityRepository
     }
 
     /**
-     * @param array<mixed> $payload
+     * @param list<mixed> $payload
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function getDummyPrimaryKeys(array $payload): array
     {

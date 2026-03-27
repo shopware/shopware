@@ -200,7 +200,7 @@ class AppContextGatewayTest extends TestCase
     }
 
     /**
-     * @param array<array{command: string, payload: array<string,mixed>}> $commands
+     * @param list<array{command: string, payload: array<string,mixed>}> $commands
      */
     private function executeCommands(array $commands): string
     {

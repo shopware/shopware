@@ -19,7 +19,7 @@ class ProductSortingEntity extends Entity
     protected bool $active;
 
     /**
-     * @var array<array{field: string, priority: int, order: ?string, naturalSorting: bool|int|null}>
+     * @var list<array{field: string, priority: int, order: ?string, naturalSorting: bool|int|null}>
      */
     protected array $fields = [];
 
@@ -32,7 +32,7 @@ class ProductSortingEntity extends Entity
     /**
      * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $fallbackSorting will be added
      *
-     * @return array<FieldSorting>
+     * @return list<FieldSorting>
      */
     public function createDalSorting(/* ?FieldSorting $fallbackSorting = null */): array
     {
@@ -105,7 +105,7 @@ class ProductSortingEntity extends Entity
     }
 
     /**
-     * @return array<array{field: string, priority: int, order: ?string, naturalSorting: bool|int|null}>
+     * @return list<array{field: string, priority: int, order: ?string, naturalSorting: bool|int|null}>
      */
     public function getFields(): array
     {
@@ -113,7 +113,7 @@ class ProductSortingEntity extends Entity
     }
 
     /**
-     * @param array<array{field: string, priority: int, order: ?string, naturalSorting: bool|int|null}> $fields
+     * @param list<array{field: string, priority: int, order: ?string, naturalSorting: bool|int|null}> $fields
      */
     public function setFields(array $fields): void
     {

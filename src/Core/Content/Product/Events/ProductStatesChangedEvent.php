@@ -16,7 +16,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class ProductStatesChangedEvent extends Event implements ShopwareEvent
 {
     /**
-     * @param array<UpdatedStates> $updatedStates
+     * @param list<UpdatedStates> $updatedStates
      */
     public function __construct(
         protected array $updatedStates,
@@ -27,7 +27,7 @@ class ProductStatesChangedEvent extends Event implements ShopwareEvent
     /**
      * @deprecated tag:v6.8.0 - Will be removed, as product states are deprecated.
      *
-     * @return array<UpdatedStates>
+     * @return list<UpdatedStates>
      */
     public function getUpdatedStates(): array
     {

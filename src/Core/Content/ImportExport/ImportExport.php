@@ -54,7 +54,7 @@ class ImportExport
     private ?int $total = null;
 
     /**
-     * @var array<WriteCommand>
+     * @var list<WriteCommand>
      */
     private array $failedWriteCommands = [];
 
@@ -455,8 +455,8 @@ class ImportExport
     }
 
     /**
-     * @param array<Entity|array<int|string, mixed>> $records
-     * @param array<int, array<mixed>> $failedRecords
+     * @param list<Entity|array<int|string, mixed>> $records
+     * @param array<int, list<mixed>> $failedRecords
      */
     private function exportChunk(
         Config $config,
@@ -551,7 +551,7 @@ class ImportExport
      * In case we failed to import some invalid records, we export them as a new csv with the same format and
      * an additional _error column.
      *
-     * @param array<array<int|string, mixed>> $failedRecords
+     * @param list<array<int|string, mixed>> $failedRecords
      */
     private function exportInvalid(Context $context, array $failedRecords): Progress
     {
@@ -716,7 +716,7 @@ class ImportExport
 
     /**
      * @param array<string, mixed> $overallResults
-     * @param array<EntityWrittenContainerEvent> $results
+     * @param list<EntityWrittenContainerEvent> $results
      * @param array<int, array<int|string, mixed>> $failedRecords
      *
      * @return array<string, mixed>

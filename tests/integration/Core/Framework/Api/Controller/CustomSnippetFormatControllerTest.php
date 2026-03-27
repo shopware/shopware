@@ -109,7 +109,7 @@ class CustomSnippetFormatControllerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<string, string|array<string, array<mixed>>>>
+     * @return iterable<string, array<string, string|array<string, list<mixed>>>>
      */
     public static function renderProvider(): iterable
     {

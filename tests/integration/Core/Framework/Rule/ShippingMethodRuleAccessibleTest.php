@@ -158,7 +158,7 @@ class ShippingMethodRuleAccessibleTest extends TestCase
     }
 
     /**
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function prepareSimpleTestData(string $ruleId): array
     {
@@ -185,7 +185,7 @@ class ShippingMethodRuleAccessibleTest extends TestCase
     }
 
     /**
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function createComplicatedTestData(string $ruleId): array
     {

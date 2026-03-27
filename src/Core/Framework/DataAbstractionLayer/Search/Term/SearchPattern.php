@@ -14,7 +14,7 @@ class SearchPattern
     final public const BOOLEAN_CLAUSE_OR = 'boolean_clause_or';
 
     /**
-     * @var array<SearchTerm>
+     * @var list<SearchTerm>
      */
     private array $terms = [];
 
@@ -35,7 +35,7 @@ class SearchPattern
     }
 
     /**
-     * @return array<SearchTerm>
+     * @return list<SearchTerm>
      */
     public function getTerms(): array
     {

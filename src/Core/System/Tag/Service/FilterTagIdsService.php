@@ -117,7 +117,7 @@ class FilterTagIdsService
     }
 
     /**
-     * @param array<string> $assignments
+     * @param list<string> $assignments
      */
     private function addAssignmentFilter(QueryBuilder $query, array $assignments): void
     {

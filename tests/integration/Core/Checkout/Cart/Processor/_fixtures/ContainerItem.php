@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class ContainerItem extends LineItem
 {
     /**
-     * @param array<LineItem> $items
+     * @param list<LineItem> $items
      */
     public function __construct(array $items = [])
     {

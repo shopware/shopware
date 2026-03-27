@@ -62,7 +62,7 @@ class CustomerEntity extends Entity implements \Stringable
     protected ?string $title = null;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $vatIds = null;
 
@@ -89,7 +89,7 @@ class CustomerEntity extends Entity implements \Stringable
     protected string $accountType;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      *
      * @internal
      */
@@ -326,7 +326,7 @@ class CustomerEntity extends Entity implements \Stringable
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getVatIds(): ?array
     {
@@ -334,7 +334,7 @@ class CustomerEntity extends Entity implements \Stringable
     }
 
     /**
-     * @param array<string>|null $vatIds
+     * @param list<string>|null $vatIds
      */
     public function setVatIds(?array $vatIds): void
     {
@@ -424,7 +424,7 @@ class CustomerEntity extends Entity implements \Stringable
     /**
      * @internal
      *
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getNewsletterSalesChannelIds(): ?array
     {
@@ -436,7 +436,7 @@ class CustomerEntity extends Entity implements \Stringable
     /**
      * @internal
      *
-     * @param array<string>|null $newsletterSalesChannelIds
+     * @param list<string>|null $newsletterSalesChannelIds
      */
     public function setNewsletterSalesChannelIds(?array $newsletterSalesChannelIds): void
     {

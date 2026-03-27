@@ -43,7 +43,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function warmUp(string $cacheDir, ?string $buildDir = null): array
     {
@@ -51,7 +51,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function matchRequest(Request $request): array
     {
@@ -153,7 +153,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function match(string $pathinfo): array
     {

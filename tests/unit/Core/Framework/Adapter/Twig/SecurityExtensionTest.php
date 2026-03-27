@@ -164,8 +164,8 @@ class SecurityExtensionTest extends TestCase
     }
 
     /**
-     * @param array<string> $allowedFunctions
-     * @param array<mixed> $variables
+     * @param list<string> $allowedFunctions
+     * @param list<mixed> $variables
      */
     private function runTwig(string $template, array $allowedFunctions = [], array $variables = []): string
     {
@@ -179,7 +179,7 @@ class SecurityExtensionTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $variables
+     * @param list<mixed> $variables
      */
     private function runUnsafeTwig(string $template, array $variables = []): string
     {

@@ -27,7 +27,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
      * @internal
      *
      * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,

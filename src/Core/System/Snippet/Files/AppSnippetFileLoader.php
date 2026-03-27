@@ -20,7 +20,7 @@ class AppSnippetFileLoader
      * @param bool $isAbsolutePath is used for remote app loading in cloud environments,
      *                             therefore it's always false for local apps
      *
-     * @return array<GenericSnippetFile>
+     * @return list<GenericSnippetFile>
      */
     public function loadSnippetFilesFromApp(string $author, string $appPath, bool $isAbsolutePath = false): array
     {
@@ -57,7 +57,7 @@ class AppSnippetFileLoader
     }
 
     /**
-     * @param array<string> $nameParts
+     * @param list<string> $nameParts
      */
     private function createSnippetFile(array $nameParts, SplFileInfo $fileInfo, string $author): ?GenericSnippetFile
     {
@@ -69,7 +69,7 @@ class AppSnippetFileLoader
     }
 
     /**
-     * @param array<string> $nameParts
+     * @param list<string> $nameParts
      */
     private function getSnippetFile(array $nameParts, SplFileInfo $fileInfo, string $author): GenericSnippetFile
     {
@@ -84,7 +84,7 @@ class AppSnippetFileLoader
     }
 
     /**
-     * @param array<string> $nameParts
+     * @param list<string> $nameParts
      */
     private function getBaseSnippetFile(array $nameParts, SplFileInfo $fileInfo, string $author): GenericSnippetFile
     {

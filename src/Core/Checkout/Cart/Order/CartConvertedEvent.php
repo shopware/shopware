@@ -13,12 +13,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class CartConvertedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
-     * @var array<mixed>
+     * @var list<mixed>
      */
     private array $convertedCart;
 
     /**
-     * @param array<mixed> $originalConvertedCart
+     * @param list<mixed> $originalConvertedCart
      */
     public function __construct(
         private readonly Cart $cart,
@@ -40,7 +40,7 @@ class CartConvertedEvent extends NestedEvent implements ShopwareSalesChannelEven
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getOriginalConvertedCart(): array
     {
@@ -48,7 +48,7 @@ class CartConvertedEvent extends NestedEvent implements ShopwareSalesChannelEven
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getConvertedCart(): array
     {
@@ -56,7 +56,7 @@ class CartConvertedEvent extends NestedEvent implements ShopwareSalesChannelEven
     }
 
     /**
-     * @param array<mixed> $convertedCart
+     * @param list<mixed> $convertedCart
      */
     public function setConvertedCart(array $convertedCart): void
     {

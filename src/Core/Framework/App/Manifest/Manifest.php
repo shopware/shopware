@@ -204,7 +204,7 @@ class Manifest
     }
 
     /**
-     * @return array<string> all hosts referenced in the manifest file
+     * @return list<string> all hosts referenced in the manifest file
      */
     public function getAllHosts(): array
     {

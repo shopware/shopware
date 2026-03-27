@@ -80,7 +80,7 @@ class UserListCommand extends Command
      *     'active': bool,
      *     'username': string,
      *     'name': string,
-     *     'roles': array<string>,
+     *     'roles': list<string>,
      *     'created': string
      * }>
      */

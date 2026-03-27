@@ -162,7 +162,7 @@ final readonly class OrderStockSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getAffectedIds(EntityWriteEvent $event): array
     {
@@ -183,7 +183,7 @@ final readonly class OrderStockSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @return array<string, array{id: string, quantity: int, referenced_id: string}>
      */

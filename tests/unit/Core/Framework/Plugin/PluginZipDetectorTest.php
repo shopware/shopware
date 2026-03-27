@@ -65,7 +65,7 @@ class PluginZipDetectorTest extends TestCase
     }
 
     /**
-     * @return array<array{0: string, 1:string}>
+     * @return list<array{0: string, 1:string}>
      */
     public static function archiveProvider(): array
     {

@@ -216,7 +216,7 @@ class TranslationMetadataLoaderTest extends TestCase
     }
 
     /**
-     * @param array<array{locale: string, updatedAt: string, progress: int}> $items
+     * @param list<array{locale: string, updatedAt: string, progress: int}> $items
      */
     private function initClient(array $items): void
     {
@@ -255,7 +255,7 @@ class TranslationMetadataLoaderTest extends TestCase
     }
 
     /**
-     * @return array<array{locale: string, updatedAt: string, progress: int}>
+     * @return list<array{locale: string, updatedAt: string, progress: int}>
      */
     private function readMetadataFromLocalFilesystem(): array
     {

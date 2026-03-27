@@ -109,7 +109,7 @@ class RemoveCustomerTagActionTest extends TestCase
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @return array<string, true>
      */

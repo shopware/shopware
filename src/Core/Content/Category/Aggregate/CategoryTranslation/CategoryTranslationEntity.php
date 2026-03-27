@@ -20,7 +20,7 @@ class CategoryTranslationEntity extends TranslationEntity
     protected ?string $name = null;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $breadcrumb = null;
 
@@ -146,7 +146,7 @@ class CategoryTranslationEntity extends TranslationEntity
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getBreadcrumb(): ?array
     {
@@ -154,7 +154,7 @@ class CategoryTranslationEntity extends TranslationEntity
     }
 
     /**
-     * @param array<string>|null $breadcrumb
+     * @param list<string>|null $breadcrumb
      */
     public function setBreadcrumb(?array $breadcrumb): void
     {

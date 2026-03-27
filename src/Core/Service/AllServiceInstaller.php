@@ -41,7 +41,7 @@ class AllServiceInstaller
      * This is a low-level class that is responsible for installing all services.
      * It should only be called from a higher-level with 'state' awareness class, Specifically: Shopware\Core\Service\LifecycleManager
      *
-     * @return array<string> The newly installed services
+     * @return list<string> The newly installed services
      */
     public function install(Context $context): array
     {
@@ -75,7 +75,7 @@ class AllServiceInstaller
     /**
      * @param EntitySearchResult<AppCollection> $installedServices
      *
-     * @return array<ServiceEntry>
+     * @return list<ServiceEntry>
      */
     private function getNewServices(EntitySearchResult $installedServices): array
     {

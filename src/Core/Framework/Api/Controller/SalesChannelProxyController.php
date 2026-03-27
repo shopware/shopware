@@ -349,7 +349,7 @@ class SalesChannelProxyController extends AbstractController
     }
 
     /**
-     * @return array<Request>
+     * @return list<Request>
      */
     private function clearRequestStackWithBackup(RequestStack $requestStack): array
     {
@@ -369,7 +369,7 @@ class SalesChannelProxyController extends AbstractController
     }
 
     /**
-     * @param array<Request> $requestStackBackup
+     * @param list<Request> $requestStackBackup
      */
     private function restoreRequestStack(RequestStack $requestStack, array $requestStackBackup): void
     {
@@ -452,7 +452,7 @@ class SalesChannelProxyController extends AbstractController
         $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $payload = $this->contextPersister->load($contextToken, $salesChannelId);
-        /** @var array<mixed>|null $requestPermissions */
+        /** @var list<mixed>|null $requestPermissions */
         $requestPermissions = $request->request->all()[SalesChannelContextService::PERMISSIONS] ?? null;
 
         if (\in_array(SalesChannelContextService::PERMISSIONS, $payload, true) && !$requestPermissions) {

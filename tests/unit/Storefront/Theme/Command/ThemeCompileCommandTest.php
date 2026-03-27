@@ -308,7 +308,7 @@ class ThemeCompileCommandTest extends TestCase
     }
 
     /**
-     * @return iterable<array<bool>>
+     * @return iterable<list<bool>>
      */
     public static function getOptionsValue(): iterable
     {

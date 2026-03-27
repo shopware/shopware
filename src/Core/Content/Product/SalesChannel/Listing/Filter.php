@@ -12,7 +12,7 @@ class Filter extends Struct
 {
     /**
      * @param list<Aggregation> $aggregations
-     * @param int|float|string|bool|array<mixed>|null $values
+     * @param int|float|string|bool|list<mixed>|null $values
      */
     public function __construct(
         protected string $name,
@@ -48,7 +48,7 @@ class Filter extends Struct
     }
 
     /**
-     * @return int|float|string|bool|array<mixed>|null
+     * @return int|float|string|bool|list<mixed>|null
      */
     public function getValues(): int|float|string|bool|array|null
     {

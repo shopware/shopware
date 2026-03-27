@@ -52,9 +52,9 @@ class RoutingOverwriteMiddleware implements MiddlewareInterface
     }
 
     /**
-     * @param array<string, string|array<string>> $overwrites
+     * @param array<string, string|list<string>> $overwrites
      *
-     * @return array<string>|string|null
+     * @return list<string>|string|null
      */
     private function getTransports(Envelope $envelope, array $overwrites, bool $inherited): array|string|null
     {

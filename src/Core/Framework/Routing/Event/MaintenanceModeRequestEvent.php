@@ -10,7 +10,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class MaintenanceModeRequestEvent extends Event
 {
     /**
-     * @param array<string> $allowedIps
+     * @param list<string> $allowedIps
      *
      * @internal
      */
@@ -42,7 +42,7 @@ class MaintenanceModeRequestEvent extends Event
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getAllowedIps(): array
     {

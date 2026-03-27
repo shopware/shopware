@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints\Type;
 class ConstraintBuilder
 {
     /**
-     * @var array<Constraint>
+     * @var list<Constraint>
      */
     private array $constraints = [];
 
@@ -129,7 +129,7 @@ class ConstraintBuilder
     /**
      * Set prop must be in array
      *
-     * @param array<string> $values
+     * @param list<string> $values
      */
     public function isInArray(array $values): self
     {
@@ -156,7 +156,7 @@ class ConstraintBuilder
     }
 
     /**
-     * @return array<Constraint>
+     * @return list<Constraint>
      */
     public function getConstraints(): array
     {

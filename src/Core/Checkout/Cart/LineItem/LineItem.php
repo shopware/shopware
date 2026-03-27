@@ -33,7 +33,7 @@ class LineItem extends Struct
     final public const PAYLOAD_PRODUCT_TYPE = 'productType';
 
     /**
-     * @var array<mixed>
+     * @var list<mixed>
      */
     protected array $payload = [];
 

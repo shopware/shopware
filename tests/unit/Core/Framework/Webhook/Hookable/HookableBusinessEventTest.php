@@ -59,7 +59,7 @@ class HookableBusinessEventTest extends TestCase
     }
 
     /**
-     * @return array<array{0: FlowEventAware}>
+     * @return list<array{0: FlowEventAware}>
      */
     public static function getEventsWithoutPermissions(): array
     {
@@ -91,7 +91,7 @@ class HookableBusinessEventTest extends TestCase
     }
 
     /**
-     * @return array<array{0: FlowEventAware}>
+     * @return list<array{0: FlowEventAware}>
      */
     public static function getEventsWithPermissions(): array
     {

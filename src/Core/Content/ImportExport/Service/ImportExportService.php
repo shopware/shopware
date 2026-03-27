@@ -139,7 +139,7 @@ class ImportExportService
     }
 
     /**
-     * @param array<array<mixed>>|null $result
+     * @param list<list<mixed>>|null $result
      */
     public function saveProgress(Progress $progress, ?array $result = null): void
     {

@@ -117,7 +117,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function update(array $ids): void
     {
@@ -163,10 +163,10 @@ class RuleAreaUpdater implements EventSubscriberInterface
     }
 
     /**
-     * @param array<FkField> $fields
-     * @param array<string> $ruleIds
+     * @param list<FkField> $fields
+     * @param list<string> $ruleIds
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function hydrateRuleIds(array $fields, EntityWrittenEvent $nestedEvent, array $ruleIds): array
     {
@@ -194,7 +194,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @return array<string, array<string, string>>
      */
@@ -292,7 +292,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
     }
 
     /**
-     * @return array<FkField>
+     * @return list<FkField>
      */
     private function getForeignKeyFields(EntityDefinition $definition): array
     {
@@ -301,7 +301,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getAssociationEntities(): array
     {

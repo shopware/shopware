@@ -93,7 +93,7 @@ class MatchAllLineItemsRule extends Container
     }
 
     /**
-     * @return array<LineItem>
+     * @return list<LineItem>
      */
     private function filterAndFlatten(LineItemCollection $collection): array
     {

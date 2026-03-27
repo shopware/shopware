@@ -63,7 +63,7 @@ class OrderTagRule extends FlowRule
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function extractTagIds(OrderEntity $order): array
     {

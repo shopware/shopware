@@ -319,7 +319,7 @@ class RecalculationService
      */
     private function deleteOldDiscountDeliveries(array $orderData, OrderEntity $order, Context $context): void
     {
-        /** @var array<array{shippingCosts: CalculatedPrice}>|null $deliveries */
+        /** @var list<array{shippingCosts: CalculatedPrice}>|null $deliveries */
         $deliveries = $orderData['deliveries'] ?? null;
         // There always has to be the primary delivery if deliveries where transformed.
         // If no deliveries are present, we should skip to avoid deleting deliveries unwillingly.

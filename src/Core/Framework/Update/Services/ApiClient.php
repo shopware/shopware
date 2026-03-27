@@ -47,7 +47,7 @@ class ApiClient
         }
 
         try {
-            /** @var array{title: string, body: string, date: string, version: string, fixedVulnerabilities: array<VersionFixedVulnerabilities>} $github */
+            /** @var array{title: string, body: string, date: string, version: string, fixedVulnerabilities: list<VersionFixedVulnerabilities>} $github */
             $github = $this->client->request('GET', 'https://releases.shopware.com/changelog/' . $this->determineLatestShopwareVersion() . '.json')->toArray();
         } catch (ClientException $e) {
             if ($e->getCode() === Response::HTTP_NOT_FOUND || $e->getCode() === Response::HTTP_FORBIDDEN) {
@@ -80,7 +80,7 @@ class ApiClient
 
     private function determineLatestShopwareVersion(): string
     {
-        /** @var non-empty-array<string> $versions */
+        /** @var non-empty-list<string> $versions */
         $versions = $this->client->request('GET', 'https://releases.shopware.com/changelog/index.json')->toArray();
 
         usort($versions, static function ($a, $b) {

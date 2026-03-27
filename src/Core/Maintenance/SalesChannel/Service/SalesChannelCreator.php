@@ -174,7 +174,7 @@ class SalesChannelCreator
     }
 
     /**
-     * @return array<array{id: string}>
+     * @return list<array{id: string}>
      */
     private function getAllIdsOf(string $entity, Context $context): array
     {
@@ -205,7 +205,7 @@ class SalesChannelCreator
     /**
      * @param list<string>|null $values
      *
-     * @return array<array{id: string}>
+     * @return list<array{id: string}>
      */
     private function formatToMany(?array $values, string $default, string $entity, Context $context): array
     {

@@ -19,12 +19,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class PropertySortTest extends TestCase
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $notShuffledName = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $notShuffledPosition = [];
 

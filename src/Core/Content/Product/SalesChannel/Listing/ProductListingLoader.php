@@ -132,11 +132,11 @@ class ProductListingLoader
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @throws \JsonException
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function loadPreviews(array $ids, SalesChannelContext $context): array
     {
@@ -230,7 +230,7 @@ class ProductListingLoader
 
     /**
      * @param EntitySearchResult<ProductCollection> $productSearchResult
-     * @param array<string> $mapping
+     * @param list<string> $mapping
      */
     private function addExtensions(Criteria $criteria, IdSearchResult $ids, EntitySearchResult $productSearchResult, array $mapping): void
     {

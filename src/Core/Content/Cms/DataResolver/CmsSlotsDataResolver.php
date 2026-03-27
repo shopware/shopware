@@ -110,9 +110,9 @@ class CmsSlotsDataResolver
     }
 
     /**
-     * @param array<CriteriaCollection> $criteriaList
-     * @param array<EntitySearchResult<covariant EntityCollection<covariant Entity>>> $identifierResult
-     * @param array<array<EntitySearchResult<covariant EntityCollection<covariant Entity>>>> $criteriaResult
+     * @param list<CriteriaCollection> $criteriaList
+     * @param list<EntitySearchResult<covariant EntityCollection<covariant Entity>>> $identifierResult
+     * @param list<list<EntitySearchResult<covariant EntityCollection<covariant Entity>>>> $criteriaResult
      */
     private function enrichCmsSlots(
         CmsSlotCollection $slots,
@@ -143,7 +143,7 @@ class CmsSlotsDataResolver
     }
 
     /**
-     * @param array<string, array<string>> $directReads
+     * @param array<string, list<string>> $directReads
      *
      * @return array<string, EntitySearchResult<covariant EntityCollection<covariant Entity>>>
      */
@@ -198,7 +198,7 @@ class CmsSlotsDataResolver
     /**
      * @param array<string, CriteriaCollection> $criteriaCollections
      *
-     * @return array{0: array<string, array<string>>, 1: array<string, array<string, Criteria>>}
+     * @return array{0: array<string, list<string>>, 1: array<string, array<string, Criteria>>}
      */
     private function optimizeCriteriaObjects(array $criteriaCollections): array
     {
@@ -223,7 +223,7 @@ class CmsSlotsDataResolver
         }
 
         foreach ($directReads as $definition => $idLists) {
-            /** @var array<string, array<string>> $directReads */
+            /** @var array<string, list<string>> $directReads */
             $directReads[$definition] = array_merge(...$idLists);
         }
 
@@ -294,7 +294,7 @@ class CmsSlotsDataResolver
     /**
      * @param array<string, CriteriaCollection> $criteriaCollections
      *
-     * @return array<string, array<Criteria>>
+     * @return array<string, list<Criteria>>
      */
     private function flattenCriteriaCollections(array $criteriaCollections): array
     {
@@ -312,7 +312,7 @@ class CmsSlotsDataResolver
 
     /**
      * @param array<string, CriteriaCollection> $criteriaObjects
-     * @param array<string, array<EntitySearchResult<covariant EntityCollection<covariant Entity>>>> $searchResults
+     * @param array<string, list<EntitySearchResult<covariant EntityCollection<covariant Entity>>>> $searchResults
      */
     private function mapSearchResults(ElementDataCollection $result, CmsSlotEntity $slot, array $criteriaObjects, array $searchResults): void
     {

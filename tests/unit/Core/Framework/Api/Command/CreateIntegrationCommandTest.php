@@ -17,7 +17,7 @@ use Symfony\Component\Dotenv\Dotenv;
 class CreateIntegrationCommandTest extends TestCase
 {
     /**
-     * @return array<array<bool>>
+     * @return list<list<bool>>
      */
     public static function createIntegrationDataProvider(): array
     {

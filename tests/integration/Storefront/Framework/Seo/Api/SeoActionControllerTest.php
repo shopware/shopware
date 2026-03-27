@@ -425,7 +425,7 @@ class SeoActionControllerTest extends TestCase
     }
 
     /**
-     * @return array<Product>
+     * @return list<Product>
      */
     private function getSeoUrls(string $id, ?bool $canonical = null, ?string $salesChannelId = null): array
     {

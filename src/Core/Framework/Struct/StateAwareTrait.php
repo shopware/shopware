@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 trait StateAwareTrait
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $states = [];
 
@@ -36,7 +36,7 @@ trait StateAwareTrait
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getStates(): array
     {

@@ -25,8 +25,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 class RemoteThumbnailLoaderTest extends TestCase
 {
     /**
-     * @param array<array<string, string>> $thumbnailSizes
-     * @param array{media: string, thumbnails: array<string>} $expected
+     * @param list<array<string, string>> $thumbnailSizes
+     * @param array{media: string, thumbnails: list<string>} $expected
      */
     #[DataProvider('loadProvider')]
     public function testLoad(IdsCollection $ids, PartialEntity $entity, array $thumbnailSizes, array $expected): void

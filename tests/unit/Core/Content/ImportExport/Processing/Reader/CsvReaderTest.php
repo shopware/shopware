@@ -154,9 +154,9 @@ class CsvReaderTest extends TestCase
     }
 
     /**
-     * @param iterable<array<string>> $iterable
+     * @param iterable<list<string>> $iterable
      *
-     * @return array<array<string>>
+     * @return list<list<string>>
      */
     private function getAll(iterable $iterable): array
     {
@@ -170,9 +170,9 @@ class CsvReaderTest extends TestCase
     }
 
     /**
-     * @param iterable<array<string>> $iterable
+     * @param iterable<list<string>> $iterable
      *
-     * @return array<string>|null
+     * @return list<string>|null
      */
     private function getFirst(iterable $iterable): ?array
     {

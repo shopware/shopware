@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 abstract class AbstractProductStreamUpdater extends EntityIndexer
 {
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     abstract public function updateProducts(array $ids, Context $context): void;
 }

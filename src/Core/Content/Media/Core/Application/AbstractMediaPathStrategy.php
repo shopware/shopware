@@ -22,7 +22,7 @@ abstract class AbstractMediaPathStrategy
      *
      * Called when the media was uploaded or when the media will be renamed.
      *
-     * @param array<MediaLocationStruct|ThumbnailLocationStruct> $locations Contains a mix of media and thumbnail file locations. The locations are build over the database or by the request when the media was uploaded or renamed
+     * @param list<MediaLocationStruct|ThumbnailLocationStruct> $locations Contains a mix of media and thumbnail file locations. The locations are build over the database or by the request when the media was uploaded or renamed
      *
      * @return array<string, string> indexed by id, value contains the path (e.g. media/0a/test.jpg, thumbnail/0a/test_100x100.jpg)
      */

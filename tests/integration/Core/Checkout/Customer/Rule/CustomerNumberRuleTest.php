@@ -145,7 +145,7 @@ class CustomerNumberRuleTest extends TestCase
     }
 
     /**
-     * @param array<string> $customerNumbers
+     * @param list<string> $customerNumbers
      */
     #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, array $customerNumbers, bool $noCustomer = false): void
@@ -171,7 +171,7 @@ class CustomerNumberRuleTest extends TestCase
     }
 
     /**
-     * @return \Traversable<string, array<string|bool|array<string>>>
+     * @return \Traversable<string, list<string|bool|list<string>>>
      */
     public static function getMatchValues(): \Traversable
     {

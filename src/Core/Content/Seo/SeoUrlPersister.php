@@ -34,7 +34,7 @@ class SeoUrlPersister
     }
 
     /**
-     * @param array<string> $foreignKeys
+     * @param list<string> $foreignKeys
      * @param iterable<array<string, mixed>|SeoUrlEntity> $seoUrls
      */
     public function updateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel): void
@@ -149,7 +149,7 @@ class SeoUrlPersister
     }
 
     /**
-     * @param array<string> $foreignKeys
+     * @param list<string> $foreignKeys
      *
      * @return array<string, mixed>
      */
@@ -195,9 +195,9 @@ class SeoUrlPersister
     }
 
     /**
-     * @param array<string> $seoPathInfos
+     * @param list<string> $seoPathInfos
      *
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function findInUseCanonicalSeoUrls(array $seoPathInfos, string $languageId, ?string $salesChannelId = null): array
     {
@@ -223,7 +223,7 @@ class SeoUrlPersister
     /**
      * Find the earliest valid SEO URL created. This means it is the default SEO URL and update the `is_canonical` and `is_modified` fields.
      *
-     * @param array<array<string, mixed>> $seoUrls
+     * @param list<array<string, mixed>> $seoUrls
      */
     private function updateCanonicalSeoUrls(array $seoUrls, string $languageId): void
     {
@@ -297,7 +297,7 @@ class SeoUrlPersister
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     private function markAsDeleted(bool $deleted, array $ids, ?string $salesChannelId): void
     {

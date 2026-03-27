@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class ValidationResult extends Struct
 {
     /**
-     * @param array<mixed> $vars
+     * @param list<mixed> $vars
      */
     public function __construct(
         protected string $name,

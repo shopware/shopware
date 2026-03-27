@@ -19,7 +19,7 @@ class CopyBatchInput
 
     /**
      * @param resource|string $sourceFile Passing a path is recommended, resources should not be used for large files
-     * @param array<string> $targetFiles
+     * @param list<string> $targetFiles
      */
     public function __construct(
         $sourceFile,
@@ -44,7 +44,7 @@ class CopyBatchInput
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getTargetFiles(): array
     {

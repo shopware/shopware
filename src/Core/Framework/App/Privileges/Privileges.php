@@ -234,8 +234,8 @@ class Privileges
     }
 
     /**
-     * @param array<string> $privileges
-     * @param array<string> $requestedPrivileges
+     * @param list<string> $privileges
+     * @param list<string> $requestedPrivileges
      */
     private function writePrivileges(string $appId, array $privileges, array $requestedPrivileges, Context $context): void
     {

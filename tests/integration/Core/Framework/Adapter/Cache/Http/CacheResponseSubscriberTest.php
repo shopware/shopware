@@ -53,7 +53,7 @@ class CacheResponseSubscriberTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, array<string>}>
+     * @return iterable<string, array{string, list<string>}>
      */
     public static function dataProviderNoStoreRoutes(): iterable
     {

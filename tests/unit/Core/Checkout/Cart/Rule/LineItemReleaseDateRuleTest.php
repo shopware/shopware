@@ -76,7 +76,7 @@ class LineItemReleaseDateRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<bool|string|null>>
+     * @return array<string, list<bool|string|null>>
      */
     public static function getMatchValues(): array
     {
@@ -215,7 +215,7 @@ class LineItemReleaseDateRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<bool|string>>
+     * @return array<string, list<bool|string>>
      */
     public static function getCartRuleScopeTestData(): array
     {

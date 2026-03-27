@@ -26,7 +26,7 @@ class CachedSearchConfigLoader extends SearchConfigLoader
     }
 
     /**
-     * @return array<SearchConfig>
+     * @return list<SearchConfig>
      */
     public function load(Context $context): array
     {

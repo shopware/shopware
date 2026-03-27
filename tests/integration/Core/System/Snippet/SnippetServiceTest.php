@@ -1087,7 +1087,7 @@ json
     }
 
     /**
-     * @param array<array<string>> $messages
+     * @param list<list<string>> $messages
      */
     private function getCatalogue(array $messages, string $locale): MessageCatalogueInterface
     {
@@ -1095,7 +1095,7 @@ json
     }
 
     /**
-     * @param array<mixed> $result
+     * @param list<mixed> $result
      */
     private function assertSnippetResult(
         array $result,
@@ -1137,7 +1137,7 @@ json
     }
 
     /**
-     * @param array<mixed> $result
+     * @param list<mixed> $result
      */
     private function assertFirstSnippetSetIdEquals(array $result, string $fooId): void
     {

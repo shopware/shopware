@@ -15,7 +15,7 @@ class StoreLicenseViolationStruct extends Struct
     protected string $text;
 
     /**
-     * @var array<StoreActionStruct>
+     * @var list<StoreActionStruct>
      */
     protected array $actions;
 
@@ -35,7 +35,7 @@ class StoreLicenseViolationStruct extends Struct
     }
 
     /**
-     * @return array<StoreActionStruct>
+     * @return list<StoreActionStruct>
      */
     public function getActions(): array
     {

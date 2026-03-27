@@ -18,7 +18,7 @@ class UnusedMediaSearchEvent extends Event
     /**
      * Specify that some IDs should NOT be deleted, they are in fact used.
      *
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function markAsUsed(array $ids): void
     {

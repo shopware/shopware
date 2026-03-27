@@ -14,7 +14,7 @@ interface MediaReverseProxy
     public function enabled(): bool;
 
     /**
-     * @param array<string> $urls
+     * @param list<string> $urls
      */
     public function ban(array $urls): void;
 }

@@ -98,7 +98,7 @@ class FakeClassForHelper
     protected string $protectedProperty = 'this is it';
 
     /**
-     * @var array<int>
+     * @var list<int>
      */
     private array $privateProperty = [1, 2, 3, 4];
 

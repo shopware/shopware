@@ -66,7 +66,7 @@ EOD;
      * @param array<string, ForeignKeyData> $keyStructures
      * @param non-empty-string $tableName
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function createSql(array $keyStructures, string $tableName, string $newColumnName, string $defaultValue): array
     {
@@ -162,7 +162,7 @@ EOD;
     }
 
     /**
-     * @param array<string> $columns
+     * @param list<string> $columns
      */
     private function implodeColumns(array $columns): string
     {

@@ -16,7 +16,7 @@ class AppPermissionsUpdated extends Event implements ShopwareEvent, Hookable
     final public const NAME = 'app.permissions.updated';
 
     /**
-     * @param array<string> $permissions
+     * @param list<string> $permissions
      */
     public function __construct(
         public readonly string $appId,

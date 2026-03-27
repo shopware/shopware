@@ -274,7 +274,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $entities
+     * @param list<string> $entities
      *
      * @throws Exception
      *
@@ -375,9 +375,9 @@ class AdminSearchRegistry implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, array<array<string, mixed>>> $result
+     * @param array<string, list<array<string, mixed>>> $result
      *
-     * @return array<array{reason: string}|string>
+     * @return list<array{reason: string}|string>
      */
     private function parseErrors(array $result): array
     {
@@ -445,7 +445,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function buildMapping(AbstractAdminIndexer $indexer): array
     {

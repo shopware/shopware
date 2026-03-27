@@ -89,9 +89,9 @@ class MailAttachmentsBuilder
     }
 
     /**
-     * @param array<string> $documentTypeIds
+     * @param list<string> $documentTypeIds
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getLatestDocumentsOfTypes(string $orderId, array $documentTypeIds): array
     {
@@ -119,7 +119,7 @@ class MailAttachmentsBuilder
     }
 
     /**
-     * @param array<string> $documentIds
+     * @param list<string> $documentIds
      * @param MailAttachments $attachments
      *
      * @return MailAttachments

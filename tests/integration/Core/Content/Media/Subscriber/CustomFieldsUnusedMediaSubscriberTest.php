@@ -152,7 +152,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<array{name: string, type: string, config: array<string, mixed>}> $fields
+     * @param list<array{name: string, type: string, config: array<string, mixed>}> $fields
      */
     private function createFieldSet(string $entity, string $name, array $fields): void
     {

@@ -53,10 +53,10 @@ class SearchKeywordUpdaterTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $productData
-     * @param array<string> $englishKeywords
-     * @param array<string> $germanKeywords
-     * @param array<string> $additionalDictionaries
+     * @param list<mixed> $productData
+     * @param list<string> $englishKeywords
+     * @param list<string> $germanKeywords
+     * @param list<string> $additionalDictionaries
      */
     #[DataProvider('productKeywordProvider')]
     public function testItUpdatesKeywordsAndDictionary(array $productData, IdsCollection $ids, array $englishKeywords, array $germanKeywords, array $additionalDictionaries = []): void
@@ -75,10 +75,10 @@ class SearchKeywordUpdaterTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $productData
-     * @param array<string> $englishKeywords
-     * @param array<string> $germanKeywords
-     * @param array<string> $additionalDictionaries
+     * @param list<mixed> $productData
+     * @param list<string> $englishKeywords
+     * @param list<string> $germanKeywords
+     * @param list<string> $additionalDictionaries
      */
     #[DataProvider('productKeywordProvider')]
     public function testItUpdatesKeywordsForAvailableLanguagesOnly(array $productData, IdsCollection $ids, array $englishKeywords, array $germanKeywords, array $additionalDictionaries = []): void
@@ -372,7 +372,7 @@ class SearchKeywordUpdaterTest extends TestCase
     }
 
     /**
-     * @param array<string> $expectedKeywords
+     * @param list<string> $expectedKeywords
      */
     private function assertKeywords(string $productId, string $languageId, array $expectedKeywords): void
     {
@@ -406,7 +406,7 @@ class SearchKeywordUpdaterTest extends TestCase
     }
 
     /**
-     * @param array<string> $expectedKeywords
+     * @param list<string> $expectedKeywords
      */
     private function assertDictionary(string $languageId, array $expectedKeywords): void
     {

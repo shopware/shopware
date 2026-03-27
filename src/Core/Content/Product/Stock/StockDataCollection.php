@@ -13,7 +13,7 @@ class StockDataCollection
     private array $stocks = [];
 
     /**
-     * @param array<StockData> $stocks
+     * @param list<StockData> $stocks
      */
     public function __construct(array $stocks)
     {
@@ -33,7 +33,7 @@ class StockDataCollection
     }
 
     /**
-     * @return array<StockData>
+     * @return list<StockData>
      */
     public function all(): array
     {

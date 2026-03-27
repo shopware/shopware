@@ -23,7 +23,7 @@ class ReverseProxyCache implements StoreInterface
     /**
      * @internal
      *
-     * @param array<string> $states
+     * @param list<string> $states
      *
      * @deprecated tag:v6.8.0 - Parameter $states will be removed
      */

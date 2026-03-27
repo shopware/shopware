@@ -20,7 +20,7 @@ final class StorefrontSnippetsExtension extends Extension
      * @internal shopware owns the __constructor, but the properties are public API
      *
      * @param array<string, string> $snippets
-     * @param array<string> $unusedThemes
+     * @param list<string> $unusedThemes
      */
     public function __construct(
         public array $snippets,

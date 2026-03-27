@@ -22,7 +22,7 @@ class FeatureFlagExtension implements Extension
     private const DEFAULT_TEST_NAMESPACE_PREFIX = 'Shopware\\Tests\\Unit\\';
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private static array $testNamespaces = [
         self::DEFAULT_TEST_NAMESPACE_PREFIX, // Default test namespace: must always be present in the array
@@ -64,7 +64,7 @@ class FeatureFlagExtension implements Extension
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public static function getTestNamespaces(): array
     {

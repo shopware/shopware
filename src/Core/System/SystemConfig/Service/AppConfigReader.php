@@ -18,7 +18,7 @@ class AppConfigReader
     }
 
     /**
-     * @return array<array<string, mixed>>|null
+     * @return list<array<string, mixed>>|null
      */
     public function read(AppEntity $app): ?array
     {

@@ -42,7 +42,7 @@ class AdminSearcher
     }
 
     /**
-     * @param array<string> $entities
+     * @param list<string> $entities
      *
      * @return array<string, array{total: int, data: EntityCollection<covariant \Shopware\Core\Framework\DataAbstractionLayer\Entity>, indexer: string, index: string}>
      */
@@ -144,7 +144,7 @@ class AdminSearcher
     }
 
     /**
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function buildSearchPayload(string $entityName, string $term, int $limit): array
     {
@@ -219,7 +219,7 @@ class AdminSearcher
     }
 
     /**
-     * @param array<mixed> $rawResponse
+     * @param list<mixed> $rawResponse
      *
      * @return array<string, array{total: int, hits: array<int, array{id: string, score: float, parameters: array<string, mixed>, entityName: string }>}>
      */

@@ -26,7 +26,7 @@ class NodeExtension extends AbstractExtension
     }
 
     /**
-     * @return array<TokenParserInterface>
+     * @return list<TokenParserInterface>
      */
     public function getTokenParsers(): array
     {

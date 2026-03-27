@@ -20,7 +20,7 @@ interface Source
     public function filesystem(AppEntity|Manifest $app): Filesystem;
 
     /**
-     * @param array<Filesystem> $filesystems
+     * @param list<Filesystem> $filesystems
      */
     public function reset(array $filesystems): void;
 }

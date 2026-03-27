@@ -35,7 +35,7 @@ trait ExtendableTrait
     }
 
     /**
-     * @param array<Struct> $extensions
+     * @param list<Struct> $extensions
      */
     public function addExtensions(array $extensions): void
     {

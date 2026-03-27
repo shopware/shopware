@@ -36,7 +36,7 @@ class RedisConnectionsCompilerPass implements CompilerPassInterface
             return [];
         }
 
-        /** @var array<ConnectionConfiguration> $connections */
+        /** @var list<ConnectionConfiguration> $connections */
         $connections = $container->getParameter('shopware.redis.connections');
 
         $connectionServices = [];

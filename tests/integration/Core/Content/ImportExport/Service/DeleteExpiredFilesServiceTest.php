@@ -179,9 +179,9 @@ class DeleteExpiredFilesServiceTest extends TestCase
     }
 
     /**
-     * @param array<array<string, \DateTimeInterface>> $fileData
+     * @param list<array<string, \DateTimeInterface>> $fileData
      *
-     * @return array<string> Array of created file IDs
+     * @return list<string> Array of created file IDs
      */
     private function createTestFiles(array $fileData): array
     {

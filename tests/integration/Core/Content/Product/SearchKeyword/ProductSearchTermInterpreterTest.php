@@ -160,7 +160,7 @@ class ProductSearchTermInterpreterTest extends TestCase
     }
 
     /**
-     * @return array<array{0: string, 1: list<string>}>
+     * @return list<array{0: string, 1: list<string>}>
      */
     public static function cases(): array
     {
@@ -193,7 +193,7 @@ class ProductSearchTermInterpreterTest extends TestCase
     }
 
     /**
-     * @return array<array{0: string, 1: list<string>}>
+     * @return list<array{0: string, 1: list<string>}>
      */
     public static function casesWithTokenFilter(): array
     {
@@ -230,7 +230,7 @@ class ProductSearchTermInterpreterTest extends TestCase
     }
 
     /**
-     * @return array<array{0: string, 1: list<list<string>>}>
+     * @return list<array{0: string, 1: list<list<string>>}>
      */
     public static function caseWithFetchingTokenTerms(): array
     {
@@ -317,7 +317,7 @@ class ProductSearchTermInterpreterTest extends TestCase
     }
 
     /**
-     * @return array<array{0: bool, 1: string}>
+     * @return list<array{0: bool, 1: string}>
      */
     public static function caseWithMatchingBooleanCause(): array
     {
@@ -334,7 +334,7 @@ class ProductSearchTermInterpreterTest extends TestCase
     }
 
     /**
-     * @return array<array{0: bool, 1: string}>
+     * @return list<array{0: bool, 1: string}>
      */
     public static function caseWithMatchingSearchPatternTermLength(): array
     {
@@ -383,7 +383,7 @@ class ProductSearchTermInterpreterTest extends TestCase
     }
 
     /**
-     * @return array<array{0: string, 1: list<string>}>
+     * @return list<array{0: string, 1: list<string>}>
      */
     public static function termScoring(): array
     {

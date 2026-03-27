@@ -163,7 +163,7 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function generateTags(string $name, Request $request, SalesChannelContext $context): array
     {

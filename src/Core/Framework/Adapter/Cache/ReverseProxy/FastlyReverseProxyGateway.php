@@ -70,7 +70,7 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
     }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      */
     public function tag(array $tags, string $url, Response $response): void
     {
@@ -142,9 +142,9 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
     }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function prefixTags(array $tags): array
     {

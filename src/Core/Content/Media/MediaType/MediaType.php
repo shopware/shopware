@@ -11,7 +11,7 @@ abstract class MediaType extends Struct
     protected string $name;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $flags = [];
 
@@ -35,7 +35,7 @@ abstract class MediaType extends Struct
     }
 
     /**
-     * @param array<string> $flags
+     * @param list<string> $flags
      */
     public function addFlags(array $flags): self
     {
@@ -50,7 +50,7 @@ abstract class MediaType extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getFlags(): array
     {

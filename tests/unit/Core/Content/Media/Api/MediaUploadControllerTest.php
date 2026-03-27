@@ -282,11 +282,11 @@ function tempnam(string $dir, string $prefix): string|false
 }
 
 /**
- * @param string|array<string> $pattern
- * @param string|array<string> $replacement
- * @param string|array<string> $subject
+ * @param string|list<string> $pattern
+ * @param string|list<string> $replacement
+ * @param string|list<string> $subject
  *
- * @return string|array<string>|null
+ * @return string|list<string>|null
  */
 function preg_replace(
     string|array $pattern,

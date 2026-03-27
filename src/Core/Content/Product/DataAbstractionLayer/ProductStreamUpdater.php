@@ -172,7 +172,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function updateProducts(array $ids, Context $context): void
     {
@@ -240,7 +240,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
     /**
      * @param array<int, array<string, mixed>> $filters
-     * @param array<string>|null $ids
+     * @param list<string>|null $ids
      */
     private function getCriteria(array $filters, ?array $ids = null): ?Criteria
     {

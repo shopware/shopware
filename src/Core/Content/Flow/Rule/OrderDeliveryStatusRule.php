@@ -21,7 +21,7 @@ class OrderDeliveryStatusRule extends FlowRule
     public const RULE_NAME = 'orderDeliveryStatus';
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     public array $salutationIds = [];
 

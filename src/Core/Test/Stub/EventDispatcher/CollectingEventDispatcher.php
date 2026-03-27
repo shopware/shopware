@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class CollectingEventDispatcher implements EventDispatcherInterface
 {
     /**
-     * @var array<object>
+     * @var list<object>
      */
     private array $events = [];
 
@@ -32,7 +32,7 @@ class CollectingEventDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @return array<object>
+     * @return list<object>
      */
     public function getEvents(): array
     {

@@ -32,7 +32,7 @@ class MediaCreationSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<WriteCommand> $commands
+     * @param list<WriteCommand> $commands
      */
     private function filterFilePath(array $commands): void
     {
@@ -44,7 +44,7 @@ class MediaCreationSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return array<WriteCommand>
+     * @return list<WriteCommand>
      */
     private function getAffected(string $entityName, EntityWriteEvent $event): array
     {

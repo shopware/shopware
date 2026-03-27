@@ -144,7 +144,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     /**
      * @param EntityCollection<CmsPageEntity> $pages
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function extractProductIds(EntityCollection $pages): array
     {

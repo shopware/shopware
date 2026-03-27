@@ -74,9 +74,9 @@ class ProfilerController
     }
 
     /**
-     * @param array<mixed> $query
+     * @param list<mixed> $query
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function explain(Connection $connection, array $query): array
     {

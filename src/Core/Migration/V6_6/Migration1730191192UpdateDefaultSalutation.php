@@ -45,7 +45,7 @@ class Migration1730191192UpdateDefaultSalutation extends MigrationStep
     }
 
     /**
-     * @param array<string> $languageIds
+     * @param list<string> $languageIds
      */
     private function updateSalutation(Connection $connection, string $salutationId, array $languageIds, string $letterName): void
     {

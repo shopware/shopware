@@ -84,7 +84,7 @@ class MigrationRuntime
     }
 
     /**
-     * @return array<class-string<MigrationStep>>
+     * @return list<class-string<MigrationStep>>
      */
     public function getExecutableMigrations(MigrationSource $source, ?int $until = null, ?int $limit = null): array
     {
@@ -95,7 +95,7 @@ class MigrationRuntime
     }
 
     /**
-     * @return array<class-string<MigrationStep>>
+     * @return list<class-string<MigrationStep>>
      */
     public function getExecutableDestructiveMigrations(MigrationSource $source, ?int $until = null, ?int $limit = null): array
     {

@@ -13,7 +13,7 @@ class RouteScopeRegistry
     /**
      * @internal
      *
-     * @param array<AbstractRouteScope> $routeScopes
+     * @param list<AbstractRouteScope> $routeScopes
      */
     public function __construct(private readonly iterable $routeScopes)
     {

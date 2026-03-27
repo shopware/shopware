@@ -12,7 +12,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class CurrencyFormatter implements ResetInterface
 {
     /**
-     * @var array<\NumberFormatter>
+     * @var list<\NumberFormatter>
      */
     private array $formatter = [];
 

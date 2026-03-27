@@ -637,7 +637,7 @@ class CriteriaParser
     }
 
     /**
-     * @param array<string|null> $values
+     * @param list<string|null> $values
      */
     private function prepareTermsQueryWithNullSupport(string $fieldName, array $values): BuilderInterface
     {

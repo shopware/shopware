@@ -15,7 +15,7 @@ class ServerTiming implements ProfilerInterface
     private readonly SymfonyStopwatch $watch;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $elements = [];
 
@@ -25,7 +25,7 @@ class ServerTiming implements ProfilerInterface
     }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      */
     public function start(string $title, string $category, array $tags): void
     {

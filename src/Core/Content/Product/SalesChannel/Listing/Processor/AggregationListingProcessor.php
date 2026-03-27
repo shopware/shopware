@@ -94,7 +94,7 @@ class AggregationListingProcessor extends AbstractListingProcessor
     }
 
     /**
-     * @return array<Aggregation>
+     * @return list<Aggregation>
      */
     private function getAggregations(Request $request, FilterCollection $filters): array
     {

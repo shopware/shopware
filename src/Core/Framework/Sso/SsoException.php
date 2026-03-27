@@ -49,7 +49,7 @@ class SsoException extends HttpException
     }
 
     /**
-     * @param array<string> $fieldErrors
+     * @param list<string> $fieldErrors
      */
     public static function configurationMisconfigured(array $fieldErrors): self
     {

@@ -102,7 +102,7 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param array<string> $languageIds
+     * @param list<string> $languageIds
      */
     private function addLanguagesToSalesChannel(DemodataContext $context, string $salesChannelId, array $languageIds): void
     {

@@ -93,7 +93,7 @@ class Migration1679581138RemoveAssociationFieldsTest extends TestCase
     }
 
     /**
-     * @return array<array<string, string>>
+     * @return list<array<string, string>>
      */
     private function fetchData(): array
     {
@@ -101,7 +101,7 @@ class Migration1679581138RemoveAssociationFieldsTest extends TestCase
     }
 
     /**
-     * @param array<array<string, string>> $data
+     * @param list<array<string, string>> $data
      */
     private function restoreAssociations(array $data): void
     {

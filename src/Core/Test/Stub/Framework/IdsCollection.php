@@ -35,7 +35,7 @@ class IdsCollection
     /**
      * @param list<string> $keys
      *
-     * @return array<array{id: string}>
+     * @return list<array{id: string}>
      */
     public function getIdArray(array $keys, bool $bytes = false): array
     {
@@ -123,7 +123,7 @@ class IdsCollection
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function getKeys(array $ids): string
     {

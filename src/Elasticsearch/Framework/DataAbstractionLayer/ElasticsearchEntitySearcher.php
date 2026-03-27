@@ -158,7 +158,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
     }
 
     /**
-     * @param array<FieldGrouping> $groupings
+     * @param list<FieldGrouping> $groupings
      *
      * @return array{field: string, inner_hits?: array{name: string}}
      */

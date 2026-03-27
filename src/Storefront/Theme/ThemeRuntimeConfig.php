@@ -43,11 +43,11 @@ class ThemeRuntimeConfig
          */
         public readonly array $resolvedConfig,
         /**
-         * @var array<string>
+         * @var list<string>
          */
         public readonly array $viewInheritance,
         /**
-         * @var array<string>|null
+         * @var list<string>|null
          */
         public readonly ?array $scriptFiles,
         /**

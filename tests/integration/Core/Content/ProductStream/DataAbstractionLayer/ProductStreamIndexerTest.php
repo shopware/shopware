@@ -248,7 +248,7 @@ class ProductStreamIndexerTest extends TestCase
         static::assertCount(1, $entity->getApiFilter());
         static::assertSame('multi', $entity->getApiFilter()[0]['type']);
         static::assertSame(MultiFilter::CONNECTION_AND, $entity->getApiFilter()[0]['operator']);
-        /** @var array<int, array<string, array<string|mixed>|string>> $childQueries */
+        /** @var array<int, array<string, list<string|mixed>|string>> $childQueries */
         $childQueries = $entity->getApiFilter()[0]['queries'];
         static::assertCount(2, $childQueries);
 

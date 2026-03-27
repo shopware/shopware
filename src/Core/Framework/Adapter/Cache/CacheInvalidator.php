@@ -28,7 +28,7 @@ class CacheInvalidator
     /**
      * @internal
      *
-     * @param array<CacheItemPoolInterface> $adapters
+     * @param list<CacheItemPoolInterface> $adapters
      */
     public function __construct(
         private readonly array $adapters,
@@ -47,7 +47,7 @@ class CacheInvalidator
     }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      */
     public function invalidate(array $tags, bool $force = false): void
     {
@@ -80,7 +80,7 @@ class CacheInvalidator
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function invalidateExpired(): array
     {
@@ -104,7 +104,7 @@ class CacheInvalidator
     }
 
     /**
-     * @param array<string> $keys
+     * @param list<string> $keys
      */
     private function purge(array $keys): void
     {

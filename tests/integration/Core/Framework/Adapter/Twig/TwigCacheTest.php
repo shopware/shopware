@@ -53,7 +53,7 @@ class TwigCacheTest extends TestCase
     }
 
     /**
-     * @param array<BundleFixture> $bundles
+     * @param list<BundleFixture> $bundles
      *
      * @return array{0: Environment, 1: TemplateFinder}
      */

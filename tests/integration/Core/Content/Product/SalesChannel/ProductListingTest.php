@@ -220,7 +220,7 @@ class ProductListingTest extends TestCase
     /**
      * Small helper function which asserts the one of the provided pool ids are in the result set but the remaining ids are excluded.
      *
-     * @param array<string> $pool
+     * @param list<string> $pool
      */
     private static function assertVariationsInListing(ProductCollection $result, array $pool): void
     {
@@ -285,8 +285,8 @@ class ProductListingTest extends TestCase
     }
 
     /**
-     * @param array<array<string>> $options
-     * @param array<string> $listingGroups
+     * @param list<list<string>> $options
+     * @param list<string> $listingGroups
      */
     private function createProduct(string $key, array $options, array $listingGroups): void
     {
@@ -359,11 +359,11 @@ class ProductListingTest extends TestCase
     /**
      * Rec. Function to find all possible combinations of $data input
      *
-     * @param array<array<string>> $data
-     * @param array<array<string>> $all
-     * @param array<string> $group
+     * @param list<list<string>> $data
+     * @param list<list<string>> $all
+     * @param list<string> $group
      *
-     * @return array<array<string>>
+     * @return list<list<string>>
      */
     private function combos(array $data, &$all = [], $group = [], ?string $val = null, int $i = 0): array
     {
@@ -463,7 +463,7 @@ class ProductListingTest extends TestCase
     }
 
     /**
-     * @return array<array{id: string, productNumber: string, width: string, stock: int, name: string}>
+     * @return list<array{id: string, productNumber: string, width: string, stock: int, name: string}>
      */
     private function createProducts(): array
     {

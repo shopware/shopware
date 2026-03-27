@@ -426,7 +426,7 @@ class LoginConfigServiceTest extends TestCase
     }
 
     /**
-     * @return array<int|string, array<mixed>|string>
+     * @return array<int|string, list<mixed>|string>
      */
     private function getQueryParamsAsArray(string $url): array
     {

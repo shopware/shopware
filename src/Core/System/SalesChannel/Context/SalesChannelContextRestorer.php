@@ -127,7 +127,7 @@ class SalesChannelContextRestorer
     }
 
     /**
-     * @param array<string> $overrideOptions
+     * @param list<string> $overrideOptions
      *
      * @throws Exception
      */

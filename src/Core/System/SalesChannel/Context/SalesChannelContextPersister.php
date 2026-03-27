@@ -188,7 +188,7 @@ class SalesChannelContextPersister
     }
 
     /**
-     * @param array<array<string, mixed>> $data
+     * @param list<array<string, mixed>> $data
      *
      * @return array<string, mixed>|null
      */

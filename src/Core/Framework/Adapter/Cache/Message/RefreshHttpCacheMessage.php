@@ -15,11 +15,11 @@ use Symfony\Component\HttpFoundation\Request;
 final class RefreshHttpCacheMessage implements AsyncMessageInterface
 {
     /**
-     * @param array<mixed> $query
-     * @param array<mixed> $attributes
-     * @param array<mixed> $cookies
-     * @param array<mixed> $server
-     * @param array<mixed> $trustedIps
+     * @param list<mixed> $query
+     * @param list<mixed> $attributes
+     * @param list<mixed> $cookies
+     * @param list<mixed> $server
+     * @param list<mixed> $trustedIps
      */
     public function __construct(public string $lockKey, public array $query = [], public array $attributes = [], public array $cookies = [], public array $server = [], public array $trustedIps = [], public int $trustedHeaderSet = Request::HEADER_FORWARDED)
     {

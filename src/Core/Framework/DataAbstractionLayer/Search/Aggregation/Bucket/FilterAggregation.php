@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 class FilterAggregation extends BucketAggregation
 {
     /**
-     * @param array<Filter> $filter
+     * @param list<Filter> $filter
      */
     public function __construct(
         string $name,
@@ -24,7 +24,7 @@ class FilterAggregation extends BucketAggregation
     }
 
     /**
-     * @return array<Filter>
+     * @return list<Filter>
      */
     public function getFilter(): array
     {
@@ -50,7 +50,7 @@ class FilterAggregation extends BucketAggregation
     }
 
     /**
-     * @param array<Filter> $filters
+     * @param list<Filter> $filters
      */
     public function addFilters(array $filters): void
     {

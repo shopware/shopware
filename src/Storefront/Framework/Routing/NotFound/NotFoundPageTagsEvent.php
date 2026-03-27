@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 class NotFoundPageTagsEvent implements ShopwareEvent
 {
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      */
     public function __construct(
         private array $tags,
@@ -37,7 +37,7 @@ class NotFoundPageTagsEvent implements ShopwareEvent
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getTags(): array
     {
@@ -45,7 +45,7 @@ class NotFoundPageTagsEvent implements ShopwareEvent
     }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      */
     public function addTags(array $tags): void
     {

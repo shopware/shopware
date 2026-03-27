@@ -76,7 +76,7 @@ class TimeZoneFieldTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return list<list<string>>
      */
     public static function validTimeZones(): array
     {
@@ -87,7 +87,7 @@ class TimeZoneFieldTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return list<list<string>>
      */
     public static function inValidTimeZones(): array
     {

@@ -84,8 +84,8 @@ class ProductSortingEntityTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $fields
-     * @param array<FieldSorting> $expected
+     * @param list<mixed> $fields
+     * @param list<FieldSorting> $expected
      */
     #[DataProvider('dalSortingProvider')]
     public function testCreateDalSorting(array $fields, $expected): void
@@ -177,8 +177,8 @@ class ProductSortingEntityTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $fields
-     * @param array<FieldSorting> $expected
+     * @param list<mixed> $fields
+     * @param list<FieldSorting> $expected
      */
     #[DataProvider('dalSortingDefaultSortBScoreProvider')]
     public function testCreateDalSortingWithFallbackSorting(array $fields, array $expected, ?FieldSorting $fallbackSorting = null): void

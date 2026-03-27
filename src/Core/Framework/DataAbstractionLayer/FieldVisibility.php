@@ -13,7 +13,7 @@ class FieldVisibility
     public static bool $isInTwigRenderingContext = false;
 
     /**
-     * @param array<string> $internalProperties
+     * @param list<string> $internalProperties
      */
     public function __construct(private readonly array $internalProperties)
     {

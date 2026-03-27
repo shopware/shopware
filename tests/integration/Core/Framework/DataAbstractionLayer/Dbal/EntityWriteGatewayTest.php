@@ -508,7 +508,7 @@ class EntityWriteGatewayTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return list<list<string>>
      */
     public static function methodProvider(): array
     {
@@ -718,7 +718,7 @@ class EntityWriteGatewayTest extends TestCase
     }
 
     /**
-     * @return array<ChangeSet>
+     * @return list<ChangeSet>
      */
     private function getChangeSets(string $entity, EntityWrittenContainerEvent $result, int $expectedSize): array
     {

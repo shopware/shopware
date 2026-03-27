@@ -12,7 +12,7 @@ final class State extends Field
     public const TYPE = 'state';
 
     /**
-     * @param array<string> $scopes
+     * @param list<string> $scopes
      */
     public function __construct(
         public string $machine,

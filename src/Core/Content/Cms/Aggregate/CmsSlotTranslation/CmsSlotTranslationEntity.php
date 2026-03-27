@@ -13,7 +13,7 @@ class CmsSlotTranslationEntity extends TranslationEntity
     use EntityCustomFieldsTrait;
 
     /**
-     * @var array<mixed>|null
+     * @var list<mixed>|null
      */
     protected ?array $config = null;
 
@@ -22,7 +22,7 @@ class CmsSlotTranslationEntity extends TranslationEntity
     protected ?CmsSlotEntity $cmsSlot = null;
 
     /**
-     * @return array<mixed>|null
+     * @return list<mixed>|null
      */
     public function getConfig(): ?array
     {
@@ -30,7 +30,7 @@ class CmsSlotTranslationEntity extends TranslationEntity
     }
 
     /**
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      */
     public function setConfig(array $config): void
     {

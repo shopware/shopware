@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class EntityWriteResultFactoryTest extends TestCase
 {
     /**
-     * @param array<array<string, mixed>> $commands
+     * @param list<array<string, mixed>> $commands
      * @param array<string, array<string, array<string, mixed>>> $expected
      */
     #[DataProvider('buildResultProvider')]

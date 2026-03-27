@@ -30,7 +30,7 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
     /**
      * @internal
      *
-     * @param array<string> $hosts
+     * @param list<string> $hosts
      */
     public function __construct(
         private readonly array $hosts,
@@ -76,7 +76,7 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
     }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      */
     public function tag(array $tags, string $url, Response $response): void
     {
@@ -84,7 +84,7 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
     }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      */
     public function invalidate(array $tags): void
     {
@@ -98,7 +98,7 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
     }
 
     /**
-     * @param array<string> $urls
+     * @param list<string> $urls
      */
     public function ban(array $urls): void
     {
@@ -123,7 +123,7 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
     }
 
     /**
-     * @param array<Request> $requests
+     * @param list<Request> $requests
      */
     public function runPool(array $requests): void
     {

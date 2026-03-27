@@ -83,7 +83,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{0:array<string, array<string, string|array<int|string, string|array<int|string>>>|int|string|TagCollection>, 1:array<int, array{field: string, tokenize: bool, ranking: int}>, 2:list<int|string>}>
+     * @return \Generator<string, array{0:array<string, array<string, string|array<int|string, string|list<int|string>>>|int|string|TagCollection>, 1:array<int, array{field: string, tokenize: bool, ranking: int}>, 2:list<int|string>}>
      */
     public static function analyzeCases(): \Generator
     {

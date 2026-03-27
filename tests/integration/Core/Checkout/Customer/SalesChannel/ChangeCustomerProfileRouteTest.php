@@ -393,7 +393,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
     /**
      * @param list<string|true|null>|null $vatIds
      * @param array<string, bool> $constraint
-     * @param array<string>|null $expectedVatIds
+     * @param list<string>|null $expectedVatIds
      */
     #[DataProvider('dataProviderVatIds')]
     public function testChangeVatIdsOfCommercialAccount(?array $vatIds, array $constraint, bool $shouldBeValid, ?array $expectedVatIds): void

@@ -313,7 +313,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array<string> $enabledFields
+     * @param list<string> $enabledFields
      */
     private function setSearchConfiguration(bool $andLogic = true, array $enabledFields = ['name']): void
     {

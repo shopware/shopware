@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class CustomerProfileValidationFactory implements DataValidationFactoryInterface
 {
     /**
-     * @param array<string> $accountTypes
+     * @param list<string> $accountTypes
      *
      * @internal
      */

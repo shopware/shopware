@@ -48,7 +48,7 @@ class PromotionCodeServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return list<list<string>>
      */
     public static function codePreviewDataProvider(): array
     {
@@ -94,7 +94,7 @@ class PromotionCodeServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<int>>
+     * @return list<list<int>>
      */
     public static function generateIndividualCodesDataProvider(): array
     {
@@ -117,7 +117,7 @@ class PromotionCodeServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<int>>
+     * @return list<list<int>>
      */
     public static function generateIndividualCodesWithInsufficientPatternDataProvider(): array
     {

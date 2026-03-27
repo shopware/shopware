@@ -111,7 +111,7 @@ class StateMachineGraphvizDumper
     }
 
     /**
-     * @return array<string, array<array<string, string>>>
+     * @return array<string, list<array<string, string>>>
      */
     private function findEdges(StateMachineEntity $stateMachine): array
     {
@@ -141,7 +141,7 @@ class StateMachineGraphvizDumper
     }
 
     /**
-     * @param array<string, array<array<string, string>>> $edges
+     * @param array<string, list<array<string, string>>> $edges
      */
     private function addEdges(array $edges): string
     {

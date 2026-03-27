@@ -14,7 +14,7 @@ class StubCheckoutGatewayCommand extends AbstractCheckoutGatewayCommand
     public const COMMAND_KEY = 'test';
 
     /**
-     * @param array<string> $paymentMethodTechnicalNames
+     * @param list<string> $paymentMethodTechnicalNames
      */
     public function __construct(
         public readonly array $paymentMethodTechnicalNames

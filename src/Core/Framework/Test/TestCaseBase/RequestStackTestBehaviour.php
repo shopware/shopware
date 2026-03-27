@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 trait RequestStackTestBehaviour
 {
     /**
-     * @return array<Request>
+     * @return list<Request>
      */
     #[Before]
     #[After]

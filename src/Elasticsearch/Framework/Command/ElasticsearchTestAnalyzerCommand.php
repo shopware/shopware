@@ -50,7 +50,7 @@ class ElasticsearchTestAnalyzerCommand extends Command
             $rows[] = [$headline];
             $rows[] = ['###############'];
             foreach ($analyzers as $analyzer) {
-                /** @var array{'tokens': array<array{token: string}>} $analyzed */
+                /** @var array{'tokens': list<array{token: string}>} $analyzed */
                 $analyzed = $this->client->indices()->analyze([
                     'body' => [
                         'analyzer' => $analyzer,
@@ -74,7 +74,7 @@ class ElasticsearchTestAnalyzerCommand extends Command
     }
 
     /**
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     protected function getAnalyzers(): array
     {

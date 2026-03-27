@@ -61,7 +61,7 @@ class CustomFieldSearchableSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $customFieldIds
+     * @param list<string> $customFieldIds
      */
     private function handleProductSearchConfig(array $customFieldIds): void
     {

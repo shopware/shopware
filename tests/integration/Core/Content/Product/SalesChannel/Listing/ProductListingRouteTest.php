@@ -43,17 +43,17 @@ class ProductListingRouteTest extends TestCase
     private string $productId;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $groupIds;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $optionIds;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $variantIds;
 

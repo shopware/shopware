@@ -147,7 +147,7 @@ class ThemeDumpCommand extends Command
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     protected function getThemeChoices(): array
     {

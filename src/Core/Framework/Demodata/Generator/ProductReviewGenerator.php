@@ -38,7 +38,7 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param array<mixed> $options
+     * @param list<mixed> $options
      */
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
@@ -101,7 +101,7 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getCustomerIds(): array
     {
@@ -113,7 +113,7 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getProductIds(): array
     {

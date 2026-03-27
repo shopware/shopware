@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class AppAction
 {
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function __construct(
         private readonly AppEntity $app,
@@ -70,7 +70,7 @@ class AppAction
     }
 
     /**
-     * @return array{source: array{url: string, appVersion: string, shopId: string}, data: array{ids: array<string>, entity: string, action: string}}
+     * @return array{source: array{url: string, appVersion: string, shopId: string}, data: array{ids: list<string>, entity: string, action: string}}
      */
     public function asPayload(): array
     {

@@ -45,7 +45,7 @@ class LineItemPropertyRuleTest extends TestCase
     }
 
     /**
-     * @return array<array<CartRuleScopeCase>>
+     * @return list<list<CartRuleScopeCase>>
      */
     public static function cartRuleScopeProvider(): array
     {
@@ -82,8 +82,8 @@ class LineItemPropertyRuleTest extends TestCase
     }
 
     /**
-     * @param array<string> $properties
-     * @param array<string> $options
+     * @param list<string> $properties
+     * @param list<string> $options
      */
     private static function createLineItemWithVariantOptions(array $properties = [], array $options = []): LineItem
     {

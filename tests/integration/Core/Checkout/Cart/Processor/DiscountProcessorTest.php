@@ -39,7 +39,7 @@ class DiscountProcessorTest extends TestCase
     final public const DISCOUNT_ID = 'discount-id';
 
     /**
-     * @param array<LineItem> $items
+     * @param list<LineItem> $items
      */
     #[DataProvider('processorProvider')]
     public function testProcessor(array $items, ?CalculatedPrice $expected): void

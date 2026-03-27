@@ -217,7 +217,7 @@ class EntitySearcher implements EntitySearcherInterface
     }
 
     /**
-     * @param array<string>|array<array<string, string>> $ids
+     * @param list<string>|list<array<string, string>> $ids
      * @param array<string, array{primaryKey: string|array<string, string>, data: array<string, mixed>}> $data
      *
      * @return array<string, array{primaryKey: string|array<string, string>, data: array<string, mixed>}>

@@ -211,7 +211,7 @@ class CreateMailTemplateTraitTest extends TestCase
     }
 
     /**
-     * @param array<array<string, mixed>> $translations
+     * @param list<array<string, mixed>> $translations
      *
      * @return array<string, mixed>
      */
@@ -227,7 +227,7 @@ class CreateMailTemplateTraitTest extends TestCase
     }
 
     /**
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function getMailTemplates(string $mailTemplateTypeByteId): array
     {
@@ -247,7 +247,7 @@ class CreateMailTemplateTraitTest extends TestCase
     }
 
     /**
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function getMailTemplateTypes(): array
     {

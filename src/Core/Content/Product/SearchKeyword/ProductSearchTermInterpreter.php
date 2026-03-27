@@ -78,7 +78,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
     }
 
     /**
-     * @param array<string> $tokens
+     * @param list<string> $tokens
      *
      * @return list<string>
      */
@@ -98,7 +98,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
     }
 
     /**
-     * @param array<string> $tokens
+     * @param list<string> $tokens
      *
      * @return array<string, array{normal: list<string>, reversed: list<string>}>
      */
@@ -177,9 +177,9 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
     }
 
     /**
-     * @param array<string> $tokens
-     * @param array<string> $originalTokens
-     * @param array<string> $matches
+     * @param list<string> $tokens
+     * @param list<string> $originalTokens
+     * @param list<string> $matches
      *
      * @return array<string, float>
      */

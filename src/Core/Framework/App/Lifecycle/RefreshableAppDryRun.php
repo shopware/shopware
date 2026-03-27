@@ -36,7 +36,7 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
     }
 
     /**
-     * @param array<string> $names
+     * @param list<string> $names
      */
     public function filter(array $names): self
     {
@@ -107,7 +107,7 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getAppNames(): array
     {

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 class CountryStateCollection extends EntityCollection
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getCountryIds(): array
     {

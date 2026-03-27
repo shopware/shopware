@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class ProductTranslationCollection extends EntityCollection
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getProductIds(): array
     {
@@ -25,7 +25,7 @@ class ProductTranslationCollection extends EntityCollection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getLanguageIds(): array
     {

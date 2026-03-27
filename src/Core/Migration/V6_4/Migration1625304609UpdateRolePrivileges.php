@@ -45,7 +45,7 @@ class Migration1625304609UpdateRolePrivileges extends MigrationStep
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getAllApps(Connection $connection): array
     {
@@ -53,7 +53,7 @@ class Migration1625304609UpdateRolePrivileges extends MigrationStep
     }
 
     /**
-     * @param array<string> $appNames
+     * @param list<string> $appNames
      *
      * @return list<string>
      */

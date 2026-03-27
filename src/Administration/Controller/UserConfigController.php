@@ -68,7 +68,7 @@ class UserConfigController extends AbstractController
     }
 
     /**
-     * @param array<string> $keys
+     * @param list<string> $keys
      */
     private function getOwnUserConfig(Context $context, array $keys): UserConfigCollection
     {

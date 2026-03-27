@@ -71,7 +71,7 @@ class AdminModuleGenerator implements ScaffoldingGenerator
     }
 
     /**
-     * @return array<Stub>
+     * @return list<Stub>
      */
     private function createSnippets(): array
     {

@@ -395,9 +395,9 @@ class ThemeRuntimeConfigServiceTest extends TestCase
     /**
      * Creates a ThemeRuntimeConfig object for testing purposes
      *
-     * @param array<string>|null $scriptFiles
+     * @param list<string>|null $scriptFiles
      * @param array<string, mixed> $resolvedConfig
-     * @param array<string> $viewInheritance
+     * @param list<string> $viewInheritance
      * @param array<string, array{path: string, namespace: string}> $iconSets
      */
     private static function createThemeRuntimeConfig(

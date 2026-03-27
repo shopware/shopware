@@ -23,18 +23,18 @@ class Profiler
     /**
      * Tags will be added to each trace
      *
-     * @var array<string>
+     * @var list<string>
      */
     private static array $tags = [];
 
     /**
-     * @var array<bool|string>
+     * @var list<bool|string>
      */
     private static array $openTraces = [];
 
     /**
      * @param \Traversable<ProfilerInterface> $profilers
-     * @param array<string> $activeProfilers
+     * @param list<string> $activeProfilers
      */
     public function __construct(
         \Traversable $profilers,
@@ -51,7 +51,7 @@ class Profiler
      * @template TReturn of mixed
      *
      * @param \Closure(): TReturn $closure
-     * @param array<string> $tags
+     * @param list<string> $tags
      *
      * @return TReturn
      */
@@ -75,7 +75,7 @@ class Profiler
     }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      */
     public static function start(string $title, string $category, array $tags): void
     {

@@ -25,7 +25,7 @@ class ManyToManyAssociationService
     }
 
     /**
-     * @param array<ManyToManyAssociationField> $associationFields
+     * @param list<ManyToManyAssociationField> $associationFields
      * @param array<int, array<string, string>> $primaryKeys
      *
      * @return array<string, array<int|string, array<int, string>>>
@@ -65,7 +65,7 @@ class ManyToManyAssociationService
     }
 
     /**
-     * @param array<Field> $primaryKeys
+     * @param list<Field> $primaryKeys
      */
     private function addReferenceVersionFieldConstraint(QueryBuilder $queryBuilder, array $primaryKeys): QueryBuilder
     {

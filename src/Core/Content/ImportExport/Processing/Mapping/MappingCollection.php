@@ -84,7 +84,7 @@ class MappingCollection extends Collection
     }
 
     /**
-     * @return array<Mapping>
+     * @return list<Mapping>
      */
     public function sortByPosition(): array
     {

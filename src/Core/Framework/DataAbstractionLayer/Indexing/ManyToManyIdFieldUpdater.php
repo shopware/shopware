@@ -31,7 +31,7 @@ class ManyToManyIdFieldUpdater
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function update(string $entity, array $ids, Context $context, ?string $propertyName = null): void
     {

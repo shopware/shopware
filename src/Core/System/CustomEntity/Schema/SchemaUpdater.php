@@ -128,7 +128,7 @@ class SchemaUpdater
     }
 
     /**
-     * @param array<CustomEntityField> $fields
+     * @param list<CustomEntityField> $fields
      */
     private function addColumns(Schema $schema, Table $table, array $fields): void
     {

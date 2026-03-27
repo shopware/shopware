@@ -19,7 +19,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 readonly class CoreSubscriber implements EventSubscriberInterface
 {
     /**
-     * @param array<string> $cspTemplates
+     * @param list<string> $cspTemplates
      *
      * @internal
      */

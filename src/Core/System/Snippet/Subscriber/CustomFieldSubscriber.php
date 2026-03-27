@@ -83,7 +83,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<array<string, string>> $snippetSets
+     * @param list<array<string, string>> $snippetSets
      * @param list<array<string, mixed>> $snippets
      */
     private function setInsertSnippets(EntityWriteResult $writeResult, array $snippetSets, array &$snippets): void

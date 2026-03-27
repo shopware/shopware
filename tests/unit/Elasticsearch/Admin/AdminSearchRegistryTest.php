@@ -600,7 +600,7 @@ class AdminSearchRegistryTest extends TestCase
     }
 
     /**
-     * @return \Generator<array<array{index: array{number_of_shards: int|null, number_of_replicas: int|null, test?: int}}>>
+     * @return \Generator<list<array{index: array{number_of_shards: int|null, number_of_replicas: int|null, test?: int}}>>
      */
     public static function providerCreateIndices(): \Generator
     {
@@ -634,7 +634,7 @@ class AdminSearchRegistryTest extends TestCase
     }
 
     /**
-     * @return iterable<array<bool>>
+     * @return iterable<list<bool>>
      */
     public static function refreshIndicesProvider(): iterable
     {

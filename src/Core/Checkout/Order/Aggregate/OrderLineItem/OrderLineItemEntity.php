@@ -61,7 +61,7 @@ class OrderLineItemEntity extends Entity
     protected ?PriceDefinitionInterface $priceDefinition = null;
 
     /**
-     * @var array<mixed>|null
+     * @var list<mixed>|null
      */
     protected ?array $payload = null;
 

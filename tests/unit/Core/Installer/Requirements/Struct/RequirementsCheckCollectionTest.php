@@ -28,8 +28,8 @@ class RequirementsCheckCollectionTest extends TestCase
     }
 
     /**
-     * @param array<RequirementCheck> $elements
-     * @param array<RequirementCheck> $expected
+     * @param list<RequirementCheck> $elements
+     * @param list<RequirementCheck> $expected
      */
     #[DataProvider('pathCheckProvider')]
     public function testGetPathChecks(array $elements, array $expected): void
@@ -66,8 +66,8 @@ class RequirementsCheckCollectionTest extends TestCase
     }
 
     /**
-     * @param array<RequirementCheck> $elements
-     * @param array<RequirementCheck> $expected
+     * @param list<RequirementCheck> $elements
+     * @param list<RequirementCheck> $expected
      */
     #[DataProvider('systemCheckProvider')]
     public function testGetSystemChecks(array $elements, array $expected): void
@@ -104,7 +104,7 @@ class RequirementsCheckCollectionTest extends TestCase
     }
 
     /**
-     * @param array<RequirementCheck> $elements
+     * @param list<RequirementCheck> $elements
      */
     #[DataProvider('errorProvider')]
     public function testHasError(array $elements, bool $expected): void
@@ -142,7 +142,7 @@ class RequirementsCheckCollectionTest extends TestCase
     }
 
     /**
-     * @param array<RequirementCheck> $elements
+     * @param list<RequirementCheck> $elements
      */
     #[DataProvider('pathErrorProvider')]
     public function testHasPathError(array $elements, bool $expected): void
@@ -180,7 +180,7 @@ class RequirementsCheckCollectionTest extends TestCase
     }
 
     /**
-     * @param array<RequirementCheck> $elements
+     * @param list<RequirementCheck> $elements
      */
     #[DataProvider('systemErrorProvider')]
     public function testHasSystemError(array $elements, bool $expected): void

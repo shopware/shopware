@@ -60,7 +60,7 @@ trait RulesTestFixtureBehaviour
     }
 
     /**
-     * @param array<mixed> $itemIDs
+     * @param list<mixed> $itemIDs
      */
     private function getProductsRule(array $itemIDs): LineItemRule
     {

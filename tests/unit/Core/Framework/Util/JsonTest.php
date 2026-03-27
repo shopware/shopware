@@ -59,7 +59,7 @@ class JsonTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     public static function nonArrayInput(): array
     {

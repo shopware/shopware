@@ -19,7 +19,7 @@ class ElasticsearchOutdatedIndexDetector
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function get(): ?array
     {
@@ -42,7 +42,7 @@ class ElasticsearchOutdatedIndexDetector
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getAllUsedIndices(): array
     {
@@ -52,7 +52,7 @@ class ElasticsearchOutdatedIndexDetector
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getPrefixes(): array
     {
@@ -68,7 +68,7 @@ class ElasticsearchOutdatedIndexDetector
     }
 
     /**
-     * @return array<array{aliases: array<string>, settings: array<mixed>}>
+     * @return list<array{aliases: list<string>, settings: list<mixed>}>
      */
     private function getAllIndices(): array
     {

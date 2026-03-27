@@ -105,7 +105,7 @@ class ServiceDefinitionTest extends TestCase
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function checkArgumentOrder(string $content): array
     {

@@ -26,7 +26,7 @@ class MaintenanceModeResolver
     }
 
     /**
-     * @param array<string> $allowedIps
+     * @param list<string> $allowedIps
      */
     public function isClientAllowed(Request $request, array $allowedIps): bool
     {
@@ -45,7 +45,7 @@ class MaintenanceModeResolver
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private static function getIps(Request $request): array
     {

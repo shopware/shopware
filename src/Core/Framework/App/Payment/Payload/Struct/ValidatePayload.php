@@ -23,7 +23,7 @@ class ValidatePayload implements SourcedPayloadInterface
     protected Source $source;
 
     /**
-     * @param array<mixed> $requestData
+     * @param list<mixed> $requestData
      */
     public function __construct(
         protected Cart $cart,
@@ -48,7 +48,7 @@ class ValidatePayload implements SourcedPayloadInterface
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getRequestData(): array
     {

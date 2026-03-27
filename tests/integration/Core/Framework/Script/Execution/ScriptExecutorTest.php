@@ -40,7 +40,7 @@ class ScriptExecutorTest extends TestCase
     }
 
     /**
-     * @param array<string> $hooks
+     * @param list<string> $hooks
      * @param array<string, mixed> $expected
      */
     #[DataProvider('executeProvider')]
@@ -206,7 +206,7 @@ class ScriptExecutorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{0: array<string>, 1: array<string, mixed>}>
+     * @return iterable<string, array{0: list<string>, 1: array<string, mixed>}>
      */
     public static function executeProvider(): iterable
     {

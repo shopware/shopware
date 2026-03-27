@@ -34,8 +34,8 @@ class StoreApiResponseHook extends FunctionHook implements SalesChannelContextAw
     final public const FUNCTION_NAME = 'response';
 
     /**
-     * @param array<mixed> $request
-     * @param array<mixed> $query
+     * @param list<mixed> $request
+     * @param list<mixed> $query
      */
     public function __construct(
         private readonly string $name,
@@ -47,7 +47,7 @@ class StoreApiResponseHook extends FunctionHook implements SalesChannelContextAw
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getRequest(): array
     {
@@ -55,7 +55,7 @@ class StoreApiResponseHook extends FunctionHook implements SalesChannelContextAw
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getQuery(): array
     {

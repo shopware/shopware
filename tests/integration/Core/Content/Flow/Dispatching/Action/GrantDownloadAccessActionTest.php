@@ -113,7 +113,7 @@ class GrantDownloadAccessActionTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string>> $productDownloads
+     * @param array<int, list<string>> $productDownloads
      */
     #[DataProvider('orderCaseProvider')]
     public function testFlowActionRunsOnEnterState(array $productDownloads): void
@@ -153,7 +153,7 @@ class GrantDownloadAccessActionTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string>> $productDownloads
+     * @param array<int, list<string>> $productDownloads
      */
     #[DataProvider('orderCaseProvider')]
     public function testFlowActionRunsOnOrderPlaced(array $productDownloads): void
@@ -239,7 +239,7 @@ class GrantDownloadAccessActionTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string>>|null $productDownloads
+     * @param array<int, list<string>>|null $productDownloads
      */
     private function placeOrder(?array $productDownloads = null): string
     {
@@ -252,7 +252,7 @@ class GrantDownloadAccessActionTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string>> $productDownloads
+     * @param array<int, list<string>> $productDownloads
      */
     private function assertOrderWithoutGrantedAccess(string $orderId, array $productDownloads): string
     {
@@ -310,7 +310,7 @@ class GrantDownloadAccessActionTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string>> $productDownloads
+     * @param array<int, list<string>> $productDownloads
      */
     private function assertOrderWithGrantedAccess(string $orderId, array $productDownloads): void
     {
@@ -351,7 +351,7 @@ class GrantDownloadAccessActionTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string>> $productDownloads
+     * @param array<int, list<string>> $productDownloads
      */
     private function assertDispatchedFlowEvent(array $productDownloads, ?FlowSendMailActionEvent $flowEvent): void
     {
@@ -373,7 +373,7 @@ class GrantDownloadAccessActionTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string>> $productDownloads
+     * @param array<int, list<string>> $productDownloads
      */
     private function assertDispatchedMailEvent(array $productDownloads, ?MailBeforeSentEvent $mailEvent): void
     {
@@ -389,7 +389,7 @@ class GrantDownloadAccessActionTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string>> $productDownloads
+     * @param array<int, list<string>> $productDownloads
      */
     private function addProducts(Cart $cart, array $productDownloads): Cart
     {

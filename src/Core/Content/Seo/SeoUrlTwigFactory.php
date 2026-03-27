@@ -19,7 +19,7 @@ use Twig\Runtime\EscaperRuntime;
 class SeoUrlTwigFactory
 {
     /**
-     * @param array<ExtensionInterface> $twigExtensions
+     * @param list<ExtensionInterface> $twigExtensions
      */
     public function createTwigEnvironment(SlugifyInterface $slugify, iterable $twigExtensions, string $cacheDir): Environment
     {

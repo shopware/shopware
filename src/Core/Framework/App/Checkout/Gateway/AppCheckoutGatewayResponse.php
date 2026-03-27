@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Struct\Struct;
 final class AppCheckoutGatewayResponse extends Struct
 {
     /**
-     * @param array<CheckoutGatewayCommand> $commands
+     * @param list<CheckoutGatewayCommand> $commands
      *
      * @internal
      */
@@ -23,7 +23,7 @@ final class AppCheckoutGatewayResponse extends Struct
     }
 
     /**
-     * @return array<CheckoutGatewayCommand>
+     * @return list<CheckoutGatewayCommand>
      */
     public function getCommands(): array
     {
@@ -39,7 +39,7 @@ final class AppCheckoutGatewayResponse extends Struct
     }
 
     /**
-     * @param array<CheckoutGatewayCommand> $commands
+     * @param list<CheckoutGatewayCommand> $commands
      */
     public function merge(array $commands): void
     {

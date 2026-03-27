@@ -272,7 +272,7 @@ class AllServiceInstallerTest extends TestCase
     }
 
     /**
-     * @param array<AppEntity> $apps
+     * @param list<AppEntity> $apps
      *
      * @return StaticEntityRepository<AppCollection>
      */

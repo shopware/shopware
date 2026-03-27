@@ -39,7 +39,7 @@ class StorefrontPluginConfiguration extends Struct
     protected array $assetPaths = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $viewInheritance = [];
 
@@ -49,7 +49,7 @@ class StorefrontPluginConfiguration extends Struct
     protected array $iconSets = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $configInheritance = [];
 
@@ -172,7 +172,7 @@ class StorefrontPluginConfiguration extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getViewInheritance(): array
     {
@@ -180,7 +180,7 @@ class StorefrontPluginConfiguration extends Struct
     }
 
     /**
-     * @param array<string> $viewInheritance
+     * @param list<string> $viewInheritance
      */
     public function setViewInheritance(array $viewInheritance): void
     {

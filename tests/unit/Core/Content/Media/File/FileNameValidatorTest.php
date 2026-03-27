@@ -18,7 +18,7 @@ class FileNameValidatorTest extends TestCase
     private const MAX_FILE_NAME_LENGTH = 255;
 
     /**
-     * @return array<array<string>>
+     * @return list<list<string>>
      */
     public static function restrictedCharacters(): array
     {
@@ -46,7 +46,7 @@ class FileNameValidatorTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return list<list<string>>
      */
     public static function ntfsInternals(): array
     {
@@ -69,7 +69,7 @@ class FileNameValidatorTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return list<list<string>>
      */
     public static function controlCharacters(): array
     {

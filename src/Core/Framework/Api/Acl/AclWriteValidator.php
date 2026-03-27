@@ -97,7 +97,7 @@ class AclWriteValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<WriteCommand> $commands
+     * @param list<WriteCommand> $commands
      */
     private function getPrivilegeForParentWriteOperation(WriteCommand $command, array $commands): string
     {
@@ -118,7 +118,7 @@ class AclWriteValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<WriteCommand> $commands
+     * @param list<WriteCommand> $commands
      */
     private function findCommandByPath(string $commandPath, array $commands): ?WriteCommand
     {

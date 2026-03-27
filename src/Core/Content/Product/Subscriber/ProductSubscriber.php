@@ -197,7 +197,7 @@ class ProductSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $parentIds
+     * @param list<string> $parentIds
      */
     private function cleanupConfiguratorSettings(array $parentIds, string $versionBytes): void
     {

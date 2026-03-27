@@ -1668,7 +1668,7 @@ class AppLifecycleTest extends TestCase
     }
 
     /**
-     * @return array<array<string, string>>|null
+     * @return list<array<string, string>>|null
      */
     private function getAppFlowActions(string $appId): ?array
     {
@@ -2024,7 +2024,7 @@ class AppLifecycleTest extends TestCase
     }
 
     /**
-     * @param array<string> $privileges
+     * @param list<string> $privileges
      */
     private function createAclRole(string $aclRoleId, array $privileges): void
     {

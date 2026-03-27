@@ -78,7 +78,7 @@ class SyncService implements SyncServiceInterface
     }
 
     /**
-     * @param array<string, array<EntityWriteResult>> $grouped
+     * @param array<string, list<EntityWriteResult>> $grouped
      *
      * @return array<string, array<int, mixed>>
      */

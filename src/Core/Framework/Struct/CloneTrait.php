@@ -9,7 +9,7 @@ trait CloneTrait
 {
     public function __clone()
     {
-        /** @var array<string, object|array<mixed>> $variables */
+        /** @var array<string, object|list<mixed>> $variables */
         $variables = get_object_vars($this);
         foreach ($variables as $key => $value) {
             if (\is_object($value) && !$value instanceof \UnitEnum) {
@@ -23,9 +23,9 @@ trait CloneTrait
     }
 
     /**
-     * @param array<mixed> $array
+     * @param list<mixed> $array
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function cloneArray(array $array): array
     {

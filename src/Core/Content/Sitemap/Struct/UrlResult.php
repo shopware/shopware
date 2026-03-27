@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class UrlResult extends Struct
 {
     /**
-     * @param array<Url> $urls
+     * @param list<Url> $urls
      */
     public function __construct(
         private readonly array $urls,
@@ -18,7 +18,7 @@ class UrlResult extends Struct
     }
 
     /**
-     * @return array<Url>
+     * @return list<Url>
      */
     public function getUrls(): array
     {

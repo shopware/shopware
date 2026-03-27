@@ -208,7 +208,7 @@ class AssetService
     }
 
     /**
-     * @return array<SplFileInfo>
+     * @return list<SplFileInfo>
      */
     private function getBundleFiles(string $directory): array
     {
@@ -222,7 +222,7 @@ class AssetService
     }
 
     /**
-     * @param array<SplFileInfo> $files
+     * @param list<SplFileInfo> $files
      *
      * @return array<string, string>
      */
@@ -310,7 +310,7 @@ class AssetService
     }
 
     /**
-     * @return array<BundleInterface>
+     * @return list<BundleInterface>
      */
     private function getAdditionalBundles(Plugin $bundle): array
     {

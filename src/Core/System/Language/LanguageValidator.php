@@ -114,7 +114,7 @@ class LanguageValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $affectedIds
+     * @param list<string> $affectedIds
      */
     private function getInheritanceViolations(array $affectedIds): ConstraintViolationList
     {
@@ -147,7 +147,7 @@ class LanguageValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $affectedIds
+     * @param list<string> $affectedIds
      */
     private function getMissingTranslationCodeViolations(array $affectedIds): ConstraintViolationList
     {
@@ -181,9 +181,9 @@ class LanguageValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<WriteCommand> $commands
+     * @param list<WriteCommand> $commands
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function getAffectedIds(array $commands): array
     {

@@ -140,7 +140,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
     /**
      * convert "size: m, l, xl" to ["size|m", "size|l", "size|xl"]
      *
-     * @return list<array<string>>
+     * @return list<list<string>>
      */
     private function parseVariantString(string $variantsString): array
     {
@@ -179,7 +179,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
     }
 
     /**
-     * @param list<array<string>> $variants
+     * @param list<list<string>> $variants
      *
      * @return CombinationPayload
      */
@@ -230,9 +230,9 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
      * convert [["size|m", "size|l"], ["color|blue", "color|red"]]
      * to [["size|m", "color|blue"], ["size|l", "color|blue"], ["size|m", "color|red"], ["size|l", "color|red"]]
      *
-     * @param list<array<string>> $variants
+     * @param list<list<string>> $variants
      *
-     * @return list<array<string>>|array<string>
+     * @return list<list<string>>|list<string>
      */
     private function getCombinations(array $variants, int $currentIndex = 0): array
     {

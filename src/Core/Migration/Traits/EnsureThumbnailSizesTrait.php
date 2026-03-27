@@ -14,7 +14,7 @@ trait EnsureThumbnailSizesTrait
     /**
      * @param list<array{width: int, height: int}> $thumbnailSizes
      *
-     * @return array<string>
+     * @return list<string>
      */
     final protected function ensureThumbnailSizes(array $thumbnailSizes, Connection $connection): array
     {

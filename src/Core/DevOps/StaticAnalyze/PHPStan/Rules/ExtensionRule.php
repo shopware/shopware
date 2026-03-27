@@ -28,7 +28,7 @@ class ExtensionRule implements Rule
     /**
      * @param InClassNode $node
      *
-     * @return array<RuleError|string>
+     * @return list<RuleError|string>
      */
     public function processNode(Node $node, Scope $scope): array
     {
@@ -58,7 +58,7 @@ class ExtensionRule implements Rule
     }
 
     /**
-     * @return array<RuleError|string>
+     * @return list<RuleError|string>
      */
     private function validateExtension(InClassNode $node): array
     {

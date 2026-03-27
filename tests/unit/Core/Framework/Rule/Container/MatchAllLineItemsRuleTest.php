@@ -36,9 +36,9 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @param array<string> $categoryIdsProductA
-     * @param array<string> $categoryIdsProductB
-     * @param array<string> $categoryIds
+     * @param list<string> $categoryIdsProductA
+     * @param list<string> $categoryIdsProductB
+     * @param list<string> $categoryIds
      */
     #[DataProvider('getCartScopeTestData')]
     public function testIfMatchesAllCorrectWithCartScope(
@@ -73,7 +73,7 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<mixed>>
+     * @return array<string, list<mixed>>
      */
     public static function getCartScopeTestData(): array
     {
@@ -88,8 +88,8 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @param array<string> $categoryIdsProduct
-     * @param array<string> $categoryIds
+     * @param list<string> $categoryIdsProduct
+     * @param list<string> $categoryIds
      */
     #[DataProvider('getLineItemScopeTestData')]
     public function testIfMatchesAllCorrectWithLineItemScope(
@@ -116,7 +116,7 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<mixed>>
+     * @return array<string, list<mixed>>
      */
     public static function getLineItemScopeTestData(): array
     {
@@ -130,10 +130,10 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @param array<string> $categoryIdsProductA
-     * @param array<string> $categoryIdsProductB
-     * @param array<string> $categoryIdsProductC
-     * @param array<string> $categoryIds
+     * @param list<string> $categoryIdsProductA
+     * @param list<string> $categoryIdsProductB
+     * @param list<string> $categoryIdsProductC
+     * @param list<string> $categoryIds
      */
     #[DataProvider('getCartScopeTestMinimumShouldMatchData')]
     public function testIfMatchesMinimumCorrectWithCartScope(
@@ -174,7 +174,7 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<mixed>>
+     * @return array<string, list<mixed>>
      */
     public static function getCartScopeTestMinimumShouldMatchData(): array
     {
@@ -189,8 +189,8 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @param array<string> $categoryIdsProduct
-     * @param array<string> $categoryIds
+     * @param list<string> $categoryIdsProduct
+     * @param list<string> $categoryIds
      */
     #[DataProvider('getLineItemScopeTestMinimumShouldMatchData')]
     public function testIfMatchesMinimumCorrectWithLineItemScope(
@@ -218,7 +218,7 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<mixed>>
+     * @return array<string, list<mixed>>
      */
     public static function getLineItemScopeTestMinimumShouldMatchData(): array
     {
@@ -332,7 +332,7 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @param array<string> $categoryIds
+     * @param list<string> $categoryIds
      */
     private function createLineItemWithCategories(array $categoryIds): LineItem
     {

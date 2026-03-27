@@ -87,7 +87,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
     }
 
     /**
-     * @return array<int, string|array<mixed>>
+     * @return array<int, string|list<mixed>>
      */
     private function resolveEntityValue(Entity $entity, string $path): array
     {

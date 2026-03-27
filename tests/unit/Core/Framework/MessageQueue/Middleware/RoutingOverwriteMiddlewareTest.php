@@ -43,8 +43,8 @@ class RoutingOverwriteMiddlewareTest extends MiddlewareTestCase
 
     /**
      * @param array<string, string|list<string>> $config
-     * @param array<StampInterface> $providedStamps
-     * @param array<StampInterface> $expectedStamps
+     * @param list<StampInterface> $providedStamps
+     * @param list<StampInterface> $expectedStamps
      */
     #[DataProvider('dispatchProvider')]
     public function testDispatch(object $message, array $config, array $providedStamps, array $expectedStamps): void

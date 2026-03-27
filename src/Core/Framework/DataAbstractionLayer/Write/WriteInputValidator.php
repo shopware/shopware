@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class WriteInputValidator
 {
     /**
-     * @param array<array<string, mixed>> $data
+     * @param list<array<string, mixed>> $data
      */
     public static function validate(array $data): void
     {

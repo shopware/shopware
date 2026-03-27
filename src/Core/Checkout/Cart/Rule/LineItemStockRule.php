@@ -84,7 +84,7 @@ class LineItemStockRule extends Rule
     }
 
     /**
-     * @param array<LineItem> $lineItems
+     * @param list<LineItem> $lineItems
      */
     private function matchStockFromCollection(array $lineItems): bool
     {

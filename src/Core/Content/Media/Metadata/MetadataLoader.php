@@ -13,7 +13,7 @@ class MetadataLoader
     /**
      * @internal
      *
-     * @param array<MetadataLoaderInterface> $metadataLoader
+     * @param list<MetadataLoaderInterface> $metadataLoader
      */
     public function __construct(private readonly iterable $metadataLoader)
     {

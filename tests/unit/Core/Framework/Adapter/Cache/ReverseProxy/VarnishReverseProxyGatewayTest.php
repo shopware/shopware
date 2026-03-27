@@ -140,7 +140,7 @@ class VarnishReverseProxyGatewayTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<\Throwable|string>>
+     * @return iterable<string, list<\Throwable|string>>
      */
     public static function providerExceptions(): iterable
     {

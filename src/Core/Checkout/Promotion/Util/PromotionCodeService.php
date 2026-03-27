@@ -51,11 +51,11 @@ class PromotionCodeService
     }
 
     /**
-     * @param array<string> $codeBlacklist
+     * @param list<string> $codeBlacklist
      *
      * @throws PatternNotComplexEnoughException
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function generateIndividualCodes(string $pattern, int $amount, array $codeBlacklist = []): array
     {
@@ -193,9 +193,9 @@ class PromotionCodeService
     }
 
     /**
-     * @param array<string> $codes
+     * @param list<string> $codes
      *
-     * @return array<array<string, string>>
+     * @return list<array<string, string>>
      */
     private function prepareCodeEntities(string $promotionId, array $codes): array
     {

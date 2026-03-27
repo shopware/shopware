@@ -54,7 +54,7 @@ class SyncOperation extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getSupportedActions(): array
     {
@@ -62,7 +62,7 @@ class SyncOperation extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function validate(): array
     {

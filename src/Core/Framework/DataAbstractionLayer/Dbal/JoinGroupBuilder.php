@@ -82,7 +82,7 @@ class JoinGroupBuilder
     }
 
     /**
-     * @param array<Filter> $filters
+     * @param list<Filter> $filters
      *
      * @return array<string, mixed> Returned array shape looks like this:
      *                              array<string(random-uuid), array{self::NOT_RELEVANT?: list<Filter>, operator: MultiFilter::CONNECTION_*, negated: bool, string(association-name): list<Filter>}>

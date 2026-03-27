@@ -225,7 +225,7 @@ trait DataAbstractionLayerFieldTestBehaviour
     /**
      * @internal
      *
-     * @param array<class-string<EntityExtension>> $extensionsClasses
+     * @param list<class-string<EntityExtension>> $extensionsClasses
      * @param class-string<EntityDefinition> $definitionClass
      */
     private function registerDefinitionExtensions(array $extensionsClasses, string $definitionClass, EntityDefinition $definition): void

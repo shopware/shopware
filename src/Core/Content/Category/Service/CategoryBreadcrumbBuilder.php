@@ -267,7 +267,7 @@ class CategoryBreadcrumbBuilder
     }
 
     /**
-     * @param array<string> $categoryIds
+     * @param list<string> $categoryIds
      */
     private function loadCategories(array $categoryIds, Context $context, SalesChannelEntity $salesChannel): CategoryCollection
     {
@@ -279,7 +279,7 @@ class CategoryBreadcrumbBuilder
     }
 
     /**
-     * @param array<string> $categoryIds
+     * @param list<string> $categoryIds
      *
      * @return list<array<string, string|mixed>>
      */

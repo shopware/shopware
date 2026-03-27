@@ -25,7 +25,7 @@ class Tax extends XmlElement
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getUrls(): array
     {

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 class DiscountLineItem
 {
     /**
-     * @var array<string, string|array<mixed>>
+     * @var array<string, string|list<mixed>>
      */
     private array $payload;
 
@@ -30,7 +30,7 @@ class DiscountLineItem
     private readonly bool $considerAdvancedRules;
 
     /**
-     * @param array<string, string|array<mixed>> $payload
+     * @param array<string, string|list<mixed>> $payload
      */
     public function __construct(
         private readonly string $label,
@@ -88,7 +88,7 @@ class DiscountLineItem
     /**
      * Gets the discount payload data
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getPayload(): array
     {
@@ -98,7 +98,7 @@ class DiscountLineItem
     /**
      * @throws CartException
      *
-     * @return string|array<mixed>
+     * @return string|list<mixed>
      */
     public function getPayloadValue(string $key): string|array
     {

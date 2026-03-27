@@ -30,7 +30,7 @@ class MediaExtension extends AbstractExtension
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function searchMedia(array $ids, Context $context): MediaCollection
     {

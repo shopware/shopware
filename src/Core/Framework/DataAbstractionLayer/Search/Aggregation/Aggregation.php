@@ -42,7 +42,7 @@ abstract class Aggregation extends Struct implements CriteriaPartInterface
      * Include the class name in the json serialization.
      * So the criteria hash is different for different aggregation types when the same field and value is used.
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function jsonSerialize(): array
     {

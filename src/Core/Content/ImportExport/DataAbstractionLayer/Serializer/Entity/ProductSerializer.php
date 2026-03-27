@@ -155,9 +155,9 @@ class ProductSerializer extends EntitySerializer
     }
 
     /**
-     * @param array<array<string, mixed>> $visibilities
+     * @param list<array<string, mixed>> $visibilities
      *
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function findVisibilityIds(array $visibilities, Context $context): array
     {
@@ -183,9 +183,9 @@ class ProductSerializer extends EntitySerializer
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function convertSalesChannelNamesToIds(array $ids, Context $context): array
     {

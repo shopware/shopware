@@ -127,7 +127,7 @@ class InstallAppCommand extends Command
     }
 
     /**
-     * @param array<string> $requestedApps
+     * @param list<string> $requestedApps
      *
      * @return array<string, Manifest>
      */

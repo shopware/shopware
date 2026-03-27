@@ -217,7 +217,7 @@ class DocumentGenerator
     }
 
     /**
-     * @param array<mixed> $records
+     * @param list<mixed> $records
      */
     private function writeRecords(array $records, Context $context): void
     {

@@ -34,7 +34,7 @@ class AssignTestStruct extends Struct
     protected ?bool $bool = null;
 
     /**
-     * @var array<mixed>|null
+     * @var list<mixed>|null
      */
     protected ?array $array = null;
 
@@ -61,7 +61,7 @@ class AssignTestStruct extends Struct
     /**
      * Just to test creating an instance without constructor
      *
-     * @param array<mixed> $data
+     * @param list<mixed> $data
      */
     public function __construct(
         private readonly array $data
@@ -98,7 +98,7 @@ class AssignTestStruct extends Struct
     }
 
     /**
-     * @param array<mixed>|null $value
+     * @param list<mixed>|null $value
      */
     public function setArray(?array $value): void
     {
@@ -183,7 +183,7 @@ class AssignTestStruct extends Struct
     }
 
     /**
-     * @return array<mixed>|null
+     * @return list<mixed>|null
      */
     public function getArray(): ?array
     {
@@ -238,7 +238,7 @@ class AssignTestStruct extends Struct
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getData(): array
     {

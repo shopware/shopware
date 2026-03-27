@@ -513,7 +513,7 @@ class RobotsPageLoaderTest extends TestCase
     /**
      * Creates standard two-domain setup for example.com and example.com/en
      *
-     * @return array<SalesChannelDomainEntity>
+     * @return list<SalesChannelDomainEntity>
      */
     private function createStandardDomains(string $salesChannelId1 = 'test-sales-channel-id-1', string $salesChannelId2 = 'test-sales-channel-id-2'): array
     {
@@ -526,7 +526,7 @@ class RobotsPageLoaderTest extends TestCase
     /**
      * Sets up the RobotsPageLoader with given domains and optional config
      *
-     * @param array<SalesChannelDomainEntity> $domains
+     * @param list<SalesChannelDomainEntity> $domains
      * @param array<string, string|array<int, string>> $config
      */
     private function setupLoaderWithDomains(array $domains, array $config = []): RobotsPageLoader
@@ -583,7 +583,7 @@ class RobotsPageLoaderTest extends TestCase
     /**
      * Helper to assert that User-agent blocks have correct directive types
      *
-     * @param array<\Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock> $globalBlocks
+     * @param list<\Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock> $globalBlocks
      */
     private function assertUserAgentBlocksHaveCorrectDirectiveTypes(array $globalBlocks): void
     {
@@ -614,7 +614,7 @@ class RobotsPageLoaderTest extends TestCase
     /**
      * Collects and sorts all directive types from given blocks
      *
-     * @param array<\Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock> $blocks
+     * @param list<\Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock> $blocks
      *
      * @return list<RobotsDirectiveType>
      */
@@ -635,7 +635,7 @@ class RobotsPageLoaderTest extends TestCase
     /**
      * Asserts that directives contain specific paths for a given directive type
      *
-     * @param array<\Shopware\Storefront\Page\Robots\Struct\RobotsDirective> $directives
+     * @param list<\Shopware\Storefront\Page\Robots\Struct\RobotsDirective> $directives
      * @param list<string> $expectedPaths
      */
     private function assertDirectivePaths(array $directives, RobotsDirectiveType $type, array $expectedPaths): void

@@ -300,7 +300,7 @@ class RequestTransformerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<string>>
+     * @return iterable<string, list<string>>
      */
     public static function seoRedirectProvider(): iterable
     {
@@ -439,7 +439,7 @@ class RequestTransformerTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $salesChannels
+     * @param list<mixed> $salesChannels
      */
     private function createSalesChannels(array $salesChannels): EntityWrittenContainerEvent
     {

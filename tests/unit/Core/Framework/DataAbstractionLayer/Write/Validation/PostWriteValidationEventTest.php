@@ -46,8 +46,8 @@ class PostWriteValidationEventTest extends TestCase
     }
 
     /**
-     * @param array<CommandConfig> $commands
-     * @param array<string, array<array<string, string>>> $assertions
+     * @param list<CommandConfig> $commands
+     * @param array<string, list<array<string, string>>> $assertions
      */
     #[DataProvider('getPrimaryKeysProvider')]
     public function testGetPrimaryKeys(array $commands, array $assertions): void
@@ -62,8 +62,8 @@ class PostWriteValidationEventTest extends TestCase
     }
 
     /**
-     * @param array<CommandConfig> $commands
-     * @param array<string, array<array<string, string>>> $assertions
+     * @param list<CommandConfig> $commands
+     * @param array<string, list<array<string, string>>> $assertions
      */
     #[DataProvider('getPrimaryKeysProvider')]
     public function testGetDeletedPrimaryKeysProvider(array $commands, array $assertions): void
@@ -78,8 +78,8 @@ class PostWriteValidationEventTest extends TestCase
     }
 
     /**
-     * @param array<CommandConfig> $commands
-     * @param array<string, array<array<string, string>>> $assertions
+     * @param list<CommandConfig> $commands
+     * @param array<string, list<array<string, string>>> $assertions
      */
     #[DataProvider('getDeletedPrimaryKeysProvider')]
     public function testGetDeletedPrimaryKeys(array $commands, array $assertions): void
@@ -304,7 +304,7 @@ class PostWriteValidationEventTest extends TestCase
     }
 
     /**
-     * @param array<CommandConfig> $commandsArray
+     * @param list<CommandConfig> $commandsArray
      *
      * @return list<WriteCommand>
      */

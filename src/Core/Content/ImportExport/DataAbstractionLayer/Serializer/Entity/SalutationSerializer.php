@@ -17,7 +17,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class SalutationSerializer extends EntitySerializer implements ResetInterface
 {
     /**
-     * @var array<string>|array<null>
+     * @var list<string>|list<null>
      */
     private array $cacheSalutations = [];
 

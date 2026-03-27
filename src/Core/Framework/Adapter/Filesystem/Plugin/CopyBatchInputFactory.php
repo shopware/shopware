@@ -17,7 +17,7 @@ use Symfony\Component\Finder\SplFileInfo;
 class CopyBatchInputFactory
 {
     /**
-     * @return array<CopyBatchInput>
+     * @return list<CopyBatchInput>
      */
     public function fromDirectory(string $directory, string $target, string $visibility = Visibility::PUBLIC): array
     {

@@ -75,7 +75,7 @@ class CustomerTagRuleTest extends TestCase
 
     /**
      * @param string|list<string>|null $givenIdentifier
-     * @param array<string> $ruleIdentifiers
+     * @param list<string> $ruleIdentifiers
      */
     #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, array $ruleIdentifiers, array|string|null $givenIdentifier, bool $noCustomer = false): void

@@ -140,9 +140,9 @@ trait UpdateMailTrait
     }
 
     /**
-     * @param array<string> $languageIds
+     * @param list<string> $languageIds
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function getTranslationIds(Connection $connection, array $languageIds, string $type): array
     {

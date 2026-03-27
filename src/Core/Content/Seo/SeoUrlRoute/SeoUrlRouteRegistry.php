@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 class SeoUrlRouteRegistry
 {
     /**
-     * @var array<SeoUrlRouteInterface>
+     * @var list<SeoUrlRouteInterface>
      */
     private array $seoUrlRoutes = [];
 
@@ -48,7 +48,7 @@ class SeoUrlRouteRegistry
     }
 
     /**
-     * @return array<SeoUrlRouteInterface>
+     * @return list<SeoUrlRouteInterface>
      */
     public function findByDefinition(string $definitionName): array
     {

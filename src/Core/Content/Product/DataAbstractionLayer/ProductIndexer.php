@@ -269,9 +269,9 @@ class ProductIndexer extends EntityIndexer
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function getChildrenIds(array $ids): array
     {
@@ -285,9 +285,9 @@ class ProductIndexer extends EntityIndexer
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function getParentIds(array $ids): array
     {
@@ -301,9 +301,9 @@ class ProductIndexer extends EntityIndexer
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function filterVariants(array $ids): array
     {

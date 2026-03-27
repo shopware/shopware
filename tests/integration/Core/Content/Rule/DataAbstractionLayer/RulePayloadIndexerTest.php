@@ -524,7 +524,7 @@ class RulePayloadIndexerTest extends TestCase
     }
 
     /**
-     * @return list<array<PluginLifecycleEvent>>
+     * @return list<list<PluginLifecycleEvent>>
      */
     public static function dataProviderForTestPostEventNullsPayload(): array
     {

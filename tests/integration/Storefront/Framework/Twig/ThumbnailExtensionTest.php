@@ -163,7 +163,7 @@ class ThumbnailExtensionTest extends TestCase
     }
 
     /**
-     * @param array<int> $thumbnailSizes
+     * @param list<int> $thumbnailSizes
      */
     private function createExampleMediaWithThumbnails(array $thumbnailSizes): MediaEntity
     {
@@ -175,7 +175,7 @@ class ThumbnailExtensionTest extends TestCase
     }
 
     /**
-     * @param array<int> $thumbnailSizes
+     * @param list<int> $thumbnailSizes
      */
     private function createThumbnails(array $thumbnailSizes): MediaThumbnailCollection
     {
@@ -194,7 +194,7 @@ class ThumbnailExtensionTest extends TestCase
     }
 
     /**
-     * @param array<BundleFixture> $bundles
+     * @param list<BundleFixture> $bundles
      *
      * @throws LoaderError
      * @throws Exception

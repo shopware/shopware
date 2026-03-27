@@ -35,7 +35,7 @@ class CategoryBreadcrumbUpdater
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function update(array $ids, Context $context): void
     {
@@ -83,8 +83,8 @@ class CategoryBreadcrumbUpdater
     }
 
     /**
-     * @param array<string> $ids
-     * @param array<string> $all
+     * @param list<string> $ids
+     * @param list<string> $all
      */
     private function updateLanguage(array $ids, Context $context, array $all): void
     {

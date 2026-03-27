@@ -29,7 +29,7 @@ class CacheStateValidatorTest extends TestCase
     }
 
     /**
-     * @return array<array{bool, Request, Response}>
+     * @return list<array{bool, Request, Response}>
      */
     public static function cases(): array
     {

@@ -94,7 +94,7 @@ class ConfigGet extends Command
     }
 
     /**
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      */
     private function writeConfigJson(OutputInterface $output, array $config, int $flags): void
     {

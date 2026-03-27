@@ -38,7 +38,7 @@ class NotificationControllerTest extends TestCase
     }
 
     /**
-     * @param array<string> $requirePrivileges
+     * @param list<string> $requirePrivileges
      */
     #[DataProvider('saveNotificationProvider')]
     public function testSaveNotification(
@@ -102,7 +102,7 @@ class NotificationControllerTest extends TestCase
     }
 
     /**
-     * @return array<array<array<string>|string|bool>>
+     * @return list<list<list<string>|string|bool>>
      */
     public static function saveNotificationProvider(): array
     {
@@ -115,8 +115,8 @@ class NotificationControllerTest extends TestCase
     }
 
     /**
-     * @param array<string> $requiredPrivileges
-     * @param array<string>|null $userPrivileges
+     * @param list<string> $requiredPrivileges
+     * @param list<string>|null $userPrivileges
      */
     #[DataProvider('getNotificationProvider')]
     public function testGetNotifications(
@@ -158,7 +158,7 @@ class NotificationControllerTest extends TestCase
     }
 
     /**
-     * @return array<array<array<string>|bool|int|null>>
+     * @return list<list<list<string>|bool|int|null>>
      */
     public static function getNotificationProvider(): array
     {

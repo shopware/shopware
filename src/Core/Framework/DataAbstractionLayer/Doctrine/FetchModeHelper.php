@@ -10,7 +10,7 @@ class FetchModeHelper
     /**
      * User-land implementation of PDO::FETCH_KEY_PAIR
      *
-     * @param array<array<string>> $result
+     * @param list<list<string>> $result
      *
      * @return array<string, string>
      */

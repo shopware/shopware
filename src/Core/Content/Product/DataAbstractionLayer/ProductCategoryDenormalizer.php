@@ -88,7 +88,7 @@ class ProductCategoryDenormalizer
     }
 
     /**
-     * @param array<array<string, string>> $inserts
+     * @param list<array<string, string>> $inserts
      */
     private function insertTree(array $inserts): void
     {

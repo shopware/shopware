@@ -41,14 +41,14 @@ class ScopeRepository implements ScopeRepositoryInterface
     public const REFRESH_TOKEN_GRANT = 'refresh_token';
 
     /**
-     * @var array<ScopeEntityInterface>
+     * @var list<ScopeEntityInterface>
      */
     private readonly array $scopes;
 
     /**
      * @internal
      *
-     * @param array<ScopeEntityInterface> $scopes
+     * @param list<ScopeEntityInterface> $scopes
      */
     public function __construct(
         iterable $scopes,
@@ -119,9 +119,9 @@ class ScopeRepository implements ScopeRepositoryInterface
     }
 
     /**
-     * @param array<ScopeEntityInterface> $scopes
+     * @param list<ScopeEntityInterface> $scopes
      *
-     * @return array<ScopeEntityInterface>
+     * @return list<ScopeEntityInterface>
      */
     private function uniqueScopes(array $scopes): array
     {
@@ -135,10 +135,10 @@ class ScopeRepository implements ScopeRepositoryInterface
     }
 
     /**
-     * @param array<ScopeEntityInterface> $scopes
+     * @param list<ScopeEntityInterface> $scopes
      * @param class-string<ScopeEntityInterface> $class
      *
-     * @return array<ScopeEntityInterface>
+     * @return list<ScopeEntityInterface>
      */
     private function removeScope(array $scopes, string $class): array
     {

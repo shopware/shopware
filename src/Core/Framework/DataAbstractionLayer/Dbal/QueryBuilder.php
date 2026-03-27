@@ -19,12 +19,12 @@ class QueryBuilder extends DBALQueryBuilder
     private array $translationJoins = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $selectParts = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $oderByParts = [];
 
@@ -148,7 +148,7 @@ class QueryBuilder extends DBALQueryBuilder
      *
      * @internal
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getSelectParts(): array
     {
@@ -158,7 +158,7 @@ class QueryBuilder extends DBALQueryBuilder
     /**
      * This method is a hacky way to fix deprecations in the Doctrine DBAL QueryBuilder. It's usage is strongly discouraged.
      *
-     * @return array<string>
+     * @return list<string>
      *
      *@internal
      */

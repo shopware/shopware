@@ -132,7 +132,7 @@ abstract class JWTGenerator
      * allows modifying Lcobucci validation constraints,
      * e.g. if tokens are signed in a certain way, e.g. JWKS (or not at all) or need to adhere to other format standards
      *
-     * @return array<Constraint>
+     * @return list<Constraint>
      */
     protected function getTokenValidationConstraints(): array
     {

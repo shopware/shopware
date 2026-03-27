@@ -307,7 +307,7 @@ class OrderTotalAmountRuleTest extends TestCase
     }
 
     /**
-     * @return \Traversable<string, array<string|int|bool>>
+     * @return \Traversable<string, list<string|int|bool>>
      */
     public static function getMatchValues(): \Traversable
     {

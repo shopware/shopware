@@ -36,7 +36,7 @@ class PaymentMethodCollection extends EntityCollection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getPluginIds(): array
     {

@@ -30,7 +30,7 @@ class ErrorResponseFactory
     }
 
     /**
-     * @return array<ErrorData>
+     * @return list<ErrorData>
      */
     public function getErrorsFromException(\Throwable $exception, bool $debug = false): array
     {

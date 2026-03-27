@@ -38,11 +38,11 @@ final class ServiceStubs
     }
 
     /**
-     * @param array<mixed> $arguments
+     * @param list<mixed> $arguments
      *
      * @internal
      *
-     * @param array<mixed> $arguments
+     * @param list<mixed> $arguments
      */
     public function __call(string $name, array $arguments): object
     {

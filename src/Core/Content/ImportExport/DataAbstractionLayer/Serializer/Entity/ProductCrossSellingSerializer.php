@@ -100,7 +100,7 @@ class ProductCrossSellingSerializer extends EntitySerializer
     /**
      * @param list<array{productId: string, crossSellingId: string, position: int}> $assignedProducts
      *
-     * @return array<array{productId: string, crossSellingId: string, position: int, id?: string}>
+     * @return list<array{productId: string, crossSellingId: string, position: int, id?: string}>
      */
     private function findAssignedProductsIds(array $assignedProducts): array
     {

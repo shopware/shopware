@@ -96,7 +96,7 @@ class ThemeRuntimeConfigStorage
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getActiveThemeNames(): array
     {
@@ -112,7 +112,7 @@ class ThemeRuntimeConfigStorage
     /**
      * Returns ids of theme copies (using the same theme implementation by duplicated config) for a given theme.
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getCopiesIds(string $themeId): array
     {
@@ -129,7 +129,7 @@ class ThemeRuntimeConfigStorage
     /**
      * Returns ids of child themes and theme copies, recursively.
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getChildThemeIds(string $parentThemeId): array
     {

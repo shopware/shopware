@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class FilteredTagIdsStruct extends Struct
 {
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function __construct(
         protected array $ids,
@@ -18,7 +18,7 @@ class FilteredTagIdsStruct extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getIds(): array
     {

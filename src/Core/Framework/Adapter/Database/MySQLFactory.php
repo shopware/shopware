@@ -32,7 +32,7 @@ class MySQLFactory
     }
 
     /**
-     * @param array<Middleware> $middlewares
+     * @param list<Middleware> $middlewares
      */
     public static function create(array $middlewares = []): Connection
     {
@@ -118,7 +118,7 @@ class MySQLFactory
     }
 
     /**
-     * @return Params&array{driverOptions: array<mixed>}
+     * @return Params&array{driverOptions: list<mixed>}
      */
     private static function parseDsn(DsnParser $dsnParser, string $url): array
     {

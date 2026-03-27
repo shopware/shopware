@@ -87,9 +87,9 @@ class PropertyFilterHandlerTest extends TestCase
     }
 
     /**
-     * @param array<string> $input
-     * @param array<string> $expectedIds
-     * @param array<array<string, string>> $mapping
+     * @param list<string> $input
+     * @param list<string> $expectedIds
+     * @param list<array<string, string>> $mapping
      */
     #[DataProvider('createProvider')]
     public function testCreate(array $input, AndFilter $expectedFilter, array $expectedIds, array $mapping): void

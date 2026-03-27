@@ -60,7 +60,7 @@ class PromotionLineItemRule extends Rule
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getIdentifiers(): ?array
     {

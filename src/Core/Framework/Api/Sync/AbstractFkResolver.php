@@ -14,11 +14,11 @@ abstract class AbstractFkResolver
     abstract public static function getName(): string;
 
     /**
-     * @param array<FkReference> $map
+     * @param list<FkReference> $map
      *
      * @throws EntityNotFoundException
      *
-     * @return array<FkReference>
+     * @return list<FkReference>
      */
     abstract public function resolve(array $map): array;
 }

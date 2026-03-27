@@ -52,7 +52,7 @@ final class CmsSlotsDataEnrichExtension extends Extension
          *
          * @description The fetched slot data which was searched by the identifiers
          *
-         * @var array<EntitySearchResult<covariant EntityCollection<covariant Entity>>>
+         * @var list<EntitySearchResult<covariant EntityCollection<covariant Entity>>>
          */
         public readonly array $identifierResult,
         /**
@@ -60,7 +60,7 @@ final class CmsSlotsDataEnrichExtension extends Extension
          *
          * @description The fetched slot data which was searched by the criteria list
          *
-         * @var array<array<string, EntitySearchResult<covariant EntityCollection<covariant Entity>>>>
+         * @var list<array<string, EntitySearchResult<covariant EntityCollection<covariant Entity>>>>
          */
         public readonly array $criteriaResult,
         /**

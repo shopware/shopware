@@ -106,7 +106,7 @@ class EntityDefinitionQueryHelper
     }
 
     /**
-     * @return array<Field>
+     * @return list<Field>
      */
     public static function getFieldsOfAccessor(EntityDefinition $definition, string $accessor, bool $resolveTranslated = true): array
     {

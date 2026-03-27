@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 class Migration1698682149MakeTranslatableFieldsNullable extends MigrationStep
 {
     /**
-     * @var array<string, array<string>>
+     * @var array<string, list<string>>
      */
     public array $toUpdate = [
         'app_translation' => [

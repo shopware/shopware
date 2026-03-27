@@ -84,7 +84,7 @@ class MigrationException extends HttpException
     }
 
     /**
-     * @param array<string> $pluginBundles
+     * @param list<string> $pluginBundles
      */
     public static function moreThanOnePluginFound(string $pluginName, array $pluginBundles): self
     {

@@ -134,7 +134,7 @@ final readonly class RequestFacade
     /**
      * The method `cookies` returns all request cookies as an array.
      *
-     * @return array<string, array<mixed>|bool|float|int|string> request cookies
+     * @return array<string, list<mixed>|bool|float|int|string> request cookies
      */
     public function cookies(): array
     {

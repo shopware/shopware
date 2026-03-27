@@ -982,7 +982,7 @@ class ApiController extends AbstractController
     }
 
     /**
-     * @param array<mixed> $array
+     * @param list<mixed> $array
      */
     private function isCollection(array $array): bool
     {
@@ -1018,7 +1018,7 @@ class ApiController extends AbstractController
     /**
      * @param non-empty-list<EntityPathSegment> $pathSegments
      *
-     * @return array<string|null>
+     * @return list<string|null>
      */
     private function validatePathSegments(Context $context, array $pathSegments): array
     {

@@ -54,7 +54,7 @@ class CustomFieldRule
     /**
      * @param array<string, string|array<string, string>> $renderedField
      * @param array<string, mixed> $customFields
-     * @param array<string|int|bool|float>|string|int|bool|float|null $renderedFieldValue
+     * @param list<string|int|bool|float>|string|int|bool|float|null $renderedFieldValue
      */
     public static function match(array $renderedField, array|string|int|bool|float|null $renderedFieldValue, string $operator, array $customFields, ?SalesChannelContext $context = null): bool
     {
@@ -92,7 +92,7 @@ class CustomFieldRule
      * @param array<string, mixed> $customFields
      * @param array<string, string|array<string, string>> $renderedField
      *
-     * @return array<string>|float|bool|int|string|null
+     * @return list<string>|float|bool|int|string|null
      */
     public static function getValue(array $customFields, array $renderedField, ?SalesChannelContext $context = null): array|float|bool|int|string|null
     {
@@ -125,10 +125,10 @@ class CustomFieldRule
     }
 
     /**
-     * @param array<string|int|bool|float>|float|bool|int|string|null $renderedFieldValue
+     * @param list<string|int|bool|float>|float|bool|int|string|null $renderedFieldValue
      * @param array<string, string|array<string, string>> $renderedField
      *
-     * @return array<string|int|bool|float>|float|bool|int|string|null
+     * @return list<string|int|bool|float>|float|bool|int|string|null
      */
     public static function getExpectedValue(array|float|bool|int|string|null $renderedFieldValue, array $renderedField): array|float|bool|int|string|null
     {

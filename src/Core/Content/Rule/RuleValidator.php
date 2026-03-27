@@ -169,7 +169,7 @@ class RuleValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<mixed> $payload
+     * @param list<mixed> $payload
      */
     private function getConditionType(?RuleConditionEntity $condition, array $payload): ?string
     {
@@ -182,9 +182,9 @@ class RuleValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<mixed> $payload
+     * @param list<mixed> $payload
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function getConditionValue(?RuleConditionEntity $condition, array $payload): array
     {
@@ -197,9 +197,9 @@ class RuleValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, array<Constraint>> $fieldValidations
-     * @param array<mixed> $payload
-     * @param array<string> $missingProperties
+     * @param array<string, list<Constraint>> $fieldValidations
+     * @param list<mixed> $payload
+     * @param list<string> $missingProperties
      */
     private function validateConsistence(array $fieldValidations, array $payload, ConstraintViolationList $violationList, array $missingProperties): void
     {
@@ -226,7 +226,7 @@ class RuleValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<UpdateCommand> $commandQueue
+     * @param list<UpdateCommand> $commandQueue
      */
     private function validateUpdateCommands(
         array $commandQueue,
@@ -244,7 +244,7 @@ class RuleValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<UpdateCommand> $commandQueue
+     * @param list<UpdateCommand> $commandQueue
      */
     private function getSavedConditions(array $commandQueue, Context $context): RuleConditionCollection
     {
@@ -262,7 +262,7 @@ class RuleValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $parameters
+     * @param list<string> $parameters
      */
     private function buildViolation(
         string $messageTemplate,
@@ -283,7 +283,7 @@ class RuleValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<mixed> $payload
+     * @param list<mixed> $payload
      */
     private function setScriptConstraints(
         ScriptRule $ruleInstance,

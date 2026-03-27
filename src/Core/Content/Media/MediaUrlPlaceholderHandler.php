@@ -46,9 +46,9 @@ class MediaUrlPlaceholderHandler implements MediaUrlPlaceholderHandlerInterface
     }
 
     /**
-     * @param array<string> $matches
+     * @param list<string> $matches
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function createMediaMapping(array $matches): array
     {

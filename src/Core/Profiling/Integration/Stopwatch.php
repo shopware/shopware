@@ -16,7 +16,7 @@ class Stopwatch implements ProfilerInterface
     }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      */
     public function start(string $title, string $category, array $tags): void
     {

@@ -80,7 +80,7 @@ abstract class AbstractImportExportTestCase extends TestCase
     }
 
     /**
-     * @param array<array<string, mixed>> $invalidLog
+     * @param list<array<string, mixed>> $invalidLog
      */
     public static function assertImportExportSucceeded(Progress $progress, array $invalidLog = []): void
     {
@@ -255,7 +255,7 @@ abstract class AbstractImportExportTestCase extends TestCase
     }
 
     /**
-     * @param list<array{key: string, mappedKey: string}>|array<Mapping> $mappings
+     * @param list<array{key: string, mappedKey: string}>|list<Mapping> $mappings
      */
     protected function updateProfileMapping(string $profileId, array $mappings): void
     {
@@ -268,7 +268,7 @@ abstract class AbstractImportExportTestCase extends TestCase
     }
 
     /**
-     * @param array<array<string, string>> $updateBy
+     * @param list<array<string, string>> $updateBy
      */
     protected function updateProfileUpdateBy(string $profileId, array $updateBy): void
     {
@@ -529,7 +529,7 @@ abstract class AbstractImportExportTestCase extends TestCase
     }
 
     /**
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     protected function getInvalidLogContent(?string $invalidLogId): array
     {
@@ -551,7 +551,7 @@ abstract class AbstractImportExportTestCase extends TestCase
     }
 
     /**
-     * @param array<array<string, string>> $customFields
+     * @param list<array<string, string>> $customFields
      */
     protected function createCustomField(array $customFields, string $entityName): void
     {

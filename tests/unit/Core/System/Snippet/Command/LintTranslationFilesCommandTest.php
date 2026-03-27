@@ -57,7 +57,7 @@ class LintTranslationFilesCommandTest extends TestCase
     private MockObject&Filesystem $filesystem;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $excludedPaths = [];
 
@@ -481,9 +481,9 @@ class LintTranslationFilesCommandTest extends TestCase
     }
 
     /**
-     * @param string|array<string> $paths
+     * @param string|list<string> $paths
      *
-     * @return array<SplFileInfo>
+     * @return list<SplFileInfo>
      */
     private function createMockFixtureFiles(string|array $paths): array
     {
@@ -523,7 +523,7 @@ class LintTranslationFilesCommandTest extends TestCase
     }
 
     /**
-     * @return array<SplFileInfo>
+     * @return list<SplFileInfo>
      */
     private function createValidFiles(string $basePath): array
     {
@@ -535,7 +535,7 @@ class LintTranslationFilesCommandTest extends TestCase
     }
 
     /**
-     * @return array<SplFileInfo>
+     * @return list<SplFileInfo>
      */
     private function createFaultyRootFiles(string $basePath): array
     {
@@ -547,7 +547,7 @@ class LintTranslationFilesCommandTest extends TestCase
     }
 
     /**
-     * @return array<SplFileInfo>
+     * @return list<SplFileInfo>
      */
     private function createSubdirFiles(string $subPath): array
     {
@@ -559,9 +559,9 @@ class LintTranslationFilesCommandTest extends TestCase
     }
 
     /**
-     * @param array<string> $files
+     * @param list<string> $files
      *
-     * @return array<SplFileInfo>
+     * @return list<SplFileInfo>
      */
     private function createFilesFromList(array $files, string $path): array
     {

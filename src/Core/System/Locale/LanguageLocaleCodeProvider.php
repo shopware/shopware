@@ -41,7 +41,7 @@ class LanguageLocaleCodeProvider implements ResetInterface
     }
 
     /**
-     * @param array<string> $languageIds
+     * @param list<string> $languageIds
      *
      * @return array<string, string>
      */

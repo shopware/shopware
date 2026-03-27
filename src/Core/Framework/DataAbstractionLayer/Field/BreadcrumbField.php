@@ -12,7 +12,7 @@ class BreadcrumbField extends JsonField
 {
     /**
      * @param list<Field> $propertyMapping
-     * @param array<mixed>|null $default
+     * @param list<mixed>|null $default
      */
     public function __construct(
         string $storageName = 'breadcrumb',

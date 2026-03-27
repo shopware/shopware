@@ -138,7 +138,7 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return array<array{0: float, 1: float, 2: bool}>
+     * @return list<array{0: float, 1: float, 2: bool}>
      */
     public static function equalsDataProvider(): array
     {
@@ -168,7 +168,7 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return array<array{0: float, 1: float, 2: bool}>
+     * @return list<array{0: float, 1: float, 2: bool}>
      */
     public static function notEqualsDataProvider(): array
     {
@@ -187,7 +187,7 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return array<array{0: float, 1: float, 2: bool}>
+     * @return list<array{0: float, 1: float, 2: bool}>
      */
     public static function lessThanDataProvider(): array
     {
@@ -221,7 +221,7 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return array<array{0: float, 1: float, 2: bool}>
+     * @return list<array{0: float, 1: float, 2: bool}>
      */
     public static function greaterThanDataProvider(): array
     {
@@ -254,7 +254,7 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return array<array{0: float, 1: float, 2: bool}>
+     * @return list<array{0: float, 1: float, 2: bool}>
      */
     public static function lessThanOrEqualsDataProvider(): array
     {
@@ -287,7 +287,7 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return array<array{0: float, 1: float, 2: bool}>
+     * @return list<array{0: float, 1: float, 2: bool}>
      */
     public static function greaterThanOrEqualsDataProvider(): array
     {

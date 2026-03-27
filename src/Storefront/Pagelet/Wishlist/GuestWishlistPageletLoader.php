@@ -64,7 +64,7 @@ class GuestWishlistPageletLoader
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function extractProductIds(Request $request): array
     {
@@ -74,12 +74,12 @@ class GuestWishlistPageletLoader
             throw RoutingException::missingRequestParameter('productIds');
         }
 
-        /** @var array<string> $productIds */
+        /** @var list<string> $productIds */
         return array_filter($productIds, static fn (string $productId) => Uuid::isValid($productId));
     }
 
     /**
-     * @param array<string> $productIds
+     * @param list<string> $productIds
      */
     private function createCriteria(array $productIds, SalesChannelContext $context): Criteria
     {

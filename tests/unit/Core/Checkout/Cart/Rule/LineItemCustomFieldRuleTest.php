@@ -252,7 +252,7 @@ class LineItemCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @param array<string, array<int>|bool|int|string|null> $customFields
+     * @param array<string, list<int>|bool|int|string|null> $customFields
      */
     private function createLineItemWithCustomFields(array $customFields = []): LineItem
     {
@@ -277,7 +277,7 @@ class LineItemCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @param array<int>|bool|string|null $customFieldValue
+     * @param list<int>|bool|string|null $customFieldValue
      */
     private static function setupBoolRule(array|bool|string|null $customFieldValue): LineItemCustomFieldRule
     {
@@ -297,7 +297,7 @@ class LineItemCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @param array<int>|bool|string|null $customFieldValue
+     * @param list<int>|bool|string|null $customFieldValue
      */
     private static function setupStringRule(array|bool|string|null $customFieldValue): LineItemCustomFieldRule
     {
@@ -318,7 +318,7 @@ class LineItemCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @param array<int>|bool|string|null $customFieldValue
+     * @param list<int>|bool|string|null $customFieldValue
      * @param array<string, string> $config
      */
     private static function setupSelectRule(array|bool|string|null $customFieldValue, array $config = []): LineItemCustomFieldRule

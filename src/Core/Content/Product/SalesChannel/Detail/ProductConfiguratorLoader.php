@@ -199,7 +199,7 @@ class ProductConfiguratorLoader
     }
 
     /**
-     * @param array<string> $current
+     * @param list<string> $current
      */
     private function isCombinable(
         PropertyGroupOptionEntity $option,

@@ -14,7 +14,7 @@ class NewsletterAccountPagelet extends Pagelet
     protected ?bool $success = null;
 
     /**
-     * @var array<array<string, mixed>>|null
+     * @var list<array<string, mixed>>|null
      */
     protected ?array $messages = null;
 
@@ -43,7 +43,7 @@ class NewsletterAccountPagelet extends Pagelet
     }
 
     /**
-     * @return array<array<string, mixed>>|null
+     * @return list<array<string, mixed>>|null
      */
     public function getMessages(): ?array
     {
@@ -51,7 +51,7 @@ class NewsletterAccountPagelet extends Pagelet
     }
 
     /**
-     * @param array<array<string, mixed>> $messages
+     * @param list<array<string, mixed>> $messages
      */
     public function setMessages(array $messages): void
     {
@@ -59,7 +59,7 @@ class NewsletterAccountPagelet extends Pagelet
     }
 
     /**
-     * @param array<array<string, mixed>> $messages
+     * @param list<array<string, mixed>> $messages
      */
     public function addMessages(array $messages): void
     {

@@ -127,7 +127,7 @@ class Migration1659257296GenerateFlowTemplateDataFromEventAction extends Migrati
     }
 
     /**
-     * @return array<array<string, string>>
+     * @return list<array<string, string>>
      */
     private function getDefaultEventActions(): array
     {

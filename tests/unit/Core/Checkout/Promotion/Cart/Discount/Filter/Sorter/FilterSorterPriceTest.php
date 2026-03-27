@@ -28,9 +28,9 @@ use Shopware\Core\Framework\Log\Package;
 class FilterSorterPriceTest extends TestCase
 {
     /**
-     * @param array<LineItem> $items
-     * @param array<LineItemQuantity> $meta
-     * @param array<string> $expected
+     * @param list<LineItem> $items
+     * @param list<LineItemQuantity> $meta
+     * @param list<string> $expected
      */
     #[DataProvider('sortingProvider')]
     public function testSorting(AbstractPriceSorter $sorter, array $meta, array $items, array $expected): void

@@ -11,12 +11,12 @@ use Symfony\Component\HttpFoundation\Response;
 class RestrictDeleteViolationException extends ShopwareHttpException
 {
     /**
-     * @var array<RestrictDeleteViolation>
+     * @var list<RestrictDeleteViolation>
      */
     private readonly array $restrictions;
 
     /**
-     * @param array<RestrictDeleteViolation> $restrictions
+     * @param list<RestrictDeleteViolation> $restrictions
      */
     public function __construct(
         EntityDefinition $definition,
@@ -44,7 +44,7 @@ class RestrictDeleteViolationException extends ShopwareHttpException
     }
 
     /**
-     * @return array<RestrictDeleteViolation>
+     * @return list<RestrictDeleteViolation>
      */
     public function getRestrictions(): array
     {

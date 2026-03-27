@@ -814,12 +814,12 @@ class SyncEntityDefinition extends EntityDefinition
 class EntityEncoderEntity extends EntityDefinition
 {
     /**
-     * @var array<Field>
+     * @var list<Field>
      */
     private array $extraFields = [];
 
     /**
-     * @param array<Field> $fields
+     * @param list<Field> $fields
      */
     public function setExtraFields(array $fields): void
     {

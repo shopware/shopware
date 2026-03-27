@@ -50,7 +50,7 @@ class Migration1676272001AddAccountTypeToCustomerProfileImportExport extends Mig
     }
 
     /**
-     * @return array<array<string, string|int>>
+     * @return list<array<string, string|int>>
      */
     private function getCustomerProfileMapping(string $mapping): array
     {

@@ -57,7 +57,7 @@ class Cart extends Struct
     private ?CartDataCollection $data = null;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $ruleIds = [];
 
@@ -282,7 +282,7 @@ class Cart extends Struct
     }
 
     /**
-     * @param array<string> $ruleIds
+     * @param list<string> $ruleIds
      */
     public function setRuleIds(array $ruleIds): void
     {
@@ -290,7 +290,7 @@ class Cart extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getRuleIds(): array
     {

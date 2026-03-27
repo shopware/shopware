@@ -18,8 +18,8 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 class ArrayComparatorTest extends TestCase
 {
     /**
-     * @param array<string|int|bool|float> $a
-     * @param array<string|int|bool|float> $b
+     * @param list<string|int|bool|float> $a
+     * @param list<string|int|bool|float> $b
      */
     #[DataProvider('compareDataProvider')]
     public function testCompare(string $operator, array $a, array $b, bool $expected): void
@@ -28,8 +28,8 @@ class ArrayComparatorTest extends TestCase
     }
 
     /**
-     * @param array<string|int|bool|float> $a
-     * @param array<string|int|bool|float> $b
+     * @param list<string|int|bool|float> $a
+     * @param list<string|int|bool|float> $b
      */
     #[DataProvider('equalsDataProvider')]
     public function testEquals(array $a, array $b, bool $expected): void
@@ -38,8 +38,8 @@ class ArrayComparatorTest extends TestCase
     }
 
     /**
-     * @param array<string|int|bool|float> $a
-     * @param array<string|int|bool|float> $b
+     * @param list<string|int|bool|float> $a
+     * @param list<string|int|bool|float> $b
      */
     #[DataProvider('notEqualsDataProvider')]
     public function testNotEquals(array $a, array $b, bool $expected): void
@@ -68,7 +68,7 @@ class ArrayComparatorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<string, string|bool|array<int>>>
+     * @return iterable<string, array<string, string|bool|list<int>>>
      */
     public static function compareDataProvider(): iterable
     {
@@ -99,7 +99,7 @@ class ArrayComparatorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<string, bool|array<int>>>
+     * @return iterable<string, array<string, bool|list<int>>>
      */
     public static function equalsDataProvider(): iterable
     {
@@ -146,7 +146,7 @@ class ArrayComparatorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<string, bool|array<int>>>
+     * @return iterable<string, array<string, bool|list<int>>>
      */
     public static function notEqualsDataProvider(): iterable
     {

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class TemplateGroup
 {
     /**
-     * @param array<string> $salesChannelIds
+     * @param list<string> $salesChannelIds
      * @param array<string, mixed> $salesChannels
      */
     public function __construct(
@@ -39,7 +39,7 @@ class TemplateGroup
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getSalesChannelIds(): array
     {

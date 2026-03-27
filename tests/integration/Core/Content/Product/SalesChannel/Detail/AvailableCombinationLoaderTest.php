@@ -165,7 +165,7 @@ class AvailableCombinationLoaderTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $a
+     * @param list<mixed> $a
      */
     private function ashuffle(array &$a): void
     {

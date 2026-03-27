@@ -577,7 +577,7 @@ class ConsentServiceTest extends TestCase
     }
 
     /**
-     * @param array<ConsentDefinition> $definitions
+     * @param list<ConsentDefinition> $definitions
      */
     private function createService(?EventDispatcher $eventDispatcher = null, array $definitions = []): ConsentService
     {

@@ -26,7 +26,7 @@ class ScriptFileReader
     /**
      * Returns the list of script paths the given app contains
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getScriptPathsForApp(AppEntity $app): array
     {

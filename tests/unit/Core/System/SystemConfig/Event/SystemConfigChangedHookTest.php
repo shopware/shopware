@@ -21,7 +21,7 @@ class SystemConfigChangedHookTest extends TestCase
     }
 
     /**
-     * @param array<string> $permissions
+     * @param list<string> $permissions
      */
     #[DataProvider('getPermissionCases')]
     public static function testPermissions(SystemConfigChangedHook $hook, array $permissions, bool $allowed): void

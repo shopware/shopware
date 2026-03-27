@@ -44,7 +44,7 @@ class ExtensionLoader
     private const DEFAULT_LOCALE = 'en_GB';
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     private ?array $installedThemeNames = null;
 
@@ -81,7 +81,7 @@ class ExtensionLoader
     }
 
     /**
-     * @param array<array<string, mixed>> $data
+     * @param list<array<string, mixed>> $data
      */
     public function loadFromListingArray(Context $context, array $data): ExtensionCollection
     {
@@ -165,9 +165,9 @@ class ExtensionLoader
     }
 
     /**
-     * @param array<string> $languageIds
+     * @param list<string> $languageIds
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getLocalesCodesFromLanguageIds(array $languageIds): array
     {
@@ -217,7 +217,7 @@ class ExtensionLoader
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getInstalledThemeNames(Context $context): array
     {
@@ -375,7 +375,7 @@ class ExtensionLoader
     }
 
     /**
-     * @return array<array{name: string}>
+     * @return list<array{name: string}>
      */
     private function makeLanguagesArray(AppTranslationCollection $translations): array
     {

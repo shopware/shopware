@@ -25,7 +25,7 @@ class ChildCountUpdater
     }
 
     /**
-     * @param array<string> $parentIds
+     * @param list<string> $parentIds
      */
     public function update(string $entity, array $parentIds, Context $context): void
     {
@@ -41,7 +41,7 @@ class ChildCountUpdater
     }
 
     /**
-     * @param array<string> $parentIds
+     * @param list<string> $parentIds
      */
     private function trySingleUpdate(EntityDefinition $definition, array $parentIds, Context $context): void
     {

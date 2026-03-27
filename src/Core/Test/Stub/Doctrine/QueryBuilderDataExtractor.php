@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 class QueryBuilderDataExtractor
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public static function getSelect(QueryBuilder $queryBuilder): array
     {
@@ -31,7 +31,7 @@ class QueryBuilderDataExtractor
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public static function getFrom(QueryBuilder $queryBuilder): array
     {
@@ -59,7 +59,7 @@ class QueryBuilderDataExtractor
     }
 
     /**
-     * @return array<string, array<array{type: string, table: string, alias: string, condition: string}>>
+     * @return array<string, list<array{type: string, table: string, alias: string, condition: string}>>
      */
     public static function getJoin(QueryBuilder $queryBuilder): array
     {

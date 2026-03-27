@@ -110,7 +110,7 @@ class UserRecoveryServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<int, \DateInterval|string|bool>>
+     * @return list<array<int, \DateInterval|string|bool>>
      */
     public static function dataProviderTestCheckHash(): array
     {

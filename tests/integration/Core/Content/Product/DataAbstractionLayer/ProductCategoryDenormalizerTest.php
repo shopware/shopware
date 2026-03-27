@@ -65,7 +65,7 @@ class ProductCategoryDenormalizerTest extends TestCase
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     private function getProductCategoryList(string $productId): ?array
     {

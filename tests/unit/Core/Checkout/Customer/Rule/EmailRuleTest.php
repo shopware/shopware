@@ -103,7 +103,7 @@ class EmailRuleTest extends TestCase
     }
 
     /**
-     * @return \Traversable<string, array<string|bool>>
+     * @return \Traversable<string, list<string|bool>>
      */
     public static function getMatchValues(): \Traversable
     {

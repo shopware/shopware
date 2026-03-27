@@ -31,7 +31,7 @@ abstract class AbstractIncrementer
     /**
      * @deprecated tag:v6.8.0 - reason:visibility-change - Will become abstract
      *
-     * @param array<string> $keys
+     * @param list<string> $keys
      */
     public function delete(string $cluster, array $keys = []): void
     {

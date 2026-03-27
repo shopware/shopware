@@ -111,7 +111,7 @@ class ParsedIdTokenTest extends TestCase
     }
 
     /**
-     * @return array<array<string, bool|string>>
+     * @return list<array<string, bool|string>>
      */
     public static function nullOrEmptyDataset(): array
     {

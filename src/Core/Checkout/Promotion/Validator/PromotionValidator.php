@@ -39,12 +39,12 @@ class PromotionValidator implements EventSubscriberInterface
     private const DISCOUNT_PERCENTAGE_MAX_VALUE = 100.0;
 
     /**
-     * @var array<array<string, mixed>>
+     * @var list<array<string, mixed>>
      */
     private array $databasePromotions;
 
     /**
-     * @var array<array<string, mixed>>
+     * @var list<array<string, mixed>>
      */
     private array $databaseDiscounts;
 
@@ -127,7 +127,7 @@ class PromotionValidator implements EventSubscriberInterface
      * This function collects all database data that might be
      * required for any of the received entities and values.
      *
-     * @param array<WriteCommand> $writeCommands
+     * @param list<WriteCommand> $writeCommands
      *
      * @throws PromotionException
      * @throws Exception

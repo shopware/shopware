@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 class MailTemplateMediaCollection extends EntityCollection
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getMailTemplateIds(): array
     {
@@ -26,7 +26,7 @@ class MailTemplateMediaCollection extends EntityCollection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getMediaIds(): array
     {

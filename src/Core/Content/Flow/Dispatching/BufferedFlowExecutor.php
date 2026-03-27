@@ -68,7 +68,7 @@ class BufferedFlowExecutor
     /**
      * @param EventGroupedFlowHolders $eventGroupedFlowHolders
      *
-     * @return array<FlowHolder>
+     * @return list<FlowHolder>
      */
     private function getFlowHoldersForEvent(string $eventName, array $eventGroupedFlowHolders): array
     {

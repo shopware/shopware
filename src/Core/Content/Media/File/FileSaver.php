@@ -38,7 +38,7 @@ class FileSaver
      * @internal
      *
      * @param EntityRepository<MediaCollection> $mediaRepository
-     * @param array<string> $allowedExtensions
+     * @param list<string> $allowedExtensions
      * @param list<string> $privateAllowedExtensions
      */
     public function __construct(

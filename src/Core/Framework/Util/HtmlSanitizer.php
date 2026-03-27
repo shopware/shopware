@@ -11,7 +11,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class HtmlSanitizer implements ResetInterface
 {
     /**
-     * @var array<\HTMLPurifier>
+     * @var list<\HTMLPurifier>
      */
     private array $purifiers = [];
 
@@ -34,7 +34,7 @@ class HtmlSanitizer implements ResetInterface
     }
 
     /**
-     * @param array<string, array<string>>|null $options
+     * @param array<string, list<string>>|null $options
      */
     public function sanitize(string $text, ?array $options = [], bool $override = false, ?string $field = null): string
     {
@@ -89,7 +89,7 @@ class HtmlSanitizer implements ResetInterface
     }
 
     /**
-     * @param array<string, array<string>> $options
+     * @param array<string, list<string>> $options
      */
     private function getConfig(array $options, bool $override, ?string $field): \HTMLPurifier_Config
     {

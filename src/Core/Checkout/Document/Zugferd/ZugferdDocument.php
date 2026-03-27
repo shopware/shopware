@@ -57,7 +57,7 @@ class ZugferdDocument
     protected bool $allowNegativeProductLineItems = false;
 
     /**
-     * @var array{chargeAmount: array<CalculatedPrice>, lineTotalAmount: array<CalculatedPrice>, allowanceAmount: array<CalculatedPrice>}
+     * @var array{chargeAmount: list<CalculatedPrice>, lineTotalAmount: list<CalculatedPrice>, allowanceAmount: list<CalculatedPrice>}
      */
     private array $mappedPrices = [
         self::CHARGE_AMOUNT => [],

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class NumberRangeTypeTranslationCollection extends EntityCollection
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getNumberRangeTypeIds(): array
     {
@@ -25,7 +25,7 @@ class NumberRangeTypeTranslationCollection extends EntityCollection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getLanguageIds(): array
     {

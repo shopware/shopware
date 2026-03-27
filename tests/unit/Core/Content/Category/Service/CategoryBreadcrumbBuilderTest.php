@@ -393,8 +393,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
-     * @param array<CategoryEntity> $categoryEntityCollection1
-     * @param array<CategoryEntity> $categoryEntityCollection2
+     * @param list<CategoryEntity> $categoryEntityCollection1
+     * @param list<CategoryEntity> $categoryEntityCollection2
      *
      * @return EntityRepository<CategoryCollection>&MockObject
      */
@@ -410,8 +410,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
-     * @param array<ProductEntity> $productEntityCollection1
-     * @param array<ProductEntity> $productEntityCollection2
+     * @param list<ProductEntity> $productEntityCollection1
+     * @param list<ProductEntity> $productEntityCollection2
      *
      * @return SalesChannelRepository<SalesChannelProductCollection>
      */
@@ -427,8 +427,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
-     * @param array<string> $streamIds
-     * @param array<string>|null $categoryIds
+     * @param list<string> $streamIds
+     * @param list<string>|null $categoryIds
      */
     private function getProductEntity(?array $streamIds, ?array $categoryIds): ProductEntity
     {

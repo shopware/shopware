@@ -434,7 +434,7 @@ class RequestCriteriaBuilder
     }
 
     /**
-     * @param array{filter: array<mixed>} $payload
+     * @param array{filter: list<mixed>} $payload
      */
     private function addFilter(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
     {
@@ -467,7 +467,7 @@ class RequestCriteriaBuilder
     }
 
     /**
-     * @param array{post-filter: array<mixed>} $payload
+     * @param array{post-filter: list<mixed>} $payload
      */
     private function addPostFilter(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
     {
@@ -500,7 +500,7 @@ class RequestCriteriaBuilder
     }
 
     /**
-     * @param array<mixed> $data
+     * @param list<mixed> $data
      */
     private function hasNumericIndex(array $data): bool
     {

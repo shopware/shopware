@@ -50,7 +50,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     private function parsePattern(?string $pattern): ?array
     {
@@ -115,7 +115,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 
     /**
      * @param array{id: string, pattern: string, start: ?int} $config
-     * @param array<string> $parsedPattern
+     * @param list<string> $parsedPattern
      */
     private function generate(array $parsedPattern, array $config, ?bool $preview = false): string
     {

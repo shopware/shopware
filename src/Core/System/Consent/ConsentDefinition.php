@@ -17,7 +17,7 @@ interface ConsentDefinition
     public function getSince(): \DateTimeImmutable;
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getRequiredPermissions(): array;
 

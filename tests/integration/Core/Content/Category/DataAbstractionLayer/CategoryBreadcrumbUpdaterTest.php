@@ -346,7 +346,7 @@ class SetUpData
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function all(): array
     {

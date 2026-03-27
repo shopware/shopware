@@ -456,9 +456,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     }
 
     /**
-     * @param array<LineItem> $lineItems
+     * @param list<LineItem> $lineItems
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function getNotCompleted(CartDataCollection $data, array $lineItems, string $hash): array
     {
@@ -577,7 +577,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     }
 
     /**
-     * @param array<LineItem> $lineItems
+     * @param list<LineItem> $lineItems
      */
     private function recalculate(array $lineItems, CartDataCollection $data, SalesChannelContext $context, CartBehavior $behavior): void
     {

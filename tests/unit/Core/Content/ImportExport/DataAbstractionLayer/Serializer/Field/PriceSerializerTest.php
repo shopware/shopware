@@ -392,7 +392,7 @@ class PriceSerializerTest extends TestCase
     }
 
     /**
-     * @param array<CurrencyCollection<CurrencyEntity>|array<string>> $results
+     * @param list<CurrencyCollection<CurrencyEntity>|list<string>> $results
      *
      * @return StaticEntityRepository<CurrencyCollection>
      */

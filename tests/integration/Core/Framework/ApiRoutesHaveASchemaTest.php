@@ -356,7 +356,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
     /**
      * @param array<string, mixed> $schema
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function getRoutesFromSchemaDefinitionPath(string $path, array $schema): array
     {

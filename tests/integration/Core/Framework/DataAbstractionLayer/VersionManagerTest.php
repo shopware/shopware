@@ -294,7 +294,7 @@ class VersionManagerTest extends TestCase
     }
 
     /**
-     * @return array<string, array<EntityWriteResult>>
+     * @return array<string, list<EntityWriteResult>>
      */
     private function getClone(string $productId): array
     {

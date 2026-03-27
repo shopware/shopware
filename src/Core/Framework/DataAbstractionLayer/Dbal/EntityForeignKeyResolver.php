@@ -59,7 +59,7 @@ class EntityForeignKeyResolver
      *      ]
      *  ]
      *
-     * @param array<string>|array<array<string, string>> $ids
+     * @param list<string>|list<array<string, string>> $ids
      *
      * @throws \RuntimeException
      *
@@ -90,7 +90,7 @@ class EntityForeignKeyResolver
      *      ]
      *  ]
      *
-     * @param array<string>|array<array<string, string>> $ids
+     * @param list<string>|list<array<string, string>> $ids
      *
      * @throws \RuntimeException
      *
@@ -111,7 +111,7 @@ class EntityForeignKeyResolver
      *       ]
      *   ]
      *
-     * @param array<string>|array<array<string, string>> $ids
+     * @param list<string>|list<array<string, string>> $ids
      *
      * @throws \RuntimeException
      *
@@ -138,7 +138,7 @@ class EntityForeignKeyResolver
      *      ]
      *  ]
      *
-     * @param array<string>|array<array<string, string>> $ids
+     * @param list<string>|list<array<string, string>> $ids
      *
      * @throws \RuntimeException
      *
@@ -151,7 +151,7 @@ class EntityForeignKeyResolver
 
     /**
      * @param class-string<Flag> $class
-     * @param array<string>|array<array<string, string>> $ids
+     * @param list<string>|list<array<string, string>> $ids
      *
      * @throws InvalidUuidException
      *
@@ -195,7 +195,7 @@ class EntityForeignKeyResolver
     }
 
     /**
-     * @param array<string>|array<array<string, string>> $ids
+     * @param list<string>|list<array<string, string>> $ids
      * @param class-string<Flag> $class
      *
      * @return array<string, list<string>>

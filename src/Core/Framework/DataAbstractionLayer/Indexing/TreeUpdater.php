@@ -33,7 +33,7 @@ class TreeUpdater
     }
 
     /**
-     * @param array<string> $updateIds
+     * @param list<string> $updateIds
      */
     public function batchUpdate(array $updateIds, string $entity, Context $context, bool $recursive = false): void
     {
@@ -63,7 +63,7 @@ class TreeUpdater
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function singleUpdate(string $parentId, string $entity, Context $context, bool $recursive): array
     {
@@ -91,7 +91,7 @@ class TreeUpdater
     /**
      * @param array<string, mixed> $entity
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function updateRecursive(array $entity, EntityDefinition $definition, Context $context): array
     {
@@ -113,7 +113,7 @@ class TreeUpdater
     }
 
     /**
-     * @param array<string> $parent
+     * @param list<string> $parent
      *
      * @return list<array<string, mixed>>
      */
@@ -174,7 +174,7 @@ class TreeUpdater
     /**
      * @param array<string, mixed> $parent
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function buildPathArray(array $parent, TreePathField $field): array
     {
@@ -223,7 +223,7 @@ class TreeUpdater
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getFieldsToSelect(EntityDefinition $definition): array
     {
@@ -269,7 +269,7 @@ class TreeUpdater
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     private function loadAllParents(array $ids, EntityDefinition $definition, Context $context, TreeUpdaterBag $bag): void
     {
@@ -296,7 +296,7 @@ class TreeUpdater
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @return array<int|string, mixed>
      */
@@ -325,7 +325,7 @@ class TreeUpdater
     }
 
     /**
-     * @param array<string> $updateIds
+     * @param list<string> $updateIds
      */
     private function updateLevelRecursively(array $updateIds, EntityDefinition $definition, Context $context, TreeUpdaterBag $bag, bool $recursive): void
     {

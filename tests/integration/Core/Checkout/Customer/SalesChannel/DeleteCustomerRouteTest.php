@@ -45,7 +45,7 @@ class DeleteCustomerRouteTest extends TestCase
     private $callbackFn;
 
     /**
-     * @var array<mixed>
+     * @var list<mixed>
      */
     private array $events;
 

@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 class VariantNotFoundException extends ProductException
 {
     /**
-     * @param array<string> $options
+     * @param list<string> $options
      */
     public function __construct(
         string $productId,

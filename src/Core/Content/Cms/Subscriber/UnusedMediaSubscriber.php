@@ -39,7 +39,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function findMediaIdsInImageGalleriesInOverridesTable(string $table, UnusedMediaSearchEvent $event): array
     {
@@ -58,7 +58,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function findMediaIdsInImagesInOverridesTable(string $table, UnusedMediaSearchEvent $event): array
     {
@@ -77,7 +77,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function findMediaIdsInImageGalleries(UnusedMediaSearchEvent $event): array
     {
@@ -96,7 +96,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function findMediaIdsInImages(UnusedMediaSearchEvent $event): array
     {
@@ -115,7 +115,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function executeQueryWithIds(string $sql, UnusedMediaSearchEvent $event): array
     {

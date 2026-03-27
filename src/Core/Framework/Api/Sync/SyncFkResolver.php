@@ -82,7 +82,7 @@ class SyncFkResolver
     /**
      * @param array<int, array<string|int, mixed>> $payload
      *
-     * @return array<string, array<FkReference>>
+     * @return array<string, list<FkReference>>
      */
     private function collect(string $entity, array &$payload, string $pointer): array
     {
@@ -153,10 +153,10 @@ class SyncFkResolver
     }
 
     /**
-     * @param array<string, array<FkReference>> $map
-     * @param array<string, array<FkReference>> $nested
+     * @param array<string, list<FkReference>> $map
+     * @param array<string, list<FkReference>> $nested
      *
-     * @return array<string, array<FkReference>>
+     * @return array<string, list<FkReference>>
      */
     private function merge(array $map, array $nested): array
     {

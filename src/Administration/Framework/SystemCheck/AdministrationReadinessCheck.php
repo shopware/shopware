@@ -91,7 +91,7 @@ class AdministrationReadinessCheck extends BaseCheck
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function checkForMissingAdministrationBundles(): array
     {

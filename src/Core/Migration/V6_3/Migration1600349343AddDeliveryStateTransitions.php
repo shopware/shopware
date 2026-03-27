@@ -60,7 +60,7 @@ class Migration1600349343AddDeliveryStateTransitions extends MigrationStep
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function fetchMissingOrderDeliveryStates(Connection $connection, string $stateMachineId): array
     {

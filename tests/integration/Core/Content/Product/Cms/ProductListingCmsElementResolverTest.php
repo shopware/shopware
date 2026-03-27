@@ -322,7 +322,7 @@ class ProductListingCmsElementResolverTest extends TestCase
     }
 
     /**
-     * @return array<list<array<string, mixed>>>
+     * @return list<list<array<string, mixed>>>
      */
     public static function filtersProvider(): array
     {

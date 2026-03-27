@@ -17,9 +17,9 @@ class ReplaceRecursiveFilter extends AbstractExtension
     }
 
     /**
-     * @param array<mixed> ...$params
+     * @param list<mixed> ...$params
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function replaceRecursive(array ...$params): array
     {

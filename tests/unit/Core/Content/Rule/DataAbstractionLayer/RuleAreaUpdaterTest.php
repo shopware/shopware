@@ -162,7 +162,7 @@ class RuleAreaUpdaterTest extends TestCase
 
         $this->areaUpdater->triggerChangeSet($event);
 
-        /** @var array<DeleteCommand>|array<UpdateCommand> $commands */
+        /** @var list<DeleteCommand>|list<UpdateCommand> $commands */
         $commands = $event->getCommands();
 
         static::assertCount(4, $commands);

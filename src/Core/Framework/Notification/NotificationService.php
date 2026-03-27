@@ -105,7 +105,7 @@ class NotificationService
     }
 
     /**
-     * @param array<string> $privileges
+     * @param list<string> $privileges
      */
     private function isAllow(array $privileges, AdminApiSource $source): bool
     {

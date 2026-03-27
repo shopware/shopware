@@ -88,7 +88,7 @@ class PluginLifecycleServiceTest extends TestCase
     private string $fixturePath;
 
     /**
-     * @var array<array{string, callable}>
+     * @var list<array{string, callable}>
      */
     private array $registeredListeners = [];
 

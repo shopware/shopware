@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 class IllegalTransitionException extends StateMachineException
 {
     /**
-     * @param array<mixed> $possibleTransitions
+     * @param list<mixed> $possibleTransitions
      */
     public function __construct(
         string $currentState,

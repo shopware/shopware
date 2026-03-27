@@ -186,7 +186,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
     /**
      * @param list<string> $names
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function getStateIds(Connection $connection, string $machineId, array $names): array
     {

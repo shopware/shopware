@@ -16,12 +16,12 @@ class CartExtension extends Struct
     final public const KEY = 'cart-promotions';
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $addedCodes = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      *
      * @deprecated tag:v6.8.0 - Will be removed without replacement. Automatic promotions can no longer be removed.
      */
@@ -61,7 +61,7 @@ class CartExtension extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getCodes(): array
     {
@@ -105,7 +105,7 @@ class CartExtension extends Struct
     /**
      * @deprecated tag:v6.8.0 - Will be removed without replacement. Automatic promotions can no longer be removed.
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getBlockedPromotions(): array
     {

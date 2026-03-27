@@ -19,7 +19,7 @@ enum SystemCheckExecutionContext: string
     case RECURRENT = 'recurrent';
 
     /**
-     * @return array<self>
+     * @return list<self>
      */
     public static function readiness(): array
     {
@@ -27,7 +27,7 @@ enum SystemCheckExecutionContext: string
     }
 
     /**
-     * @return array<self>
+     * @return list<self>
      */
     public static function longRunning(): array
     {

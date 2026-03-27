@@ -13,7 +13,7 @@ interface A11yRenderedDocumentAware
     public const A11Y_DOCUMENT_IDS = 'a11yDocumentIds';
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getA11yDocumentIds(): array;
 }

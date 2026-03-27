@@ -32,7 +32,7 @@ class OpenApiPathBuilder
     }
 
     /**
-     * @return array<PathItem>
+     * @return list<PathItem>
      */
     public function getPathActions(EntityDefinition $definition, string $path): array
     {

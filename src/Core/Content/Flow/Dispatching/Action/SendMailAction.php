@@ -72,7 +72,7 @@ class SendMailAction extends FlowAction implements DelayableAction
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function requirements(): array
     {

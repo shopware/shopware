@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class ListingTestData
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $ids = [];
 
@@ -32,9 +32,9 @@ class ListingTestData
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getKeyList(array $ids): array
     {
@@ -48,7 +48,7 @@ class ListingTestData
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function all(): array
     {

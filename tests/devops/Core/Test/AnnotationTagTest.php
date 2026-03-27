@@ -20,7 +20,7 @@ class AnnotationTagTest extends TestCase
     /**
      * white list file path segments for ignored paths
      *
-     * @var array<string>
+     * @var list<string>
      */
     private array $whiteList = [
         'vendor',
@@ -198,7 +198,7 @@ class AnnotationTagTest extends TestCase
     }
 
     /**
-     * @param array<string|null> $versions
+     * @param list<string|null> $versions
      */
     private function getCurrentManifestVersion(array $versions): string
     {

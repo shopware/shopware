@@ -342,8 +342,8 @@ class FirstRunWizardClientTest extends TestCase
     }
 
     /**
-     * @param array{string, string, array{headers?: array<string, string>, query?: array<string, string>, json?: array<mixed>}} $requestParams
-     * @param array<mixed> $responseBody
+     * @param array{string, string, array{headers?: array<string, string>, query?: array<string, string>, json?: list<mixed>}} $requestParams
+     * @param list<mixed> $responseBody
      */
     private function createFrwClient(array $requestParams, array $responseBody): FirstRunWizardClient
     {

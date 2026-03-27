@@ -48,7 +48,7 @@ readonly class Local implements Source
     }
 
     /**
-     * @param array<Filesystem> $filesystems
+     * @param list<Filesystem> $filesystems
      */
     public function reset(array $filesystems): void
     {

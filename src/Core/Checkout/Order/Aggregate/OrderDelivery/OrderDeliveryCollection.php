@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 class OrderDeliveryCollection extends EntityCollection
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getOrderIds(): array
     {
@@ -27,7 +27,7 @@ class OrderDeliveryCollection extends EntityCollection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getShippingAddressIds(): array
     {
@@ -40,7 +40,7 @@ class OrderDeliveryCollection extends EntityCollection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getShippingMethodIds(): array
     {

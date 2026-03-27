@@ -15,7 +15,7 @@ class SystemConfigEntity extends Entity
     protected string $configurationKey;
 
     /**
-     * @var array<mixed>|bool|float|int|string|null
+     * @var list<mixed>|bool|float|int|string|null
      */
     protected array|bool|float|int|string|null $configurationValue = null;
 
@@ -34,7 +34,7 @@ class SystemConfigEntity extends Entity
     }
 
     /**
-     * @return array<mixed>|bool|float|int|string|null
+     * @return list<mixed>|bool|float|int|string|null
      */
     public function getConfigurationValue(): array|bool|float|int|string|null
     {
@@ -42,7 +42,7 @@ class SystemConfigEntity extends Entity
     }
 
     /**
-     * @param array<mixed>|bool|float|int|string|null $configurationValue
+     * @param list<mixed>|bool|float|int|string|null $configurationValue
      */
     public function setConfigurationValue(array|bool|float|int|string|null $configurationValue): void
     {

@@ -13,7 +13,7 @@ class ArrayNormalizer
     /**
      * @param iterable<mixed> $input
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public static function flatten(iterable $input): array
     {

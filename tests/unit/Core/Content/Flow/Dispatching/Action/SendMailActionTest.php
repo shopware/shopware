@@ -327,7 +327,7 @@ class SendMailActionTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<MailTemplateTypeUpdateProvider>>
+     * @return iterable<string, list<MailTemplateTypeUpdateProvider>>
      */
     public static function mailTemplateTypeProvider(): iterable
     {

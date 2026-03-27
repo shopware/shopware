@@ -77,7 +77,7 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
     }
 
     /**
-     * @param array<Field> $fields
+     * @param list<Field> $fields
      */
     private function getField(string $path, array $fields): ?Field
     {

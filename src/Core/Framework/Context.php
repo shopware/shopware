@@ -34,7 +34,7 @@ class Context extends Struct
     protected array $extensions = [];
 
     /**
-     * @param array<string> $ruleIds
+     * @param list<string> $ruleIds
      * @param non-empty-list<string> $languageIdChain
      */
     public function __construct(
@@ -148,7 +148,7 @@ class Context extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getRuleIds(): array
     {
@@ -241,7 +241,7 @@ class Context extends Struct
     }
 
     /**
-     * @param array<string> $ruleIds
+     * @param list<string> $ruleIds
      */
     public function setRuleIds(array $ruleIds): void
     {

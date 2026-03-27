@@ -38,7 +38,7 @@ class SeoResolverData
     }
 
     /**
-     * @return array<string|int>
+     * @return list<string|int>
      */
     public function getEntities(): array
     {
@@ -46,7 +46,7 @@ class SeoResolverData
     }
 
     /**
-     * @return array<string|int>
+     * @return list<string|int>
      */
     public function getIds(string $entityName): array
     {
@@ -67,7 +67,7 @@ class SeoResolverData
     }
 
     /**
-     * @return array<Entity>
+     * @return list<Entity>
      */
     public function getAll(string $entityName, string $id): array
     {

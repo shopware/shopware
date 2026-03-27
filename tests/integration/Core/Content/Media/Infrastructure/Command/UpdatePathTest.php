@@ -28,9 +28,9 @@ class UpdatePathTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @param array<mixed> $media
-     * @param array<mixed> $thumbnail
-     * @param array<mixed> $mediaThumbnailSize
+     * @param list<mixed> $media
+     * @param list<mixed> $thumbnail
+     * @param list<mixed> $mediaThumbnailSize
      * @param array<string, string> $expected
      */
     #[DataProvider('commandProvider')]

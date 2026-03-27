@@ -84,8 +84,8 @@ class OrderTagRuleTest extends TestCase
     }
 
     /**
-     * @param array<string>|string|null $givenIdentifier
-     * @param array<string> $ruleIdentifiers
+     * @param list<string>|string|null $givenIdentifier
+     * @param list<string> $ruleIdentifiers
      */
     #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, array $ruleIdentifiers, $givenIdentifier): void

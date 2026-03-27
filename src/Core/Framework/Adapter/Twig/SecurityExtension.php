@@ -14,14 +14,14 @@ use Twig\TwigFilter;
 class SecurityExtension extends AbstractExtension
 {
     /**
-     * @param array<string> $allowedPHPFunctions
+     * @param list<string> $allowedPHPFunctions
      */
     public function __construct(private readonly array $allowedPHPFunctions)
     {
     }
 
     /**
-     * @return array<TwigFilter>
+     * @return list<TwigFilter>
      */
     public function getFilters(): array
     {
@@ -37,7 +37,7 @@ class SecurityExtension extends AbstractExtension
      * @param iterable<mixed> $array
      * @param string|callable(mixed): mixed|\Closure $function
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function map(?iterable $array, string|callable|\Closure $function): ?array
     {
@@ -126,7 +126,7 @@ class SecurityExtension extends AbstractExtension
      * @param iterable<mixed> $array
      * @param string|callable(mixed): mixed|\Closure $arrow
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function sort(?iterable $array, string|callable|\Closure|null $arrow = null): ?array
     {

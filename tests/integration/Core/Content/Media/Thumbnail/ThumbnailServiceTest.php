@@ -597,7 +597,7 @@ class ThumbnailServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<bool>>
+     * @return list<list<bool>>
      */
     public static function strictModeConditionsProvider(): array
     {

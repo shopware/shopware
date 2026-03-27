@@ -162,7 +162,7 @@ class GroupByTest extends TestCase
 class TestData
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $ids = [];
 
@@ -182,9 +182,9 @@ class TestData
     }
 
     /**
-     * @param array<string> $keys
+     * @param list<string> $keys
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getList(array $keys): array
     {
@@ -194,7 +194,7 @@ class TestData
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getAll(): array
     {

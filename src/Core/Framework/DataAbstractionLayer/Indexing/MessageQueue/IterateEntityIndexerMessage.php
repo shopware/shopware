@@ -14,7 +14,7 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface, Deduplicatab
      * @internal
      *
      * @param array{offset: int|null}|null $offset
-     * @param array<string> $skip
+     * @param list<string> $skip
      */
     public function __construct(
         protected string $indexer,
@@ -45,7 +45,7 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface, Deduplicatab
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getSkip(): array
     {

@@ -12,18 +12,18 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 class TestHook extends Hook
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private static array $serviceIds;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private static array $deprecatedServices;
 
     /**
-     * @param array<string> $serviceIds
-     * @param array<string> $deprecatedServices
+     * @param list<string> $serviceIds
+     * @param list<string> $deprecatedServices
      * @param array<string, mixed> $data
      */
     public function __construct(
@@ -43,7 +43,7 @@ class TestHook extends Hook
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public static function getServiceIds(): array
     {
@@ -51,7 +51,7 @@ class TestHook extends Hook
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public static function getDeprecatedServices(): array
     {

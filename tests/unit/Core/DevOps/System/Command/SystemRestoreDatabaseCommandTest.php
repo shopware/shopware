@@ -41,7 +41,7 @@ class SystemRestoreDatabaseCommandTest extends TestCase
 
     /**
      * @param array<string, int|string> $connectionParams
-     * @param array<string> $expectedCmdParts
+     * @param list<string> $expectedCmdParts
      */
     #[DataProvider('executeRestoreProvider')]
     public function testExecuteBuildsCorrectCommand(

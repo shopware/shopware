@@ -117,7 +117,7 @@ class AdminExtensionApiControllerTest extends TestCase
     }
 
     /**
-     * @return array<array{0: string, 1?: string|null, 2?: list<string>|null}>
+     * @return list<array{0: string, 1?: string|null, 2?: list<string>|null}>
      */
     public static function providerRunAction(): array
     {
@@ -191,7 +191,7 @@ class AdminExtensionApiControllerTest extends TestCase
     }
 
     /**
-     * @return array<array{0: RequestDataBag, 1:bool}>
+     * @return list<array{0: RequestDataBag, 1:bool}>
      */
     public static function providerSignUri(): array
     {

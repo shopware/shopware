@@ -37,7 +37,7 @@ class HappyPathValidator implements ValidatorInterface
     }
 
     /**
-     * @param Constraint|array<Constraint>|null $constraints
+     * @param Constraint|list<Constraint>|null $constraints
      */
     public function validate(
         mixed $value,
@@ -98,7 +98,7 @@ class HappyPathValidator implements ValidatorInterface
     }
 
     /**
-     * @param Constraint|array<Constraint>|null $constraint
+     * @param Constraint|list<Constraint>|null $constraint
      */
     private function normalizeValueIfRequired(mixed $value, Constraint|array|null $constraint): mixed
     {
@@ -125,7 +125,7 @@ class HappyPathValidator implements ValidatorInterface
     }
 
     /**
-     * @param Constraint|array<Constraint>|null $constraint
+     * @param Constraint|list<Constraint>|null $constraint
      */
     private function validateConstraint(mixed $value, Constraint|array|null $constraint): bool
     {
@@ -222,7 +222,7 @@ class HappyPathValidator implements ValidatorInterface
 
                     if (($existsInArray || $existsInArrayAccess) && property_exists($fieldConstraint, 'constraints')) {
                         if ((is_countable($fieldConstraint->constraints) ? \count($fieldConstraint->constraints) : 0) > 0) {
-                            /** @var array<mixed>|\ArrayAccess<string|int, mixed> $value */
+                            /** @var list<mixed>|\ArrayAccess<string|int, mixed> $value */
                             if (!$this->validateConstraint($value[$field], $fieldConstraint->constraints)) {
                                 return false;
                             }

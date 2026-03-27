@@ -118,7 +118,7 @@ class EntityDispatchService
     }
 
     /**
-     * @return array<Operation::*>
+     * @return list<Operation::*>
      */
     private function getOperationsToDispatch(bool $isFirstRun): array
     {

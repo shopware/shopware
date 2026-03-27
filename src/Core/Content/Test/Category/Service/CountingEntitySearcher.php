@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 class CountingEntitySearcher implements EntitySearcherInterface
 {
     /**
-     * @var array<int>
+     * @var list<int>
      */
     private static array $count = [];
 

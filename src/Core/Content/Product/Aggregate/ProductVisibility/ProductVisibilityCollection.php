@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class ProductVisibilityCollection extends EntityCollection
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getProductIds(): array
     {

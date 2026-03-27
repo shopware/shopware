@@ -133,7 +133,7 @@ class RedisIncrementerTest extends TestCase
     }
 
     /**
-     * @param array<string> $keys
+     * @param list<string> $keys
      * @param array<string, array{count: int, key: string, cluster: string, pool: string}> $expectedList
      */
     #[DataProvider('deleteKeysProvider')]

@@ -15,7 +15,7 @@ abstract class AbstractPriceSorter implements FilterSorterInterface
     public function sort(DiscountPackageCollection $packages): DiscountPackageCollection
     {
         foreach ($packages as $package) {
-            /** @var array<LineItemQuantity> $metaItems */
+            /** @var list<LineItemQuantity> $metaItems */
             $metaItems = $package->getMetaData()->getElements();
 
             $metaItems = $this->_sort($metaItems, $package);
@@ -31,16 +31,16 @@ abstract class AbstractPriceSorter implements FilterSorterInterface
     }
 
     /**
-     * @param array<string, array<LineItemQuantity>> $map
+     * @param array<string, list<LineItemQuantity>> $map
      *
-     * @return array<string, array<LineItemQuantity>>
+     * @return array<string, list<LineItemQuantity>>
      */
     abstract protected function sortPriceMap(array $map): array;
 
     /**
-     * @param array<LineItemQuantity> $metaItems
+     * @param list<LineItemQuantity> $metaItems
      *
-     * @return array<LineItemQuantity>
+     * @return list<LineItemQuantity>
      */
     private function _sort(array $metaItems, DiscountPackage $package): array
     {

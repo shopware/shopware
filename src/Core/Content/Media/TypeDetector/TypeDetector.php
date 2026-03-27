@@ -12,7 +12,7 @@ class TypeDetector implements TypeDetectorInterface
     /**
      * @internal
      *
-     * @param array<TypeDetectorInterface> $typeDetector
+     * @param list<TypeDetectorInterface> $typeDetector
      */
     public function __construct(private readonly iterable $typeDetector)
     {

@@ -123,7 +123,7 @@ class CriteriaParserTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $expectedEsStats
+     * @param list<mixed> $expectedEsStats
      */
     #[DataProvider('parseStatsDataProvider')]
     public function testParseStatsAggregation(string $fieldName, array $expectedEsStats): void
@@ -145,7 +145,7 @@ class CriteriaParserTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $expectedEsFilter
+     * @param list<mixed> $expectedEsFilter
      */
     #[DataProvider('parseFilterDataProvider')]
     public function testParseFilter(Filter $filter, array $expectedEsFilter): void
@@ -193,7 +193,7 @@ class CriteriaParserTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, array<mixed>}>
+     * @return iterable<string, array{string, list<mixed>}>
      */
     public static function parseStatsDataProvider(): iterable
     {
@@ -284,7 +284,7 @@ EOT,
     }
 
     /**
-     * @return iterable<string, Filter|array<mixed>>
+     * @return iterable<string, Filter|list<mixed>>
      */
     public static function parseFilterDataProvider(): iterable
     {
@@ -759,7 +759,7 @@ EOT,
     }
 
     /**
-     * @param array<mixed> $expectedQuery
+     * @param list<mixed> $expectedQuery
      */
     #[DataProvider('providerCheapestPrice')]
     public function testCheapestPriceSorting(FieldSorting $sorting, array $expectedQuery, Context $context): void
@@ -802,7 +802,7 @@ EOT,
     }
 
     /**
-     * @return iterable<string, array{FieldSorting, array<mixed>, Context}>
+     * @return iterable<string, array{FieldSorting, list<mixed>, Context}>
      */
     public static function providerCheapestPrice(): iterable
     {
@@ -1098,7 +1098,7 @@ EOT,
     }
 
     /**
-     * @param array<mixed> $expectedFilter
+     * @param list<mixed> $expectedFilter
      */
     #[DataProvider('providerFilter')]
     public function testFilterParsing(Filter $filter, array $expectedFilter): void
@@ -1121,7 +1121,7 @@ EOT,
     }
 
     /**
-     * @return iterable<string, array{Filter, array<mixed>}>
+     * @return iterable<string, array{Filter, list<mixed>}>
      */
     public static function providerFilter(): iterable
     {
@@ -1334,7 +1334,7 @@ EOT,
     }
 
     /**
-     * @param array<mixed> $expectedQuery
+     * @param list<mixed> $expectedQuery
      */
     #[DataProvider('providerCheapestPrice')]
     public function testCheapestPriceSortingSourceExists(
@@ -1358,7 +1358,7 @@ EOT,
     }
 
     /**
-     * @return iterable<string, array{FieldSorting, array<mixed>, Context}>
+     * @return iterable<string, array{FieldSorting, list<mixed>, Context}>
      */
     public static function providerOldFeatureVersion(): iterable
     {

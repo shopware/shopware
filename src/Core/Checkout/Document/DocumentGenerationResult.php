@@ -15,7 +15,7 @@ class DocumentGenerationResult extends Struct
     private readonly DocumentIdCollection $success;
 
     /**
-     * @var array<\Throwable>
+     * @var list<\Throwable>
      */
     private array $errors = [];
 
@@ -35,7 +35,7 @@ class DocumentGenerationResult extends Struct
     }
 
     /**
-     * @return array<\Throwable>
+     * @return list<\Throwable>
      */
     public function getErrors(): array
     {

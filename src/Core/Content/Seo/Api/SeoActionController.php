@@ -277,7 +277,7 @@ class SeoActionController extends AbstractController
     /**
      * @param array<string, mixed> $seoUrlTemplate
      *
-     * @return array<SeoUrlEntity>
+     * @return list<SeoUrlEntity>
      */
     private function getPreview(array $seoUrlTemplate, Context $context, ?Criteria $previewCriteria = null): array
     {

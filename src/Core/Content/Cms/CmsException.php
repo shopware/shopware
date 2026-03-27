@@ -18,7 +18,7 @@ class CmsException extends HttpException
     final public const PAGE_CREATION_FAILURE = 'CONTENT__CMS_PAGE_CREATION_FAILURE';
 
     /**
-     * @param array<string> $cmsPages
+     * @param list<string> $cmsPages
      */
     public static function deletionOfDefault(array $cmsPages): self
     {

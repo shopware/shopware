@@ -90,7 +90,7 @@ class PromotionEntity extends Entity
     protected ?array $ordersPerCustomerCount = null;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $exclusionIds = [];
 
@@ -453,7 +453,7 @@ class PromotionEntity extends Entity
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getExclusionIds(): array
     {
@@ -461,7 +461,7 @@ class PromotionEntity extends Entity
     }
 
     /**
-     * @param array<string> $exclusionIds
+     * @param list<string> $exclusionIds
      */
     public function setExclusionIds(array $exclusionIds): void
     {

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class VersionCommitCollection extends EntityCollection
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getUserIds(): array
     {

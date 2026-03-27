@@ -26,7 +26,7 @@ class ProductConfiguratorSettingEntity extends Entity
     protected int $position;
 
     /**
-     * @var array<Price>|null
+     * @var list<Price>|null
      */
     protected ?array $price = null;
 
@@ -59,7 +59,7 @@ class ProductConfiguratorSettingEntity extends Entity
     }
 
     /**
-     * @return array<Price>|null
+     * @return list<Price>|null
      */
     public function getPrice(): ?array
     {
@@ -67,7 +67,7 @@ class ProductConfiguratorSettingEntity extends Entity
     }
 
     /**
-     * @param array<Price> $price
+     * @param list<Price> $price
      */
     public function setPrice(array $price): void
     {

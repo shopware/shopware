@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 class AclPrivilegeCollection
 {
     /**
-     * @param array<string> $privileges
+     * @param list<string> $privileges
      */
     public function __construct(private readonly array $privileges)
     {

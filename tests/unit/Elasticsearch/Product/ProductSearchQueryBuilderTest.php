@@ -550,9 +550,9 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $query
+     * @param list<mixed> $query
      *
-     * @return array{nested: array{path: string, query: array<mixed>}}
+     * @return array{nested: array{path: string, query: list<mixed>}}
      */
     private static function nested(string $root, array $query): array
     {
@@ -587,9 +587,9 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $queries
+     * @param list<mixed> $queries
      *
-     * @return array{dis_max: array{queries: array<mixed>}}
+     * @return array{dis_max: array{queries: list<mixed>}}
      */
     private static function disMax(array $queries, float|int|null $boost = null): array
     {
@@ -607,9 +607,9 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $queries
+     * @param list<mixed> $queries
      *
-     * @return array{ bool: array<string, array<mixed>> }
+     * @return array{ bool: array<string, list<mixed>> }
      */
     private static function bool(array $queries, string $operator = BoolQuery::SHOULD): array
     {
@@ -621,9 +621,9 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array<string> $tokens
+     * @param list<string> $tokens
      *
-     * @return array{bool: array{must: array<array{term: array<string, string>}>, boost: float|int}}
+     * @return array{bool: array{must: list<array{term: array<string, string>}>, boost: float|int}}
      */
     private static function must(string $field, array $tokens, int|float $boost = 1): array
     {

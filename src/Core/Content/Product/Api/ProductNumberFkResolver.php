@@ -26,9 +26,9 @@ class ProductNumberFkResolver extends AbstractFkResolver
     }
 
     /**
-     * @param array<FkReference> $map
+     * @param list<FkReference> $map
      *
-     * @return array<FkReference>
+     * @return list<FkReference>
      */
     public function resolve(array $map): array
     {

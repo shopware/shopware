@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class Commerce extends FakerCommerce
 {
     /**
-     * @var array<string, array<string>>
+     * @var array<string, list<string>>
      *
      * @phpstan-ignore shopware.propertyNativeType, property.phpDocType (Cannot be typed because parent is not typed)
      */

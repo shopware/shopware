@@ -22,7 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class CacheHeadersService
 {
     /**
-     * @param array<string> $cookies
+     * @param list<string> $cookies
      *
      * @internal
      */

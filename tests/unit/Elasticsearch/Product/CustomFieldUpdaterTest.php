@@ -1152,7 +1152,7 @@ class CustomFieldUpdaterTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $mapping
+     * @param list<mixed> $mapping
      */
     #[DataProvider('providerMapping')]
     public function testMapping(string $type, array $mapping): void
@@ -1162,7 +1162,7 @@ class CustomFieldUpdaterTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{0: string, 1: array<mixed>}>
+     * @return iterable<string, array{0: string, 1: list<mixed>}>
      */
     public static function providerMapping(): iterable
     {

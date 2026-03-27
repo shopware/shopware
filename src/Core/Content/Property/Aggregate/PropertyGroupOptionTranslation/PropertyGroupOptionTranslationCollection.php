@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class PropertyGroupOptionTranslationCollection extends EntityCollection
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getPropertyGroupOptionIds(): array
     {
@@ -25,7 +25,7 @@ class PropertyGroupOptionTranslationCollection extends EntityCollection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getLanguageIds(): array
     {

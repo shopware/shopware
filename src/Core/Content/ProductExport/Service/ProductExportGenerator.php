@@ -299,7 +299,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getAssociations(ProductExportEntity $productExport, SalesChannelContext $context): array
     {

@@ -160,7 +160,7 @@ class EntityWriter implements EntityWriterInterface
     }
 
     /**
-     * @param array<array<string, mixed>> $rawData
+     * @param list<array<string, mixed>> $rawData
      *
      * @return array<string, list<EntityWriteResult>>
      */
@@ -217,7 +217,7 @@ class EntityWriter implements EntityWriterInterface
     }
 
     /**
-     * @param array<array<string, string>> $resolved
+     * @param list<array<string, string>> $resolved
      */
     private function addReverseInheritedCommands(WriteCommandQueue $queue, EntityDefinition $definition, WriteContext $writeContext, array $resolved): void
     {
@@ -250,7 +250,7 @@ class EntityWriter implements EntityWriterInterface
     }
 
     /**
-     * @param array<array<string, string>> $resolved
+     * @param list<array<string, string>> $resolved
      */
     private function addDeleteCascadeCommands(WriteCommandQueue $queue, EntityDefinition $definition, WriteContext $writeContext, array $resolved): void
     {
@@ -288,7 +288,7 @@ class EntityWriter implements EntityWriterInterface
     }
 
     /**
-     * @param array<array<string, string>> $resolved
+     * @param list<array<string, string>> $resolved
      */
     private function addSetNullOnDeletesCommands(WriteCommandQueue $queue, EntityDefinition $definition, WriteContext $writeContext, array $resolved): void
     {
@@ -339,7 +339,7 @@ class EntityWriter implements EntityWriterInterface
     }
 
     /**
-     * @param array<mixed> $ids
+     * @param list<mixed> $ids
      *
      * @return list<array<string, string>>
      */
@@ -385,7 +385,7 @@ class EntityWriter implements EntityWriterInterface
     }
 
     /**
-     * @param array<mixed> $ids
+     * @param list<mixed> $ids
      *
      * @return array<string, list<EntityWriteResult>>
      */

@@ -261,7 +261,7 @@ class ImportExportServiceTest extends TestCase
     }
 
     /**
-     * @return array<array{0: array<string, mixed>, 1: ImportExportProfileEntity::TYPE_EXPORT|ImportExportProfileEntity::TYPE_IMPORT, 2: bool, 3?: ImportExportLogEntity::ACTIVITY_*|null}>
+     * @return list<array{0: array<string, mixed>, 1: ImportExportProfileEntity::TYPE_EXPORT|ImportExportProfileEntity::TYPE_IMPORT, 2: bool, 3?: ImportExportLogEntity::ACTIVITY_*|null}>
      */
     public static function profileProvider(): array
     {

@@ -144,8 +144,8 @@ class SyncOperationTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $operations
-     * @param array<string> $expectedErrors
+     * @param list<mixed> $operations
+     * @param list<string> $expectedErrors
      */
     #[DataProvider('invalidOperationProvider')]
     public function testCreateFromArrayThrowsExceptionForInvalidInput(array $operations, array $expectedErrors): void

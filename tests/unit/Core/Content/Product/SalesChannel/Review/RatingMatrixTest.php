@@ -29,7 +29,7 @@ class RatingMatrixTest extends TestCase
     /**
      * check that matrix calculates correctly
      *
-     * @param array<Bucket> $aggregation
+     * @param list<Bucket> $aggregation
      */
     #[DataProvider('getRatings')]
     #[Group('reviews')]
@@ -44,7 +44,7 @@ class RatingMatrixTest extends TestCase
     }
 
     /**
-     * @return array<string, list<array<Bucket>|float|int>>
+     * @return array<string, list<list<Bucket>|float|int>>
      */
     public static function getRatings(): array
     {
@@ -178,7 +178,7 @@ class RatingMatrixTest extends TestCase
     /**
      * helper function for simulating dal aggregation result
      *
-     * @return array<Bucket>
+     * @return list<Bucket>
      */
     private static function getDatabaseMatrixAggregationArray(int $oneCount, int $twoCount, int $threeCount, int $fourCount, int $fiveCount): array
     {
@@ -194,7 +194,7 @@ class RatingMatrixTest extends TestCase
     /**
      * helper function for simulating dal aggregation result
      *
-     * @return array<Bucket>
+     * @return list<Bucket>
      */
     private static function getDatabaseMatrixAggregationArrayWithFloats(int $oneCount, int $twoCount, int $threeCount, int $fourCount, int $fiveCount): array
     {

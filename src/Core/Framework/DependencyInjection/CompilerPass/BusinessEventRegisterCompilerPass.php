@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 class BusinessEventRegisterCompilerPass implements CompilerPassInterface
 {
     /**
-     * @param array<class-string> $classes
+     * @param list<class-string> $classes
      */
     public function __construct(private readonly array $classes)
     {

@@ -32,7 +32,7 @@ class PromotionProcessorTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @param array<LineItem> $items
+     * @param list<LineItem> $items
      */
     #[DataProvider('processorProvider')]
     public function testProcessor(array $items, CartPrice $cartPrice, ?Error $expectedError): void

@@ -26,7 +26,7 @@ class ThemeRuntimeConfigService
     private array $runtimeConfigCacheByName = [];
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     private ?array $activeThemeNamesCache = null;
 
@@ -178,7 +178,7 @@ class ThemeRuntimeConfigService
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getActiveThemeNames(): array
     {

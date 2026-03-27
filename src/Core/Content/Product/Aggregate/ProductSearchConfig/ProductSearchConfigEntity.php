@@ -20,7 +20,7 @@ class ProductSearchConfigEntity extends Entity
     protected int $minSearchLength;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $excludedTerms = null;
 
@@ -59,7 +59,7 @@ class ProductSearchConfigEntity extends Entity
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getExcludedTerms(): ?array
     {
@@ -67,7 +67,7 @@ class ProductSearchConfigEntity extends Entity
     }
 
     /**
-     * @param array<string>|null $excludedTerms
+     * @param list<string>|null $excludedTerms
      */
     public function setExcludedTerms(?array $excludedTerms): void
     {

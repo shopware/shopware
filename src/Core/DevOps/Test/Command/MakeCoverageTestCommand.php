@@ -42,7 +42,7 @@ class MakeCoverageTestCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var array<string> $classes */
+        /** @var list<string> $classes */
         $classes = $input->getArgument('classes');
         $io = new SymfonyStyle($input, $output);
         $filteredClasses = $this->filterExcludedClasses(array_unique($classes), $input, $io);
@@ -113,7 +113,7 @@ class MakeCoverageTestCommand extends Command
     }
 
     /**
-     * @param array<string> $classes
+     * @param list<string> $classes
      *
      * @return list<class-string>
      */

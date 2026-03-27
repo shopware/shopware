@@ -174,12 +174,12 @@ class OrderActionController extends AbstractController
     }
 
     /**
-     * @param array<string> $documentTypes
+     * @param list<string> $documentTypes
      *
      * @throws Exception
      * @throws \Doctrine\DBAL\Exception
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function getDocumentIds(string $entity, string $referencedId, array $documentTypes, bool $skipSentDocuments): array
     {

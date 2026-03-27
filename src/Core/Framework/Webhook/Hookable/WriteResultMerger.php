@@ -87,10 +87,10 @@ class WriteResultMerger
     }
 
     /**
-     * @param array<EntityWriteResult> $writeResults
+     * @param list<EntityWriteResult> $writeResults
      * @param string|array<string, string> $entityKey
      *
-     * @return array<EntityWriteResult>
+     * @return list<EntityWriteResult>
      */
     private function findWriteResultByPrimaryKey(array $writeResults, array|string $entityKey): array
     {
@@ -110,7 +110,7 @@ class WriteResultMerger
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function getMergeableTranslationPayload(EntityWriteResult $translationResult): array
     {

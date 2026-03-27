@@ -44,7 +44,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @return array<string, array{payload: string|null, invalid: bool}>
      */

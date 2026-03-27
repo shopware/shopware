@@ -72,9 +72,9 @@ class PermissionCollection extends StoreCollection
     }
 
     /**
-     * @param array<PermissionArray> $permissions
+     * @param list<PermissionArray> $permissions
      *
-     * @return array<PermissionArray>
+     * @return list<PermissionArray>
      */
     private function generatePrivileges(array $permissions): array
     {

@@ -20,7 +20,7 @@ class SalesChannelEntityLoadedEvent extends EntityLoadedEvent implements Shopwar
     private readonly SalesChannelContext $salesChannelContext;
 
     /**
-     * @param array<TEntity> $entities
+     * @param list<TEntity> $entities
      */
     public function __construct(
         EntityDefinition $definition,

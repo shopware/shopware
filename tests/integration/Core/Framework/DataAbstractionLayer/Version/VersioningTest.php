@@ -2044,7 +2044,7 @@ class VersioningTest extends TestCase
     }
 
     /**
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function getCommits(string $entity, string $id, string $versionId): array
     {
@@ -2073,7 +2073,7 @@ class VersioningTest extends TestCase
     }
 
     /**
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function getVersionData(string $entity, string $id, string $versionId): array
     {
@@ -2102,7 +2102,7 @@ class VersioningTest extends TestCase
     }
 
     /**
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function getTranslationVersionData(string $entity, string $languageId, string $foreignKeyName, string $foreignKey, string $versionId, string $versionField = 'versionId'): array
     {

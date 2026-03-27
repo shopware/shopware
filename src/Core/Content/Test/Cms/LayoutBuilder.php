@@ -24,17 +24,17 @@ class LayoutBuilder
     protected ?string $name;
 
     /**
-     * @var array<mixed>
+     * @var list<mixed>
      */
     protected array $_dynamic = [];
 
     /**
-     * @var array<mixed>
+     * @var list<mixed>
      */
     protected array $blocks;
 
     /**
-     * @var array<mixed>
+     * @var list<mixed>
      */
     protected array $sections = [];
 

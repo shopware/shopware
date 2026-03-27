@@ -20,7 +20,7 @@ class DomainsDeltaProvider extends AbstractAppDeltaProvider
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getReport(Manifest $manifest, AppEntity $app): array
     {

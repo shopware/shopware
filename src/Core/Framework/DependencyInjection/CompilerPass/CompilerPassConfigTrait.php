@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 trait CompilerPassConfigTrait
 {
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getConfig(ContainerBuilder $container, string $bundle): array
     {

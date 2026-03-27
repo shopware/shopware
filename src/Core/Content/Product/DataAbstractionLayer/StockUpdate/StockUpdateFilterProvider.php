@@ -14,7 +14,7 @@ final readonly class StockUpdateFilterProvider
     /**
      * @internal
      *
-     * @param array<AbstractStockUpdateFilter> $filters
+     * @param list<AbstractStockUpdateFilter> $filters
      */
     public function __construct(private iterable $filters)
     {

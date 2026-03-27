@@ -70,7 +70,7 @@ class ExtensionStruct extends Struct
     /**
      * languages property from store
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected array $languages = [];
 
@@ -124,7 +124,7 @@ class ExtensionStruct extends Struct
     protected ?\DateTimeInterface $updatedAt = null;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $notices = [];
 
@@ -143,7 +143,7 @@ class ExtensionStruct extends Struct
     protected bool $allowUpdate = true;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $domains = [];
 
@@ -305,7 +305,7 @@ class ExtensionStruct extends Struct
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getLanguages(): ?array
     {
@@ -313,7 +313,7 @@ class ExtensionStruct extends Struct
     }
 
     /**
-     * @param array<string> $languages
+     * @param list<string> $languages
      */
     public function setLanguages(array $languages): void
     {
@@ -501,7 +501,7 @@ class ExtensionStruct extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getNotices(): array
     {
@@ -509,7 +509,7 @@ class ExtensionStruct extends Struct
     }
 
     /**
-     * @param array<string> $notices
+     * @param list<string> $notices
      */
     public function setNotices(array $notices): void
     {
@@ -577,7 +577,7 @@ class ExtensionStruct extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getDomains(): array
     {
@@ -585,7 +585,7 @@ class ExtensionStruct extends Struct
     }
 
     /**
-     * @param array<string> $domains
+     * @param list<string> $domains
      */
     public function setDomains(array $domains): void
     {

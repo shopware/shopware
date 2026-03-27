@@ -13,14 +13,14 @@ use Shopware\Core\Framework\Log\Package;
 interface MediaLocationBuilder
 {
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @return array<string, MediaLocationStruct> indexed by id
      */
     public function media(array $ids): array;
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @return array<string, ThumbnailLocationStruct> indexed by id
      */

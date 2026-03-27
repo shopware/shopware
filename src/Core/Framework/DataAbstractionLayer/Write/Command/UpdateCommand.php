@@ -16,7 +16,7 @@ class UpdateCommand extends WriteCommand implements ChangeSetAware
     use ChangeSetAwareTrait;
 
     /**
-     * @var array<string>
+     * @var list<string>
      *
      * @description List of fields in storage format that are immutable and have been changed in this update command
      */
@@ -28,7 +28,7 @@ class UpdateCommand extends WriteCommand implements ChangeSetAware
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getImmutableFieldsChanges(): array
     {
@@ -36,7 +36,7 @@ class UpdateCommand extends WriteCommand implements ChangeSetAware
     }
 
     /**
-     * @param array<string> $immutableFieldsChanges
+     * @param list<string> $immutableFieldsChanges
      */
     public function setImmutableFieldsChanges(array $immutableFieldsChanges): void
     {

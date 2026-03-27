@@ -48,7 +48,7 @@ class PaymentDistinguishableNameGenerator
     }
 
     /**
-     * @return array<array{id: string, distinguishableName: array<string, string>}>
+     * @return list<array{id: string, distinguishableName: array<string, string>}>
      */
     private function generateDistinguishableNamesPayload(PaymentMethodCollection $payments): array
     {

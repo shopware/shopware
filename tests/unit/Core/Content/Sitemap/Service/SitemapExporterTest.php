@@ -193,7 +193,7 @@ class SitemapExporterTest extends TestCase
     }
 
     /**
-     * @param array<string> $ruleIds
+     * @param list<string> $ruleIds
      */
     private function createSalesChannelContext(SalesChannelEntity $salesChannel, array $ruleIds): SalesChannelContext
     {

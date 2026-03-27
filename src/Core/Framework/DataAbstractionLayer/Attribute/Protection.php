@@ -14,7 +14,7 @@ final class Protection
     final public const CRUD_API_SCOPE = Context::CRUD_API_SCOPE;
 
     /**
-     * @param array<string> $write
+     * @param list<string> $write
      */
     public function __construct(public array $write)
     {

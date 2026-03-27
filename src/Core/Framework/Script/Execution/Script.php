@@ -20,7 +20,7 @@ class Script extends Struct
     private array $twigOptions = [];
 
     /**
-     * @param array<Script> $includes
+     * @param list<Script> $includes
      */
     public function __construct(
         protected string $name,
@@ -64,7 +64,7 @@ class Script extends Struct
     }
 
     /**
-     * @return array<Script>
+     * @return list<Script>
      */
     public function getIncludes(): array
     {

@@ -105,7 +105,7 @@ class AnnotationTagTester
     }
 
     /**
-     * @param list<array<string|null>> $matches
+     * @param list<list<string|null>> $matches
      * @param callable(string):void $validateFunction
      */
     private function validateMatches(array $matches, callable $validateFunction): void

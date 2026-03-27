@@ -33,7 +33,7 @@ class StatesUpdater
     /**
      * @deprecated tag:v6.8.0 - Will be removed, as product states are deprecated.
      *
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function update(array $ids, Context $context): void
     {
@@ -106,9 +106,9 @@ class StatesUpdater
     }
 
     /**
-     * @param array<mixed> $product
+     * @param list<mixed> $product
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function getNewStates(array $product): array
     {

@@ -52,7 +52,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param array<mixed> $options
+     * @param list<mixed> $options
      */
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
@@ -140,7 +140,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     /**
      * @param array<string, list<string>> $properties
      *
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function buildCombinations(array $properties): array
     {
@@ -268,8 +268,8 @@ class ProductGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param array<string> $manufacturer
-     * @param array<string> $tags
+     * @param list<string> $manufacturer
+     * @param list<string> $tags
      *
      * @return array<string, mixed>
      */
@@ -304,7 +304,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param array<string> $rules
+     * @param list<string> $rules
      *
      * @return list<array<string, mixed>>
      */
@@ -348,9 +348,9 @@ class ProductGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      *
-     * @return array<array{id: string}>
+     * @return list<array{id: string}>
      */
     private function getTags(array $tags): array
     {
@@ -386,7 +386,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return array<array{salesChannelId: string, visibility: ProductVisibilityDefinition::VISIBILITY_ALL}>
+     * @return list<array{salesChannelId: string, visibility: ProductVisibilityDefinition::VISIBILITY_ALL}>
      */
     private function buildVisibilities(): array
     {
@@ -439,7 +439,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     /**
      * @param array<string, list<string>> $properties
      *
-     * @return array<array{id: string}>
+     * @return list<array{id: string}>
      */
     private function buildProperties(array $properties): array
     {

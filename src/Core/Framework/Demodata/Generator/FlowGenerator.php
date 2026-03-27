@@ -38,7 +38,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class FlowGenerator implements DemodataGeneratorInterface
 {
     /**
-     * @var array<string, array<string>>
+     * @var array<string, list<string>>
      */
     private array $ids = [];
 
@@ -312,7 +312,7 @@ class FlowGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getIds(string $table): array
     {

@@ -59,7 +59,7 @@ class AnyRuleLineItemMatcherTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<bool>>
+     * @return iterable<string, list<bool>>
      */
     public static function lineItemProvider(): iterable
     {

@@ -34,7 +34,7 @@ class InheritanceUpdater
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function update(string $entity, array $ids, Context $context): void
     {
@@ -61,7 +61,7 @@ class InheritanceUpdater
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     private function updateToManyAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
     {
@@ -130,7 +130,7 @@ class InheritanceUpdater
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     private function updateToOneAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
     {

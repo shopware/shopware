@@ -11,14 +11,14 @@ use Shopware\Core\Framework\Log\Package;
 readonly class SymfonySystemConfigService
 {
     /**
-     * @param array<string, array<mixed>> $configuration
+     * @param array<string, list<mixed>> $configuration
      */
     public function __construct(private array $configuration)
     {
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getConfig(?string $salesChannelId = null): array
     {
@@ -52,9 +52,9 @@ readonly class SymfonySystemConfigService
     }
 
     /**
-     * @param array<mixed> $merged
+     * @param list<mixed> $merged
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function override(array $merged, ?string $salesChannelId, bool $inherit = true, bool $nesting = true): array
     {
@@ -90,11 +90,11 @@ readonly class SymfonySystemConfigService
     }
 
     /**
-     * @param array<mixed> $configValues
-     * @param array<string> $keys
-     * @param array<mixed>|bool|float|int|string|null $value
+     * @param list<mixed> $configValues
+     * @param list<string> $keys
+     * @param list<mixed>|bool|float|int|string|null $value
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function getSubArray(array $configValues, array $keys, mixed $value): array
     {

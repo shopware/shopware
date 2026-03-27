@@ -16,7 +16,7 @@ class SitemapHandle implements SitemapHandleInterface
     private const SITEMAP_NAME_PATTERN = 'sitemap%s-%d.xml.gz';
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $tmpFiles = [];
 

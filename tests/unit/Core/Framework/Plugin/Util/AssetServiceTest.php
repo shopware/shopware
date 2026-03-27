@@ -209,7 +209,7 @@ class AssetServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array{manifest: array<string, string>, expectedWrites: array<string, string>, expectedDeletes: array<string>}>
+     * @return array<string, array{manifest: array<string, string>, expectedWrites: array<string, string>, expectedDeletes: list<string>}>
      */
     public static function adminFilesProvider(): array
     {
@@ -267,7 +267,7 @@ class AssetServiceTest extends TestCase
     /**
      * @param array<string, string> $manifest
      * @param array<string, string> $expectedWrites
-     * @param array<string> $expectedDeletes
+     * @param list<string> $expectedDeletes
      */
     #[DataProvider('adminFilesProvider')]
     public function testCopyAssetsFromAdminBundle(array $manifest, array $expectedWrites, array $expectedDeletes): void

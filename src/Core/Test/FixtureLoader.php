@@ -62,7 +62,7 @@ class FixtureLoader
     }
 
     /**
-     * @param array<array<int, mixed>> $content
+     * @param list<array<int, mixed>> $content
      */
     private function sync(array $content): void
     {

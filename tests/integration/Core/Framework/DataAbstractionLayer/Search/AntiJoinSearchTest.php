@@ -420,17 +420,17 @@ class AntiJoinSearchTest extends TestCase
     }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      *
      * @return array{
      *     id: string,
      *     productNumber: string,
      *     name: string,
      *     stock: int,
-     *     price: array<array{currencyId: string, gross: int, net: int, linked: bool}>,
+     *     price: list<array{currencyId: string, gross: int, net: int, linked: bool}>,
      *     manufacturer: array{name: string},
      *     tax: array{name: string, taxRate: int},
-     *     tags: array<array{name: string}>
+     *     tags: list<array{name: string}>
      * }
      */
     private function getTaggedProduct(string $id, string $name, array $tags = []): array

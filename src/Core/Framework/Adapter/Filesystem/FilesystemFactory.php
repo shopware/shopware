@@ -29,7 +29,7 @@ class FilesystemFactory
     }
 
     /**
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      */
     public function privateFactory(array $config): FilesystemOperator
     {
@@ -39,7 +39,7 @@ class FilesystemFactory
     }
 
     /**
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      */
     public function factory(array $config): FilesystemOperator
     {
@@ -103,9 +103,9 @@ class FilesystemFactory
     }
 
     /**
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function resolveFilesystemConfig(array $config): array
     {

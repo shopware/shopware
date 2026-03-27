@@ -20,7 +20,7 @@ class ClientProfiler extends Client
 
     public function __construct(Client $client)
     {
-        /** @var array<NamespaceBuilderInterface> $namespaces */
+        /** @var list<NamespaceBuilderInterface> $namespaces */
         $namespaces = $client->registeredNamespaces;
 
         parent::__construct($client->transport, $client->endpoints, $namespaces);

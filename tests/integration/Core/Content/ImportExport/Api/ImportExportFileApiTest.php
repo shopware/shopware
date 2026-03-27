@@ -315,7 +315,7 @@ class ImportExportFileApiTest extends TestCase
     /**
      * Prepare a defined number of test data.
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     protected function prepareImportExportFileTestData(int $num = 1, string $add = ''): array
     {
@@ -337,9 +337,9 @@ class ImportExportFileApiTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $data
+     * @param list<mixed> $data
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     protected function rotateTestdata(array $data): array
     {

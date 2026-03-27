@@ -228,7 +228,7 @@ class ImportExportException extends HttpException
     }
 
     /**
-     * @param array<string> $privilege
+     * @param list<string> $privilege
      */
     public static function missingPrivilege(array $privilege): self
     {

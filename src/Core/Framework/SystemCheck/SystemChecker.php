@@ -24,7 +24,7 @@ class SystemChecker
     }
 
     /**
-     * @return array<Result>
+     * @return list<Result>
      */
     public function check(SystemCheckExecutionContext $context): array
     {
@@ -37,9 +37,9 @@ class SystemChecker
     }
 
     /**
-     * @param array<int, array<BaseCheck>> $categoryCheckCluster
+     * @param array<int, list<BaseCheck>> $categoryCheckCluster
      *
-     * @return array<Result>
+     * @return list<Result>
      */
     private function runChecksByCategory(array $categoryCheckCluster): array
     {
@@ -63,9 +63,9 @@ class SystemChecker
     }
 
     /**
-     * @param array<BaseCheck> $checks
+     * @param list<BaseCheck> $checks
      *
-     * @return array<Result>
+     * @return list<Result>
      */
     private function runChecks(array $checks): array
     {
@@ -79,9 +79,9 @@ class SystemChecker
     }
 
     /**
-     * @param array<BaseCheck> $checks
+     * @param list<BaseCheck> $checks
      *
-     * @return array<Result>
+     * @return list<Result>
      */
     private function skipChecks(array $checks, string $message): array
     {
@@ -92,9 +92,9 @@ class SystemChecker
     }
 
     /**
-     * @param array<BaseCheck> $checks
+     * @param list<BaseCheck> $checks
      *
-     * @return array<int, array<BaseCheck>>
+     * @return array<int, list<BaseCheck>>
      */
     private function groupByCategory(array $checks): array
     {
@@ -110,7 +110,7 @@ class SystemChecker
     /**
      * having a non-healthy check in core category should stop running further checks as it would effect everything else.
      *
-     * @param array<Result> $results
+     * @param list<Result> $results
      */
     private function shouldStopRunning(array $results, int $category): bool
     {
@@ -128,7 +128,7 @@ class SystemChecker
     }
 
     /**
-     * @return array{array<BaseCheck>, array<BaseCheck>} segregated checks by permission to run
+     * @return array{list<BaseCheck>, list<BaseCheck>} segregated checks by permission to run
      */
     private function groupByPermissionToRun(SystemCheckExecutionContext $context): array
     {

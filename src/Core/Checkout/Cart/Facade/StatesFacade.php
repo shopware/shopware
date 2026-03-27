@@ -53,7 +53,7 @@ class StatesFacade
     /**
      * `get()` returns all states that are present on the cart.
      *
-     * @return array<string> An array containing all current states of the cart.
+     * @return list<string> An array containing all current states of the cart.
      */
     public function get(): array
     {

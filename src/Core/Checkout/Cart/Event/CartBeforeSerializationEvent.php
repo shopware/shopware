@@ -10,7 +10,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class CartBeforeSerializationEvent extends Event implements CartEvent
 {
     /**
-     * @param array<string> $customFieldAllowList
+     * @param list<string> $customFieldAllowList
      */
     public function __construct(
         protected Cart $cart,
@@ -24,7 +24,7 @@ class CartBeforeSerializationEvent extends Event implements CartEvent
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getCustomFieldAllowList(): array
     {
@@ -32,7 +32,7 @@ class CartBeforeSerializationEvent extends Event implements CartEvent
     }
 
     /**
-     * @param array<string> $customFieldAllowList
+     * @param list<string> $customFieldAllowList
      */
     public function setCustomFieldAllowList(array $customFieldAllowList): void
     {

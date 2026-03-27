@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 class BufferedFlowQueue
 {
     /**
-     * @var array<BufferedFlow>
+     * @var list<BufferedFlow>
      */
     private array $bufferedFlows = [];
 
@@ -23,7 +23,7 @@ class BufferedFlowQueue
     }
 
     /**
-     * @return array<BufferedFlow>
+     * @return list<BufferedFlow>
      */
     public function dequeueFlows(): array
     {

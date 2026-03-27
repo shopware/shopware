@@ -35,7 +35,7 @@ abstract class EntityDefinition
     protected ?CompiledFieldCollection $fields = null;
 
     /**
-     * @var array<EntityExtension>
+     * @var list<EntityExtension>
      */
     protected array $extensions = [];
 
@@ -46,12 +46,12 @@ abstract class EntityDefinition
     protected DefinitionInstanceRegistry $registry;
 
     /**
-     * @var array<TranslatedField>
+     * @var list<TranslatedField>
      */
     protected array $translatedFields = [];
 
     /**
-     * @var array<Field>
+     * @var list<Field>
      */
     protected array $extensionFields = [];
 
@@ -243,7 +243,7 @@ abstract class EntityDefinition
             return $this->fieldVisibility;
         }
 
-        /** @var array<string> $internalProperties */
+        /** @var list<string> $internalProperties */
         $internalProperties = $this->getFields()
             ->fmap(static function (Field $field): ?string {
                 if ($field->is(ApiAware::class)) {

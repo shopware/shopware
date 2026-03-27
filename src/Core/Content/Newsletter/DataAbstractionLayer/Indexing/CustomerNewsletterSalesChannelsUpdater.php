@@ -20,7 +20,7 @@ class CustomerNewsletterSalesChannelsUpdater
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function update(array $ids, bool $reverseUpdate = false): void
     {
@@ -97,7 +97,7 @@ SQL;
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function delete(array $ids): void
     {
@@ -132,7 +132,7 @@ SQL;
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function updateCustomersRecipient(array $ids): void
     {

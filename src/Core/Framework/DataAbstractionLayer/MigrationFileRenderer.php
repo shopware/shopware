@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 class MigrationFileRenderer
 {
     /**
-     * @param array<string> $queries
+     * @param list<string> $queries
      */
     public function render(
         string $namespace,
@@ -42,7 +42,7 @@ class MigrationFileRenderer
     }
 
     /**
-     * @param array<string> $queries
+     * @param list<string> $queries
      */
     private function formatSqlQueries(array $queries): string
     {

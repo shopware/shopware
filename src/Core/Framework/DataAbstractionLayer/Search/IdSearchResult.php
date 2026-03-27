@@ -43,7 +43,7 @@ class IdSearchResult extends Struct
     }
 
     /**
-     * @param array<IDStructure> $ids
+     * @param list<IDStructure> $ids
      */
     public static function fromIds(
         array $ids,

@@ -16,7 +16,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
     /**
      * Internal cache property which contains created reflection classes
      *
-     * @var array<\ReflectionClass<object>>
+     * @var list<\ReflectionClass<object>>
      */
     private array $classes = [];
 
@@ -102,7 +102,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 
     /**
      * @param class-string<object> $class
-     * @param array<mixed> $arguments
+     * @param list<mixed> $arguments
      */
     private function createInstance(string $class, array $arguments): Struct
     {

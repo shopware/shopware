@@ -37,7 +37,7 @@ class MetricConfigProvider
     }
 
     /**
-     * @return array<MetricConfig>
+     * @return list<MetricConfig>
      */
     public function all(): array
     {

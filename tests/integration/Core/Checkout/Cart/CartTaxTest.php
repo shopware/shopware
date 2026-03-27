@@ -71,7 +71,7 @@ class CartTaxTest extends TestCase
     }
 
     /**
-     * @param array<string> $vatIds
+     * @param list<string> $vatIds
      */
     #[DataProvider('dataTestHandlingTaxFreeInStorefront')]
     public function testHandlingTaxFreeInStorefrontWithBaseCurrencyEuro(
@@ -152,7 +152,7 @@ class CartTaxTest extends TestCase
     }
 
     /**
-     * @param array<string> $vatIds
+     * @param list<string> $vatIds
      */
     #[DataProvider('dataTestHandlingTaxFreeInStorefront')]
     public function testHandlingTaxFreeInStorefrontWithBaseCurrencyCHF(
@@ -306,7 +306,7 @@ class CartTaxTest extends TestCase
      * float $countryCompanyTaxFreeFrom
      * int $quantity
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public static function dataTestHandlingTaxFreeInStorefrontWithCountryBaseCurrencyUSD(): array
     {
@@ -336,7 +336,7 @@ class CartTaxTest extends TestCase
      * ?array vatIds
      * ?bool checkVatIdPattern
      *
-     * @return array<array<mixed>>
+     * @return list<list<mixed>>
      */
     public static function dataTestHandlingTaxFreeInStorefront(): array
     {

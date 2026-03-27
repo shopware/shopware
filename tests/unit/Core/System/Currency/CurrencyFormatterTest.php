@@ -85,7 +85,7 @@ class CurrencyFormatterTest extends TestCase
     }
 
     /**
-     * @return array<array{float, int, non-empty-string, non-empty-string, non-empty-string, non-empty-string}> price, locale.code, decimal places, currency iso, expected currency symbol
+     * @return list<array{float, int, non-empty-string, non-empty-string, non-empty-string, non-empty-string}> price, locale.code, decimal places, currency iso, expected currency symbol
      */
     public static function formattingParameterProvider(): array
     {

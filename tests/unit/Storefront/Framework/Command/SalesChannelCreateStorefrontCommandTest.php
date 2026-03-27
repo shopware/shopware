@@ -25,7 +25,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class SalesChannelCreateStorefrontCommandTest extends TestCase
 {
     /**
-     * @param array<IdSearchResult> $idsSearchResult
+     * @param list<IdSearchResult> $idsSearchResult
      */
     #[DataProvider('dataProviderTestExecuteCommandSuccessful')]
     public function testExecuteCommandSuccessful(
@@ -118,7 +118,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
     }
 
     /**
-     * @param array<IdSearchResult> $idsSearchResult
+     * @param list<IdSearchResult> $idsSearchResult
      */
     #[DataProvider('dataProviderTestExecuteCommandWithAnException')]
     public function testExecuteCommandWithAnException(

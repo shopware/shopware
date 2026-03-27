@@ -1249,7 +1249,7 @@ class UnusedMediaPurgerTest extends TestCase
     }
 
     /**
-     * @param array<EntityDefinition> $definitions
+     * @param list<EntityDefinition> $definitions
      */
     private function configureRegistry(array $definitions): void
     {
@@ -1261,13 +1261,13 @@ class UnusedMediaPurgerTest extends TestCase
     }
 
     /**
-     * @param array<Field> $fields
+     * @param list<Field> $fields
      */
     private function getMediaDefinition(array $fields): EntityDefinition
     {
         $instance = new class extends EntityDefinition {
             /**
-             * @var array<Field>
+             * @var list<Field>
              */
             public array $extraFields = [];
 

@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 class OrderLineItemCollection extends EntityCollection
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getOrderIds(): array
     {
@@ -45,7 +45,7 @@ class OrderLineItemCollection extends EntityCollection
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getPayloadsProperty(string $property): array
     {
@@ -62,7 +62,7 @@ class OrderLineItemCollection extends EntityCollection
     }
 
     /**
-     * @return array<OrderLineItemEntity>
+     * @return list<OrderLineItemEntity>
      */
     public function filterGoodsFlat(): array
     {
@@ -126,7 +126,7 @@ class OrderLineItemCollection extends EntityCollection
     }
 
     /**
-     * @return array<OrderLineItemEntity>
+     * @return list<OrderLineItemEntity>
      */
     private function buildFlat(?OrderLineItemCollection $lineItems): array
     {

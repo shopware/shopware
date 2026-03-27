@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ListFieldSerializerTest extends TestCase
 {
     /**
-     * @param array<string>|null $keyValue
+     * @param list<string>|null $keyValue
      */
     #[DataProvider('encodeProvider')]
     public function testCanEncodeListField(?string $fieldType, ?array $keyValue, ?string $expected): void
@@ -89,7 +89,7 @@ class ListFieldSerializerTest extends TestCase
     }
 
     /**
-     * @param array<mixed>|null $expected
+     * @param list<mixed>|null $expected
      */
     #[DataProvider('decodeProvider')]
     public function testDecode(ListField $field, ?string $input, ?array $expected): void
@@ -104,7 +104,7 @@ class ListFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return list<array{0: ListField, 1: string|null, 2: array<mixed>|null}>
+     * @return list<array{0: ListField, 1: string|null, 2: list<mixed>|null}>
      */
     public static function decodeProvider(): array
     {

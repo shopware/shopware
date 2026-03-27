@@ -1152,7 +1152,7 @@ class SendMailActionTest extends TestCase
     /**
      * @param array<int, array<string, string>> $documentTypes
      *
-     * @return array<array{mailTemplateId: string, documentTypeIds: array<int, string>, recipient: array<string, string|array<string, string>>}>
+     * @return list<array{mailTemplateId: string, documentTypeIds: array<int, string>, recipient: array<string, string|array<string, string>>}>
      */
     private function createFlowSequencesConfig(string $mailTemplateId, array $documentTypes): array
     {
@@ -1198,7 +1198,7 @@ class SendMailActionTest extends TestCase
     }
 
     /**
-     * @param array<array<string, string>> $documentTypes
+     * @param list<array<string, string>> $documentTypes
      *
      * @return array{id: string, technical_name: string, documentId: string, filename: string}|array{}
      */
@@ -1214,7 +1214,7 @@ class SendMailActionTest extends TestCase
     }
 
     /**
-     * @param array<DataPart> $attachments
+     * @param list<DataPart> $attachments
      */
     private function isDocumentPartOfAttachments(array $attachments, string $documentName): bool
     {

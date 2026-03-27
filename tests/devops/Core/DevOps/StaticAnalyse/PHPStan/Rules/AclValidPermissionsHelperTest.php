@@ -39,7 +39,7 @@ class AclValidPermissionsHelperTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return list<list<string>>
      */
     public static function getInvalidSchemas(): array
     {

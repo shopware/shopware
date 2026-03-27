@@ -449,7 +449,7 @@ class CategoryRouteTest extends TestCase
 
     /**
      * @param CmsInheritanceDataProviderActual $actualData
-     * @param array<string> $languageIds
+     * @param list<string> $languageIds
      */
     private function createTranslatedData(array $actualData, Context $context, array $languageIds = self::LANGUAGE_IDS): void
     {

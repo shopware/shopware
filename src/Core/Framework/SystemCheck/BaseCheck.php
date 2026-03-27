@@ -22,7 +22,7 @@ abstract class BaseCheck
     }
 
     /**
-     * @return array<SystemCheckExecutionContext>
+     * @return list<SystemCheckExecutionContext>
      */
     abstract protected function allowedSystemCheckExecutionContexts(): array;
 }

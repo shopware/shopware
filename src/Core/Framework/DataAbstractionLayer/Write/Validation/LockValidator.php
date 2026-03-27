@@ -70,7 +70,7 @@ class LockValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<WriteCommand> $writeCommands
+     * @param list<WriteCommand> $writeCommands
      *
      * @return array<string, bool>
      */

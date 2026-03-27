@@ -219,7 +219,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
     }
 
     /**
-     * @param array<string|array<array{resolve?: array<string, string>}>> $styles
+     * @param list<string|list<array{resolve?: array<string, string>}>> $styles
      */
     private function resolveStyleFiles(array $styles, StorefrontPluginConfiguration $config): void
     {

@@ -23,7 +23,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class SourceResolver implements ResetInterface
 {
     /**
-     * @var array<class-string<Source>, array<Filesystem>>
+     * @var array<class-string<Source>, list<Filesystem>>
      */
     private array $sourceFilesystemCache = [];
 

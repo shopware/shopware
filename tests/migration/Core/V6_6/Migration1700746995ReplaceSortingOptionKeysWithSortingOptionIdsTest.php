@@ -750,7 +750,7 @@ class Migration1700746995ReplaceSortingOptionKeysWithSortingOptionIdsTest extend
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getSortingIds(): array
     {

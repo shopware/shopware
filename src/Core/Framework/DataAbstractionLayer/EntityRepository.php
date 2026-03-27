@@ -94,7 +94,7 @@ class EntityRepository
     }
 
     /**
-     * @param array<array<string, mixed|null>> $data
+     * @param list<array<string, mixed|null>> $data
      */
     public function update(array $data, Context $context): EntityWrittenContainerEvent
     {
@@ -108,7 +108,7 @@ class EntityRepository
     }
 
     /**
-     * @param array<array<string, mixed|null>> $data
+     * @param list<array<string, mixed|null>> $data
      */
     public function upsert(array $data, Context $context): EntityWrittenContainerEvent
     {
@@ -122,7 +122,7 @@ class EntityRepository
     }
 
     /**
-     * @param array<array<string, mixed|null>> $data
+     * @param list<array<string, mixed|null>> $data
      */
     public function create(array $data, Context $context): EntityWrittenContainerEvent
     {
@@ -136,7 +136,7 @@ class EntityRepository
     }
 
     /**
-     * @param array<array<string, mixed|null>> $ids
+     * @param list<array<string, mixed|null>> $ids
      */
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
     {

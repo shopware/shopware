@@ -12,7 +12,7 @@ class RatingMatrix extends Struct
     private const MAX_POINTS = 5;
 
     /**
-     * @var array<MatrixElement>
+     * @var list<MatrixElement>
      */
     protected array $matrix = [];
 
@@ -24,7 +24,7 @@ class RatingMatrix extends Struct
      * we expect an array of CountResult elements
      * we are doing all calculation in constructor
      *
-     * @param array<Bucket> $matrix
+     * @param list<Bucket> $matrix
      */
     public function __construct(array $matrix)
     {
@@ -57,7 +57,7 @@ class RatingMatrix extends Struct
     }
 
     /**
-     * @return array<MatrixElement>
+     * @return list<MatrixElement>
      */
     public function getMatrix(): array
     {

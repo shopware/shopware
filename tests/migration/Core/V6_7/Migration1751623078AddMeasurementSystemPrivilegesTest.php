@@ -90,7 +90,7 @@ class Migration1751623078AddMeasurementSystemPrivilegesTest extends TestCase
     }
 
     /**
-     * @param array<string> $expectedPrivileges
+     * @param list<string> $expectedPrivileges
      */
     private function assertPrivilegesExist(string $roleName, array $expectedPrivileges): void
     {

@@ -10,13 +10,13 @@ use Shopware\Core\Framework\Log\Package;
 trait EntityCustomFieldsTrait
 {
     /**
-     * @var array<mixed>|null
+     * @var list<mixed>|null
      */
     #[CustomFields]
     protected ?array $customFields = null;
 
     /**
-     * @return array<mixed>|null
+     * @return list<mixed>|null
      */
     public function getCustomFields(): ?array
     {
@@ -77,7 +77,7 @@ trait EntityCustomFieldsTrait
     }
 
     /**
-     * @param array<mixed>|null $customFields
+     * @param list<mixed>|null $customFields
      */
     public function setCustomFields(?array $customFields): void
     {

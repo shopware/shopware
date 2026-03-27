@@ -215,7 +215,7 @@ class PriceFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * @param array<array<string, mixed>> $prices
+     * @param list<array<string, mixed>> $prices
      */
     private function ensureDefaultPrice(WriteParameterBag $parameters, array $prices, string $propertyName): void
     {

@@ -37,7 +37,7 @@ class TaxCalculatorTest extends TestCase
     }
 
     /**
-     * @return array<array{float, int, TaxRule, float}>
+     * @return list<array{float, int, TaxRule, float}>
      */
     public static function netPricesToGross(): array
     {

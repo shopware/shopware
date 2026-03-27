@@ -18,7 +18,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @param array<string> $expected
+     * @param list<string> $expected
      */
     #[DataProvider('getData')]
     public function testGetFieldsOfAccessor(

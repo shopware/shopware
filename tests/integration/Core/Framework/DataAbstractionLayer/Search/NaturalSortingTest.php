@@ -40,8 +40,8 @@ class NaturalSortingTest extends TestCase
     }
 
     /**
-     * @param array<string> $naturalOrder
-     * @param array<string> $rawOrder
+     * @param list<string> $naturalOrder
+     * @param list<string> $rawOrder
      */
     #[DataProvider('sortingFixtures')]
     public function testSorting(array $naturalOrder, array $rawOrder): void
@@ -86,7 +86,7 @@ class NaturalSortingTest extends TestCase
     }
 
     /**
-     * @return array<array<array<string>>>
+     * @return list<list<list<string>>>
      */
     public static function sortingFixtures(): array
     {

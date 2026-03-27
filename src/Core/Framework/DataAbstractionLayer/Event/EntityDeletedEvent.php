@@ -16,7 +16,7 @@ class EntityDeletedEvent extends EntityWrittenEvent
 {
     /**
      * @param list<EntityWriteResult<IDStructure>> $writeResult
-     * @param array<mixed> $errors
+     * @param list<mixed> $errors
      */
     public function __construct(
         string $entityName,

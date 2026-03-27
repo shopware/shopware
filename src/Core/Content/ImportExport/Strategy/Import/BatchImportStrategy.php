@@ -24,7 +24,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterface
 {
     /**
-     * @var array<ImportData> array
+     * @var list<ImportData> array
      */
     protected array $toImport = [];
 

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 trait ShippingMethodPricesTestBehaviour
 {
     /**
-     * @var array<mixed>
+     * @var list<mixed>
      */
     private array $oldValues = [];
 

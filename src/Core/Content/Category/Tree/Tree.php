@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class Tree extends Struct
 {
     /**
-     * @param array<TreeItem> $tree
+     * @param list<TreeItem> $tree
      */
     public function __construct(
         protected ?CategoryEntity $active,
@@ -38,7 +38,7 @@ class Tree extends Struct
     }
 
     /**
-     * @return array<TreeItem>
+     * @return list<TreeItem>
      */
     public function getTree(): array
     {
@@ -46,7 +46,7 @@ class Tree extends Struct
     }
 
     /**
-     * @param array<TreeItem> $tree
+     * @param list<TreeItem> $tree
      */
     public function setTree(array $tree): void
     {
@@ -85,7 +85,7 @@ class Tree extends Struct
     }
 
     /**
-     * @param array<TreeItem> $tree
+     * @param list<TreeItem> $tree
      */
     private function find(string $categoryId, array $tree): ?TreeItem
     {

@@ -72,7 +72,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
     }
 
     /**
-     * @return array<array<string, string>>
+     * @return list<array<string, string>>
      */
     private function fetchAllAdminUsers(): array
     {

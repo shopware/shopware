@@ -173,7 +173,7 @@ class ProductUrlProvider extends AbstractUrlProvider
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getExcludedProductIds(SalesChannelContext $salesChannelContext): array
     {

@@ -86,7 +86,7 @@ class RequestTransformer implements RequestTransformerInterface
     /**
      * @internal
      *
-     * @param array<string> $registeredApiPrefixes
+     * @param list<string> $registeredApiPrefixes
      */
     public function __construct(
         private readonly RequestTransformerInterface $decorated,

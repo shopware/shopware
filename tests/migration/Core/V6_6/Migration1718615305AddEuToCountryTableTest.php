@@ -68,7 +68,7 @@ class Migration1718615305AddEuToCountryTableTest extends TestCase
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getEuCountryCodes(): array
     {

@@ -28,7 +28,7 @@ class EntityCollection extends Collection
     }
 
     /**
-     * @param array<TElement> $entities
+     * @param list<TElement> $entities
      */
     public function fill(array $entities): void
     {
@@ -44,7 +44,7 @@ class EntityCollection extends Collection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getIds(): array
     {
@@ -113,7 +113,7 @@ class EntityCollection extends Collection
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function getList(array $ids): static
     {
@@ -121,7 +121,7 @@ class EntityCollection extends Collection
     }
 
     /**
-     * @param array<array-key, array<string>|string> $ids
+     * @param array<array-key, list<string>|string> $ids
      */
     public function sortByIdArray(array $ids): void
     {
@@ -196,7 +196,7 @@ class EntityCollection extends Collection
      *  ]
      * ```
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getCustomFieldsValue(string $field): array
     {

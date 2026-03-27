@@ -8,7 +8,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 trait EventDispatcherBehaviour
 {
     /**
-     * @var array<array{'dispatcher': EventDispatcherInterface, 'name': string, 'callback': callable(object): void}>
+     * @var list<array{'dispatcher': EventDispatcherInterface, 'name': string, 'callback': callable(object): void}>
      */
     private array $registered = [];
 

@@ -394,7 +394,7 @@ class ProductDetailRouteTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $variantListingConfig
+     * @param list<mixed> $variantListingConfig
      */
     private function createVariantProducts(array $variantListingConfig): void
     {

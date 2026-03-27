@@ -36,7 +36,7 @@ class CartSerializationCleaner
     }
 
     /**
-     * @param array<mixed> $customFieldAllowList
+     * @param list<mixed> $customFieldAllowList
      */
     private function cleanupLineItems(LineItemCollection $lineItems, array $customFieldAllowList): void
     {
@@ -46,7 +46,7 @@ class CartSerializationCleaner
     }
 
     /**
-     * @param array<mixed> $customFieldAllowList
+     * @param list<mixed> $customFieldAllowList
      */
     private function cleanupLineItem(LineItem $lineItem, array $customFieldAllowList): void
     {
@@ -62,7 +62,7 @@ class CartSerializationCleaner
     }
 
     /**
-     * @param array<mixed> $customFieldAllowList
+     * @param list<mixed> $customFieldAllowList
      */
     private function cleanupCustomFields(LineItem $lineItem, array $customFieldAllowList): void
     {

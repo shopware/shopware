@@ -21,12 +21,12 @@ use Shopware\Core\Framework\Util\Hasher;
 class WriteCommandQueue
 {
     /**
-     * @var array<string, array<WriteCommand>>
+     * @var array<string, list<WriteCommand>>
      */
     private array $commands = [];
 
     /**
-     * @var array<string, array<WriteCommand>>
+     * @var array<string, list<WriteCommand>>
      */
     private array $entityCommands = [];
 
@@ -122,7 +122,7 @@ class WriteCommandQueue
     }
 
     /**
-     * @return array<string, array<WriteCommand>>
+     * @return array<string, list<WriteCommand>>
      */
     public function getCommands(): array
     {
@@ -146,7 +146,7 @@ class WriteCommandQueue
     /**
      * @param array<string, string> $primaryKey
      *
-     * @return array<WriteCommand>
+     * @return list<WriteCommand>
      */
     public function getCommandsForEntity(EntityDefinition $definition, array $primaryKey): array
     {

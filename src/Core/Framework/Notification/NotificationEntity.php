@@ -31,7 +31,7 @@ if (class_exists(AdminNotificationEntity::class)) {
         protected bool $adminOnly;
 
         /**
-         * @var array<string>
+         * @var list<string>
          */
         protected array $requiredPrivileges = [];
 
@@ -90,7 +90,7 @@ if (class_exists(AdminNotificationEntity::class)) {
         }
 
         /**
-         * @return array<string>
+         * @return list<string>
          */
         public function getRequiredPrivileges(): array
         {
@@ -98,7 +98,7 @@ if (class_exists(AdminNotificationEntity::class)) {
         }
 
         /**
-         * @param array<string> $requiredPrivileges
+         * @param list<string> $requiredPrivileges
          */
         public function setRequiredPrivileges(array $requiredPrivileges): void
         {
@@ -142,7 +142,7 @@ if (class_exists(AdminNotificationEntity::class)) {
         protected bool $adminOnly;
 
         /**
-         * @var array<string>
+         * @var list<string>
          */
         protected array $requiredPrivileges = [];
 
@@ -201,7 +201,7 @@ if (class_exists(AdminNotificationEntity::class)) {
         }
 
         /**
-         * @return array<string>
+         * @return list<string>
          */
         public function getRequiredPrivileges(): array
         {
@@ -209,7 +209,7 @@ if (class_exists(AdminNotificationEntity::class)) {
         }
 
         /**
-         * @param array<string> $requiredPrivileges
+         * @param list<string> $requiredPrivileges
          */
         public function setRequiredPrivileges(array $requiredPrivileges): void
         {

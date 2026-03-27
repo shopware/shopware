@@ -101,7 +101,7 @@ class CriteriaQueryBuilder
     }
 
     /**
-     * @param array<FieldSorting> $sortings
+     * @param list<FieldSorting> $sortings
      */
     public function addSortings(EntityDefinition $definition, Criteria $criteria, array $sortings, QueryBuilder $query, Context $context): void
     {
@@ -229,7 +229,7 @@ class CriteriaQueryBuilder
     }
 
     /**
-     * @param array<ScoreQuery> $queries
+     * @param list<ScoreQuery> $queries
      */
     private function addConditions(array $queries, EntityDefinition $definition, QueryBuilder $query, Context $context): void
     {

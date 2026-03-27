@@ -99,7 +99,7 @@ class MailServiceTest extends TestCase
     }
 
     /**
-     * @return array<int, array<mixed>>
+     * @return array<int, list<mixed>>
      */
     public static function senderEmailDataProvider(): array
     {
@@ -328,12 +328,12 @@ class MailServiceTest extends TestCase
 class TestEnvironment extends Environment
 {
     /**
-     * @var array<int, array<mixed>>
+     * @var array<int, list<mixed>>
      */
     private array $calls = [];
 
     /**
-     * @param array<mixed> $context
+     * @param list<mixed> $context
      */
     public function render($name, array $context = []): string
     {
@@ -343,7 +343,7 @@ class TestEnvironment extends Environment
     }
 
     /**
-     * @return array<int, array<mixed>>
+     * @return array<int, list<mixed>>
      */
     public function getCalls(): array
     {

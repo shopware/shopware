@@ -13,12 +13,12 @@ use Shopware\Core\Framework\Struct\Collection;
 class RuleCollection extends Collection
 {
     /**
-     * @var array<Rule>
+     * @var list<Rule>
      */
     protected array $flat = [];
 
     /**
-     * @var array<bool>
+     * @var list<bool>
      */
     protected array $classes = [];
 

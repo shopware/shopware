@@ -18,7 +18,7 @@ class IncrementGatewayRegistry
     final public const USER_ACTIVITY_POOL = 'user_activity';
 
     /**
-     * @param array<AbstractIncrementer> $gateways
+     * @param list<AbstractIncrementer> $gateways
      */
     public function __construct(private readonly iterable $gateways)
     {

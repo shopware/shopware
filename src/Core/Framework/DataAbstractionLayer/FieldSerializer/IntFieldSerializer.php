@@ -46,7 +46,7 @@ class IntFieldSerializer extends AbstractFieldSerializer
     /**
      * @param IntField $field
      *
-     * @return array<Constraint>
+     * @return list<Constraint>
      */
     protected function getConstraints(Field $field): array
     {

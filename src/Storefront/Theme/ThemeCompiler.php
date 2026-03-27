@@ -382,7 +382,7 @@ class ThemeCompiler implements ThemeCompilerInterface
      *
      * @param array<string, string|int|null> $variables
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function formatVariables(array $variables): array
     {
@@ -394,7 +394,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     }
 
     /**
-     * @param array{fields?: array<array{value: string|array<mixed>|null, scss?: bool, type: string}>} $config
+     * @param array{fields?: list<array{value: string|list<mixed>|null, scss?: bool, type: string}>} $config
      *
      * @throws FilesystemException
      */

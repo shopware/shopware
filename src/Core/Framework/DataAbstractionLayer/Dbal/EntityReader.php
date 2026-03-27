@@ -476,7 +476,7 @@ class EntityReader implements EntityReaderInterface
     /**
      * @param EntityCollection<Entity> $collection
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function collectManyToManyIds(EntityCollection $collection, AssociationField $association): array
     {
@@ -1058,7 +1058,7 @@ class EntityReader implements EntityReaderInterface
     /**
      * @param EntityCollection<Entity> $collection
      *
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     private function fetchPaginatedOneToManyMapping(
         EntityDefinition $definition,

@@ -57,9 +57,9 @@ class WriteCommandExtractor
     }
 
     /**
-     * @param array<mixed> $rawData
+     * @param list<mixed> $rawData
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function normalize(EntityDefinition $definition, array $rawData, WriteParameterBag $parameters): array
     {
@@ -75,9 +75,9 @@ class WriteCommandExtractor
     }
 
     /**
-     * @param array<mixed> $data
+     * @param list<mixed> $data
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function normalizeSingle(EntityDefinition $definition, array $data, WriteParameterBag $parameters): array
     {
@@ -184,7 +184,7 @@ class WriteCommandExtractor
     /**
      * @param array<string, mixed> $rawData
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function extract(array $rawData, WriteParameterBag $parameters): array
     {
@@ -294,7 +294,7 @@ class WriteCommandExtractor
     }
 
     /**
-     * @param array<Field> $fields
+     * @param list<Field> $fields
      *
      * @return array<string, mixed>
      */
@@ -408,7 +408,7 @@ class WriteCommandExtractor
     /**
      * @param array<string, string> $pkData
      * @param array<string, mixed> $data
-     * @param array<Field> $fields
+     * @param list<Field> $fields
      */
     private function updateCommandQueue(
         EntityDefinition $definition,
@@ -443,7 +443,7 @@ class WriteCommandExtractor
     }
 
     /**
-     * @return array<Field>
+     * @return list<Field>
      */
     private function getFieldsInWriteOrder(EntityDefinition $definition): array
     {
@@ -499,9 +499,9 @@ class WriteCommandExtractor
     }
 
     /**
-     * @param array<Field> $fields
+     * @param list<Field> $fields
      *
-     * @return array<Field>
+     * @return list<Field>
      */
     private function getMainFields(array $fields): array
     {
@@ -577,9 +577,9 @@ class WriteCommandExtractor
 
     /**
      * @param array<string, mixed> $data
-     * @param array<Field> $fields
+     * @param list<Field> $fields
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function getImmutableFieldsChanges(array $fields, array $data): array
     {

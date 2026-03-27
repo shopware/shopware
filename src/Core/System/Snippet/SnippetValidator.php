@@ -143,7 +143,7 @@ readonly class SnippetValidator implements SnippetValidatorInterface
     }
 
     /**
-     * @param array<string> $files
+     * @param list<string> $files
      */
     private function hydrateFiles(array $files, SnippetFileCollection $collection): SnippetFileCollection
     {

@@ -34,7 +34,7 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
     private ?array $groupedQueries = null;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $connections = ['default'];
 
@@ -74,7 +74,7 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getConnections(): array
     {
@@ -197,9 +197,9 @@ class ConnectionProfiler extends DataCollector implements LateDataCollectorInter
     }
 
     /**
-     * @param array<QueryInfo> $queries
+     * @param list<QueryInfo> $queries
      *
-     * @return array<SanitizedQueryInfo>
+     * @return list<SanitizedQueryInfo>
      */
     private function sanitizeQueries(array $queries): array
     {

@@ -169,7 +169,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<mixed>>
+     * @return iterable<string, list<mixed>>
      */
     public static function onRenderingDocumentProvider(): iterable
     {

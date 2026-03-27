@@ -19,7 +19,7 @@ class CountryTranslationEntity extends TranslationEntity
     protected ?CountryEntity $country = null;
 
     /**
-     * @var array<array<string, array<string, string>>>|null
+     * @var list<array<string, array<string, string>>>|null
      */
     protected ?array $addressFormat = null;
 
@@ -54,7 +54,7 @@ class CountryTranslationEntity extends TranslationEntity
     }
 
     /**
-     * @return array<array<string, array<string, string>>>|null
+     * @return list<array<string, array<string, string>>>|null
      */
     public function getAddressFormat(): ?array
     {
@@ -62,7 +62,7 @@ class CountryTranslationEntity extends TranslationEntity
     }
 
     /**
-     * @param array<array<string, array<string, string>>> $addressFormat
+     * @param list<array<string, array<string, string>>> $addressFormat
      */
     public function setAddressFormat(array $addressFormat): void
     {

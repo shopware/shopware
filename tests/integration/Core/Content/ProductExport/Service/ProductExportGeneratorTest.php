@@ -372,7 +372,7 @@ class ProductExportGeneratorTest extends TestCase
     }
 
     /**
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function createProducts(): array
     {

@@ -25,7 +25,7 @@ class ExtensionCriteria extends Struct
     private string $orderSequence = self::ORDER_SEQUENCE_ASC;
 
     /**
-     * @var array<FilterStruct>
+     * @var list<FilterStruct>
      */
     private array $filter = [];
 
@@ -148,7 +148,7 @@ class ExtensionCriteria extends Struct
     }
 
     /**
-     * @return array<FilterStruct>
+     * @return list<FilterStruct>
      */
     public function getFilter(): array
     {

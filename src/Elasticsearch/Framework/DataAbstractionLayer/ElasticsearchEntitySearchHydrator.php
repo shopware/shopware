@@ -18,7 +18,7 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
     }
 
     /**
-     * @param array{ hits?: array{ hits: array<int, array{_id?: string, _score?: float, _source?: array<mixed>, inner_hits?: array{ inner?: array<mixed>}}>}, aggregations?: array<string, array<string, mixed>>} $result
+     * @param array{ hits?: array{ hits: array<int, array{_id?: string, _score?: float, _source?: list<mixed>, inner_hits?: array{ inner?: list<mixed>}}>}, aggregations?: array<string, array<string, mixed>>} $result
      */
     public function hydrate(EntityDefinition $definition, Criteria $criteria, Context $context, array $result): IdSearchResult
     {
@@ -50,9 +50,9 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
     }
 
     /**
-     * @param array{ hits: array{ hits: array<int, array{ inner_hits?: array{ inner?: array<mixed>}}>}} $result
+     * @param array{ hits: array{ hits: array<int, array{ inner_hits?: array{ inner?: list<mixed>}}>}} $result
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function extractHits(array $result): array
     {
@@ -66,7 +66,7 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
                 continue;
             }
 
-            /** @var array{ hits: array{ hits: array<int, array<mixed>>}} $inner */
+            /** @var array{ hits: array{ hits: array<int, list<mixed>>}} $inner */
             $inner = $hit['inner_hits']['inner'];
 
             $innerHits = $this->extractHits($inner);
@@ -80,7 +80,7 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
     }
 
     /**
-     * @param array{ hits: array{ hits: array<mixed>, total?: array{ value: int } }, aggregations?: array<string, array<string, mixed>>} $result
+     * @param array{ hits: array{ hits: list<mixed>, total?: array{ value: int } }, aggregations?: array<string, array<string, mixed>>} $result
      */
     private function getTotalValue(Criteria $criteria, array $result): int
     {
@@ -100,7 +100,7 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
     }
 
     /**
-     * @param array<string|array<string>> $ids
+     * @param list<string|list<string>> $ids
      * @param array<string, array{primaryKey: string|array<string, string>, data: array<string, mixed>}> $data
      *
      * @return array<string, array{primaryKey: string|array<string, string>, data: array<string, mixed>}>

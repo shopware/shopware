@@ -12,12 +12,12 @@ use Shopware\Core\Framework\Log\Package;
 class PrimaryKeyBag
 {
     /**
-     * @var array<string, array<array<string>>>
+     * @var array<string, list<list<string>>>
      */
     private array $primaryKeys = [];
 
     /**
-     * @var array<string, array<array>>
+     * @var array<string, list<array>>
      */
     private array $existences = [];
 

@@ -17,7 +17,7 @@ class TwigEnvironment extends Environment
     private ?Compiler $compiler = null;
 
     /**
-     * @param array<mixed> $options
+     * @param list<mixed> $options
      */
     public function __construct(LoaderInterface $loader, array $options = [])
     {

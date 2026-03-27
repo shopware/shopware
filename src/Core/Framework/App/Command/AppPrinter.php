@@ -125,7 +125,7 @@ class AppPrinter
     }
 
     /**
-     * @param array<string> $hosts
+     * @param list<string> $hosts
      */
     private function printHosts(Manifest $app, array $hosts, ShopwareStyle $io, bool $install): void
     {

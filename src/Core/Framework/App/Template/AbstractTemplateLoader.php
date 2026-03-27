@@ -14,7 +14,7 @@ abstract class AbstractTemplateLoader
     /**
      * Returns the list of template paths the given app ships
      *
-     * @return array<string>
+     * @return list<string>
      */
     abstract public function getTemplatePathsForApp(Manifest $app): array;
 

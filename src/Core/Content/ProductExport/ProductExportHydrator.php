@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class ProductExportHydrator extends EntityHydrator
 {
     /**
-     * @param array<string> $row
+     * @param list<string> $row
      *
      * @throws \Exception
      */

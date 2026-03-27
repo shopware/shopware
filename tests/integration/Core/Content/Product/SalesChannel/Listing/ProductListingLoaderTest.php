@@ -58,17 +58,17 @@ class ProductListingLoaderTest extends TestCase
     private ?string $mainVariantId = null;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $optionIds = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $variantIds = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $groupIds = [];
 
@@ -555,7 +555,7 @@ class ProductListingLoaderTest extends TestCase
     }
 
     /**
-     * @param array<string> $listingProperties
+     * @param list<string> $listingProperties
      */
     private function createProduct(array $listingProperties, bool $hasMainVariant = false): void
     {
@@ -724,7 +724,7 @@ class ProductListingLoaderTest extends TestCase
     }
 
     /**
-     * @param array<string> $listingProperties
+     * @param list<string> $listingProperties
      *
      * @return array<int, array<string, string|true>>
      */

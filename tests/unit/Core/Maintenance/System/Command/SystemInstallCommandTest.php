@@ -372,7 +372,7 @@ class SystemInstallCommandTest extends TestCase
     }
 
     /**
-     * @param array<string> $expectedCommands
+     * @param list<string> $expectedCommands
      */
     private function prepareCommandInstance(array $expectedCommands = [], string $projectDir = __DIR__): SystemInstallCommand
     {
@@ -406,7 +406,7 @@ class SystemInstallCommandTest extends TestCase
     }
 
     /**
-     * @param array<string> $additionalCommands
+     * @param list<string> $additionalCommands
      */
     private function prepareCommandInstanceWithDefaultInstallCommands(array $additionalCommands = [], string $projectDir = __DIR__): SystemInstallCommand
     {

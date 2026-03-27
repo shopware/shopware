@@ -23,7 +23,7 @@ class TwigAppVariable extends AppVariable
     /**
      * @internal
      *
-     * @param array<string> $allowList
+     * @param list<string> $allowList
      */
     public function __construct(
         private readonly AppVariable $appVariable,
@@ -106,7 +106,7 @@ class TwigAppVariable extends AppVariable
     /**
      * @param string|list<string>|null $types
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getFlashes(string|array|null $types = null): array
     {

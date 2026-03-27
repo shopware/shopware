@@ -22,7 +22,7 @@ class StateMachineException extends HttpException
     public const UNNECESSARY_TRANSITION = 'SYSTEM__UNNECESSARY_TRANSITION';
 
     /**
-     * @param array<mixed> $possibleTransitions
+     * @param list<mixed> $possibleTransitions
      */
     public static function illegalStateTransition(string $currentState, string $transition, array $possibleTransitions): IllegalTransitionException
     {

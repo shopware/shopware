@@ -37,7 +37,7 @@ class ResolvedCriteriaProductSuggestRouteTest extends TestCase
 {
     /**
      * @param array<string, mixed> $query
-     * @param array<string> $expected
+     * @param list<string> $expected
      */
     #[DataProvider('loadProvider')]
     public function testRequestHandling(array $query, array $expected): void

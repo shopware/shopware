@@ -58,7 +58,7 @@ class LifecycleManager
     /**
      * This method installs all services, only if Services (as a unit) are enabled.
      *
-     * @return array<string> The newly installed services
+     * @return list<string> The newly installed services
      */
     public function install(Context $context): array
     {

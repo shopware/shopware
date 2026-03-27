@@ -51,7 +51,7 @@ class AppActionController extends AbstractController
     )]
     public function runAction(string $id, Request $request, Context $context): Response
     {
-        /** @var array<string> $entityIds */
+        /** @var list<string> $entityIds */
         $entityIds = $request->request->all()['ids'] ?? [];
 
         $action = $this->appActionFactory->loadAppAction($id, $entityIds, $context);

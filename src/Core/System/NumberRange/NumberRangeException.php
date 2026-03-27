@@ -18,7 +18,7 @@ class NumberRangeException extends HttpException
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
      *
-     * @param array<string> $availableStorages
+     * @param list<string> $availableStorages
      */
     public static function incrementStorageNotFound(string $storage, array $availableStorages): self|IncrementStorageNotFoundException
     {

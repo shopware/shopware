@@ -99,7 +99,7 @@ class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, Sales
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getA11yDocumentIds(): array
     {

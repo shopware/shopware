@@ -39,7 +39,7 @@ class AclValidPermissionsHelper
     ];
 
     /**
-     * @var ?array<string>
+     * @var ?list<string>
      */
     private ?array $permissions = null;
 
@@ -65,7 +65,7 @@ class AclValidPermissionsHelper
     }
 
     /**
-     * @return ?array<string>
+     * @return ?list<string>
      */
     private function preparePermissions(string $schemaPath): ?array
     {
@@ -86,7 +86,7 @@ class AclValidPermissionsHelper
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     private function getEntitiesFromSchema(string $path): ?array
     {

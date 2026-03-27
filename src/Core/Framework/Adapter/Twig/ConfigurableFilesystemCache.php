@@ -14,7 +14,7 @@ class ConfigurableFilesystemCache extends FilesystemCache
     protected string $cacheDirectory;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $templateScopes = [TemplateScopeDetector::DEFAULT_SCOPE];
 
@@ -39,7 +39,7 @@ class ConfigurableFilesystemCache extends FilesystemCache
     }
 
     /**
-     * @param array<string> $templateScopes
+     * @param list<string> $templateScopes
      */
     public function setTemplateScopes(array $templateScopes): void
     {

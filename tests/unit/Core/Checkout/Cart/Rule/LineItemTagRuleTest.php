@@ -244,7 +244,7 @@ class LineItemTagRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string|bool|null>>
+     * @return array<string, list<string|bool|null>>
      */
     public static function getMatchValues(): array
     {
@@ -261,7 +261,7 @@ class LineItemTagRuleTest extends TestCase
     }
 
     /**
-     * @param array<string> $tagIds
+     * @param list<string> $tagIds
      */
     private function createLineItemTagRule(array $tagIds, string $operator = Rule::OPERATOR_EQ): LineItemTagRule
     {

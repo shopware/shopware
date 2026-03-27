@@ -9,14 +9,14 @@ use Symfony\Contracts\EventDispatcher\Event;
 class InvalidateCacheEvent extends Event
 {
     /**
-     * @param array<string> $keys
+     * @param list<string> $keys
      */
     public function __construct(protected array $keys)
     {
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getKeys(): array
     {

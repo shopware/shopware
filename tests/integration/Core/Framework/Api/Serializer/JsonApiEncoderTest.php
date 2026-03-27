@@ -305,8 +305,8 @@ class JsonApiEncoderTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $input
-     * @param array<mixed>|null $output
+     * @param list<mixed> $input
+     * @param list<mixed>|null $output
      */
     #[DataProvider('customFieldsProvider')]
     public function testCustomFields(array $input, ?array $output): void
@@ -351,9 +351,9 @@ class JsonApiEncoderTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $haystack
+     * @param list<mixed> $haystack
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function arrayRemove(array $haystack, string $keyToRemove): array
     {
@@ -371,9 +371,9 @@ class JsonApiEncoderTest extends TestCase
     }
 
     /**
-     * @param array<array<mixed>> $array
+     * @param list<list<mixed>> $array
      *
-     * @return array<array<mixed>>
+     * @return list<list<mixed>>
      */
     private function removeIncludedExtensions(array $array): array
     {
@@ -388,8 +388,8 @@ class JsonApiEncoderTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $expected
-     * @param array<mixed> $actual
+     * @param list<mixed> $expected
+     * @param list<mixed> $actual
      */
     private function assertValues(array $expected, array $actual): void
     {

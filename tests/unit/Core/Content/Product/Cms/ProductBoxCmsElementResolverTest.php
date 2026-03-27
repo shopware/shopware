@@ -232,7 +232,7 @@ class ProductBoxCmsElementResolverTest extends TestCase
     }
 
     /**
-     * @return array<array<bool|int>> closeout, hidden, availableStock
+     * @return list<list<bool|int>> closeout, hidden, availableStock
      */
     public static function enrichDataProvider(): array
     {

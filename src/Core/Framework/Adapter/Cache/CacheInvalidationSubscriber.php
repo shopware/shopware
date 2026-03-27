@@ -420,7 +420,7 @@ class CacheInvalidationSubscriber
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getDeletedPropertyFilterTags(EntityWrittenContainerEvent $event): array
     {
@@ -660,9 +660,9 @@ class CacheInvalidationSubscriber
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function getParentIds(array $ids): array
     {
@@ -674,9 +674,9 @@ class CacheInvalidationSubscriber
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function getStreamIds(array $ids): array
     {
@@ -695,9 +695,9 @@ class CacheInvalidationSubscriber
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function getSetIds(array $ids): array
     {

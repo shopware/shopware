@@ -248,7 +248,7 @@ class CategoryUrlProviderTest extends TestCase
     }
 
     /**
-     * @param array<array{resource: class-string, salesChannelId: string, identifier: string}>|null $excludedUrls
+     * @param list<array{resource: class-string, salesChannelId: string, identifier: string}>|null $excludedUrls
      */
     private function initServices(
         Result $categoryQueryResult,
@@ -300,7 +300,7 @@ class CategoryUrlProviderTest extends TestCase
     }
 
     /**
-     * @return array<array{resource: class-string, salesChannelId: string, identifier: string}>
+     * @return list<array{resource: class-string, salesChannelId: string, identifier: string}>
      */
     private function getDefaultExcludedUrls(): array
     {

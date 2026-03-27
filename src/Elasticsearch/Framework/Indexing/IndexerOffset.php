@@ -93,7 +93,7 @@ class IndexerOffset
     /**
      * @internal This method is internal and will be used by Symfony serializer
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getAllDefinitions(): array
     {

@@ -15,7 +15,7 @@ class AdminApiSource implements ContextSource, \JsonSerializable
     private bool $isAdmin = false;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $permissions = [];
 
@@ -41,7 +41,7 @@ class AdminApiSource implements ContextSource, \JsonSerializable
     }
 
     /**
-     * @param array<string> $permissions
+     * @param list<string> $permissions
      */
     public function setPermissions(array $permissions): void
     {
@@ -49,7 +49,7 @@ class AdminApiSource implements ContextSource, \JsonSerializable
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getPermissions(): array
     {

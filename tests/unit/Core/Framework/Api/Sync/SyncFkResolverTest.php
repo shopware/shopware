@@ -76,8 +76,8 @@ class SyncFkResolverTest extends TestCase
     }
 
     /**
-     * @param array<array<string, mixed>> $payload
-     * @param array<string> $expected
+     * @param list<array<string, mixed>> $payload
+     * @param list<string> $expected
      */
     #[DataProvider('missingResolverProvider')]
     public function testMissingResolverThrowsException(array $payload, array $expected): void

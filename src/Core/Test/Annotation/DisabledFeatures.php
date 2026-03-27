@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 final class DisabledFeatures
 {
     /**
-     * @param array<string> $features
+     * @param list<string> $features
      */
     public function __construct(public array $features = [])
     {

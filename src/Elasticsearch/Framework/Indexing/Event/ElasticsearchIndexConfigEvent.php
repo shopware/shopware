@@ -11,7 +11,7 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 class ElasticsearchIndexConfigEvent implements ShopwareEvent
 {
     /**
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      */
     public function __construct(
         private readonly string $indexName,
@@ -27,7 +27,7 @@ class ElasticsearchIndexConfigEvent implements ShopwareEvent
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getConfig(): array
     {
@@ -40,7 +40,7 @@ class ElasticsearchIndexConfigEvent implements ShopwareEvent
     }
 
     /**
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      */
     public function setConfig(array $config): void
     {

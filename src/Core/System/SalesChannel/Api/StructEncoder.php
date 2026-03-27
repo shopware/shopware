@@ -26,7 +26,7 @@ class StructEncoder implements ResetInterface
     private array $protections = [];
 
     /**
-     * @var ?array<string, array<string>>
+     * @var ?array<string, list<string>>
      */
     private ?array $blockedCustomFields = null;
 
@@ -47,7 +47,7 @@ class StructEncoder implements ResetInterface
     }
 
     /**
-     * @return array<array<string, mixed>|mixed>
+     * @return list<array<string, mixed>|mixed>
      */
     public function encode(Struct $struct, ResponseFields $fields): array
     {
@@ -63,7 +63,7 @@ class StructEncoder implements ResetInterface
     /**
      * @param array<array-key, mixed> $array
      *
-     * @return array<array<string, mixed>|mixed>
+     * @return list<array<string, mixed>|mixed>
      */
     private function loop(Struct $struct, ResponseFields $fields, array $array): array
     {

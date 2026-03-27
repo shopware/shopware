@@ -36,7 +36,7 @@ class EntityDeleteEvent extends Event implements ShopwareEvent
     private array $ids = [];
 
     /**
-     * @param array<WriteCommand> $commands
+     * @param list<WriteCommand> $commands
      */
     final private function __construct(
         private readonly WriteContext $writeContext,
@@ -45,7 +45,7 @@ class EntityDeleteEvent extends Event implements ShopwareEvent
     }
 
     /**
-     * @param array<WriteCommand> $commands
+     * @param list<WriteCommand> $commands
      */
     public static function create(WriteContext $writeContext, array $commands): self
     {
@@ -65,7 +65,7 @@ class EntityDeleteEvent extends Event implements ShopwareEvent
     }
 
     /**
-     * @return array<WriteCommand>
+     * @return list<WriteCommand>
      */
     public function getCommands(): array
     {
@@ -73,7 +73,7 @@ class EntityDeleteEvent extends Event implements ShopwareEvent
     }
 
     /**
-     * @return array<array<string, string>|string>
+     * @return list<array<string, string>|string>
      */
     public function getIds(string $entity): array
     {

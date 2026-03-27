@@ -167,14 +167,14 @@ class EntityIndexerRegistry
             return;
         }
 
-        /** @var array<string> $skip */
+        /** @var list<string> $skip */
         $skip = $skip->get('skips');
 
         $message->addSkip(...$skip);
     }
 
     /**
-     * @param array<string> $options
+     * @param list<string> $options
      */
     public static function addOnlyAllowedIndexers(EntityIndexingMessage $message, array $options, Context $context): void
     {
@@ -186,7 +186,7 @@ class EntityIndexerRegistry
             return;
         }
 
-        /** @var array<string> $only */
+        /** @var list<string> $only */
         $only = $only->get('onlies');
 
         $message->setSkip(array_diff($options, $only));
@@ -194,7 +194,7 @@ class EntityIndexerRegistry
 
     /**
      * @param list<string> $indexer
-     * @param array<string> $skip
+     * @param list<string> $skip
      */
     public function sendIndexingMessage(array $indexer = [], array $skip = [], bool $postUpdate = false): void
     {
@@ -270,7 +270,7 @@ class EntityIndexerRegistry
     }
 
     /**
-     * @param array<string> $skip
+     * @param list<string> $skip
      * @param array{offset: int|null}|null $offset
      */
     private function iterateIndexer(string $name, ?array $offset, array $skip): ?EntityIndexingMessage

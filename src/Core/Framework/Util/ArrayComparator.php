@@ -8,8 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 class ArrayComparator
 {
     /**
-     * @param array<string|int|bool|float> $a
-     * @param array<string|int|bool|float> $b
+     * @param list<string|int|bool|float> $a
+     * @param list<string|int|bool|float> $b
      */
     public static function compare(array $a, array $b, string $operator): bool
     {
@@ -21,8 +21,8 @@ class ArrayComparator
     }
 
     /**
-     * @param array<string|int|bool|float> $a
-     * @param array<string|int|bool|float> $b
+     * @param list<string|int|bool|float> $a
+     * @param list<string|int|bool|float> $b
      */
     public static function equals(array $a, array $b): bool
     {
@@ -30,8 +30,8 @@ class ArrayComparator
     }
 
     /**
-     * @param array<string|int|bool|float> $a
-     * @param array<string|int|bool|float> $b
+     * @param list<string|int|bool|float> $a
+     * @param list<string|int|bool|float> $b
      */
     public static function notEquals(array $a, array $b): bool
     {

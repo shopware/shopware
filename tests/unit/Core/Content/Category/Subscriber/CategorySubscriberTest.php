@@ -315,7 +315,7 @@ class CategorySubscriberTest extends TestCase
     }
 
     /**
-     * @param array<\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand> $commands
+     * @param list<\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand> $commands
      */
     private function dispatchEvent(CategorySubscriber $subscriber, array $commands): void
     {

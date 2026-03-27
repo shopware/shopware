@@ -218,7 +218,7 @@ class ProductSearchRouteTest extends TestCase
     }
 
     /**
-     * @param array<string> $expected
+     * @param list<string> $expected
      */
     #[DataProvider('searchOrCases')]
     public function testSearchOr(string $term, array $expected): void
@@ -232,7 +232,7 @@ class ProductSearchRouteTest extends TestCase
     }
 
     /**
-     * @param array<string> $expected
+     * @param list<string> $expected
      */
     #[DataProvider('searchAndCases')]
     public function testSearchAnd(string $term, array $expected): void

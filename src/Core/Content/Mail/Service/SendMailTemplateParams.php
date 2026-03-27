@@ -11,9 +11,9 @@ use Symfony\Component\Mime\Part\DataPart;
 class SendMailTemplateParams extends Struct
 {
     /**
-     * @param array<Address> $recipients
+     * @param list<Address> $recipients
      * @param array<string, mixed> $data
-     * @param array<DataPart> $attachments
+     * @param list<DataPart> $attachments
      */
     public function __construct(
         public string $mailTemplateId,

@@ -11,24 +11,24 @@ use Shopware\Core\Framework\Log\Package;
 class CheckoutGatewayResponse
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     public array $paymentMethods = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     public array $shippingMethods = [];
 
     /**
-     * @var array<array{reason: string, level: int, blockOrder: bool}>
+     * @var list<array{reason: string, level: int, blockOrder: bool}>
      */
     public array $errors = [];
 
     /**
      * @internal
      *
-     * @param array{paymentMethods: array<string>, shippingMethods: array<string>, errors: array<array{reason: string, level: int, blockOrder: bool}>} $data
+     * @param array{paymentMethods: list<string>, shippingMethods: list<string>, errors: list<array{reason: string, level: int, blockOrder: bool}>} $data
      */
     public static function create(array $data): self
     {
@@ -58,7 +58,7 @@ class CheckoutGatewayResponse
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getShippingMethods(): array
     {
@@ -66,7 +66,7 @@ class CheckoutGatewayResponse
     }
 
     /**
-     * @return array<array{reason: string, level: int, blockOrder: bool}>
+     * @return list<array{reason: string, level: int, blockOrder: bool}>
      */
     public function getErrors(): array
     {

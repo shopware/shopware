@@ -172,7 +172,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<bool>>
+     * @return array<string, list<bool>>
      */
     public static function getLineItemFreeDeliveryTestData(): array
     {

@@ -9,9 +9,9 @@ use Shopware\Core\Framework\Struct\Struct;
 class SyncResult extends Struct
 {
     /**
-     * @param array<array<int, mixed>> $data
-     * @param array<array<int, mixed>> $notFound
-     * @param array<array<int, mixed>> $deleted
+     * @param list<array<int, mixed>> $data
+     * @param list<array<int, mixed>> $notFound
+     * @param list<array<int, mixed>> $deleted
      */
     public function __construct(
         protected array $data,
@@ -21,7 +21,7 @@ class SyncResult extends Struct
     }
 
     /**
-     * @return array<array<int, mixed>>
+     * @return list<array<int, mixed>>
      */
     public function getData(): array
     {
@@ -34,7 +34,7 @@ class SyncResult extends Struct
     }
 
     /**
-     * @return array<array<int, mixed>>
+     * @return list<array<int, mixed>>
      */
     public function getNotFound(): array
     {
@@ -42,7 +42,7 @@ class SyncResult extends Struct
     }
 
     /**
-     * @return array<array<int, mixed>>
+     * @return list<array<int, mixed>>
      */
     public function getDeleted(): array
     {

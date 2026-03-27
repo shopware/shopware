@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 class IncrementStorageNotFoundException extends NumberRangeException
 {
     /**
-     * @param array<string> $availableStorages
+     * @param list<string> $availableStorages
      */
     public function __construct(
         string $configuredStorage,

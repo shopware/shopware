@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Struct\Collection;
 abstract class StoreCollection extends Collection
 {
     /**
-     * @param array<TElement|array<string, mixed>> $elements
+     * @param list<TElement|array<string, mixed>> $elements
      */
     public function __construct(iterable $elements = [])
     {

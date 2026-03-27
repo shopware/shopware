@@ -24,7 +24,7 @@ class CacheTagCollection
     }
 
     /**
-     * @param string|array<string> $tags
+     * @param string|list<string> $tags
      */
     public function add(string|array $tags): void
     {

@@ -51,7 +51,7 @@ class ElasticsearchException extends HttpException
     }
 
     /**
-     * @param array{reason: string}|array<array{reason: string}> $items
+     * @param array{reason: string}|list<array{reason: string}> $items
      */
     public static function indexingError(array $items): self
     {
@@ -153,7 +153,7 @@ class ElasticsearchException extends HttpException
     }
 
     /**
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      */
     public static function indexCreationFailed(string $index, array $config, \Throwable $exception): self
     {
@@ -183,7 +183,7 @@ class ElasticsearchException extends HttpException
     }
 
     /**
-     * @param array<string> $privilege
+     * @param list<string> $privilege
      */
     public static function missingPrivilege(array $privilege): self
     {

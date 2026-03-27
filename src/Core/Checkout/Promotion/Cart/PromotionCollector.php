@@ -241,7 +241,7 @@ class PromotionCollector implements CartDataCollectorInterface
      *
      * @throws InconsistentCriteriaIdsException
      *
-     * @return array<PromotionEntity>
+     * @return list<PromotionEntity>
      */
     private function searchPromotionsAuto(CartDataCollection $data, SalesChannelContext $context): array
     {
@@ -267,7 +267,7 @@ class PromotionCollector implements CartDataCollectorInterface
      * or are loaded directly from the database if a certain code is new
      * and has not yet been fetched.
      *
-     * @param array<mixed> $allCodes
+     * @param list<mixed> $allCodes
      *
      * @throws InconsistentCriteriaIdsException
      */
@@ -399,7 +399,7 @@ class PromotionCollector implements CartDataCollectorInterface
      * @throws CartException
      * @throws PromotionException
      *
-     * @return array<LineItem>
+     * @return list<LineItem>
      */
     private function buildDiscountLineItems(string $code, PromotionEntity $promotion, Cart $original, SalesChannelContext $context): array
     {

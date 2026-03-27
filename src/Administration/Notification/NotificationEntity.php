@@ -27,7 +27,7 @@ class NotificationEntity extends Entity
     protected bool $adminOnly;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $requiredPrivileges = [];
 
@@ -115,7 +115,7 @@ class NotificationEntity extends Entity
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getRequiredPrivileges(): array
     {
@@ -125,7 +125,7 @@ class NotificationEntity extends Entity
     }
 
     /**
-     * @param array<string> $requiredPrivileges
+     * @param list<string> $requiredPrivileges
      */
     public function setRequiredPrivileges(array $requiredPrivileges): void
     {

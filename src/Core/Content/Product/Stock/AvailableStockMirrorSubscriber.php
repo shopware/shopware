@@ -30,7 +30,7 @@ class AvailableStockMirrorSubscriber
     }
 
     /**
-     * @return array<WriteCommand>
+     * @return list<WriteCommand>
      */
     private function getAffected(EntityWriteEvent $event): array
     {

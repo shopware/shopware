@@ -70,12 +70,12 @@ class ProductBuilder
     protected array $price = [];
 
     /**
-     * @var array<array<mixed>>
+     * @var list<list<mixed>>
      */
     protected array $prices = [];
 
     /**
-     * @var array<array{id: string, name: string}>
+     * @var list<array{id: string, name: string}>
      */
     protected array $categories = [];
 
@@ -97,7 +97,7 @@ class ProductBuilder
     protected array $visibilities = [];
 
     /**
-     * @var array<CurrencyPrice>|null
+     * @var list<CurrencyPrice>|null
      */
     protected ?array $purchasePrices = null;
 
@@ -106,7 +106,7 @@ class ProductBuilder
     protected ?string $parentId = null;
 
     /**
-     * @var array<array<mixed>>
+     * @var list<list<mixed>>
      */
     protected array $children = [];
 
@@ -140,7 +140,7 @@ class ProductBuilder
     protected ?string $coverId = null;
 
     /**
-     * @var array{id: string}|array<mixed>|null
+     * @var array{id: string}|list<mixed>|null
      */
     protected ?array $cmsPage = null;
 
@@ -157,17 +157,17 @@ class ProductBuilder
     protected ?string $createdAt = null;
 
     /**
-     * @var array<array{salesChannelId: string, languageId: string, routeName: TestProductSeoUrlRoute::ROUTE_NAME, pathInfo: string, seoPathInfo: string}>
+     * @var list<array{salesChannelId: string, languageId: string, routeName: TestProductSeoUrlRoute::ROUTE_NAME, pathInfo: string, seoPathInfo: string}>
      */
     protected array $seoUrls = [];
 
     /**
-     * @var array<array{salesChannelId: string, categoryId: string}>
+     * @var list<array{salesChannelId: string, categoryId: string}>
      */
     protected array $mainCategories = [];
 
     /**
-     * @var array<array<mixed>>
+     * @var list<list<mixed>>
      */
     protected array $variantListingConfig = [];
 
@@ -180,7 +180,7 @@ class ProductBuilder
     protected ?float $weight = null;
 
     /**
-     * @var array<string, array<array<mixed>>>
+     * @var array<string, list<list<mixed>>>
      */
     private array $dependencies = [];
 
@@ -205,7 +205,7 @@ class ProductBuilder
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function build(): array
     {
@@ -246,7 +246,7 @@ class ProductBuilder
     }
 
     /**
-     * @param array<mixed> $data
+     * @param list<mixed> $data
      */
     public function variant(array $data): self
     {
@@ -256,7 +256,7 @@ class ProductBuilder
     }
 
     /**
-     * @param array<mixed> $data
+     * @param list<mixed> $data
      */
     public function variantListingConfig(array $data): self
     {
@@ -405,7 +405,7 @@ class ProductBuilder
     }
 
     /**
-     * @param array<string> $keys
+     * @param list<string> $keys
      */
     public function categories(array $keys): self
     {
@@ -605,7 +605,7 @@ class ProductBuilder
     }
 
     /**
-     * @param array<mixed> $value
+     * @param list<mixed> $value
      */
     public function slot(string $key, array $value, string $languageId = Defaults::LANGUAGE_SYSTEM): self
     {

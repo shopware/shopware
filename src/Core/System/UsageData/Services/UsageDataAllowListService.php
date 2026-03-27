@@ -14,7 +14,7 @@ use Shopware\Core\System\UsageData\UsageDataException;
 class UsageDataAllowListService
 {
     /**
-     * @var array<string, array<string>>
+     * @var array<string, list<string>>
      */
     private array $allowList;
 
@@ -24,7 +24,7 @@ class UsageDataAllowListService
     }
 
     /**
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     public static function getDefaultUsageDataAllowList(): array
     {

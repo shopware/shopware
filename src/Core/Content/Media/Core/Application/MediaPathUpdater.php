@@ -33,7 +33,7 @@ class MediaPathUpdater
      * The `updateMedia` method is called when the media was uploaded and already stored in the database with the current state.
      * It is responsible to update the path of the media in the database.
      *
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function updateMedia(iterable $ids): void
     {
@@ -64,7 +64,7 @@ class MediaPathUpdater
      * The `updateThumbnails` method is called when the media was uploaded and already stored in the database with the current state.
      * It is responsible to update the path of the thumbnails in the database.
      *
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function updateThumbnails(iterable $ids): void
     {

@@ -20,7 +20,7 @@ class KeywordLoader
     }
 
     /**
-     * @param array<array{normal: list<string>, reversed: list<string>}> $tokenSlops
+     * @param list<array{normal: list<string>, reversed: list<string>}> $tokenSlops
      *
      * @return list<list<string>>
      */

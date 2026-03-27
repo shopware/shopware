@@ -12,12 +12,12 @@ use Shopware\Core\Framework\Log\Package;
 class SerializerRegistry
 {
     /**
-     * @var array<AbstractEntitySerializer>
+     * @var list<AbstractEntitySerializer>
      */
     private readonly array $entitySerializers;
 
     /**
-     * @var array<AbstractFieldSerializer>
+     * @var list<AbstractFieldSerializer>
      */
     private readonly array $fieldSerializers;
 
@@ -62,7 +62,7 @@ class SerializerRegistry
     }
 
     /**
-     * @return array<AbstractEntitySerializer>
+     * @return list<AbstractEntitySerializer>
      */
     public function getAllEntitySerializers(): array
     {
@@ -70,7 +70,7 @@ class SerializerRegistry
     }
 
     /**
-     * @return array<AbstractFieldSerializer>
+     * @return list<AbstractFieldSerializer>
      */
     public function getAllFieldSerializers(): array
     {

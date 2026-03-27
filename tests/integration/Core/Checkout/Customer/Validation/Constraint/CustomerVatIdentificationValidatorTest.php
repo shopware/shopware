@@ -38,7 +38,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
     private ExecutionContext $executionContext;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private readonly array $countries;
 
@@ -342,7 +342,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getCountries(): array
     {

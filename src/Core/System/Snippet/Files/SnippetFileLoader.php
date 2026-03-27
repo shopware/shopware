@@ -184,7 +184,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     /**
      * @param array<string, string> $authors
      *
-     * @return array<AbstractSnippetFile>
+     * @return list<AbstractSnippetFile>
      */
     private function loadSnippetFilesInDir(string $snippetDir, Bundle $bundle, array $authors): array
     {

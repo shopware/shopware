@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 class MailAttachmentsConfig
 {
     /**
-     * @param array<mixed> $eventConfig
+     * @param list<mixed> $eventConfig
      */
     public function __construct(
         private Context $context,
@@ -56,7 +56,7 @@ class MailAttachmentsConfig
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getEventConfig(): array
     {
@@ -64,7 +64,7 @@ class MailAttachmentsConfig
     }
 
     /**
-     * @param array<mixed> $eventConfig
+     * @param list<mixed> $eventConfig
      */
     public function setEventConfig(array $eventConfig): void
     {

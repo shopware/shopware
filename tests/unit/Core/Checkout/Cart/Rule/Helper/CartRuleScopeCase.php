@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 class CartRuleScopeCase
 {
     /**
-     * @param array<LineItem> $lineItems
+     * @param list<LineItem> $lineItems
      */
     public function __construct(
         public string $description,

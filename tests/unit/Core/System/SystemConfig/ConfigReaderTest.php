@@ -44,7 +44,7 @@ class ConfigReaderTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function getExpectedConfig(): array
     {

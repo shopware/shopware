@@ -41,7 +41,7 @@ class DoubleOptInGuestOrderEvent extends Event implements SalesChannelAware, Cus
     }
 
     /**
-     * @return array<string, scalar|array<mixed>|null>
+     * @return array<string, scalar|list<mixed>|null>
      */
     public function getValues(): array
     {

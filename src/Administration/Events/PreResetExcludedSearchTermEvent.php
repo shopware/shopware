@@ -11,7 +11,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class PreResetExcludedSearchTermEvent extends Event implements ShopwareEvent
 {
     /**
-     * @param array<string> $excludedTerms
+     * @param list<string> $excludedTerms
      */
     public function __construct(
         private string $searchConfigId,
@@ -31,7 +31,7 @@ class PreResetExcludedSearchTermEvent extends Event implements ShopwareEvent
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getExcludedTerms(): array
     {
@@ -39,7 +39,7 @@ class PreResetExcludedSearchTermEvent extends Event implements ShopwareEvent
     }
 
     /**
-     * @param array<string> $excludedTerms
+     * @param list<string> $excludedTerms
      */
     public function setExcludedTerms(array $excludedTerms): void
     {

@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Struct\Struct;
 final class UpdatedStates extends Struct
 {
     /**
-     * @param array<string> $oldStates
-     * @param array<string> $newStates
+     * @param list<string> $oldStates
+     * @param list<string> $newStates
      */
     public function __construct(
         private readonly string $id,
@@ -36,7 +36,7 @@ final class UpdatedStates extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getOldStates(): array
     {
@@ -49,7 +49,7 @@ final class UpdatedStates extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getNewStates(): array
     {
@@ -62,7 +62,7 @@ final class UpdatedStates extends Struct
     }
 
     /**
-     * @param array<string> $newStates
+     * @param list<string> $newStates
      */
     public function setNewStates(array $newStates): void
     {

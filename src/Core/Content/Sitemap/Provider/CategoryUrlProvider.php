@@ -171,7 +171,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getExcludedCategoryIds(SalesChannelContext $salesChannelContext): array
     {

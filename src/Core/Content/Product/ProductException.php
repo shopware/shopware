@@ -137,7 +137,7 @@ class ProductException extends HttpException
     }
 
     /**
-     * @param array<string> $options
+     * @param list<string> $options
      */
     public static function variantNotFound(string $productId, array $options): VariantNotFoundException
     {

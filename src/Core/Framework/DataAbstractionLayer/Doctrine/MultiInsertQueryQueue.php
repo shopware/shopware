@@ -90,7 +90,7 @@ class MultiInsertQueryQueue
     }
 
     /**
-     * @return array<array{query: string, values: list<string>, types: list<ParameterType>}>
+     * @return list<array{query: string, values: list<string>, types: list<ParameterType>}>
      */
     private function prepareQueries(): array
     {
@@ -130,7 +130,7 @@ class MultiInsertQueryQueue
     }
 
     /**
-     * @param array<string> $fieldsToUpdate
+     * @param list<string> $fieldsToUpdate
      */
     private function prepareOnDuplicateKeyUpdatePart(array $fieldsToUpdate): string
     {

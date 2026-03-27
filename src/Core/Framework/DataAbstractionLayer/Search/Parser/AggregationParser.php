@@ -47,9 +47,9 @@ class AggregationParser
     }
 
     /**
-     * @param array<Aggregation> $aggregations
+     * @param list<Aggregation> $aggregations
      *
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     public function toArray(array $aggregations): array
     {

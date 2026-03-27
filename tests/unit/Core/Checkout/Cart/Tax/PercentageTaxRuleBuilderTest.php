@@ -40,7 +40,7 @@ class PercentageTaxRuleBuilderTest extends TestCase
     }
 
     /**
-     * @return array<string, array<float>>
+     * @return array<string, list<float>>
      */
     public static function getCaseTestMatchValues(): array
     {

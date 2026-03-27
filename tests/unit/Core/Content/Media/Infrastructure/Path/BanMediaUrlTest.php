@@ -143,7 +143,7 @@ class BanMediaUrlTest extends TestCase
 class Gateway implements MediaReverseProxy
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     public array $urls = [];
 
@@ -160,7 +160,7 @@ class Gateway implements MediaReverseProxy
     }
 
     /**
-     * @param array<string> $urls
+     * @param list<string> $urls
      */
     public function ban(array $urls): void
     {

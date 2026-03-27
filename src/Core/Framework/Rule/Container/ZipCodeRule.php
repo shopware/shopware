@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 abstract class ZipCodeRule extends Rule
 {
     /**
-     * @param array<string>|null $zipCodes
+     * @param list<string>|null $zipCodes
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
@@ -73,7 +73,7 @@ abstract class ZipCodeRule extends Rule
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getMatches(string $zipCode): array
     {

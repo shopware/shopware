@@ -158,7 +158,7 @@ class PluginCreateCommandTest extends TestCase
     }
 
     /**
-     * @param array<ScaffoldingGenerator> $generators
+     * @param list<ScaffoldingGenerator> $generators
      */
     private function getCommandTester(array $generators = [], bool $directoryExists = false): CommandTester
     {

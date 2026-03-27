@@ -24,7 +24,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class CartService implements ResetInterface
 {
     /**
-     * @var array<Cart>
+     * @var list<Cart>
      */
     private array $cart = [];
 
@@ -82,7 +82,7 @@ class CartService implements ResetInterface
     }
 
     /**
-     * @param LineItem|array<LineItem> $items
+     * @param LineItem|list<LineItem> $items
      *
      * @throws CartException
      */
@@ -111,7 +111,7 @@ class CartService implements ResetInterface
     }
 
     /**
-     * @param array<array<string|int, mixed>> $items
+     * @param list<array<string|int, mixed>> $items
      *
      * @throws CartException
      */
@@ -134,7 +134,7 @@ class CartService implements ResetInterface
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @throws CartException
      */

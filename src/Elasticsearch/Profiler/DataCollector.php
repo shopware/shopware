@@ -86,7 +86,7 @@ class DataCollector extends BaseDataCollector
     }
 
     /**
-     * @return array<RequestInfo>
+     * @return list<RequestInfo>
      */
     public function getRequests(): array
     {
@@ -102,7 +102,7 @@ class DataCollector extends BaseDataCollector
     }
 
     /**
-     * @return array<array{index: string, status: string, pri: int, rep: int, 'docs.count': int}>
+     * @return list<array{index: string, status: string, pri: int, rep: int, 'docs.count': int}>
      */
     public function getIndices(): array
     {

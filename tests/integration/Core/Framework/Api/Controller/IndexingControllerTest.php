@@ -69,7 +69,7 @@ class IndexingControllerTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int>>
+     * @return array<string, list<int>>
      */
     public static function provideOffsets(): array
     {

@@ -37,22 +37,22 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class EntityHydrator
 {
     /**
-     * @var array<mixed>
+     * @var list<mixed>
      */
     protected static array $partial = [];
 
     /**
-     * @var array<bool>
+     * @var list<bool>
      */
     protected static array $partialFullPaths = [];
 
     /**
-     * @var array<mixed>
+     * @var list<mixed>
      */
     private static array $hydrated = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private static array $manyToOne = [];
 
@@ -72,8 +72,8 @@ class EntityHydrator
      * @template TEntityCollection of EntityCollection
      *
      * @param TEntityCollection $collection
-     * @param array<mixed> $rows
-     * @param array<string|array<string>> $partial
+     * @param list<mixed> $rows
+     * @param list<string|list<string>> $partial
      *
      * @return TEntityCollection
      */
@@ -112,9 +112,9 @@ class EntityHydrator
     }
 
     /**
-     * @param array<mixed> $row
+     * @param list<mixed> $row
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     final public static function buildUniqueIdentifier(EntityDefinition $definition, array $row, string $root): array
     {
@@ -134,9 +134,9 @@ class EntityHydrator
     }
 
     /**
-     * @param array<string> $primaryKey
+     * @param list<string> $primaryKey
      *
-     * @return array<string>
+     * @return list<string>
      */
     final public static function encodePrimaryKey(EntityDefinition $definition, array $primaryKey, Context $context): array
     {
@@ -170,7 +170,7 @@ class EntityHydrator
     /**
      * Allows simple overwrite for specialized entity hydrators
      *
-     * @param array<mixed> $row
+     * @param list<mixed> $row
      */
     protected function assign(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context): Entity
     {
@@ -180,7 +180,7 @@ class EntityHydrator
     }
 
     /**
-     * @param array<mixed> $row
+     * @param list<mixed> $row
      * @param iterable<Field> $fields
      */
     protected function hydrateFields(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context, iterable $fields): Entity
@@ -282,7 +282,7 @@ class EntityHydrator
     }
 
     /**
-     * @param array<mixed> $row
+     * @param list<mixed> $row
      */
     protected function manyToMany(array $row, string $root, Entity $entity, ?Field $field): void
     {
@@ -311,7 +311,7 @@ class EntityHydrator
     }
 
     /**
-     * @param array<mixed> $row
+     * @param list<mixed> $row
      * @param array<string, Field> $fields
      */
     protected function translate(EntityDefinition $definition, Entity $entity, array $row, string $root, Context $context, array $fields): void
@@ -335,7 +335,7 @@ class EntityHydrator
     }
 
     /**
-     * @param array<Field> $fields
+     * @param list<Field> $fields
      *
      * @return array<string, Field>
      */
@@ -356,7 +356,7 @@ class EntityHydrator
     }
 
     /**
-     * @param array<mixed> $row
+     * @param list<mixed> $row
      */
     protected function manyToOne(array $row, string $root, ?Field $field, Context $context): ?Entity
     {
@@ -385,7 +385,7 @@ class EntityHydrator
     }
 
     /**
-     * @param array<mixed> $row
+     * @param list<mixed> $row
      */
     protected function customFields(EntityDefinition $definition, array $row, string $root, Entity $entity, ?Field $field, Context $context): void
     {
@@ -477,7 +477,7 @@ class EntityHydrator
     }
 
     /**
-     * @param array<mixed> $row
+     * @param list<mixed> $row
      */
     protected static function value(array $row, string $root, string $property): ?string
     {
@@ -508,7 +508,7 @@ class EntityHydrator
     }
 
     /**
-     * @param array<string|null> $jsonStrings
+     * @param list<string|null> $jsonStrings
      */
     protected function mergeJson(array $jsonStrings): string
     {
@@ -549,7 +549,7 @@ class EntityHydrator
     }
 
     /**
-     * @param array<mixed> $row
+     * @param list<mixed> $row
      */
     private function hydrateEntity(EntityDefinition $definition, string $entityClass, array $row, string $root, Context $context): Entity
     {

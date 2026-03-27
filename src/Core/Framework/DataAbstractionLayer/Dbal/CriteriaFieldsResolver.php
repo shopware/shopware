@@ -49,7 +49,7 @@ class CriteriaFieldsResolver
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function resolveRuntimeField(Criteria $criteria, EntityDefinition $definition): array
     {

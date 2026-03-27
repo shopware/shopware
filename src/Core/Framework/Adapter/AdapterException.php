@@ -305,7 +305,7 @@ class AdapterException extends HttpException
     }
 
     /**
-     * @param array<string> $paths
+     * @param list<string> $paths
      */
     public static function circularReferenceEsi(array $paths): self
     {

@@ -40,7 +40,7 @@ class LineItemGroupBuilder implements ResetInterface
      * Every line item will be taken from the cart and only the ones that are left will
      * be checked for upcoming groups.
      *
-     * @param array<LineItemGroupDefinition> $groupDefinitions
+     * @param list<LineItemGroupDefinition> $groupDefinitions
      */
     public function findGroupPackages(array $groupDefinitions, Cart $cart, SalesChannelContext $context): LineItemGroupBuilderResult
     {
@@ -118,7 +118,7 @@ class LineItemGroupBuilder implements ResetInterface
      * So if we have 4 line items of 2 products with each quantity 1, and want to remove a product with qt 2,
      * then 2 line items will be removed and the new rest of the cart is being returned.
      *
-     * @param array<LineItemQuantity> $foundItems
+     * @param list<LineItemQuantity> $foundItems
      */
     private function adjustRestOfCart(array $foundItems, LineItemFlatCollection $restOfCart): LineItemFlatCollection
     {

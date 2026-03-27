@@ -11,7 +11,7 @@ class CategoryIndexerEvent extends NestedEvent
 {
     /**
      * @param list<string> $ids
-     * @param array<string> $skip
+     * @param list<string> $skip
      */
     public function __construct(
         protected array $ids,
@@ -35,7 +35,7 @@ class CategoryIndexerEvent extends NestedEvent
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getSkip(): array
     {

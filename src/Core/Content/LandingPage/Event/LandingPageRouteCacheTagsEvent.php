@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 class LandingPageRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
     /**
-     * @param array<string|null> $tags
+     * @param list<string|null> $tags
      * @param LandingPageRouteResponse $response
      */
     public function __construct(

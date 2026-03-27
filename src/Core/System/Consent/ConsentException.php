@@ -109,7 +109,7 @@ class ConsentException extends HttpException
     }
 
     /**
-     * @param array<string> $missingPermissions
+     * @param list<string> $missingPermissions
      */
     public static function insufficientPermissions(string $consent, array $missingPermissions): self
     {

@@ -54,7 +54,7 @@ class EntityProtectionValidatorTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return list<list<string>>
      */
     public static function blockedApiRequest(): array
     {

@@ -159,7 +159,7 @@ class BillingZipCodeRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string|bool>>
+     * @return array<string, list<string|bool>>
      */
     public static function getMatchValuesNumeric(): array
     {
@@ -205,7 +205,7 @@ class BillingZipCodeRuleTest extends TestCase
     }
 
     /**
-     * @return \Traversable<string, array<string|bool|null>>
+     * @return \Traversable<string, list<string|bool|null>>
      */
     public static function getMatchValuesAlphanumeric(): \Traversable
     {

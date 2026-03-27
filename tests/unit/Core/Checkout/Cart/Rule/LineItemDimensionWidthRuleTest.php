@@ -79,7 +79,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
     }
 
     /**
-     * @return \Traversable<string, array<string|int|bool|null>>
+     * @return \Traversable<string, list<string|int|bool|null>>
      */
     public static function getMatchingRuleTestData(): \Traversable
     {
@@ -201,7 +201,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
     }
 
     /**
-     * @return \Traversable<string, array<string|int|bool|null>>
+     * @return \Traversable<string, list<string|int|bool|null>>
      */
     public static function getCartRuleScopeTestData(): \Traversable
     {
@@ -246,7 +246,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
     }
 
     /**
-     * @param array<LineItem> $lineItems
+     * @param list<LineItem> $lineItems
      */
     #[DataProvider('getDataWithMatchAllLineItemsRule')]
     public function testIfMatchesWithMatchAllLineItemsRule(
@@ -274,7 +274,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
     }
 
     /**
-     * @return \Traversable<string, array<string|bool|array<LineItem>>>
+     * @return \Traversable<string, list<string|bool|list<LineItem>>>
      */
     public static function getDataWithMatchAllLineItemsRule(): \Traversable
     {

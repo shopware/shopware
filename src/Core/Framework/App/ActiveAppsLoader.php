@@ -20,7 +20,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class ActiveAppsLoader implements ResetInterface
 {
     /**
-     * @var array<App>|null
+     * @var list<App>|null
      */
     private ?array $activeApps = null;
 
@@ -32,7 +32,7 @@ class ActiveAppsLoader implements ResetInterface
     }
 
     /**
-     * @return array<App>
+     * @return list<App>
      */
     public function getActiveApps(): array
     {
@@ -49,7 +49,7 @@ class ActiveAppsLoader implements ResetInterface
     }
 
     /**
-     * @return array<App>
+     * @return list<App>
      */
     private function loadApps(): array
     {

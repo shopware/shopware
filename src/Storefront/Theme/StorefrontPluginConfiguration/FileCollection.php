@@ -13,7 +13,7 @@ use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 class FileCollection extends Collection
 {
     /**
-     * @param array<string> $files
+     * @param list<string> $files
      *
      * @return self
      */
@@ -28,7 +28,7 @@ class FileCollection extends Collection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getFilepaths(): array
     {
@@ -36,7 +36,7 @@ class FileCollection extends Collection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getPublicPaths(string $prefix): array
     {

@@ -60,7 +60,7 @@ class Migration1624967118updateMailTemplatesWithOptionalSalutation extends Migra
     }
 
     /**
-     * @return array<MailUpdate>
+     * @return list<MailUpdate>
      */
     public static function getUpdates(): array
     {

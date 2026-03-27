@@ -389,7 +389,7 @@ class ThumbnailServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<array<string, int>|bool>>
+     * @return list<list<array<string, int>|bool>>
      */
     public static function thumbnailSizeProvider(): array
     {

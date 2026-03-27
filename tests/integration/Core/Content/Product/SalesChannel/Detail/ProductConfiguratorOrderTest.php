@@ -97,8 +97,8 @@ class ProductConfiguratorOrderTest extends TestCase
     }
 
     /**
-     * @param array<string>|null $groupPositionOrder
-     * @param array<string>|null $configuratorGroupConfigOrder
+     * @param list<string>|null $groupPositionOrder
+     * @param list<string>|null $configuratorGroupConfigOrder
      *
      * @return array<int, string|null>
      */

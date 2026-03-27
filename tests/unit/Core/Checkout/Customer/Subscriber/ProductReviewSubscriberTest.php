@@ -192,7 +192,7 @@ class ProductReviewSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     private function getEntityWrittenEvent(array $ids = [], bool $invalidEntity = false): EntityWrittenEvent
     {

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 class CategoryCollection extends EntityCollection
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getParentIds(): array
     {
@@ -26,7 +26,7 @@ class CategoryCollection extends EntityCollection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getMediaIds(): array
     {

@@ -16,12 +16,12 @@ class EntityIndexingMessage implements AsyncMessageInterface, DeduplicatableMess
     private readonly Context $context;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $skip = [];
 
     /**
-     * @param array<string>|string $data
+     * @param list<string>|string $data
      * @param array{offset: int|null}|null $offset
      */
     public function __construct(
@@ -35,7 +35,7 @@ class EntityIndexingMessage implements AsyncMessageInterface, DeduplicatableMess
     }
 
     /**
-     * @return array<string>|string
+     * @return list<string>|string
      */
     public function getData(): array|string
     {
@@ -77,7 +77,7 @@ class EntityIndexingMessage implements AsyncMessageInterface, DeduplicatableMess
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getSkip(): array
     {
@@ -85,7 +85,7 @@ class EntityIndexingMessage implements AsyncMessageInterface, DeduplicatableMess
     }
 
     /**
-     * @param array<string> $skip
+     * @param list<string> $skip
      */
     public function setSkip(array $skip): void
     {

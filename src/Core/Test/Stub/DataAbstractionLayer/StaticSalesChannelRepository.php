@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Validation;
 class StaticSalesChannelRepository extends SalesChannelRepository
 {
     /**
-     * @param array<callable(Criteria, Context): (ResultTypes)|ResultTypes> $searches
+     * @param list<callable(Criteria, Context): (ResultTypes)|ResultTypes> $searches
      */
     public function __construct(
         private array $searches = [],

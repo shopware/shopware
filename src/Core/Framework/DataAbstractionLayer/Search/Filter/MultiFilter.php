@@ -23,7 +23,7 @@ class MultiFilter extends Filter
     protected string $operator;
 
     /**
-     * @param array<Filter> $queries
+     * @param list<Filter> $queries
      */
     public function __construct(
         string $operator,
@@ -44,7 +44,7 @@ class MultiFilter extends Filter
     }
 
     /**
-     * @return array<Filter>
+     * @return list<Filter>
      */
     public function getQueries(): array
     {

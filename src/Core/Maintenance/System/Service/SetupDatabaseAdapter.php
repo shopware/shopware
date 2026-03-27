@@ -59,7 +59,7 @@ class SetupDatabaseAdapter
     /**
      * @param list<string> $ignoredSchemas
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getExistingDatabases(Connection $connection, array $ignoredSchemas): array
     {

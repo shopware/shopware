@@ -24,7 +24,7 @@ class SearchKeywordReplacement extends SearchKeywordUpdater
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @deprecated tag:v6.8.0 - reason:remove-decorator - Will be removed, use \Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater::update instead.
      */

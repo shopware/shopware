@@ -16,7 +16,7 @@ class ProductListingResult extends EntitySearchResult
     protected ?string $sorting = null;
 
     /**
-     * @var array<string, int|float|string|bool|array<mixed>|null>
+     * @var array<string, int|float|string|bool|list<mixed>|null>
      */
     protected array $currentFilters = [];
 
@@ -25,7 +25,7 @@ class ProductListingResult extends EntitySearchResult
     protected ?string $streamId = null;
 
     /**
-     * @param int|float|string|bool|array<mixed>|null $value
+     * @param int|float|string|bool|list<mixed>|null $value
      */
     public function addCurrentFilter(string $key, $value): void
     {
@@ -53,7 +53,7 @@ class ProductListingResult extends EntitySearchResult
     }
 
     /**
-     * @return array<string, int|float|string|bool|array<mixed>|null>
+     * @return array<string, int|float|string|bool|list<mixed>|null>
      */
     public function getCurrentFilters(): array
     {
@@ -61,7 +61,7 @@ class ProductListingResult extends EntitySearchResult
     }
 
     /**
-     * @return int|float|string|bool|array<mixed>|null
+     * @return int|float|string|bool|list<mixed>|null
      */
     public function getCurrentFilter(string $key)
     {

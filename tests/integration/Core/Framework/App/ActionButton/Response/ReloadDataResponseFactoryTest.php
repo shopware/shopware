@@ -58,7 +58,7 @@ class ReloadDataResponseFactoryTest extends TestCase
     }
 
     /**
-     * @return array<int, array<string|bool>>
+     * @return array<int, list<string|bool>>
      */
     public static function provideActionTypes(): array
     {

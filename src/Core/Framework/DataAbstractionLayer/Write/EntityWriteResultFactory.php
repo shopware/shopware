@@ -51,9 +51,9 @@ class EntityWriteResultFactory
     }
 
     /**
-     * @param array<array<string, string>> $ids
+     * @param list<array<string, string>> $ids
      *
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     public function resolveDelete(EntityDefinition $definition, array $ids): array
     {
@@ -64,7 +64,7 @@ class EntityWriteResultFactory
     /**
      * @param array<string, array<string, mixed>> $rawData
      *
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     public function resolveWrite(EntityDefinition $definition, array $rawData): array
     {
@@ -77,7 +77,7 @@ class EntityWriteResultFactory
     /**
      * @param array<string, list<EntityWriteResult>> $results
      *
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     public function resolveMappings(array $results): array
     {
@@ -116,7 +116,7 @@ class EntityWriteResultFactory
 
     /**
      * @param array<string, list<EntityWriteResult>> $writeResults
-     * @param array<string, array<string>> $parents
+     * @param array<string, list<string>> $parents
      *
      * @return array<string, list<EntityWriteResult>>
      */
@@ -142,7 +142,7 @@ class EntityWriteResultFactory
     /**
      * @param array<string, list<EntityWriteResult>> $identifiers
      * @param array<string, list<EntityWriteResult>> $notFound
-     * @param array<string, array<string>> $parents
+     * @param array<string, list<string>> $parents
      */
     public function addDeleteResults(array $identifiers, array $notFound, array $parents): WriteResult
     {
@@ -168,9 +168,9 @@ class EntityWriteResultFactory
     }
 
     /**
-     * @param array<array<string, string>> $ids
+     * @param list<array<string, string>> $ids
      *
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     private function resolveParents(EntityDefinition $definition, array $ids, bool $delete = false): array
     {
@@ -223,7 +223,7 @@ class EntityWriteResultFactory
     }
 
     /**
-     * @param array<string, array<EntityWriteResult>> $identifiers
+     * @param array<string, list<EntityWriteResult>> $identifiers
      *
      * @return array{deleted: array<string, list<EntityWriteResult>>, updated: array<string, list<EntityWriteResult>>}
      */
@@ -254,9 +254,9 @@ class EntityWriteResultFactory
     }
 
     /**
-     * @param array<array<string, string>> $rawData
+     * @param list<array<string, string>> $rawData
      *
-     * @return array<array<string>>
+     * @return list<list<string>>
      */
     private function resolveMappingParents(EntityDefinition $definition, array $rawData): array
     {
@@ -287,9 +287,9 @@ class EntityWriteResultFactory
     }
 
     /**
-     * @param array<array<string, string>> $rawData
+     * @param list<array<string, string>> $rawData
      *
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     private function fetchParentIds(EntityDefinition $definition, array $rawData): array
     {
@@ -315,7 +315,7 @@ class EntityWriteResultFactory
 
     /**
      * @param array<string, string>|string $primaryKey
-     * @param array<string, array<EntityWriteResult>> $results
+     * @param array<string, list<EntityWriteResult>> $results
      */
     private function hasResult(string $entity, string|array $primaryKey, array $results): bool
     {
@@ -523,7 +523,7 @@ class EntityWriteResultFactory
     }
 
     /**
-     * @param array<array<string, string>> $rawData
+     * @param list<array<string, string>> $rawData
      *
      * @return list<string>
      */

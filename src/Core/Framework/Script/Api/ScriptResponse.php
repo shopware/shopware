@@ -32,7 +32,7 @@ class ScriptResponse
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getHeaders(): array
     {
@@ -67,7 +67,7 @@ class ScriptResponse
     }
 
     /**
-     * @param array<mixed>|ArrayFacade<mixed> $body
+     * @param list<mixed>|ArrayFacade<mixed> $body
      */
     public function setBody(array|ArrayFacade $body): void
     {

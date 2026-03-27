@@ -18,7 +18,7 @@ class SnippetException extends HttpException
     final public const SNIPPET_DEFAULT_LANGUAGE_NOT_GIVEN_EXCEPTION = 'SNIPPET__DEFAULT_LANGUAGE_NOT_GIVEN';
 
     /**
-     * @param array<string> $duplicatedKeys
+     * @param list<string> $duplicatedKeys
      *
      * @deprecated tag:v6.8.0 - Will be removed without replacement
      */
@@ -38,7 +38,7 @@ class SnippetException extends HttpException
     }
 
     /**
-     * @param array<string> $keys
+     * @param list<string> $keys
      */
     public static function extendOrOverwriteCore(array $keys): self
     {

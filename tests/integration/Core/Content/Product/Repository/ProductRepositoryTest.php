@@ -3425,7 +3425,7 @@ class ProductRepositoryTest extends TestCase
     }
 
     /**
-     * @param array<string> $ruleIds
+     * @param list<string> $ruleIds
      */
     private function createContext(array $ruleIds = []): Context
     {

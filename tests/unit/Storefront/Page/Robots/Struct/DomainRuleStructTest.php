@@ -38,7 +38,7 @@ class DomainRuleStructTest extends TestCase
     }
 
     /**
-     * @return array<array{string, string, list<array{type: string, path: string}>}>
+     * @return list<array{string, string, list<array{type: string, path: string}>}>
      */
     public static function getTestCases(): array
     {

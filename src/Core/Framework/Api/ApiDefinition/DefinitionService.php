@@ -25,7 +25,7 @@ class DefinitionService
     final public const TYPE_JSON = 'json';
 
     /**
-     * @var array<ApiDefinitionGeneratorInterface>
+     * @var list<ApiDefinitionGeneratorInterface>
      */
     private readonly array $generators;
 

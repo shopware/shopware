@@ -30,7 +30,7 @@ class LineItemGroup
      * Gets all added line item quantity packages
      * that this group contains.
      *
-     * @return array<LineItemQuantity>
+     * @return list<LineItemQuantity>
      */
     public function getItems(): array
     {

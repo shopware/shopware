@@ -24,7 +24,7 @@ class ProductStreamEntity extends Entity
     protected ?string $description = null;
 
     /**
-     * @var array<array<string, string|array<array<string, mixed>>>>|null
+     * @var list<array<string, string|list<array<string, mixed>>>>|null
      */
     protected ?array $apiFilter = null;
 
@@ -65,7 +65,7 @@ class ProductStreamEntity extends Entity
     }
 
     /**
-     * @return array<array<string, string|array<array<string, mixed>>>>|null
+     * @return list<array<string, string|list<array<string, mixed>>>>|null
      */
     public function getApiFilter(): ?array
     {
@@ -73,7 +73,7 @@ class ProductStreamEntity extends Entity
     }
 
     /**
-     * @param array<array<string, string|array<array<string, mixed>>>> $apiFilter
+     * @param list<array<string, string|list<array<string, mixed>>>> $apiFilter
      */
     public function setApiFilter(?array $apiFilter): void
     {

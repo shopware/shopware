@@ -46,7 +46,7 @@ class Migration1720603803RemoveDefaultPaymentMethodRuleTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function getConditionValues(string $type): array
     {

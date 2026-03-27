@@ -13,7 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class ProductGatewayCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function __construct(
         protected array $ids,
@@ -23,7 +23,7 @@ class ProductGatewayCriteriaEvent extends NestedEvent implements ShopwareSalesCh
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getIds(): array
     {

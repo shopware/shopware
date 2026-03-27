@@ -221,7 +221,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
     }
 
     /**
-     * @return array<array{0: array{domain: string, expectDomain: string}}>
+     * @return list<array{0: array{domain: string, expectDomain: string}}>
      */
     public static function sendMailWithDomainAndLeadingSlashProvider(): array
     {

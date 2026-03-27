@@ -133,7 +133,7 @@ class SalesChannelException extends HttpException
     }
 
     /**
-     * @param array<string> $availableLanguages
+     * @param list<string> $availableLanguages
      */
     public static function providedLanguageNotAvailable(string $languageId, array $availableLanguages): self
     {

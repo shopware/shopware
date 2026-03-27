@@ -24,7 +24,7 @@ readonly class ThemeScripts
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getThemeScripts(): array
     {

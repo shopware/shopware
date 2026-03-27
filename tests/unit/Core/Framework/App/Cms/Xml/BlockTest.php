@@ -124,7 +124,7 @@ class BlockTest extends TestCase
     }
 
     /**
-     * @return array<BlockEntityArray>
+     * @return list<BlockEntityArray>
      */
     private function getExpectedEntityArrayBlocks(): array
     {

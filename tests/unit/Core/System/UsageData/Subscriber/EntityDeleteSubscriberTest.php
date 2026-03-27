@@ -486,13 +486,13 @@ class NonStorageAwareField extends Field
 class DeletedEvent extends EntityDeleteEvent
 {
     /**
-     * @var array<array<string, string>>
+     * @var list<array<string, string>>
      */
     private static array $ids = [];
 
     /**
-     * @param array<WriteCommand> $commands
-     * @param array<array<string, string>> $ids
+     * @param list<WriteCommand> $commands
+     * @param list<array<string, string>> $ids
      */
     public static function create(WriteContext $writeContext, array $commands, array $ids = []): EntityDeleteEvent
     {
@@ -502,7 +502,7 @@ class DeletedEvent extends EntityDeleteEvent
     }
 
     /**
-     * @return array<array<string, string>|string>
+     * @return list<array<string, string>|string>
      */
     public function getIds(string $entity): array
     {

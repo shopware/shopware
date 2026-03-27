@@ -337,7 +337,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getDomainUrls(SalesChannelContext $context): array
     {

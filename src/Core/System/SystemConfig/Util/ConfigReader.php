@@ -24,7 +24,7 @@ class ConfigReader extends XmlReader
     /**
      * @throws BundleConfigNotFoundException
      *
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     public function getConfigFromBundle(Bundle $bundle, ?string $bundleConfigName = null): array
     {
@@ -51,7 +51,7 @@ class ConfigReader extends XmlReader
     }
 
     /**
-     * @return array<array{title: array<string, string|null>, name: string|null, elements: list<array<string, mixed>>, flag?: string|null}>
+     * @return list<array{title: array<string, string|null>, name: string|null, elements: list<array<string, mixed>>, flag?: string|null}>
      */
     private function getCardDefinitions(\DOMDocument $xml): array
     {
@@ -236,7 +236,7 @@ class ConfigReader extends XmlReader
     }
 
     /**
-     * @return array<array{id: string|null, name: array<string, string|null>}>
+     * @return list<array{id: string|null, name: array<string, string|null>}>
      */
     private function optionsToArray(\DOMElement $element): array
     {

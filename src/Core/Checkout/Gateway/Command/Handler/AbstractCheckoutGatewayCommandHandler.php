@@ -13,7 +13,7 @@ abstract class AbstractCheckoutGatewayCommandHandler
     abstract public function handle(AbstractCheckoutGatewayCommand $command, CheckoutGatewayResponse $response, SalesChannelContext $context): void;
 
     /**
-     * @return array<class-string<AbstractCheckoutGatewayCommand>>
+     * @return list<class-string<AbstractCheckoutGatewayCommand>>
      */
     abstract public static function supportedCommands(): array;
 }

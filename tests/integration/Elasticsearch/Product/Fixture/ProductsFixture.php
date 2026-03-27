@@ -16,7 +16,7 @@ use Shopware\Core\Test\TestDefaults;
 class ProductsFixture
 {
     /**
-     * @return list<array<mixed>>
+     * @return list<list<mixed>>
      */
     public static function get(IdsCollection $ids, string $secondLanguage, string $thirdLanguage): array
     {

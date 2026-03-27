@@ -20,7 +20,7 @@ class VariantCombinationLoader
     }
 
     /**
-     * @return array<array<string>>
+     * @return list<list<string>>
      */
     public function load(string $productId, Context $context): array
     {

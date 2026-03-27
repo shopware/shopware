@@ -117,7 +117,7 @@ class RequestCriteriaBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<mixed>>
+     * @return iterable<string, list<mixed>>
      */
     public static function invalidCriteriaIdsProvider(): iterable
     {
@@ -127,7 +127,7 @@ class RequestCriteriaBuilderTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $ids
+     * @param list<mixed> $ids
      */
     #[DataProvider('invalidCriteriaIdsProvider')]
     public function testInvalidCriteriaIds(array $ids): void
@@ -165,7 +165,7 @@ class RequestCriteriaBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<mixed>>
+     * @return iterable<string, list<mixed>>
      */
     public static function validCriteriaIdsProvider(): iterable
     {
@@ -176,8 +176,8 @@ class RequestCriteriaBuilderTest extends TestCase
     }
 
     /**
-     * @param string|array<mixed> $idPayload
-     * @param array<string>|array<int, array<string>> $expectedIds
+     * @param string|list<mixed> $idPayload
+     * @param list<string>|array<int, list<string>> $expectedIds
      */
     #[DataProvider('validCriteriaIdsProvider')]
     public function testValidCriteriaIds($idPayload, array $expectedIds): void

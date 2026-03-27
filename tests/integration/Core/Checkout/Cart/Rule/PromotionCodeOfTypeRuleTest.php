@@ -206,7 +206,7 @@ class PromotionCodeOfTypeRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string|bool|null>>
+     * @return array<string, list<string|bool|null>>
      */
     public static function getCartRuleScopeTestData(): array
     {

@@ -192,7 +192,7 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
     /**
      * @param list<array{id: string, name: string, entity_name: string}> $customMediaFields
      *
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     private function groupFieldsPerEntity(array $customMediaFields): array
     {

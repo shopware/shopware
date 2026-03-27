@@ -14,7 +14,7 @@ use Symfony\Component\Finder\SplFileInfo;
 class ScriptReferenceDataCollector
 {
     /**
-     * @var array<class-string>
+     * @var list<class-string>
      */
     private static array $classes = [];
 
@@ -31,7 +31,7 @@ class ScriptReferenceDataCollector
     private static ?array $finderPaths = null;
 
     /**
-     * @return array<class-string>
+     * @return list<class-string>
      */
     public static function getShopwareClasses(): array
     {
@@ -50,7 +50,7 @@ class ScriptReferenceDataCollector
     /**
      * @internal only for testing
      *
-     * @param array<class-string> $classes
+     * @param list<class-string> $classes
      */
     public static function setShopwareClasses(array $classes): void
     {
@@ -66,7 +66,7 @@ class ScriptReferenceDataCollector
     }
 
     /**
-     * @return array<SplFileInfo>
+     * @return list<SplFileInfo>
      */
     public static function getFiles(): array
     {

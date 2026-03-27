@@ -10,14 +10,14 @@ class ElasticsearchRegistry
     /**
      * @internal
      *
-     * @param array<AbstractElasticsearchDefinition> $definitions
+     * @param list<AbstractElasticsearchDefinition> $definitions
      */
     public function __construct(private readonly iterable $definitions)
     {
     }
 
     /**
-     * @return array<AbstractElasticsearchDefinition>
+     * @return list<AbstractElasticsearchDefinition>
      */
     public function getDefinitions(): iterable
     {

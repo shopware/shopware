@@ -80,7 +80,7 @@ class OpenNewTabResponseFactoryTest extends TestCase
     }
 
     /**
-     * @return array<array<string|bool>>
+     * @return list<list<string|bool>>
      */
     public static function provideActionTypes(): array
     {
@@ -93,7 +93,7 @@ class OpenNewTabResponseFactoryTest extends TestCase
     }
 
     /**
-     * @return array<array<string|array<string, mixed>>>
+     * @return list<list<string|array<string, mixed>>>
      */
     public static function provideInvalidPayloads(): array
     {

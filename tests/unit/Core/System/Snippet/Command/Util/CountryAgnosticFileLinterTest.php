@@ -137,7 +137,7 @@ class CountryAgnosticFileLinterTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{dir: string, isAll: bool, expectedPaths: array<string>, callCount: int}>
+     * @return \Generator<string, array{dir: string, isAll: bool, expectedPaths: list<string>, callCount: int}>
      */
     public static function getFinderPathProvider(): \Generator
     {
@@ -164,7 +164,7 @@ class CountryAgnosticFileLinterTest extends TestCase
     }
 
     /**
-     * @param array<string> $expectedPaths
+     * @param list<string> $expectedPaths
      */
     #[DataProvider('getFinderPathProvider')]
     public function testGetFinderWithDifferentPaths(string $dir, bool $isAll, array $expectedPaths, int $callCount): void
@@ -301,7 +301,7 @@ class CountryAgnosticFileLinterTest extends TestCase
     }
 
     /**
-     * @return array<SplFileInfo>
+     * @return list<SplFileInfo>
      */
     private function createMockTranslationFiles(): array
     {

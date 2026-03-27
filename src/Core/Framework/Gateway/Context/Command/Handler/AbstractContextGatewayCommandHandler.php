@@ -21,7 +21,7 @@ abstract class AbstractContextGatewayCommandHandler
     abstract public function handle(AbstractContextGatewayCommand $command, SalesChannelContext $context, array &$parameters): void;
 
     /**
-     * @return array<class-string<TCommand>>
+     * @return list<class-string<TCommand>>
      */
     abstract public static function supportedCommands(): array;
 }

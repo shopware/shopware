@@ -33,7 +33,7 @@ class SystemConfigChangedHook implements Hookable
     }
 
     /**
-     * @return array{changes: array<string>}
+     * @return array{changes: list<string>}
      */
     public function getWebhookPayload(?AppEntity $app = null): array
     {

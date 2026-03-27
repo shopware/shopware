@@ -31,7 +31,7 @@ final class LoadPreviewExtension extends Extension
          *
          * @description The array should contain a list of product ids.
          *
-         * @var array<string>
+         * @var list<string>
          */
         public readonly array $ids,
         /**

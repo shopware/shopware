@@ -85,7 +85,7 @@ class FirstRunWizardClient
     }
 
     /**
-     * @return array<Plugin>
+     * @return list<Plugin>
      */
     public function getLanguagePlugins(Context $context): array
     {
@@ -93,7 +93,7 @@ class FirstRunWizardClient
     }
 
     /**
-     * @return array<Plugin>
+     * @return list<Plugin>
      */
     public function getDemoDataPlugins(Context $context): array
     {
@@ -101,7 +101,7 @@ class FirstRunWizardClient
     }
 
     /**
-     * @return array<array{label: string, name: string, categories: array<array{name: string, label: string}>}>
+     * @return list<array{label: string, name: string, categories: list<array{name: string, label: string}>}>
      */
     public function getRecommendationRegions(Context $context): array
     {
@@ -149,7 +149,7 @@ class FirstRunWizardClient
      * @throws GuzzleException
      * @throws \JsonException
      *
-     * @return array<array{id: int, domain: string, verified?: bool, edition: array{name: string, label: string}}>
+     * @return list<array{id: int, domain: string, verified?: bool, edition: array{name: string, label: string}}>
      */
     public function getLicenseDomains(Context $context): array
     {
@@ -200,7 +200,7 @@ class FirstRunWizardClient
     }
 
     /**
-     * @return array<Plugin>
+     * @return list<Plugin>
      */
     private function getPluginsFromStore(string $endpoint, Context $context): array
     {

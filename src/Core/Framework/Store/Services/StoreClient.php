@@ -125,7 +125,7 @@ class StoreClient
     }
 
     /**
-     * @return array<StoreUpdateStruct>
+     * @return list<StoreUpdateStruct>
      */
     public function getExtensionUpdateList(ExtensionCollection $extensionCollection, Context $context): array
     {
@@ -178,7 +178,7 @@ class StoreClient
     /**
      * @param array<string, array{name: string, version: ?string, active: bool}> $extensions
      *
-     * @return array<StoreLicenseViolationStruct>
+     * @return list<StoreLicenseViolationStruct>
      */
     public function getLicenseViolations(
         Context $context,
@@ -442,7 +442,7 @@ class StoreClient
     /**
      * @param list<array<string, mixed>> $violationsData
      *
-     * @return array<StoreLicenseViolationStruct>
+     * @return list<StoreLicenseViolationStruct>
      */
     private function getViolations(array $violationsData): array
     {
@@ -461,7 +461,7 @@ class StoreClient
     /**
      * @param list<array<string, mixed>> $actionsData
      *
-     * @return array<StoreActionStruct>
+     * @return list<StoreActionStruct>
      */
     private function getActions(array $actionsData): array
     {
@@ -478,7 +478,7 @@ class StoreClient
     /**
      * @param list<array{name: string, version: ?string}> $extensionList
      *
-     * @return array<StoreUpdateStruct>
+     * @return list<StoreUpdateStruct>
      */
     private function getUpdateListFromStore(array $extensionList, Context $context, ?string $hostName = null): array
     {

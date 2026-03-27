@@ -88,7 +88,7 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
     }
 
     /**
-     * @param array<string> $options
+     * @param list<string> $options
      */
     private function searchForOptions(
         string $productId,

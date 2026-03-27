@@ -10,12 +10,12 @@ use Shopware\Core\Framework\Struct\Struct;
 class CartPromotionsDataDefinition extends Struct
 {
     /**
-     * @var array<string, array<PromotionEntity>>
+     * @var array<string, list<PromotionEntity>>
      */
     private array $codePromotions = [];
 
     /**
-     * @var array<PromotionEntity>
+     * @var list<PromotionEntity>
      */
     private array $automaticPromotions = [];
 
@@ -26,7 +26,7 @@ class CartPromotionsDataDefinition extends Struct
     /**
      * Adds a list of promotions to the existing list of automatic promotions.
      *
-     * @param array<PromotionEntity> $promotions
+     * @param list<PromotionEntity> $promotions
      */
     public function addAutomaticPromotions(array $promotions): void
     {
@@ -37,7 +37,7 @@ class CartPromotionsDataDefinition extends Struct
      * Adds the provided list of promotions to the existing list of promotions for this code.
      *
      * @param string $code the promotion code
-     * @param array<PromotionEntity> $promotions a list of promotion entities for this code
+     * @param list<PromotionEntity> $promotions a list of promotion entities for this code
      */
     public function addCodePromotions(string $code, array $promotions): void
     {

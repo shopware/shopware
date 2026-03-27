@@ -273,7 +273,7 @@ class AppLifecycle extends AbstractAppLifecycle
     }
 
     /**
-     * @return array<array<string, mixed>>|null
+     * @return list<array<string, mixed>>|null
      */
     private function getAppConfig(AppEntity $app): ?array
     {

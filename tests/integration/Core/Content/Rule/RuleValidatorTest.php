@@ -44,7 +44,7 @@ class RuleValidatorTest extends TestCase
     }
 
     /**
-     * @param array<array<string, string|array<string, mixed>>> $conditions
+     * @param list<array<string, string|array<string, mixed>>> $conditions
      */
     #[DataProvider('providerRuleCases')]
     public function testItCanCreateRulesOnValidInput(string $conditionId, array $conditions): void
@@ -303,7 +303,7 @@ class RuleValidatorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, array<array<string, string|array<string, mixed>>>}>
+     * @return iterable<string, array{string, list<array<string, string|array<string, mixed>>>}>
      */
     public static function providerRuleCases(): iterable
     {

@@ -21,7 +21,7 @@ class Client implements ResetInterface
     private readonly string $registryUrl;
 
     /**
-     * @var array<ServiceEntry>
+     * @var list<ServiceEntry>
      */
     private ?array $services = null;
 
@@ -69,7 +69,7 @@ class Client implements ResetInterface
     }
 
     /**
-     * @return array<ServiceEntry>
+     * @return list<ServiceEntry>
      */
     public function getAll(): array
     {
@@ -158,7 +158,7 @@ class Client implements ResetInterface
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function fetchServices(int $page): ?array
     {
@@ -191,7 +191,7 @@ class Client implements ResetInterface
     }
 
     /**
-     * @param array<mixed> $content
+     * @param list<mixed> $content
      */
     private function validateServicesResponse(array $content): bool
     {

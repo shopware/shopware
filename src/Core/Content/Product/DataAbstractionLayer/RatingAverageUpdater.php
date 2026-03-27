@@ -20,7 +20,7 @@ class RatingAverageUpdater
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function update(array $ids, Context $context): void
     {

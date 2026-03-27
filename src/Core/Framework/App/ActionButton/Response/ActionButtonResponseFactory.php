@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 class ActionButtonResponseFactory
 {
     /**
-     * @param array<ActionButtonResponseFactoryInterface> $factories
+     * @param list<ActionButtonResponseFactoryInterface> $factories
      */
     public function __construct(private readonly iterable $factories)
     {

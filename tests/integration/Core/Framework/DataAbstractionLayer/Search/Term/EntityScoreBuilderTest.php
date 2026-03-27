@@ -242,7 +242,7 @@ class EntityScoreBuilderTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     public static function inValidDateTerms(): array
     {
@@ -258,7 +258,7 @@ class EntityScoreBuilderTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     public static function validDateTerms(): array
     {

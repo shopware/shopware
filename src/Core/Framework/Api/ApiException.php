@@ -179,7 +179,7 @@ class ApiException extends HttpException
     }
 
     /**
-     * @param array<string> $allow
+     * @param list<string> $allow
      */
     public static function methodNotAllowed(array $allow, string $message): SymfonyHttpException
     {
@@ -238,7 +238,7 @@ class ApiException extends HttpException
     }
 
     /**
-     * @param array<mixed> $payload
+     * @param list<mixed> $payload
      */
     public static function resourceNotFound(string $entity, array $payload): ShopwareHttpException
     {

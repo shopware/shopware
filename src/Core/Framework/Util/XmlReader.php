@@ -16,7 +16,7 @@ abstract class XmlReader
     /**
      * load and validate xml file - parse to array
      *
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     public function read(string $xmlFile): array
     {
@@ -154,7 +154,7 @@ abstract class XmlReader
     /**
      * This method is the main entry point to parse a xml file.
      *
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     abstract protected function parseFile(\DOMDocument $xml): array;
 }

@@ -311,7 +311,7 @@ class PromotionMixedCalculationTest extends TestCase
     }
 
     /**
-     * @return array<string, array<mixed>>
+     * @return array<string, list<mixed>>
      *
      * expectedDiscount,
      * applyTo,
@@ -690,7 +690,7 @@ class PromotionMixedCalculationTest extends TestCase
     }
 
     /**
-     * @return array<string, array<mixed>>
+     * @return array<string, list<mixed>>
      */
     public static function getBuyThreeTshirtsGetFirstOneFreeTestData(): array
     {
@@ -774,7 +774,7 @@ class PromotionMixedCalculationTest extends TestCase
     }
 
     /**
-     * @return array<string, array<mixed>>
+     * @return array<string, list<mixed>>
      */
     public static function getBuyThreeTshirtsGetSecondOneFreeTestData(): array
     {

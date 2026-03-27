@@ -31,7 +31,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
 class CheckoutPageLoadedHookTest extends TestCase
 {
     /**
-     * @return array<array<PageLoadedHook&CartAware>>
+     * @return list<list<PageLoadedHook&CartAware>>
      */
     public static function dataProviderHooks(): array
     {

@@ -38,7 +38,7 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     #[DataProvider('beforeDeletionEventDataProvider')]
     public function testBeforeDeletionEvent(
@@ -69,7 +69,7 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $connectionData
+     * @param list<mixed> $connectionData
      */
     #[DataProvider('beforeSystemConfigChangedEventDataProvider')]
     public function testBeforeSystemConfigChangedEvent(
@@ -181,7 +181,7 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<string> $cmsPageIds
+     * @param list<string> $cmsPageIds
      */
     private function getBeforeDeleteEvent(array $cmsPageIds, string $versionId): EntityDeleteEvent
     {
@@ -202,7 +202,7 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<array{method: string, with: list<mixed>, willReturn: mixed}> $configurations
+     * @param list<array{method: string, with: list<mixed>, willReturn: mixed}> $configurations
      */
     private function getConnectionMock(array $configurations = []): Connection
     {

@@ -15,7 +15,7 @@ class FieldConfig extends Struct
     final public const SOURCE_PRODUCT_STREAM = 'product_stream';
 
     /**
-     * @param array<mixed>|bool|float|int|string|null $value
+     * @param list<mixed>|bool|float|int|string|null $value
      */
     public function __construct(
         protected string $name,
@@ -35,7 +35,7 @@ class FieldConfig extends Struct
     }
 
     /**
-     * @return array<mixed>|bool|float|int|string|null
+     * @return list<mixed>|bool|float|int|string|null
      */
     public function getValue(): mixed
     {
@@ -43,7 +43,7 @@ class FieldConfig extends Struct
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getArrayValue(): array
     {

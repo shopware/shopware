@@ -23,7 +23,7 @@ class PromotionExclusionUpdater
      * function is called when a promotion is saved.
      * the exclusions of promotions will be checked and are written/deleted if necessary
      *
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function update(array $ids): void
     {
@@ -95,9 +95,9 @@ class PromotionExclusionUpdater
      * deletes all referenced exclusions in all promotions that id is not in excludeThisIds
      * returns affected hex uuids
      *
-     * @param array<string> $excludeThisIds
+     * @param list<string> $excludeThisIds
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function deleteFromJSON(string $deleteId, array $excludeThisIds): array
     {
@@ -143,7 +143,7 @@ class PromotionExclusionUpdater
     /**
      * appends addId in all promotions that id is in ids
      *
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     private function addToJSON(string $addId, array $ids): void
     {
@@ -171,7 +171,7 @@ class PromotionExclusionUpdater
     /**
      * sets all ids in onlyAddThisExistingIds as exclusion in promotion with id
      *
-     * @param array<string> $onlyAddThisExistingIds
+     * @param list<string> $onlyAddThisExistingIds
      */
     private function updateJSON(string $id, array $onlyAddThisExistingIds): void
     {
@@ -192,9 +192,9 @@ class PromotionExclusionUpdater
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function getExistingIds(array $ids): array
     {
@@ -238,9 +238,9 @@ class PromotionExclusionUpdater
     }
 
     /**
-     * @param array<string> $hexIds
+     * @param list<string> $hexIds
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function convertHexArrayToByteArray(array $hexIds): array
     {

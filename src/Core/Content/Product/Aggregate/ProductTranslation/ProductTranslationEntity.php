@@ -42,7 +42,7 @@ class ProductTranslationEntity extends TranslationEntity
     protected ?string $ogDescription = null;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $customSearchKeywords = null;
 
@@ -153,7 +153,7 @@ class ProductTranslationEntity extends TranslationEntity
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getCustomSearchKeywords(): ?array
     {
@@ -161,7 +161,7 @@ class ProductTranslationEntity extends TranslationEntity
     }
 
     /**
-     * @param array<string>|null $customSearchKeywords
+     * @param list<string>|null $customSearchKeywords
      */
     public function setCustomSearchKeywords(?array $customSearchKeywords): void
     {

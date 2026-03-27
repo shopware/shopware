@@ -341,7 +341,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @return array<string, array<string, string|array<int, array<string, string|null>>|null>>
      */
@@ -667,7 +667,7 @@ SQL;
                 $variantCustomFields[$languageId] ?? [],
             ];
 
-            /** @var array<mixed>|string $chain */
+            /** @var list<mixed>|string $chain */
             foreach ($chains as $chain) {
                 // chain is empty string, when no custom fields are set
                 if ($chain === '') {

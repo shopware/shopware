@@ -18,7 +18,7 @@ class MeasurementSystemException extends HttpException
     public const MEASUREMENT_UNIT_CANT_HAVE_ZERO_FACTOR = 'CONTENT_MEASUREMENT_UNIT_CANT_HAVE_ZERO_FACTOR';
 
     /**
-     * @param array<string> $possibleTypes
+     * @param list<string> $possibleTypes
      */
     public static function unsupportedMeasurementType(string $type, array $possibleTypes): self
     {
@@ -34,7 +34,7 @@ class MeasurementSystemException extends HttpException
     }
 
     /**
-     * @param array<string> $possibleUnits
+     * @param list<string> $possibleUnits
      */
     public static function unsupportedMeasurementUnit(string $unit, array $possibleUnits): self
     {

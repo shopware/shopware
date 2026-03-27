@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 class CategoryRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      */
     public function __construct(
         protected string $navigationId,

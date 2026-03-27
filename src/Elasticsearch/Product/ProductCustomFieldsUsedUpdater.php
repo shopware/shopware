@@ -167,7 +167,7 @@ class ProductCustomFieldsUsedUpdater implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $fieldNames
+     * @param list<string> $fieldNames
      *
      * @return array<string, string>
      */

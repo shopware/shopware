@@ -22,12 +22,12 @@ use function array_slice;
 class BacktraceDebugDataHolder extends DebugDataHolder
 {
     /**
-     * @var array<string, array<Backtrace>>
+     * @var array<string, list<Backtrace>>
      */
     private array $backtraces = [];
 
     /**
-     * @param array<string> $connWithBacktraces
+     * @param list<string> $connWithBacktraces
      */
     public function __construct(private readonly array $connWithBacktraces)
     {
@@ -55,7 +55,7 @@ class BacktraceDebugDataHolder extends DebugDataHolder
     }
 
     /**
-     * @return array<string, array<QueryInfo>>
+     * @return array<string, list<QueryInfo>>
      */
     public function getData(): array
     {
@@ -69,7 +69,7 @@ class BacktraceDebugDataHolder extends DebugDataHolder
     }
 
     /**
-     * @param array<QueryInfo> $dataForConn
+     * @param list<QueryInfo> $dataForConn
      *
      * @return list<QueryInfo>
      */

@@ -32,7 +32,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class StateMachineRegistry implements ResetInterface
 {
     /**
-     * @var array<StateMachineEntity>
+     * @var list<StateMachineEntity>
      */
     private array $stateMachines;
 
@@ -89,7 +89,7 @@ class StateMachineRegistry implements ResetInterface
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineException
      *
-     * @return array<StateMachineTransitionEntity>
+     * @return list<StateMachineTransitionEntity>
      */
     public function getAvailableTransitions(
         string $entityName,
@@ -226,7 +226,7 @@ class StateMachineRegistry implements ResetInterface
      * @throws StateMachineException
      * @throws InconsistentCriteriaIdsException
      *
-     * @return array<StateMachineTransitionEntity>
+     * @return list<StateMachineTransitionEntity>
      */
     private function getAvailableTransitionsById(string $stateMachineName, string $fromStateId, Context $context): array
     {

@@ -77,7 +77,7 @@ class VersionManager
     }
 
     /**
-     * @param array<array<string, mixed|null>> $rawData
+     * @param list<array<string, mixed|null>> $rawData
      *
      * @return array<string, list<EntityWriteResult>>
      */
@@ -91,7 +91,7 @@ class VersionManager
     }
 
     /**
-     * @param array<array<string, mixed|null>> $rawData
+     * @param list<array<string, mixed|null>> $rawData
      *
      * @return array<string, list<EntityWriteResult>>
      */
@@ -105,7 +105,7 @@ class VersionManager
     }
 
     /**
-     * @param array<array<string, mixed|null>> $rawData
+     * @param list<array<string, mixed|null>> $rawData
      *
      * @return array<string, list<EntityWriteResult>>
      */
@@ -119,7 +119,7 @@ class VersionManager
     }
 
     /**
-     * @param array<array<string, mixed|null>> $ids
+     * @param list<array<string, mixed|null>> $ids
      */
     public function delete(EntityDefinition $definition, array $ids, WriteContext $writeContext): WriteResult
     {
@@ -424,7 +424,7 @@ class VersionManager
     }
 
     /**
-     * @param array<string, array<EntityWriteResult>> $writtenEvents
+     * @param array<string, list<EntityWriteResult>> $writtenEvents
      */
     private function writeAuditLog(array $writtenEvents, WriteContext $writeContext, ?string $versionId = null, bool $isClone = false): void
     {
@@ -660,7 +660,7 @@ class VersionManager
     }
 
     /**
-     * @param array<string> $entityId
+     * @param list<string> $entityId
      * @param array<string, mixed> $payload
      *
      * @return array<string, mixed>

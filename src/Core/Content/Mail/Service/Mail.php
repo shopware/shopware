@@ -11,7 +11,7 @@ class Mail extends Email
     private ?MailAttachmentsConfig $mailAttachmentsConfig = null;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $attachmentUrls = [];
 
@@ -52,7 +52,7 @@ class Mail extends Email
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getAttachmentUrls(): array
     {

@@ -240,7 +240,7 @@ abstract class KernelPluginLoader extends Bundle
     }
 
     /**
-     * @param array<string> $psr
+     * @param list<string> $psr
      *
      * @throws PluginException
      *

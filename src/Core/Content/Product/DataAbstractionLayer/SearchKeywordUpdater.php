@@ -57,7 +57,7 @@ class SearchKeywordUpdater implements ResetInterface
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function update(array $ids, Context $context): void
     {
@@ -97,10 +97,10 @@ class SearchKeywordUpdater implements ResetInterface
     }
 
     /**
-     * @param array<string> $ids
-     * @param array<ProductEntity> $existingProducts
+     * @param list<string> $ids
+     * @param list<ProductEntity> $existingProducts
      *
-     * @return array<ProductEntity>
+     * @return list<ProductEntity>
      */
     private function updateLanguage(array $ids, Context $context, array $existingProducts): array
     {
@@ -158,7 +158,7 @@ class SearchKeywordUpdater implements ResetInterface
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      * @param array<int, ConfigField> $configFields
      *
      * @return RepositoryIterator<ProductCollection>
@@ -176,7 +176,7 @@ class SearchKeywordUpdater implements ResetInterface
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     private function delete(array $ids, string $languageId, string $versionId): void
     {
@@ -326,7 +326,7 @@ class SearchKeywordUpdater implements ResetInterface
     /**
      * Sort languages so default language comes first, then languages that don't inherit and last inherited languages
      *
-     * @return array<LanguageEntity>
+     * @return list<LanguageEntity>
      */
     private function sortLanguages(LanguageCollection $languages): array
     {

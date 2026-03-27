@@ -32,7 +32,7 @@ class MemorySizeCalculatorTest extends TestCase
      * See also:
      * https://github.com/symfony/symfony/blob/3a96e4cde6aa0c9e138bdfcce60564a2f396c070/src/Symfony/Component/HttpKernel/Tests/DataCollector/MemoryDataCollectorTest.php
      *
-     * @return array<array{0: string, 1: int}>
+     * @return list<array{0: string, 1: int}>
      */
     public static function memorySizeDataProvider(): array
     {
@@ -61,7 +61,7 @@ class MemorySizeCalculatorTest extends TestCase
     }
 
     /**
-     * @return array<array{0: int, 1: string}>
+     * @return list<array{0: int, 1: string}>
      */
     public static function bytesProvider(): array
     {

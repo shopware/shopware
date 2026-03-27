@@ -13,7 +13,7 @@ class LegacyPasswordVerifier
     /**
      * @internal
      *
-     * @param array<LegacyEncoderInterface> $encoder
+     * @param list<LegacyEncoderInterface> $encoder
      */
     public function __construct(private readonly iterable $encoder)
     {

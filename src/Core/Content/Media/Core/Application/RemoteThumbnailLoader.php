@@ -27,7 +27,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class RemoteThumbnailLoader implements ResetInterface
 {
     /**
-     * @var ?array<string, array<array{media_thumbnail_size_id: string, width: string, height: string}>>
+     * @var ?array<string, list<array{media_thumbnail_size_id: string, width: string, height: string}>>
      */
     private ?array $mediaFolderThumbnailSizes = null;
 
@@ -140,7 +140,7 @@ class RemoteThumbnailLoader implements ResetInterface
     }
 
     /**
-     * @return array<string, array<array{media_thumbnail_size_id: string, width: string, height: string}>>
+     * @return array<string, list<array{media_thumbnail_size_id: string, width: string, height: string}>>
      */
     private function getMediaThumbnailSizes(): array
     {

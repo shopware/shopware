@@ -18,7 +18,7 @@ class CacheAttributeTest extends TestCase
 {
     /**
      * @param CacheAttributeArray $input
-     * @param array<string>|null $expectedStates
+     * @param list<string>|null $expectedStates
      */
     #[DataProvider('fromArrayProvider')]
     public function testFromArray(array $input, ?int $expectedMaxAge, ?int $expectedSMaxAge, ?array $expectedStates): void

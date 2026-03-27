@@ -17,7 +17,7 @@ class DocumentConfiguration extends Struct
     protected string $id;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $deliveryCountries = [];
 
@@ -105,7 +105,7 @@ class DocumentConfiguration extends Struct
     protected string $documentTypeId;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $fileTypes = [];
 
@@ -296,7 +296,7 @@ class DocumentConfiguration extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getAddressParts(): array
     {
@@ -419,7 +419,7 @@ class DocumentConfiguration extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getFileTypes(): array
     {
@@ -427,7 +427,7 @@ class DocumentConfiguration extends Struct
     }
 
     /**
-     * @param array<string> $types
+     * @param list<string> $types
      */
     public function setFileTypes(array $types): void
     {

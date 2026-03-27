@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class FlowActionDefinition extends Struct
 {
     /**
-     * @param array<string> $requirements
+     * @param list<string> $requirements
      */
     public function __construct(
         protected string $name,
@@ -29,7 +29,7 @@ class FlowActionDefinition extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getRequirements(): array
     {
@@ -37,7 +37,7 @@ class FlowActionDefinition extends Struct
     }
 
     /**
-     * @param array<string> $requirements
+     * @param list<string> $requirements
      */
     public function setRequirements(array $requirements): void
     {

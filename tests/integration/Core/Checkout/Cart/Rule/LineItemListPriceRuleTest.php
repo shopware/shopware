@@ -87,7 +87,7 @@ class LineItemListPriceRuleTest extends TestCase
     }
 
     /**
-     * @return \Traversable<string, array<string|int|bool|null>>
+     * @return \Traversable<string, list<string|int|bool|null>>
      */
     public static function getMatchingRuleTestData(): \Traversable
     {
@@ -208,7 +208,7 @@ class LineItemListPriceRuleTest extends TestCase
     }
 
     /**
-     * @return \Traversable<string, array<string|int|bool|null>>
+     * @return \Traversable<string, list<string|int|bool|null>>
      */
     public static function getCartRuleScopeTestData(): \Traversable
     {

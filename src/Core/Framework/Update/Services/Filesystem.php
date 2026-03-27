@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 class Filesystem
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function checkSingleDirectoryPermissions(string $directory, bool $fixPermission = false): array
     {

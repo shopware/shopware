@@ -58,7 +58,7 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
     }
 
     /**
-     * @param array<CategoryEntity> $categories
+     * @param list<CategoryEntity> $categories
      */
     private function buildTree(?string $parentId, array $categories): CategoryCollection
     {

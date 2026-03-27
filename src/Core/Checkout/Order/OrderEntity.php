@@ -114,7 +114,7 @@ class OrderEntity extends Entity
     protected ?string $internalComment = null;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $ruleIds = [];
 
@@ -541,7 +541,7 @@ class OrderEntity extends Entity
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getRuleIds(): ?array
     {
@@ -549,7 +549,7 @@ class OrderEntity extends Entity
     }
 
     /**
-     * @param array<string>|null $ruleIds
+     * @param list<string>|null $ruleIds
      */
     public function setRuleIds(?array $ruleIds): void
     {

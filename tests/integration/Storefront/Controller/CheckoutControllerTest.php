@@ -101,7 +101,7 @@ class CheckoutControllerTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public static function customerComments(): array
     {
@@ -209,7 +209,7 @@ class CheckoutControllerTest extends TestCase
     }
 
     /**
-     * @param array<string> $errorKeys
+     * @param list<string> $errorKeys
      */
     #[DataProvider('errorDataProvider')]
     public function testOffCanvasWithErrorsFlash(ErrorCollection $errors, array $errorKeys, bool $testSwitchToDefault = false): void
@@ -265,7 +265,7 @@ class CheckoutControllerTest extends TestCase
     }
 
     /**
-     * @param array<string> $errorKeys
+     * @param list<string> $errorKeys
      */
     #[DataProvider('errorDataProvider')]
     public function testConfirmWithErrorsFlash(ErrorCollection $errors, array $errorKeys, bool $testSwitchToDefault = false, bool $orderShouldBeBlocked = false): void
@@ -336,7 +336,7 @@ class CheckoutControllerTest extends TestCase
     }
 
     /**
-     * @return array<array<mixed>>
+     * @return list<list<mixed>>
      */
     public static function errorDataProvider(): array
     {

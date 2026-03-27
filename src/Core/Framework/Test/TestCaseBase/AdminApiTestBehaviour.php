@@ -23,12 +23,12 @@ use Symfony\Component\HttpKernel\KernelInterface;
 trait AdminApiTestBehaviour
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $apiUsernames = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $apiIntegrations = [];
 
@@ -67,8 +67,8 @@ trait AdminApiTestBehaviour
     }
 
     /**
-     * @param array<string> $scopes
-     * @param array<string>|null $permissions
+     * @param list<string> $scopes
+     * @param list<string>|null $permissions
      */
     public function createClient(
         ?KernelInterface $kernel = null,
@@ -122,8 +122,8 @@ trait AdminApiTestBehaviour
     }
 
     /**
-     * @param array<string> $scopes
-     * @param array<string>|null $aclPermissions
+     * @param list<string> $scopes
+     * @param list<string>|null $aclPermissions
      */
     public function authorizeBrowser(TestBrowser $browser, array $scopes = [], ?array $aclPermissions = null): void
     {
@@ -267,8 +267,8 @@ trait AdminApiTestBehaviour
     abstract protected static function getKernel(): KernelInterface;
 
     /**
-     * @param array<string> $scopes
-     * @param array<string>|null $permissions
+     * @param list<string> $scopes
+     * @param list<string>|null $permissions
      */
     protected function getBrowser(bool $authorized = true, array $scopes = [], ?array $permissions = null): TestBrowser
     {

@@ -139,7 +139,7 @@ class CustomerGroupRegistrationActionController
     }
 
     /**
-     * @return non-empty-array<string>
+     * @return non-empty-list<string>
      */
     private function getRequestCustomerIds(Request $request): array
     {
@@ -157,7 +157,7 @@ class CustomerGroupRegistrationActionController
     }
 
     /**
-     * @param non-empty-array<string> $customerIds
+     * @param non-empty-list<string> $customerIds
      */
     private function fetchCustomers(array $customerIds, Context $context, bool $silentError = false): CustomerCollection
     {

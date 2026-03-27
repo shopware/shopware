@@ -35,7 +35,7 @@ class ProductStreamFilterEntity extends Entity
     protected int $position;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $parameters = null;
 
@@ -140,7 +140,7 @@ class ProductStreamFilterEntity extends Entity
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getParameters(): ?array
     {
@@ -148,7 +148,7 @@ class ProductStreamFilterEntity extends Entity
     }
 
     /**
-     * @param array<string>|null $parameters
+     * @param list<string>|null $parameters
      */
     public function setParameters(?array $parameters): void
     {

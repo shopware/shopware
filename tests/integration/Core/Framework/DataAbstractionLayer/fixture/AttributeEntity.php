@@ -175,7 +175,7 @@ class AttributeEntity extends EntityStruct
     public ?array $translations = null;
 
     /**
-     * @var array<ProductEntity>
+     * @var list<ProductEntity>
      */
     #[ManyToMany(entity: 'product', mapping: 'my_own_mapping_table_name')]
     public array $ownMapping = [];

@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
 class TransportCollection implements \IteratorAggregate
 {
     /**
-     * @param array<MetricTransport> $transports
+     * @param list<MetricTransport> $transports
      */
     private function __construct(private readonly array $transports)
     {

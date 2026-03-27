@@ -62,7 +62,7 @@ class ConsentService implements ResetInterface
     }
 
     /**
-     * @return array<ConsentState>
+     * @return list<ConsentState>
      */
     public function list(Context $context): array
     {

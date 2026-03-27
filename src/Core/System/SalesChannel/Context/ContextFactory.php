@@ -91,7 +91,7 @@ class ContextFactory
 
     /**
      * @param array{originalContext?: Context, version-id?: string, languageId?: string} $sessionOptions
-     * @param array<string> $availableLanguageIds
+     * @param list<string> $availableLanguageIds
      *
      * @return non-empty-list<string>
      */

@@ -44,7 +44,7 @@ class CustomSnippetFormatController
     public function render(Request $request): JsonResponse
     {
         $format = $request->request->all()['format'] ?? [];
-        /** @var array<mixed> $data */
+        /** @var list<mixed> $data */
         $data = $request->request->all()['data'] ?? [];
         $parameters = array_merge_recursive(['format' => $format], $data);
 

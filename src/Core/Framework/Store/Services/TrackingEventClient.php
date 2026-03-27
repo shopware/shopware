@@ -18,7 +18,7 @@ class TrackingEventClient
     }
 
     /**
-     * @param array<mixed> $additionalData
+     * @param list<mixed> $additionalData
      *
      * @return array<string, mixed>|null
      */

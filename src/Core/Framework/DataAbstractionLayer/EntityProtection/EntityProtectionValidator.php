@@ -37,7 +37,7 @@ class EntityProtectionValidator implements EventSubscriberInterface
 
     /**
      * @param list<array{entity: string, value: string|null, definition: EntityDefinition, field: Field|null}> $pathSegments
-     * @param array<string> $protections FQCN of the protections that need to be validated
+     * @param list<string> $protections FQCN of the protections that need to be validated
      */
     public function validateEntityPath(array $pathSegments, array $protections, Context $context): void
     {

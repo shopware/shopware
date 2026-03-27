@@ -114,22 +114,22 @@ class ProductEntity extends Entity implements \Stringable
     protected ?\DateTimeInterface $releaseDate = null;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $categoryTree = null;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $streamIds = null;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $optionIds = null;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $propertyIds = null;
 
@@ -152,14 +152,14 @@ class ProductEntity extends Entity implements \Stringable
     protected ?string $packUnitPlural = null;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $variantRestrictions = null;
 
     protected ?VariantListingConfig $variantListingConfig = null;
 
     /**
-     * @var array<array<string>>
+     * @var list<list<string>>
      */
     protected array $variation = [];
 
@@ -211,12 +211,12 @@ class ProductEntity extends Entity implements \Stringable
     protected ?ProductVisibilityCollection $visibilities = null;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $tagIds = null;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $categoryIds = null;
 
@@ -241,7 +241,7 @@ class ProductEntity extends Entity implements \Stringable
     protected ?bool $customFieldSetSelectionActive = null;
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     protected ?array $customSearchKeywords = null;
 
@@ -532,7 +532,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getCategoryTree(): ?array
     {
@@ -540,7 +540,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @param array<string>|null $categoryTree
+     * @param list<string>|null $categoryTree
      */
     public function setCategoryTree(?array $categoryTree): void
     {
@@ -705,7 +705,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getStreamIds(): ?array
     {
@@ -713,7 +713,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @param array<string>|null $streamIds
+     * @param list<string>|null $streamIds
      */
     public function setStreamIds(?array $streamIds): void
     {
@@ -721,7 +721,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getOptionIds(): ?array
     {
@@ -729,7 +729,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @param array<string>|null $optionIds
+     * @param list<string>|null $optionIds
      */
     public function setOptionIds(?array $optionIds): void
     {
@@ -737,7 +737,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getPropertyIds(): ?array
     {
@@ -745,7 +745,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @param array<string>|null $propertyIds
+     * @param list<string>|null $propertyIds
      */
     public function setPropertyIds(?array $propertyIds): void
     {
@@ -959,7 +959,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getTagIds(): ?array
     {
@@ -967,7 +967,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @param array<string> $tagIds
+     * @param list<string> $tagIds
      */
     public function setTagIds(array $tagIds): void
     {
@@ -975,7 +975,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getVariantRestrictions(): ?array
     {
@@ -983,7 +983,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @param array<string>|null $variantRestrictions
+     * @param list<string>|null $variantRestrictions
      */
     public function setVariantRestrictions(?array $variantRestrictions): void
     {
@@ -1001,7 +1001,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @return array<array<string>>
+     * @return list<list<string>>
      */
     public function getVariation(): array
     {
@@ -1009,7 +1009,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @param array<array<string>> $variation
+     * @param list<list<string>> $variation
      */
     public function setVariation(array $variation): void
     {
@@ -1177,7 +1177,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getCustomSearchKeywords(): ?array
     {
@@ -1185,7 +1185,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @param array<string>|null $customSearchKeywords
+     * @param list<string>|null $customSearchKeywords
      */
     public function setCustomSearchKeywords(?array $customSearchKeywords): void
     {
@@ -1233,7 +1233,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getCategoryIds(): ?array
     {
@@ -1241,7 +1241,7 @@ class ProductEntity extends Entity implements \Stringable
     }
 
     /**
-     * @param array<string>|null $categoryIds
+     * @param list<string>|null $categoryIds
      */
     public function setCategoryIds(?array $categoryIds): void
     {

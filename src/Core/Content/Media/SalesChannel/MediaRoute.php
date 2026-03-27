@@ -70,7 +70,7 @@ class MediaRoute extends AbstractMediaRoute
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     private function findMediaByIds(array $ids, Context $context): MediaCollection
     {

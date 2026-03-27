@@ -147,7 +147,7 @@ class CartLoadRouteTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int|array<string, string|array<string, string>>|null>>
+     * @return array<string, list<int|array<string, string|array<string, string>>|null>>
      */
     public static function dataProviderPaymentMethodRule(): array
     {

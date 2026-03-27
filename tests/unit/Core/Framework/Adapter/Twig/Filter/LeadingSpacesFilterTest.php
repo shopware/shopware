@@ -23,7 +23,7 @@ class LeadingSpacesFilterTest extends TestCase
     }
 
     /**
-     * @return array<array{string, string}>
+     * @return list<array{string, string}>
      */
     public static function removeLeadingSpacesProvider(): array
     {

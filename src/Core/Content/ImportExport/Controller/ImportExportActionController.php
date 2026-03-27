@@ -239,10 +239,10 @@ class ImportExportActionController extends AbstractController
     }
 
     /**
-     * @param array<string> $properties
-     * @param array<string> $missingPrivileges
+     * @param list<string> $properties
+     * @param list<string> $missingPrivileges
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function getMissingPrivileges(
         array $properties,

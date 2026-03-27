@@ -286,7 +286,7 @@ class LineItemTest extends TestCase
     }
 
     /**
-     * @return iterable<array<string>>
+     * @return iterable<list<string>>
      */
     public static function provideValidIdentifiers(): iterable
     {
@@ -317,7 +317,7 @@ class LineItemTest extends TestCase
     }
 
     /**
-     * @return iterable<array<string>>
+     * @return iterable<list<string>>
      */
     public static function provideInvalidIdentifiers(): iterable
     {

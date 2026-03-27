@@ -165,7 +165,7 @@ class PaymentMethodRuleAccessibleTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function createSimpleRule(): array
     {
@@ -188,7 +188,7 @@ class PaymentMethodRuleAccessibleTest extends TestCase
     }
 
     /**
-     * @return array<array{id: string, name: string, priority: int}>
+     * @return list<array{id: string, name: string, priority: int}>
      */
     private function createSimpleRuleWithoutAssoc(): array
     {
@@ -202,7 +202,7 @@ class PaymentMethodRuleAccessibleTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function createComplexRules(string $ruleId): array
     {

@@ -718,7 +718,7 @@ class CheapestPriceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{rules: array<string>, currencyId: string, assertions: array<string, array{cheapest: float, price: float, prices: array<float>}>}>
+     * @return iterable<string, array{rules: list<string>, currencyId: string, assertions: array<string, array{cheapest: float, price: float, prices: list<float>}>}>
      */
     private function calculationProvider(IdsCollection $ids): iterable
     {
@@ -1246,7 +1246,7 @@ class CheapestPriceTest extends TestCase
     }
 
     /**
-     * @param array{ids: array<string>, rules: array<string>} $case
+     * @param array{ids: list<string>, rules: list<string>} $case
      */
     private function assertSorting(string $message, IdsCollection $ids, SalesChannelContext $context, array $case, string $direction): void
     {

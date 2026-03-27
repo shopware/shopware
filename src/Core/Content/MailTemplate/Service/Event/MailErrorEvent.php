@@ -35,7 +35,7 @@ class MailErrorEvent extends Event implements LogAware, ScalarValuesAware, FlowE
     }
 
     /**
-     * @return array<string, scalar|array<mixed>|null>
+     * @return array<string, scalar|list<mixed>|null>
      */
     public function getValues(): array
     {
@@ -106,7 +106,7 @@ class MailErrorEvent extends Event implements LogAware, ScalarValuesAware, FlowE
     }
 
     /**
-     * @return array<mixed>|null
+     * @return list<mixed>|null
      */
     public function getTemplateData(): ?array
     {

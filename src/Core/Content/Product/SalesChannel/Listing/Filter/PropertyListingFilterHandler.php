@@ -133,7 +133,7 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
     }
 
     /**
-     * @param array<string>|null $groupIds
+     * @param list<string>|null $groupIds
      */
     private function getPropertyFilter(Request $request, ?array $groupIds = null): Filter
     {

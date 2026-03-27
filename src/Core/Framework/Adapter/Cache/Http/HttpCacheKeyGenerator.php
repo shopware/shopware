@@ -51,7 +51,7 @@ class HttpCacheKeyGenerator
     private const SALES_CHANNEL_BASE_URL = 'sw-sales-channel-base-url';
 
     /**
-     * @param array<string> $ignoredParameters
+     * @param list<string> $ignoredParameters
      *
      * @internal
      */

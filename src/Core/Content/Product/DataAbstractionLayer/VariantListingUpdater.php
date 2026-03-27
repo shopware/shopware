@@ -21,7 +21,7 @@ class VariantListingUpdater
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @throws Exception
      */
@@ -113,7 +113,7 @@ class VariantListingUpdater
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @throws Exception
      *

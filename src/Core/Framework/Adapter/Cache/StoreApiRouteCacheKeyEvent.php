@@ -18,7 +18,7 @@ class StoreApiRouteCacheKeyEvent extends Event
     private bool $disableCaching = false;
 
     /**
-     * @param array<mixed> $parts
+     * @param list<mixed> $parts
      */
     public function __construct(
         protected array $parts,
@@ -33,7 +33,7 @@ class StoreApiRouteCacheKeyEvent extends Event
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getParts(): array
     {

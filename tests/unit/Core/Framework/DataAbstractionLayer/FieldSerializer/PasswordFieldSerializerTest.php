@@ -114,7 +114,7 @@ class PasswordFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<int|string|array<int, Constraint>|bool|null>>
+     * @return iterable<string, list<int|string|array<int, Constraint>|bool|null>>
      */
     public static function encodeProvider(): iterable
     {

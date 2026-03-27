@@ -53,7 +53,7 @@ class ElasticsearchIndexer
     }
 
     /**
-     * @param array<string> $entities
+     * @param list<string> $entities
      */
     public function iterate(?IndexerOffset $offset = null, array $entities = []): ?ElasticsearchIndexingMessage
     {
@@ -69,7 +69,7 @@ class ElasticsearchIndexer
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function updateIds(EntityDefinition $definition, array $ids): void
     {
@@ -87,7 +87,7 @@ class ElasticsearchIndexer
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     private function generateMessage(EntityDefinition $definition, array $ids): ElasticsearchIndexingMessage
     {
@@ -142,7 +142,7 @@ class ElasticsearchIndexer
     }
 
     /**
-     * @param array<string> $entities
+     * @param list<string> $entities
      */
     private function init(array $entities = []): IndexerOffset
     {
@@ -161,9 +161,9 @@ class ElasticsearchIndexer
     }
 
     /**
-     * @param array<mixed> $result
+     * @param list<mixed> $result
      *
-     * @return array<array{index: string, id: string, type: string, reason: string}>
+     * @return list<array{index: string, id: string, type: string, reason: string}>
      */
     private function parseErrors(array $result): array
     {
@@ -295,7 +295,7 @@ class ElasticsearchIndexer
     }
 
     /**
-     * @param array<string> $entities
+     * @param list<string> $entities
      *
      * @return iterable<string>
      */

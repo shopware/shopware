@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 class UpdateMediaPathEvent implements \IteratorAggregate
 {
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function __construct(public readonly array $ids)
     {

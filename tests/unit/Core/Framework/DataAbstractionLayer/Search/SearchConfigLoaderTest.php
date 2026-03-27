@@ -23,7 +23,7 @@ class SearchConfigLoaderTest extends TestCase
 {
     /**
      * @param array<string, list<array{and_logic: string, excluded_terms: string, min_search_length: int, field: string, tokenize: int, ranking: float}>> $configKeyedByLanguageId
-     * @param array<array{and_logic: string, field: string, tokenize: int, ranking: float}> $expectedResult
+     * @param list<array{and_logic: string, field: string, tokenize: int, ranking: float}> $expectedResult
      */
     #[DataProvider('loadDataProvider')]
     public function testLoad(array $configKeyedByLanguageId, array $expectedResult): void
@@ -75,7 +75,7 @@ class SearchConfigLoaderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{configKeyedByLanguageId: array<string, list<array{and_logic: string, excluded_terms: string, min_search_length: int, field: string, tokenize: int, ranking: float}>>, expectedResult: array<array{and_logic: string, field: string, tokenize: int, ranking: float}>}>
+     * @return iterable<string, array{configKeyedByLanguageId: array<string, list<array{and_logic: string, excluded_terms: string, min_search_length: int, field: string, tokenize: int, ranking: float}>>, expectedResult: list<array{and_logic: string, field: string, tokenize: int, ranking: float}>}>
      */
     public static function loadDataProvider(): iterable
     {

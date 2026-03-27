@@ -87,7 +87,7 @@ class CacheWatchDelayedCommand extends Command
     }
 
     /**
-     * @param array<string> $rows
+     * @param list<string> $rows
      */
     private function render(Table $table, array $rows): void
     {

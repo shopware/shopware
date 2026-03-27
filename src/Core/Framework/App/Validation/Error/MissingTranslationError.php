@@ -13,7 +13,7 @@ class MissingTranslationError extends Error
     private const KEY = 'manifest-missing-translation';
 
     /**
-     * @param array<string, array<string>> $missingTranslations
+     * @param array<string, list<string>> $missingTranslations
      */
     public function __construct(
         string $xmlElementClass,

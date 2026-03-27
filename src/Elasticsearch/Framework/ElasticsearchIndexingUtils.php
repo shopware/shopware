@@ -98,7 +98,7 @@ WHERE custom_field_set_relation.entity_name = :entity
      *
      * @throws \JsonException
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public static function parseJson(array $record, string $field): array
     {
@@ -110,7 +110,7 @@ WHERE custom_field_set_relation.entity_name = :entity
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function fetchCustomFieldNamesUsedInProductSorting(): array
     {
@@ -123,7 +123,7 @@ WHERE custom_field_set_relation.entity_name = :entity
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function fetchCustomFieldNamesUsedInProductStream(): array
     {

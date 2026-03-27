@@ -299,7 +299,7 @@ class UnusedMediaPurger
     /**
      * @param array<string, array{id: string, parent_id: string}> $folders
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function getChildFolderIds(string $parentId, array $folders): array
     {

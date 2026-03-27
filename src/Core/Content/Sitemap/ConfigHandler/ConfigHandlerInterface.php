@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 interface ConfigHandlerInterface
 {
     /**
-     * @return array<string, array<array<string, mixed>>>
+     * @return array<string, list<array<string, mixed>>>
      */
     public function getSitemapConfig(): array;
 }

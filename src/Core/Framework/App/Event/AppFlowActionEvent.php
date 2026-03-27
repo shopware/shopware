@@ -13,7 +13,7 @@ class AppFlowActionEvent extends Event implements Hookable
 {
     /**
      * @param array<string, string> $headers
-     * @param array<mixed> $payload
+     * @param list<mixed> $payload
      */
     public function __construct(
         private readonly string $name,
@@ -36,7 +36,7 @@ class AppFlowActionEvent extends Event implements Hookable
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     public function getWebhookPayload(?AppEntity $app = null): array
     {

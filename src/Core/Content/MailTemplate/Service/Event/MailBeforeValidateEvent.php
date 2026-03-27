@@ -43,7 +43,7 @@ class MailBeforeValidateEvent extends Event implements LogAware, ScalarValuesAwa
     }
 
     /**
-     * @return array<string, scalar|array<mixed>|null>
+     * @return array<string, scalar|list<mixed>|null>
      */
     public function getValues(): array
     {
@@ -70,7 +70,7 @@ class MailBeforeValidateEvent extends Event implements LogAware, ScalarValuesAwa
     }
 
     /**
-     * @param float|int|string|array<mixed>|object $value
+     * @param float|int|string|list<mixed>|object $value
      */
     public function addData(string $key, $value): void
     {
@@ -99,7 +99,7 @@ class MailBeforeValidateEvent extends Event implements LogAware, ScalarValuesAwa
     }
 
     /**
-     * @param float|int|string|array<mixed>|object $value
+     * @param float|int|string|list<mixed>|object $value
      */
     public function addTemplateData(string $key, $value): void
     {

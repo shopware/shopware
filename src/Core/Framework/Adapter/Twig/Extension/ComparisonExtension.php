@@ -47,7 +47,7 @@ class ComparisonExtension extends AbstractExtension
     }
 
     /**
-     * @param array<mixed> $comparable
+     * @param list<mixed> $comparable
      */
     private function compareArray(string $operator, mixed $value, array $comparable): bool
     {

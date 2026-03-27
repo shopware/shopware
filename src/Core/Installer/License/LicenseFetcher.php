@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 class LicenseFetcher
 {
     /**
-     * @param array<string> $tosUrls
+     * @param list<string> $tosUrls
      */
     public function __construct(
         private readonly Client $guzzle,

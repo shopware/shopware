@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 class XOrFilter extends MultiFilter
 {
     /**
-     * @param array<Filter> $queries
+     * @param list<Filter> $queries
      */
     public function __construct(array $queries = [])
     {

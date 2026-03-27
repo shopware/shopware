@@ -11,7 +11,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class CollectingMessageBus implements MessageBusInterface
 {
     /**
-     * @var array<Envelope>
+     * @var list<Envelope>
      */
     private array $messages = [];
 
@@ -25,7 +25,7 @@ class CollectingMessageBus implements MessageBusInterface
     }
 
     /**
-     * @return array<Envelope>
+     * @return list<Envelope>
      */
     public function getMessages(): array
     {

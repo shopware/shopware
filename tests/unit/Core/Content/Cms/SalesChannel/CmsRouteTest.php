@@ -141,7 +141,7 @@ class CmsRouteTest extends TestCase
     }
 
     /**
-     * @param array<string> $slots
+     * @param list<string> $slots
      */
     private function getExpectedCriteria(array $slots): Criteria
     {

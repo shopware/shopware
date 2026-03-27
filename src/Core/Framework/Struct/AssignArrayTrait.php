@@ -63,9 +63,9 @@ trait AssignArrayTrait
     }
 
     /**
-     * @param array<mixed> $value
+     * @param list<mixed> $value
      *
-     * @return AssignArrayInterface|array<mixed>
+     * @return AssignArrayInterface|list<mixed>
      */
     private function createStruct(\ReflectionType $type, array $value): AssignArrayInterface|array
     {
@@ -100,7 +100,7 @@ trait AssignArrayTrait
     /**
      * @template T
      *
-     * @param array<\ReflectionType> $types
+     * @param list<\ReflectionType> $types
      * @param class-string<T> $expectedClass
      *
      * @return (class-string&T)|class-string<T>|null

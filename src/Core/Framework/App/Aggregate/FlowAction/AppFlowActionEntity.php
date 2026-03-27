@@ -46,7 +46,7 @@ class AppFlowActionEntity extends Entity
     protected array $headers;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $requirements;
 
@@ -163,7 +163,7 @@ class AppFlowActionEntity extends Entity
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getRequirements(): array
     {
@@ -171,7 +171,7 @@ class AppFlowActionEntity extends Entity
     }
 
     /**
-     * @param array<string> $requirements
+     * @param list<string> $requirements
      */
     public function setRequirements(array $requirements): void
     {

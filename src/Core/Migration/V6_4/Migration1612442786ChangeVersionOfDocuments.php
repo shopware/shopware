@@ -56,7 +56,7 @@ class Migration1612442786ChangeVersionOfDocuments extends MigrationStep
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function getWrongVersionedDocuments(Connection $connection): array
     {

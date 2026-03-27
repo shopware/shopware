@@ -92,7 +92,7 @@ class Migration1737105721MigrateOrderStateChangeDocumentToA11YTest extends TestC
     }
 
     /**
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     public static function mailTypeProvider(): array
     {
@@ -176,7 +176,7 @@ class Migration1737105721MigrateOrderStateChangeDocumentToA11YTest extends TestC
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getMailTemplateType(): array
     {

@@ -94,7 +94,7 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
     }
 
     /**
-     * @return array<array{id: string, productId?: string, productVersionId?: Defaults::LIVE_VERSION}>
+     * @return list<array{id: string, productId?: string, productVersionId?: Defaults::LIVE_VERSION}>
      */
     private function buildUpsertProducts(RequestDataBag $data, string $wishlistId, SalesChannelContext $context): array
     {
@@ -135,7 +135,7 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
     }
 
     /**
-     * @param array<string> $productIds
+     * @param list<string> $productIds
      *
      * @return array<string, string>
      */

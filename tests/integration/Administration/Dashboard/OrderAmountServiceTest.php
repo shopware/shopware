@@ -32,8 +32,8 @@ class OrderAmountServiceTest extends TestCase
     }
 
     /**
-     * @param array<array<string, mixed>> $orders
-     * @param array<array<string, mixed>> $expected
+     * @param list<array<string, mixed>> $orders
+     * @param list<array<string, mixed>> $expected
      */
     #[DataProvider('loadProvider')]
     public function testLoad(array $orders, array $expected, string $since, bool $paid): void

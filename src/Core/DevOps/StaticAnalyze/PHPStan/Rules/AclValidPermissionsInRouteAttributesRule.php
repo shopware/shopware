@@ -92,7 +92,7 @@ class AclValidPermissionsInRouteAttributesRule implements Rule
     }
 
     /**
-     * @return array<RuleError>
+     * @return list<RuleError>
      */
     private function validateAttribute(ReflectionAttribute $attribute): array
     {

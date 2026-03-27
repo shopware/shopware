@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 class PartialEntityLoadedEvent extends EntityLoadedEvent
 {
     /**
-     * @param array<PartialEntity> $entities
+     * @param list<PartialEntity> $entities
      */
     public function __construct(
         EntityDefinition $definition,

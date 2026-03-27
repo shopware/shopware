@@ -18,12 +18,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class EntityDeleteEventHelper
 {
     /**
-     * @var array<EntityDefinition>
+     * @var list<EntityDefinition>
      */
     private array $includedEntityDefinitions = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $excludedFields = [];
 
@@ -49,7 +49,7 @@ class EntityDeleteEventHelper
     }
 
     /**
-     * @param array<string> $excludeFields
+     * @param list<string> $excludeFields
      */
     public function withExcludedFields(array $excludeFields): self
     {

@@ -239,7 +239,7 @@ class PaymentMethodRuleTest extends TestCase
     }
 
     /**
-     * @return array<array<string|bool|array<string, string|array<string>>>>
+     * @return list<list<string|bool|array<string, string|list<string>>>>
      */
     public static function matchDataProvider(): array
     {
@@ -304,7 +304,7 @@ class PaymentMethodRuleTest extends TestCase
     }
 
     /**
-     * @param array<string, string|array<string>> $ruleProperties
+     * @param array<string, string|list<string>> $ruleProperties
      */
     #[DataProvider('matchDataProvider')]
     public function testMatch(array $ruleProperties, string $paymentMethodId, bool $expected): void

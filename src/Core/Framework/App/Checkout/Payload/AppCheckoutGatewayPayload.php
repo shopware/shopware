@@ -22,8 +22,8 @@ class AppCheckoutGatewayPayload implements SourcedPayloadInterface
     protected Source $source;
 
     /**
-     * @param array<string> $paymentMethods
-     * @param array<string> $shippingMethods
+     * @param list<string> $paymentMethods
+     * @param list<string> $shippingMethods
      *
      * @internal
      */
@@ -56,7 +56,7 @@ class AppCheckoutGatewayPayload implements SourcedPayloadInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getPaymentMethods(): array
     {
@@ -64,7 +64,7 @@ class AppCheckoutGatewayPayload implements SourcedPayloadInterface
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getShippingMethods(): array
     {

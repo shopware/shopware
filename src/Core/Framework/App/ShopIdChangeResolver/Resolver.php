@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 readonly class Resolver
 {
     /**
-     * @param array<AbstractShopIdChangeStrategy> $strategies
+     * @param list<AbstractShopIdChangeStrategy> $strategies
      */
     public function __construct(
         private iterable $strategies
@@ -34,7 +34,7 @@ readonly class Resolver
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getAvailableStrategies(): array
     {

@@ -19,22 +19,22 @@ use Symfony\Contracts\EventDispatcher\Event;
 class EntityWriteEvent extends Event implements ShopwareEvent
 {
     /**
-     * @var array<callable(): void>
+     * @var list<callable(): void>
      */
     private array $successCallbacks = [];
 
     /**
-     * @var array<callable(): void>
+     * @var list<callable(): void>
      */
     private array $errorCallbacks = [];
 
     /**
-     * @var array<string, array<array<string, string>|string>>
+     * @var array<string, list<array<string, string>|string>>
      */
     private array $ids = [];
 
     /**
-     * @param array<WriteCommand> $commands
+     * @param list<WriteCommand> $commands
      */
     private function __construct(
         private readonly WriteContext $writeContext,
@@ -43,7 +43,7 @@ class EntityWriteEvent extends Event implements ShopwareEvent
     }
 
     /**
-     * @param array<WriteCommand> $commands
+     * @param list<WriteCommand> $commands
      */
     public static function create(WriteContext $writeContext, array $commands): self
     {
@@ -61,7 +61,7 @@ class EntityWriteEvent extends Event implements ShopwareEvent
     }
 
     /**
-     * @return array<WriteCommand>
+     * @return list<WriteCommand>
      */
     public function getCommands(): array
     {
@@ -69,7 +69,7 @@ class EntityWriteEvent extends Event implements ShopwareEvent
     }
 
     /**
-     * @return array<WriteCommand>
+     * @return list<WriteCommand>
      */
     public function getCommandsForEntity(string $entityName): array
     {
@@ -80,7 +80,7 @@ class EntityWriteEvent extends Event implements ShopwareEvent
     }
 
     /**
-     * @return array<array<string, string>|string>
+     * @return list<array<string, string>|string>
      */
     public function getIds(string $entity): array
     {

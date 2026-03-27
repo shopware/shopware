@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 class OrderCollection extends EntityCollection
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getCurrencyIds(): array
     {
@@ -29,7 +29,7 @@ class OrderCollection extends EntityCollection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getSalesChannelIs(): array
     {

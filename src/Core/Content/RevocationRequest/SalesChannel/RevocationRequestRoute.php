@@ -134,7 +134,7 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
     /**
      * @param array<string, mixed> $config
      *
-     * @return array{receivers: array<string>, message?: string|null}
+     * @return array{receivers: list<string>, message?: string|null}
      */
     private function createDefaultConfig(SalesChannelContext $context, array $config): array
     {

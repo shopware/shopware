@@ -102,7 +102,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<array<string|bool>>
+     * @return iterable<list<string|bool>>
      */
     public static function breadcrumbDataProvider(): iterable
     {
@@ -120,7 +120,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<array<bool>>
+     * @return iterable<list<bool>>
      */
     public static function seoCategoryProvider(): iterable
     {
@@ -553,7 +553,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     private function createSeoCriteria(array $ids): Criteria
     {
@@ -615,7 +615,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $products
+     * @param list<mixed> $products
      */
     private function createTestProduct(array $products = [], bool $fillAll = true): void
     {

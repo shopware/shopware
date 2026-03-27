@@ -20,7 +20,7 @@ class IndexerQueuer
     }
 
     /**
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     public function getIndexers(): array
     {
@@ -92,7 +92,7 @@ class IndexerQueuer
     }
 
     /**
-     * @param array<array-key, array<string>> $indexerList
+     * @param array<array-key, list<string>> $indexerList
      */
     private static function upsert(Connection $connection, ?string $id, array $indexerList): void
     {

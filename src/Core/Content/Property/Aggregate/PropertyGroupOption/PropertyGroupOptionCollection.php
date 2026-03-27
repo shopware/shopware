@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 class PropertyGroupOptionCollection extends EntityCollection
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getPropertyGroupIds(): array
     {
@@ -27,7 +27,7 @@ class PropertyGroupOptionCollection extends EntityCollection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getMediaIds(): array
     {
@@ -77,7 +77,7 @@ class PropertyGroupOptionCollection extends EntityCollection
      * Performance optimization: By design this skips the expected class validation,
      * should only be used internally, when we need to add a lot of entities, that are already validated.
      *
-     * @param array<PropertyGroupOptionEntity> $options
+     * @param list<PropertyGroupOptionEntity> $options
      */
     public function fillOptions(array $options): void
     {

@@ -615,7 +615,7 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $query
+     * @param list<mixed> $query
      * @param array<string, mixed> $explainPayload
      *
      * @return array{nested: non-empty-array<string, mixed>}
@@ -637,7 +637,7 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private static function match(string $field, string|int|float $query, int|float $boost, int|string|null $fuzziness = null, string $operator = 'or', ?int $maxExpansions = null, ?string $analyzer = null): array
     {
@@ -675,9 +675,9 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $queries
+     * @param list<mixed> $queries
      *
-     * @return array{dis_max: array{queries: array<mixed>}}
+     * @return array{dis_max: array{queries: list<mixed>}}
      */
     private static function disMax(array $queries, float|int|null $boost = null): array
     {
@@ -695,9 +695,9 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $queries
+     * @param list<mixed> $queries
      *
-     * @return array{ bool: array<string, array<mixed>> }
+     * @return array{ bool: array<string, list<mixed>> }
      */
     private static function bool(array $queries): array
     {
@@ -709,9 +709,9 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array<string> $tokens
+     * @param list<string> $tokens
      *
-     * @return array{bool: array{must: array<array{term: array<string, string>}>, boost: float|int}}
+     * @return array{bool: array{must: list<array{term: array<string, string>}>, boost: float|int}}
      */
     private static function must(string $field, array $tokens, int|float $boost = 1): array
     {
@@ -746,9 +746,9 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array<string> $tokens
+     * @param list<string> $tokens
      *
-     * @return array{terms: non-empty-array<string, array<string>|float|int>}
+     * @return array{terms: non-empty-array<string, list<string>|float|int>}
      */
     private static function terms(string $field, array $tokens, int|float $boost = 1): array
     {

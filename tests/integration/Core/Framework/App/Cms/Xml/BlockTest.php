@@ -91,7 +91,7 @@ class BlockTest extends TestCase
     }
 
     /**
-     * @return array<array<int|array<string, mixed>>>
+     * @return list<list<int|array<string, mixed>>>
      */
     public static function provideEntityArrays(): array
     {

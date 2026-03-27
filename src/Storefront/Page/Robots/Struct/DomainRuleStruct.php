@@ -14,7 +14,7 @@ class DomainRuleStruct extends Struct
     /**
      * @deprecated tag:v6.8.0 - Use getDirectives() instead
      *
-     * @var array<array{type: string, path: string}>
+     * @var list<array{type: string, path: string}>
      */
     private array $rules = [];
 
@@ -42,7 +42,7 @@ class DomainRuleStruct extends Struct
     /**
      * @deprecated tag:v6.8.0 - Use getDirectives() instead
      *
-     * @return array<array{type: string, path: string}>
+     * @return list<array{type: string, path: string}>
      */
     public function getRules(): array
     {

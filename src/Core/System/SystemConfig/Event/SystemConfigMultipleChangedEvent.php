@@ -9,7 +9,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class SystemConfigMultipleChangedEvent extends Event
 {
     /**
-     * @param array<string, array<mixed>|bool|float|int|string|null> $config
+     * @param array<string, list<mixed>|bool|float|int|string|null> $config
      */
     public function __construct(
         private readonly array $config,
@@ -18,7 +18,7 @@ class SystemConfigMultipleChangedEvent extends Event
     }
 
     /**
-     * @return array<string, array<mixed>|bool|float|int|string|null>
+     * @return array<string, list<mixed>|bool|float|int|string|null>
      */
     public function getConfig(): array
     {

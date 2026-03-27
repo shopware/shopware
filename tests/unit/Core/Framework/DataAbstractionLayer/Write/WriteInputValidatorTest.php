@@ -102,7 +102,7 @@ class WriteInputValidatorTest extends TestCase
     }
 
     /**
-     * @param array<array<string, mixed|null>> $input
+     * @param list<array<string, mixed|null>> $input
      */
     #[DataProvider('validWriteInputProvider')]
     #[DoesNotPerformAssertions]

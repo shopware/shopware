@@ -959,7 +959,7 @@ class LanguageValidatorTest extends TestCase
     }
 
     /**
-     * @param array<array<string, mixed|null>> $ids
+     * @param list<array<string, mixed|null>> $ids
      * @param list<list<string>> $expectedCodePathPairs
      */
     protected function assertDeleteViolations(array $ids, array $expectedCodePathPairs): void

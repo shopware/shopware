@@ -44,7 +44,7 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
     }
 
     /**
-     * @param array<LineItem>|null $items
+     * @param list<LineItem>|null $items
      */
     #[Route(path: '/store-api/checkout/cart/line-item', name: 'store-api.checkout.cart.add', methods: ['POST'])]
     public function add(Request $request, Cart $cart, SalesChannelContext $context, ?array $items): CartResponse
@@ -53,7 +53,7 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
             if ($items === null) {
                 $items = [];
 
-                /** @var array<mixed> $item */
+                /** @var list<mixed> $item */
                 foreach ($request->request->all('items') as $item) {
                     $items[] = $this->lineItemFactory->create($item, $context);
                 }

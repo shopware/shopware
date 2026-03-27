@@ -25,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class PromotionRedemptionUpdater implements EventSubscriberInterface
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $promotionIds = [];
 
@@ -107,7 +107,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function update(array $ids, Context $context): void
     {

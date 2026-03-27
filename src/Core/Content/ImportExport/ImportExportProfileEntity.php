@@ -38,7 +38,7 @@ class ImportExportProfileEntity extends Entity
     protected string $type;
 
     /**
-     * @var list<array{key: string, mappedKey: string}>|array<Mapping>|null
+     * @var list<array{key: string, mappedKey: string}>|list<Mapping>|null
      */
     protected ?array $mapping = null;
 
@@ -143,7 +143,7 @@ class ImportExportProfileEntity extends Entity
     }
 
     /**
-     * @return list<array{key: string, mappedKey: string}>|array<Mapping>|null
+     * @return list<array{key: string, mappedKey: string}>|list<Mapping>|null
      */
     public function getMapping(): ?array
     {
@@ -151,7 +151,7 @@ class ImportExportProfileEntity extends Entity
     }
 
     /**
-     * @param list<array{key: string, mappedKey: string}>|array<Mapping> $mapping
+     * @param list<array{key: string, mappedKey: string}>|list<Mapping> $mapping
      */
     public function setMapping(array $mapping): void
     {

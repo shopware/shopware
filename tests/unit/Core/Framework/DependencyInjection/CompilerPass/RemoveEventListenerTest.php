@@ -16,9 +16,9 @@ use Symfony\Component\DependencyInjection\Definition;
 class RemoveEventListenerTest extends TestCase
 {
     /**
-     * @param array<array{event:string, method:string}> $listeners
-     * @param array<string> $remove
-     * @param array<array{event:string, method:string}> $expected
+     * @param list<array{event:string, method:string}> $listeners
+     * @param list<string> $remove
+     * @param list<array{event:string, method:string}> $expected
      */
     #[DataProvider('removeProvider')]
     public function testRemove(

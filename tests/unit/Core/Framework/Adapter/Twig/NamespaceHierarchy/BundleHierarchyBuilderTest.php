@@ -57,7 +57,7 @@ class BundleHierarchyBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<array<int|string, int|string>>>
+     * @return iterable<string, list<array<int|string, int|string>>>
      */
     public static function sortingProvider(): iterable
     {

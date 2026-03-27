@@ -463,7 +463,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @param array<string> $expectedProducts
+     * @param list<string> $expectedProducts
      * @param Filter $filter
      */
     #[Depends('testIndexing')]
@@ -488,7 +488,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<int, array<MultiFilter|array<string>>>
+     * @return array<int, list<MultiFilter|list<string>>>
      */
     public static function multiFilterWithOneToManyRelationProvider(): array
     {
@@ -2195,7 +2195,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return \Generator<array{ids: array<string>, operator: RangeFilter::*|null, percentage: float|null, direction: FieldSorting::*}>
+     * @return \Generator<array{ids: list<string>, operator: RangeFilter::*|null, percentage: float|null, direction: FieldSorting::*}>
      */
     public function providerCheapestPricePercentageFilterAndSorting(): \Generator
     {
@@ -2540,7 +2540,7 @@ class ElasticsearchProductTest extends TestCase
 
             $context->addState('test');
 
-            /** @var array<string> $result */
+            /** @var list<string> $result */
             $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
 
             static::assertSame($ids->get('variant-3.1'), $result[0], (string) $ids->getKey($result[0])); // has 8000000000
@@ -2881,7 +2881,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @param array{ids: array<string>} $case
+     * @param array{ids: list<string>} $case
      */
     private function assertSorting(string $message, IdsCollection $ids, SalesChannelContext $context, array $case, string $direction): void
     {

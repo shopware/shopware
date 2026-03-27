@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Store\Struct\PermissionStruct;
 class Utils
 {
     /**
-     * @param array<string> $appPrivileges
+     * @param list<string> $appPrivileges
      *
      * @return list<array<'entity'|'operation', string>>
      */
@@ -39,7 +39,7 @@ class Utils
     }
 
     /**
-     * @param array<string> $privileges
+     * @param list<string> $privileges
      *
      * @return array<string, PermissionCollection>
      */

@@ -102,7 +102,7 @@ class DiscountAbsoluteCalculatorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<float>>
+     * @return iterable<string, list<float>>
      */
     public static function priceProvider(): iterable
     {

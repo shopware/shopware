@@ -166,7 +166,7 @@ class WebhookPersisterTest extends TestCase
     }
 
     /**
-     * @param array<Webhook> $webhooks
+     * @param list<Webhook> $webhooks
      */
     private function createManifest(array $webhooks): Manifest
     {

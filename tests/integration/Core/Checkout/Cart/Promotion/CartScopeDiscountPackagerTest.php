@@ -27,8 +27,8 @@ class CartScopeDiscountPackagerTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @param array<LineItem> $items
-     * @param array<string> $expected
+     * @param list<LineItem> $items
+     * @param list<string> $expected
      */
     #[DataProvider('buildPackagesProvider')]
     public function testBuildPackages(array $items, array $expected): void

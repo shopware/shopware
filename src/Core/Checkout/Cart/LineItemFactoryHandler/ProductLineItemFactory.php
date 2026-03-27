@@ -27,7 +27,7 @@ class ProductLineItemFactory implements LineItemFactoryInterface
     }
 
     /**
-     * @param array<mixed> $data
+     * @param list<mixed> $data
      */
     public function create(array $data, SalesChannelContext $context): LineItem
     {
@@ -43,7 +43,7 @@ class ProductLineItemFactory implements LineItemFactoryInterface
     }
 
     /**
-     * @param array<mixed> $data
+     * @param list<mixed> $data
      */
     public function update(LineItem $lineItem, array $data, SalesChannelContext $context): void
     {

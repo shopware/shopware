@@ -115,7 +115,7 @@ class StorefrontRoutingTest extends TestCase
     }
 
     /**
-     * @return array<array<int, RequestTestCase>>
+     * @return list<array<int, RequestTestCase>>
      */
     public static function getRequestTestCaseProvider(): array
     {
@@ -166,7 +166,7 @@ class StorefrontRoutingTest extends TestCase
      * @param array<int, string> $keys
      * @param array<string, array<int, bool|string>> $config
      *
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private static function generateCases(array $keys, array $config): array
     {

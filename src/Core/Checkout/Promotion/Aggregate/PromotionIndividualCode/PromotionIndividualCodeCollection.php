@@ -17,7 +17,7 @@ class PromotionIndividualCodeCollection extends EntityCollection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getCodeArray(): array
     {

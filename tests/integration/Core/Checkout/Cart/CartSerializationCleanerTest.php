@@ -38,7 +38,7 @@ class CartSerializationCleanerTest extends TestCase
 
     /**
      * @param array<string, mixed> $payloads
-     * @param array<string> $allowed
+     * @param list<string> $allowed
      */
     #[DataProvider('cleanupCustomFieldsProvider')]
     public function testLineItemCustomFields(Cart $cart, array $payloads = [], array $allowed = []): void

@@ -278,7 +278,7 @@ class PromotionCollectorTest extends TestCase
     }
 
     /**
-     * @param array<string> $discountIds
+     * @param list<string> $discountIds
      * @param array<string, int>|null $orderPerCustomerCount
      */
     private function prepareCart(
@@ -316,7 +316,7 @@ class PromotionCollectorTest extends TestCase
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     private function createPromotionDiscountCollection(array $ids, PromotionEntity $promotion): PromotionDiscountCollection
     {
@@ -337,7 +337,7 @@ class PromotionCollectorTest extends TestCase
     }
 
     /**
-     * @param array<string> $discountIds
+     * @param list<string> $discountIds
      * @param array<string, int>|null $orderPerCustomerCount
      */
     private function createPromotion(

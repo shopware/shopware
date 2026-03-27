@@ -9,18 +9,18 @@ use Shopware\Core\Framework\Struct\Struct;
 class MailSendSubscriberConfig extends Struct
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $documentIds = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $mediaIds = [];
 
     /**
-     * @param array<string> $documentIds
-     * @param array<string> $mediaIds
+     * @param list<string> $documentIds
+     * @param list<string> $mediaIds
      */
     public function __construct(
         protected bool $skip,
@@ -42,7 +42,7 @@ class MailSendSubscriberConfig extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getDocumentIds(): array
     {
@@ -50,7 +50,7 @@ class MailSendSubscriberConfig extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getMediaIds(): array
     {
@@ -58,7 +58,7 @@ class MailSendSubscriberConfig extends Struct
     }
 
     /**
-     * @param array<string> $documentIds
+     * @param list<string> $documentIds
      */
     public function setDocumentIds(array $documentIds): void
     {
@@ -66,7 +66,7 @@ class MailSendSubscriberConfig extends Struct
     }
 
     /**
-     * @param array<string> $mediaIds
+     * @param list<string> $mediaIds
      */
     public function setMediaIds(array $mediaIds): void
     {

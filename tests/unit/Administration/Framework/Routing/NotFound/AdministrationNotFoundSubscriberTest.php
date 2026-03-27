@@ -82,7 +82,7 @@ class AdministrationNotFoundSubscriberTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<\Exception|string>>
+     * @return iterable<string, list<\Exception|string>>
      */
     public static function getNonInterceptingData(): iterable
     {
@@ -101,7 +101,7 @@ class AdministrationNotFoundSubscriberTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<string>>
+     * @return iterable<string, list<string>>
      */
     public static function getInterceptingData(): iterable
     {

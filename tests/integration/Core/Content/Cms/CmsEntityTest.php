@@ -32,7 +32,7 @@ class CmsEntityTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @return list<array<string>>
+     * @return list<list<string>>
      */
     public static function provideEntityClasses(): array
     {

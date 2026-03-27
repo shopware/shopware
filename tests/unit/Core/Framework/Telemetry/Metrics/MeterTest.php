@@ -133,7 +133,7 @@ class MeterTest extends TestCase
     }
 
     /**
-     * @param array<MetricTransportInterface> $transports
+     * @param list<MetricTransportInterface> $transports
      *
      * @return TransportCollection<MetricTransportInterface>
      */

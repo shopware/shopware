@@ -164,7 +164,7 @@ class CheapestPriceUpdaterTest extends TestCase
     }
 
     /**
-     * @param array<string> $parentIds
+     * @param list<string> $parentIds
      *
      * @return array<string, array<string, array<string, mixed>>>
      */
@@ -179,7 +179,7 @@ class CheapestPriceUpdaterTest extends TestCase
 
     /**
      * @param array<string, array<string, array<string, mixed>>> $prices
-     * @param array<string> $expectedSalesChannelIds
+     * @param list<string> $expectedSalesChannelIds
      */
     private function assertSalesChannelIds(array $prices, string $parentId, string $variantId, array $expectedSalesChannelIds): void
     {

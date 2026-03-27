@@ -18,7 +18,7 @@ use Symfony\Contracts\Service\ServiceLocatorTrait;
 class RedisConnectionProviderTest extends TestCase
 {
     /**
-     * @var array<\stdClass>
+     * @var list<\stdClass>
      */
     private array $connections;
 

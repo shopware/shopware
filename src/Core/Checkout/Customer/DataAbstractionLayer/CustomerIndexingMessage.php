@@ -9,12 +9,12 @@ use Shopware\Core\Framework\Log\Package;
 class CustomerIndexingMessage extends EntityIndexingMessage
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $ids = [];
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getIds(): array
     {
@@ -22,7 +22,7 @@ class CustomerIndexingMessage extends EntityIndexingMessage
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function setIds(array $ids): void
     {

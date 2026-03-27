@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class ShippingMethodTranslationCollection extends EntityCollection
 {
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getShippingMethodIds(): array
     {
@@ -25,7 +25,7 @@ class ShippingMethodTranslationCollection extends EntityCollection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getLanguageIds(): array
     {

@@ -198,7 +198,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @return array<string, array<string, mixed>>
      */
@@ -258,7 +258,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
     /**
      * @description to keep the writing fast we do a more complex fetch here only if the feature flag ENABLE_OPENSEARCH_FOR_ADMIN_API is enabled to reduce the number of joins in the sql query
      *
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @return array<string, array<string, mixed>>
      */

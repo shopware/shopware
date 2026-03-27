@@ -28,7 +28,7 @@ class CheapestPriceUpdater
     }
 
     /**
-     * @param array<string> $parentIds
+     * @param list<string> $parentIds
      */
     public function update(array $parentIds, Context $context): void
     {
@@ -171,7 +171,7 @@ class CheapestPriceUpdater
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      *
      * @return array<string, array<string, array<string, mixed>>>
      */
@@ -273,9 +273,9 @@ class CheapestPriceUpdater
     }
 
     /**
-     * @param array<string> $productIds
+     * @param list<string> $productIds
      *
-     * @return array<string, array<string>> Map of product_id => [sales_channel_ids]
+     * @return array<string, list<string>> Map of product_id => [sales_channel_ids]
      */
     private function fetchVisibilityMap(array $productIds, Context $context): array
     {

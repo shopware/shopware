@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class MockSeoUrlAwareExtension extends Struct
 {
     /**
-     * @var array<SalesChannelProductEntity>
+     * @var list<SalesChannelProductEntity>
      */
     protected array $searchResults = [];
 

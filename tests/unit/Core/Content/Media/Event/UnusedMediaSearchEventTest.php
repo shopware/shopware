@@ -22,8 +22,8 @@ class UnusedMediaSearchEventTest extends TestCase
     }
 
     /**
-     * @param array<string> $idsToRemove
-     * @param array<string> $expectedIds
+     * @param list<string> $idsToRemove
+     * @param list<string> $expectedIds
      */
     #[DataProvider('removeIdsProvider')]
     public function testRemoveIds(array $idsToRemove, array $expectedIds): void
@@ -34,7 +34,7 @@ class UnusedMediaSearchEventTest extends TestCase
     }
 
     /**
-     * @return array<string, array{idsToRemove: array<string>, expectedIds: array<string>}>
+     * @return array<string, array{idsToRemove: list<string>, expectedIds: list<string>}>
      */
     public static function removeIdsProvider(): array
     {

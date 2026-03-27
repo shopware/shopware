@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 class CountSort extends FieldSort
 {
     /**
-     * @param array<mixed> $params
+     * @param list<mixed> $params
      */
     public function __construct(
         string $field,

@@ -181,7 +181,7 @@ class DocumentException extends HttpException
     }
 
     /**
-     * @param array<string, array<string>> $violations
+     * @param array<string, list<string>> $violations
      */
     public static function electronicInvoiceViolation(int $count, array $violations): self
     {
@@ -218,7 +218,7 @@ class DocumentException extends HttpException
     }
 
     /**
-     * @param array<string> $fileExtensions
+     * @param list<string> $fileExtensions
      */
     public static function documentFileTypeUnavailable(string $documentId, array $fileExtensions): self
     {
@@ -234,8 +234,8 @@ class DocumentException extends HttpException
     }
 
     /**
-     * @param array<string> $requestedMimeTypes
-     * @param array<string> $supportedMimeTypes
+     * @param list<string> $requestedMimeTypes
+     * @param list<string> $supportedMimeTypes
      */
     public static function documentAcceptHeaderMimeTypesNotSupported(array $requestedMimeTypes, array $supportedMimeTypes): self
     {
@@ -263,7 +263,7 @@ class DocumentException extends HttpException
     }
 
     /**
-     * @param array<string> $dependingDocuments
+     * @param list<string> $dependingDocuments
      */
     public static function documentHasDependentDocuments(array $dependingDocuments): self
     {

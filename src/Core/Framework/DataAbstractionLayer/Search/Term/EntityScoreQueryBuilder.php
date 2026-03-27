@@ -26,7 +26,7 @@ use Shopware\Core\Framework\Log\Package;
 class EntityScoreQueryBuilder
 {
     /**
-     * @return array<ScoreQuery>
+     * @return list<ScoreQuery>
      */
     public function buildScoreQueries(
         SearchPattern $term,

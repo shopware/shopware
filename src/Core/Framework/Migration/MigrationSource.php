@@ -10,7 +10,7 @@ class MigrationSource
     private const PHP_CLASS_NAME_REGEX = '[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$';
 
     /**
-     * @var array<string|MigrationSource>
+     * @var list<string|MigrationSource>
      */
     private array $sources;
 
@@ -39,7 +39,7 @@ class MigrationSource
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getSourceDirectories(): array
     {

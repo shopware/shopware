@@ -23,7 +23,7 @@ class AppService
     }
 
     /**
-     * @param array<string> $installAppNames - Apps that should be installed
+     * @param list<string> $installAppNames - Apps that should be installed
      *
      * @return list<array{manifest: Manifest, exception: \Exception}>
      */

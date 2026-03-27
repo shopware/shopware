@@ -22,7 +22,7 @@ class AppFlowEventEntity extends Entity
     protected string $name;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $aware;
 
@@ -59,7 +59,7 @@ class AppFlowEventEntity extends Entity
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getAware(): array
     {
@@ -67,7 +67,7 @@ class AppFlowEventEntity extends Entity
     }
 
     /**
-     * @param array<string> $aware
+     * @param list<string> $aware
      */
     public function setAware(array $aware): void
     {

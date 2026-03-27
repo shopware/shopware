@@ -82,7 +82,7 @@ class SystemCheckCommand extends Command
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getAllowedContexts(): array
     {
@@ -90,7 +90,7 @@ class SystemCheckCommand extends Command
     }
 
     /**
-     * @param array<Result> $result
+     * @param list<Result> $result
      * @param 'json'|'table' $format
      */
     private function printOutput(InputInterface $input, OutputInterface $output, bool $verbose, array $result, string $format): void

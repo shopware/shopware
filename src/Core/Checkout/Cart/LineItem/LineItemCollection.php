@@ -80,7 +80,7 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @return array<LineItem>
+     * @return list<LineItem>
      */
     public function filterFlatByType(string $type): array
     {
@@ -134,7 +134,7 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     public function getPayload(): array
     {
@@ -149,7 +149,7 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @return array<LineItem>
+     * @return list<LineItem>
      */
     public function getFlat(): array
     {
@@ -191,7 +191,7 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @return array<LineItem>
+     * @return list<LineItem>
      */
     public function filterGoodsFlat(): array
     {
@@ -208,7 +208,7 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getTypes(): array
     {
@@ -218,7 +218,7 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getReferenceIds(): array
     {

@@ -40,7 +40,7 @@ class CriteriaPartResolver
     }
 
     /**
-     * @param array<CriteriaPartInterface> $parts
+     * @param list<CriteriaPartInterface> $parts
      */
     public function resolve(array $parts, EntityDefinition $definition, QueryBuilder $query, Context $context): void
     {

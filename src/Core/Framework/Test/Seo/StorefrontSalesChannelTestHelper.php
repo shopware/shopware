@@ -63,7 +63,7 @@ trait StorefrontSalesChannelTestHelper
     }
 
     /**
-     * @param array<string> $languageIds
+     * @param list<string> $languageIds
      */
     public function createStorefrontSalesChannelContext(
         string $id,

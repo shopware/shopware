@@ -32,7 +32,7 @@ class TaxCalculationTypeTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @param array<ItemBlueprint> $items
+     * @param list<ItemBlueprint> $items
      */
     #[DataProvider('calculationProvider')]
     public function testCalculation(
@@ -69,7 +69,7 @@ class TaxCalculationTypeTest extends TestCase
     }
 
     /**
-     * @return array<array{0: array<ItemBlueprint>, 1: CalculatedTaxCollection, 2: CalculatedTaxCollection}>
+     * @return list<array{0: list<ItemBlueprint>, 1: CalculatedTaxCollection, 2: CalculatedTaxCollection}>
      */
     public static function calculationProvider()
     {
@@ -158,7 +158,7 @@ class TaxCalculationTypeTest extends TestCase
     }
 
     /**
-     * @param array<ItemBlueprint> $items
+     * @param list<ItemBlueprint> $items
      */
     private function createCart(array $items, SalesChannelContext $context): Cart
     {

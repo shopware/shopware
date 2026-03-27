@@ -11,7 +11,7 @@ class DiscountCompositionBuilder
     /**
      * @param list<DiscountCompositionItem> $items
      *
-     * @return array<array{id: string, quantity: int, discount: float}>
+     * @return list<array{id: string, quantity: int, discount: float}>
      */
     public function buildCompositionPayload(array $items): array
     {

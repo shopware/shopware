@@ -87,7 +87,7 @@ class PromotionGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param array<array{salesChannelId: string, priority: 1}> $salesChannels
+     * @param list<array{salesChannelId: string, priority: 1}> $salesChannels
      *
      * @return array<string, mixed>
      */
@@ -134,7 +134,7 @@ class PromotionGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return array<array{salesChannelId: string, priority: 1}>
+     * @return list<array{salesChannelId: string, priority: 1}>
      */
     private function getSalesChannels(): array
     {

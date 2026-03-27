@@ -107,7 +107,7 @@ class PrefixFilesystem implements FilesystemOperator
     }
 
     /**
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      */
     public function write(string $location, string $contents, array $config = []): void
     {
@@ -117,7 +117,7 @@ class PrefixFilesystem implements FilesystemOperator
     }
 
     /**
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      */
     public function writeStream(string $location, $contents, array $config = []): void
     {
@@ -148,7 +148,7 @@ class PrefixFilesystem implements FilesystemOperator
     }
 
     /**
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      */
     public function createDirectory(string $location, array $config = []): void
     {
@@ -158,7 +158,7 @@ class PrefixFilesystem implements FilesystemOperator
     }
 
     /**
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      */
     public function move(string $source, string $destination, array $config = []): void
     {
@@ -169,7 +169,7 @@ class PrefixFilesystem implements FilesystemOperator
     }
 
     /**
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      */
     public function copy(string $source, string $destination, array $config = []): void
     {
@@ -180,7 +180,7 @@ class PrefixFilesystem implements FilesystemOperator
     }
 
     /**
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      */
     public function publicUrl(string $path, array $config = []): string
     {
@@ -188,7 +188,7 @@ class PrefixFilesystem implements FilesystemOperator
     }
 
     /**
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      */
     public function temporaryUrl(string $path, \DateTimeInterface $expiresAt, array $config = []): string
     {
@@ -196,7 +196,7 @@ class PrefixFilesystem implements FilesystemOperator
     }
 
     /**
-     * @param array<mixed> $config
+     * @param list<mixed> $config
      */
     public function checksum(string $path, array $config = []): string
     {

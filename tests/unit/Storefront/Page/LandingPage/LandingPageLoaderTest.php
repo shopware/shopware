@@ -177,7 +177,7 @@ class LandingPageLoaderTest extends TestCase
     }
 
     /**
-     * @param array<string> $translated
+     * @param list<string> $translated
      */
     private function getLandingPageLoaderWithTranslated(string $landingPageId, array $translated, Request $request, SalesChannelContext $salesChannelContext): LandingPageLoader
     {

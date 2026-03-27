@@ -22,7 +22,7 @@ class Feature
     public static bool $emitDeprecations = true;
 
     /**
-     * @var array<bool>
+     * @var list<bool>
      */
     private static array $silent = [];
 
@@ -46,7 +46,7 @@ class Feature
     /**
      * @template TReturn of mixed
      *
-     * @param array<string> $features
+     * @param list<string> $features
      * @param \Closure(): TReturn $closure
      *
      * @return TReturn

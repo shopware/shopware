@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 interface ProductGatewayInterface
 {
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function get(array $ids, SalesChannelContext $context): ProductCollection;
 }

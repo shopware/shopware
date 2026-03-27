@@ -12,7 +12,7 @@ use Shopware\Core\System\Consent\ConsentDefinition;
 class TestDefinition implements ConsentDefinition
 {
     /**
-     * @param array<string> $permissions
+     * @param list<string> $permissions
      */
     public function __construct(
         private readonly string $name,

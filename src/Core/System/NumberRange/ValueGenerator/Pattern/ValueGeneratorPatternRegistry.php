@@ -9,14 +9,14 @@ use Shopware\Core\Framework\Log\Package;
 class ValueGeneratorPatternRegistry
 {
     /**
-     * @var array<AbstractValueGenerator>
+     * @var list<AbstractValueGenerator>
      */
     private array $pattern = [];
 
     /**
      * @internal
      *
-     * @param array<AbstractValueGenerator> $patterns
+     * @param list<AbstractValueGenerator> $patterns
      */
     public function __construct(iterable $patterns)
     {

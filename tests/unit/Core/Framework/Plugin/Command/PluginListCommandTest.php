@@ -184,7 +184,7 @@ class PluginListCommandTest extends TestCase
     }
 
     /**
-     * @param array<PluginEntity> $entities
+     * @param list<PluginEntity> $entities
      */
     private function setupEntityCollection(array $entities): void
     {
@@ -194,7 +194,7 @@ class PluginListCommandTest extends TestCase
     }
 
     /**
-     * @param array<array<string, mixed>> $packages
+     * @param list<array<string, mixed>> $packages
      */
     private function setupComposerPluginLoaderMock(array $packages): void
     {

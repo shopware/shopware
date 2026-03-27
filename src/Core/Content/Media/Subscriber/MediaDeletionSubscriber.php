@@ -59,20 +59,20 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
 
     public function beforeDelete(EntityDeleteEvent $event): void
     {
-        /** @var array<string> $affected */
+        /** @var list<string> $affected */
         $affected = $event->getIds(MediaThumbnailDefinition::ENTITY_NAME);
         if (\count($affected) > 0) {
             $this->handleThumbnailDeletion($event, $affected, $event->getContext());
         }
 
-        /** @var array<string> $affected */
+        /** @var list<string> $affected */
         $affected = $event->getIds(MediaFolderDefinition::ENTITY_NAME);
         if (\count($affected) > 0) {
             $folderIds = $this->fetchChildrenIds($affected);
             $this->handleFolderDeletion($folderIds, $event->getContext());
         }
 
-        /** @var array<string> $affected */
+        /** @var list<string> $affected */
         $affected = $event->getIds(MediaDefinition::ENTITY_NAME);
         if (\count($affected) > 0) {
             $this->handleMediaDeletion($affected, $event->getContext());
@@ -80,7 +80,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $affected
+     * @param list<string> $affected
      */
     private function handleMediaDeletion(array $affected, Context $context): void
     {
@@ -144,7 +144,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param non-empty-array<string> $ids
+     * @param non-empty-list<string> $ids
      *
      * @return non-empty-list<string>
      */
@@ -169,7 +169,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $affected
+     * @param list<string> $affected
      */
     private function handleThumbnailDeletion(EntityDeleteEvent $event, array $affected, Context $context): void
     {
@@ -207,7 +207,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     private function getThumbnails(array $ids, Context $context): MediaThumbnailCollection
     {

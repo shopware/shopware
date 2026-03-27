@@ -67,7 +67,7 @@ class DomainExceptionRule implements Rule
     ];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $validExceptionClasses;
 

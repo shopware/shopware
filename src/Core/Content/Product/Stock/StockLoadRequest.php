@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 class StockLoadRequest
 {
     /**
-     * @param array<string> $productIds
+     * @param list<string> $productIds
      */
     public function __construct(public array $productIds)
     {

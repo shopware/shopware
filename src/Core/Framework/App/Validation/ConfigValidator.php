@@ -53,7 +53,7 @@ class ConfigValidator extends AbstractManifestValidator
     }
 
     /**
-     * @return array<array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function getConfiguration(string $appFolder): array
     {

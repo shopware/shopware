@@ -204,7 +204,7 @@ class OrderCountRuleTest extends TestCase
     }
 
     /**
-     * @return \Traversable<string, array<string|bool|int>>
+     * @return \Traversable<string, list<string|bool|int>>
      */
     public static function getMatchValues(): \Traversable
     {

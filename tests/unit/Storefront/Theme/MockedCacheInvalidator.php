@@ -12,12 +12,12 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 class MockedCacheInvalidator extends CacheInvalidator
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $invalidatedTags = [];
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $forceInvalidatedTags = [];
 
@@ -37,7 +37,7 @@ class MockedCacheInvalidator extends CacheInvalidator
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getInvalidatedTags(): array
     {
@@ -45,7 +45,7 @@ class MockedCacheInvalidator extends CacheInvalidator
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getForceInvalidatedTags(): array
     {

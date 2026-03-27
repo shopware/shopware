@@ -52,8 +52,8 @@ class LineItemInProductStreamRuleTest extends TestCase
     }
 
     /**
-     * @param array<string> $streamIds
-     * @param array<string> $lineItemProductStreamIds
+     * @param list<string> $streamIds
+     * @param list<string> $lineItemProductStreamIds
      */
     #[DataProvider('getLineItemScopeTestData')]
     public function testIfMatchesCorrectWithLineItemScope(
@@ -76,7 +76,7 @@ class LineItemInProductStreamRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<array<string>|string|bool>>
+     * @return array<string, list<list<string>|string|bool>>
      */
     public static function getLineItemScopeTestData(): array
     {
@@ -90,8 +90,8 @@ class LineItemInProductStreamRuleTest extends TestCase
     }
 
     /**
-     * @param array<string> $streamIds
-     * @param array<string> $lineItemCategoryIds
+     * @param list<string> $streamIds
+     * @param list<string> $lineItemCategoryIds
      */
     #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScope(
@@ -121,8 +121,8 @@ class LineItemInProductStreamRuleTest extends TestCase
     }
 
     /**
-     * @param array<string> $streamIds
-     * @param array<string> $lineItemCategoryIds
+     * @param list<string> $streamIds
+     * @param list<string> $lineItemCategoryIds
      */
     #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScopeNested(
@@ -152,7 +152,7 @@ class LineItemInProductStreamRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<array<string>|string|bool>>
+     * @return array<string, list<list<string>|string|bool>>
      */
     public static function getCartRuleScopeTestData(): array
     {
@@ -204,7 +204,7 @@ class LineItemInProductStreamRuleTest extends TestCase
     }
 
     /**
-     * @param array<string> $streamIds
+     * @param list<string> $streamIds
      */
     private function createLineItemWithProductStreams(array $streamIds): LineItem
     {

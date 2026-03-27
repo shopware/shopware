@@ -141,7 +141,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getExcludedLandingPageIds(SalesChannelContext $salesChannelContext): array
     {

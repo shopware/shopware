@@ -47,7 +47,7 @@ class SalesChannelContext extends Struct
     /**
      * @internal
      *
-     * @param array<string, array<string>> $areaRuleIds
+     * @param array<string, list<string>> $areaRuleIds
      */
     public function __construct(
         protected Context $context,
@@ -149,7 +149,7 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getRuleIds(): array
     {
@@ -157,7 +157,7 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @param array<string> $ruleIds
+     * @param list<string> $ruleIds
      */
     public function setRuleIds(array $ruleIds): void
     {
@@ -167,7 +167,7 @@ class SalesChannelContext extends Struct
     /**
      * @internal
      *
-     * @return array<string, array<string>>
+     * @return array<string, list<string>>
      */
     public function getAreaRuleIds(): array
     {
@@ -177,9 +177,9 @@ class SalesChannelContext extends Struct
     /**
      * @internal
      *
-     * @param array<string> $areas
+     * @param list<string> $areas
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getRuleIdsByAreas(array $areas): array
     {
@@ -199,7 +199,7 @@ class SalesChannelContext extends Struct
     /**
      * @internal
      *
-     * @param array<string, array<string>> $areaRuleIds
+     * @param array<string, list<string>> $areaRuleIds
      */
     public function setAreaRuleIds(array $areaRuleIds): void
     {
@@ -296,7 +296,7 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getStates(): array
     {

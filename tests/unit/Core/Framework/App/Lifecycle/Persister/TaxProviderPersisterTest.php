@@ -180,7 +180,7 @@ class TaxProviderPersisterTest extends TestCase
     }
 
     /**
-     * @param array<TaxProvider> $providers
+     * @param list<TaxProvider> $providers
      */
     private function createManifest(array $providers = []): Manifest
     {
@@ -219,7 +219,7 @@ class TaxProviderPersisterTest extends TestCase
     /**
      * @param list<array{identifier: string, name: string, processUrl: string, priority: int}> $providers
      *
-     * @return array<TaxProvider>
+     * @return list<TaxProvider>
      */
     private function createTaxProviders(array $providers): array
     {
@@ -233,7 +233,7 @@ class TaxProviderPersisterTest extends TestCase
     }
 
     /**
-     * @param array<TaxProvider> $providers
+     * @param list<TaxProvider> $providers
      *
      * @return EntitySearchResult<TaxProviderCollection>
      */

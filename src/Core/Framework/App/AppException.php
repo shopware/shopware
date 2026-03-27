@@ -171,7 +171,7 @@ class AppException extends HttpException
     }
 
     /**
-     * @param array<string> $features
+     * @param list<string> $features
      */
     public static function appSecretRequiredForFeatures(string $appName, array $features): self
     {

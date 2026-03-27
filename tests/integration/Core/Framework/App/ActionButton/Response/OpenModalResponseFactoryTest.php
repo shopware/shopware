@@ -66,7 +66,7 @@ class OpenModalResponseFactoryTest extends TestCase
     }
 
     /**
-     * @param array<bool|string> $payload
+     * @param list<bool|string> $payload
      */
     #[DataProvider('provideInvalidPayloads')]
     public function testThrowsExceptionWhenValidationFails(array $payload, string $message): void
@@ -82,7 +82,7 @@ class OpenModalResponseFactoryTest extends TestCase
     }
 
     /**
-     * @return array<array<string|bool>>
+     * @return list<list<string|bool>>
      */
     public static function provideActionTypes(): array
     {
@@ -95,7 +95,7 @@ class OpenModalResponseFactoryTest extends TestCase
     }
 
     /**
-     * @return array<array<array<bool|string>|string>>
+     * @return list<list<list<bool|string>|string>>
      */
     public static function provideInvalidPayloads(): array
     {

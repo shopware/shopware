@@ -26,7 +26,7 @@ class RuleConditionRegistry
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getNames(): array
     {
@@ -62,7 +62,7 @@ class RuleConditionRegistry
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getFlowRuleNames(): array
     {

@@ -33,8 +33,8 @@ class FeatureDisableCommandTest extends TestCase
     }
 
     /**
-     * @param array<string> $args
-     * @param array<string> $featuresToDisable
+     * @param list<string> $args
+     * @param list<string> $featuresToDisable
      */
     #[DataProvider('featureProvider')]
     public function testDisableFeature(array $args, array $featuresToDisable): void
@@ -84,7 +84,7 @@ class FeatureDisableCommandTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: array<string>, 1: array<string>}>
+     * @return array<string, array{0: list<string>, 1: list<string>}>
      */
     public static function featureProvider(): array
     {

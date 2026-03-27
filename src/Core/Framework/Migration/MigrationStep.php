@@ -182,7 +182,7 @@ abstract class MigrationStep
     }
 
     /**
-     * @param array<string, array<string>> $privileges
+     * @param array<string, list<string>> $privileges
      *
      * @throws ConnectionException
      * @throws Exception
@@ -218,10 +218,10 @@ abstract class MigrationStep
     }
 
     /**
-     * @param array<string, array<string>> $privilegeChange
-     * @param array<string> $rolePrivileges
+     * @param array<string, list<string>> $privilegeChange
+     * @param list<string> $rolePrivileges
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function fixRolePrivileges(array $privilegeChange, array $rolePrivileges): array
     {

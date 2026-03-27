@@ -83,7 +83,7 @@ class CustomerRequestedGroupRuleTest extends TestCase
     }
 
     /**
-     * @param array<string> $customerGroupIds
+     * @param list<string> $customerGroupIds
      */
     #[DataProvider('getMatchValues')]
     public function testCustomerRequestedGroupRuleMatching(bool $expected, bool $loggedIn, ?string $requestedGroupId, array $customerGroupIds, string $operator): void
@@ -118,7 +118,7 @@ class CustomerRequestedGroupRuleTest extends TestCase
     }
 
     /**
-     * @return \Traversable<string, array{expected: bool, loggedIn: bool, requestedGroupId: string|null, customerGroupIds: array<string>, operator: string}>
+     * @return \Traversable<string, array{expected: bool, loggedIn: bool, requestedGroupId: string|null, customerGroupIds: list<string>, operator: string}>
      */
     public static function getMatchValues(): \Traversable
     {

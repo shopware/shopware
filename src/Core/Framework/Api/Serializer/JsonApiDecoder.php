@@ -68,7 +68,7 @@ class JsonApiDecoder implements DecoderInterface
     }
 
     /**
-     * @param array<mixed> $array
+     * @param list<mixed> $array
      */
     private function isCollection(array $array): bool
     {

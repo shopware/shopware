@@ -279,7 +279,7 @@ class StoreApiSeoResolverTest extends TestCase
     }
 
     /**
-     * @param array<string> $foreignKeys
+     * @param list<string> $foreignKeys
      */
     private function createStoreApiSeoResolver(array $foreignKeys = ['random']): StoreApiSeoResolver
     {

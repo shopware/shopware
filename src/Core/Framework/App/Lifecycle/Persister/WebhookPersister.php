@@ -130,7 +130,7 @@ class WebhookPersister implements PersisterInterface
     }
 
     /**
-     * @return array<array{name: string, eventName: string, url: string, onlyLiveVersion?: bool, errorCount?: int}>
+     * @return list<array{name: string, eventName: string, url: string, onlyLiveVersion?: bool, errorCount?: int}>
      */
     private function getWebhooks(Manifest $manifest, ?Action $flowActions, string $appId, string $defaultLocale, bool $hasAppSecret): array
     {

@@ -13,7 +13,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class MediaPathChangedEvent extends Event
 {
     /**
-     * @var array<array{mediaId: string, thumbnailId: ?string, path: string, mimeType: ?string}>
+     * @var list<array{mediaId: string, thumbnailId: ?string, path: string, mimeType: ?string}>
      */
     public array $changed = [];
 

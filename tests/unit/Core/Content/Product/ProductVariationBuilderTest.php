@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class ProductVariationBuilderTest extends TestCase
 {
     /**
-     * @param array<array<string, string>> $expected
+     * @param list<array<string, string>> $expected
      */
     #[DataProvider('buildingProvider')]
     public function testBuilding(Entity $product, array $expected): void

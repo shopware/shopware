@@ -103,9 +103,9 @@ class DocumentConfigurationFactory
     }
 
     /**
-     * @param array<bool|int|string|array<array-key, mixed>|null> $config
+     * @param list<bool|int|string|array<array-key, mixed>|null> $config
      *
-     * @return array<bool|int|string|array<array-key, mixed>|null>
+     * @return list<bool|int|string|array<array-key, mixed>|null>
      */
     private static function cleanConfig(array $config): array
     {

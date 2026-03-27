@@ -34,7 +34,7 @@ class PluginAclTest extends TestCase
     ];
 
     /**
-     * @var array<Plugin>
+     * @var list<Plugin>
      */
     private array $plugins = [];
 
@@ -296,7 +296,7 @@ class PluginAclTest extends TestCase
     }
 
     /**
-     * @param array<string> $privileges
+     * @param list<string> $privileges
      */
     private function getAclRoleMock(string $name, array $privileges): AclRoleEntity
     {

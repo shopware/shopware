@@ -28,7 +28,7 @@ class AppActionLoader
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function loadAppAction(string $actionId, array $ids, Context $context): AppAction
     {

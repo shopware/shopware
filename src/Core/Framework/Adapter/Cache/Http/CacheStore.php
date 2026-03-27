@@ -76,7 +76,7 @@ class CacheStore implements StoreInterface
             return null;
         }
 
-        /** @var Response|array{response: Response, tags: array<string>} $hitData */
+        /** @var Response|array{response: Response, tags: list<string>} $hitData */
         $hitData = CacheCompressor::uncompress($item);
         $tags = [];
 
@@ -282,7 +282,7 @@ class CacheStore implements StoreInterface
     }
 
     /**
-     * @param array<string> $tags
+     * @param list<string> $tags
      */
     private function getMinInvalidation(array $tags): int
     {

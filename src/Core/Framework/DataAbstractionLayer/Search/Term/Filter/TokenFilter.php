@@ -51,7 +51,7 @@ class TokenFilter extends AbstractTokenFilter
 
     /**
      * @param list<string> $tokens
-     * @param array<string> $excludedTerms
+     * @param list<string> $excludedTerms
      *
      * @return list<string>
      */

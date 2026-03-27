@@ -83,7 +83,7 @@ class Executor
     }
 
     /**
-     * @param array<mixed> $payload
+     * @param list<mixed> $payload
      */
     private function executeHttpRequest(AppAction $action, Context $context, array $payload, #[\SensitiveParameter] string $appSecret): string
     {

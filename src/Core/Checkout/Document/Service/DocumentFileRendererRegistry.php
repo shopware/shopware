@@ -12,7 +12,7 @@ class DocumentFileRendererRegistry
     /**
      * @internal
      *
-     * @param array<AbstractDocumentTypeRenderer> $renderers
+     * @param list<AbstractDocumentTypeRenderer> $renderers
      */
     public function __construct(protected iterable $renderers)
     {

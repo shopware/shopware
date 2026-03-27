@@ -18,7 +18,7 @@ use function React\Promise\resolve;
 class ClientProfilerTest extends TestCase
 {
     /**
-     * @param string|array<string> $index
+     * @param string|list<string> $index
      */
     #[DataProvider('providerSearchQueries')]
     public function testSearching(string|array $index, string $expectedUrl): void
@@ -48,7 +48,7 @@ class ClientProfilerTest extends TestCase
     }
 
     /**
-     * @param string|array<string> $index
+     * @param string|list<string> $index
      */
     #[DataProvider('providerMSearchQueries')]
     public function testMSearching(string|array $index, string $expectedUrl): void

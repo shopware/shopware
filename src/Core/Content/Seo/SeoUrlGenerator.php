@@ -193,7 +193,7 @@ class SeoUrlGenerator
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function getAssociations(string $template, EntityDefinition $definition): array
     {

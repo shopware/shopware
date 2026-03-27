@@ -34,6 +34,7 @@ return (new Config())
         'ordered_class_elements' => true,
         'phpdoc_align' => ['align' => 'left'],
         'phpdoc_annotation_without_dot' => false,
+        'phpdoc_array_type' => true,
         'phpdoc_line_span' => true,
         'phpdoc_order' => ['order' => ['param', 'throws', 'return']],
         'phpdoc_summary' => false,

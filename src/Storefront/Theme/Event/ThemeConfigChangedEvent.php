@@ -10,6 +10,9 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('framework')]
 class ThemeConfigChangedEvent extends Event implements ShopwareEvent
 {
+    /**
+     * @param array<string, mixed> $config
+     */
     public function __construct(
         private readonly string $themeId,
         protected array $config,
@@ -17,6 +20,9 @@ class ThemeConfigChangedEvent extends Event implements ShopwareEvent
     ) {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConfig(): array
     {
         return $this->config;

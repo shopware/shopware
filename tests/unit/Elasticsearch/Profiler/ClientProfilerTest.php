@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Profiler;
 
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\Response;
 use OpenSearch\Client;
@@ -12,10 +15,6 @@ use OpenSearch\TransportFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Client\ClientInterface;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Shopware\Elasticsearch\Framework\RoundRobinHostHttpClient;
 use Shopware\Elasticsearch\Profiler\ClientProfiler;
 
 /**
@@ -109,7 +108,7 @@ class ClientProfilerTest extends TestCase
 
         yield 'index array' => [
             ['test', 'test2'],
-            'http://localhost:9200/test%2Ctest2/_search',
+            'http://localhost:9200/test,test2/_search',
         ];
     }
 
@@ -125,7 +124,7 @@ class ClientProfilerTest extends TestCase
 
         yield 'index array' => [
             ['test', 'test2'],
-            'http://localhost:9200/test%2Ctest2/_msearch',
+            'http://localhost:9200/test,test2/_msearch',
         ];
     }
 
@@ -134,12 +133,10 @@ class ClientProfilerTest extends TestCase
         $httpFactory = new HttpFactory();
         $serializer = new SmartSerializer();
         $requestFactory = new RequestFactory($httpFactory, $httpFactory, $httpFactory, $serializer);
-        $httpClient = new RoundRobinHostHttpClient(new class implements ClientInterface {
-            public function sendRequest(RequestInterface $request): ResponseInterface
-            {
-                return new Response(200, ['Content-Type' => 'application/json'], '{}');
-            }
-        }, [new \GuzzleHttp\Psr7\Uri('http://localhost:9200/')]);
+        $httpClient = new GuzzleClient([
+            'base_uri' => 'http://localhost:9200/',
+            'handler' => HandlerStack::create(new MockHandler([new Response(200, ['Content-Type' => 'application/json'], '{}')])),
+        ]);
         $transport = (new TransportFactory())
             ->setHttpClient($httpClient)
             ->setRequestFactory($requestFactory)

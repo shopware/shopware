@@ -2,13 +2,17 @@
 
 namespace Shopware\Elasticsearch\Profiler;
 
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\Psr7\UriResolver;
 use OpenSearch\Client;
 use OpenSearch\EndpointFactoryInterface;
 use OpenSearch\HttpTransport;
 use OpenSearch\Namespaces\NamespaceBuilderInterface;
 use OpenSearch\TransportInterface;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\UriInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Elasticsearch\Framework\LastRequestAwareHttpClientInterface;
 
 /**
  * @phpstan-type RequestInfo array{url: string, request: array<string, mixed>, response: array<string, mixed>, time: float, backtrace: string, client?: string}
@@ -21,7 +25,7 @@ class ClientProfiler extends Client
      */
     private array $requests = [];
 
-    private readonly ?LastRequestAwareHttpClientInterface $httpClient;
+    private readonly ?UriInterface $baseUri;
 
     public function __construct(Client $client)
     {
@@ -35,7 +39,7 @@ class ClientProfiler extends Client
 
         parent::__construct($transport, $endpointFactory, $namespaces);
 
-        $this->httpClient = self::resolveHttpClient($transport);
+        $this->baseUri = self::resolveBaseUri($transport);
     }
 
     /**
@@ -51,7 +55,7 @@ class ClientProfiler extends Client
         $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
         $this->requests[] = [
-            'url' => $this->getLastRequestUrl() ?? '',
+            'url' => $this->assembleUrl($request, '_search'),
             'request' => $request,
             'response' => $response,
             'time' => microtime(true) - $time,
@@ -74,7 +78,7 @@ class ClientProfiler extends Client
         $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
         $this->requests[] = [
-            'url' => $this->getLastRequestUrl() ?? '',
+            'url' => $this->assembleUrl($params, '_msearch'),
             'request' => $params,
             'response' => $response,
             'time' => microtime(true) - $time,
@@ -110,7 +114,7 @@ class ClientProfiler extends Client
         $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
         $this->requests[] = [
-            'url' => $this->getLastRequestUrl() ?? '',
+            'url' => $this->assembleUrl($params, '_bulk'),
             'request' => $params,
             'response' => $response,
             'time' => microtime(true) - $time,
@@ -133,7 +137,7 @@ class ClientProfiler extends Client
         $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 
         $this->requests[] = [
-            'url' => $this->getLastRequestUrl() ?? '',
+            'url' => $this->assembleScriptUrl($params),
             'request' => $params,
             'response' => $response,
             'time' => microtime(true) - $time,
@@ -150,7 +154,7 @@ class ClientProfiler extends Client
         return $reflection->getValue($object);
     }
 
-    private static function resolveHttpClient(TransportInterface $transport): ?LastRequestAwareHttpClientInterface
+    private static function resolveBaseUri(TransportInterface $transport): ?UriInterface
     {
         if (!$transport instanceof HttpTransport) {
             return null;
@@ -159,17 +163,99 @@ class ClientProfiler extends Client
         $reflection = new \ReflectionProperty(HttpTransport::class, 'client');
         $httpClient = $reflection->getValue($transport);
 
-        if ($httpClient instanceof LastRequestAwareHttpClientInterface) {
-            return $httpClient;
+        return self::resolveBaseUriFromClient($httpClient);
+    }
+
+    private static function resolveBaseUriFromClient(mixed $httpClient): ?UriInterface
+    {
+        if ($httpClient instanceof GuzzleClient) {
+            $reflection = new \ReflectionProperty(GuzzleClient::class, 'config');
+            /** @var array<string, mixed> $config */
+            $config = $reflection->getValue($httpClient);
+            $baseUri = $config['base_uri'] ?? null;
+
+            return $baseUri instanceof UriInterface ? $baseUri : null;
+        }
+
+        if ($httpClient instanceof ClientInterface && property_exists($httpClient, 'client')) {
+            $reflection = new \ReflectionProperty($httpClient, 'client');
+
+            return self::resolveBaseUriFromClient($reflection->getValue($httpClient));
         }
 
         return null;
     }
 
-    private function getLastRequestUrl(): ?string
+    /**
+     * @param array<string, mixed> $params
+     */
+    private function assembleUrl(array $params, string $endpoint): string
     {
-        $uri = $this->httpClient?->getLastRequestUri();
+        $index = $params['index'] ?? null;
+        unset($params['index'], $params['body']);
 
-        return $uri !== null ? (string) $uri : null;
+        $path = $this->buildPath($index, $endpoint);
+        $query = $this->buildQueryString($params);
+
+        return $this->resolveUrl($path, $query);
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private function assembleScriptUrl(array $params): string
+    {
+        $id = isset($params['id']) ? (string) $params['id'] : '';
+        unset($params['id'], $params['body']);
+
+        return $this->resolveUrl('_scripts/' . rawurlencode($id), $this->buildQueryString($params));
+    }
+
+    /**
+     * @param string|array<int, string>|null $index
+     */
+    private function buildPath(string|array|null $index, string $endpoint): string
+    {
+        if ($index === null || $index === '') {
+            return $endpoint;
+        }
+
+        if (\is_array($index)) {
+            $index = implode(',', array_map('trim', $index));
+        }
+
+        return $index . '/' . $endpoint;
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private function buildQueryString(array $params): string
+    {
+        if ($params === []) {
+            return '';
+        }
+
+        return http_build_query(array_map(static function (mixed $value): mixed {
+            if ($value === true) {
+                return 'true';
+            }
+
+            if ($value === false) {
+                return 'false';
+            }
+
+            return $value;
+        }, $params));
+    }
+
+    private function resolveUrl(string $path, string $query): string
+    {
+        $pathWithQuery = $query === '' ? $path : $path . '?' . $query;
+        $uri = $this->baseUri !== null
+            ? UriResolver::resolve($this->baseUri, new Uri($pathWithQuery))
+            : new Uri($pathWithQuery);
+
+        return (string) $uri;
     }
 }

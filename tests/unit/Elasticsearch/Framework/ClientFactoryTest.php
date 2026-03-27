@@ -10,7 +10,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\NullLogger;
 use Shopware\Elasticsearch\Framework\ClientFactory;
-use Shopware\Elasticsearch\Framework\RoundRobinHostHttpClient;
 
 /**
  * @internal
@@ -21,10 +20,9 @@ class ClientFactoryTest extends TestCase
     public function testBuildClient(): void
     {
         $client = ClientFactory::createClient('test', new NullLogger(), false, ['verify_server_cert' => false, 'sigV4' => ['enabled' => false]]);
-        $roundRobinClient = $this->getHttpClient($client);
-        $config = $this->getGuzzleConfig($roundRobinClient);
+        $config = $this->getGuzzleConfig($client);
 
-        static::assertSame(['http://test:9200/'], array_map(static fn (\Psr\Http\Message\UriInterface $uri): string => (string) $uri, $roundRobinClient->getHosts()));
+        static::assertSame('http://test:9200/', (string) $config['base_uri']);
         static::assertFalse($config['verify']);
     }
 
@@ -32,19 +30,15 @@ class ClientFactoryTest extends TestCase
     {
         $client = ClientFactory::createClient('', new NullLogger(), false, ['verify_server_cert' => false, 'sigV4' => ['enabled' => false]]);
 
-        static::assertSame(
-            ['http://localhost:9200/'],
-            array_map(static fn (\Psr\Http\Message\UriInterface $uri): string => (string) $uri, $this->getHttpClient($client)->getHosts())
-        );
+        static::assertSame('http://localhost:9200/', (string) $this->getGuzzleConfig($client)['base_uri']);
     }
 
     public function testBuildHttpsClient(): void
     {
         $client = ClientFactory::createClient('https://test', new NullLogger(), true, ['verify_server_cert' => true, 'cert_path' => 'cert.pem', 'cert_key_path' => 'cert.key', 'sigV4' => ['enabled' => true]]);
-        $roundRobinClient = $this->getHttpClient($client);
-        $config = $this->getGuzzleConfig($roundRobinClient);
+        $config = $this->getGuzzleConfig($client);
 
-        static::assertSame(['https://test:9200/'], array_map(static fn (\Psr\Http\Message\UriInterface $uri): string => (string) $uri, $roundRobinClient->getHosts()));
+        static::assertSame('https://test:9200/', (string) $config['base_uri']);
         static::assertTrue($config['verify']);
         static::assertSame(['cert.pem', ''], $config['cert']);
         static::assertSame(['cert.key', ''], $config['ssl_key']);
@@ -53,12 +47,14 @@ class ClientFactoryTest extends TestCase
     public function testBuildHttpsClientWithSigV4CredentialProvider(): void
     {
         $client = ClientFactory::createClient('https://test', new NullLogger(), true, ['verify_server_cert' => true, 'cert_path' => 'cert.pem', 'cert_key_path' => 'cert.key', 'sigV4' => ['enabled' => true, 'region' => 'us-east-2', 'service' => 'es', 'credentials_provider' => ['key_id' => 'key', 'secret_key' => 'secret']]]);
-        $roundRobinClient = $this->getHttpClient($client);
 
-        static::assertSame(['https://test:9200/'], array_map(static fn (\Psr\Http\Message\UriInterface $uri): string => (string) $uri, $roundRobinClient->getHosts()));
+        static::assertSame('https://test:9200/', (string) $this->getGuzzleConfig($client)['base_uri']);
     }
 
-    private function getHttpClient(Client $client): RoundRobinHostHttpClient
+    /**
+     * @return array<string, mixed>
+     */
+    private function getGuzzleConfig(Client $client): array
     {
         $transportProperty = new \ReflectionProperty($client, 'httpTransport');
         $transport = $transportProperty->getValue($client);
@@ -67,36 +63,23 @@ class ClientFactoryTest extends TestCase
 
         $httpClientProperty = new \ReflectionProperty($transport, 'client');
         $httpClient = $httpClientProperty->getValue($transport);
+        $guzzleClient = $this->resolveGuzzleClient($httpClient);
+        $property = new \ReflectionProperty(GuzzleClient::class, 'config');
 
-        static::assertInstanceOf(RoundRobinHostHttpClient::class, $httpClient);
-
-        return $httpClient;
+        return $property->getValue($guzzleClient);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function getGuzzleConfig(RoundRobinHostHttpClient $client): array
+    private function resolveGuzzleClient(mixed $httpClient): GuzzleClient
     {
-        $property = new \ReflectionProperty($this->getGuzzleClient($client), 'config');
-
-        return $property->getValue($this->getGuzzleClient($client));
-    }
-
-    private function getGuzzleClient(RoundRobinHostHttpClient $client): GuzzleClient
-    {
-        $wrappedClient = $client->getClient();
-
-        if ($wrappedClient instanceof GuzzleClient) {
-            return $wrappedClient;
+        if ($httpClient instanceof GuzzleClient) {
+            return $httpClient;
         }
 
-        $property = new \ReflectionProperty($wrappedClient, 'client');
-        $innerClient = $property->getValue($wrappedClient);
+        static::assertInstanceOf(ClientInterface::class, $httpClient);
+        static::assertTrue(property_exists($httpClient, 'client'));
 
-        static::assertInstanceOf(ClientInterface::class, $innerClient);
-        static::assertInstanceOf(GuzzleClient::class, $innerClient);
+        $property = new \ReflectionProperty($httpClient, 'client');
 
-        return $innerClient;
+        return $this->resolveGuzzleClient($property->getValue($httpClient));
     }
 }

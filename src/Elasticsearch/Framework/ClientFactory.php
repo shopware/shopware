@@ -24,13 +24,8 @@ class ClientFactory
      */
     public static function createClient(string $hosts, LoggerInterface $logger, bool $debug, array $sslConfig): Client
     {
-        $hosts = array_values(array_filter(array_map('trim', explode(',', $hosts))));
-        if ($hosts === []) {
-            $hosts = ['localhost:9200'];
-        }
-
-        $hostUris = array_map(self::normalizeHost(...), $hosts);
-        $httpClient = self::createHttpClient($hostUris, $logger, $debug, $sslConfig);
+        $host = self::normalizePrimaryHost($hosts);
+        $httpClient = self::createHttpClient($host, $logger, $debug, $sslConfig);
 
         if ($sslConfig['sigV4']['enabled'] ?? false) {
             $region = $sslConfig['sigV4']['region'] ?? '';
@@ -48,8 +43,6 @@ class ClientFactory
             $httpClient = new AsyncAwsSigner($configuration, $logger, $service, $region, $credentialProvider, $httpClient);
         }
 
-        $httpClient = new RoundRobinHostHttpClient($httpClient, $hostUris);
-
         $httpFactory = new HttpFactory();
         $serializer = new SmartSerializer();
         $requestFactory = new RequestFactory($httpFactory, $httpFactory, $httpFactory, $serializer);
@@ -62,13 +55,13 @@ class ClientFactory
     }
 
     /**
-     * @param non-empty-list<string> $hosts
+     * @param non-empty-string $host
      * @param array{verify_server_cert: bool, cert_path?: string, cert_password?: string, cert_key_path?: string, cert_key_password?: string} $sslConfig
      */
-    private static function createHttpClient(array $hosts, LoggerInterface $logger, bool $debug, array $sslConfig): GuzzleClient
+    private static function createHttpClient(string $host, LoggerInterface $logger, bool $debug, array $sslConfig): GuzzleClient
     {
         $options = [
-            'base_uri' => $hosts[0],
+            'base_uri' => $host,
             'verify' => $sslConfig['verify_server_cert'],
         ];
 
@@ -83,6 +76,19 @@ class ClientFactory
         return (new GuzzleHttpClientFactory(logger: $debug ? $logger : null))->create($options);
     }
 
+    /**
+     * @return non-empty-string
+     */
+    private static function normalizePrimaryHost(string $hosts): string
+    {
+        $hosts = array_values(array_filter(array_map('trim', explode(',', $hosts))));
+
+        return self::normalizeHost($hosts[0] ?? 'localhost:9200');
+    }
+
+    /**
+     * @return non-empty-string
+     */
     private static function normalizeHost(string $host): string
     {
         if (!str_contains($host, '://')) {

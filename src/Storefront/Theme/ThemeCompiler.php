@@ -155,6 +155,8 @@ class ThemeCompiler implements ThemeCompilerInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @return array{imports: array<string, string>, scopes?: array<string, array<string, string>>}|null
      */
     public function buildComponentImportMap(string $salesChannelId, string $themeId): ?array
     {

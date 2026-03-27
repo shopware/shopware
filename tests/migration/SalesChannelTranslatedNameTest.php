@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Migration;
 
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
@@ -10,10 +11,9 @@ use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * @internal
- *
- * @phpstan-ignore shopware.testCovers (No specific class affected)
  */
 #[Package('after-sales')]
+#[CoversNothing]
 class SalesChannelTranslatedNameTest extends TestCase
 {
     public const SALES_CHANNEL_NAME_SEARCH_REGEX = '/^.*(salesChannel.name)+.*$/m';

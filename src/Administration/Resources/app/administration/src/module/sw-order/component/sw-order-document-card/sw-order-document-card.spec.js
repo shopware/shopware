@@ -827,6 +827,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             expectedSelector: '.sw-order-document-settings-storno-modal__document-number',
         },
         {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE,
+            expectedSelector: '.sw-order-document-settings-storno-modal__document-number',
+        },
+        {
             technicalName: DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
             expectedSelector: '.sw-order-document-settings-credit-note-modal__document-number',
         },

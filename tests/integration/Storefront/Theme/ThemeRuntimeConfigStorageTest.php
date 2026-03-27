@@ -216,15 +216,15 @@ class ThemeRuntimeConfigStorageTest extends TestCase
     public function testSaveAndGetByNameWithComponentImportMap(): void
     {
         $importMap = [
-            'imports' => [
-                'shopware' => 'js/shopware/shopware.js',
-                'Sw:Button' => 'js/components/Sw/Button.js',
-                'debounce' => 'js/components/MyPlugin/vendor/debounce-abc123.js',
-            ],
             'scopes' => [
                 'js/components/MyPlugin/' => [
                     'debounce' => 'js/components/MyPlugin/vendor/debounce-abc123.js',
                 ],
+            ],
+            'imports' => [
+                'debounce' => 'js/components/MyPlugin/vendor/debounce-abc123.js',
+                'shopware' => 'js/shopware/shopware.js',
+                'Sw:Button' => 'js/components/Sw/Button.js',
             ],
         ];
 

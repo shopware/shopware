@@ -150,26 +150,47 @@
     {% block sw_import_export_edit_profile_violation_modal %}
     <sw-modal
         v-if="showValidationError"
-        :title="$tc('global.default.error')"
+        :title="$t('sw-import-export.profile.violationModal.title')"
         class="sw-import-export-edit-profile-modal__violation-modal"
         @modal-close="resetViolations"
     >
-        {% block sw_import_export_edit_profile_violation_modal_message %}
-        <p>{{ $tc('sw-import-export.profile.violationMessage') }}</p>
-        {% endblock %}
-
-        {% block sw_import_export_edit_profile_violation_modal_required_fields %}
-        <ul>
-            {% block sw_import_export_edit_profile_violation_modal_required_field %}
-            <li
-                v-for="requiredField in missingRequiredFields"
-                :key="requiredField"
-            >
-                {{ requiredField }}
-            </li>
+        <div
+            v-if="missingRequiredFields.length > 0"
+            class="sw-import-export-edit-profile-modal__violation-modal-missing-required-field"
+        >
+            {% block sw_import_export_edit_profile_violation_modal_message %}
+            <p v-html="$t('sw-import-export.profile.violationModal.missingRequiredFields')"></p>
             {% endblock %}
-        </ul>
-        {% endblock %}
+
+            {% block sw_import_export_edit_profile_violation_modal_required_fields %}
+            <ul>
+                {% block sw_import_export_edit_profile_violation_modal_required_field %}
+                <li
+                    v-for="requiredField in missingRequiredFields"
+                    :key="requiredField"
+                >
+                    {{ requiredField }}
+                </li>
+                {% endblock %}
+            </ul>
+            {% endblock %}
+        </div>
+
+        <div
+            v-if="duplicateMappings.length > 0"
+            class="sw-import-export-edit-profile-modal__violation-modal-duplicate-mapping"
+        >
+            <p v-html="$t('sw-import-export.profile.violationModal.duplicateMappings')"></p>
+
+            <ul>
+                <li
+                    v-for="duplicate in duplicateMappings"
+                    :key="duplicate.key"
+                >
+                    {{ duplicate.key }}
+                </li>
+            </ul>
+        </div>
 
         {% block sw_import_export_edit_profile_violation_modal_footer %}
         <template #modal-footer>
@@ -178,7 +199,7 @@
                 variant="secondary"
                 @click="resetViolations"
             >
-                {{ $tc('sw-import-export.profile.closeViolation') }}
+                {{ $t('global.default.close') }}
             </mt-button>
         </template>
         {% endblock %}

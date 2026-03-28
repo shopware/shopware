@@ -88,8 +88,8 @@ class ElementTypeStateServiceTest extends TestCase
         static::assertSame(['id' => 'type-id-1', 'active' => false], $repo->updates[0][0]);
     }
 
-    #[TestDox('invalidates registry even when no element types match for activation')]
-    public function testActivateElementTypesInvalidatesRegistryWhenNoTypesFound(): void
+    #[TestDox('skips update and cache invalidation when no element types match')]
+    public function testActivateElementTypesSkipsUpdateWhenNoTypesFound(): void
     {
         /** @var StaticEntityRepository<AppContentSystemElementTypeCollection> $repo */
         $repo = new StaticEntityRepository([
@@ -97,12 +97,11 @@ class ElementTypeStateServiceTest extends TestCase
         ]);
 
         $registry = $this->createMock(AbstractContentSystemElementTypeRegistry::class);
-        $registry->expects($this->once())->method('invalidate');
+        $registry->expects($this->never())->method('invalidate');
 
         $service = new ElementTypeStateService($repo, $registry);
         $service->activateElementTypes('app-without-types', Context::createDefaultContext());
 
-        static::assertCount(1, $repo->updates);
-        static::assertSame([[]], $repo->updates);
+        static::assertCount(0, $repo->updates);
     }
 }

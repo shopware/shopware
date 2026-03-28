@@ -10,7 +10,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ResolvedElementType
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\ElementTypeSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -160,11 +159,6 @@ class ContentSystemElementTypePersister implements PersisterInterface
         return $names;
     }
 
-    private function computeHash(ElementTypeSpecificationDto $dto): string
-    {
-        return Hasher::hash(json_encode($this->serializer->normalize($dto), \JSON_THROW_ON_ERROR));
-    }
-
     /**
      * Skips unchanged types (hash match) to avoid unnecessary writes on repeated installs/updates.
      *
@@ -180,7 +174,8 @@ class ContentSystemElementTypePersister implements PersisterInterface
         $upserts = [];
 
         foreach ($resolvedDtos as $resolvedDto) {
-            $hash = $this->computeHash($resolvedDto->dto);
+            $normalized = $this->serializer->normalize($resolvedDto->dto);
+            $hash = Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR));
             $existingEntity = $existing->filterByProperty('name', $resolvedDto->name)->first();
 
             if ($existingEntity !== null && $existingEntity->getHash() === $hash) {
@@ -190,7 +185,7 @@ class ContentSystemElementTypePersister implements PersisterInterface
             $upserts[] = [
                 'id' => $existingEntity?->getId() ?? Uuid::randomHex(),
                 'name' => $resolvedDto->name,
-                'schema' => $this->serializer->normalize($resolvedDto->dto),
+                'schema' => $normalized,
                 'hash' => $hash,
                 'active' => $context->app->isActive(),
                 'appId' => $context->app->getId(),

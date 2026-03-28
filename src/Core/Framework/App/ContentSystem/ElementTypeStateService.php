@@ -32,13 +32,11 @@ class ElementTypeStateService
     public function activateElementTypes(string $appId, Context $context): void
     {
         $this->updateElementTypes($appId, $context, false, true);
-        $this->registry->invalidate();
     }
 
     public function deactivateElementTypes(string $appId, Context $context): void
     {
         $this->updateElementTypes($appId, $context, true, false);
-        $this->registry->invalidate();
     }
 
     private function updateElementTypes(string $appId, Context $context, bool $currentActiveState, bool $newActiveState): void
@@ -50,8 +48,13 @@ class ElementTypeStateService
 
         $ids = $this->elementTypeRepository->searchIds($criteria, $context)->getIds();
 
+        if ($ids === []) {
+            return;
+        }
+
         $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => $newActiveState], $ids);
 
         $this->elementTypeRepository->update($updateSet, $context);
+        $this->registry->invalidate();
     }
 }

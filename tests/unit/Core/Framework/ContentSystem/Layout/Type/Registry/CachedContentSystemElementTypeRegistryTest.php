@@ -120,7 +120,6 @@ class CachedContentSystemElementTypeRegistryTest extends TestCase
             $name,
             $name,
             '',
-            'test',
             null,
             null,
             new CopilotSpecification('', []),

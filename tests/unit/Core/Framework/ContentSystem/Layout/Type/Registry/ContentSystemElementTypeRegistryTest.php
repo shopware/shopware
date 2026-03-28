@@ -122,7 +122,6 @@ class ContentSystemElementTypeRegistryTest extends TestCase
             $name,
             $label,
             '',
-            'test',
             null,
             null,
             new CopilotSpecification('', []),

@@ -166,7 +166,6 @@ class ElementTypeCollisionDetectorTest extends TestCase
                 $name,
                 $name,
                 'test',
-                'test',
                 null,
                 null,
                 new CopilotSpecification('test', []),

@@ -21,7 +21,6 @@ class ElementTypeSpecificationDtoTest extends TestCase
         $dto = new ElementTypeSpecificationDto(
             'Product Card',
             'A product card.',
-            'shopware AG',
             null,
             null,
             new CopilotSpecificationDto('Summary.', []),
@@ -53,7 +52,6 @@ class ElementTypeSpecificationDtoTest extends TestCase
         return new ElementTypeSpecificationDto(
             'Test',
             'A test element.',
-            'shopware AG',
             null,
             null,
             new CopilotSpecificationDto('Test.', []),

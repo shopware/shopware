@@ -13,6 +13,10 @@ use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
+ * Primary element type loader: handles core, bundle, and plugin types in all environments,
+ * plus app types in dev (where the compiler pass injects app filesystem directories).
+ * In prod, app types are loaded from the database by DatabaseTypeLoader instead.
+ *
  * @internal
  *
  * @final
@@ -42,6 +46,7 @@ class YamlTypeLoader extends AbstractContentSystemElementTypeLoader
         foreach ($this->directories as $sourceDir) {
             $resolvedSpecificationDtos = $this->loadDtosFromDirectory($sourceDir->path, $sourceDir->source, $sourceDir->prefix);
 
+            // Cross-directory dedup (within-directory dedup happens in loadDtosFromDirectory)
             foreach ($resolvedSpecificationDtos as $resolvedSpecificationDto) {
                 if (isset($seenNames[$resolvedSpecificationDto->name])) {
                     throw ContentSystemException::elementTypeDuplicate(
@@ -70,6 +75,9 @@ class YamlTypeLoader extends AbstractContentSystemElementTypeLoader
     }
 
     /**
+     * Validated and deduplicated within a single directory. Cross-directory
+     * deduplication is the caller's responsibility (load() handles it for the standard path).
+     *
      * @return list<ResolvedElementTypeSpecificationDto>
      */
     public function loadDtosFromDirectory(string $directory, string $source, string $prefix): array

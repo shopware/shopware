@@ -11,6 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
+ * Loads active app element types from the database. Only operates in prod — in dev,
+ * app types are loaded from the filesystem by YamlTypeLoader instead. Core, bundle,
+ * and plugin types always go through YamlTypeLoader regardless of environment.
+ *
  * @internal
  *
  * @final
@@ -31,6 +35,7 @@ class DatabaseTypeLoader extends AbstractContentSystemElementTypeLoader
      */
     public function load(): array
     {
+        // In dev, app types are loaded from filesystem by YamlTypeLoader via the compiler pass
         if ($this->environment === 'dev') {
             return [];
         }

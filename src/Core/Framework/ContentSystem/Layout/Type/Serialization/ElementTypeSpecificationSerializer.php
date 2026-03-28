@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Log\Package;
 class ElementTypeSpecificationSerializer
 {
     /**
+     * Falls back to element description as copilot summary when meta.copilot.summary is absent.
+     *
      * @param array<string, mixed> $data Raw YAML/DB structure with meta/properties/slots top-level keys
      */
     public function denormalize(array $data): ElementTypeSpecificationDto

@@ -45,6 +45,7 @@ class ElementTypeStateService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
+        // Only touch types that actually need toggling, skip those already in the desired state
         $criteria->addFilter(new EqualsFilter('active', $currentActiveState));
 
         $ids = $this->elementTypeRepository->searchIds($criteria, $context)->getIds();

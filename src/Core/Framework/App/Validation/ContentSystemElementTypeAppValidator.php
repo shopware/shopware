@@ -21,6 +21,10 @@ class ContentSystemElementTypeAppValidator extends AbstractManifestValidator
     ) {
     }
 
+    /**
+     * Validates schema structure only (syntax, required fields, constraints), not name collisions.
+     * Collision detection runs later in the persister when the app is actually installed.
+     */
     public function validate(Manifest $manifest, Context $context): ErrorCollection
     {
         $errors = new ErrorCollection();

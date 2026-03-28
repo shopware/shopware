@@ -33,6 +33,7 @@ final class ElementTypeCollisionDetector
         $existing = $this->registry->all();
 
         foreach ($proposed as $name => $source) {
+            // Skip entries owned by the caller's source to avoid self-collision during updates
             if (\array_key_exists($name, $existing)
                 && ($excludeSource === null || $existing[$name]->source() !== $excludeSource)
             ) {
@@ -43,6 +44,7 @@ final class ElementTypeCollisionDetector
                 );
             }
 
+            // Inactive types are excluded from all() but still occupy name space
             if (\array_key_exists($name, $additionalRegistered)) {
                 throw ContentSystemException::elementTypeDuplicate(
                     $name,

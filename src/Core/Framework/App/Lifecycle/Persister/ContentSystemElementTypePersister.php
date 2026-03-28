@@ -22,6 +22,9 @@ use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * Sole write path for app element types into the database. Called during app
+ * install, update, and uninstall. DatabaseTypeLoader is the read-side counterpart.
+ *
  * @internal
  */
 #[Package('framework')]
@@ -41,6 +44,11 @@ class ContentSystemElementTypePersister implements PersisterInterface
     ) {
     }
 
+    /**
+     * Syncs app element types to DB: validates against registry + inactive types,
+     * then upserts changed / deletes removed types. Invalidates the registry cache
+     * only when changes were written.
+     */
     public function persist(AppLifecycleContext $context): void
     {
         $appId = $context->app->getId();
@@ -56,6 +64,7 @@ class ContentSystemElementTypePersister implements PersisterInterface
             $proposedNames = $this->buildProposedNames($resolvedDtos);
             $inactiveNames = $this->loadInactiveAppTypeNames($appId, $context->context);
 
+            // Exclude own source to prevent self-collision when updating existing types
             $this->collisionDetector->validate(
                 $proposedNames,
                 'app:' . $context->app->getName(),
@@ -80,6 +89,8 @@ class ContentSystemElementTypePersister implements PersisterInterface
     }
 
     /**
+     * Wraps ContentSystemException into AppException to match the app lifecycle's error boundary.
+     *
      * @return list<ResolvedElementTypeSpecificationDto>
      */
     private function loadDtos(AppLifecycleContext $context): array
@@ -127,6 +138,7 @@ class ContentSystemElementTypePersister implements PersisterInterface
     private function loadInactiveAppTypeNames(string $excludeAppId, Context $context): array
     {
         $criteria = new Criteria();
+        // Inactive types from other apps still occupy name space; exclude the current app's own deactivated types
         $criteria->addFilter(new EqualsFilter('active', false));
         $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('appId', $excludeAppId)]));
         $criteria->addAssociation('app');
@@ -154,6 +166,8 @@ class ContentSystemElementTypePersister implements PersisterInterface
     }
 
     /**
+     * Skips unchanged types (hash match) to avoid unnecessary writes on repeated installs/updates.
+     *
      * @param list<ResolvedElementTypeSpecificationDto> $resolvedDtos
      *
      * @return list<array<string, mixed>>

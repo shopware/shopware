@@ -33,6 +33,7 @@ class ContentSystemElementTypeRegistry extends AbstractContentSystemElementTypeR
     {
         $types = [];
 
+        // Cross-loader dedup: individual loaders guarantee internal uniqueness, this catches collisions across loaders
         foreach ($this->loaders as $loader) {
             foreach ($loader->load() as $specification) {
                 $name = $specification->name();

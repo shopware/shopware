@@ -35,7 +35,11 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
         $this->loadFromDirectory(self::CORE_DEFINITIONS_DIRECTORY, 'core', self::CORE_PREFIX, $directories);
         $this->loadFromBundleMetadata($container, $directories);
         $this->loadFromPlugins($container, $directories);
-        $this->loadFromApps($container, $directories);
+
+        // In prod, app types are loaded from the database by DatabaseTypeLoader instead
+        if ($container->getParameter('kernel.environment') === 'dev') {
+            $this->loadFromApps($container, $directories);
+        }
 
         $container->getDefinition(YamlTypeLoader::class)->setArgument('$directories', $directories);
     }
@@ -134,14 +138,13 @@ final class ContentSystemElementTypeCompilerPass implements CompilerPassInterfac
     }
 
     /**
+     * DBAL exceptions are silently swallowed because the compiler pass may run
+     * before the database exists (fresh install, CI).
+     *
      * @param list<Definition> $directories
      */
     private function loadFromApps(ContainerBuilder $container, array &$directories): void
     {
-        if ($container->getParameter('kernel.environment') !== 'dev') {
-            return;
-        }
-
         $connection = $container->get(Connection::class);
 
         try {

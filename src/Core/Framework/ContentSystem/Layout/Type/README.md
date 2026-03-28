@@ -41,20 +41,20 @@ This bridge is built at compile time by `ContentSystemDataLoaderTypeCompilerPass
 
 1. **Specification Value Objects** (Specification/) — Immutable VOs: ContentSystemElementTypeSpecification (top-level), PropertySpecification + PropertyType (property with type info), SlotSpecification (slot with allowList/maxElements), CopilotSpecification (LLM metadata). DTOs in Specification/Dto/ carry Symfony validation attributes for input deserialization.
 
-2. **Loading** (Loader/) — YamlTypeLoader scans a directory for *.yaml files, deserializes via ElementTypeSpecificationSerializer, validates via Symfony Validator. DatabaseTypeLoader loads active app types from the app_content_system_element_type table (prod only; returns empty in dev where apps load from filesystem via the compiler pass).
+2. **Loading** (Loader/) — Both loaders extend `AbstractContentSystemElementTypeLoader` (shared `load()` contract). `YamlTypeLoader` scans directories for *.yaml files, resolves names via `ElementTypeNameResolver` (path-based), deserializes via `ElementTypeSpecificationSerializer`, validates via Symfony Validator, and deduplicates within the same source. `DatabaseTypeLoader` loads active app types from the `app_content_system_element_type` table (prod only; returns empty in dev where apps load from filesystem via the compiler pass). `ElementTypeSourceDirectory` carries source/path/prefix per directory; `ResolvedElementTypeSpecificationDto` bridges loading and specification creation.
 
-3. **Registry** (Registry/) — Uses the Shopware decoration pattern. AbstractContentSystemElementTypeRegistry defines the contract; ContentSystemElementTypeRegistry is the stateless aggregator (leaf) that iterates tagged content_system.type_loader services; CachedContentSystemElementTypeRegistry decorates it with a `cache.system` pool, caching the aggregated result cross-request. `invalidate()` throws `DecorationPatternException` by default — only the cached decorator overrides it.
+3. **Registry** (Registry/) — Uses the Shopware decoration pattern. `AbstractContentSystemElementTypeRegistry` defines the contract; `ContentSystemElementTypeRegistry` is the stateless aggregator (leaf) that iterates `AbstractContentSystemElementTypeLoader` instances (tagged `content_system.type_loader`); `CachedContentSystemElementTypeRegistry` decorates it with a `cache.system` pool, caching the aggregated result cross-request. `invalidate()` throws `DecorationPatternException` by default — only the cached decorator overrides it.
 
 4. **Compiler Pass** — ContentSystemElementTypeCompilerPass discovers YAML directories from four sources: core Definitions/ directory, bundle metadata, active plugins (customizable via Plugin::getContentTypeDirectory()), and active apps (dev env only, filesystem). Injects directory paths into YamlTypeLoader — no YAML parsing at compile time.
 
-5. **App Integration** — AppContentSystemElementTypeDefinition (DAL entity), ContentSystemElementTypePersister (syncs YAML to DB with collision detection), ContentSystemElementTypeAppValidator (validates app YAML during manifest validation).
+5. **App Integration** — `AppContentSystemElementTypeDefinition` (DAL entity), `ContentSystemElementTypePersister` (syncs YAML to DB with collision detection via `ElementTypeCollisionDetector`), `ContentSystemElementTypeAppValidator` (validates app YAML during manifest validation), `ElementTypeStateService` (toggles `active` column on app activate/deactivate, then invalidates registry cache).
 
 ## Subdirectories
 
 - **Definitions/** - Core YAML type definitions (49 files: headers, filters, products, content, media, grid)
-- **Loader/** - Type loading (YamlTypeLoader for filesystem, DatabaseTypeLoader for app types in prod)
+- **Loader/** - Type loading: `AbstractContentSystemElementTypeLoader` (base), `YamlTypeLoader` (filesystem), `DatabaseTypeLoader` (app types in prod), `ElementTypeNameResolver` (path-to-name), `ElementTypeSourceDirectory` (source directory VO), `ResolvedElementTypeSpecificationDto` (loading-to-spec bridge)
 - **Registry/** - AbstractContentSystemElementTypeRegistry (decoration pattern contract), ContentSystemElementTypeRegistry (stateless aggregator), CachedContentSystemElementTypeRegistry (cross-request cache decorator)
 - **Serialization/** - ElementTypeSpecificationSerializer (YAML ↔ DTO conversion)
 - **Specification/** - Value objects (ContentSystemElementTypeSpecification, PropertySpecification, SlotSpecification, CopilotSpecification)
 - **Specification/Dto/** - Validation DTOs with Symfony constraint attributes
-- **Validation/** - Custom validators (ValidPropertyConstraints for type/translatable/enum rules)
+- **Validation/** - `ElementTypeCollisionDetector` (validates proposed names against registry + inactive app types), `ValidPropertyConstraints`/`ValidPropertyConstraintsValidator` (type/translatable/enum rules)

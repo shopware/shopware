@@ -1,23 +1,103 @@
 # Extending the ContentSystem
 
-Plugins extend the ContentSystem through three mechanisms.
+Plugins extend the ContentSystem through four mechanisms.
 
 ## Table of Contents
 
 1. [Extension Model](#extension-model)
-2. [Custom Specification Sources](#custom-specification-sources)
-3. [Custom Data Loaders](#custom-data-loaders)
-4. [Event Listeners](#event-listeners)
-5. [Service Tags](#service-tag-reference)
-6. [Type Reference](#type-reference)
+2. [Custom Element Types](#custom-element-types)
+3. [Custom Specification Sources](#custom-specification-sources)
+4. [Custom Data Loaders](#custom-data-loaders)
+5. [Event Listeners](#event-listeners)
+6. [Service Tags](#service-tag-reference)
+7. [Type Reference](#type-reference)
 
 ## Extension Model
 
 | Extension Point           | Purpose                                                                |
 |---------------------------|------------------------------------------------------------------------|
+| **Element Types**         | New content components with declared properties and slots              |
 | **Specification Sources** | New URL patterns, entity types                                         |
 | **Data Loaders**          | External APIs, calculations, aggregated data (with cache control)      |
 | **Event Listeners**       | Modify layout structure, enrich data, transform properties, cache tags |
+
+---
+
+## Custom Element Types
+
+Element types define what content components exist, their properties, and their slots. They are the schema for what a hydrated element looks like in the API response. Plugins and apps register types by placing YAML files in a types directory.
+
+### Registration
+
+| Source  | Directory                        | Name Prefix     | Customizable |
+|---------|----------------------------------|-----------------|--------------|
+| Plugin  | `Resources/content-system/types` | Plugin class name | Yes, via `Plugin::getContentTypeDirectory()` |
+| App     | `Resources/content-system/types` | App name        | No           |
+
+The compiler pass discovers YAML files automatically. No service registration needed.
+
+### Name Resolution
+
+Type names are derived from the file path relative to the types directory. Directory segments and filenames are converted from kebab-case to PascalCase and joined with colons. The source prefix is prepended automatically.
+
+**Example:** Plugin `AcmeStore` with file `Resources/content-system/types/product/quick-view.yaml` produces type name `AcmeStore:Product:QuickView`.
+
+**Rules:**
+- One type per YAML file
+- Filenames and directories must be kebab-case: `[a-z0-9]+(-[a-z0-9]+)*`
+- Both `.yaml` and `.yml` extensions accepted
+- `meta.name` in YAML is ignored; names come exclusively from file paths
+
+### YAML Structure
+
+```yaml
+meta:
+  label: "Quick View"
+  description: "Inline product preview overlay"
+  icon: "regular-eye"
+  category: "product"
+  copilot:
+    summary: "Shows a quick product preview"
+    hints:
+      - "Use inside product listings"
+
+properties:
+  productId:
+    type: string
+    required: true
+    title: "Product ID"
+    description: "UUID of the product to preview"
+  showPrice:
+    type: boolean
+    default: true
+    title: "Show Price"
+
+slots:
+  - name: actions
+    description: "Action buttons below product info"
+    maxElements: 3
+    allowList:
+      - "Sw:Content:Button"
+      - "AcmeStore:AddToCart"
+```
+
+**`meta`** (required): `label`, `description` are required. `icon`, `category`, `copilot` are optional.
+
+**`properties`** (optional): Each property declares its type (`string`, `boolean`, `integer`, `number`, or a FQCN for hydrated data). Optional fields: `required`, `translatable` (string only), `enum` (primitives only), `default`, `title`, `description`, `adminUI`.
+
+**`slots`** (optional): Each slot has a `name`. Optional: `maxElements` (cap on child count), `allowList` (restrict allowed child component types), `description`.
+
+### Collision Detection
+
+Type names must be globally unique across core, bundles, plugins, and apps. Duplicates are detected at:
+- **Compile time** by the registry when aggregating loaders
+- **Persist time** by `ElementTypeCollisionDetector` when syncing app types to the database (also checks inactive app types)
+
+### App Lifecycle
+
+When an app is activated or deactivated, `ElementTypeStateService` toggles the `active` column on its element types. `DatabaseTypeLoader` queries `WHERE active = 1`, so deactivated types are excluded from the registry on the next request.
+
+Reference: `Layout/Type/README.md`, `Layout/Type/Definitions/` (49 core type examples)
 
 ---
 

@@ -21,9 +21,6 @@ final readonly class ElementTypeSpecificationDto
         public string $label,
         #[Assert\NotBlank]
         public string $description,
-        #[Assert\NotBlank]
-        #[Assert\Length(min: 2)]
-        public string $vendor,
         #[Assert\NotBlank(allowNull: true)]
         public ?string $icon,
         #[Assert\NotBlank(allowNull: true)]
@@ -53,7 +50,6 @@ final readonly class ElementTypeSpecificationDto
             $name,
             $this->label,
             $this->description,
-            $this->vendor,
             $this->icon,
             $this->category,
             $this->copilot->toCopilotSpecification(),

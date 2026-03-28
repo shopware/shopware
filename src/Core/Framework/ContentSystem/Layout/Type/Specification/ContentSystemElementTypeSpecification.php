@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Log\Package;
  * @phpstan-import-type PropertySchema from PropertySpecification
  * @phpstan-import-type SlotSchema from SlotSpecification
  *
- * @phpstan-type ElementTypeSchema = array{name: string, label: string, description: string, vendor: string, icon: string|null, category: string|null, copilot: CopilotSchema, properties: array<string, PropertySchema>, slots: list<SlotSchema>}
+ * @phpstan-type ElementTypeSchema = array{name: string, label: string, description: string, source: string, icon: string|null, category: string|null, copilot: CopilotSchema, properties: array<string, PropertySchema>, slots: list<SlotSchema>}
  */
 #[Package('framework')]
 final readonly class ContentSystemElementTypeSpecification
@@ -36,7 +36,6 @@ final readonly class ContentSystemElementTypeSpecification
         private string $name,
         private string $label,
         private string $description,
-        private string $vendor,
         private ?string $icon,
         private ?string $category,
         private CopilotSpecification $copilot,
@@ -65,7 +64,7 @@ final readonly class ContentSystemElementTypeSpecification
             'name' => $this->name,
             'label' => $this->label,
             'description' => $this->description,
-            'vendor' => $this->vendor,
+            'source' => $this->source,
             'icon' => $this->icon,
             'category' => $this->category,
             'copilot' => $this->copilot->toSchema(),

@@ -172,7 +172,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $unchangedDto = new ElementTypeSpecificationDto(
             label: 'Unchanged Hero',
             description: 'Hero that stays the same',
-            vendor: 'DemoApp',
             icon: null,
             category: null,
             copilot: new CopilotSpecificationDto(summary: 'unchanged hero', hints: []),
@@ -183,7 +182,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $changedDto = new ElementTypeSpecificationDto(
             label: 'Changed Banner',
             description: 'Banner that will be updated',
-            vendor: 'DemoApp',
             icon: null,
             category: null,
             copilot: new CopilotSpecificationDto(summary: 'changed banner', hints: []),
@@ -346,7 +344,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
             'DemoApp:Hero' => new ContentSystemElementTypeSpecification(
                 'DemoApp:Hero',
                 'Hero',
-                'test',
                 'test',
                 null,
                 null,

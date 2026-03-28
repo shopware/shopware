@@ -26,7 +26,7 @@ class ContentSystemElementTypeSpecificationTest extends TestCase
         static::assertSame('Sw:Product:Card', $schema['name']);
         static::assertSame('Product Card', $schema['label']);
         static::assertSame('A product card.', $schema['description']);
-        static::assertSame('shopware AG', $schema['vendor']);
+        static::assertSame('test', $schema['source']);
         static::assertSame('card', $schema['icon']);
         static::assertSame('commerce', $schema['category']);
     }
@@ -57,14 +57,13 @@ class ContentSystemElementTypeSpecificationTest extends TestCase
         static::assertSame([], $schema['slots']);
     }
 
-    #[TestDox('excludes source field from schema output')]
-    public function testToSchemaDoesNotIncludeSource(): void
+    #[TestDox('includes source field in schema output')]
+    public function testToSchemaIncludesSource(): void
     {
         $specification = new ContentSystemElementTypeSpecification(
             'Sw:Content:Text',
             'Text',
             '',
-            'test',
             null,
             null,
             new CopilotSpecification('', []),
@@ -73,7 +72,7 @@ class ContentSystemElementTypeSpecificationTest extends TestCase
             'core'
         );
 
-        static::assertArrayNotHasKey('source', $specification->toSchema());
+        static::assertSame('core', $specification->toSchema()['source']);
     }
 
     private function createSpecification(?string $icon, ?string $category): ContentSystemElementTypeSpecification
@@ -82,7 +81,6 @@ class ContentSystemElementTypeSpecificationTest extends TestCase
             'Sw:Product:Card',
             'Product Card',
             'A product card.',
-            'shopware AG',
             $icon,
             $category,
             new CopilotSpecification('Product card', ['Use for single products']),
@@ -98,7 +96,6 @@ class ContentSystemElementTypeSpecificationTest extends TestCase
             'Sw:Product:Card',
             'Product Card',
             'A product card.',
-            'shopware AG',
             'card',
             'commerce',
             new CopilotSpecification('Product card', ['Use for single products']),

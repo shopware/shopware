@@ -23,7 +23,7 @@ class YamlTypeLoaderTest extends TestCase
 
     private const PLUGIN_TYPES_DIR = __DIR__ . '/fixtures/test-plugin/Resources/content-system/types';
 
-    private const MINIMAL_VALID_YAML = "meta:\n  label: \"Test\"\n  description: \"Test.\"\n  vendor: \"shopware AG\"\n";
+    private const MINIMAL_VALID_YAML = "meta:\n  label: \"Test\"\n  description: \"Test.\"\n";
 
     private string $tempDir = '';
 
@@ -185,7 +185,7 @@ class YamlTypeLoaderTest extends TestCase
     #[TestDox('throws batch validation exception when files have violations')]
     public function testThrowsForValidationViolations(): void
     {
-        $yaml = "meta:\n  label: \"\"\n  description: \"\"\n  vendor: \"\"";
+        $yaml = "meta:\n  label: \"\"\n  description: \"\"";
         file_put_contents($this->tempDir . '/invalid.yaml', $yaml);
 
         $loader = $this->createLoader([
@@ -200,7 +200,7 @@ class YamlTypeLoaderTest extends TestCase
     #[TestDox('batch validation reports violations from multiple invalid files')]
     public function testBatchValidationReportsMultipleFiles(): void
     {
-        $yaml = "meta:\n  label: \"\"\n  description: \"\"\n  vendor: \"\"";
+        $yaml = "meta:\n  label: \"\"\n  description: \"\"";
         mkdir($this->tempDir . '/a', 0777, true);
         mkdir($this->tempDir . '/b', 0777, true);
         file_put_contents($this->tempDir . '/a/invalid-a.yaml', $yaml);

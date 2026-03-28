@@ -32,7 +32,6 @@ class ElementTypeSpecificationSerializerTest extends TestCase
             'meta' => [
                 'label' => 'Product Card',
                 'description' => 'A product card.',
-                'vendor' => 'shopware AG',
                 'icon' => 'card',
                 'category' => 'commerce',
             ],
@@ -98,7 +97,7 @@ class ElementTypeSpecificationSerializerTest extends TestCase
      */
     public static function denormalizesCopilotBlockProvider(): iterable
     {
-        $baseMeta = ['label' => 'Text', 'description' => 'A text element.', 'vendor' => 'shopware AG'];
+        $baseMeta = ['label' => 'Text', 'description' => 'A text element.'];
 
         yield 'explicit copilot block with summary and hints' => [
             array_merge($baseMeta, ['copilot' => ['summary' => 'Product card element.', 'hints' => ['Use for products.']]]),
@@ -179,7 +178,6 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         $dto = new ElementTypeSpecificationDto(
             'Product Card',
             'A product card.',
-            'shopware AG',
             'card',
             'commerce',
             new CopilotSpecificationDto('', []),
@@ -189,7 +187,6 @@ class ElementTypeSpecificationSerializerTest extends TestCase
 
         $normalized = $this->serializer->normalize($dto);
 
-        static::assertSame('shopware AG', $normalized['meta']['vendor']);
         static::assertSame('card', $normalized['meta']['icon']);
         static::assertSame('commerce', $normalized['meta']['category']);
     }
@@ -255,7 +252,7 @@ class ElementTypeSpecificationSerializerTest extends TestCase
     #[TestDox('normalizes copilot block')]
     public function testNormalizesCopilotBlock(CopilotSpecificationDto $copilot, array $expectedCopilot): void
     {
-        $dto = new ElementTypeSpecificationDto('Text', 'Text.', 'shopware AG', null, null, $copilot, [], []);
+        $dto = new ElementTypeSpecificationDto('Text', 'Text.', null, null, $copilot, [], []);
 
         $normalized = $this->serializer->normalize($dto);
 
@@ -336,14 +333,13 @@ class ElementTypeSpecificationSerializerTest extends TestCase
     }
 
     /**
-     * @return array{label: string, description: string, vendor: string}
+     * @return array{label: string, description: string}
      */
     private function buildMinimalMeta(): array
     {
         return [
             'label' => 'Text',
             'description' => 'A text element.',
-            'vendor' => 'shopware AG',
         ];
     }
 
@@ -356,7 +352,6 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         return new ElementTypeSpecificationDto(
             'Text',
             'Text.',
-            'shopware AG',
             null,
             null,
             new CopilotSpecificationDto('', []),

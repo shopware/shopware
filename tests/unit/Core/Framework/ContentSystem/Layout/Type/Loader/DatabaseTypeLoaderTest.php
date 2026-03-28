@@ -26,7 +26,6 @@ class DatabaseTypeLoaderTest extends TestCase
             'meta' => [
                 'label' => 'Hero',
                 'description' => 'A hero banner.',
-                'vendor' => 'DemoApp',
             ],
         ], \JSON_THROW_ON_ERROR);
 
@@ -63,7 +62,6 @@ class DatabaseTypeLoaderTest extends TestCase
             'meta' => [
                 'label' => 'Unnamed',
                 'description' => 'An element with no name.',
-                'vendor' => 'DemoApp',
             ],
         ], \JSON_THROW_ON_ERROR);
 
@@ -89,7 +87,6 @@ class DatabaseTypeLoaderTest extends TestCase
             'meta' => [
                 'label' => '',
                 'description' => '',
-                'vendor' => '',
             ],
         ], \JSON_THROW_ON_ERROR);
 

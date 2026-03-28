@@ -1,7 +1,6 @@
 meta:
   label: "Test Element"
   description: "A test element for unit tests."
-  vendor: "shopware AG"
   icon: "default"
   category: "content"
   copilot:

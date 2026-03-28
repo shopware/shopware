@@ -58,7 +58,6 @@ class ElementTypeSpecificationSerializer
         return new ElementTypeSpecificationDto(
             label: $meta['label'] ?? '',
             description: $description,
-            vendor: $meta['vendor'] ?? '',
             icon: $meta['icon'] ?? null,
             category: $meta['category'] ?? null,
             copilot: $copilot,
@@ -75,7 +74,6 @@ class ElementTypeSpecificationSerializer
         $meta = [
             'label' => $dto->label,
             'description' => $dto->description,
-            'vendor' => $dto->vendor,
         ];
 
         if ($dto->icon !== null) {

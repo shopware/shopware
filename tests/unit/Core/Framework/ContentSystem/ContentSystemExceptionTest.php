@@ -223,12 +223,12 @@ class ContentSystemExceptionTest extends TestCase
             ContentSystemException::elementTypesInvalid(
                 new ConstraintViolationList([
                     new ConstraintViolation('must not be blank', null, [], null, '[Sw:Bad:A].label', null),
-                    new ConstraintViolation('too short', null, [], null, '[Sw:Bad:B].vendor', null),
+                    new ConstraintViolation('too short', null, [], null, '[Sw:Bad:B].description', null),
                 ])
             ),
             Response::HTTP_BAD_REQUEST,
             'CONTENT_SYSTEM__ELEMENT_TYPES_INVALID',
-            '[Sw:Bad:A].label: must not be blank; [Sw:Bad:B].vendor: too short',
+            '[Sw:Bad:A].label: must not be blank; [Sw:Bad:B].description: too short',
         ];
 
         yield 'element type invalid filename' => [

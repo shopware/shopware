@@ -21,7 +21,17 @@ final class ElementTypeCollisionDetector
      * Simulates whether proposed type names can be integrated into
      * the current registry state without collisions.
      *
-     * @param array<string, string> $proposed name => source label
+     * Note: this is a best-effort check with a TOCTOU window. The registry
+     * snapshot is read before the DB write, so two concurrent app installs
+     * proposing the same name can both pass validation. The UNIQUE KEY on
+     * `app_content_system_element_type.name` acts as the authoritative guard;
+     * this application-level check exists solely to provide a descriptive
+     * error message for the common (non-concurrent) case.
+     *
+     * @param array<string, string> $proposed name => source label — keyed by name, so
+     *                                        intra-source duplicates are implicitly deduplicated
+     *                                        by the caller (e.g. buildProposedNames uses array
+     *                                        key assignment). This method does not detect them.
      * @param array<string, string> $additionalRegistered name => source label
      *                                                    (entries not in all() but treated as occupied, e.g. inactive app types)
      */

@@ -26,7 +26,7 @@
                                             "type": "array",
                                             "items": {
                                                 "type": "object",
-                                                "required": ["name", "label", "description", "vendor", "icon", "category", "copilot", "properties", "slots"],
+                                                "required": ["name", "label", "description", "source", "icon", "category", "copilot", "properties", "slots"],
                                                 "properties": {
                                                     "name": {
                                                         "type": "string",
@@ -40,9 +40,9 @@
                                                         "type": "string",
                                                         "description": "Human-readable description."
                                                     },
-                                                    "vendor": {
+                                                    "source": {
                                                         "type": "string",
-                                                        "description": "Vendor or source identifier."
+                                                        "description": "Source identifier (e.g. core, plugin:MyPlugin, app:MyApp)."
                                                     },
                                                     "icon": {
                                                         "type": ["string", "null"],

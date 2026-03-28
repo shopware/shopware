@@ -47,7 +47,7 @@ This bridge is built at compile time by `ContentSystemDataLoaderTypeCompilerPass
 
 4. **Compiler Pass** — ContentSystemElementTypeCompilerPass discovers YAML directories from four sources: core Definitions/ directory, bundle metadata, active plugins (customizable via Plugin::getContentTypeDirectory()), and active apps (dev env only, filesystem). Injects directory paths into YamlTypeLoader — no YAML parsing at compile time.
 
-5. **App Integration** — `AppContentSystemElementTypeDefinition` (DAL entity), `ContentSystemElementTypePersister` (syncs YAML to DB with collision detection via `ElementTypeCollisionDetector`), `ContentSystemElementTypeAppValidator` (validates app YAML during manifest validation), `ElementTypeStateService` (toggles `active` column on app activate/deactivate, then invalidates registry cache).
+5. **App Integration** — `AppContentSystemElementTypeDefinition` (DAL entity), `ContentSystemElementTypePersister` (syncs YAML to DB with collision detection via `ElementTypeCollisionDetector`), `ContentSystemElementTypeAppValidator` (validates app YAML during manifest validation), `ElementTypeStateService` (toggles `active` column on app activate/deactivate; skips DB writes and cache invalidation when the app has no element types).
 
 ## Subdirectories
 

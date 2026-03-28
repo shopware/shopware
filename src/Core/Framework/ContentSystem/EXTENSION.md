@@ -91,11 +91,11 @@ slots:
 
 Type names must be globally unique across core, bundles, plugins, and apps. Duplicates are detected at:
 - **Compile time** by the registry when aggregating loaders
-- **Persist time** by `ElementTypeCollisionDetector` when syncing app types to the database (also checks inactive app types)
+- **Persist time** by `ElementTypeCollisionDetector` when syncing app types to the database (also checks inactive app types). This is a best-effort check with a TOCTOU window: the registry snapshot is read before the DB write, so concurrent app installs proposing the same name can both pass. The `UNIQUE KEY` on `app_content_system_element_type.name` is the authoritative guard.
 
 ### App Lifecycle
 
-When an app is activated or deactivated, `ElementTypeStateService` toggles the `active` column on its element types. `DatabaseTypeLoader` queries `WHERE active = 1`, so deactivated types are excluded from the registry on the next request.
+When an app is activated or deactivated, `ElementTypeStateService` toggles the `active` column on its element types and invalidates the registry cache. If the app has no element types, both the DB write and cache invalidation are skipped. `DatabaseTypeLoader` queries `WHERE active = 1`, so deactivated types are excluded from the registry on the next request.
 
 Reference: `Layout/Type/README.md`, `Layout/Type/Definitions/` (49 core type examples)
 

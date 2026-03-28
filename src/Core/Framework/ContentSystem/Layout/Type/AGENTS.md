@@ -29,4 +29,4 @@ Type spec `properties` = schema for hydrated API output, NOT storage format
 - `DatabaseTypeLoader` returns empty in dev (apps load from filesystem via compiler pass in dev)
 - Plugin type directory customizable via `Plugin::getContentTypeDirectory()`
 - `ValidPropertyConstraintsValidator` enforces: `translatable` only on `string`, `enum` only on primitives
-- `DatabaseTypeLoader` queries `WHERE active = 1` — deactivated app types excluded from registry. `ElementTypeCollisionDetector` also considers inactive types to prevent name collisions across apps.
+- `DatabaseTypeLoader` queries `WHERE active = 1` — deactivated app types excluded from registry. `ElementTypeCollisionDetector` also considers inactive types to prevent name collisions across apps. Collision check is best-effort (TOCTOU window); the `UNIQUE KEY` on `app_content_system_element_type.name` is the authoritative guard.

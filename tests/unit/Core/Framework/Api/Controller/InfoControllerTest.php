@@ -19,6 +19,8 @@ use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -199,6 +201,21 @@ class InfoControllerTest extends TestCase
         static::assertSame('current-shop-id', $data['shopId']);
     }
 
+    #[TestDox('returns disabled message stats when stats service is not enabled')]
+    public function testMessageStatsReturnsDisabledWhenNotEnabled(): void
+    {
+        $this->statsService->method('getStats')->willReturn(
+            new MessageStatsResponseEntity(enabled: false)
+        );
+
+        $content = $this->createController()->messageStats()->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        static::assertFalse($data['enabled']);
+        static::assertNull($data['stats']);
+    }
+
     #[TestDox('preserves floating-point precision in message stats response')]
     public function testMessageStatsPreservesFloatingPointPrecision(): void
     {
@@ -214,6 +231,68 @@ class InfoControllerTest extends TestCase
 
         $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
         static::assertSame(1.00, $data['stats']['averageTimeInQueue']);
+    }
+
+    #[TestDox('returns empty types array when no element types are registered')]
+    public function testContentSystemElementTypesReturnsEmptyWhenNoTypesRegistered(): void
+    {
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('all')->willReturn([]);
+
+        $controller = $this->createController(elementTypeRegistry: $registry);
+        $response = $controller->getContentSystemElementTypes();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([], $data['types']);
+    }
+
+    #[TestDox('returns content system element types as JSON')]
+    public function testContentSystemElementTypes(): void
+    {
+        $spec = new ContentSystemElementTypeSpecification(
+            name: 'Sw:Alert',
+            label: 'Alert',
+            description: 'Alert component',
+            icon: null,
+            category: null,
+            copilot: new CopilotSpecification('Alert summary', []),
+            properties: [],
+            slots: [],
+            source: 'core',
+        );
+
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('all')->willReturn(['Sw:Alert' => $spec]);
+
+        $controller = $this->createController(elementTypeRegistry: $registry);
+        $response = $controller->getContentSystemElementTypes();
+
+        static::assertSame(200, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('types', $data);
+        static::assertCount(1, $data['types']);
+        static::assertSame('Sw:Alert', $data['types'][0]['name']);
+        static::assertSame('core', $data['types'][0]['source']);
+    }
+
+    #[TestDox('returns empty data loader types when no loaders are registered')]
+    public function testContentSystemDataLoaderTypesReturnsEmptyWhenNoLoaders(): void
+    {
+        $schemaGenerator = static::createStub(ContentSystemDataLoaderTypeSchemaGenerator::class);
+        $schemaGenerator->method('getSchema')->willReturn(['sources' => []]);
+
+        $controller = $this->createController(dataLoaderTypeSchemaGenerator: $schemaGenerator);
+        $response = $controller->contentSystemDataLoaderTypes();
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertSame(['sources' => []], json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     #[TestDox('returns content system data loader type schema as JSON')]
@@ -253,8 +332,10 @@ class InfoControllerTest extends TestCase
         return json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
     }
 
-    private function createController(?ContentSystemDataLoaderTypeSchemaGenerator $dataLoaderTypeSchemaGenerator = null): InfoController
-    {
+    private function createController(
+        ?ContentSystemDataLoaderTypeSchemaGenerator $dataLoaderTypeSchemaGenerator = null,
+        ?AbstractContentSystemElementTypeRegistry $elementTypeRegistry = null,
+    ): InfoController {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
             'shopware.filesystem.private_allowed_extensions' => false,
@@ -303,7 +384,7 @@ class InfoControllerTest extends TestCase
             $this->statsService,
             $this->eventDispatcher,
             $dataLoaderTypeSchemaGenerator ?? static::createStub(ContentSystemDataLoaderTypeSchemaGenerator::class),
-            static::createStub(AbstractContentSystemElementTypeRegistry::class),
+            $elementTypeRegistry ?? static::createStub(AbstractContentSystemElementTypeRegistry::class),
         );
     }
 }

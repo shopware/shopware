@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  *
  * $type accepts primitives (`string`, `integer`, `boolean`, `number`) and class-string<Struct> FQCNs.
- * `enum` and `translatable` are ignored for non-primitive types. {@see ValidPropertyConstraintsValidator}
+ * `enum` and `translatable` are ignored for non-primitive types. {@see TypedEnumValidator} {@see TranslatableTypeValidator}
  *
  * @phpstan-type PropertyTypeSchema = array{type: string, translatable: bool, enum: list<string|int|float|bool>|null, default: string|int|float|bool|null}
  */

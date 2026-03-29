@@ -57,4 +57,4 @@ This bridge is built at compile time by `ContentSystemDataLoaderTypeCompilerPass
 - **Serialization/** - ElementTypeSpecificationSerializer (YAML ↔ DTO conversion)
 - **Specification/** - Value objects (ContentSystemElementTypeSpecification, PropertySpecification, SlotSpecification, CopilotSpecification)
 - **Specification/Dto/** - Validation DTOs with Symfony constraint attributes
-- **Validation/** - `ElementTypeCollisionDetector` (validates proposed names against registry + inactive app types), `ValidPropertyConstraints`/`ValidPropertyConstraintsValidator` (type/translatable/enum rules)
+- **Validation/** - `ElementTypeCollisionDetector` (validates proposed names against registry + inactive app types), `TranslatableType` (translatable requires string), `TypedEnum` (enum type/list/values), `TypedDefault` (default type/value)

@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ValidPropertyConstraints;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TranslatableType;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TypedDefault;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TypedEnum;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -12,7 +14,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @internal
  */
 #[Package('framework')]
-#[ValidPropertyConstraints]
+#[TranslatableType]
+#[TypedEnum]
+#[TypedDefault]
 final readonly class PropertySpecificationDto
 {
     /**

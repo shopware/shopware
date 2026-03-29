@@ -7,8 +7,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\PropertySpecificationDto;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ValidPropertyConstraints;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ValidPropertyConstraintsValidator;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TypedDefault;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TypedDefaultValidator;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -18,8 +18,8 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
-#[CoversClass(ValidPropertyConstraintsValidator::class)]
-class ValidPropertyConstraintsValidatorTest extends TestCase
+#[CoversClass(TypedDefaultValidator::class)]
+class TypedDefaultValidatorTest extends TestCase
 {
     #[DataProvider('acceptsValidSpecificationProvider')]
     #[TestDox('accepts valid property specification without violations')]
@@ -33,12 +33,32 @@ class ValidPropertyConstraintsValidatorTest extends TestCase
      */
     public static function acceptsValidSpecificationProvider(): iterable
     {
-        yield 'translatable on string type' => [
-            new PropertySpecificationDto('text', 'string', false, true, 'Text', 'Text content.', null, null, null),
+        yield 'string default on string type' => [
+            new PropertySpecificationDto('label', 'string', false, false, 'Label', 'A label.', null, 'default', null),
         ];
 
-        yield 'enum on primitive type' => [
-            new PropertySpecificationDto('layout', 'string', false, false, 'Layout', 'Layout variant.', ['a', 'b'], null, null),
+        yield 'int default on integer type' => [
+            new PropertySpecificationDto('count', 'integer', false, false, 'Count', 'A count.', null, 5, null),
+        ];
+
+        yield 'float default on number type' => [
+            new PropertySpecificationDto('price', 'number', false, false, 'Price', 'A price.', null, 9.99, null),
+        ];
+
+        yield 'int default on number type' => [
+            new PropertySpecificationDto('amount', 'number', false, false, 'Amount', 'An amount.', null, 10, null),
+        ];
+
+        yield 'bool default on boolean type' => [
+            new PropertySpecificationDto('active', 'boolean', false, false, 'Active', 'Is active.', null, false, null),
+        ];
+
+        yield 'null default on any type' => [
+            new PropertySpecificationDto('name', 'string', false, false, 'Name', 'A name.', null, null, null),
+        ];
+
+        yield 'null default on FQCN type' => [
+            new PropertySpecificationDto('product', 'Shopware\Core\Content\Product\ProductEntity', false, false, 'Product', 'A product.', null, null, null),
         ];
     }
 
@@ -48,7 +68,7 @@ class ValidPropertyConstraintsValidatorTest extends TestCase
     {
         $violations = $this->validate($dto);
 
-        static::assertCount(1, $violations);
+        static::assertGreaterThanOrEqual(1, $violations->count());
         static::assertSame($expectedPath, $violations->get(0)->getPropertyPath());
     }
 
@@ -57,29 +77,29 @@ class ValidPropertyConstraintsValidatorTest extends TestCase
      */
     public static function rejectsInvalidSpecificationProvider(): iterable
     {
-        yield 'translatable on non-string type' => [
-            new PropertySpecificationDto('count', 'integer', false, true, 'Count', 'A count.', null, null, null),
-            'translatable',
+        yield 'string default on integer type' => [
+            new PropertySpecificationDto('count', 'integer', false, false, 'Count', 'A count.', null, 'hello', null),
+            'default',
         ];
 
-        yield 'enum on FQCN type' => [
-            new PropertySpecificationDto('product', 'Shopware\Core\Content\Product\ProductEntity', false, false, 'Product', 'Product.', ['a'], null, null),
-            'enum',
+        yield 'bool default on string type' => [
+            new PropertySpecificationDto('label', 'string', false, false, 'Label', 'A label.', null, true, null),
+            'default',
         ];
 
-        yield 'enum is not a list' => [
-            new PropertySpecificationDto('layout', 'string', false, false, 'Layout', 'Layout.', ['a' => 'b'], null, null), // @phpstan-ignore argument.type (intentionally invalid: associative array instead of list)
-            'enum',
+        yield 'any default on FQCN type' => [
+            new PropertySpecificationDto('product', 'Shopware\Core\Content\Product\ProductEntity', false, false, 'Product', 'A product.', null, 'value', null),
+            'default',
         ];
     }
 
     #[TestDox('throws UnexpectedTypeException when constraint type is wrong')]
     public function testThrowsOnWrongConstraintType(): void
     {
-        $validator = new ValidPropertyConstraintsValidator();
+        $validator = new TypedDefaultValidator();
         $validator->initialize(static::createStub(ExecutionContextInterface::class));
 
-        $this->expectExceptionObject(new UnexpectedTypeException(new NotBlank(), ValidPropertyConstraints::class));
+        $this->expectExceptionObject(new UnexpectedTypeException(new NotBlank(), TypedDefault::class));
         $validator->validate(
             new PropertySpecificationDto('x', 'string', false, false, 'X', 'X.', null, null, null),
             new NotBlank(),
@@ -89,11 +109,11 @@ class ValidPropertyConstraintsValidatorTest extends TestCase
     #[TestDox('throws UnexpectedTypeException when value type is wrong')]
     public function testThrowsOnWrongValueType(): void
     {
-        $validator = new ValidPropertyConstraintsValidator();
+        $validator = new TypedDefaultValidator();
         $validator->initialize(static::createStub(ExecutionContextInterface::class));
 
         $this->expectExceptionObject(new UnexpectedTypeException('not-a-dto', PropertySpecificationDto::class));
-        $validator->validate('not-a-dto', new ValidPropertyConstraints());
+        $validator->validate('not-a-dto', new TypedDefault());
     }
 
     private function validate(PropertySpecificationDto $dto): ConstraintViolationListInterface

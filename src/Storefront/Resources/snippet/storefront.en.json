@@ -737,6 +737,10 @@
           "solution": "Please try again or contact our support."
         }
       }
+    },
+    "animation": {
+      "toggle": "Animation play/pause",
+      "select": "Select animation"
     }
   },
   "wishlist": {

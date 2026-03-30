@@ -737,6 +737,10 @@
           "solution": "Bitte versuche es erneut oder wende Dich an unseren Support."
         }
       }
+    },
+    "animation": {
+      "toggle": "Animation ein/aus",
+      "select": "Animation auswählen"
     }
   },
   "wishlist": {

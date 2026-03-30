@@ -65,22 +65,46 @@ class DemodataCommandTest extends TestCase
         $this->command = new DemodataCommand(
             $this->createMock(DemodataService::class),
             $this->dispatcher,
-            $this->getName() === 'testShowNoticeWhenNotProd' ? 'dev' : 'prod'
+            'prod',
+            [self::class], // always-present class, avoids dependency on shopware/dev-tools in unit tests
         );
+    }
+
+    public function testMissingDependencyReturnsFailure(): void
+    {
+        $command = new DemodataCommand(
+            $this->createMock(DemodataService::class),
+            $this->dispatcher,
+            'prod',
+            ['NonExistent\Class\That\DoesNotExist'], // @phpstan-ignore argument.type (non-existent class is intentional for the test)
+        );
+
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+
+        static::assertStringContainsString('Please install composer package "shopware/dev-tools"', $tester->getDisplay());
+        static::assertSame(Command::FAILURE, $tester->getStatusCode());
     }
 
     public function testShowNoticeWhenNotProd(): void
     {
+        $command = new DemodataCommand(
+            $this->createMock(DemodataService::class),
+            $this->dispatcher,
+            'test',
+            [self::class], // always-present class, avoids dependency on shopware/dev-tools in unit tests
+        );
+
         $eventCalled = false;
         $this->dispatcher->addListener(DemodataRequestCreatedEvent::class, static function () use (&$eventCalled): void {
             $eventCalled = true;
         });
 
-        $tester = new CommandTester($this->command);
+        $tester = new CommandTester($command);
         $tester->execute([]);
 
         static::assertFalse($eventCalled, 'Event was fired.');
-        static::assertStringContainsString('Demo data command should only be used in production environment.', $tester->getDisplay());
+        static::assertStringContainsString('Demo data command requires the app environment set to production to run.', $tester->getDisplay());
         static::assertSame(Command::INVALID, $tester->getStatusCode());
     }
 
@@ -91,8 +115,6 @@ class DemodataCommandTest extends TestCase
             $eventCalled = true;
 
             $items = $event->getRequest()->all();
-            static::assertIsArray($items);
-
             foreach (self::DEFAULT_DEFINITIONS as $definition) {
                 static::assertArrayHasKey($definition, $items);
             }
@@ -173,14 +195,9 @@ class DemodataCommandTest extends TestCase
             $eventCalled = true;
 
             $options = $event->getRequest()->getOptions(CustomFieldSetDefinition::class);
-
-            static::assertIsArray($options);
             static::assertArrayHasKey('relations', $options);
 
             $relations = $options['relations'];
-
-            static::assertIsArray($relations);
-
             static::assertArrayHasKey('product', $relations);
             static::assertArrayHasKey('product_manufacturer', $relations);
             static::assertArrayHasKey('order', $relations);

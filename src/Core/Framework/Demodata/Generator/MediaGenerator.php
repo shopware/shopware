@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
-use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
-use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -31,6 +31,9 @@ class MediaGenerator implements DemodataGeneratorInterface
 
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaDefaultFolderCollection> $defaultFolderRepository
+     * @param EntityRepository<MediaFolderCollection> $folderRepository
      */
     public function __construct(
         private readonly EntityWriterInterface $writer,
@@ -57,7 +60,7 @@ class MediaGenerator implements DemodataGeneratorInterface
 
         $mediaFolderId = $this->getOrCreateDefaultFolder($context);
         $downloadFolderId = $this->getOrCreateDefaultFolder($context, true);
-        $tags = $this->getIds('tag');
+        $tags = $this->getIds();
 
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $isDownloadFile = $i % 30 === 0;
@@ -83,7 +86,7 @@ class MediaGenerator implements DemodataGeneratorInterface
                     $file,
                     (string) mime_content_type($file),
                     pathinfo($file, \PATHINFO_EXTENSION),
-                    (int) filesize($file)
+                    (int) filesize($file),
                 ),
                 $this->fileNameProvider->provide(
                     pathinfo($file, \PATHINFO_FILENAME),
@@ -94,6 +97,10 @@ class MediaGenerator implements DemodataGeneratorInterface
                 $mediaId,
                 $context->getContext()
             );
+
+            if (str_starts_with($file, sys_get_temp_dir())) {
+                unlink($file);
+            }
 
             $context->getConsole()->progressAdvance(1);
         }
@@ -110,12 +117,12 @@ class MediaGenerator implements DemodataGeneratorInterface
     {
         $tagAssignments = [];
 
-        if (!empty($tags)) {
+        if ($tags !== []) {
             $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit());
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_values(array_map(
-                    fn (string $id) => ['id' => $id],
+                    static fn (string $id) => ['id' => $id],
                     $chosenTags
                 ));
             }
@@ -127,10 +134,10 @@ class MediaGenerator implements DemodataGeneratorInterface
     /**
      * @return list<string>
      */
-    private function getIds(string $table): array
+    private function getIds(): array
     {
         /** @var list<string> $ids */
-        $ids = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
+        $ids = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM tag LIMIT 500');
 
         return $ids;
     }
@@ -146,31 +153,69 @@ class MediaGenerator implements DemodataGeneratorInterface
                     (new Finder())
                         ->files()
                         ->in($fixtureDir)
-                        ->name('/\.(jpg|png)$/')
+                        ->name('/\.(jpg|png|webp|avif)$/')
                         ->getIterator()
                 )
             );
         }
 
-        if (\count($images)) {
+        if ($images !== []) {
             return $images[array_rand($images)]->getPathname();
         }
 
+        $faker = $context->getFaker();
+
+        /** @var positive-int $width */
+        $width = $faker->numberBetween(600, 800);
+        /** @var positive-int $height */
+        $height = $faker->numberBetween(400, 600);
+
+        $image = imagecreate($width, $height);
+        \assert($image !== false);
+
+        imagecolorallocate($image, 0xD8, 0xDD, 0xE6);
+
         /** @var string $text */
-        $text = $context->getFaker()->words(1, true);
+        $text = $faker->words(1, true);
 
-        $provider = new ImagesGeneratorProvider(new Generator());
+        // Render text at built-in font size, then scale up to fill the image
+        $font = 5;
+        $charWidth = imagefontwidth($font);
+        $charHeight = imagefontheight($font);
+        $textWidth = $charWidth * \strlen($text);
 
-        return $provider->imageGenerator(
-            null,
-            $context->getFaker()->numberBetween(600, 800),
-            $context->getFaker()->numberBetween(400, 600),
-            'jpg',
-            true,
-            $text,
-            '#d8dde6',
-            '#333333'
+        /** @var positive-int $textImageWidth */
+        $textImageWidth = $textWidth + 2;
+        /** @var positive-int $textImageHeight */
+        $textImageHeight = $charHeight + 2;
+
+        $textImage = imagecreate($textImageWidth, $textImageHeight);
+        \assert($textImage !== false);
+        imagecolorallocate($textImage, 0xD8, 0xDD, 0xE6);
+        $textImageColor = (int) imagecolorallocate($textImage, 0x33, 0x33, 0x33);
+        imagestring($textImage, $font, 1, 1, $text, $textImageColor);
+
+        $scale = min(($width - 20) / $textImageWidth, ($height - 20) / $textImageHeight);
+        $scaledWidth = (int) ($textImageWidth * $scale);
+        $scaledHeight = (int) ($textImageHeight * $scale);
+
+        imagecopyresized(
+            $image,
+            $textImage,
+            (int) (($width - $scaledWidth) / 2),
+            (int) (($height - $scaledHeight) / 2),
+            0,
+            0,
+            $scaledWidth,
+            $scaledHeight,
+            $textImageWidth,
+            $textImageHeight,
         );
+
+        $filePath = sys_get_temp_dir() . '/' . Uuid::randomHex() . '.jpg';
+        imagejpeg($image, $filePath);
+
+        return $filePath;
     }
 
     private function getOrCreateDefaultFolder(DemodataContext $context, bool $isDownloadFolder = false): ?string
@@ -192,8 +237,10 @@ class MediaGenerator implements DemodataGeneratorInterface
             return $mediaFolderId;
         }
 
-        /** @var MediaDefaultFolderEntity $defaultFolder */
-        $defaultFolder = $defaultFolders->first();
+        $defaultFolder = $defaultFolders->getEntities()->first();
+        if (!$defaultFolder) {
+            return $mediaFolderId;
+        }
 
         if ($defaultFolder->getFolder()) {
             return $defaultFolder->getFolder()->getId();

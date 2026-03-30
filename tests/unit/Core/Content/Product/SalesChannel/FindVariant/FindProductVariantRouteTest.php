@@ -39,8 +39,6 @@ class FindProductVariantRouteTest extends TestCase
 
     private MockObject&SystemConfigService $systemConfigService;
 
-    private MockObject&ProductCloseoutFilterFactory $productCloseoutFilterFactory;
-
     private FindProductVariantRoute $route;
 
     private IdsCollection $ids;

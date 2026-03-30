@@ -397,7 +397,25 @@ class ProductListingLoaderTest extends TestCase
         $criteria->addPostFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
         $listing = $this->fetchListing($criteria);
 
-        // only one of the green variants should be returned
+        // the configured main variant should be returned even when filtering by option
+        static::assertSame(1, $listing->getTotal());
+
+        $firstVariant = $listing->getEntities()->first();
+        static::assertNotNull($firstVariant);
+        $variantId = $firstVariant->getId();
+
+        static::assertSame($this->mainVariantId, $variantId);
+        static::assertTrue($firstVariant->hasExtension('search'));
+    }
+
+    public function testPostFilterOnOptionsWithoutMainVariantShowsFilteredVariant(): void
+    {
+        $this->createProduct([], false);
+
+        $criteria = new Criteria();
+        $criteria->addPostFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
+        $listing = $this->fetchListing($criteria);
+
         static::assertSame(1, $listing->getTotal());
 
         $firstVariant = $listing->getEntities()->first();

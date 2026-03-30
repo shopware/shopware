@@ -315,7 +315,7 @@ class ProductListingLoader
     private function shouldLoadPreviews(bool $hasOptionFilter, Criteria $criteria, SalesChannelContext $context): bool
     {
         if ($hasOptionFilter === true) {
-            return false;
+            return true;
         }
 
         $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);

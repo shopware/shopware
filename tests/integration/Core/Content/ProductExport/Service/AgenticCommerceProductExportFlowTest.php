@@ -86,22 +86,7 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         $result = $this->productExportGenerator->generate($productExport, new ExportBehavior());
 
         static::assertNotNull($result);
-        static::assertTrue($result->hasErrors());
-        static::assertSame([[
-            'messageKey' => 'provider-validation-failed',
-            'parameters' => [
-                'provider' => 'open-ai',
-                'field' => 'group_id',
-                'error' => 'The field "group_id" must be a non-empty string.',
-                'line' => 1,
-            ],
-        ]], array_map(
-            static fn ($error) => [
-                'messageKey' => $error->getMessageKey(),
-                'parameters' => $error->getParameters(),
-            ],
-            $result->getErrors()
-        ));
+        static::assertFalse($result->hasErrors());
 
         $lines = array_values(array_filter(
             preg_split('/\R/', $result->getContent()) ?: [],

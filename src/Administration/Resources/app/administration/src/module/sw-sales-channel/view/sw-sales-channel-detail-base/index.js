@@ -228,6 +228,10 @@ export default {
         },
 
         unservedLanguages() {
+            if (this.isProductExportChannel) {
+                return [];
+            }
+
             return (
                 this.salesChannel.languages?.filter(
                     (language) =>

@@ -120,9 +120,8 @@ class CheckoutRegisterPageLoader
     private function getSalutations(SalesChannelContext $salesChannelContext): SalutationCollection
     {
         $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
-        $this->salutationSorter->sort($salutations);
 
-        return $salutations;
+        return $this->salutationSorter->sort($salutations);
     }
 
     private function getCountries(SalesChannelContext $salesChannelContext): CountryCollection

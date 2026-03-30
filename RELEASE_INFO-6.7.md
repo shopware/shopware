@@ -142,13 +142,11 @@ When `bin/console system:setup:staging` is executed, the configured keys are wri
 
 ### Store API routes for delivery cost calculation
 
-New Store API routes are available to calculate delivery costs for a single product and for the current cart across shipping methods.
+The Store API now provides dedicated delivery-cost endpoints for product and cart previews. This allows headless storefronts and integrations to fetch shipping prices and delivery dates for multiple shipping methods without changing the customer's persisted cart or selected shipping method.
 
-- `GET /store-api/checkout/delivery-cost/{productId}` returns the delivery cost for the currently selected shipping method
-- `POST /store-api/checkout/delivery-cost/{productId}` returns delivery costs across the available shipping methods
-- `GET /store-api/checkout/delivery-cost/cart` returns delivery costs for the current cart across shipping methods
+For product previews, `/store-api/checkout/delivery-cost/{productId}` can return delivery costs for all matching shipping methods or be limited to selected methods via repeated `ids[]` query parameters. For cart previews, `/store-api/checkout/delivery-cost/cart` returns the delivery costs for the current cart across the available shipping methods.
 
-The response contains the calculated shipping price, delivery date, and shipping method data for each result.
+The response contains the calculated shipping price, delivery date, and shipping method data for each result, which makes it easier to build shipping-method selectors or delivery previews in custom storefronts and apps.
 
 ### Minimum value constraints added to quantity fields in ProductPriceDefinition
 

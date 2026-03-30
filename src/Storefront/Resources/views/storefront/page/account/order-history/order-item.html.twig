@@ -20,11 +20,7 @@
 
             {% set orderState = order.stateMachineState.technicalName %}
             {% set allowOrderCancellation = orderState == ORDER_STATE_OPEN and config('core.cart.enableOrderRefunds') %}
-            {% if feature('v6.8.0.0') %}
-                {% set orderPaymentState = order.primaryOrderTransaction.stateMachineState.technicalName %}
-            {% else %}
-                {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
-            {% endif %}
+            {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
             {% set isPaymentNeeded = orderPaymentState in states and orderState != ORDER_STATE_CANCELLED %}
 
             <div class="row flex-wrap">
@@ -175,7 +171,12 @@
                         {% endblock %}
 
                         {% if allowOrderCancellation %}
-                            {% sw_include '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
+                            {# @deprecated tag:v6.7.0 - Template will be removed. Use `account/order/cancel-order-modal.html.twig` instead. #}
+                            {% if feature('v6.7.0.0') %}
+                                {% sw_include '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
+                            {% else %}
+                                {% sw_include '@Storefront/storefront/page/account/order-history/cancel-order-modal.html.twig' %}
+                            {% endif %}
                         {% endif %}
                     </div>
                 {% endblock %}

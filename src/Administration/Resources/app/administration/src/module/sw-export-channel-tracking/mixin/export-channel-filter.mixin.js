@@ -15,9 +15,14 @@ Shopware.Mixin.register('export-channel-filter', {
         };
     },
 
+    computed: {
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
+        },
+    },
+
     methods: {
         loadExportChannelOptions() {
-            const repo = this.repositoryFactory.create('sales_channel');
             const criteria = new Criteria(1, 500);
 
             criteria.addFilter(
@@ -25,7 +30,7 @@ Shopware.Mixin.register('export-channel-filter', {
             );
             criteria.addSorting(Criteria.sort('name'));
 
-            repo.search(criteria).then((result) => {
+            this.salesChannelRepository.search(criteria).then((result) => {
                 this.exportChannelOptions = result;
             });
         },

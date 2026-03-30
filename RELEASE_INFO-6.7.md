@@ -140,6 +140,16 @@ When `bin/console system:setup:staging` is executed, the configured keys are wri
 
 ## API
 
+### Store API routes for delivery cost calculation
+
+New Store API routes are available to calculate delivery costs for a single product and for the current cart across shipping methods.
+
+- `GET /store-api/checkout/delivery-cost/{productId}` returns the delivery cost for the currently selected shipping method
+- `POST /store-api/checkout/delivery-cost/{productId}` returns delivery costs across the available shipping methods
+- `GET /store-api/checkout/delivery-cost/cart` returns delivery costs for the current cart across shipping methods
+
+The response contains the calculated shipping price, delivery date, and shipping method data for each result.
+
 ### Minimum value constraints added to quantity fields in ProductPriceDefinition
 
 The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.

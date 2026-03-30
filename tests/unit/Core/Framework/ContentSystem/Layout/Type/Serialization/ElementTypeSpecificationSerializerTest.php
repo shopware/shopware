@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\CopilotS
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\ElementTypeSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\PropertySpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\SlotSpecificationDto;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * @internal
@@ -330,6 +331,47 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         $normalized = $this->serializer->normalize($dto);
 
         static::assertArrayNotHasKey('description', $normalized['slots'][0]);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function producesIdenticalSchemaAfterJsonRoundTripProvider(): iterable
+    {
+        yield 'minimal type with label and description only' => ['minimal.yaml'];
+        yield 'full type with all property variations and slots' => ['full.yaml'];
+        yield 'type with false and zero defaults' => ['falsy-defaults.yaml'];
+        yield 'type with copilot summary only and no hints' => ['copilot-summary-only.yaml'];
+    }
+
+    /**
+     * Simulates the production round-trip for app element types:
+     * YAML file -> Yaml::parse -> denormalize -> DTO -> normalize -> json_encode (DB write)
+     * -> json_decode (DB read) -> denormalize -> DTO -> Specification.
+     *
+     * The resulting specification schema must match the direct path.
+     */
+    #[DataProvider('producesIdenticalSchemaAfterJsonRoundTripProvider')]
+    #[TestDox('produces identical specification schema after JSON round-trip')]
+    public function testJsonRoundTripProducesIdenticalSchema(string $fixtureFile): void
+    {
+        $name = 'Sw:Test:Element';
+        $source = 'core';
+
+        $yamlInput = Yaml::parseFile(__DIR__ . '/fixtures/' . $fixtureFile);
+
+        // Direct path: YAML parse -> DTO -> Specification
+        $directDto = $this->serializer->denormalize($yamlInput);
+        $directSchema = $directDto->toContentSystemElementTypeSpecification($name, $source)->toSchema();
+
+        // Database round-trip: DTO -> normalize -> JSON encode -> JSON decode -> DTO -> Specification
+        $normalized = $this->serializer->normalize($directDto);
+        $json = json_encode($normalized, \JSON_THROW_ON_ERROR);
+        $decoded = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
+        $roundTrippedDto = $this->serializer->denormalize($decoded);
+        $roundTrippedSchema = $roundTrippedDto->toContentSystemElementTypeSpecification($name, $source)->toSchema();
+
+        static::assertSame($directSchema, $roundTrippedSchema);
     }
 
     /**

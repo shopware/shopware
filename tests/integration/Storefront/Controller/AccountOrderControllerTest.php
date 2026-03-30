@@ -360,8 +360,8 @@ class AccountOrderControllerTest extends TestCase
         $content = (string) $response->getContent();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
-        static::assertStringContainsString('cancelOrderModal-' . $openOrderId, $content);
-        static::assertStringNotContainsString('cancelOrderModal-' . $completedOrderId, $content);
+        static::assertStringContainsString('data-bs-target="#order-' . $openOrderId . '"', $content);
+        static::assertStringNotContainsString('data-bs-target="#order-' . $completedOrderId . '"', $content);
     }
 
     public function testEditOrderPageShowsCancelActionOnlyForOpenOrders(): void

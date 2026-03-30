@@ -44,9 +44,9 @@ class AbstractContentDataLoaderTest extends TestCase
     public function testOverrideProvidedTypesLeavesTypesUnchanged(): void
     {
         $loader = new SimpleStubLoader();
-        $types = [new ContentSystemDataLoaderTypeDescriptor(Tree::class)];
+        $input = [new ContentSystemDataLoaderTypeDescriptor(Tree::class)];
 
-        $loader->overrideProvidedTypes($types);
+        $types = $loader->overrideProvidedTypes($input);
 
         static::assertCount(1, $types);
         static::assertSame(Tree::class, $types[0]->className);

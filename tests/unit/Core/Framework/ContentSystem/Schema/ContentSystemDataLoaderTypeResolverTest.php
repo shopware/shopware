@@ -74,6 +74,39 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
         static::assertCount(1, $map->sourceToTypes['navigation']);
         static::assertSame(Tree::class, $map->sourceToTypes['navigation'][0]->className);
     }
+
+    #[TestDox('resolves multiple sources with mixed loader presence')]
+    public function testResolvesMultipleSourcesWithMixedLoaderPresence(): void
+    {
+        $loader = new ReplacingStubLoader();
+        $locator = new ServiceLocator(['entity' => static fn () => $loader]);
+
+        $resolver = new ContentSystemDataLoaderTypeResolver($locator, [
+            'entity' => [['className' => Entity::class, 'genericParameters' => []]],
+            'navigation' => [['className' => Tree::class, 'genericParameters' => []]],
+        ]);
+
+        $map = $resolver->resolve();
+
+        static::assertCount(2, $map->sourceToTypes);
+        static::assertSame(ProductEntity::class, $map->sourceToTypes['entity'][0]->className);
+        static::assertSame(Tree::class, $map->sourceToTypes['navigation'][0]->className);
+    }
+
+    #[TestDox('accepts empty type list when loader removes all types')]
+    public function testAcceptsEmptyTypeListWhenLoaderRemovesAllTypes(): void
+    {
+        $loader = new EmptyOverrideStubLoader();
+        $locator = new ServiceLocator(['entity' => static fn () => $loader]);
+
+        $resolver = new ContentSystemDataLoaderTypeResolver($locator, [
+            'entity' => [['className' => Entity::class, 'genericParameters' => []]],
+        ]);
+
+        $map = $resolver->resolve();
+
+        static::assertSame([], $map->sourceToTypes['entity']);
+    }
 }
 
 /**
@@ -88,9 +121,9 @@ class ReplacingStubLoader extends AbstractContentDataLoader
         return 'entity';
     }
 
-    public function overrideProvidedTypes(array &$types): void
+    public function overrideProvidedTypes(array $compiledTypes): array
     {
-        $types = [new ContentSystemDataLoaderTypeDescriptor(ProductEntity::class)];
+        return [new ContentSystemDataLoaderTypeDescriptor(ProductEntity::class)];
     }
 
     public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
@@ -109,6 +142,29 @@ class NoOpStubLoader extends AbstractContentDataLoader
     public static function getRequirementType(): string
     {
         return 'navigation';
+    }
+
+    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
+    {
+        return ContentDataLoaderResult::notFound();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractContentDataLoader<Entity>
+ */
+class EmptyOverrideStubLoader extends AbstractContentDataLoader
+{
+    public static function getRequirementType(): string
+    {
+        return 'entity';
+    }
+
+    public function overrideProvidedTypes(array $compiledTypes): array
+    {
+        return [];
     }
 
     public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult

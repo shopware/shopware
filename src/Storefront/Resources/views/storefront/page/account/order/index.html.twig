@@ -132,11 +132,9 @@
             {% endif %}
         {% endblock %}
 
-        {% block page_checkout_aside_cancel_order_modal_content %}
-            {% if allowOrderCancellation %}
-                {% sw_include '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
-            {% endif %}
-        {% endblock %}
+        {% if allowOrderCancellation %}
+            {% sw_include '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
+        {% endif %}
     </div>
 {% endblock %}
 

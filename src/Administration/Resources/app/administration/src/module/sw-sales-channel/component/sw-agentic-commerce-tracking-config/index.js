@@ -8,6 +8,8 @@ import template from './sw-agentic-commerce-tracking-config.html.twig';
 export default {
     template,
 
+    emits: ['change'],
+
     props: {
         salesChannel: {
             type: Object,

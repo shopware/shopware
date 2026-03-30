@@ -7,6 +7,7 @@ import './extension/sw-order-list';
 import './extension/sw-customer-list';
 
 // No routes or navigation — this module only adds columns and filters to existing lists.
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-export-channel-tracking', {
     type: 'core',
     name: 'export-channel-tracking',

@@ -31,6 +31,9 @@ class MediaGenerator implements DemodataGeneratorInterface
 
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaDefaultFolderCollection> $defaultFolderRepository
+     * @param EntityRepository<MediaFolderCollection> $folderRepository
      */
     public function __construct(
         private readonly EntityWriterInterface $writer,
@@ -57,7 +60,7 @@ class MediaGenerator implements DemodataGeneratorInterface
 
         $mediaFolderId = $this->getOrCreateDefaultFolder($context);
         $downloadFolderId = $this->getOrCreateDefaultFolder($context, true);
-        $tags = $this->getIds('tag');
+        $tags = $this->getIds();
 
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $isDownloadFile = $i % 30 === 0;
@@ -83,7 +86,7 @@ class MediaGenerator implements DemodataGeneratorInterface
                     $file,
                     (string) mime_content_type($file),
                     pathinfo($file, \PATHINFO_EXTENSION),
-                    (int) filesize($file)
+                    (int) filesize($file),
                 ),
                 $this->fileNameProvider->provide(
                     pathinfo($file, \PATHINFO_FILENAME),
@@ -114,12 +117,12 @@ class MediaGenerator implements DemodataGeneratorInterface
     {
         $tagAssignments = [];
 
-        if (!empty($tags)) {
+        if ($tags !== []) {
             $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit());
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_values(array_map(
-                    fn (string $id) => ['id' => $id],
+                    static fn (string $id) => ['id' => $id],
                     $chosenTags
                 ));
             }
@@ -131,10 +134,10 @@ class MediaGenerator implements DemodataGeneratorInterface
     /**
      * @return list<string>
      */
-    private function getIds(string $table): array
+    private function getIds(): array
     {
         /** @var list<string> $ids */
-        $ids = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
+        $ids = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM tag LIMIT 500');
 
         return $ids;
     }
@@ -150,13 +153,13 @@ class MediaGenerator implements DemodataGeneratorInterface
                     (new Finder())
                         ->files()
                         ->in($fixtureDir)
-                        ->name('/\.(jpg|png)$/')
+                        ->name('/\.(jpg|png|webp|avif)$/')
                         ->getIterator()
                 )
             );
         }
 
-        if (\count($images)) {
+        if ($images !== []) {
             return $images[array_rand($images)]->getPathname();
         }
 
@@ -234,8 +237,10 @@ class MediaGenerator implements DemodataGeneratorInterface
             return $mediaFolderId;
         }
 
-        /** @var MediaDefaultFolderEntity $defaultFolder */
-        $defaultFolder = $defaultFolders->first();
+        $defaultFolder = $defaultFolders->getEntities()->first();
+        if (!$defaultFolder) {
+            return $mediaFolderId;
+        }
 
         if ($defaultFolder->getFolder()) {
             return $defaultFolder->getFolder()->getId();

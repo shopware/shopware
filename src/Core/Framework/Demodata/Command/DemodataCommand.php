@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -50,7 +51,7 @@ class DemodataCommand extends Command
     private array $defaults = [];
 
     /**
-     * @internal
+     * @param list<class-string> $requiredClasses
      */
     public function __construct(
         private readonly DemodataService $demodataService,
@@ -79,16 +80,18 @@ class DemodataCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->ensureAllDependenciesArePresent();
-
         if ($this->kernelEnv !== 'prod') {
-            $output->writeln('Demo data command should only be used in production environment. You can provide the environment as follows `APP_ENV=prod bin/console framework:demodata`');
+            $output->writeln('Demo data command requires the app environment set to production to run. Execute it with: `APP_ENV=prod bin/console framework:demodata`');
 
             return self::INVALID;
         }
 
         $io = new ShopwareStyle($input, $output);
         $io->title('Demodata Generator');
+
+        if (!$this->ensureAllDependenciesArePresent($io)) {
+            return self::FAILURE;
+        }
 
         $context = Context::createDefaultContext();
 
@@ -117,6 +120,7 @@ class DemodataCommand extends Command
 
         $request->add(MailTemplateDefinition::class, $this->getCount($input, 'mail-template'));
         $request->add(MailHeaderFooterDefinition::class, $this->getCount($input, 'mail-header-footer'));
+        $request->add(SalesChannelDomainDefinition::class, $this->getCount($input, 'sales-channel-domain'));
 
         $this->eventDispatcher->dispatch(new DemodataRequestCreatedEvent($request, $context, $input));
 
@@ -161,17 +165,16 @@ class DemodataCommand extends Command
         return $this->defaults[$name] ?? 0;
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
-    private function ensureAllDependenciesArePresent(): void
+    private function ensureAllDependenciesArePresent(ShopwareStyle $io): bool
     {
-        $classes = [Factory::class, Commerce::class, ImagesGeneratorProvider::class];
-
-        foreach ($classes as $class) {
+        foreach ($this->requiredClasses as $class) {
             if (!class_exists($class)) {
-                throw new \RuntimeException('Please install composer package "shopware/dev-tools" to use the demo-data command.');
+                $io->error('Please install composer package "shopware/dev-tools" to use the demo-data command.');
+
+                return false;
             }
         }
+
+        return true;
     }
 }

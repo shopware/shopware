@@ -8,10 +8,7 @@ use AsyncAws\Core\Request;
 use AsyncAws\Core\RequestContext;
 use AsyncAws\Core\Signer\SignerV4;
 use AsyncAws\Core\Stream\StringStream;
-use Psr\Http\Client\ClientExceptionInterface;
-use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
@@ -20,7 +17,7 @@ use Shopware\Elasticsearch\ElasticsearchException;
  * @internal
  */
 #[Package('framework')]
-class AsyncAwsSigner implements ClientInterface
+class AsyncAwsSigner
 {
     public function __construct(
         private readonly Configuration $configuration,
@@ -28,14 +25,10 @@ class AsyncAwsSigner implements ClientInterface
         private readonly string $service,
         private readonly string $region,
         private readonly CredentialProvider $credentialProvider,
-        private readonly ClientInterface $client
     ) {
     }
 
-    /**
-     * @throws ClientExceptionInterface
-     */
-    public function sendRequest(RequestInterface $request): ResponseInterface
+    public function __invoke(RequestInterface $request): RequestInterface
     {
         try {
             $transformed = $this->transformRequest($request);
@@ -52,7 +45,7 @@ class AsyncAwsSigner implements ClientInterface
                 $request = $request->withHeader($key, $value);
             }
 
-            return $this->client->sendRequest($request);
+            return $request;
         } catch (\Throwable $e) {
             $this->logger->error('Error signing request: ' . $e->getMessage());
 

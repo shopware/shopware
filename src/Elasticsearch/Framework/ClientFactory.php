@@ -5,7 +5,10 @@ namespace Shopware\Elasticsearch\Framework;
 use AsyncAws\Core\Configuration;
 use AsyncAws\Core\Credentials\ChainProvider;
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\Utils;
 use OpenSearch\Client;
 use OpenSearch\HttpClient\GuzzleHttpClientFactory;
 use OpenSearch\TransportFactory;
@@ -24,22 +27,6 @@ class ClientFactory
     {
         $host = self::normalizePrimaryHost($hosts);
         $httpClient = self::createHttpClient($host, $logger, $debug, $sslConfig);
-
-        if ($sslConfig['sigV4']['enabled'] ?? false) {
-            $region = $sslConfig['sigV4']['region'] ?? '';
-            $service = $sslConfig['sigV4']['service'] ?? 'es';
-            $credentials = $sslConfig['sigV4']['credentials_provider'] ?? [];
-
-            $configuration = Configuration::create([
-                'region' => $region,
-                'accessKeyId' => $credentials['key_id'] ?? null,
-                'accessKeySecret' => $credentials['secret_key'] ?? null,
-            ]);
-
-            $credentialProvider = ChainProvider::createDefaultChain(null, $logger);
-
-            $httpClient = new AsyncAwsSigner($configuration, $logger, $service, $region, $credentialProvider, $httpClient);
-        }
 
         $transport = (new TransportFactory())
             ->setHttpClient($httpClient)
@@ -76,6 +63,28 @@ class ClientFactory
         if (isset($sslConfig['cert_key_path'])) {
             $options['ssl_key'] = [$sslConfig['cert_key_path'], $sslConfig['cert_key_password'] ?? ''];
         }
+
+        $stack = new HandlerStack();
+        $stack->setHandler(Utils::chooseHandler());
+
+        if ($sslConfig['sigV4']['enabled'] ?? false) {
+            $region = $sslConfig['sigV4']['region'] ?? '';
+            $service = $sslConfig['sigV4']['service'] ?? 'es';
+            $credentials = $sslConfig['sigV4']['credentials_provider'] ?? [];
+
+            $configuration = Configuration::create([
+                'region' => $region,
+                'accessKeyId' => $credentials['key_id'] ?? null,
+                'accessKeySecret' => $credentials['secret_key'] ?? null,
+            ]);
+
+            $credentialProvider = ChainProvider::createDefaultChain(null, $logger);
+
+            $stack->push(Middleware::mapRequest(
+                new AsyncAwsSigner($configuration, $logger, $service, $region, $credentialProvider)
+            ));
+        }
+        $options['handler'] = $stack;
 
         return (new GuzzleHttpClientFactory(logger: $debug ? $logger : null))->create($options);
     }

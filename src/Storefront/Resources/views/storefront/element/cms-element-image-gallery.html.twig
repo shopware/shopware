@@ -242,6 +242,20 @@
                                                                                             data-spatial-gallery-slider-viewer
                                                                                             data-spatial-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
                                                                                         ></canvas>
+                                                                                        <div class="spatial-anim-container position-absolute start-0 top-0 p-1 gap-2 d-flex">
+                                                                                            <button class="btn btn-outline-light spatial-anim-button position-relative text-center mx-0 p-0 visually-hidden" aria-label="{{ 'spatial.animation.toggle'|trans|striptags }}">
+                                                                                                <svg class="spatial-anim-button-circle position-absolute end-0 top-0">
+                                                                                                    <circle r="calc(50% - (var(--stroke-width) / 2))" cx="50%" cy="50%"></circle>
+                                                                                                </svg>
+                                                                                                {% sw_icon 'play' %}
+                                                                                                {% sw_icon 'pause' %}
+                                                                                            </button>
+                                                                                            <span class="spatial-anim-switch-container position-relative visually-hidden">
+                                                                                                <select id="spatial-anim-switch-{{ image.id }}" class="form-select spatial-anim-switch text-left mx-0" aria-label="{{ 'spatial.animation.select'|trans|striptags }}">
+                                                                                                </select>
+                                                                                                {% sw_icon 'arrow-head-down' %}
+                                                                                            </span>
+                                                                                        </div>
                                                                                         <span
                                                                                             class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
                                                                                             data-spatial-movement-note
@@ -404,7 +418,22 @@
                                                                         <canvas
                                                                                 data-spatial-gallery-slider-viewer
                                                                                 data-spatial-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
-                                                                        ></canvas>
+                                                                        >
+                                                                        </canvas>
+                                                                        <div class="spatial-anim-container position-absolute start-0 top-0 p-1 gap-2 d-flex">
+                                                                            <button class="btn btn-outline-light spatial-anim-button position-relative text-center mx-0 p-0 visually-hidden" aria-label="{{ 'spatial.animation.toggle'|trans|striptags }}">
+                                                                                <svg class="spatial-anim-button-circle position-absolute end-0 top-0">
+                                                                                    <circle r="calc(50% - (var(--stroke-width) / 2))" cx="50%" cy="50%"></circle>
+                                                                                </svg>
+                                                                                {% sw_icon 'play' %}
+                                                                                {% sw_icon 'pause' %}
+                                                                            </button>
+                                                                            <span class="spatial-anim-switch-container position-relative visually-hidden">
+                                                                                <select id="spatial-anim-switch-{{ image.id }}" class="form-select spatial-anim-switch text-left mx-0" aria-label="{{ 'spatial.animation.select'|trans|striptags }}">
+                                                                                </select>
+                                                                                {% sw_icon 'arrow-head-down' %}
+                                                                            </span>
+                                                                        </div>
                                                                         <span
                                                                                 class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
                                                                                 data-spatial-movement-note
@@ -783,6 +812,20 @@
                                                                                                                     data-spatial-zoom-gallery-slider-viewer
                                                                                                                     data-spatial-zoom-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
                                                                                                             ></canvas>
+                                                                                                            <div class="spatial-anim-container position-absolute start-0 top-0 p-3 gap-2 d-flex">
+                                                                                                                <button class="btn btn-outline-light spatial-anim-button position-relative text-center mx-0 p-0 visually-hidden" aria-label="{{ 'spatial.animation.toggle'|trans|striptags }}">
+                                                                                                                    <svg class="spatial-anim-button-circle position-absolute end-0 top-0">
+                                                                                                                        <circle r="calc(50% - (var(--stroke-width) / 2))" cx="50%" cy="50%"></circle>
+                                                                                                                    </svg>
+                                                                                                                    {% sw_icon 'play' %}
+                                                                                                                    {% sw_icon 'pause' %}
+                                                                                                                </button>
+                                                                                                                <span class="spatial-anim-switch-container position-relative visually-hidden">
+                                                                                                                    <select id="spatial-anim-switch-{{ image.id }}" class="form-select spatial-anim-switch text-left mx-0" aria-label="{{ 'spatial.animation.select'|trans|striptags }}">
+                                                                                                                    </select>
+                                                                                                                    {% sw_icon 'arrow-head-down' %}
+                                                                                                                </span>
+                                                                                                            </div>
                                                                                                             <span
                                                                                                                     class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
                                                                                                                     data-spatial-movement-note

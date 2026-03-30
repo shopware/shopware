@@ -76,10 +76,6 @@ export class AmplitudeAdapter implements TrackingClient {
         return this.#isInitialized;
     }
 
-    reset(): void {
-        this.#amplitudeInstance.reset();
-    }
-
     track(eventName: string, eventPayload?: EventPayload): void {
         if (!this.isInitialized) {
             return;
@@ -94,9 +90,5 @@ export class AmplitudeAdapter implements TrackingClient {
 
     setOptOut(optOut: boolean) {
         this.#amplitudeInstance.setOptOut(optOut);
-    }
-
-    setTransport(transport: 'fetch' | 'beacon' | 'xhr') {
-        this.#amplitudeInstance.setTransport(transport);
     }
 }

@@ -8,7 +8,7 @@
                     "Cart"
                 ],
                 "summary": "Calculate delivery costs for a product",
-                "description": "Calculates delivery costs for a single product using the currently selected shipping method.",
+                "description": "Calculates delivery costs for a single product using the requested shipping-method criteria or all available shipping methods.",
                 "operationId": "readDeliveryCostByProduct",
                 "parameters": [
                     {
@@ -30,84 +30,18 @@
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
                         }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "The calculated delivery costs.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "required": [
-                                            "shippingCost",
-                                            "deliveryDate",
-                                            "shippingMethod"
-                                        ],
-                                        "properties": {
-                                            "shippingCost": {
-                                                "$ref": "#/components/schemas/CalculatedPrice"
-                                            },
-                                            "deliveryDate": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "earliest": {
-                                                        "type": "string",
-                                                        "format": "date-time"
-                                                    },
-                                                    "latest": {
-                                                        "type": "string",
-                                                        "format": "date-time"
-                                                    }
-                                                }
-                                            },
-                                            "shippingMethod": {
-                                                "$ref": "#/components/schemas/ShippingMethod"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400"
-                    }
-                },
-                "security": [
-                    {
-                        "ApiKey": []
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Cart"
-                ],
-                "summary": "Calculate delivery costs for a product",
-                "description": "Calculates delivery costs for a single product across all available shipping methods.",
-                "operationId": "readDeliveryCostsByProduct",
-                "parameters": [
-                    {
-                        "name": "productId",
-                        "in": "path",
-                        "description": "The product identifier.",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
                     },
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
+                        "name": "ids[]",
+                        "in": "query",
+                        "description": "Optional shipping method identifiers used to limit the response to selected shipping methods.",
                         "required": false,
                         "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            }
                         }
                     }
                 ],

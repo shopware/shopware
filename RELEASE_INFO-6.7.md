@@ -209,6 +209,10 @@ A new scheduled task `customer.cleanup_customer_recovery` has been added that au
 
 Customer recovery records (password reset tokens) expire after 2 hours. Previously these records were never removed, causing the `customer_recovery` table to grow indefinitely. The new task deletes all records older than 48 hours.
 
+### It's now possible to disable product search keyword indexing
+
+If `shopware.product.search_keyword.indexing` is set to `false`. This is helpful for stores that do not require search keywords and want to avoid the overhead of maintaining those indices while still having basic search functionality or using third-party search solutions.
+
 ### New attribute field types for entity definitions
 
 The attribute-based entity definition system now supports additional field types:
@@ -348,6 +352,11 @@ window.PluginManager.callPluginMethod(pluginName, methodName, ...args)
 ### Block renaming
 
 * Deprecated block `page_product_detail_product_buy_button_label` in `Resources/views/storefront/component/product/card/action.html.twig` which will be removed in v6.8.0. Use block `component_product_box_action_buy_button_label` instead.
+
+### Order cancellation only shown for open orders
+
+The account order cancellation action is now only shown for orders in state `open`.
+This prevents customers from being offered an invalid cancel action for completed orders.
 
 ### Disabled runtime error overlay in webpack dev server
 

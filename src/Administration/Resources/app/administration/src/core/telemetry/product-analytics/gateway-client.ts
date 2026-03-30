@@ -16,7 +16,6 @@ export interface TrackingClient {
     track(eventName: string, eventPayload?: EventPayload): void;
     identify(userId: string, userProperties?: EventPayload): void;
     getUserId(): string | null;
-    reset(): void;
     clearStorage(): void;
     flush(): void;
     isInitialized: boolean;
@@ -47,9 +46,6 @@ export class GatewayClient implements TrackingClient {
     }
     getUserId(): string | null {
         return this.adapter.getUserId();
-    }
-    reset(): void {
-        this.adapter.reset();
     }
 
     clearStorage(): void {

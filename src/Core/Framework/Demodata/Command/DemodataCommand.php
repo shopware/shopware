@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Demodata\Command;
 
 use Bezhanov\Faker\Provider\Commerce;
 use Faker\Factory;
-use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
@@ -56,7 +55,8 @@ class DemodataCommand extends Command
     public function __construct(
         private readonly DemodataService $demodataService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly string $kernelEnv
+        private readonly string $kernelEnv,
+        private readonly array $requiredClasses = [Factory::class, Commerce::class],
     ) {
         parent::__construct();
     }
@@ -129,6 +129,8 @@ class DemodataCommand extends Command
             ['Entity', 'Items', 'Time'],
             $demoContext->getTimings()
         );
+
+        $io->info('Run "bin/console dal:refresh:index" to refresh all indices after generating demo data.');
 
         return self::SUCCESS;
     }

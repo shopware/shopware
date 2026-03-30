@@ -199,7 +199,10 @@ export default Mixin.register(
                     fieldClone.config.criteria = createCriteriaFromArray(fieldClone.config.criteria);
                 }
 
-                if (fieldClone.type === 'single-select' && fieldClone.config.options) {
+                if (
+                    (fieldClone.type === 'single-select' || fieldClone.type === 'multi-select') &&
+                    fieldClone.config.options
+                ) {
                     fieldClone.config.options = fieldClone.config.options.map((value) => {
                         return {
                             label: this.$tc(

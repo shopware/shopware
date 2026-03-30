@@ -3,6 +3,7 @@
  * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
  */
 
+import './mixin/export-channel-filter.mixin';
 import './extension/sw-order-list';
 import './extension/sw-customer-list';
 

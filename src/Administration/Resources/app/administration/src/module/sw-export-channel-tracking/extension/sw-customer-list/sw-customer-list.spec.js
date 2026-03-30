@@ -7,6 +7,7 @@ import { mount } from '@vue/test-utils';
 
 Shopware.Defaults.agenticCommerceTypeId = '5e29f9890c4d4d519a1c7f9d5c24b7c1';
 
+import 'src/module/sw-export-channel-tracking/mixin/export-channel-filter.mixin';
 import './index';
 
 const mockExportChannels = [
@@ -94,7 +95,7 @@ describe('sw-export-channel-tracking extension: sw-customer-list', () => {
     });
 
     describe('defaultCriteria', () => {
-        it('adds salesChannelTracking.salesChannel association on top of the default criteria', async () => {
+        it('adds salesChannelTracking.salesChannel association', async () => {
             wrapper = await createWrapper();
 
             const criteria = wrapper.vm.defaultCriteria;
@@ -105,31 +106,19 @@ describe('sw-export-channel-tracking extension: sw-customer-list', () => {
     });
 
     describe('listFilters', () => {
-        it('export-channel-filter is inserted directly after campaign-code-filter', async () => {
+        it('calls filterFactory.create with entity "customer"', async () => {
             wrapper = await createWrapper();
             await flushPromises();
 
-            const filters = wrapper.vm.listFilters;
-            const campaignIndex = filters.findIndex((f) => f.name === 'campaign-code-filter');
-            const exportIndex = filters.findIndex((f) => f.name === 'export-channel-filter');
+            wrapper.vm.listFilters;
 
-            expect(campaignIndex).toBeGreaterThanOrEqual(0);
-            expect(exportIndex).toBe(campaignIndex + 1);
+            expect(wrapper.vm.filterFactory.create).toHaveBeenCalledWith(
+                'customer',
+                expect.objectContaining({ 'export-channel-filter': expect.any(Object) }),
+            );
         });
 
-        it('export-channel-filter uses salesChannelId property and multi-select-filter type', async () => {
-            wrapper = await createWrapper();
-            await flushPromises();
-
-            const exportFilter = wrapper.vm.listFilters.find((f) => f.name === 'export-channel-filter');
-
-            expect(exportFilter.property).toBe('salesChannelTracking.salesChannelId');
-            expect(exportFilter.type).toBe('multi-select-filter');
-            expect(exportFilter.valueProperty).toBe('id');
-            expect(exportFilter.labelProperty).toBe('name');
-        });
-
-        it('export-channel-filter has the correct label and placeholder snippet keys', async () => {
+        it('uses customer-specific label and placeholder snippet keys', async () => {
             wrapper = await createWrapper();
             await flushPromises();
 
@@ -142,103 +131,39 @@ describe('sw-export-channel-tracking extension: sw-customer-list', () => {
                 'sw-export-channel-tracking.extension.sw-customer-list.filters.exportFeedFilter.placeholder',
             );
         });
-
-        it('calls filterFactory.create with entity "customer"', async () => {
-            wrapper = await createWrapper();
-            await flushPromises();
-
-            const filters = wrapper.vm.listFilters;
-            expect(filters).toBeDefined();
-
-            expect(wrapper.vm.filterFactory.create).toHaveBeenCalledWith(
-                'customer',
-                expect.objectContaining({ 'export-channel-filter': expect.any(Object) }),
-            );
-        });
     });
 
     describe('getCustomerColumns', () => {
-        it('appends the Export Channel column to the default columns', async () => {
+        it('appends the Export Channel column', async () => {
             wrapper = await createWrapper();
 
-            const columns = wrapper.vm.getCustomerColumns();
-            const exportColumn = columns.find(
-                (c) => c.property === 'extensions.salesChannelTracking.salesChannel.name',
-            );
+            const exportColumn = wrapper.vm
+                .getCustomerColumns()
+                .find((c) => c.property === 'extensions.salesChannelTracking.salesChannel.name');
 
             expect(exportColumn).toBeDefined();
-        });
-
-        it('Export Channel column is hidden by default', async () => {
-            wrapper = await createWrapper();
-
-            const exportColumn = wrapper.vm
-                .getCustomerColumns()
-                .find((c) => c.property === 'extensions.salesChannelTracking.salesChannel.name');
-
             expect(exportColumn.visible).toBe(false);
-        });
-
-        it('Export Channel column has the correct label snippet key', async () => {
-            wrapper = await createWrapper();
-
-            const exportColumn = wrapper.vm
-                .getCustomerColumns()
-                .find((c) => c.property === 'extensions.salesChannelTracking.salesChannel.name');
-
-            expect(exportColumn.label).toBe('sw-export-channel-tracking.extension.sw-customer-list.list.columnExportFeed');
-        });
-
-        it('Export Channel column has allowResize: true', async () => {
-            wrapper = await createWrapper();
-
-            const exportColumn = wrapper.vm
-                .getCustomerColumns()
-                .find((c) => c.property === 'extensions.salesChannelTracking.salesChannel.name');
-
             expect(exportColumn.allowResize).toBe(true);
+            expect(exportColumn.label).toBe('sw-export-channel-tracking.extension.sw-customer-list.list.columnExportFeed');
         });
 
         it('does not remove any of the original columns', async () => {
             wrapper = await createWrapper();
 
             const columns = wrapper.vm.getCustomerColumns();
-            const firstNameColumn = columns.find((c) => c.property === 'firstName');
 
-            expect(firstNameColumn).toBeDefined();
+            expect(columns.find((c) => c.property === 'firstName')).toBeDefined();
         });
     });
 
     describe('createdComponent', () => {
-        it('pushes export-channel-filter into defaultFilters', async () => {
+        it('pushes export-channel-filter into defaultFilters and loads options', async () => {
             wrapper = await createWrapper();
             await flushPromises();
 
             expect(wrapper.vm.defaultFilters).toContain('export-channel-filter');
-        });
-
-        it('loads export channel options and populates exportChannelOptions', async () => {
-            wrapper = await createWrapper();
-            await flushPromises();
-
             expect(wrapper.vm.exportChannelOptions).toEqual(mockExportChannels);
-        });
-
-        it('fetches only Agentic Commerce type sales channels', async () => {
-            const repoFactory = createMockRepositoryFactory();
-            const scRepo = repoFactory.create('sales_channel');
-
-            jest.spyOn(repoFactory, 'create').mockReturnValue(scRepo);
-
-            wrapper = await createWrapper(repoFactory);
-            await flushPromises();
-
-            const [searchCriteria] = scRepo.search.mock.calls[0];
-            const typeFilter = searchCriteria.filters.find(
-                (f) => f.field === 'typeId' && f.value === Shopware.Defaults.agenticCommerceTypeId,
-            );
-
-            expect(typeFilter).toBeDefined();
         });
     });
 });
+

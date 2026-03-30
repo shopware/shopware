@@ -201,7 +201,7 @@ class DeliveryCostRoute extends AbstractDeliveryCostRoute
         $cart->getData()->set('shipping-method-' . $shippingMethod->getId(), $shippingMethod);
         $clonedContext->assign(['shippingMethod' => $shippingMethod]);
 
-        $calculatedCart = $this->cartRuleLoader->loadByCart($clonedContext, $cart, new CartBehavior($behavior))
+        $calculatedCart = $this->cartRuleLoader->loadByCart($clonedContext, $cart, new CartBehavior($behavior), true)
             ->getCart();
 
         $availableShippingMethods = $this->checkoutGatewayRoute

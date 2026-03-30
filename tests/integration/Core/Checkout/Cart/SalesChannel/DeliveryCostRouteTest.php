@@ -75,7 +75,7 @@ class DeliveryCostRouteTest extends TestCase
         $deliveryCost = $this->getDeliveryCost($response, $this->ids->get('shipping-1'));
 
         static::assertNotNull($deliveryCost);
-        static::assertSame(5, $deliveryCost['shippingCost']['totalPrice']);
+        static::assertSame(5.2, $deliveryCost['shippingCost']['totalPrice']);
     }
 
     public function testDeliveryCostsByProductPostWithoutIdsReturnsAllAvailableShippingMethods(): void
@@ -98,6 +98,9 @@ class DeliveryCostRouteTest extends TestCase
         sort($expected);
 
         static::assertSame($expected, $keys);
+        static::assertSame(5.2, $response[0]['shippingCost']['unitPrice']);
+        static::assertSame(8.5, $response[1]['shippingCost']['unitPrice']);
+        static::assertSame(12.7, $response[2]['shippingCost']['unitPrice']);
     }
 
     public function testDeliveryCostsCartReturnsCurrentAndAlternativeShippingMethods(): void
@@ -127,6 +130,49 @@ class DeliveryCostRouteTest extends TestCase
 
         static::assertSame($expected, $keys);
         static::assertNotNull($this->getDeliveryCost($response, $this->ids->get('shipping-1')));
+    }
+
+    public function testDeliveryCostsCartDoesNotChangeSalesChannelContextOrCart(): void
+    {
+        $this->browser->request(
+            'POST',
+            '/store-api/checkout/cart/line-item',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            (string) json_encode([
+                'items' => [
+                    [
+                        'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+                        'referencedId' => $this->ids->get('product'),
+                        'quantity' => 2,
+                    ],
+                ],
+            ], \JSON_THROW_ON_ERROR)
+        );
+
+        $this->browser->request('GET', '/store-api/context');
+        $beforeContext = $this->contextSnapshot($this->decodeResponse());
+
+        $this->browser->request('GET', '/store-api/checkout/cart');
+        $beforeCart = $this->cartSnapshot($this->decodeResponse());
+
+        $this->browser->request('GET', '/store-api/checkout/delivery-cost/cart');
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $response = $this->decodeResponse();
+
+        $keys = $this->deliveryCostShippingMethodIds($response);
+        static::assertCount(3, $keys);
+
+        $this->browser->request('GET', '/store-api/context');
+        $afterContext = $this->contextSnapshot($this->decodeResponse());
+
+        $this->browser->request('GET', '/store-api/checkout/cart');
+        $afterCart = $this->cartSnapshot($this->decodeResponse());
+
+        static::assertSame($beforeContext, $afterContext);
+        static::assertSame($beforeCart, $afterCart);
     }
 
     /**
@@ -166,6 +212,60 @@ class DeliveryCostRouteTest extends TestCase
         return null;
     }
 
+    /**
+     * @param list<array<string, mixed>> $response
+     *
+     * @return array<string, mixed>
+     */
+    private function contextSnapshot(array $response): array
+    {
+        static::assertArrayHasKey('token', $response);
+        static::assertArrayHasKey('shippingMethod', $response);
+        static::assertArrayHasKey('paymentMethod', $response);
+
+        return [
+            'token' => $response['token'],
+            'shippingMethodId' => $response['shippingMethod']['id'],
+            'paymentMethodId' => $response['paymentMethod']['id'],
+            'ruleIds' => $response['ruleIds'] ?? null,
+        ];
+    }
+
+    /**
+     * @param list<array<string, mixed>> $response
+     *
+     * @return array<string, mixed>
+     */
+    private function cartSnapshot(array $response): array
+    {
+        static::assertArrayHasKey('token', $response);
+        static::assertArrayHasKey('price', $response);
+
+        $lineItems = array_map(
+            static fn (array $lineItem): array => [
+                'id' => $lineItem['id'],
+                'referencedId' => $lineItem['referencedId'],
+                'quantity' => $lineItem['quantity'],
+            ],
+            $response['lineItems'] ?? []
+        );
+
+        $deliveries = array_map(
+            static fn (array $delivery): array => [
+                'shippingMethodId' => $delivery['shippingMethod']['id'],
+                'shippingTotal' => $delivery['shippingCosts']['totalPrice'],
+            ],
+            $response['deliveries'] ?? []
+        );
+
+        return [
+            'token' => $response['token'],
+            'lineItems' => array_values($lineItems),
+            'deliveries' => array_values($deliveries),
+            'priceTotal' => $response['price']['totalPrice'],
+        ];
+    }
+
     private function createProduct(): void
     {
         $this->productRepository->create([
@@ -203,9 +303,9 @@ class DeliveryCostRouteTest extends TestCase
     private function createShippingMethods(): void
     {
         $this->shippingMethodRepository->create([
-            $this->shippingMethodData('shipping-1', 'shipping_test_1', 1, 5.0),
-            $this->shippingMethodData('shipping-2', 'shipping_test_2', 2, 8.0),
-            $this->shippingMethodData('shipping-3', 'shipping_test_3', 3, 12.0),
+            $this->shippingMethodData('shipping-1', 'shipping_test_1', 1, 5.2),
+            $this->shippingMethodData('shipping-2', 'shipping_test_2', 2, 8.5),
+            $this->shippingMethodData('shipping-3', 'shipping_test_3', 3, 12.7),
         ], Context::createDefaultContext());
     }
 

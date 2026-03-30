@@ -45,7 +45,12 @@ export default class ImportExportProfileMappingService {
             missingRequiredFields = missingRequiredFields.filter((field) => primaryKeyFields[field] !== undefined);
         }
 
-        return { missingRequiredFields };
+        const duplicateMappings = mapping.filter((mapping, index) => mappingKeys.indexOf(mapping.key) !== index);
+
+        return {
+            missingRequiredFields,
+            duplicateMappings,
+        };
     }
 
     convertMappingKeys(mapping) {

@@ -269,6 +269,9 @@ class AttributeEntityIntegrationTest extends TestCase
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => true],
             ],
+            'email' => 'test@example.com',
+            'password' => 'shopware',
+            'tags' => ['foo', 'bar'],
             'differentName' => 'string',
             'transString' => 'string',
             'transText' => 'text',
@@ -317,6 +320,12 @@ class AttributeEntityIntegrationTest extends TestCase
             new PriceCollection([new Price(Defaults::CURRENCY, 1, 1, true)]),
             $record->price
         );
+
+        static::assertSame('test@example.com', $record->email);
+        static::assertNotNull($record->password);
+        static::assertNotSame('shopware', $record->password); // password should be hashed
+        static::assertTrue(password_verify('shopware', $record->password));
+        static::assertSame(['foo', 'bar'], $record->tags);
 
         static::assertSame('string', $record->transString);
         static::assertSame('text', $record->transText);
@@ -378,6 +387,9 @@ class AttributeEntityIntegrationTest extends TestCase
             'customFields' => null,
             'emptyString' => '',
             'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
+            'email' => 'test@example.com',
+            'password' => $record->password,
+            'tags' => ['foo', 'bar'],
             'ownMapping' => [],
         ], $json);
     }

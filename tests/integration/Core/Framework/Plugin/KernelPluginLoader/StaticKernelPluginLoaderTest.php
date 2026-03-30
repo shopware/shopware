@@ -397,6 +397,7 @@ class StaticKernelPluginLoaderTest extends TestCase
             $classLoader = $this->classLoader;
         }
 
+        /** @phpstan-ignore argument.type (For test purposes it is enough to not provide fully fledged plugin information) */
         return new StaticKernelPluginLoader($classLoader, plugins: $plugins);
     }
 

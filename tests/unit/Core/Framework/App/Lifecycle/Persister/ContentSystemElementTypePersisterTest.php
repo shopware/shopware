@@ -257,7 +257,7 @@ class ContentSystemElementTypePersisterTest extends TestCase
         static::assertSame($this->ids->get('app'), $payload['appId']);
     }
 
-    #[TestDox('deletes all existing types when app ships no YAML files')]
+    #[TestDox('deletes all existing types and invalidates cache when app ships no YAML files')]
     public function testDeletesAllTypesWhenYamlRemoved(): void
     {
         $loader = static::createStub(YamlTypeLoader::class);
@@ -270,7 +270,11 @@ class ContentSystemElementTypePersisterTest extends TestCase
             new AppContentSystemElementTypeCollection([$orphan]),
         ]);
 
-        $persister = $this->buildPersister($repo, loader: $loader);
+        $registry = static::createMock(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('all')->willReturn([]);
+        $registry->expects($this->once())->method('invalidate');
+
+        $persister = $this->buildPersister($repo, loader: $loader, registry: $registry);
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
 
         static::assertSame([], $repo->upserts);

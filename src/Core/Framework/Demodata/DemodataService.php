@@ -52,10 +52,8 @@ class DemodataService
 
             $validGenerators = array_filter(iterator_to_array($this->generators), static fn (DemodataGeneratorInterface $generator) => $generator->getDefinition() === $definitionClass);
 
-            if (empty($validGenerators)) {
-                throw new \RuntimeException(
-                    \sprintf('Could not generate demodata for "%s" because no generator is registered.', $definitionClass)
-                );
+            if ($validGenerators === []) {
+                throw DemodataException::noGeneratorFound($definitionClass);
             }
 
             $start = microtime(true);

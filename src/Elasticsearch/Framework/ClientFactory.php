@@ -5,13 +5,9 @@ namespace Shopware\Elasticsearch\Framework;
 use AsyncAws\Core\Configuration;
 use AsyncAws\Core\Credentials\ChainProvider;
 use GuzzleHttp\Client as GuzzleClient;
-use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\Uri;
 use OpenSearch\Client;
-use OpenSearch\EndpointFactory;
 use OpenSearch\HttpClient\GuzzleHttpClientFactory;
-use OpenSearch\RequestFactory;
-use OpenSearch\Serializers\SmartSerializer;
 use OpenSearch\TransportFactory;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
@@ -45,16 +41,11 @@ class ClientFactory
             $httpClient = new AsyncAwsSigner($configuration, $logger, $service, $region, $credentialProvider, $httpClient);
         }
 
-        $httpFactory = new HttpFactory();
-        $serializer = new SmartSerializer();
-        $endpointFactory = new EndpointFactory($serializer);
-        $requestFactory = new RequestFactory($httpFactory, $httpFactory, $httpFactory, $serializer);
         $transport = (new TransportFactory())
             ->setHttpClient($httpClient)
-            ->setRequestFactory($requestFactory)
             ->create();
 
-        $client = new Client($transport, $endpointFactory);
+        $client = new Client($transport);
 
         if ($debug) {
             $profiler = new ClientProfiler($client);

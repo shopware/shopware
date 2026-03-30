@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Rule\AffiliateCodeRule;
@@ -19,7 +18,6 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[CoversClass(AffiliateCodeRule::class)]
 #[Group('rules')]
 class AffiliateCodeRuleTest extends TestCase
 {

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -31,7 +30,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[CoversClass(VersionManager::class)]
 class VersionManagerTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour {

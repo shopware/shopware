@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationException;
+use Shopware\Core\Framework\Migration\MigrationStep;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -37,6 +38,9 @@ class MigrationCommand extends Command
         parent::__construct();
     }
 
+    /**
+     * @return \Generator<class-string<MigrationStep>>
+     */
     protected function getMigrationGenerator(MigrationCollection $collection, ?int $until, ?int $limit): \Generator
     {
         yield from $collection->migrateInSteps($until, $limit);

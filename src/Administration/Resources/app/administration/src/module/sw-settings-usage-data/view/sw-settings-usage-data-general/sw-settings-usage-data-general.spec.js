@@ -41,14 +41,11 @@ async function createWrapper() {
 describe('src/module/sw-settings-usage-data/view/sw-settings-usage-data-general', () => {
     let wrapper;
 
-    it('should show the usage data consent banner', async () => {
+    it('shows the store data consent card', async () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.getComponent('.sw-usage-data-consent-banner').isVisible()).toBe(true);
-        expect(wrapper.find('.sw-usage-data-consent-banner').isVisible()).toBe(true);
-
-        expect(wrapper.findComponent(SwSettingsUsageDataStoreDataConsent).exists()).toBe(false);
+        expect(wrapper.findComponent(SwSettingsUsageDataStoreDataConsent).exists()).toBe(true);
     });
 
     it('should refresh the consent information when created', async () => {
@@ -58,24 +55,5 @@ describe('src/module/sw-settings-usage-data/view/sw-settings-usage-data-general'
         await flushPromises();
 
         expect(getConsentSpy).toHaveBeenCalled();
-    });
-
-    it('should not allow the consent banner to be hidden', async () => {
-        wrapper = await createWrapper();
-        await flushPromises();
-
-        const banner = wrapper.getComponent('.sw-usage-data-consent-banner');
-        const declineButton = banner.find('.sw-usage-data-consent-banner__decline-button');
-
-        expect(declineButton.exists()).toBe(false);
-    });
-
-    it('shows store data consent card', async () => {
-        global.activeFeatureFlags = ['PRODUCT_ANALYTICS'];
-
-        wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.findComponent(SwSettingsUsageDataStoreDataConsent).exists()).toBe(true);
     });
 });

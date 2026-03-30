@@ -27,18 +27,16 @@ export default function createTelemetryEventHandler(
         },
         identify: (event) => {
             const shopId = Shopware.Store.get('context').app.config.shopId;
-            const newUserId = `${shopId}:${event.eventData.userId}`;
+            const userId = `${shopId}:${event.eventData.userId}`;
 
-            const previousUserId = client.getUserId();
-
-            client.identify(newUserId, event.eventData);
-
-            if (newUserId && previousUserId !== newUserId) {
-                client.track('login');
-            }
+            client.identify(userId, event.eventData);
         },
-        reset: () => {
+        login: () => {
+            client.track('login');
+        },
+        logout: () => {
             client.track('logout');
+            client.flush();
         },
         user_interaction: (event) => {
             const { target, originalEvent } = event.eventData;

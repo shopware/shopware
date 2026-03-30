@@ -7,7 +7,6 @@ import { GatewayClient } from 'src/core/telemetry/product-analytics/gateway-clie
 import { AmplitudeAdapter } from 'src/core/telemetry/product-analytics/amplitude-adapter';
 import createConsentEventHandler from 'src/core/telemetry/product-analytics/consent-event-handler';
 import createTelemetryEventHandler from 'src/core/telemetry/product-analytics/telemetry-event-handler';
-import { registerAmplitudeLogoutListener } from 'src/core/telemetry/product-analytics/amplitude-logout-listener';
 
 /**
  * @private
@@ -45,7 +44,6 @@ export default async function (): Promise<WatchHandle | undefined> {
     });
 
     amplitudeAdapter.setOptOut(true);
-    registerAmplitudeLogoutListener(amplitudeAdapter, analyticsGatewayUrl);
 
     const eventHandlers = createTelemetryEventHandler(gatewayClient);
 

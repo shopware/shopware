@@ -8,9 +8,8 @@ describe('src/core/telemetry/amplitude/telemetry-event-handler.ts', () => {
     beforeEach(() => {
         client = {
             track: jest.fn(),
-            getUserId: jest.fn(() => undefined),
             identify: jest.fn(),
-            reset: jest.fn(),
+            flush: jest.fn(),
         };
 
         Shopware.Store.get('context').app.config.shopId = 'shop-id-1';
@@ -18,9 +17,7 @@ describe('src/core/telemetry/amplitude/telemetry-event-handler.ts', () => {
         pushTelemetryEventToAmplitude = createTelemetryEventHandler(client);
     });
 
-    it('tracks login only when identify changes user id', () => {
-        client.getUserId.mockReturnValue(undefined);
-
+    it('identifies user', () => {
         pushTelemetryEventToAmplitude(
             new TelemetryEvent('identify', {
                 userId: 'user-id-1',
@@ -34,27 +31,19 @@ describe('src/core/telemetry/amplitude/telemetry-event-handler.ts', () => {
             locale: 'en-GB',
             isAdmin: false,
         });
-        expect(client.track).toHaveBeenCalledWith('login');
-
-        client.track.mockClear();
-        client.getUserId.mockReturnValue('shop-id-1:user-id-1');
-
-        pushTelemetryEventToAmplitude(
-            new TelemetryEvent('identify', {
-                userId: 'user-id-1',
-                locale: null,
-                isAdmin: null,
-            }),
-        );
-
-        expect(client.track).not.toHaveBeenCalled();
     });
 
-    it('tracks logout and flushes/resets immediately', () => {
-        pushTelemetryEventToAmplitude(new TelemetryEvent('reset', {}));
+    it('tracks login event', () => {
+        pushTelemetryEventToAmplitude(new TelemetryEvent('login', {}));
+
+        expect(client.track).toHaveBeenCalledWith('login');
+    });
+
+    it('tracks logout event', () => {
+        pushTelemetryEventToAmplitude(new TelemetryEvent('logout', {}));
 
         expect(client.track).toHaveBeenCalledWith('logout');
-        expect(client.reset).not.toHaveBeenCalled();
+        expect(client.flush).toHaveBeenCalled();
     });
 
     it('normalizes non-string route names for page change tracking', () => {

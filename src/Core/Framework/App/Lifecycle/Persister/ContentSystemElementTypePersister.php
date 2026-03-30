@@ -180,12 +180,17 @@ class ContentSystemElementTypePersister implements PersisterInterface
         AppContentSystemElementTypeCollection $existing,
         AppLifecycleContext $context,
     ): array {
+        $existingByName = [];
+        foreach ($existing as $entity) {
+            $existingByName[$entity->getName()] = $entity;
+        }
+
         $upserts = [];
 
         foreach ($resolvedDtos as $resolvedDto) {
             $normalized = $this->serializer->normalize($resolvedDto->dto);
             $hash = Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR));
-            $existingEntity = $existing->filterByProperty('name', $resolvedDto->name)->first();
+            $existingEntity = $existingByName[$resolvedDto->name] ?? null;
 
             if ($existingEntity !== null && $existingEntity->getHash() === $hash) {
                 continue;

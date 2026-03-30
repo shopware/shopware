@@ -63,7 +63,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils" />
         </service>
 
-        <service id="OpenSearch\Client" class="Shopware\Elasticsearch\Framework\ConfiguredClient" public="true" lazy="true">
+        <service id="OpenSearch\Client" public="true" lazy="true">
             <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
             <argument>%elasticsearch.hosts%</argument>
             <argument type="service" id="shopware.elasticsearch.logger" />
@@ -71,7 +71,7 @@
             <argument>%elasticsearch.ssl%</argument>
         </service>
 
-        <service id="admin.openSearch.client" class="Shopware\Elasticsearch\Framework\ConfiguredClient" public="true" lazy="true">
+        <service id="admin.openSearch.client" public="true" lazy="true">
             <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
             <argument>%elasticsearch.administration.hosts%</argument>
             <argument type="service" id="shopware.elasticsearch.logger" />

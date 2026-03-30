@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Persister;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -24,7 +25,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\CopilotS
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\ElementTypeSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Util\Filesystem;
@@ -366,6 +369,63 @@ class ContentSystemElementTypePersisterTest extends TestCase
             ContentSystemException::elementTypeDuplicate('DemoApp:Hero', 'core', 'app:DemoApp')
         );
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
+    }
+
+    #[TestDox('wraps UniqueConstraintViolationException as AppException on concurrent name collision')]
+    public function testWrapsUniqueConstraintViolationAsAppException(): void
+    {
+        $resolvedDto = new ResolvedElementTypeSpecificationDto(
+            name: 'DemoApp:Hero',
+            source: 'app:DemoApp',
+            dto: new ElementTypeSpecificationDto(
+                label: 'Hero',
+                description: 'test',
+                icon: null,
+                category: null,
+                copilot: new CopilotSpecificationDto(summary: 'test', hints: []),
+                properties: [],
+                slots: [],
+            ),
+        );
+
+        $loader = static::createStub(YamlTypeLoader::class);
+        $loader->method('loadDtosFromDirectory')->willReturn([$resolvedDto]);
+
+        $dbalException = static::createStub(UniqueConstraintViolationException::class);
+
+        $emptyResult = new EntitySearchResult(
+            'app_content_system_element_type',
+            0,
+            new AppContentSystemElementTypeCollection(),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $repo = static::createStub(EntityRepository::class);
+        $repo->method('search')->willReturn($emptyResult);
+        $repo->method('upsert')->willThrowException($dbalException);
+
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('all')->willReturn([]);
+
+        $persister = new ContentSystemElementTypePersister(
+            $repo,
+            $loader,
+            new ElementTypeCollisionDetector($registry),
+            $registry,
+            $this->serializer,
+        );
+
+        try {
+            $persister->persist($this->buildContext($this->buildRealFilesystem()));
+            static::fail('Expected AppException was not thrown');
+        } catch (AppException $e) {
+            static::assertSame(AppException::CONTENT_SYSTEM_ELEMENT_TYPE_DUPLICATE, $e->getErrorCode());
+            static::assertStringContainsString('DemoApp:Hero', $e->getMessage());
+            static::assertStringContainsString('app:DemoApp', $e->getMessage());
+            static::assertSame($dbalException, $e->getPrevious());
+        }
     }
 
     #[TestDox('throws collision exception when inactive app occupies the same type name')]

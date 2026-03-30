@@ -217,4 +217,16 @@ class AppExceptionTest extends TestCase
         static::assertSame('FRAMEWORK__APP_URL_INVALID', $e->getErrorCode());
         static::assertSame('APP_URL is invalid: invalid-url', $e->getMessage());
     }
+
+    public function testContentSystemElementTypeDuplicate(): void
+    {
+        $previous = new \RuntimeException('DBAL unique constraint');
+        $e = AppException::contentSystemElementTypeDuplicate(['MyApp:Hero', 'MyApp:Banner'], 'app:MyApp', $previous);
+
+        static::assertSame(Response::HTTP_CONFLICT, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_ELEMENT_TYPE_DUPLICATE', $e->getErrorCode());
+        static::assertStringContainsString('app:MyApp', $e->getMessage());
+        static::assertStringContainsString('MyApp:Hero, MyApp:Banner', $e->getMessage());
+        static::assertSame($previous, $e->getPrevious());
+    }
 }

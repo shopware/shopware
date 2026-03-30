@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeCollection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
@@ -75,7 +76,15 @@ class ContentSystemElementTypePersister implements PersisterInterface
         $deleteIds = $this->buildDeletes($resolvedDtos, $existing);
 
         if ($upserts !== []) {
-            $this->contentElementTypeRepository->upsert($upserts, $context->context);
+            try {
+                $this->contentElementTypeRepository->upsert($upserts, $context->context);
+            } catch (UniqueConstraintViolationException $e) {
+                throw AppException::contentSystemElementTypeDuplicate(
+                    array_column($upserts, 'name'),
+                    'app:' . $context->app->getName(),
+                    $e,
+                );
+            }
         }
 
         if ($deleteIds !== []) {

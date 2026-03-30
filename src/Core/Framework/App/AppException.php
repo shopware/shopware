@@ -69,6 +69,7 @@ class AppException extends HttpException
     final public const APP_URL_INVALID = 'FRAMEWORK__APP_URL_INVALID';
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
     final public const CONTENT_SYSTEM_ELEMENT_TYPE_LOAD_FAILED = 'FRAMEWORK__APP_ELEMENT_TYPE_LOAD_FAILED';
+    final public const CONTENT_SYSTEM_ELEMENT_TYPE_DUPLICATE = 'FRAMEWORK__APP_ELEMENT_TYPE_DUPLICATE';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -566,6 +567,20 @@ class AppException extends HttpException
             self::MANIFEST_NOT_FOUND,
             'No "manifest.xml" file in path "{{ path }}" found. (The file must be placed in the app root folder.)',
             ['path' => $path],
+        );
+    }
+
+    /**
+     * @param list<string> $names
+     */
+    public static function contentSystemElementTypeDuplicate(array $names, string $source, \Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CONTENT_SYSTEM_ELEMENT_TYPE_DUPLICATE,
+            'Element type name collision while persisting types for "{{ source }}" (names: {{ names }}). A concurrent registration claimed the same name.',
+            ['source' => $source, 'names' => implode(', ', $names)],
+            $previous
         );
     }
 

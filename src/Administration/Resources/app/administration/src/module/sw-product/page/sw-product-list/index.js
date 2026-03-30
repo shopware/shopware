@@ -427,7 +427,7 @@ export default {
 
         updateCriteria(criteria) {
             const mappedCriteria = criteria.map((filter) => {
-                if (filter.type !== 'equalsAny' || filter.field !== 'categories.id') {
+                if (filter.field !== 'categories.id' || filter.type !== 'equalsAny') {
                     return filter;
                 }
 

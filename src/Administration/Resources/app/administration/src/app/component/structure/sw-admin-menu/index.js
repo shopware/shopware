@@ -400,9 +400,6 @@ The admin menu only supports up to three levels of nesting.`,
             Shopware.Store.get('session').removeCurrentUser();
             Shopware.Store.get('notification').clearGrowlNotificationsForCurrentUser();
             Shopware.Store.get('notification').clearNotificationsForCurrentUser();
-
-            // SSO path redirects via window.location.href — this line only runs for non-SSO
-            this.$router.push({ name: 'sw.login.index' });
         },
 
         addScrollbarOffset() {

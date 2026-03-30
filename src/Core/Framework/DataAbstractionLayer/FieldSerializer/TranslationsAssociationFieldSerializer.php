@@ -41,7 +41,6 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         $value = $data[$key] ?? null;
 
         $path = $parameters->getPath() . '/' . $key;
-        /** @var EntityTranslationDefinition $referenceDefinition */
         $referenceDefinition = $field->getReferenceDefinition();
 
         if ($value === null) {
@@ -174,6 +173,8 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
      * @throws ExpectedArrayException
      * @throws MissingSystemTranslationException
      * @throws MissingTranslationLanguageException
+     *
+     * @return \Generator<array{}>
      */
     private function map(
         TranslationsAssociationField $field,
@@ -185,8 +186,10 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         $value = $data->getValue();
         $path = $parameters->getPath() . '/' . $key;
 
-        /** @var EntityTranslationDefinition $referenceDefinition */
         $referenceDefinition = $field->getReferenceDefinition();
+        if (!$referenceDefinition instanceof EntityTranslationDefinition) {
+            return;
+        }
 
         if (!\is_array($value)) {
             throw DataAbstractionLayerException::expectedArray($path);
@@ -207,10 +210,9 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             return;
         }
 
-        $languageIds = array_keys($value);
         // the translation in the system language is always required for new entities,
         // if there is at least one required translated field
-        if ($referenceDefinition->hasRequiredField() && !\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
+        if ($referenceDefinition->hasRequiredField() && !\array_key_exists(Defaults::LANGUAGE_SYSTEM, $value)) {
             throw DataAbstractionLayerException::missingSystemTranslation($path . '/' . Defaults::LANGUAGE_SYSTEM);
         }
 

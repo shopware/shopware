@@ -185,6 +185,43 @@ loginService.addOnLogoutListener(() => {
 - **Listener Management**: Multiple listeners can be registered for each event type
 - **Context Synchronization**: Events ensure context store stays synchronized
 
+## SSO Logout (`logoutSso`)
+
+`loginService.logoutSso()` handles logout when the session may have been established through an SSO provider.
+
+### Sequence
+
+1. Loads SSO login configuration from the backend (`getLoginTemplateConfig`). Falls back to `logout()` if loading fails or if `loginConfig.url` is absent.
+2. Revokes the server-side token via a native `fetch` POST to `/api/_action/user/logout` (bypasses Axios interceptors to prevent a spurious token-refresh attempt during logout). Errors are swallowed — revocation is best-effort.
+3. Reads `sessionStorage.getItem('sw-sso-session')` to determine whether the current session was SSO-established.
+4. **SSO path** (`!loginConfig.useDefault || isSsoSession`): clears local auth state, notifies logout listeners, sets `sw-sso-session` flag back (so the next login page load knows to use SSO), then redirects to `${loginConfig.url}&usePromptLogin=1`.
+5. **Non-SSO path**: removes the `sw-sso-session` flag and delegates to `logout()`.
+
+> **Race condition fix (#15696)**: Previously `sessionStorage.removeItem('sw-sso-session')` was called unconditionally before the SSO redirect, which cleared the flag before the browser had navigated away. The flag is now preserved for the SSO path and only removed on the non-SSO code path.
+
+### `clearAuthState()`
+
+Internal shared helper called by both `logout()` and `logoutSso()`. Clears tokens, resets the bearer auth header, cancels the auto-refresh timer, and clears the remember-me flag.
+
+### `forwardLogout(isInactivityLogout, shouldRedirect)`
+
+Used by standard (non-SSO) logout. Notifies listeners, saves the current route to `sessionStorage` (for post-login restore), and redirects to the login page.
+
+---
+
+## HTTP Token Refresh — Retry Guards
+
+The Axios request interceptor in `http.factory.js` (`refreshTokenInterceptor`) handles 401 responses by attempting a token refresh and retrying the original request. Two guards prevent infinite retry loops:
+
+| Guard | Trigger | Effect |
+|---|---|---|
+| `SSO_LOGIN__TOKEN_NOT_FOUND` error code | The 401 carries this error code — indicates an SSO session mismatch, not an expired admin token | Immediately rejects without retrying |
+| `_tokenRefreshRetry` flag | Already set on the original request from a previous retry | Immediately rejects; prevents a second retry cycle |
+
+The `_tokenRefreshRetry` flag is set on the request config after the first successful refresh + retry, so each request can only be retried once.
+
+---
+
 ## Error Handling
 
 ### Authentication Errors

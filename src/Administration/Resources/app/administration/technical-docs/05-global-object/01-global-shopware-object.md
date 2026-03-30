@@ -63,6 +63,18 @@ Shopware.Feature = {
 }
 ```
 
+### Telemetry
+```javascript
+Shopware.Telemetry = {
+    initialize: Function,  // Activates the DOM observer, router hook, and login/logout listeners
+    identify: Function,    // Dispatches an identify event with current user info
+    track: Function,       // Dispatches a programmatic telemetry event
+    debug: boolean,        // Setter; when true, logs every event to console.debug
+    isInitialized: boolean // Getter
+}
+```
+See [Shopware.Telemetry](./04-telemetry.md) for the full reference.
+
 ### Essential Utilities
 ```javascript
 Shopware.Utils = utils;           // Collection of utility functions

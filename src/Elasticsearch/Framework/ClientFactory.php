@@ -16,6 +16,7 @@ use OpenSearch\TransportFactory;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\ElasticsearchException;
+use Shopware\Elasticsearch\Profiler\ClientProfiler;
 
 #[Package('framework')]
 class ClientFactory
@@ -53,7 +54,17 @@ class ClientFactory
             ->setRequestFactory($requestFactory)
             ->create();
 
-        return new ConfiguredClient($transport, $endpointFactory, [], new Uri($host));
+        $client = new Client($transport, $endpointFactory);
+
+        if ($debug) {
+            $profiler = new ClientProfiler($client);
+            /** @deprecated tag:v6.8.0 - move setter to constructor, once the profiler is internal */
+            $profiler->setBaseUri(new Uri($host));
+
+            return $profiler;
+        }
+
+        return $client;
     }
 
     /**

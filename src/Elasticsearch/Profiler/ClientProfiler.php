@@ -7,9 +7,10 @@ use GuzzleHttp\Psr7\UriResolver;
 use OpenSearch\Client;
 use Psr\Http\Message\UriInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Elasticsearch\Framework\ConfiguredClient;
 
 /**
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - will be considered internal from 6.8.0.0 onwards
+ *
  * @phpstan-type RequestInfo array{url: string, request: array<string, mixed>, response: array<string, mixed>, time: float, backtrace: string, client?: string}
  */
 #[Package('framework')]
@@ -20,17 +21,20 @@ class ClientProfiler extends Client
      */
     private array $requests = [];
 
-    private readonly UriInterface $baseUri;
+    private UriInterface $baseUri;
 
-    public function __construct(ConfiguredClient $client)
+    public function __construct(Client $client)
     {
         parent::__construct(
             $client->getConfiguredTransport(),
             $client->getConfiguredEndpointFactory(),
             $client->getConfiguredRegisteredNamespaces()
         );
+    }
 
-        $this->baseUri = $client->getBaseUri();
+    public function setBaseUri(UriInterface $baseUri): void
+    {
+        $this->baseUri = $baseUri;
     }
 
     /**
@@ -204,6 +208,7 @@ class ClientProfiler extends Client
     private function resolveUrl(string $path, string $query): string
     {
         $pathWithQuery = $query === '' ? $path : $path . '?' . $query;
+
         $uri = UriResolver::resolve($this->baseUri, new Uri($pathWithQuery));
 
         return (string) $uri;

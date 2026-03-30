@@ -82,12 +82,6 @@ Since tokens are no longer deleted after use, a new scheduled task runs daily to
 
 Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
 The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
-## Product search behavior when search keyword indexing is disabled
-
-When `shopware.product.search_keyword.indexing` is set to `false`, product search no longer builds search conditions on `product.searchKeywords.*`.
-Instead, it sets the search term on the criteria (`Criteria::setTerm`) and uses DAL term search.
-
-This keeps product search functional without updating `product_search_keyword` and `product_keyword_dictionary`.
 
 ## Removal of `$options` parameter in custom validator's constraints
 

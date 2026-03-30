@@ -23,15 +23,6 @@ class ClientProfiler extends Client
 
     private UriInterface $baseUri;
 
-    public function __construct(Client $client)
-    {
-        parent::__construct(
-            $client->getConfiguredTransport(),
-            $client->getConfiguredEndpointFactory(),
-            $client->getConfiguredRegisteredNamespaces()
-        );
-    }
-
     public function setBaseUri(UriInterface $baseUri): void
     {
         $this->baseUri = $baseUri;

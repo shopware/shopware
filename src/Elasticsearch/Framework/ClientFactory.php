@@ -35,8 +35,7 @@ class ClientFactory
         $client = new Client($transport);
 
         if ($debug) {
-            $profiler = new ClientProfiler($client);
-            /** @deprecated tag:v6.8.0 - move setter to constructor, once the profiler is internal */
+            $profiler = new ClientProfiler($transport);
             $profiler->setBaseUri(new Uri($host));
 
             return $profiler;

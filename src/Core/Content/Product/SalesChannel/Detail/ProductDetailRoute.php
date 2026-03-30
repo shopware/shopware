@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -81,6 +82,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
     {
         return Profiler::trace('product-detail-route', function () use ($productId, $request, $context, $criteria) {
+            $requestedProductId = $productId;
             $mainVariantId = $this->checkVariantListingConfig($productId, $context);
 
             $resolveVariantIdEvent = new ResolveVariantIdEvent(
@@ -106,6 +108,27 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
             $loadCmsPage = !$request->query->getBoolean(self::SKIP_CMS_PAGE);
             $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
+
+            /**
+             * if the product has main variant that has been closed out
+             * we should fallback to the best variant instead of not found error with main variant id
+             */
+            if (
+                !$product instanceof SalesChannelProductEntity
+                && $mainVariantId !== null
+                && $productId === $mainVariantId
+                && $this->hideCloseoutProductsWhenOutOfStock($context)
+            ) {
+                $fallbackProductId = $this->findBestVariant($requestedProductId, $context);
+
+                if ($fallbackProductId !== $requestedProductId && $fallbackProductId !== $productId) {
+                    $productId = $fallbackProductId;
+                    $criteria->setIds([$productId]);
+
+                    $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
+                }
+            }
+
             if (!$product instanceof SalesChannelProductEntity) {
                 throw ProductException::productNotFound($productId);
             }
@@ -135,7 +158,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                 );
 
                 $cmsPage = $pages->first();
-                if ($cmsPage !== null) {
+                if ($cmsPage instanceof CmsPageEntity) {
                     $product->setCmsPage($cmsPage);
                 }
             }
@@ -150,15 +173,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             new ProductAvailableFilter($context->getSalesChannelId(), ProductVisibilityDefinition::VISIBILITY_LINK)
         );
 
-        $salesChannelId = $context->getSalesChannelId();
-
-        $hideCloseoutProductsWhenOutOfStock = $this->config->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
-
-        if ($hideCloseoutProductsWhenOutOfStock) {
-            $filter = $this->productCloseoutFilterFactory->create($context);
-            $filter->addQuery(new EqualsFilter('product.parentId', null));
-            $criteria->addFilter($filter);
-        }
+        $this->addCloseoutFilter($context, $criteria);
     }
 
     private function checkVariantListingConfig(string $productId, SalesChannelContext $context): ?string
@@ -205,6 +220,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             ->addSorting(new FieldSorting('product.price'))
             ->setLimit(1);
 
+        $this->addCloseoutFilter($context, $criteria);
         $criteria->setTitle('product-detail-route::find-best-variant');
         $variantId = $this->productRepository->searchIds($criteria, $context);
 
@@ -217,12 +233,27 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             ->addFilter(new EqualsFilter('product.parentId', $productId))
             ->setLimit(1);
 
+        $this->addCloseoutFilter($context, $criteria);
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria->setTerm($term);
 
         $criteria->setTitle('product-detail-route::find-best-variant-by-term');
 
         return $this->productRepository->searchIds($criteria, $context)->firstId();
+    }
+
+    private function addCloseoutFilter(SalesChannelContext $context, Criteria $criteria): void
+    {
+        if (!$this->hideCloseoutProductsWhenOutOfStock($context)) {
+            return;
+        }
+
+        $criteria->addFilter($this->productCloseoutFilterFactory->create($context));
+    }
+
+    private function hideCloseoutProductsWhenOutOfStock(SalesChannelContext $context): bool
+    {
+        return $this->config->getBool('core.listing.hideCloseoutProductsWhenOutOfStock', $context->getSalesChannelId());
     }
 
     private function createCriteria(string $pageId, Request $request): Criteria

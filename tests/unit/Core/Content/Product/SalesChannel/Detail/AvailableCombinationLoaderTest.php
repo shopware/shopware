@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 
 /**
@@ -83,11 +84,43 @@ class AvailableCombinationLoaderTest extends TestCase
         static::assertFalse($result->isAvailable(['green']));
     }
 
-    private function getAvailableCombinationLoader(?AbstractStockStorage $stockStorage = null): AvailableCombinationLoader
+    public function testLoadCombinationsHidesCloseoutVariantsWhenConfigured(): void
     {
+        $context = Context::createDefaultContext();
+        $salesChanelContext = Generator::generateSalesChannelContext($context);
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->once())
+            ->method('getBool')
+            ->willReturn(true);
+
+        $loader = $this->getAvailableCombinationLoader(
+            systemConfigService: $systemConfigService
+        );
+        $result = $loader->loadCombinations(
+            Uuid::randomHex(),
+            $salesChanelContext
+        );
+
+        static::assertSame([
+            '4b97f87ff3bd2cd72cc6f6f7d2ae49ae' => [
+                'green',
+                'red',
+            ],
+        ], $result->getCombinations());
+    }
+
+    private function getAvailableCombinationLoader(
+        ?AbstractStockStorage $stockStorage = null,
+        ?SystemConfigService $systemConfigService = null
+    ): AvailableCombinationLoader {
         $connection = $this->getMockedConnection();
 
-        return new AvailableCombinationLoader($connection, $stockStorage ?? $this->createMock(AbstractStockStorage::class));
+        return new AvailableCombinationLoader(
+            $connection,
+            $stockStorage ?? $this->createMock(AbstractStockStorage::class),
+            $systemConfigService ?? $this->createMock(SystemConfigService::class),
+        );
     }
 
     private function getMockedConnection(): Connection
@@ -97,6 +130,7 @@ class AvailableCombinationLoaderTest extends TestCase
             [
                 'id' => 'product-1',
                 'available' => true,
+                'isCloseout' => false,
                 'options' => json_encode([
                     'green',
                     'red',
@@ -105,6 +139,7 @@ class AvailableCombinationLoaderTest extends TestCase
             [
                 'id' => 'product-2',
                 'available' => false,
+                'isCloseout' => true,
                 'options' => json_encode([
                     'green',
                 ]),
@@ -112,6 +147,7 @@ class AvailableCombinationLoaderTest extends TestCase
             [
                 'id' => 'invalid',
                 'available' => false,
+                'isCloseout' => false,
                 'options' => '{ bar: "baz" }',
             ],
         ]);

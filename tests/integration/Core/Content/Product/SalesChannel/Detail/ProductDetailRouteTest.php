@@ -8,6 +8,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,6 +29,9 @@ class ProductDetailRouteTest extends TestCase
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
+
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', false);
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
@@ -188,6 +192,24 @@ class ProductDetailRouteTest extends TestCase
         $product = $response['product'];
         static::assertArrayHasKey('productNumber', $product);
         static::assertSame('variant-3', $product['productNumber']);
+    }
+
+    public function testLoadProductVariantFallsBackFromHiddenMainVariant(): void
+    {
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
+
+        $this->createVariantProducts([
+            'mainVariantId' => $this->ids->get('variant-1'),
+            'displayParent' => false,
+        ]);
+
+        $this->browser->request('POST', $this->getUrl($this->ids->get('variants')));
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
+        static::assertSame('variant-2', $response['product']['productNumber']);
     }
 
     public function testIncludes(): void

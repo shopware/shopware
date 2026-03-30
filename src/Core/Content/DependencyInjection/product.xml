@@ -355,6 +355,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter"/>
             <argument type="service" id="logger"/>
             <argument>%shopware.search.term_max_length%</argument>
+            <argument>%shopware.product.search_keyword.indexing%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductLineItemCommandValidator">
@@ -477,6 +478,7 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer"/>
+            <argument>%shopware.product.search_keyword.indexing%</argument>
             <tag name="kernel.reset" method="reset"/>
         </service>
 

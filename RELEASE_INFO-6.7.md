@@ -209,6 +209,10 @@ A new scheduled task `customer.cleanup_customer_recovery` has been added that au
 
 Customer recovery records (password reset tokens) expire after 2 hours. Previously these records were never removed, causing the `customer_recovery` table to grow indefinitely. The new task deletes all records older than 48 hours.
 
+### It's now possible to disable product search keyword indexing
+
+If `shopware.product.search_keyword.indexing` is set to `false`. This is helpful for stores that do not require search keywords and want to avoid the overhead of maintaining those indices while still having basic search functionality or using third-party search solutions.
+
 ### New attribute field types for entity definitions
 
 The attribute-based entity definition system now supports additional field types:

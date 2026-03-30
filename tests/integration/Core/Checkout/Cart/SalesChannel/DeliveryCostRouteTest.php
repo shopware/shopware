@@ -176,6 +176,10 @@ class DeliveryCostRouteTest extends TestCase
      */
     private function contextSnapshot(array $response): array
     {
+        static::assertArrayHasKey('token', $response);
+        static::assertArrayHasKey('shippingMethod', $response);
+        static::assertArrayHasKey('paymentMethod', $response);
+
         return [
             'token' => $response['token'],
             'shippingMethodId' => $response['shippingMethod']['id'],
@@ -191,6 +195,9 @@ class DeliveryCostRouteTest extends TestCase
      */
     private function cartSnapshot(array $response): array
     {
+        static::assertArrayHasKey('token', $response);
+        static::assertArrayHasKey('price', $response);
+
         $lineItems = array_map(
             static fn (array $lineItem): array => [
                 'id' => $lineItem['id'],

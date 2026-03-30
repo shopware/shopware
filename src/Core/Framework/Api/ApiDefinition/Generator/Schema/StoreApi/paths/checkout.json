@@ -5,10 +5,11 @@
         "/checkout/delivery-cost/{productId}": {
             "get": {
                 "tags": [
-                    "Cart"
+                    "Cart",
+                    "Endpoints supporting Criteria "
                 ],
                 "summary": "Calculate delivery costs for a product",
-                "description": "Calculates delivery costs for a single product using the requested shipping-method criteria or all available shipping methods.",
+                "description": "Calculates delivery costs for a single product using criteria-based shipping method selection.",
                 "operationId": "readDeliveryCostByProduct",
                 "parameters": [
                     {
@@ -32,17 +33,7 @@
                         }
                     },
                     {
-                        "name": "ids[]",
-                        "in": "query",
-                        "description": "Optional shipping method identifiers used to limit the response to selected shipping methods.",
-                        "required": false,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$"
-                            }
-                        }
+                        "x-parameter-group": "criteria"
                     }
                 ],
                 "responses": {

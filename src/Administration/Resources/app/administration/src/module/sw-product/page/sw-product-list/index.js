@@ -425,12 +425,19 @@ export default {
             this.getList();
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
-         */
         updateCriteria(criteria) {
-            // Delegate to listing mixin implementation
-            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
+            const mappedCriteria = criteria.map((filter) => {
+                if (filter.type !== 'equalsAny' || filter.field !== 'categories.id') {
+                    return filter;
+                }
+
+                return Criteria.multi('OR', [
+                    filter,
+                    Criteria.equalsAny('product.streams.categories.id', filter.value),
+                ]);
+            });
+
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, mappedCriteria);
         },
 
         getCurrencyPriceByCurrencyId(currencyId, prices) {

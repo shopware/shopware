@@ -210,6 +210,15 @@ class AppExceptionTest extends TestCase
         static::assertSame('The configuration values for "core.app.shopIdV2" and "core.app.shopId" in the system config are invalid.', $e->getMessage());
     }
 
+    public function testInvalidAppUrl(): void
+    {
+        $e = AppException::invalidAppUrl('invalid-url');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_URL_INVALID', $e->getErrorCode());
+        static::assertSame('APP_URL is invalid: invalid-url', $e->getMessage());
+    }
+
     public function testRequirementsNotMet(): void
     {
         $violation1 = new UnmetRequirement(

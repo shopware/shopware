@@ -33,7 +33,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     /**
      * @param array<string, mixed> $productData
      * @param array<int, array{field: string, tokenize: bool, ranking: int}> $configFields
-     * @param array<int, string> $expected
+     * @param list<int|string> $expected
      */
     #[DataProvider('analyzeCases')]
     public function testAnalyze(array $productData, array $configFields, array $expected): void
@@ -70,7 +70,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
      *
      * @param array<string, mixed> $productData
      * @param array<int, array{field: string, tokenize: bool, ranking: int}> $configFields
-     * @param array<int, string> $expected
+     * @param list<int|string> $expected
      */
     #[DataProvider('analyzeCases')]
     public function testAnalyzeWithIgnoredErrorNoticeReporting(array $productData, array $configFields, array $expected): void
@@ -83,9 +83,9 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{0:array<string, array<string, string|array<int|string, string|array<int|string>>>|int|string|TagCollection>, 1:array<int, array{field: string, tokenize: bool, ranking: int}>, 2:array<int, int|string>}>
+     * @return \Generator<string, array{0:array<string, array<string, string|array<int|string, string|array<int|string>>>|int|string|TagCollection>, 1:array<int, array{field: string, tokenize: bool, ranking: int}>, 2:list<int|string>}>
      */
-    public static function analyzeCases(): iterable
+    public static function analyzeCases(): \Generator
     {
         $tag1 = new TagEntity();
         $tag1->setId('tag-1');

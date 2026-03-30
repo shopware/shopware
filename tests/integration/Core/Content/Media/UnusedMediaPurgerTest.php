@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Media;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
@@ -20,7 +19,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(UnusedMediaPurger::class)]
 class UnusedMediaPurgerTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -11,13 +11,27 @@ const { CMS } = Shopware.Constants;
 export default {
     template,
 
-    inject: ['feature'],
+    inject: [
+        'feature',
+        'repositoryFactory',
+    ],
 
     mixins: [
         Mixin.getByName('cms-element'),
     ],
 
+    data() {
+        return {
+            mappedDemoMedia: null,
+            mappedDemoMediaFetchId: 0,
+        };
+    },
+
     computed: {
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
+        },
+
         displayModeClass() {
             if (this.element.config.displayMode.value === 'standard') {
                 return null;
@@ -64,6 +78,10 @@ export default {
                     return demoMedia.url;
                 }
 
+                if (this.mappedDemoMedia?.url) {
+                    return this.mappedDemoMedia.url;
+                }
+
                 return staticFallBackImage;
             }
 
@@ -97,11 +115,13 @@ export default {
         'cmsPageState.currentDemoEntity': {
             handler() {
                 this.updateDemoValue(this.mediaConfigValue);
+                this.updateMappedDemoMedia();
             },
         },
 
         mediaConfigValue(value) {
             this.updateDemoValue(value);
+            this.updateMappedDemoMedia();
         },
     },
 
@@ -113,6 +133,7 @@ export default {
         createdComponent() {
             this.initElementConfig('image');
             this.initElementData('image');
+            this.updateMappedDemoMedia();
         },
 
         updateDemoValue(value) {
@@ -121,6 +142,42 @@ export default {
 
             if (isSourceStatic && mediaId && value !== mediaId) {
                 this.element.config.media.value = mediaId;
+            }
+        },
+
+        async updateMappedDemoMedia() {
+            const fetchId = this.mappedDemoMediaFetchId + 1;
+            this.mappedDemoMediaFetchId = fetchId;
+            this.mappedDemoMedia = null;
+
+            if (this.element?.config?.media?.source !== 'mapped' || !this.mediaConfigValue) {
+                return;
+            }
+
+            const demoMedia = this.getDemoValue(this.mediaConfigValue);
+
+            if (demoMedia?.url) {
+                this.mappedDemoMedia = demoMedia;
+
+                return;
+            }
+
+            if (typeof demoMedia !== 'string') {
+                return;
+            }
+
+            try {
+                const media = await this.mediaRepository.get(demoMedia, Shopware.Context.api);
+
+                if (fetchId !== this.mappedDemoMediaFetchId) {
+                    return;
+                }
+
+                this.mappedDemoMedia = media;
+            } catch {
+                if (fetchId === this.mappedDemoMediaFetchId) {
+                    this.mappedDemoMedia = null;
+                }
             }
         },
     },

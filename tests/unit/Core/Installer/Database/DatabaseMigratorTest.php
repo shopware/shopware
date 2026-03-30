@@ -185,11 +185,17 @@ class DatabaseMigratorTest extends TestCase
         ], $result);
     }
 
+    /**
+     * @return \Generator<string>
+     */
     private function nonEmptyGenerator(): \Generator
     {
         yield 'migration';
     }
 
+    /**
+     * @return \Generator<null>
+     */
     private function emptyGenerator(): \Generator
     {
         yield from [];

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\HealthCheck;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -24,7 +23,6 @@ use Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck;
 /**
  * @internal
  */
-#[CoversClass(ProductListingReadinessCheck::class)]
 class ProductListingReadinessCheckTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -77,7 +75,7 @@ class ProductListingReadinessCheckTest extends TestCase
         $result = $check->run();
 
         static::assertTrue($result->healthy);
-        static::assertSame(Status::SKIPPED, $result->status);
+        static::assertSame(Status::OK, $result->status);
     }
 
     private function createCheck(): ProductListingReadinessCheck

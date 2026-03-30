@@ -3,7 +3,7 @@
  * @private
  */
 export default () => {
-    /* eslint-disable sw-deprecation-rules/private-feature-declarations, max-len */
+    /* eslint-disable sw-deprecation-rules/private-feature-declarations */
     Shopware.Component.register('sw-wizard-page', () => import('src/app/component/wizard/sw-wizard-page/index'));
     Shopware.Component.register(
         'sw-wizard-dot-navigation',
@@ -684,5 +684,5 @@ export default () => {
     Shopware.Component.extend('sw-one-to-many-grid', 'sw-data-grid', () => import('./entity/sw-one-to-many-grid/index'));
     Shopware.Component.extend('sw-entity-listing', 'sw-data-grid', () => import('./entity/sw-entity-listing/index'));
     Shopware.Component.extend('sw-price-preview', 'sw-price-field', () => import('./base/sw-price-preview/index'));
-    /* eslint-enable sw-deprecation-rules/private-feature-declarations, max-len */
+    /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 };

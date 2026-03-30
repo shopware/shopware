@@ -41,7 +41,7 @@ return [
         'CHANGED: The return type of Shopware\\\\Core\\\\Content\\\\Newsletter\\\\SalesChannel\\\\.* changed from Shopware\\\\Core\\\\System\\\\SalesChannel\\\\NoContentResponse to (?:the non-covariant )?Shopware\\\\Core\\\\System\\\\SalesChannel\\\\StoreApiResponse',
 
         // class is @final, so making a parameter nullable is not a breaking change
-        preg_quote('CHANGED: The parameter $fileType of Shopware\Core\Checkout\Document\Service\DocumentGenerator#readDocument() changed from string to string|null'),
+        preg_quote('CHANGED: The parameter $fileType of Shopware\Core\Checkout\Document\Service\DocumentGenerator#readDocument() changed from string to string|null', '/'),
 
         // SystemRestoreDatabaseCommand was marked @internal
         preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemRestoreDatabaseCommand was marked "@internal"', '/'),
@@ -53,12 +53,10 @@ return [
         preg_quote('CHANGED: Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister was marked "@internal"', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister#updateTaxProviders() was removed', '/'),
 
-        // False positive, added parameters have default values or are optional
-        preg_quote('ADDED: Parameter documentType was added to Method withGeneralOrderData() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument', '/'),
-        preg_quote('ADDED: Parameter documentType was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),
-        preg_quote('ADDED: Parameter invoiceReference was added to Method buildDocument() of class Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder', '/'),
+        // Constants should be `float` to reflect the expected type
+        preg_quote('CHANGED: Value of constant Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking::', '/'),
 
-        // False positive, constructor is internal
-        preg_quote('REMOVED: Property Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer#$shopwareVersion was removed', '/'),
+        // Return type is still of type "self" but more specific. Could never be something different from the InvalidSortQueryException, so this should be fine
+        'CHANGED: The return type of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DataAbstractionLayerException.* changed from self to (?:the non-covariant )?Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Exception\\\\InvalidSortQueryException',
     ],
 ];

@@ -7,7 +7,13 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\System\NumberRange\ValueGenerator\IncrementSqlStorageTest;
 
+/**
+ * @codeCoverageIgnore tested via integration test,
+ *
+ * @see IncrementSqlStorageTest
+ */
 #[Package('framework')]
 class IncrementSqlStorage extends AbstractIncrementStorage
 {
@@ -56,9 +62,9 @@ class IncrementSqlStorage extends AbstractIncrementStorage
         );
         $lastNumber = $result->fetchOne();
 
-        $start = $config['start'] ?? 1;
+        $start = (int) ($config['start'] ?? 1);
 
-        if (!$lastNumber || (int) $lastNumber < $start) {
+        if ($lastNumber === false || (int) $lastNumber < $start) {
             $nextNumber = $start;
         } else {
             $nextNumber = $lastNumber + 1;

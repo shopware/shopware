@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Sso\UserService;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -16,7 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ExternalAuthUser::class)]
 class ExternalAuthUserTest extends TestCase
 {
     public function testCreate(): void

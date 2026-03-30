@@ -219,7 +219,7 @@
         <!-- Schema Services -->
         <service id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver">
             <!-- $compiledSourceToTypes set by ContentSystemDataLoaderTypeCompilerPass -->
-            <argument key="$compiledSourceToTypes" type="collection"/>
+            <argument type="collection"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 

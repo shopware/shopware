@@ -909,6 +909,13 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('check_for_existence')->defaultTrue()->end()
                     ->end()
                 ->end()
+                ->arrayNode('system_config')
+                    ->useAttributeAsKey('scope')
+                    ->arrayPrototype()
+                        ->useAttributeAsKey('key')
+                        ->variablePrototype()->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;

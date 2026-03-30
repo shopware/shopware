@@ -206,6 +206,86 @@ class PromotionCalculatorTest extends TestCase
         static::assertTrue($discountItem->hasPayloadValue('composition'));
     }
 
+    public function testEnrichPackagesDropsPackageWithMissingLineItemInSplitItems(): void
+    {
+        $presentId = $this->ids->get('present-product');
+        $missingId = $this->ids->get('stale-product');
+
+        $presentItem = new LineItem($presentId, LineItem::PRODUCT_LINE_ITEM_TYPE, $presentId);
+        $presentItem->setPriceDefinition(new AbsolutePriceDefinition(30.0));
+        $presentItem->setLabel('Present product');
+        $presentItem->setPrice(new CalculatedPrice(30.0, 30.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $packageWithStaleRef = new DiscountPackage(
+            new LineItemQuantityCollection([
+                new LineItemQuantity($presentId, 1),
+                new LineItemQuantity($missingId, 1),
+            ])
+        );
+
+        $cartPackager = $this->createMock(DiscountPackager::class);
+        $cartPackager
+            ->method('getMatchingItems')
+            ->willReturn(new DiscountPackageCollection([$packageWithStaleRef]));
+
+        $lineItemQuantitySplitter = $this->createMock(LineItemQuantitySplitter::class);
+        $lineItemQuantitySplitter
+            ->method('split')
+            ->willReturnCallback(static fn (LineItem $item) => $item);
+
+        $packageFilter = $this->createMock(PackageFilter::class);
+        $packageFilter
+            ->method('filterPackages')
+            ->willReturnCallback(static fn (DiscountLineItem $d, DiscountPackageCollection $p) => $p);
+
+        $advancedPackagePicker = $this->createMock(AdvancedPackagePicker::class);
+        $advancedPackagePicker
+            ->method('pickItems')
+            ->willReturnCallback(static fn (DiscountLineItem $d, DiscountPackageCollection $p) => $p);
+
+        $setGroupScopeFilter = $this->createMock(SetGroupScopeFilter::class);
+        $setGroupScopeFilter
+            ->method('filter')
+            ->willReturnCallback(static fn (DiscountLineItem $d, DiscountPackageCollection $p) => $p);
+
+        $absolutePriceCalculator = $this->createMock(AbsolutePriceCalculator::class);
+        $absolutePriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static fn (float $price) => new CalculatedPrice($price, $price, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $calculator = new PromotionCalculator(
+            $this->createMock(AmountCalculator::class),
+            $absolutePriceCalculator,
+            $this->createMock(LineItemGroupBuilder::class),
+            $this->createMock(DiscountCompositionBuilder::class),
+            $packageFilter,
+            $advancedPackagePicker,
+            $setGroupScopeFilter,
+            $lineItemQuantitySplitter,
+            $this->createMock(PercentagePriceCalculator::class),
+            $cartPackager,
+            $this->createMock(DiscountPackager::class),
+            $this->createMock(DiscountPackager::class)
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->addLineItems(new LineItemCollection([$presentItem]));
+        $cart->setPrice(new CartPrice(30, 30, 30, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
+
+        $discountItem = $this->getDiscountItem('promo-stale-ref')
+            ->setType(PromotionDiscountEntity::TYPE_ABSOLUTE);
+
+        $calculator->calculate(
+            new LineItemCollection([$discountItem]),
+            $cart,
+            $cart,
+            $this->createMock(SalesChannelContext::class),
+            new CartBehavior()
+        );
+
+        static::assertNull($cart->getLineItems()->get($discountItem->getId()));
+    }
+
     private function getDiscountItem(string $promotionId): LineItem
     {
         $discountItemToBeExcluded = new LineItem($promotionId, PromotionProcessor::LINE_ITEM_TYPE);

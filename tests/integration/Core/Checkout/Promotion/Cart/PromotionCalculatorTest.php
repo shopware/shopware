@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Promotion\Cart;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -41,7 +40,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineIte
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(PromotionCalculator::class)]
 class PromotionCalculatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

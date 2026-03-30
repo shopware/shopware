@@ -28,10 +28,6 @@ export class Telemetry {
     }
 
     initialize() {
-        if (!Shopware.Feature.isActive('PRODUCT_ANALYTICS')) {
-            return;
-        }
-
         if (this.isInitialized) {
             throw new Error('Telemetry is already initialized');
         }
@@ -137,10 +133,6 @@ export class Telemetry {
     }
 
     private dispatchEvent<N extends EventTypes>(eventType: N, eventData: EventPayload<N>): void {
-        if (!Shopware.Feature.isActive('PRODUCT_ANALYTICS')) {
-            return;
-        }
-
         Shopware.Utils.EventBus.emit('telemetry', new TelemetryEvent<N>(eventType, eventData));
     }
 

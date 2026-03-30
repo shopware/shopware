@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\System\SystemConfig;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -102,6 +104,38 @@ class SystemConfigServiceTest extends TestCase
         $configService->set('core.test', false);
     }
 
+    public function testGetDomainFiltersOutUnrelatedYamlDefaults(): void
+    {
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->method('select')->willReturn($queryBuilder);
+        $queryBuilder->method('from')->willReturn($queryBuilder);
+        $queryBuilder->method('where')->willReturn($queryBuilder);
+        $queryBuilder->method('andWhere')->willReturn($queryBuilder);
+        $queryBuilder->method('addOrderBy')->willReturn($queryBuilder);
+        $queryBuilder->method('setParameter')->willReturn($queryBuilder);
+
+        $result = $this->createMock(Result::class);
+        $result->method('fetchAllNumeric')->willReturn([]);
+        $queryBuilder->method('executeQuery')->willReturn($result);
+
+        $this->connection->method('createQueryBuilder')->willReturn($queryBuilder);
+
+        $configService = new SystemConfigService(
+            $this->connection,
+            $this->configReader,
+            $this->configLoader,
+            $this->eventDispatcher,
+            new SymfonySystemConfigService(['default' => ['foo.bar.key1' => 'value1', 'baz.qux.key2' => 'value2']]),
+            $this->createMock(CacheTagCollector::class),
+        );
+
+        $this->eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $result = $configService->getDomain('foo.bar');
+
+        static::assertSame(['foo.bar.key1' => 'value1'], $result);
+    }
+
     public function testSetMultiForwardsSilentToHook(): void
     {
         $dispatchedHook = null;
@@ -140,22 +174,5 @@ class SystemConfigServiceTest extends TestCase
 
         static::assertInstanceOf(SystemConfigChangedHook::class, $dispatchedHook);
         static::assertFalse($dispatchedHook->silent);
-    }
-
-    public static function provideTracingExamples(): \Generator
-    {
-        yield 'disabled' => [
-            false,
-            [
-                'global.system.config',
-            ],
-        ];
-
-        yield 'enabled' => [
-            true,
-            [
-                'config.test',
-            ],
-        ];
     }
 }

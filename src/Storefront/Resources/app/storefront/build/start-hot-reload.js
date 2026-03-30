@@ -27,6 +27,7 @@ const keyPath = process.env.STOREFRONT_HTTPS_KEY_FILE || `${process.env.CAROOT}/
 const certPath = process.env.STOREFRONT_HTTPS_CERTIFICATE_FILE || `${process.env.CAROOT}/${themeUrl.hostname}.pem`;
 const skipSslCerts = process.env.STOREFRONT_SKIP_SSL_CERT === 'true';
 const sslFilesFound = (fs.existsSync(keyPath) && fs.existsSync(certPath));
+const isDebugMode = process.env.DEBUG === 'true';
 
 const proxyProtocol = (appUrlEnv.protocol === 'https:' && sslFilesFound || skipSslCerts) ? 'https:' : 'http:';
 const proxyUrlEnv = new URL(process.env.PROXY_URL || `${proxyProtocol}//${appUrlEnv.hostname}:${proxyPort}`);
@@ -157,17 +158,24 @@ const server = createLiveReloadServer(sslOptions).catch((e) => {
     console.error(e);
     console.error('Could not start the live server with the provided certificate files, falling back to http server.');
     return createLiveReloadServer({});
+}).then(() => {
+    console.log(`Watcher started at ${proxyUrlEnv.origin}`);
 });
+
 server.then(() => {
-    console.log('############');
-    console.log(`Default TWIG Storefront: ${appUrlEnv.origin}`);
-    console.log(`Proxy server hot reload: ${proxyUrlEnv.origin}`);
-    console.log('############');
+    if (isDebugMode) {
+        console.log('############');
+        console.log(`Default TWIG Storefront: ${appUrlEnv.origin}`);
+        console.log(`Proxy server hot reload: ${proxyUrlEnv.origin}`);
+        console.log('############');
+    }
 
     if (proxyUrlEnv.protocol === 'https:' && skipSslCerts === false) {
         try {
             nodeServerHttps.createServer(sslOptions, proxy).listen(proxyPort);
-            console.log('Proxy uses the https schema, with ssl certificate files.');
+            if (isDebugMode) {
+                console.log('Proxy uses the https schema, with ssl certificate files.');
+            }
         } catch (e) {
             console.error(e);
             console.error('Could not start the proxy server with the provided certificate files, falling back to http server.');
@@ -176,14 +184,23 @@ server.then(() => {
     }
 
     if (proxyUrlEnv.protocol === 'http:' || skipSslCerts === true) {
-        console.log(`Proxy uses the http schema${skipSslCerts ? ' (SSL certificates are skipped).' : '.'}`);
+        if (isDebugMode) {
+            console.log(`Proxy uses the http schema${skipSslCerts ? ' (SSL certificates are skipped).' : '.'}`);
+        }
         nodeServerHttp.createServer(proxy).listen(proxyPort);
     }
 
-    console.log('############');
-    console.log('\n');
+    if (isDebugMode) {
+        console.log('############');
+        console.log('\n');
+    }
 
-    openBrowserWithUrl(`${proxyUrlEnv.origin}`);
+    if (!fs.existsSync('/.dockerenv')) {
+        openBrowserWithUrl(`${proxyUrlEnv.origin}`);
+    }
+
+    // The "Watcher is running" message is printed by the webpack "done" hook in webpack.config.js
+    // to ensure it appears after webpack compilation output.
 });
 
 function isDocumentRequest(req) {
@@ -201,7 +218,17 @@ function isDocumentRequest(req) {
 }
 
 function openOffCanvasScript() {
-    return '<script>document.addEventListener("DOMContentLoaded", () => { setTimeout(() => { if (!document.querySelector(".header-cart-total").textContent.includes("0.00")) { document.querySelector(".header-cart").click(); } }, 500); });</script>';
+    return `<script>document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+        let headerCartTotalElement = document.querySelector(".header-cart-total");
+        if (headerCartTotalElement && !headerCartTotalElement.textContent.includes("0.00")) {
+            let headerCartElement = document.querySelector(".header-cart");
+            if (headerCartElement) {
+                headerCartElement.click();
+            }
+        }
+    }, 500);
+});</script>`;
 }
 
 function isJsonResponse(proxyRes) {

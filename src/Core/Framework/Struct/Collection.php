@@ -82,6 +82,14 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
+     * @phpstan-impure
+     */
+    public function isEmpty(): bool
+    {
+        return $this->elements === [];
+    }
+
+    /**
      * @return list<TKey>
      */
     public function getKeys(): array

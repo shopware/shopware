@@ -192,6 +192,34 @@ class ConsentServiceTest extends TestCase
         $service->acceptConsent('consent-1', $context);
     }
 
+    public function testAcceptConsentDoesNotResolveLatestRevisionWhenNonRevisionedConsentIsAlreadyAccepted(): void
+    {
+        $consent = $this->createMock(ConsentDefinition::class);
+        $consent->method('getName')->willReturn('consent-1');
+        $consent->method('getScopeName')->willReturn(ConsentScope\System::NAME);
+        $consent->method('getRequiredPermissions')->willReturn([]);
+        $consent->expects($this->never())->method('getLatestRevision');
+
+        $service = $this->createService(null, [$consent]);
+
+        $this->consentRepository
+            ->expects($this->once())
+            ->method('fetchAllConsentStates')
+            ->willReturn([new ConsentStateRecord('consent-1', 'system', ConsentStatus::ACCEPTED, 'user-123', '2026-01-26 00:00:00', null)]);
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('updateConsentState');
+
+        $source = new AdminApiSource('user-123');
+        $context = Context::createDefaultContext($source);
+
+        $updatedState = $service->acceptConsent('consent-1', $context);
+
+        static::assertSame(ConsentStatus::ACCEPTED, $updatedState->status);
+        static::assertNull($updatedState->acceptedRevision);
+    }
+
     public function testAcceptConsentUpdatesWhenAcceptedRevisionIsOutdated(): void
     {
         $service = $this->createService(null, [
@@ -258,6 +286,32 @@ class ConsentServiceTest extends TestCase
         $this->expectExceptionObject(ConsentException::invalidRevision('consent-1', '1.0.0', null));
 
         $service->acceptConsent('consent-1', $context, '1.0.0');
+    }
+
+    public function testAcceptConsentChecksPermissionsBeforeResolvingLatestRevision(): void
+    {
+        $consent = $this->createMock(ConsentDefinition::class);
+        $consent->method('getName')->willReturn('consent-1');
+        $consent->method('getScopeName')->willReturn(ConsentScope\System::NAME);
+        $consent->method('getRequiredPermissions')->willReturn(['permission-1']);
+        $consent->expects($this->never())->method('getLatestRevision');
+
+        $service = $this->createService(null, [$consent]);
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('fetchAllConsentStates');
+
+        $this->consentRepository
+            ->expects($this->never())
+            ->method('updateConsentState');
+
+        $source = new AdminApiSource('user-123');
+        $context = Context::createDefaultContext($source);
+
+        $this->expectExceptionObject(ConsentException::insufficientPermissions('consent-1', ['permission-1']));
+
+        $service->acceptConsent('consent-1', $context);
     }
 
     public function testAcceptConsent(): void

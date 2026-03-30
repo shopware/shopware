@@ -78,7 +78,7 @@ describe('/core/consent/consent.store', () => {
                 latestRevision: '2026-02-02',
             };
 
-            expect(acceptSpy).toHaveBeenCalledWith('test_consent', null);
+            expect(acceptSpy).toHaveBeenCalledWith('test_consent');
             expect(store.consents.test_consent).toEqual(expectedUpdatedValue);
 
             expect(consentEventHandler).toHaveBeenCalledWith(
@@ -119,7 +119,7 @@ describe('/core/consent/consent.store', () => {
             expect(consentEventHandler).not.toHaveBeenCalled();
         });
 
-        it('re-accepts stale consent with the latest revision', async () => {
+        it('re-accepts stale consent without sending the cached revision', async () => {
             const service = Shopware.Service('consentApiService');
             const acceptSpy = jest.spyOn(service, 'accept');
             acceptSpy.mockResolvedValueOnce({
@@ -145,7 +145,7 @@ describe('/core/consent/consent.store', () => {
 
             await store.accept('test_consent');
 
-            expect(acceptSpy).toHaveBeenCalledWith('test_consent', '2026-02-02');
+            expect(acceptSpy).toHaveBeenCalledWith('test_consent');
             expect(store.consents.test_consent.acceptedRevision).toBe('2026-02-02');
         });
 

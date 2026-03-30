@@ -12,6 +12,7 @@ use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\DTO\ConsentState;
+use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 use Shopware\Core\System\Consent\Event\ConsentAcceptedEvent;
 use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
 use Symfony\Contracts\Service\ResetInterface;
@@ -108,9 +109,35 @@ class ConsentService implements ResetInterface
     public function acceptConsent(string $name, Context $context, ?string $revision = null): ConsentState
     {
         $consent = $this->getConsentDefinition($name);
+        $this->validatePermissions($context, $consent);
+
+        $stored = $this->findStoredStateRecord($consent, $context);
+
+        if ($stored !== null && $stored->status === ConsentStatus::ACCEPTED) {
+            if ($revision === null && $stored->revision === null) {
+                return $this->createConsentState($consent, $stored, null);
+            }
+        }
+
         $revision = $this->resolveAcceptedRevision($consent, $revision);
 
-        $updatedState = $this->updateState($name, ConsentStatus::ACCEPTED, $context, $revision);
+        if ($stored !== null && $stored->status === ConsentStatus::ACCEPTED && $stored->revision === $revision) {
+            return $this->createConsentState($consent, $stored, $revision);
+        }
+
+        $scope = $this->getScope($consent);
+
+        $this->consentRepository->updateConsentState(
+            $consent,
+            $scope->resolveIdentifier($context),
+            ConsentStatus::ACCEPTED,
+            $scope->resolveActorIdentifier($context),
+            $revision,
+        );
+
+        $this->invalidateState();
+
+        $updatedState = $this->getConsentState($name, $context);
 
         \assert(\is_string($updatedState->actor));
         $this->eventDispatcher->dispatch(new ConsentAcceptedEvent($updatedState->name, $updatedState->scopeName, $updatedState->identifier, $updatedState->actor, $updatedState->acceptedRevision));
@@ -120,6 +147,7 @@ class ConsentService implements ResetInterface
 
     public function revokeConsent(string $name, Context $context): ConsentState
     {
+        $this->validatePermissions($context, $this->getConsentDefinition($name));
         $updatedState = $this->updateState($name, ConsentStatus::REVOKED, $context);
 
         \assert(\is_string($updatedState->actor));
@@ -180,6 +208,33 @@ class ConsentService implements ResetInterface
         return $this->states = $states;
     }
 
+    private function findStoredStateRecord(ConsentDefinition $consent, Context $context): ?ConsentStateRecord
+    {
+        $identifier = $this->getScope($consent)->resolveIdentifier($context);
+
+        foreach ($this->consentRepository->fetchAllConsentStates() as $record) {
+            if ($record->name === $consent->getName() && $record->identifier === $identifier) {
+                return $record;
+            }
+        }
+
+        return null;
+    }
+
+    private function createConsentState(ConsentDefinition $consent, ConsentStateRecord $record, ?string $latestRevision): ConsentState
+    {
+        return new ConsentState(
+            name: $consent->getName(),
+            scopeName: $consent->getScopeName(),
+            identifier: $record->identifier,
+            status: $record->status,
+            actor: $record->actor,
+            updatedAt: $record->updatedAt,
+            acceptedRevision: $record->revision,
+            latestRevision: $latestRevision,
+        );
+    }
+
     private function key(ConsentState|ConsentDefinition $consent, Context $context): string
     {
         if ($consent instanceof ConsentDefinition) {
@@ -210,8 +265,6 @@ class ConsentService implements ResetInterface
     {
         $consent = $this->getConsentDefinition($name);
         $revision = $status === ConsentStatus::ACCEPTED ? $revision : null;
-
-        $this->validatePermissions($context, $consent);
 
         $key = $this->key($consent, $context);
 

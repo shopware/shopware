@@ -65,10 +65,7 @@ export default Shopware.Store.register('consent', {
                 return;
             }
 
-            const { data: updatedConsent } = await Shopware.Service('consentApiService').accept(
-                name,
-                this.consents[name].latestRevision,
-            );
+            const { data: updatedConsent } = await Shopware.Service('consentApiService').accept(name);
 
             this.consents[name] = updatedConsent;
 

@@ -8,17 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoaderResult;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypesResolvedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\DependencyInjection\ServiceLocator;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -26,12 +21,12 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ContentSystemDataLoaderTypeResolver::class)]
 class ContentSystemDataLoaderTypeResolverTest extends TestCase
 {
-    #[TestDox('preserves all descriptor fields when no loader is registered')]
-    public function testPreservesDescriptorFieldsWithNoRegisteredLoader(): void
+    #[TestDox('preserves all descriptor fields when no subscriber is registered')]
+    public function testPreservesDescriptorFieldsWithNoRegisteredSubscriber(): void
     {
         $resolver = new ContentSystemDataLoaderTypeResolver(
-            new ServiceLocator([]),
             ['product_review' => [['className' => EntitySearchResult::class, 'genericParameters' => [ProductReviewCollection::class]]]],
+            new EventDispatcher(),
         );
 
         $map = $resolver->resolve();
@@ -41,15 +36,20 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
         static::assertSame([ProductReviewCollection::class], $map->sourceToTypes['product_review'][0]->genericParameters);
     }
 
-    #[TestDox('uses loader-provided types instead of compiled entries')]
-    public function testOverriddenTypesReplaceCompiledEntries(): void
+    #[TestDox('uses subscriber-provided types instead of compiled entries')]
+    public function testSubscriberReplacesCompiledEntries(): void
     {
-        $loader = new ReplacingStubLoader();
-        $locator = new ServiceLocator(['entity' => static fn () => $loader]);
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            ContentSystemDataLoaderTypesResolvedEvent::class . '.entity',
+            static function (ContentSystemDataLoaderTypesResolvedEvent $event): void {
+                $event->types = [new ContentSystemDataLoaderTypeDescriptor(ProductEntity::class)];
+            },
+        );
 
         $resolver = new ContentSystemDataLoaderTypeResolver(
-            $locator,
             ['entity' => [['className' => Entity::class, 'genericParameters' => []]]],
+            $dispatcher,
         );
 
         $map = $resolver->resolve();
@@ -58,15 +58,20 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
         static::assertSame(ProductEntity::class, $map->sourceToTypes['entity'][0]->className);
     }
 
-    #[TestDox('keeps compiled entries when override is a no-op')]
-    public function testKeepsCompiledEntriesWhenOverrideIsNoOp(): void
+    #[TestDox('keeps compiled entries when no subscriber modifies types')]
+    public function testKeepsCompiledEntriesWhenSubscriberIsNoOp(): void
     {
-        $loader = new NoOpStubLoader();
-        $locator = new ServiceLocator(['navigation' => static fn () => $loader]);
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            ContentSystemDataLoaderTypesResolvedEvent::class . '.navigation',
+            static function (ContentSystemDataLoaderTypesResolvedEvent $event): void {
+                // no-op: subscriber receives event but does not modify types
+            },
+        );
 
         $resolver = new ContentSystemDataLoaderTypeResolver(
-            $locator,
             ['navigation' => [['className' => Tree::class, 'genericParameters' => []]]],
+            $dispatcher,
         );
 
         $map = $resolver->resolve();
@@ -75,16 +80,21 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
         static::assertSame(Tree::class, $map->sourceToTypes['navigation'][0]->className);
     }
 
-    #[TestDox('resolves multiple sources with mixed loader presence')]
-    public function testResolvesMultipleSourcesWithMixedLoaderPresence(): void
+    #[TestDox('resolves multiple sources with mixed subscriber presence')]
+    public function testResolvesMultipleSourcesWithMixedSubscriberPresence(): void
     {
-        $loader = new ReplacingStubLoader();
-        $locator = new ServiceLocator(['entity' => static fn () => $loader]);
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            ContentSystemDataLoaderTypesResolvedEvent::class . '.entity',
+            static function (ContentSystemDataLoaderTypesResolvedEvent $event): void {
+                $event->types = [new ContentSystemDataLoaderTypeDescriptor(ProductEntity::class)];
+            },
+        );
 
-        $resolver = new ContentSystemDataLoaderTypeResolver($locator, [
+        $resolver = new ContentSystemDataLoaderTypeResolver([
             'entity' => [['className' => Entity::class, 'genericParameters' => []]],
             'navigation' => [['className' => Tree::class, 'genericParameters' => []]],
-        ]);
+        ], $dispatcher);
 
         $map = $resolver->resolve();
 
@@ -93,82 +103,23 @@ class ContentSystemDataLoaderTypeResolverTest extends TestCase
         static::assertSame(Tree::class, $map->sourceToTypes['navigation'][0]->className);
     }
 
-    #[TestDox('accepts empty type list when loader removes all types')]
-    public function testAcceptsEmptyTypeListWhenLoaderRemovesAllTypes(): void
+    #[TestDox('accepts empty type list when subscriber removes all types')]
+    public function testAcceptsEmptyTypeListWhenSubscriberRemovesAllTypes(): void
     {
-        $loader = new EmptyOverrideStubLoader();
-        $locator = new ServiceLocator(['entity' => static fn () => $loader]);
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            ContentSystemDataLoaderTypesResolvedEvent::class . '.entity',
+            static function (ContentSystemDataLoaderTypesResolvedEvent $event): void {
+                $event->types = [];
+            },
+        );
 
-        $resolver = new ContentSystemDataLoaderTypeResolver($locator, [
+        $resolver = new ContentSystemDataLoaderTypeResolver([
             'entity' => [['className' => Entity::class, 'genericParameters' => []]],
-        ]);
+        ], $dispatcher);
 
         $map = $resolver->resolve();
 
         static::assertSame([], $map->sourceToTypes['entity']);
-    }
-}
-
-/**
- * @internal
- *
- * @extends AbstractContentDataLoader<ProductEntity>
- */
-class ReplacingStubLoader extends AbstractContentDataLoader
-{
-    public static function getRequirementType(): string
-    {
-        return 'entity';
-    }
-
-    public function overrideProvidedTypes(array $compiledTypes): array
-    {
-        return [new ContentSystemDataLoaderTypeDescriptor(ProductEntity::class)];
-    }
-
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
-    {
-        return ContentDataLoaderResult::notFound();
-    }
-}
-
-/**
- * @internal
- *
- * @extends AbstractContentDataLoader<Tree>
- */
-class NoOpStubLoader extends AbstractContentDataLoader
-{
-    public static function getRequirementType(): string
-    {
-        return 'navigation';
-    }
-
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
-    {
-        return ContentDataLoaderResult::notFound();
-    }
-}
-
-/**
- * @internal
- *
- * @extends AbstractContentDataLoader<Entity>
- */
-class EmptyOverrideStubLoader extends AbstractContentDataLoader
-{
-    public static function getRequirementType(): string
-    {
-        return 'entity';
-    }
-
-    public function overrideProvidedTypes(array $compiledTypes): array
-    {
-        return [];
-    }
-
-    public function load(ContentElement $element, DataRequirement $requirement, SalesChannelContext $context, Request $request): ContentDataLoaderResult
-    {
-        return ContentDataLoaderResult::notFound();
     }
 }

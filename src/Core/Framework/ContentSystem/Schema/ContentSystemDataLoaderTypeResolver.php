@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Schema;
 
-use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemDataLoaderTypeDescriptor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
-use Symfony\Component\DependencyInjection\ServiceLocator;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -17,12 +16,11 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 class ContentSystemDataLoaderTypeResolver extends AbstractContentSystemDataLoaderTypeResolver
 {
     /**
-     * @param ServiceLocator<AbstractContentDataLoader<Struct>> $loaders
      * @param array<string, list<array{className: class-string<Struct>, genericParameters: list<class-string<Struct>>}>> $compiledSourceToTypes
      */
     public function __construct(
-        private readonly ServiceLocator $loaders,
         private readonly array $compiledSourceToTypes,
+        private readonly EventDispatcherInterface $dispatcher,
     ) {
     }
 
@@ -39,11 +37,10 @@ class ContentSystemDataLoaderTypeResolver extends AbstractContentSystemDataLoade
                 );
             }
 
-            if ($this->loaders->has($source)) {
-                $types = $this->loaders->get($source)->overrideProvidedTypes($types);
-            }
+            $event = new ContentSystemDataLoaderTypesResolvedEvent($source, $types);
+            $this->dispatcher->dispatch($event, ContentSystemDataLoaderTypesResolvedEvent::class . '.' . $source);
 
-            $sourceToTypes[$source] = $types;
+            $sourceToTypes[$source] = $event->types;
         }
 
         return new ContentSystemDataLoaderTypeMap($sourceToTypes);

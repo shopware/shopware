@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentDataLoader
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypesResolvedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -33,14 +34,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(EntityLoader::class)]
 class EntityLoaderTest extends TestCase
 {
-    #[TestDox('returns entity as requirement type identifier')]
-    public function testGetRequirementTypeReturnsEntityString(): void
-    {
-        static::assertSame('entity', EntityLoader::getRequirementType());
-    }
-
-    #[TestDox('overrides provided types with all registered entity classes')]
-    public function testOverrideProvidedTypesReturnsAllEntities(): void
+    #[TestDox('populates event types with all registered entity classes')]
+    public function testOnTypesResolvedPopulatesAllEntities(): void
     {
         $productDef = static::createStub(EntityDefinition::class);
         $productDef->method('getEntityClass')->willReturn(ProductEntity::class);
@@ -54,14 +49,15 @@ class EntityLoaderTest extends TestCase
             static::createStub(EntityCacheTagResolver::class),
         );
 
-        $types = $loader->overrideProvidedTypes([]);
+        $event = new ContentSystemDataLoaderTypesResolvedEvent('entity', []);
+        $loader->onTypesResolved($event);
 
-        static::assertCount(1, $types);
-        static::assertSame(ProductEntity::class, $types[0]->className);
+        static::assertCount(1, $event->types);
+        static::assertSame(ProductEntity::class, $event->types[0]->className);
     }
 
-    #[TestDox('excludes ArrayEntity from overridden types')]
-    public function testOverrideProvidedTypesExcludesArrayEntity(): void
+    #[TestDox('excludes ArrayEntity from resolved event types')]
+    public function testOnTypesResolvedExcludesArrayEntity(): void
     {
         $arrayDef = static::createStub(EntityDefinition::class);
         $arrayDef->method('getEntityClass')->willReturn(ArrayEntity::class);
@@ -75,9 +71,10 @@ class EntityLoaderTest extends TestCase
             static::createStub(EntityCacheTagResolver::class),
         );
 
-        $types = $loader->overrideProvidedTypes([]);
+        $event = new ContentSystemDataLoaderTypesResolvedEvent('entity', []);
+        $loader->onTypesResolved($event);
 
-        static::assertSame([], $types);
+        static::assertSame([], $event->types);
     }
 
     #[TestDox('returns cached result with cache tag when entity is loaded via sales channel repository')]

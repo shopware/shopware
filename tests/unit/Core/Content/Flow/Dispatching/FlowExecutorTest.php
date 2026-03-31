@@ -100,13 +100,6 @@ class FlowExecutorTest extends TestCase
         ]);
     }
 
-    /**
-     * @param array<int, mixed> $actionSequencesExecuted
-     * @param array<int, mixed> $actionSequencesTrueCase
-     * @param array<int, mixed> $actionSequencesFalseCase
-     *
-     * @throws ExecuteSequenceException
-     */
     public function testExecuteFlowsSingleActionExecuted(): void
     {
         $actionSequences = [];

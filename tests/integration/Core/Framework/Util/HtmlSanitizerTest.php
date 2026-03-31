@@ -174,6 +174,26 @@ class HtmlSanitizerTest extends TestCase
         static::assertSame('<a target="_blank" href="#" rel="noreferrer noopener">Test</a>', $filteredString);
     }
 
+    public function testRestrictedImgSetStripsStyle(): void
+    {
+        $input = '<img src="smiley.gif" alt="Smiley face" style="border:4px solid #1b6b6f;padding:15px;" />';
+
+        // Using a separate set (not overriding "basic") should strip style
+        $filteredString = $this->sanitizer->sanitize($input, [], false, 'test.restricted_img');
+
+        static::assertSame('<img src="smiley.gif" alt="Smiley face" />', $filteredString);
+    }
+
+    public function testDefaultBasicSetKeepsStyle(): void
+    {
+        $input = '<img src="smiley.gif" alt="Smiley face" style="border:4px solid #1b6b6f;padding:15px;" />';
+
+        // Default basic set includes "style" in allowed attributes
+        $filteredString = $this->sanitizer->sanitize($input);
+
+        static::assertStringContainsString('style=', $filteredString);
+    }
+
     public function testHtml5Tags(): void
     {
         $filteredString = $this->sanitizer->sanitize('<article><p>Test</p></article><aside><p>Test</p></aside><audio src="audio.mp3" controls="true"><code>audio</code></audio><bdi>Test</bdi><canvas width="200" height="100">Test</canvas><datalist></datalist><details><summary>Test</summary></details><dialog open="true"><p>Test</p></dialog><embed src="video.mp4" type="video/mp4"><figcaption>Test</figcaption><figure><img src="image.jpg" alt="Image"></figure><meter value="0.6" min="0" max="1">60%</meter><nav><ul><li><a href="#">Home</a></li></ul></nav><progress value="50" max="100">50%</progress><rp>(</rp><rt>RubyText</rt><rp>)</rp><ruby>漢<rt>かん</rt>字<rt>じ</rt></ruby><section><p>Test</p></section><summary>Test</summary><time datetime="2022-01-01">Test</time><wbr><output for="range">Test</output><input type="range" min="0" max="100"><canvas width="200" height="100">Test</canvas><svg width="100" height="100"></svg><track src="captions.vtt" kind="captions" srclang="en" label="English" default="true"><video src="video.mp4" controls="false"><code>video</code><source src="video.mp4" type="video/mp4"></video>', null, false, 'snippet.value');

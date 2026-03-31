@@ -40,6 +40,9 @@ shopware:
               options:
                   - key: HTML.Trusted
                     value: true
+            - name: restricted_img
+              tags: ["img"]
+              attributes: ["src", "alt"]
         fields:
             - name: test.media
               sets: ["basic", "media"]
@@ -47,6 +50,8 @@ shopware:
               sets: ["basic", "script"]
             - name: test.custom
               sets: ["basic", "custom"]
+            - name: test.restricted_img
+              sets: ["restricted_img"]
 
     feature:
         flags:

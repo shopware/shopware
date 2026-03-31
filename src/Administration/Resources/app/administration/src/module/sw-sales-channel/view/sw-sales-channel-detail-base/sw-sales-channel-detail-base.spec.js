@@ -1319,6 +1319,22 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.vm.unservedLanguageVariant).toBe('info');
     });
 
+    it('should not report unserved languages for product export channels', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                typeId: PRODUCT_COMPARISON_TYPE_ID,
+                languageId: 'language-1',
+                languages: [{ id: 'language-1', name: 'English' }],
+                domains: [],
+            },
+        });
+
+        expect(wrapper.vm.unservedLanguages).toEqual([]);
+        expect(wrapper.find('mt-banner-stub').exists()).toBe(false);
+    });
+
     it('should handle error if sales channel cannot be deleted due to foreign key constraint issues', async () => {
         const wrapper = await createWrapper();
 

@@ -64,7 +64,6 @@ class OpenAiProductExportValidator extends AbstractProviderValidator
             $this->validateNonEmptyString($productExportEntity, $errors, $row, 'title', $line);
             $this->validateNonEmptyString($productExportEntity, $errors, $row, 'description', $line);
             $this->validateNonEmptyString($productExportEntity, $errors, $row, 'brand', $line);
-            $this->validateNonEmptyString($productExportEntity, $errors, $row, 'group_id', $line);
             $this->validateNonEmptyString($productExportEntity, $errors, $row, 'seller_name', $line);
             $this->validateCountryCode($productExportEntity, $errors, $row, 'store_country', $line);
             $this->validateUrl($productExportEntity, $errors, $row, 'url', $line);
@@ -80,6 +79,11 @@ class OpenAiProductExportValidator extends AbstractProviderValidator
             $this->validateBoolean($productExportEntity, $errors, $row, 'is_eligible_search', $line);
             $this->validateBoolean($productExportEntity, $errors, $row, 'is_eligible_checkout', $line);
             $this->validateBoolean($productExportEntity, $errors, $row, 'listing_has_variations', $line);
+
+            if (($row['listing_has_variations'] ?? null) === true) {
+                $this->validateNonEmptyString($productExportEntity, $errors, $row, 'group_id', $line);
+            }
+
             $this->validateAvailability($productExportEntity, $errors, $row, $line);
             $this->validateTargetCountries($productExportEntity, $errors, $row, $line);
 

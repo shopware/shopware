@@ -93,6 +93,9 @@ export default {
             );
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed in v6.8.0
+         */
         showProductStateConditionWarning() {
             return Array.isArray(this.conditions) && this.hasConditionType(this.conditions, 'cartLineItemProductStates');
         },
@@ -127,6 +130,9 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed in v6.8.0
+         */
         hasConditionType(conditions, conditionType) {
             return conditions.some((condition) => {
                 if (condition.type === conditionType) {

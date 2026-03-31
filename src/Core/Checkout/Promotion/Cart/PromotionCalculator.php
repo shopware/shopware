@@ -403,21 +403,31 @@ class PromotionCalculator
      */
     private function enrichPackagesWithCartData(DiscountPackageCollection $result, array $splitItems): DiscountPackageCollection
     {
-        // set the line item from the cart for each unit
+        $validPackages = [];
+
         foreach ($result as $package) {
             $cartItems = $package->getCartItems()->getElements();
 
             foreach ($package->getMetaData() as $key => $item) {
-                if (!\array_key_exists($key, $cartItems)) {
-                    $cartItems[$key] = $splitItems[$item->getLineItemId()];
+                if (\array_key_exists($key, $cartItems)) {
+                    continue;
                 }
+
+                $lineItemId = $item->getLineItemId();
+
+                if (!\array_key_exists($lineItemId, $splitItems)) {
+                    continue 2;
+                }
+
+                $cartItems[$key] = $splitItems[$lineItemId];
             }
 
             // assign instead of add for performance reasons
             $package->getCartItems()->assign(['elements' => $cartItems]);
+            $validPackages[] = $package;
         }
 
-        return $result;
+        return new DiscountPackageCollection($validPackages);
     }
 
     private function isAutomaticDiscount(LineItem $discountItem): bool

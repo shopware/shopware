@@ -17,7 +17,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: [
         'usageDataService',
-        'feature',
     ],
 
     methods: {

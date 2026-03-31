@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Demodata;
 
 use Faker\Factory;
 use Faker\Generator;
-use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -79,7 +78,6 @@ class DemodataService
     {
         $faker = Factory::create('de-DE');
         $faker->addProvider(new Commerce($faker));
-        $faker->addProvider(new ImagesGeneratorProvider($faker));
 
         return $faker;
     }

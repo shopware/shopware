@@ -49,6 +49,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
     init() {
         this._slider = false;
         this._thumbnailSlider = false;
+        this._thumbnailObserver = null;
 
         if (!this.el.classList.contains(this.options.initializedCls)) {
             this.options.slider = SliderSettingsHelper.prepareBreakpointPxValues(this.options.slider);
@@ -63,6 +64,11 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
     }
 
     destroy() {
+        if (this._thumbnailObserver) {
+            this._thumbnailObserver.disconnect();
+            this._thumbnailObserver = null;
+        }
+
         if (this._slider && typeof this._slider.destroy === 'function') {
             try {
                 this._slider.destroy();
@@ -270,7 +276,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
             return;
         }
 
-        const observer = new IntersectionObserver((entries) => {
+        this._thumbnailObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 entry.target._js_thumbnail_is_intersecting = entry.isIntersecting;
             });
@@ -280,7 +286,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
             threshold: 1,
         });
 
-        [...thumbnailSlideInfo.slideItems].forEach(target => observer.observe(target));
+        [...thumbnailSlideInfo.slideItems].forEach(target => this._thumbnailObserver.observe(target));
 
         this._slider.events.on('indexChanged', () => {
             const currentIndex = this.getCurrentSliderIndex();

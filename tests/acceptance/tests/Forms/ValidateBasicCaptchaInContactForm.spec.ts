@@ -38,28 +38,24 @@ test(
             await ShopCustomer.expects(StorefrontContactForm.basicCaptchaRefreshButton).toBeVisible();
         });
 
-        await ShopCustomer.expects(async () => {
-            await test.step('Send and validate the unaccomplished contact form.', async () => {
+        await test.step('Send and validate the unaccomplished contact form.', async () => {
     
-                const formRoute = InstanceMeta.features['ACCESSIBILITY_TWEAKS'] ? '**/basic-captcha-validate' : '**/form/contact';
+            const formRoute = InstanceMeta.features['ACCESSIBILITY_TWEAKS'] ? '**/basic-captcha-validate' : '**/form/contact';
 
-                const formSubmitPromise = StorefrontContactForm.page.waitForResponse(formRoute);
-                await ShopCustomer.presses(StorefrontContactForm.submitButton);
-                await formSubmitPromise;
+            const formSubmitPromise = StorefrontContactForm.page.waitForResponse(formRoute);
+            await ShopCustomer.presses(StorefrontContactForm.submitButton);
+            await formSubmitPromise;
 
-                await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
+            await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveCSS('border-color', 'rgb(194, 0, 23)');
 
-                // eslint-disable-next-line playwright/no-conditional-in-test
-                if (!InstanceMeta.features['ACCESSIBILITY_TWEAKS'] && satisfies(InstanceMeta.version, '<6.7')) {
-                    await ShopCustomer.expects(StorefrontContactForm.formAlert.last()).toBeVisible();
-                    await ShopCustomer.expects(StorefrontContactForm.formAlert.last()).toContainText('Incorrect input. Please try again.');
-                }
-                else {
-                    await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveAccessibleDescription('Incorrect input. Please try again.');
-                } 
-            });
-        }).toPass({
-            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+            // eslint-disable-next-line playwright/no-conditional-in-test
+            if (!InstanceMeta.features['ACCESSIBILITY_TWEAKS'] && satisfies(InstanceMeta.version, '<6.7')) {
+                await ShopCustomer.expects(StorefrontContactForm.formAlert.last()).toBeVisible();
+                await ShopCustomer.expects(StorefrontContactForm.formAlert.last()).toContainText('Incorrect input. Please try again.');
+            }
+            else {
+                await ShopCustomer.expects(StorefrontContactForm.basicCaptchaInput).toHaveAccessibleDescription('Incorrect input. Please try again.');
+            }
         });
     }
 );

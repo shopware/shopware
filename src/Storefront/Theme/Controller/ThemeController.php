@@ -121,8 +121,12 @@ class ThemeController extends AbstractController
      * @return JsonResponse Returns an empty JSON response on successful assignment
      */
     #[Route(path: '/api/_action/theme/{themeId}/assign/{salesChannelId}', name: 'api.action.theme.assign', methods: ['POST'])]
-    public function assignTheme(string $themeId, string $salesChannelId, Context $context): JsonResponse
+    public function assignTheme(string $themeId, string $salesChannelId, Context $context, Request $request): JsonResponse
     {
+        if ($request->query->getBoolean('no-queue')) {
+            $context->addState(ThemeService::STATE_NO_QUEUE);
+        }
+
         $this->themeService->assignTheme($themeId, $salesChannelId, $context);
 
         return new JsonResponse([]);

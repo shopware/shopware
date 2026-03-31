@@ -9,9 +9,7 @@ test('Customer should see unavailable filter disabled based on selected filter',
     StorefrontHome,
     SelectProductFilterOption,
     CheckVisibilityInHome,
-    InstanceMeta,
 }) => {
-    test.slow(InstanceMeta.isSaaS);
     await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
     const color = await TestDataService.createColorPropertyGroup(
         {
@@ -35,38 +33,55 @@ test('Customer should see unavailable filter disabled based on selected filter',
     const propertyGroupsText: PropertyGroup[] = [size];
     const sizeOptions = await TestDataService.getPropertyGroupOptions(size.id);
     let colorManufacturer: Manufacturer;
-    let parentProductColor: Product;
     let variantProductColor: Product[];
     let sizeManufacturer: Manufacturer;
-    let parentProductSize: Product;
     let variantProductSize: Product[];
     let freeShipProduct: Product;
     let basicProduct: Product;
 
     await test.step('Create manufacturer and products then verify products created', async () => {
-        sizeManufacturer = await TestDataService.createBasicManufacturer({
+        const setupPromises: Promise<void>[] = [];
+
+        setupPromises.push(TestDataService.createBasicManufacturer({
             name: 'Size Manufacturer',
             description: 'Size Description Manufacturer',
-        });
-        colorManufacturer = await TestDataService.createBasicManufacturer({
+        }).then(manufacturer => {
+            sizeManufacturer = manufacturer;
+
+            return TestDataService.createBasicProduct({ manufacturerId: manufacturer.id });
+        }).then(parentProduct => {
+            return TestDataService.createVariantProducts(parentProduct, propertyGroupsText, {
+                description: 'Variant description',
+            });
+        }).then(variantProduct => {variantProductSize = variantProduct;}));
+
+        setupPromises.push(TestDataService.createBasicManufacturer({
             name: 'Color Manufacturer',
             description: 'Color Description Manufacturer',
-        });
-        parentProductColor = await TestDataService.createBasicProduct({ manufacturerId: colorManufacturer.id });
-        parentProductSize = await TestDataService.createBasicProduct({ manufacturerId: sizeManufacturer.id });
-        const freeShipManufacturer = await TestDataService.createBasicManufacturer({
+        }).then(manufacturer => {
+            colorManufacturer = manufacturer;
+
+            return TestDataService.createBasicProduct({ manufacturerId: manufacturer.id })
+        }).then(parentProduct => {
+            return TestDataService.createVariantProducts(parentProduct, propertyGroupsColor, {
+                description: 'Variant description',
+            });
+         }).then(variantProduct => {variantProductColor = variantProduct;}));
+
+        setupPromises.push(TestDataService.createBasicManufacturer({
             name: 'Free-shipping Manufacturer',
             description: 'Free ship Description Manufacturer',
-        });
+        }).then(manufacturer => {
+            return TestDataService.createBasicProduct({ shippingFree: true, manufacturerId: manufacturer.id });
+        }).then(product => {freeShipProduct = product}));
 
-        freeShipProduct = await TestDataService.createBasicProduct({ shippingFree: true, manufacturerId: freeShipManufacturer.id });
-        basicProduct = await TestDataService.createBasicProduct({ name: 'Product without filters' });
-        variantProductColor = await TestDataService.createVariantProducts(parentProductColor, propertyGroupsColor, {
-            description: 'Variant description',
-        });
-        variantProductSize = await TestDataService.createVariantProducts(parentProductSize, propertyGroupsText, {
-            description: 'Variant description',
-        });
+        setupPromises.push(TestDataService.createBasicProduct({ name: 'Product without filters' })
+        .then(product => {basicProduct = product}));
+
+        // await all setup promises to complete before proceeding, this allows the product creation to happen in parallel which should speed up the setup significantly
+        await Promise.all(setupPromises);
+
+        await TestDataService.clearCaches();
 
         await CheckVisibilityInHome(variantProductSize.at(0).name)();
         await CheckVisibilityInHome(variantProductColor.at(0).name)();
@@ -75,23 +90,17 @@ test('Customer should see unavailable filter disabled based on selected filter',
     });
 
     await test.step('Verify setup filters display & enabled', async () => {
-
-        await ShopCustomer.expects(async () => {
-            await TestDataService.clearCaches();
-            await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
-            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
-            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
-            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();
-            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled();
-            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeVisible();
-            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled();
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeVisible();
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled();
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeVisible();
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled();
-        }).toPass({
-            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
-        });
+        await ShopCustomer.goesTo(StorefrontHome.url());
+        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
+        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
+        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();
+        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled();
+        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeVisible();
+        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled();
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeVisible();
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled();
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeVisible();
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled();
     });
 
     await test.step('Select a manufacturer and verify that unavailable filter is disabled and products are filtered', async () => {
@@ -103,14 +112,10 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(1);
         await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductColor.at(0).name })).toHaveCount(1);
 
-        await ShopCustomer.expects(async () => {
-            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeDisabled({ timeout: TIMEOUT });
-        }).toPass({
-            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
-        });
+        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeDisabled({ timeout: TIMEOUT });
     });
 
     await test.step('Reset all filters and verify that all filters are enabled', async () => {
@@ -119,17 +124,12 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.presses(StorefrontHome.resetAllButton);
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
-        await ShopCustomer.expects(async () => {
-            await TestDataService.clearCaches();
-            await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
-        }).toPass({
-            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
-        });
+        await ShopCustomer.goesTo(StorefrontHome.url());
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
 
         await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductSize.at(0).name })).toHaveCount(1);
         await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductColor.at(0).name })).toHaveCount(1);
@@ -143,14 +143,10 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(1);
         await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductSize.at(0).name })).toHaveCount(1);
 
-        await ShopCustomer.expects(async () => {
-            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled({ timeout: TIMEOUT });
-        }).toPass({
-            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
-        });
+        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled({ timeout: TIMEOUT });
     });
 
     await test.step('Filter only by size and verify color and freeshipping filters are disabled', async () => {
@@ -160,50 +156,37 @@ test('Customer should see unavailable filter disabled based on selected filter',
         await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(1);
         await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: variantProductSize.at(0).name })).toHaveCount(1);
 
-        await ShopCustomer.expects(async () => {
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
-        }).toPass({
-            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
-        });
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
 
         await ShopCustomer.presses(sizeFilter);
         await ShopCustomer.expects(StorefrontHome.resetAllButton).toBeVisible();
         await ShopCustomer.presses(StorefrontHome.resetAllButton);
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
-        await ShopCustomer.expects(async () => {
-            await TestDataService.clearCaches();
-            await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
-            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
-            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
-            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();
-            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled();
-            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeVisible();
-            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled();
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeVisible();
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled();
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeVisible();
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled();
-        }).toPass({
-            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
-        });
+        await ShopCustomer.goesTo(StorefrontHome.url());
+        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible();
+        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled();
+        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible();
+        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled();
+        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeVisible();
+        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled();
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeVisible();
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled();
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeVisible();
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeEnabled();
     });
 
     await test.step('Select filter by free shipping, verify that all filters are disabled', async () => {
         await ShopCustomer.presses(StorefrontHome.freeShippingFilter);
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
-        await ShopCustomer.expects(async () => {
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeDisabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
-        }).toPass({
-            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
-        });
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(size.name)).toBeDisabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
     });
 });
 
@@ -212,31 +195,67 @@ test('Customer should see unavailable filter options disabled when filtering by 
     TestDataService,
     StorefrontHome,
     CheckVisibilityInHome,
-    InstanceMeta,
 }) => {
-    test.slow(InstanceMeta.isSaaS);
-    await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
-    const color = await TestDataService.createColorPropertyGroup();
-    const propertyGroupsColor: PropertyGroup[] = [color];
-    const colorManufacturer = await TestDataService.createBasicManufacturer({
-        name: 'Color Manufacturer',
-        description: 'Color Description Manufacturer',
-    });
-    const parentProductColor = await TestDataService.createBasicProduct({ manufacturerId: colorManufacturer.id, variantListingConfig: { displayParent: true } });
-    await TestDataService.createVariantProducts(parentProductColor, propertyGroupsColor, {
-        description: 'Variant description',
-    });
-    const freeShipManufacturer = await TestDataService.createBasicManufacturer({
+    const setupPromises: Promise<unknown>[] = [];
+
+    setupPromises.push(TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true }));
+
+    let color: PropertyGroup;
+    let propertyGroupsColor: PropertyGroup[];
+    let parentProductColor: Product;
+    let productWithShippingAndManufacturer: Product;
+    let productWithRating1: Product;
+    let productWithRating2: Product;
+    let productWithoutFilter: Product;
+
+    setupPromises.push(TestDataService.createColorPropertyGroup()
+        .then(createdColor => {
+            color = createdColor;
+            propertyGroupsColor = [color];
+                return TestDataService.createBasicManufacturer({
+                    name: 'Color Manufacturer',
+                    description: 'Color Description Manufacturer',
+                });
+        }).then(manufacturer => {
+            return TestDataService.createBasicProduct({ manufacturerId: manufacturer.id, variantListingConfig: { displayParent: true } });
+        }).then(parentProduct => {
+            parentProductColor = parentProduct;
+
+            return TestDataService.createVariantProducts(parentProductColor, propertyGroupsColor, {
+                description: 'Variant description',
+            });
+        }));
+
+    setupPromises.push(TestDataService.createBasicManufacturer({
         name: 'Free-shipping Manufacturer',
         description: 'Free ship Description Manufacturer',
-    });
-    const productWithShippingAndManufacturer = await TestDataService.createBasicProduct({ shippingFree: true, manufacturerId: freeShipManufacturer.id });
-    const productWithRating1 = await TestDataService.createBasicProduct();
-    const productWithRating2 = await TestDataService.createBasicProduct();
-    const productWithoutFilter = await TestDataService.createBasicProduct({ name: 'Product without filters' });
+        }).then(manufacturer => {
+            return TestDataService.createBasicProduct({ shippingFree: true, manufacturerId: manufacturer.id });
+        }).then(product => {productWithShippingAndManufacturer = product}));
 
-    await TestDataService.createProductReview(productWithRating1.id, { points: 3 });
-    await TestDataService.createProductReview(productWithRating2.id, { points: 5 });
+    setupPromises.push(TestDataService.createBasicProduct()
+        .then(product => {
+            productWithRating1 = product;
+
+            return TestDataService.createProductReview(product.id, { points: 3 });
+        }));
+
+    setupPromises.push(TestDataService.createBasicProduct()
+        .then(product => {
+            productWithRating2 = product;
+
+            return TestDataService.createProductReview(product.id, { points: 5 });
+        }));
+
+    setupPromises.push(TestDataService.createBasicProduct({ name: 'Product without filters' })
+        .then(product => {productWithoutFilter = product}));
+
+
+    // await all setup promises to complete before proceeding, this allows the product creation to happen in parallel which should speed up the setup significantly
+    await Promise.all(setupPromises);
+
+    await TestDataService.clearCaches();
+
     const products = [productWithRating1, productWithRating2];
 
     await CheckVisibilityInHome(productWithRating2.name)();
@@ -246,23 +265,17 @@ test('Customer should see unavailable filter options disabled when filtering by 
     await CheckVisibilityInHome(parentProductColor.name)();
 
     await test.step('Verify setup filters display', async () => {
-
-        await ShopCustomer.expects(async () => {
-            await TestDataService.clearCaches();
-            await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
-            await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeVisible({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeEnabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeVisible({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeVisible({ timeout: TIMEOUT });
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled({ timeout: TIMEOUT });
-        }).toPass({
-            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
-        });
+        await ShopCustomer.goesTo(StorefrontHome.url());
+        await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeVisible({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.productRatingButton).toBeEnabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeVisible({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeEnabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeVisible({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeEnabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeVisible({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeVisible({ timeout: TIMEOUT });
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeEnabled({ timeout: TIMEOUT });
     });
 
     await test.step('When a rating is selected, verifies that any unavailable filter is disabled and that the products are filtered accordingly.', async () => {
@@ -275,17 +288,12 @@ test('Customer should see unavailable filter options disabled when filtering by 
         await ratingLocator.click();
         await ShopCustomer.expects(StorefrontHome.loader).not.toBeAttached();
 
-        await ShopCustomer.expects(async () => {
-            await TestDataService.clearCaches();
-            await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeDisabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled({ timeout: TIMEOUT });
-            await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(products.length);
-            await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: productWithRating1.name })).toHaveCount(1);
-            await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: productWithRating2.name })).toHaveCount(1);
-        }).toPass({
-            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
-        });
+        await ShopCustomer.expects(StorefrontHome.freeShippingFilter).toBeDisabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.priceFilterButton).toBeEnabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.manufacturerFilter).toBeDisabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(await StorefrontHome.getFilterButtonByFilterName(color.name)).toBeDisabled({ timeout: TIMEOUT });
+        await ShopCustomer.expects(StorefrontHome.productItemNames).toHaveCount(products.length);
+        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: productWithRating1.name })).toHaveCount(1);
+        await ShopCustomer.expects(StorefrontHome.productItemNames.filter({ hasText: productWithRating2.name })).toHaveCount(1);
     });
 });

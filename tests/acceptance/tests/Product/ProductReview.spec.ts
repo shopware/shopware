@@ -180,14 +180,16 @@ test('As a shop customer, I want to filter reviews by rating, log in and come ba
     LoginViaReviewsTab,
           }) => {
 
-    const customer = await TestDataService.createCustomer();
     const product = await TestDataService.createBasicProduct();
 
-    await TestDataService.createProductReview(product.id, { points: 5 });
-    await TestDataService.createProductReview(product.id, { points: 5 });
-    await TestDataService.createProductReview(product.id, { points: 3 });
-    await TestDataService.createProductReview(product.id, { points: 2 });
-    await TestDataService.createProductReview(product.id, { points: 1 });
+    const [customer] = await Promise.all([
+        TestDataService.createCustomer(),
+        TestDataService.createProductReview(product.id, { points: 5 }),
+        TestDataService.createProductReview(product.id, { points: 5 }),
+        TestDataService.createProductReview(product.id, { points: 3 }),
+        TestDataService.createProductReview(product.id, { points: 2 }),
+        TestDataService.createProductReview(product.id, { points: 1 }),
+    ]);
 
     await test.step('Navigate to review tab within product detail page.', async () => {
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));

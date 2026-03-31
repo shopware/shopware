@@ -25,14 +25,10 @@ test(
         const addToCartButton = productListing.filter({ has: StorefrontHome.page.getByRole('button') });
         const languageDropdown = StorefrontHome.page.locator('#languagesDropdown-top-bar');
 
-        await ShopCustomer.expects(async () => {
-            await test.step('Customer can view languages menu', async () => {
-                await ShopCustomer.goesTo(germanDomainUrl);
-                await ShopCustomer.expects(languageDropdown).toContainText('Deutsch');
-                await ShopCustomer.expects(addToCartButton).toContainText('In den Warenkorb');
-            });
-        }).toPass({
-            intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+        await test.step('Customer can view languages menu', async () => {
+            await ShopCustomer.goesTo(germanDomainUrl);
+            await ShopCustomer.expects(languageDropdown).toContainText('Deutsch');
+            await ShopCustomer.expects(addToCartButton).toContainText('In den Warenkorb');
         });
 
         await test.step('Customer can select a different language', async () => {

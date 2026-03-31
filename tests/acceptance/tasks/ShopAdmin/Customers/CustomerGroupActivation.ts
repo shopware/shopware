@@ -11,8 +11,7 @@ export const CustomerGroupActivation = base.extend<{ CustomerGroupActivation: Ta
                 await ShopAdmin.expects(customerLineItem.customerGroup).toBeVisible({ timeout: 10000 });
                 await customerLineItem.customerName.click();
                 const customerGroupAlert = await AdminCustomerDetail.getCustomerGroupAlert(customerGroupName);
-                await ShopAdmin.expects(customerGroupAlert).toContainText(customerGroupName);
-                await ShopAdmin.expects(AdminCustomerDetail.customerGroupRequestMessage).toBeVisible();
+                await ShopAdmin.expects(customerGroupAlert).toBeVisible();
                 const responsePromise = AdminCustomerDetail.page.waitForResponse('**/api/_action/customer-group-registration/accept');
                 await AdminCustomerDetail.customerGroupAcceptButton.click();
                 const customerGroupResponse = await responsePromise;

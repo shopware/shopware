@@ -83,5 +83,14 @@ test('As an admin user, I want to create a rule', { tag: '@Rule' }, async ({
 
         await ShopAdmin.expects(AdminRuleDetail.conditionSelectField.getByText('Order created by administrator (flow)')).toBeVisible();
         await ShopAdmin.expects(AdminRuleDetail.conditionOrderCreatedByAdminValue).toHaveValue('No');
+
+        await AdminRuleDetail.saveButton.click();
+
+        // Wait until product is saved via API
+        const response = await AdminRuleDetail.page.waitForResponse(`${process.env["ADMIN_API_URL"] || process.env["APP_URL"]}api/_action/sync`);
+        ShopAdmin.expects(response.ok()).toBeTruthy();
+
+        // wait for loading spinner to disappear
+        await ShopAdmin.expects(AdminRuleDetail.saveButton).toBeVisible();
     });
 });

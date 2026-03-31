@@ -1,4 +1,5 @@
 import { test, PropertyGroup, getCurrencyCodeFromLocale, formatPrice } from '@fixtures/AcceptanceTest';
+import {Currency, Product} from "@shopware-ag/acceptance-test-suite";
 
 test(
     'As a customer, I should see the correct listing price and normal price for variant products with differing prices.',
@@ -11,13 +12,10 @@ test(
         StorefrontHome,
         StorefrontProductDetail,
         SalesChannelBaseConfig,
-        InstanceMeta,
     }) => {
-        await test.skip(InstanceMeta.isSaaS, 'Skipping on SaaS instances due to instability in variant creation.');
-        // TODO: https://github.com/shopware/shopware/issues/14608
-
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
-        const prices = [
+
+        const prices: Currency[] = [
             {
                 currencyId: currency.id,
                 gross: 10,
@@ -34,24 +32,31 @@ test(
                     net: 50,
                 },
             },
-            {
+        ];
+
+        // if the currency we check in storefront is not the default currency we need to add dummy price for default currency as well
+        // eslint-disable-next-line playwright/no-conditional-in-test
+        if (currency.id !== SalesChannelBaseConfig.defaultCurrencyId) {
+            prices.push({
                 currencyId: SalesChannelBaseConfig.defaultCurrencyId,
                 gross: 10,
                 linked: false,
                 net: 8.4,
-            },
-        ];
+            });
+        }
 
         const parentProduct = await TestDataService.createBasicProduct({
             price: prices,
             variantListingConfig: { displayParent: true },
         });
         const propertyGroupColor = await TestDataService.createColorPropertyGroup();
-        const propertyGroups: PropertyGroup[] = [];
-        propertyGroups.push(propertyGroupColor);
+        const propertyGroups: PropertyGroup[] = [propertyGroupColor];
         const variantProducts = await TestDataService.createVariantProducts(parentProduct, propertyGroups, {
             price: prices,
         });
+
+        await TestDataService.clearCaches();
+
         const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
         await test.step('Validating listing price is available on product listing page for base variant product.', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());

@@ -13,6 +13,10 @@ test('Merchant is able to be guided through the First Run Wizard.', { tag: '@Fir
 }) => {
     test.skip(await isSaaSInstance(AdminApiContext),'Skipping test for the first run wizard, because it is disabled on SaaS instances.');
 
+    // Reloading the whole application after finishing the FRW takes some time, especially on CI.
+    // To prevent the test from being marked as failed due to timeout, we set a higher timeout for this test.
+    test.setTimeout(150_000);
+
     await ShopAdmin.goesTo(AdminFirstRunWizard.url());
 
     await ShopAdmin.expects(AdminFirstRunWizard.welcomeText).toBeVisible();
@@ -82,4 +86,10 @@ test('Merchant is able to be guided through the First Run Wizard.', { tag: '@Fir
     await ShopAdmin.expects(AdminFirstRunWizard.forumLink).toBeVisible();
     await ShopAdmin.expects(AdminFirstRunWizard.roadmapLink).toBeVisible();
     await AdminFirstRunWizard.finishButton.click();
+
+    // Env var might contain trailing slash, but playwrights waitForResponse needs it without trailing slash, so we remove it here to be sure.
+    const trimmedAdminUrl = process.env.ADMIN_URL.replace(/\/+$/, '');
+    // Wait until FRW is done and has reloaded the admin
+    const response = await AdminFirstRunWizard.page.waitForResponse(trimmedAdminUrl);
+    ShopAdmin.expects(response.ok()).toBeTruthy();
 });

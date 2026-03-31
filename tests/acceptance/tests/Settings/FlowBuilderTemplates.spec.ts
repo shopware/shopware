@@ -19,6 +19,10 @@ test('As an admin, I want to create new flows from templates, so that I can easi
     await test.step('Go to flow template detail page and retrieve template UUID', async () => {
     // todo: add search term to url() method as soon as NEXT-40094 is resolved
         await ShopAdmin.goesTo(AdminFlowBuilderTemplates.url());
+        // wait for the page load to succeed, as the search bar is visible on all pages,
+        // and therefore cannot be used as an indicator for the page being loaded
+        await ShopAdmin.expects(AdminFlowBuilderTemplates.createFlowButton).toBeVisible();
+
         await ShopAdmin.expects(AdminFlowBuilderTemplates.searchBar).toBeVisible();
         await AdminFlowBuilderTemplates.searchBar.fill(flowTemplateSearchTerm);
         const adminFlowBuilderTemplatesRow = await AdminFlowBuilderTemplates.getLineItemByFlowName(flowTemplateName);

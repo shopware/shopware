@@ -8,8 +8,9 @@ test('As a shop customer, I want to accept Google Analytics tracking via the bas
 }) => {
 
     await test.step('Configure sales channel analytics and verify cookie banner visibility on the home page', async () => {
-        const salesChannelAnalytics = await TestDataService.createSalesChannelAnalytics();
-        await TestDataService.assignSalesChannelAnalytics(DefaultSalesChannel.salesChannel.id, salesChannelAnalytics.id);
+        await TestDataService.createSalesChannelAnalytics({
+            salesChannel: { id: DefaultSalesChannel.salesChannel.id },
+        });
 
         await ShopCustomer.goesTo(StorefrontHome.url());
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).toBeVisible();

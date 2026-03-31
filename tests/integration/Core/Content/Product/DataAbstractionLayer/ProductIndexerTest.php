@@ -83,7 +83,7 @@ class ProductIndexerTest extends TestCase
     public function testUpdateDoesNotReturnTooBigMessage(): void
     {
         $uuids = $this->getUuids(self::AMOUNT_OF_UUIDS_NEEDED_TO_TRIGGER_MESSAGE_SIZE_RESTRICTION);
-        $this->prepareGetChildrenIdsMethod($uuids);
+        $this->prepareGetChildrenIdsMethod(self::AMOUNT_OF_UUIDS_NEEDED_TO_TRIGGER_MESSAGE_SIZE_RESTRICTION);
         $context = Context::createDefaultContext();
         $nestedEvents = $this->prepareEvent($context, $uuids);
         $writtenEvent = new EntityWrittenContainerEvent($context, $nestedEvents, []);
@@ -116,7 +116,7 @@ class ProductIndexerTest extends TestCase
         int $expectedCountOfMessagesDispatchedInProductIndexer
     ): void {
         $uuids = $this->getUuids($numberOfIds);
-        $this->prepareGetChildrenIdsMethod($uuids);
+        $this->prepareGetChildrenIdsMethod($numberOfIds);
         $context = Context::createDefaultContext();
         $nestedEvents = $this->prepareEvent($context, $uuids);
 
@@ -161,12 +161,9 @@ class ProductIndexerTest extends TestCase
         return $uuids;
     }
 
-    /**
-     * @param list<string> $uuids
-     */
-    private function prepareGetChildrenIdsMethod(array $uuids): void
+    private function prepareGetChildrenIdsMethod(int $numberOfUuids): void
     {
-        $this->connectionMock->method('fetchFirstColumn')->willReturn($uuids);
+        $this->connectionMock->method('fetchFirstColumn')->willReturn($this->getUuids($numberOfUuids));
     }
 
     /**

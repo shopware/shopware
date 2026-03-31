@@ -24,20 +24,16 @@ test(
             await ShopCustomer.fillsIn(StorefrontContactForm.commentInput, 'Test: Hello, I have a question about your products.');
         });
 
-        await ShopCustomer.expects(async () => {
-            await test.step('Send and validate the contact form.', async () => {
+        await test.step('Send and validate the contact form.', async () => {
 
-                const contactFormPromise = StorefrontContactForm.page.waitForResponse(
-                    `${process.env.APP_URL}test-${DefaultSalesChannel.salesChannel.id}/form/contact`
-                );
-                await ShopCustomer.presses(StorefrontContactForm.submitButton);
-                const contactFormResponse = await contactFormPromise;
-                expect(contactFormResponse.status()).toBe(200);
+            const contactFormPromise = StorefrontContactForm.page.waitForResponse(
+                `${process.env.APP_URL}test-${DefaultSalesChannel.salesChannel.id}/form/contact`
+            );
+            await ShopCustomer.presses(StorefrontContactForm.submitButton);
+            const contactFormResponse = await contactFormPromise;
+            expect(contactFormResponse.status()).toBe(200);
 
-                await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).toBeVisible();
-            });
-        }).toPass({
-            intervals: [30_000], // retry after 30 seconds
+            await ShopCustomer.expects(StorefrontContactForm.contactSuccessMessage).toBeVisible();
         });
     }
 );

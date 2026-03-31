@@ -24,6 +24,8 @@ test('Product is visible in listing and storefront search when set to "Visible".
         });
     });
 
+    await TestDataService.clearCaches();
+
     await CheckVisibilityInHome(product.name)();
 
     await test.step('Verify the product appears in storefront search results.', async () => {
@@ -62,6 +64,8 @@ test('Product is visible in storefront search but hidden from listing when set t
                 },
             ],
         });
+
+        await TestDataService.clearCaches();
     });
 
     await test.step('Verify the product does not appear in the Home category listing.', async () => {
@@ -70,18 +74,14 @@ test('Product is visible in storefront search but hidden from listing when set t
         await ShopCustomer.expects(productLocators.productName).not.toBeVisible();
     });
 
-    await ShopCustomer.expects(async () => {
-        await test.step('Verify the product appears in storefront search results.', async () => {
-            await ShopCustomer.attemptsTo(SearchForTerm(product.name));
-            await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name)).toBeVisible();
-            const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();
+    await test.step('Verify the product appears in storefront search results.', async () => {
+        await ShopCustomer.attemptsTo(SearchForTerm(product.name));
+        await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name)).toBeVisible();
+        const totalCount1 = await StorefrontSearchSuggest.getTotalSearchResultCount();
 
-            // if we create other products in parallel - for example by using workers - we might find multiple results
-            await ShopCustomer.expects(totalCount1).toBeGreaterThanOrEqual(1);
-            await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name)).toBeVisible();
-        });
-    }).toPass({
-        intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+        // if we create other products in parallel - for example by using workers - we might find multiple results
+        await ShopCustomer.expects(totalCount1).toBeGreaterThanOrEqual(1);
+        await ShopCustomer.expects(StorefrontSearchSuggest.searchSuggestLineItemName.getByText(product.name)).toBeVisible();
     });
 
     await test.step('Verify the product can be accessed directly via its URL.', async () => {

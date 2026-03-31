@@ -227,10 +227,6 @@ class FlowExecutor
 
     private function callApp(ActionSequence $sequence, StorableFlow $event): void
     {
-        if (!$sequence->appFlowActionId) {
-            return;
-        }
-
         $eventData = $this->appFlowActionProvider->getWebhookPayloadAndHeaders($event, $sequence->appFlowActionId);
 
         $globalEvent = new AppFlowActionEvent(

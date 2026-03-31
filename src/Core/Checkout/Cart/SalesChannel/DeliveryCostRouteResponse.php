@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCostCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;

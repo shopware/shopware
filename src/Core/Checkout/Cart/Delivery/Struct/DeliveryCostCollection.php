@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Cart\SalesChannel;
+namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;

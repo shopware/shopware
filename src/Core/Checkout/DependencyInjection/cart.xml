@@ -140,6 +140,7 @@
             <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\Rule\RuleIdMatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\ProductDeliveryCostRoute" public="true">

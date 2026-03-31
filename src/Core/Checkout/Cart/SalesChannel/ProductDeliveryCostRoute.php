@@ -5,13 +5,14 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCost;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCostCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryProcessor;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
-use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductGatewayInterface;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -70,7 +71,7 @@ class ProductDeliveryCostRoute extends AbstractProductDeliveryCostRoute
                 ...$clonedContext->getPermissions(),
                 CheckoutPermissions::SKIP_PROMOTION => true,
                 PromotionDeliveryProcessor::SKIP_DELIVERY_RECALCULATION => true,
-                ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION => true,
+                CheckoutPermissions::SKIP_PRODUCT_STOCK_VALIDATION => true,
                 CheckoutPermissions::SKIP_CART_PERSISTENCE => true,
             ];
 

@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Cart\SalesChannel;
+namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;

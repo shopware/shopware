@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,6 +39,7 @@ class DeliveryCostRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(CartRuleLoader::class),
             $this->createMock(AbstractCheckoutGatewayRoute::class),
+            new RuleIdMatcher(),
         );
 
         $this->expectException(DecorationPatternException::class);
@@ -85,6 +87,7 @@ class DeliveryCostRouteTest extends TestCase
             $this->createShippingMethodRepositoryMock($shippingMethods, $context, [$shippingMethod1->getId(), $shippingMethod2->getId(), $shippingMethod3->getId()]),
             $cartRuleLoader,
             $checkoutGatewayRoute,
+            new RuleIdMatcher(),
         );
 
         $response = $route->deliveryCostsCart($cart, $context);

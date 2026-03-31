@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCost;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCostCollection;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
@@ -35,7 +37,8 @@ class DeliveryCostRoute extends AbstractDeliveryCostRoute
     public function __construct(
         private readonly EntityRepository $shippingMethodRepository,
         private readonly CartRuleLoader $cartRuleLoader,
-        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute
+        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
+        private readonly RuleIdMatcher $ruleIdMatcher
     ) {
     }
 
@@ -62,7 +65,7 @@ class DeliveryCostRoute extends AbstractDeliveryCostRoute
                     ->load(new Request(), $cart, $salesChannelContext)
                     ->getShippingMethods();
 
-                $availableShippingMethodIds = (new RuleIdMatcher())->filterCollection($availableShippingMethods, $salesChannelContext->getRuleIds())->getKeys();
+                $availableShippingMethodIds = $this->ruleIdMatcher->filterCollection($availableShippingMethods, $salesChannelContext->getRuleIds())->getKeys();
                 if ($availableShippingMethodIds === []) {
                     return new DeliveryCostRouteResponse($deliveries);
                 }

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Thumbnail;
 
 use League\Flysystem\UnableToReadFile;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -36,7 +35,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Group('slow')]
-#[CoversClass(ThumbnailService::class)]
 class ThumbnailServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

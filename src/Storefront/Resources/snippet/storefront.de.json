@@ -472,6 +472,7 @@
     "summaryNetPrice": "Gesamtnettosumme",
     "summaryTax": "zzgl. %rate% % MwSt.",
     "summaryTaxLabeled": "zzgl. %rate% % %label%",
+    "summaryTaxInclude": "inkl. %rate% % MwSt.",
     "summaryOffCanvasLabel": "Warenkorb-Zusammenfassung",
     "proceedLink": "Zur Kasse",
     "addressEqualText": "Entspricht der Lieferadresse",
@@ -736,6 +737,10 @@
           "solution": "Bitte versuche es erneut oder wende Dich an unseren Support."
         }
       }
+    },
+    "animation": {
+      "toggle": "Animation ein/aus",
+      "select": "Animation auswählen"
     }
   },
   "wishlist": {

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Sso\UserService;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,7 +25,6 @@ use Shopware\Tests\Unit\Core\Framework\Sso\TokenService\_fixtures\JwksIds;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(UserService::class)]
 class UserServiceTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

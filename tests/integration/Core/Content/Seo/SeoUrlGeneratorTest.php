@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Seo;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
@@ -37,7 +36,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Package('inventory')]
-#[CoversClass(SeoUrlGenerator::class)]
 class SeoUrlGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;

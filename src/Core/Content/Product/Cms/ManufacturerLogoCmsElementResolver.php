@@ -11,9 +11,12 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ManufacturerLogoStruct;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
@@ -27,13 +30,28 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
     public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
         $mediaConfig = $slot->getFieldConfig()->get('media');
+        $criteriaCollection = parent::collect($slot, $resolverContext) ?? new CriteriaCollection();
+
+        if ($mediaConfig !== null && $mediaConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
+            $media = $this->resolveEntityValue($resolverContext->getEntity(), $mediaConfig->getStringValue());
+            $resolverEntity = $resolverContext->getEntity();
+
+            if (!$media instanceof MediaEntity
+                && $resolverEntity instanceof SalesChannelProductEntity
+                && ($manufacturerId = $resolverEntity->getManufacturerId()) !== null
+                && (!$resolverEntity->getManufacturer() instanceof ProductManufacturerEntity || $resolverEntity->getManufacturer()->getMedia() === null)
+            ) {
+                $criteria = new Criteria([$manufacturerId]);
+                $criteria->addAssociation('media');
+                $criteriaCollection->add('mapped_product_manufacturer_' . $slot->getUniqueIdentifier(), ProductManufacturerDefinition::class, $criteria);
+            }
+        }
+
         if ($mediaConfig === null || $mediaConfig->isMapped() || $mediaConfig->getValue() === null) {
-            return parent::collect($slot, $resolverContext);
+            return $criteriaCollection->all() !== [] ? $criteriaCollection : null;
         }
 
         $criteria = new Criteria([$mediaConfig->getStringValue()]);
-
-        $criteriaCollection = parent::collect($slot, $resolverContext) ?? new CriteriaCollection();
         $criteriaCollection->add('media_' . $slot->getUniqueIdentifier(), MediaDefinition::class, $criteria);
 
         return $criteriaCollection;
@@ -65,7 +83,12 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
             }
         }
 
-        if ($resolverContext instanceof EntityResolverContext && $resolverContext->getDefinition() instanceof SalesChannelProductDefinition) {
+        $mappedManufacturer = $this->getMappedManufacturer($slot, $result);
+        if ($mappedManufacturer !== null) {
+            $manufacturerStruct->setManufacturer($mappedManufacturer);
+        }
+
+        if ($manufacturerStruct->getManufacturer() === null && $resolverContext instanceof EntityResolverContext && $resolverContext->getDefinition() instanceof SalesChannelProductDefinition) {
             /** @var SalesChannelProductEntity $product */
             $product = $resolverContext->getEntity();
             $manufacturerStruct->setManufacturer($product->getManufacturer());
@@ -103,6 +126,23 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
             return null;
         }
 
+        $mappedManufacturer = $this->getMappedManufacturer($slot, $result);
+        if ($mappedManufacturer !== null) {
+            return $mappedManufacturer->getMedia();
+        }
+
         return $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());
+    }
+
+    private function getMappedManufacturer(CmsSlotEntity $slot, ElementDataCollection $result): ?ProductManufacturerEntity
+    {
+        $mappedManufacturer = $result->get('mapped_product_manufacturer_' . $slot->getUniqueIdentifier());
+        if (!$mappedManufacturer instanceof EntitySearchResult) {
+            return null;
+        }
+
+        $manufacturer = $mappedManufacturer->first();
+
+        return $manufacturer instanceof ProductManufacturerEntity ? $manufacturer : null;
     }
 }

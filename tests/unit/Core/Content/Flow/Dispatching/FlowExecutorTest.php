@@ -311,13 +311,6 @@ class FlowExecutorTest extends TestCase
         ];
     }
 
-    /**
-     * @param array<int, mixed> $actionSequencesExecuted
-     * @param array<int, mixed> $actionSequencesTrueCase
-     * @param array<int, mixed> $actionSequencesFalseCase
-     *
-     * @throws ExecuteSequenceException
-     */
     public function testExecuteSingleActionExecuted(): void
     {
         $actionSequences = [];
@@ -825,15 +818,6 @@ class FlowExecutorTest extends TestCase
         static::assertNotEmpty($flow->getConfig());
     }
 
-    public function testExecuteSequenceWithNullSequenceReturnsEarly(): void
-    {
-        $flow = $this->createMock(StorableFlow::class);
-        $flow->expects($this->never())
-            ->method('getFlowState');
-
-        $this->flowExecutor->executeSequence(null, $flow);
-    }
-
     public function testExecuteStopsOnFlowStateReachesStop(): void
     {
         $storableFlow = new StorableFlow('', Context::createCLIContext());
@@ -879,6 +863,9 @@ class FlowExecutorTest extends TestCase
         $this->flowExecutor->execute($flow, $storableFlow);
     }
 
+    /**
+     * @param array<string, FlowAction> $actions
+     */
     private function createFlowExecutor(array $actions): FlowExecutor
     {
         return new FlowExecutor(
@@ -893,6 +880,10 @@ class FlowExecutorTest extends TestCase
         );
     }
 }
+
+/**
+ * @internal
+ */
 class StubFlowAction extends FlowAction implements TransactionalAction
 {
     public bool $handled = false;

@@ -14,20 +14,4 @@ export default Shopware.Component.wrapComponentConfig({
     components: {
         SwSettingsUsageDataStoreDataConsent,
     },
-
-    inject: [
-        'usageDataService',
-    ],
-
-    methods: {
-        async createdComponent() {
-            const consent = await this.usageDataService.getConsent();
-
-            Shopware.Store.get('usageData').updateConsent(consent);
-        },
-    },
-
-    created() {
-        void this.createdComponent();
-    },
 });

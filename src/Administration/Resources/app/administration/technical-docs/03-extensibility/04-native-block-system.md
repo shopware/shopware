@@ -429,6 +429,40 @@ From the ADR (`2024-09-26-native-block-system.md`):
 
 **Slot composition breakage** — placing an `sw-block` between a `<template #slot>` and its intended parent component disrupts Vue's slot composition.
 
+**`<sw-block-parent />` inside `v-for`** — prohibited. Each list iteration creates a separate `sw-block-parent` instance, and each calls `.pop()` on the shared `providedParents` array during `setup()`. Multiple pops in a single render pass consume more parent slots than intended, silently corrupting the chain:
+
+```html
+<!-- ❌ Multiple instances each pop() a different slot from the chain -->
+<sw-block extends="sw_product_detail_summary">
+    <template v-for="item in items">
+        <sw-block-parent />
+    </template>
+</sw-block>
+```
+
+**`<sw-block-parent />` inside `v-if`** — unsupported. A toggle that unmounts then remounts `<sw-block-parent />` re-runs `setup()`, which calls `.pop()` again. The parent `sw-block` resets `providedParents` in its `template` computed on each re-render, but the interleaving between that reset and the child's mount order is not guaranteed to be safe:
+
+```html
+<!-- ❌ Re-mounting sw-block-parent calls .pop() again -->
+<sw-block extends="sw_product_detail_summary">
+    <sw-block-parent v-if="condition" />
+    <div>My content</div>
+</sw-block>
+```
+
+**`<sw-block extends>` inside `v-for`** — prohibited. Each iteration independently calls `addBlock()`, registering a separate override entry per list item and causing the override content to be rendered multiple times:
+
+```html
+<!-- ❌ Registers one override per list item -->
+<template v-for="item in items">
+    <sw-block extends="sw_product_detail_summary">
+        <div>{{ item.name }}</div>
+    </sw-block>
+</template>
+```
+
+> **Note:** `<sw-block extends>` inside `v-if` is explicitly **supported**. The `addBlock`/`removeBlock` lifecycle hooks handle registration and deregistration correctly as the component mounts and unmounts. See [Lifecycle Reactivity](#lifecycle-reactivity) above.
+
 ---
 
 ## Summary

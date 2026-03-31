@@ -18,6 +18,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\Source;
@@ -28,11 +29,13 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -50,11 +53,13 @@ class WebhookManagerTest extends TestCase
 
     private MockHandler $clientMock;
 
-    private Client $client;
+    private WebhookClient $webhookClient;
 
     private HookableEventFactory&MockObject $eventFactory;
 
     private CollectingMessageBus $bus;
+
+    private MockClock $clock;
 
     protected function setUp(): void
     {
@@ -62,7 +67,11 @@ class WebhookManagerTest extends TestCase
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->connection = $this->createMock(Connection::class);
         $this->clientMock = new MockHandler([new Response(200)]);
-        $this->client = new Client(['handler' => HandlerStack::create($this->clientMock)]);
+        $this->clock = new MockClock();
+        $stack = HandlerStack::create($this->clientMock);
+        $stack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
+        $guzzle = new Client(['handler' => $stack]);
+        $this->webhookClient = new WebhookClient($guzzle, $this->clock);
         $this->eventFactory = $this->createMock(HookableEventFactory::class);
         $this->bus = new CollectingMessageBus();
     }
@@ -348,10 +357,11 @@ class WebhookManagerTest extends TestCase
         $expectedContents = json_decode($expectedRequest->getBody()->getContents(), true);
         $contents = json_decode($request->getBody()->getContents(), true);
         static::assertIsArray($contents);
+        static::assertArrayHasKey('createdTimestamp', $contents);
         static::assertArrayHasKey('timestamp', $contents);
         static::assertArrayHasKey('source', $contents);
         static::assertArrayHasKey('eventId', $contents['source']);
-        unset($contents['timestamp'], $contents['source']['eventId']);
+        unset($contents['createdTimestamp'], $contents['timestamp'], $contents['source']['eventId']);
         static::assertEquals($expectedContents, $contents);
     }
 
@@ -423,7 +433,8 @@ class WebhookManagerTest extends TestCase
             $this->eventFactory,
             $this->createMock(AppLocaleProvider::class),
             $appPayloadServiceHelper,
-            $this->client,
+            $this->webhookClient,
+            $this->clock,
             $this->bus,
             'https://example.com',
             '0.0.0',

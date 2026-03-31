@@ -27,6 +27,7 @@ class WebhookEventMessage implements AsyncMessageInterface
         private readonly ?string $secret,
         private readonly string $languageId,
         private readonly string $userLocale,
+        private readonly ?int $createdTimestamp = null,
         private readonly array $webhookHeaders = [],
     ) {
     }
@@ -85,5 +86,10 @@ class WebhookEventMessage implements AsyncMessageInterface
     public function getWebhookHeaders(): array
     {
         return $this->webhookHeaders;
+    }
+
+    public function getCreatedTimestamp(): ?int
+    {
+        return $this->createdTimestamp;
     }
 }

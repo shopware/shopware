@@ -1,0 +1,36 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Webhook\Service;
+
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+final readonly class WebhookResult
+{
+    /**
+     * @param array<string, mixed> $body
+     * @param array<string, string[]>|null $headers
+     */
+    public function __construct(
+        public array $body,
+        public ?int $statusCode,
+        public ?string $reasonPhrase,
+        public ?array $headers,
+        public ?string $errorMessage = null,
+        public ?\Throwable $exception = null,
+    ) {
+    }
+
+    public function hasResponse(): bool
+    {
+        return $this->statusCode !== null;
+    }
+
+    public function successful(): bool
+    {
+        return $this->exception === null;
+    }
+}

@@ -3,9 +3,7 @@
 namespace Shopware\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
-use GuzzleHttp\Client;
-use GuzzleHttp\Pool;
-use GuzzleHttp\Psr7\Request;
+use Psr\Clock\ClockInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
@@ -14,8 +12,6 @@ use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
-use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
-use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -57,7 +53,8 @@ class WebhookManager implements ResetInterface
         private readonly HookableEventFactory $eventFactory,
         private readonly AppLocaleProvider $appLocaleProvider,
         private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
-        private readonly Client $guzzle,
+        private readonly WebhookClient $webhookClient,
+        private readonly ClockInterface $clock,
         private readonly MessageBusInterface $bus,
         private readonly string $shopUrl,
         private readonly string $shopwareVersion,
@@ -136,37 +133,13 @@ class WebhookManager implements ResetInterface
         string $userLocale
     ): void {
         foreach ($webhooksForEvent as $webhook) {
-            if (!$this->isEventDispatchingAllowed($webhook, $event)) {
+            $message = $this->createWebhookMessage($webhook, $event, $languageId, $userLocale);
+            if ($message === null) {
                 continue;
             }
 
-            try {
-                $webhookData = $this->getPayloadForWebhook($webhook, $event);
-            } catch (ShopIdChangeSuggestedException) {
-                // don't dispatch webhooks for apps if url changed
-                continue;
-            }
-
-            $webhookHeaders = $event instanceof AppFlowActionEvent
-                ? $event->getWebhookHeaders()
-                : [];
-
-            $webhookEventMessage = new WebhookEventMessage(
-                $webhookData['source']['eventId'],
-                $webhookData,
-                $webhook->appId,
-                $webhook->id,
-                $this->shopwareVersion,
-                $webhook->url,
-                $webhook->appSecret,
-                $languageId,
-                $userLocale,
-                $webhookHeaders
-            );
-
-            $this->logWebhookWithEvent($webhook, $webhookEventMessage);
-
-            $this->bus->dispatch($webhookEventMessage);
+            $this->logWebhookWithEvent($webhook, $message);
+            $this->bus->dispatch($message);
         }
     }
 
@@ -200,54 +173,49 @@ class WebhookManager implements ResetInterface
     ): void {
         $requests = [];
         foreach ($webhooksForEvent as $webhook) {
-            if (!$this->isEventDispatchingAllowed($webhook, $event)) {
-                continue;
+            $message = $this->createWebhookMessage($webhook, $event, $languageId, $userLocale);
+            if ($message !== null) {
+                $requests[$message->getWebhookEventId()] = $this->webhookClient->createRequest($message);
             }
-
-            try {
-                $webhookData = $this->getPayloadForWebhook($webhook, $event);
-            } catch (ShopIdChangeSuggestedException) {
-                // don't dispatch webhooks for apps if url changed
-                continue;
-            }
-
-            $timestamp = time();
-            $webhookData['timestamp'] = $timestamp;
-
-            $jsonPayload = json_encode($webhookData, \JSON_THROW_ON_ERROR);
-
-            $headers = [
-                'Content-Type' => 'application/json',
-                'sw-version' => $this->shopwareVersion,
-                AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $languageId,
-                AuthMiddleware::SHOPWARE_USER_LANGUAGE => $userLocale,
-            ];
-
-            if ($event instanceof AppFlowActionEvent) {
-                $headers = array_merge($headers, $event->getWebhookHeaders());
-            }
-
-            $request = new Request(
-                'POST',
-                $webhook->url,
-                $headers,
-                $jsonPayload
-            );
-
-            if ($webhook->appId !== null && $webhook->appSecret !== null) {
-                $request = $request->withHeader(
-                    RequestSigner::SHOPWARE_SHOP_SIGNATURE,
-                    (new RequestSigner())->signPayload($jsonPayload, $webhook->appSecret)
-                );
-            }
-
-            $requests[] = $request;
         }
 
-        if ($requests !== []) {
-            $pool = new Pool($this->guzzle, $requests);
-            $pool->promise()->wait();
+        $this->webhookClient->sendBatch(...array_values($requests));
+    }
+
+    private function createWebhookMessage(
+        Webhook $webhook,
+        Hookable $event,
+        string $languageId,
+        string $userLocale
+    ): ?WebhookEventMessage {
+        if (!$this->isEventDispatchingAllowed($webhook, $event)) {
+            return null;
         }
+
+        try {
+            $webhookData = $this->getPayloadForWebhook($webhook, $event);
+        } catch (ShopIdChangeSuggestedException) {
+            // don't dispatch webhooks for apps if url changed
+            return null;
+        }
+
+        $webhookHeaders = $event instanceof AppFlowActionEvent
+            ? $event->getWebhookHeaders()
+            : [];
+
+        return new WebhookEventMessage(
+            $webhookData['source']['eventId'],
+            $webhookData,
+            $webhook->appId,
+            $webhook->id,
+            $this->shopwareVersion,
+            $webhook->url,
+            $webhook->appSecret,
+            $languageId,
+            $userLocale,
+            $this->clock->now()->getTimestamp(),
+            $webhookHeaders
+        );
     }
 
     /**

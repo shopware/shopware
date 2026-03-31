@@ -69,7 +69,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
         $webhookEventId = Uuid::randomHex();
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
 
         $webhookEventLogRepository->create([[
             'id' => $webhookEventId,
@@ -94,6 +94,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         static::assertSame('POST', $request->getMethod());
         static::assertSame($body['body'], 'payload');
+        static::assertSame($webhookEventMessage->getCreatedTimestamp(), $body['createdTimestamp']);
         static::assertGreaterThanOrEqual($body['timestamp'], $timestamp);
         static::assertTrue($request->hasHeader('sw-version'));
         static::assertSame($request->getHeaderLine('sw-version'), '6.4');
@@ -109,6 +110,18 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
         static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_SUCCESS);
+        static::assertEquals(
+            [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'sw-version' => '6.4',
+                    AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => Defaults::LANGUAGE_SYSTEM,
+                    AuthMiddleware::SHOPWARE_USER_LANGUAGE => 'en-GB',
+                ],
+                'body' => $payload,
+            ],
+            $webhookEventLog->getRequestContent()
+        );
     }
 
     /**
@@ -149,7 +162,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
         $webhookEventId = Uuid::randomHex();
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
 
         $webhookEventLogRepository->create([[
             'id' => $webhookEventId,
@@ -176,6 +189,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         static::assertSame('POST', $request->getMethod());
         static::assertSame($body['body'], 'payload');
+        static::assertSame($webhookEventMessage->getCreatedTimestamp(), $body['createdTimestamp']);
         static::assertGreaterThanOrEqual($body['timestamp'], $timestamp);
         static::assertTrue($request->hasHeader('sw-version'));
         static::assertSame($request->getHeaderLine('sw-version'), '6.4');
@@ -234,7 +248,7 @@ class WebhookEventMessageHandlerTest extends TestCase
             'X-Custom-Header' => 'custom-value',
             'X-Another-Header' => 'another-value',
         ];
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB', $customHeaders);
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, $customHeaders);
 
         $this->appendNewResponse(new Response(200));
 
@@ -248,6 +262,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         static::assertSame('POST', $request->getMethod());
         static::assertSame($body['body'], 'payload');
+        static::assertSame($webhookEventMessage->getCreatedTimestamp(), $body['createdTimestamp']);
         static::assertGreaterThanOrEqual($body['timestamp'], $timestamp);
         static::assertTrue($request->hasHeader('sw-version'));
         static::assertSame($request->getHeaderLine('sw-version'), '6.4');
@@ -297,7 +312,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
         $webhookEventId = Uuid::randomHex();
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
 
         $webhookEventLogRepository->create([[
             'id' => $webhookEventId,
@@ -332,5 +347,29 @@ class WebhookEventMessageHandlerTest extends TestCase
             'headers' => [],
             'body' => '<h1>not json</h1>',
         ]);
+    }
+
+    /**
+     * @param array<string, string> $webhookHeaders
+     */
+    private function createWebhookEventMessage(
+        string $webhookEventId,
+        string $appId,
+        string $webhookId,
+        array $webhookHeaders = []
+    ): WebhookEventMessage {
+        return new WebhookEventMessage(
+            $webhookEventId,
+            ['body' => 'payload'],
+            $appId,
+            $webhookId,
+            '6.4',
+            'http://test.com',
+            's3cr3t',
+            Defaults::LANGUAGE_SYSTEM,
+            'en-GB',
+            (new \DateTimeImmutable())->getTimestamp(),
+            $webhookHeaders
+        );
     }
 }

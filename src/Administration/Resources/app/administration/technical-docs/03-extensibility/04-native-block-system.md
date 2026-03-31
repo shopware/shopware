@@ -28,7 +28,9 @@ The **native block system** replaces all of that with pure Vue 3 components. Blo
 | Mode | Props | Purpose |
 |------|-------|---------|
 | **Define** | `name` | Creates an extension point with default content |
-| **Override** | `extends` | Registers new content for a named extension point |
+| **Override** | `extends` | Registers new content for a named extension point — **renders nothing itself** |
+
+> **`<sw-block extends>` is registration-only.** When the `extends` prop is set, `sw-block` registers its default slot in the global block registry and returns `{ template: null }` — no HTML is emitted at the location where the tag appears. The position of `<sw-block extends>` inside a template is therefore irrelevant to rendering. The only requirement is that the component is **mounted** (not blocked from mounting by an ancestor `v-if`) so that `addBlock()` is called and the slot is picked up by the target `<sw-block name>`.
 
 ### `sw-block-parent` — the parent content placeholder
 
@@ -50,6 +52,38 @@ In a component template (SFC or `.html.twig`):
 
 - `name` — unique identifier for this block, scoped globally across the app. Block names follow the same convention as TwigJS blocks: `sw_` prefix + snake_case (e.g., `sw_product_detail_summary`).
 - `:data="$dataScope"` — passes the component's entire data/computed/methods scope to any override that wants it (more on this below)
+
+### Complete end-to-end example
+
+The following shows both sides together: the base component that declares the block and a plugin component that overrides it.
+
+```html
+<!-- ── Base component: sw-product-detail.html.twig ── -->
+<div class="sw-product-detail">
+    <sw-block name="sw_product_detail_summary" :data="$dataScope">
+        <p>Default summary content</p>
+    </sw-block>
+</div>
+```
+
+```html
+<!-- ── Plugin override component template ── -->
+<!--                                                                    -->
+<!-- <sw-block extends> renders nothing at the position it is placed.   -->
+<!-- Its slot is registered globally and picked up by the named block.  -->
+<sw-block extends="sw_product_detail_summary">
+    <sw-block-parent />
+    <p class="my-badge">Added by MyPlugin</p>
+</sw-block>
+```
+
+Rendered output:
+```html
+<div class="sw-product-detail">
+    <p>Default summary content</p>   <!-- rendered by <sw-block-parent /> -->
+    <p class="my-badge">Added by MyPlugin</p>
+</div>
+```
 
 ### Overriding a block (replace)
 

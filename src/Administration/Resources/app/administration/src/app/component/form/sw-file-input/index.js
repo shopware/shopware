@@ -191,7 +191,11 @@ export default {
 
         checkFileExtension(file) {
             let extension = file.name.toLowerCase().split('.').pop();
-            if (!this.allowedFileExtensions || !this.allowedFileExtensions.length || this.allowedFileExtensions.indexOf(extension) >= 0) {
+            if (
+                !this.allowedFileExtensions ||
+                !this.allowedFileExtensions.length ||
+                this.allowedFileExtensions.indexOf(extension) >= 0
+            ) {
                 return true;
             }
 

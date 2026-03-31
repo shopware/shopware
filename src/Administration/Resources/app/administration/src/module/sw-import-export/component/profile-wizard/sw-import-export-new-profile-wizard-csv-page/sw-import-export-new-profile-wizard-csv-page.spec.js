@@ -97,12 +97,7 @@ describe('module/sw-import-export/component/profile-wizard/sw-import-export-new-
         await input.trigger('change');
         await flushPromises();
 
-        expect(importExport.getMappingFromTemplate).toHaveBeenCalledWith(
-            file,
-            'product',
-            ';',
-            '"',
-        );
+        expect(importExport.getMappingFromTemplate).toHaveBeenCalledWith(file, 'product', ';', '"');
 
         expect(profile.mapping).toEqual([
             {

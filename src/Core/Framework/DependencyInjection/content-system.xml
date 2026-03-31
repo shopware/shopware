@@ -218,9 +218,9 @@
 
         <!-- Schema Services -->
         <service id="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver">
-            <argument type="tagged_locator" tag="content_system.data_loader" default-index-method="getRequirementType"/>
             <!-- $compiledSourceToTypes set by ContentSystemDataLoaderTypeCompilerPass -->
-            <argument key="$compiledSourceToTypes" type="collection"/>
+            <argument type="collection"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Framework\ContentSystem\Schema\CachedContentSystemDataLoaderTypeResolver" decorates="Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeResolver">

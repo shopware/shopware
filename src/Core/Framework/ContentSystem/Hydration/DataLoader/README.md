@@ -4,7 +4,7 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 
 ## Key Classes
 
-- `AbstractContentDataLoader` - Loader base class with `load()`, `getRequirementType()`, `getProvidedData()`, and `overrideProvidedTypes()`
+- `AbstractContentDataLoader` - Loader base class with `load()`, `getRequirementType()`, and `getProvidedData()`
 - `ContentDataLoaderResult` - Result with data and cache info: `notFound()`, `cached()`, `cachedExternally()`, `uncacheable()`
 - `ContentSystemDataLoaderTypeDescriptor` - DTO describing a loader's provided data type (`className` + `genericParameters`)
 - `DataLoaderProvider` - Service locator dispatcher (throws if source not found)
@@ -33,4 +33,4 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 
 Override `getProvidedData()` only for special cases (e.g., wildcard entity loaders). The default implementation extracts the type from `@extends`.
 
-Override `overrideProvidedTypes(array $compiledTypes): array` for wildcard loaders that serve multiple concrete types (e.g., generic entity loaders). The resolver passes the compile-time types; return the types to use (replace, extend, or filter). Default: returns compile-time types unchanged.
+Wildcard loaders that serve multiple concrete types (e.g., generic entity loaders) listen to `ContentSystemDataLoaderTypesResolvedEvent` via `#[AsEventListener]`. The resolver dispatches per source with event name `ContentSystemDataLoaderTypesResolvedEvent::class . '.' . $source`. Listeners set `$event->types` to replace, extend, or filter the compile-time types.

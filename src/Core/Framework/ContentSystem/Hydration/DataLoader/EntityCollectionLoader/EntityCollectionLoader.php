@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ContentSystemData
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypesResolvedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Request;
 
 use function Symfony\Component\String\u;
@@ -41,12 +43,16 @@ class EntityCollectionLoader extends AbstractContentDataLoader
     ) {
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public static function getRequirementType(): string
     {
         return self::SOURCE;
     }
 
-    public function overrideProvidedTypes(array $compiledTypes): array
+    #[AsEventListener(event: ContentSystemDataLoaderTypesResolvedEvent::class . '.' . self::SOURCE)]
+    public function onTypesResolved(ContentSystemDataLoaderTypesResolvedEvent $event): void
     {
         $types = [];
         foreach ($this->definitionRegistry->getDefinitions() as $definition) {
@@ -60,7 +66,7 @@ class EntityCollectionLoader extends AbstractContentDataLoader
             $types[] = new ContentSystemDataLoaderTypeDescriptor($collectionClass);
         }
 
-        return $types;
+        $event->types = $types;
     }
 
     public function load(

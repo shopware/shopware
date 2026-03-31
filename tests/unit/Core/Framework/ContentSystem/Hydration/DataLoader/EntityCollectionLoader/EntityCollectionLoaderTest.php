@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityCollectionLoader\EntityCollectionLoader;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypesResolvedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -31,14 +32,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(EntityCollectionLoader::class)]
 class EntityCollectionLoaderTest extends TestCase
 {
-    #[TestDox('returns entity_collection as requirement type')]
-    public function testGetRequirementTypeReturnsEntityCollection(): void
-    {
-        static::assertSame('entity_collection', EntityCollectionLoader::getRequirementType());
-    }
-
-    #[TestDox('overrides provided types with all registered entity collection classes')]
-    public function testOverrideProvidedTypesReturnsAllCollections(): void
+    #[TestDox('populates event types with all registered entity collection classes')]
+    public function testOnTypesResolvedPopulatesAllCollections(): void
     {
         $productDef = static::createStub(EntityDefinition::class);
         $productDef->method('getCollectionClass')->willReturn(ProductCollection::class);
@@ -52,14 +47,15 @@ class EntityCollectionLoaderTest extends TestCase
             static::createStub(EntityCacheTagResolver::class),
         );
 
-        $types = $loader->overrideProvidedTypes([]);
+        $event = new ContentSystemDataLoaderTypesResolvedEvent('entity_collection', []);
+        $loader->onTypesResolved($event);
 
-        static::assertCount(1, $types);
-        static::assertSame(ProductCollection::class, $types[0]->className);
+        static::assertCount(1, $event->types);
+        static::assertSame(ProductCollection::class, $event->types[0]->className);
     }
 
-    #[TestDox('excludes bare EntityCollection from overridden types')]
-    public function testOverrideProvidedTypesExcludesBareEntityCollection(): void
+    #[TestDox('excludes bare EntityCollection from resolved event types')]
+    public function testOnTypesResolvedExcludesBareEntityCollection(): void
     {
         $def = static::createStub(EntityDefinition::class);
         $def->method('getCollectionClass')->willReturn(EntityCollection::class);
@@ -73,8 +69,10 @@ class EntityCollectionLoaderTest extends TestCase
             static::createStub(EntityCacheTagResolver::class),
         );
 
-        $types = $loader->overrideProvidedTypes([]);
-        static::assertSame([], $types);
+        $event = new ContentSystemDataLoaderTypesResolvedEvent('entity_collection', []);
+        $loader->onTypesResolved($event);
+
+        static::assertSame([], $event->types);
     }
 
     #[TestDox('returns cached collection with resolved tags for all loaded entities')]

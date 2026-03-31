@@ -1,0 +1,43 @@
+--- a/src/DetectChanges/BCBreak/PropertyBased/PropertyDefaultValueChanged.php
++++ b/src/DetectChanges/BCBreak/PropertyBased/PropertyDefaultValueChanged.php
+@@ -4,6 +4,8 @@ declare(strict_types=1);
+
+ namespace Roave\BackwardCompatibility\DetectChanges\BCBreak\PropertyBased;
+
++use function is_object;
++
+ use Psl\Str;
+ use Roave\BackwardCompatibility\Change;
+ use Roave\BackwardCompatibility\Changes;
+@@ -27,6 +27,13 @@ final class PropertyDefaultValueChanged implements PropertyBased
+         if ($fromPropertyDefaultValue === $toPropertyDefaultValue) {
+             return Changes::empty();
+         }
++
++        // Object defaults (e.g. `new ClassName(...)`) are never identical instances;
++        // use loose comparison which compares class and property values.
++        if (is_object($fromPropertyDefaultValue) && is_object($toPropertyDefaultValue) && $fromPropertyDefaultValue == $toPropertyDefaultValue) {
++            return Changes::empty();
++        }
+
+         return Changes::fromList(Change::changed(
+--- a/src/DetectChanges/BCBreak/FunctionBased/ParameterDefaultValueChanged.php
++++ b/src/DetectChanges/BCBreak/FunctionBased/ParameterDefaultValueChanged.php
+@@ -14,6 +14,7 @@ use Roave\BetterReflection\NodeCompiler\Exception\UnableToCompileNode;
+ use Roave\BetterReflection\Reflection\ReflectionFunction;
+ use Roave\BetterReflection\Reflection\ReflectionMethod;
+ use Roave\BetterReflection\Reflection\ReflectionParameter;
++use function is_object;
+ use function var_export;
+@@ -69,6 +69,13 @@ final class ParameterDefaultValueChanged implements FunctionBased
+             if ($defaultValueFrom === $defaultValueTo) {
+                 continue;
+             }
++
++            // Object defaults (e.g. `new ClassName(...)`) are never identical instances;
++            // use loose comparison which compares class and property values.
++            if (is_object($defaultValueFrom) && is_object($defaultValueTo) && $defaultValueFrom == $defaultValueTo) {
++                continue;
++            }
+
+             $changes = $changes->mergeWith(Changes::fromList(Change::changed(

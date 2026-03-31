@@ -1,0 +1,43 @@
+--- a/src/NodeCompiler/CompileNodeToValue.php
++++ b/src/NodeCompiler/CompileNodeToValue.php
+@@ -60,7 +60,18 @@ class CompileNodeToValue
+             if ($node instanceof Node\Expr\New_) {
+-                throw Exception\UnableToCompileNode::becauseOfInitializer($context, $node);
++                if (! $node->class instanceof Node\Name) {
++                    throw Exception\UnableToCompileNode::becauseOfInitializer($context, $node);
++                }
++
++                $className = $this->resolveClassName($node->class->toString(), $context);
++                $args      = [];
++
++                foreach ($node->args as $arg) {
++                    if ($arg instanceof Node\Arg) {
++                        $args[] = $this($arg->value, $context)->value;
++                    }
++                }
++
++                return new $className(...$args);
+             }
+
+--- a/src/Reflection/ReflectionProperty.php
++++ b/src/Reflection/ReflectionProperty.php
+@@ -374,7 +374,7 @@ class ReflectionProperty implements Reflection
+      * Get the default value of the property (as defined before constructor is
+      * called, when the property is defined)
+      *
+-     * @return scalar|array<scalar>|null
++     * @return mixed
+      */
+-    public function getDefaultValue(): string|int|float|bool|array|null
++    public function getDefaultValue(): mixed
+     {
+--- a/src/Reflection/ReflectionParameter.php
++++ b/src/Reflection/ReflectionParameter.php
+@@ -372,7 +372,7 @@ class ReflectionParameter implements Reflection
+      *
+-     * @return scalar|array<scalar>|null
++     * @return mixed
+      */
+-    public function getDefaultValue(): string|int|float|bool|array|null
++    public function getDefaultValue(): mixed
+     {

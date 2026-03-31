@@ -22,13 +22,15 @@
     "extra": {
         "patches": {
             "roave/better-reflection": {
-                "Fix promoted property default value": "patches/fix-promoted-property-default-value.patch"
+                "Fix promoted property default value": "patches/fix-promoted-property-default-value.patch",
+                "Fix new expression initializer": "patches/fix-new-expression-initializer.patch"
             },
             "roave/backward-compatibility-check": {
                 "Skip experimental annotations": "patches/skip-experimental.patch",
                 "Skip optional construct parameters": "patches/skip-optional-construct-parameters.patch",
                 "Add exclude errors": "patches/add-exclude-errors.patch",
-                "Add exclude files": "patches/add-exclude-files.patch"
+                "Add exclude files": "patches/add-exclude-files.patch",
+                "Fix property default value initializer": "patches/fix-property-default-value-initializer.patch"
             }
         }
     }

@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductListingPreviewCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
 use Shopware\Core\Content\Product\Extension\LoadPreviewExtension;
+use Shopware\Core\Content\Product\ExplicitProductIdCriteriaExtractor;
 use Shopware\Core\Content\Product\Extension\ResolveListingExtension;
 use Shopware\Core\Content\Product\Extension\ResolveListingIdsExtension;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -17,12 +18,7 @@ use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSea
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -346,7 +342,7 @@ class ProductListingLoader
      */
     private function preserveExplicitProductIds(Criteria $criteria, array $mapping): array
     {
-        $explicitProductIds = $this->getExplicitProductIds($criteria);
+        $explicitProductIds = ExplicitProductIdCriteriaExtractor::extract($criteria);
 
         if ($explicitProductIds === []) {
             return $mapping;
@@ -359,57 +355,6 @@ class ProductListingLoader
         }
 
         return $mapping;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function getExplicitProductIds(Criteria $criteria): array
-    {
-        $productIds = [];
-
-        foreach ($criteria->getIds() as $id) {
-            $productIds[$id] = $id;
-        }
-
-        foreach (array_merge($criteria->getFilters(), $criteria->getPostFilters()) as $filter) {
-            foreach ($this->extractExplicitProductIds($filter) as $productId) {
-                $productIds[$productId] = $productId;
-            }
-        }
-
-        return $productIds;
-    }
-
-    /**
-     * @return array<string>
-     */
-    private function extractExplicitProductIds(Filter $filter): array
-    {
-        if ($filter instanceof EqualsFilter && $this->isProductIdField($filter->getField()) && \is_string($filter->getValue())) {
-            return [$filter->getValue()];
-        }
-
-        if ($filter instanceof EqualsAnyFilter && $this->isProductIdField($filter->getField())) {
-            return array_values(array_filter($filter->getValue(), static fn ($value): bool => \is_string($value)));
-        }
-
-        if ($filter instanceof MultiFilter && !$filter instanceof NotFilter) {
-            $productIds = [];
-
-            foreach ($filter->getQueries() as $query) {
-                array_push($productIds, ...$this->extractExplicitProductIds($query));
-            }
-
-            return $productIds;
-        }
-
-        return [];
-    }
-
-    private function isProductIdField(string $field): bool
-    {
-        return preg_replace('/^product\./', '', $field) === 'id';
     }
 
     /**

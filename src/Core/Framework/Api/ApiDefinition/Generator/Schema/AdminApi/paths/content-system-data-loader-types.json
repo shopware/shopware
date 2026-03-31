@@ -1,0 +1,64 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Content System Data Loader Types",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "\/_info\/content-system-data-loader-types.json": {
+            "get": {
+                "tags": [
+                    "System Info & Health Check"
+                ],
+                "summary": "Get content system data loader types",
+                "description": "Get the data loader sources and the types they can produce.",
+                "operationId": "content-system-data-loader-types",
+                "responses": {
+                    "200": {
+                        "description": "Returns the data loader source-to-type mappings.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["sources"],
+                                    "properties": {
+                                        "sources": {
+                                            "type": "object",
+                                            "description": "Map of data loader source name to its provided types.",
+                                            "additionalProperties": {
+                                                "type": "object",
+                                                "required": ["types"],
+                                                "properties": {
+                                                    "types": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "required": ["className", "genericParameters"],
+                                                            "properties": {
+                                                                "className": {
+                                                                    "type": "string",
+                                                                    "description": "Fully qualified class name."
+                                                                },
+                                                                "genericParameters": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "description": "Generic type parameters."
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

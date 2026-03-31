@@ -230,7 +230,7 @@ class InfoControllerTest extends TestCase
         $schemaGenerator->method('getSchema')->willReturn($expected);
 
         $controller = $this->createController(dataLoaderTypeSchemaGenerator: $schemaGenerator);
-        $response = $controller->contentSystemDataLoaderTypeSchema();
+        $response = $controller->contentSystemDataLoaderTypes();
 
         static::assertSame(200, $response->getStatusCode());
         $content = $response->getContent();

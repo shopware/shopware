@@ -40,7 +40,7 @@ class ContentSystemDataLoaderTypeResolver extends AbstractContentSystemDataLoade
             }
 
             if ($this->loaders->has($source)) {
-                $this->loaders->get($source)->overrideProvidedTypes($types);
+                $types = $this->loaders->get($source)->overrideProvidedTypes($types);
             }
 
             $sourceToTypes[$source] = $types;

@@ -54,8 +54,7 @@ class EntityLoaderTest extends TestCase
             static::createStub(EntityCacheTagResolver::class),
         );
 
-        $types = [];
-        $loader->overrideProvidedTypes($types);
+        $types = $loader->overrideProvidedTypes([]);
 
         static::assertCount(1, $types);
         static::assertSame(ProductEntity::class, $types[0]->className);
@@ -76,8 +75,7 @@ class EntityLoaderTest extends TestCase
             static::createStub(EntityCacheTagResolver::class),
         );
 
-        $types = [];
-        $loader->overrideProvidedTypes($types);
+        $types = $loader->overrideProvidedTypes([]);
 
         static::assertSame([], $types);
     }

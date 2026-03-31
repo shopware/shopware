@@ -45,10 +45,7 @@ class EntityLoader extends AbstractContentDataLoader
         return self::SOURCE;
     }
 
-    /**
-     * @param list<ContentSystemDataLoaderTypeDescriptor> $types
-     */
-    public function overrideProvidedTypes(array &$types): void
+    public function overrideProvidedTypes(array $compiledTypes): array
     {
         $types = [];
         foreach ($this->definitionRegistry->getDefinitions() as $definition) {
@@ -60,6 +57,8 @@ class EntityLoader extends AbstractContentDataLoader
 
             $types[] = new ContentSystemDataLoaderTypeDescriptor($entityClass);
         }
+
+        return $types;
     }
 
     public function load(

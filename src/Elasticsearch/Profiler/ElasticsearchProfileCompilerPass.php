@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Profiler;
 
+use OpenSearch\Client;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -18,6 +19,12 @@ class ElasticsearchProfileCompilerPass implements CompilerPassInterface
 
         if (!$isDebugEnabled) {
             $container->removeDefinition(DataCollector::class);
+
+            return;
         }
+
+        // we need direct access to the ClientProfiler, so it cannot be wrapped in a lazy proxy
+        $container->getDefinition(Client::class)->setLazy(false);
+        $container->getDefinition('admin.openSearch.client')->setLazy(false);
     }
 }

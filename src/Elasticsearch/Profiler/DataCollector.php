@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Profiler;
 
+use OpenSearch\Client;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;

@@ -366,6 +366,9 @@ The webpack dev server overlay for runtime errors has been disabled in hot-reloa
 
 As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
 
+### GLTF Animations
+User are now able to play animations from their 3D models in the Storefront. Simply upload a model with one or multiple animations baked into the file, bind the file to a product and display it in the Storefront.
+
 ## App System
 
 ## Hosting & Configuration

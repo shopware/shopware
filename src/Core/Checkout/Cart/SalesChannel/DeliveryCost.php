@@ -12,24 +12,9 @@ use Shopware\Core\Framework\Struct\Struct;
 class DeliveryCost extends Struct
 {
     public function __construct(
-        protected CalculatedPrice $shippingCost,
-        protected DeliveryDate $deliveryDate,
-        protected ShippingMethodEntity $shippingMethod,
+        public readonly CalculatedPrice $shippingCost,
+        public readonly DeliveryDate $deliveryDate,
+        public readonly ShippingMethodEntity $shippingMethod,
     ) {
-    }
-
-    public function getShippingCost(): CalculatedPrice
-    {
-        return $this->shippingCost;
-    }
-
-    public function getDeliveryDate(): DeliveryDate
-    {
-        return $this->deliveryDate;
-    }
-
-    public function getShippingMethod(): ShippingMethodEntity
-    {
-        return $this->shippingMethod;
     }
 }

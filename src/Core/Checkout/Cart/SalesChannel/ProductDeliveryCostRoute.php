@@ -60,7 +60,7 @@ class ProductDeliveryCostRoute extends AbstractProductDeliveryCostRoute
     {
         return Profiler::trace('delivery-cost-calculator::product', function () use ($productId, $criteria, $salesChannelContext) {
             $clonedContext = clone $salesChannelContext;
-            $product = $this->validateProductId($productId, $clonedContext);
+            $product = $this->loadProduct($productId, $clonedContext);
 
             $cart = (new Cart(Uuid::randomHex()))
                 ->add(new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId));
@@ -99,14 +99,14 @@ class ProductDeliveryCostRoute extends AbstractProductDeliveryCostRoute
         });
     }
 
-    private function validateProductId(string $productId, SalesChannelContext $salesChannelContext): ProductEntity
+    private function loadProduct(string $productId, SalesChannelContext $salesChannelContext): ProductEntity
     {
-        $validProductId = $this->productGateway->get([$productId], $salesChannelContext)->get($productId);
-        if ($validProductId === null) {
+        $product = $this->productGateway->get([$productId], $salesChannelContext)->get($productId);
+        if ($product === null) {
             throw CartException::productNotFound($productId);
         }
 
-        return $validProductId;
+        return $product;
     }
 
     private function loadShippingMethods(Criteria $criteria, SalesChannelContext $context): ShippingMethodCollection

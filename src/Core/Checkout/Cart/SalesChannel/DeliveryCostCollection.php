@@ -13,4 +13,8 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('checkout')]
 class DeliveryCostCollection extends Collection
 {
+    protected function getExpectedClass(): ?string
+    {
+        return DeliveryCost::class;
+    }
 }

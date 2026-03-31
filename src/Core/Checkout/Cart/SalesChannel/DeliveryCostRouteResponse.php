@@ -21,16 +21,16 @@ class DeliveryCostRouteResponse extends StoreApiResponse
 
     public function getShippingCost(string $shippingMethodId): ?CalculatedPrice
     {
-        return $this->object->get($shippingMethodId)?->getShippingCost();
+        return $this->object->get($shippingMethodId)?->shippingCost;
     }
 
     public function getDeliveryDate(string $shippingMethodId): ?DeliveryDate
     {
-        return $this->object->get($shippingMethodId)?->getDeliveryDate();
+        return $this->object->get($shippingMethodId)?->deliveryDate;
     }
 
     public function getShippingMethod(string $shippingMethodId): ?ShippingMethodEntity
     {
-        return $this->object->get($shippingMethodId)?->getShippingMethod();
+        return $this->object->get($shippingMethodId)?->shippingMethod;
     }
 }

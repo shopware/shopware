@@ -67,54 +67,6 @@ parameters:
 			path: src/Core/Content/Newsletter/Event/NewsletterSubscribeUrlEvent.php
 
 		-
-			message: '#^Mixed variable in a `\$a\-\>get\(''group''\)\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 3
-			path: src/Core/Content/Product/ProductVariationBuilder.php
-
-		-
-			message: '#^Mixed variable in a `\$b\-\>get\(''group''\)\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 3
-			path: src/Core/Content/Product/ProductVariationBuilder.php
-
-		-
-			message: '#^Mixed variable in a `\$option\-\>get\(''group''\)\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 1
-			path: src/Core/Content/Product/ProductVariationBuilder.php
-
-		-
-			message: '#^Mixed variable in a `\$group\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 5
-			path: src/Core/Content/Product/PropertyGroupSorter.php
-
-		-
-			message: '#^Mixed variable in a `\$group\-\>get\(''options''\)\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 1
-			path: src/Core/Content/Product/PropertyGroupSorter.php
-
-		-
-			message: '#^Mixed variable in a `\$origin\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 1
-			path: src/Core/Content/Product/PropertyGroupSorter.php
-
-		-
-			message: '#^Mixed variable in a `\$sorted\[\$groupId\]\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 2
-			path: src/Core/Content/Product/PropertyGroupSorter.php
-
-		-
-			message: '#^Mixed variable in a `\$sorted\[\$groupId\]\-\>get\(''options''\)\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 1
-			path: src/Core/Content/Product/PropertyGroupSorter.php
-
-		-
 			message: '#^Method Shopware\\Core\\Content\\Product\\SalesChannel\\FindVariant\\FoundCombination\:\:getOptions\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

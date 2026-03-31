@@ -6,6 +6,7 @@
 
 use Shopware\Core\Content\ProductExport\Tracking\Extension\CustomerSalesChannelTrackingExtension;
 use Shopware\Core\Content\ProductExport\Tracking\Extension\OrderSalesChannelTrackingExtension;
+use Shopware\Core\Content\ProductExport\Tracking\Extension\SalesChannelProductExportTrackingExtension;
 use Shopware\Core\Content\ProductExport\Tracking\SalesChannelTrackingCustomerDefinition;
 use Shopware\Core\Content\ProductExport\Tracking\SalesChannelTrackingListener;
 use Shopware\Core\Content\ProductExport\Tracking\SalesChannelTrackingOrderDefinition;
@@ -26,6 +27,9 @@ return static function (ContainerConfigurator $container): void {
         ->tag('shopware.entity.extension');
 
     $services->set(CustomerSalesChannelTrackingExtension::class)
+        ->tag('shopware.entity.extension');
+
+    $services->set(SalesChannelProductExportTrackingExtension::class)
         ->tag('shopware.entity.extension');
 
     $services->set(SalesChannelTrackingListener::class)

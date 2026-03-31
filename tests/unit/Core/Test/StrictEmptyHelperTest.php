@@ -10,7 +10,7 @@ use Shopware\Core\Test\StrictEmptyHelper;
  * @internal
  */
 #[CoversClass(StrictEmptyHelper::class)]
-class StrictIsEmptyTest extends TestCase
+class StrictEmptyHelperTest extends TestCase
 {
     private StrictEmptyHelper $helper;
 

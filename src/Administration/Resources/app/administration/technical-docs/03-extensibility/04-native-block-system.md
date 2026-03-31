@@ -43,19 +43,19 @@ Used inside an override block to render the content from the previous block in t
 In a component template (SFC or `.html.twig`):
 
 ```html
-<sw-block name="product-detail-summary" :data="$dataScope">
+<sw-block name="sw_product_detail_summary" :data="$dataScope">
     <p>Default summary content</p>
 </sw-block>
 ```
 
-- `name` — unique identifier for this block, scoped globally across the app
+- `name` — unique identifier for this block, scoped globally across the app. Block names follow the same convention as TwigJS blocks: `sw_` prefix + snake_case (e.g., `sw_product_detail_summary`).
 - `:data="$dataScope"` — passes the component's entire data/computed/methods scope to any override that wants it (more on this below)
 
 ### Overriding a block (replace)
 
 ```html
 <!-- Replaces the default content entirely -->
-<sw-block extends="product-detail-summary">
+<sw-block extends="sw_product_detail_summary">
     <p class="custom-summary">My custom summary</p>
 </sw-block>
 ```
@@ -64,7 +64,7 @@ In a component template (SFC or `.html.twig`):
 
 ```html
 <!-- Keeps the default content and adds to it -->
-<sw-block extends="product-detail-summary">
+<sw-block extends="sw_product_detail_summary">
     <sw-block-parent />
     <div class="custom-badge">New!</div>
 </sw-block>
@@ -74,13 +74,13 @@ In a component template (SFC or `.html.twig`):
 
 ```html
 <!-- Prepend: custom content appears BEFORE default -->
-<sw-block extends="product-detail-summary">
+<sw-block extends="sw_product_detail_summary">
     <div class="prepended">I go first</div>
     <sw-block-parent />
 </sw-block>
 
 <!-- Append: custom content appears AFTER default -->
-<sw-block extends="product-detail-summary">
+<sw-block extends="sw_product_detail_summary">
     <sw-block-parent />
     <div class="appended">I go last</div>
 </sw-block>
@@ -94,13 +94,13 @@ Multiple `sw-block extends="..."` blocks for the same name are supported and for
 
 ```html
 <!-- Override 1 -->
-<sw-block extends="product-detail-summary">
+<sw-block extends="sw_product_detail_summary">
     <sw-block-parent />
     <div class="from-plugin-a">Added by Plugin A</div>
 </sw-block>
 
 <!-- Override 2 -->
-<sw-block extends="product-detail-summary">
+<sw-block extends="sw_product_detail_summary">
     <sw-block-parent />
     <div class="from-plugin-b">Added by Plugin B</div>
 </sw-block>
@@ -116,11 +116,11 @@ Multiple `sw-block extends="..."` blocks for the same name are supported and for
 When there are multiple overrides and none uses `<sw-block-parent />`, only the **last registered** override is rendered. The earlier ones are silently discarded:
 
 ```html
-<sw-block extends="product-detail-summary">
+<sw-block extends="sw_product_detail_summary">
     <div class="from-plugin-a">Plugin A (never shown)</div>
 </sw-block>
 
-<sw-block extends="product-detail-summary">
+<sw-block extends="sw_product_detail_summary">
     <div class="from-plugin-b">Plugin B (shown)</div>
 </sw-block>
 ```
@@ -137,7 +137,7 @@ The component that owns the block passes itself down via `:data="$dataScope"`:
 
 ```html
 <!-- In the component being extended -->
-<sw-block name="product-price-display" :data="$dataScope">
+<sw-block name="sw_product_price_display" :data="$dataScope">
     <span>{{ product.price }}</span>
 </sw-block>
 ```
@@ -149,7 +149,7 @@ The component that owns the block passes itself down via `:data="$dataScope"`:
 The override block receives the scope as its default slot argument:
 
 ```html
-<sw-block extends="product-price-display" #default="{ product, formatPrice }">
+<sw-block extends="sw_product_price_display" #default="{ product, formatPrice }">
     <sw-block-parent />
     <span class="custom-price">{{ formatPrice(product.price) }}</span>
 </sw-block>
@@ -165,22 +165,22 @@ Blocks can be nested freely. Each block is independently overrideable:
 
 ```html
 <!-- Component template -->
-<sw-block name="product-tabs" :data="$dataScope">
+<sw-block name="sw_product_tabs" :data="$dataScope">
     <div class="tabs">
-        <sw-block name="product-tab-basic" :data="$dataScope">
+        <sw-block name="sw_product_tab_basic" :data="$dataScope">
             <span>Basic Info</span>
         </sw-block>
 
-        <sw-block name="product-tab-advanced" :data="$dataScope">
+        <sw-block name="sw_product_tab_advanced" :data="$dataScope">
             <span>Advanced</span>
         </sw-block>
     </div>
 </sw-block>
 
 <!-- Plugin: add a new tab without touching the outer block -->
-<sw-block extends="product-tabs">
+<sw-block extends="sw_product_tabs">
     <sw-block-parent />
-    <sw-block name="product-tab-custom" :data="$dataScope">
+    <sw-block name="sw_product_tab_custom" :data="$dataScope">
         <span>Custom Tab</span>
     </sw-block>
 </sw-block>
@@ -389,7 +389,7 @@ From the ADR (`2024-09-26-native-block-system.md`):
 ```html
 <!-- ❌ This breaks v-else -->
 <div v-if="condition">...</div>
-<sw-block name="between-conditions">...</sw-block>
+<sw-block name="sw_between_conditions">...</sw-block>
 <div v-else>...</div>
 ```
 

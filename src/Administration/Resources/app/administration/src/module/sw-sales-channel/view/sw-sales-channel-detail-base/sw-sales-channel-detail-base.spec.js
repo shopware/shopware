@@ -1319,6 +1319,25 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.vm.unservedLanguageVariant).toBe('info');
     });
 
+    it('should not require a theme when activating an agentic commerce sales channel', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                active: true,
+                typeId: Shopware.Defaults.agenticCommerceTypeId,
+            },
+        });
+
+        wrapper.vm.salesChannelRepository.get = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        wrapper.vm.onToggleActive();
+
+        expect(wrapper.vm.salesChannelRepository.get).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).not.toHaveBeenCalled();
+    });
+
     it('should not report unserved languages for product export channels', async () => {
         const wrapper = await createWrapper();
 

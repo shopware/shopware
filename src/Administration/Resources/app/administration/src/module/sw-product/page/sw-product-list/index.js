@@ -328,6 +328,7 @@ export default {
                 this.storeKey,
                 this.productCriteria,
             );
+            criteria.filters = this.normalizeCategoryFilters(criteria.filters);
 
             if (!criteria.filters.some((filter) => filter.field === 'type')) {
                 criteria.addPostFilter(Criteria.equalsAny('type', this.productTypes));
@@ -426,18 +427,25 @@ export default {
         },
 
         updateCriteria(criteria) {
-            const mappedCriteria = criteria.map((filter) => {
-                if (filter.field !== 'categories.id' || filter.type !== 'equalsAny') {
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, this.normalizeCategoryFilters(criteria));
+        },
+
+        normalizeCategoryFilters(filters) {
+            return filters.map((filter) => {
+                if (filter.field !== 'categories.id') {
+                    return filter;
+                }
+
+                const categoryIds = Array.isArray(filter.value) ? filter.value : filter.value.split('|');
+                if (categoryIds.length === 0) {
                     return filter;
                 }
 
                 return Criteria.multi('OR', [
                     filter,
-                    Criteria.equalsAny('product.streams.categories.id', filter.value),
+                    Criteria.equalsAny('product.streams.categories.id', categoryIds),
                 ]);
             });
-
-            return Mixin.getByName('listing').methods.updateCriteria.call(this, mappedCriteria);
         },
 
         getCurrencyPriceByCurrencyId(currencyId, prices) {

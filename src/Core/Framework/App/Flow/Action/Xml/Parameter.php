@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\App\Flow\Action\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal

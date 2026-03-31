@@ -2,8 +2,8 @@ import Plugin from 'src/plugin-system/plugin.class';
 import Storage from 'src/helper/storage/storage.helper';
 
 /**
- * Clears checkout form preserver entries from storage on the login page so that
- * a customer's comment is never pre-filled for a subsequent user on the same device.
+ * Removes persisted checkout form entries during customer imitation
+ * to prevent customer-specific data (e.g. comments) from leaking between sessions.
  *
  * @sw-package checkout
  */

@@ -1,5 +1,5 @@
-import Plugin from "src/plugin-system/plugin.class";
-import Storage from "src/helper/storage/storage.helper";
+import Plugin from 'src/plugin-system/plugin.class';
+import Storage from 'src/helper/storage/storage.helper';
 
 /**
  * Clears checkout form preserver entries from storage on the login page so that
@@ -7,14 +7,14 @@ import Storage from "src/helper/storage/storage.helper";
  *
  * @sw-package checkout
  */
-export default class CheckoutCustomerCommentResetPlugin extends Plugin {
+export default class CustomerImitationResetPlugin extends Plugin {
     static options = {
         /**
          * Storage keys to remove on plugin initialization.
          *
          * @type {string[]}
          */
-        storageKeys: ["confirmOrderForm.customerComment"],
+        storageKeys: ['confirmOrderForm.customerComment'],
     };
 
     init() {

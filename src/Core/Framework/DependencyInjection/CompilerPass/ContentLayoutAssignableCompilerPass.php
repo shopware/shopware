@@ -65,7 +65,6 @@ final class ContentLayoutAssignableCompilerPass implements CompilerPassInterface
                 continue;
             }
 
-            /** @var AbstractContentLayoutAssignableDefinition $instance */
             $instance = new $referencedClass();
 
             return $instance->getContentLayoutEntityType();

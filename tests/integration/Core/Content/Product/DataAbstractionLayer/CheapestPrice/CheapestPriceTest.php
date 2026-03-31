@@ -666,11 +666,11 @@ class CheapestPriceTest extends TestCase
      */
     public function providerFilterPercentage(): iterable
     {
-        yield 'Test 10% filter without rule' => ['from' => 9, 'to' => 10, 'expected' => ['p.1', 'v.4.2']];
-        yield 'Test 20% filter with rule-a' => ['rules' => ['rule-a'], 'from' => 19, 'to' => 20, 'expected' => ['p.5', 'v.6.1']];
-        yield 'Test 30% filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 29, 'to' => 30, 'expected' => ['v.12.2', 'v.13.2']];
-        yield 'Test 30% filter with rule b+a' => ['rules' => ['rule-b'], 'from' => 29, 'to' => 30, 'expected' => ['v.12.2', 'v.13.2']];
-        yield 'Test 30% filter with rule a and empty result' => ['rules' => ['rule-a'], 'from' => 29, 'to' => 30, 'expected' => []];
+        yield 'Test ~91% ratio without rule' => ['from' => 90, 'to' => 91, 'expected' => ['p.1', 'v.4.2']];
+        yield 'Test ~80% ratio with rule-a' => ['rules' => ['rule-a'], 'from' => 80, 'to' => 81, 'expected' => ['p.5', 'v.6.1']];
+        yield 'Test ~70% ratio with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 70, 'to' => 71, 'expected' => ['v.12.2', 'v.13.2']];
+        yield 'Test ~70% ratio with rule b only' => ['rules' => ['rule-b'], 'from' => 70, 'to' => 71, 'expected' => ['v.12.2', 'v.13.2']];
+        yield 'Test ~70% ratio with rule a and empty result' => ['rules' => ['rule-a'], 'from' => 70, 'to' => 71, 'expected' => []];
     }
 
     /**

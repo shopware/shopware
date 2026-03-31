@@ -7,7 +7,10 @@ const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Mixin.register('export-channel-filter', {
-    inject: ['repositoryFactory', 'filterFactory'],
+    inject: [
+        'repositoryFactory',
+        'filterFactory',
+    ],
 
     data() {
         return {
@@ -25,9 +28,7 @@ Shopware.Mixin.register('export-channel-filter', {
         loadExportChannelOptions() {
             const criteria = new Criteria(1, 500);
 
-            criteria.addFilter(
-                Criteria.equals('typeId', Shopware.Defaults.agenticCommerceTypeId),
-            );
+            criteria.addFilter(Criteria.equals('typeId', Shopware.Defaults.agenticCommerceTypeId));
             criteria.addSorting(Criteria.sort('name'));
 
             this.salesChannelRepository.search(criteria).then((result) => {
@@ -36,17 +37,19 @@ Shopware.Mixin.register('export-channel-filter', {
         },
 
         insertExportChannelFilter(filters, entity, labelKey, placeholderKey) {
-            const exportChannelFilter = this.filterFactory.create(entity, {
-                'export-channel-filter': {
-                    property: 'salesChannelTracking.salesChannelId',
-                    type: 'multi-select-filter',
-                    label: this.$tc(labelKey),
-                    placeholder: this.$tc(placeholderKey),
-                    valueProperty: 'id',
-                    labelProperty: 'name',
-                    options: this.exportChannelOptions,
-                },
-            }).pop();
+            const exportChannelFilter = this.filterFactory
+                .create(entity, {
+                    'export-channel-filter': {
+                        property: 'salesChannelTracking.salesChannelId',
+                        type: 'multi-select-filter',
+                        label: this.$tc(labelKey),
+                        placeholder: this.$tc(placeholderKey),
+                        valueProperty: 'id',
+                        labelProperty: 'name',
+                        options: this.exportChannelOptions,
+                    },
+                })
+                .pop();
 
             const anchorIndex = filters.findIndex((f) => f.name === 'campaign-code-filter');
             if (anchorIndex !== -1) {

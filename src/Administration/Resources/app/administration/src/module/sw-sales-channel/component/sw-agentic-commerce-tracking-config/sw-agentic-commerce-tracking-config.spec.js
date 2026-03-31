@@ -19,12 +19,20 @@ async function createWrapper(salesChannelOverride = {}) {
             stubs: {
                 'mt-card': { template: '<div><slot /></div>' },
                 'mt-switch': {
-                    template: '<input type="checkbox" :disabled="disabled || undefined" :checked="modelValue" @change="$emit(\'update:model-value\', $event.target.checked)" />',
-                    props: ['modelValue', 'disabled'],
+                    template:
+                        '<input type="checkbox" :disabled="disabled || undefined" :checked="modelValue" @change="$emit(\'update:model-value\', $event.target.checked)" />',
+                    props: [
+                        'modelValue',
+                        'disabled',
+                    ],
                 },
                 'mt-text-field': {
-                    template: '<input type="text" :disabled="disabled || undefined" :value="modelValue" @input="$emit(\'update:model-value\', $event.target.value)" />',
-                    props: ['modelValue', 'disabled'],
+                    template:
+                        '<input type="text" :disabled="disabled || undefined" :value="modelValue" @input="$emit(\'update:model-value\', $event.target.value)" />',
+                    props: [
+                        'modelValue',
+                        'disabled',
+                    ],
                 },
             },
         },

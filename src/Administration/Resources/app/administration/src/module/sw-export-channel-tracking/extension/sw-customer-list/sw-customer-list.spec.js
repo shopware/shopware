@@ -29,62 +29,59 @@ function createMockRepositoryFactory(exportChannels = mockExportChannels) {
 }
 
 async function createWrapper(repositoryFactory = createMockRepositoryFactory()) {
-    return mount(
-        await wrapTestComponent('sw-customer-list', { sync: true }),
-        {
-            global: {
-                stubs: {
-                    'sw-page': { template: '<div><slot name="content" /></div>' },
-                    'sw-icon': true,
-                    'sw-sidebar': true,
-                    'sw-sidebar-item': true,
-                    'sw-sidebar-filter-panel': true,
-                    'sw-data-grid': true,
-                    'sw-pagination': true,
-                    'sw-empty-state': true,
-                    'mt-empty-state': true,
-                    'sw-search-bar': true,
-                    'sw-bulk-edit-modal': true,
-                    'sw-loader': true,
+    return mount(await wrapTestComponent('sw-customer-list', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-page': { template: '<div><slot name="content" /></div>' },
+                'sw-icon': true,
+                'sw-sidebar': true,
+                'sw-sidebar-item': true,
+                'sw-sidebar-filter-panel': true,
+                'sw-data-grid': true,
+                'sw-pagination': true,
+                'sw-empty-state': true,
+                'mt-empty-state': true,
+                'sw-search-bar': true,
+                'sw-bulk-edit-modal': true,
+                'sw-loader': true,
+            },
+            provide: {
+                repositoryFactory,
+                filterFactory: {
+                    create: jest.fn((entity, options) =>
+                        Object.keys(options).map((key) => ({ name: key, ...options[key] })),
+                    ),
                 },
-                provide: {
-                    repositoryFactory,
-                    filterFactory: {
-                        create: jest.fn((entity, options) =>
-                            Object.keys(options).map((key) => ({ name: key, ...options[key] })),
-                        ),
-                    },
-                    acl: { can: jest.fn(() => true) },
-                    searchRankingService: {
-                        getSearchFieldsByEntity: jest.fn().mockResolvedValue({}),
-                        isValidTerm: jest.fn(() => false),
-                        buildSearchQueriesForEntity: jest.fn((criteria) => criteria),
-                    },
-                    filterService: {
-                        mergeWithStoredFilters: jest.fn((storeKey, filters) => Promise.resolve(filters)),
-                    },
-                    feature: { isActive: jest.fn(() => true) },
+                acl: { can: jest.fn(() => true) },
+                searchRankingService: {
+                    getSearchFieldsByEntity: jest.fn().mockResolvedValue({}),
+                    isValidTerm: jest.fn(() => false),
+                    buildSearchQueriesForEntity: jest.fn((criteria) => criteria),
                 },
-                mocks: {
-                    $tc: (key) => key,
-                    $t: (key) => key,
-                    $route: {
-                        query: {},
-                        params: {},
-                        meta: {
-                            $module: { icon: 'regular-customer' },
-                        },
+                filterService: {
+                    mergeWithStoredFilters: jest.fn((storeKey, filters) => Promise.resolve(filters)),
+                },
+                feature: { isActive: jest.fn(() => true) },
+            },
+            mocks: {
+                $tc: (key) => key,
+                $t: (key) => key,
+                $route: {
+                    query: {},
+                    params: {},
+                    meta: {
+                        $module: { icon: 'regular-customer' },
                     },
-                    $router: { push: jest.fn(), replace: jest.fn() },
-                    $store: {
-                        state: {
-                            session: { currentUser: { id: '1' } },
-                        },
+                },
+                $router: { push: jest.fn(), replace: jest.fn() },
+                $store: {
+                    state: {
+                        session: { currentUser: { id: '1' } },
                     },
                 },
             },
         },
-    );
+    });
 }
 
 describe('sw-export-channel-tracking extension: sw-customer-list', () => {
@@ -166,4 +163,3 @@ describe('sw-export-channel-tracking extension: sw-customer-list', () => {
         });
     });
 });
-

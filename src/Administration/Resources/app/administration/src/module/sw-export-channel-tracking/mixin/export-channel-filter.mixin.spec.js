@@ -35,7 +35,7 @@ async function createWrapper(repositoryFactory = createMockRepositoryFactory()) 
         },
     });
 
-    return mount(await wrapTestComponent('test-export-channel-filter-mixin', { sync: true }), {
+    return mount(await Shopware.Component.build('test-export-channel-filter-mixin'), {
         global: {
             provide: {
                 repositoryFactory,
@@ -103,12 +103,7 @@ describe('export-channel-filter mixin', () => {
             wrapper = await createWrapper();
 
             const filters = buildFilterList('some-filter', 'campaign-code-filter', 'another-filter');
-            wrapper.vm.insertExportChannelFilter(
-                filters,
-                'order',
-                'label.key',
-                'placeholder.key',
-            );
+            wrapper.vm.insertExportChannelFilter(filters, 'order', 'label.key', 'placeholder.key');
 
             const campaignIndex = filters.findIndex((f) => f.name === 'campaign-code-filter');
             const exportIndex = filters.findIndex((f) => f.name === 'export-channel-filter');
@@ -120,12 +115,7 @@ describe('export-channel-filter mixin', () => {
             wrapper = await createWrapper();
 
             const filters = buildFilterList('some-filter', 'another-filter');
-            wrapper.vm.insertExportChannelFilter(
-                filters,
-                'order',
-                'label.key',
-                'placeholder.key',
-            );
+            wrapper.vm.insertExportChannelFilter(filters, 'order', 'label.key', 'placeholder.key');
 
             expect(filters[filters.length - 1].name).toBe('export-channel-filter');
         });

@@ -319,8 +319,14 @@ export default {
                     .updateUser(changes.changeset[0].changes)
                     .then(async () => {
                         if (this.newPassword) {
-                            // Re-issue tokens before any API calls, as a password change invalidates all existing tokens
-                            await this.loginService.loginByUsername(this.user.username, this.newPassword);
+                            try {
+                                // Re-issue tokens before any API calls, as a password change invalidates all existing tokens
+                                await this.loginService.loginByUsername(this.user.username, this.newPassword);
+                            } catch {
+                                // Save succeeded but automatic re-login failed; log out so the user can log in manually with the new password
+                                this.loginService.logout();
+                                return;
+                            }
                         }
 
                         await this.updateCurrentUser();
@@ -351,8 +357,14 @@ export default {
                 .save(this.user, context)
                 .then(async () => {
                     if (this.newPassword) {
-                        // Re-issue tokens before any API calls, as a password change invalidates all existing tokens
-                        await this.loginService.loginByUsername(this.user.username, this.newPassword);
+                        try {
+                            // Re-issue tokens before any API calls, as a password change invalidates all existing tokens
+                            await this.loginService.loginByUsername(this.user.username, this.newPassword);
+                        } catch {
+                            // Save succeeded but automatic re-login failed; log out so the user can log in manually with the new password
+                            this.loginService.logout();
+                            return;
+                        }
                     }
 
                     await this.updateCurrentUser();

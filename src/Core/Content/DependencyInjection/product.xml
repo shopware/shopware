@@ -513,6 +513,11 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitRoute" public="true">
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>

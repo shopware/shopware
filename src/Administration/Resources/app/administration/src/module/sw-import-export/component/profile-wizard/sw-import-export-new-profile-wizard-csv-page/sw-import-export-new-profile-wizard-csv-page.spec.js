@@ -65,7 +65,7 @@ function fileMock(input, file) {
 }
 
 describe('module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-csv-page', () => {
-    it('should pass all supported mime types to the file input', async () => {
+    it('should pass all supported file extensions to the file input', async () => {
         const { wrapper } = await createWrapper();
 
         const fileInput = wrapper.findComponent('.sw-import-export-new-profile-wizard-csv-page__file-upload');

@@ -124,7 +124,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
             FROM order_line_item
                      LEFT JOIN order_customer
                                ON (order_customer.order_id = order_line_item.order_id
-                                   AND order_customer.version_id = order_line_item.version_id)
+                                   AND order_customer.order_version_id = order_line_item.order_version_id)
             WHERE order_line_item.promotion_id IN (:ids) AND order_line_item.version_id = :versionId AND order_line_item.type = :type
             GROUP BY order_line_item.promotion_id, order_customer.customer_id
         SQL;

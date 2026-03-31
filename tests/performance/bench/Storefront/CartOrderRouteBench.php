@@ -73,7 +73,7 @@ class CartOrderRouteBench extends AbstractBenchCase
             ]);
         }
 
-        $this->context->getContext()->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($productPayload): void {
+        $this->context->getContext()->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($productPayload): void {
             static::getContainer()->get('product.repository')->create($productPayload, $context);
         });
 

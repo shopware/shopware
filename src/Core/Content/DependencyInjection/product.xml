@@ -162,6 +162,15 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Subscriber\RepairDigitalProductStatesSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
+            <argument type="service" id="logger"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Subscriber\ProductSubscriber">
             <argument type="service" id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator"/>
@@ -239,6 +248,7 @@
 
         <service id="Shopware\Core\Content\Product\Cms\ProductSlider\StaticProductProcessor">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="shopware.cms.product_slider.processor"/>
         </service>
@@ -246,6 +256,7 @@
         <service id="Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor">
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
             <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="shopware.cms.product_slider.processor"/>
         </service>
@@ -344,6 +355,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter"/>
             <argument type="service" id="logger"/>
             <argument>%shopware.search.term_max_length%</argument>
+            <argument>%shopware.product.search_keyword.indexing%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductLineItemCommandValidator">
@@ -430,6 +442,8 @@
 
         <service id="Shopware\Core\Content\Product\ProductTypeRegistry" public="true">
             <argument>%shopware.product.allowed_types%</argument>
+
+            <tag name="shopware.api.enum_provider" />
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater">
@@ -464,6 +478,7 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer"/>
+            <argument>%shopware.product.search_keyword.indexing%</argument>
             <tag name="kernel.reset" method="reset"/>
         </service>
 

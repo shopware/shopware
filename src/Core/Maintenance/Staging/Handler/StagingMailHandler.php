@@ -24,7 +24,7 @@ readonly class StagingMailHandler
             return;
         }
 
-        $this->systemConfigService->set(MailSender::DISABLE_MAIL_DELIVERY, true);
+        $this->systemConfigService->set(MailSender::DISABLE_MAIL_DELIVERY, true, null, true);
 
         $event->io->info('Disabled mail delivery.');
     }

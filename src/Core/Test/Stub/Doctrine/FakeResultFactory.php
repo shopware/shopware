@@ -22,8 +22,8 @@ class FakeResultFactory
 
         // columns in rows should be in the same order as in columns
         // keys in rows should be numeric
-        $rows = array_map(function ($row) use ($columns) {
-            return array_map(fn ($column) => $row[$column], $columns);
+        $rows = array_map(static function ($row) use ($columns) {
+            return array_map(static fn ($column) => $row[$column], $columns);
         }, $data);
 
         return new Result(

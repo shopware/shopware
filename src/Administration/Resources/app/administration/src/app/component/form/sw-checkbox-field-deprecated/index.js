@@ -55,21 +55,18 @@ export default {
         value: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: null,
         },
 
         inheritedValue: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: null,
         },
 
         ghostValue: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: null,
         },
 

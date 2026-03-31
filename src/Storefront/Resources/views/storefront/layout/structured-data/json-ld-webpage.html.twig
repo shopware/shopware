@@ -1,0 +1,56 @@
+{% block layout_structured_data_webpage %}
+    {% set metaInformation = page.metaInformation %}
+    {% set basicConfig = config('core.basicInformation') %}
+    {% set maxLength = config('seo.descriptionMaxLength') %}
+    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(maxLength ?? 255, '…') %}
+    {% set metaTitle = metaInformation.metaTitle|striptags|trim %}
+    {% set webPageType = jsonLdWebPageType is defined ? jsonLdWebPageType : 'WebPage' %}
+    {% set pageUrl = (page.metaInformation.canonical is defined and page.metaInformation.canonical) ? page.metaInformation.canonical : app.request.uri %}
+
+    {% set webPageData = {
+        '@context': 'https://schema.org',
+        '@type': webPageType,
+        '@id': pageUrl ~ '#webpage',
+        name: metaTitle,
+        description: metaDescription,
+        url: pageUrl,
+        isPartOf: {
+            '@id': app.request.schemeAndHttpHost ~ '/#website'
+        },
+        inLanguage: context.languageInfo.localeCode,
+        isFamilyFriendly: basicConfig.familyFriendly ? true : false,
+        copyrightHolder: {
+            '@type': 'Organization',
+            '@id': app.request.schemeAndHttpHost ~ '/#organization',
+            name: basicConfig.shopName
+        }
+    } %}
+
+    {% if metaInformation.copyrightYear %}
+        {% set webPageData = webPageData|merge({copyrightYear: metaInformation.copyrightYear|striptags}) %}
+    {% endif %}
+
+    {# Shop logo as the representative image for all pages (carried over from the old itemprop="image" meta tag) #}
+    {% set logoUrl = theme_config('sw-logo-desktop') %}
+    {% if logoUrl %}
+        {% set webPageData = webPageData|merge({image: logoUrl}) %}
+    {% endif %}
+
+    {#
+        primaryImageOfPage: the canonical primary image for this page.
+        On product pages this is the cover image (carried over from itemprop="image primaryImageOfPage"
+        on the first gallery image). On all other pages the shop logo serves as fallback.
+    #}
+    {% if page.product is defined and page.product and page.product.cover and page.product.cover.media and page.product.cover.media.url %}
+        {% set webPageData = webPageData|merge({primaryImageOfPage: page.product.cover.media.url}) %}
+    {% elseif logoUrl %}
+        {% set webPageData = webPageData|merge({primaryImageOfPage: logoUrl}) %}
+    {% endif %}
+
+    {% block layout_structured_data_webpage_script %}
+        <script type="application/ld+json">
+        {# ludtwig-ignore twig-json-encode-escape-js #}
+        {{ webPageData|json_encode(jsonLdFlags)|raw }}
+        </script>
+    {% endblock %}
+{% endblock %}

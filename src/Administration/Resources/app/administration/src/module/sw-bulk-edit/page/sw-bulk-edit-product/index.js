@@ -1116,7 +1116,7 @@ export default {
             }
 
             if (value && typeof value !== 'boolean') {
-                this.product[item] = [value];
+                this.product[item] = Array.isArray(value) ? value : [value];
             }
         },
 

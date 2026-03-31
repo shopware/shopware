@@ -83,7 +83,7 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
         }
 
         // Remove LooseValidAt constraint, as we want to check it manually and throw a more specific exception
-        $constraints = array_filter($this->configuration->validationConstraints(), fn ($constraint) => !$constraint instanceof LooseValidAt);
+        $constraints = array_filter($this->configuration->validationConstraints(), static fn ($constraint) => !$constraint instanceof LooseValidAt);
 
         if (!$this->configuration->validator()->validate($jwtToken, ...$constraints)) {
             throw PaymentException::invalidToken($token);

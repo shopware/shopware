@@ -186,51 +186,193 @@ Shopware.Component.override('sw-product-detail', {
 
 ### 4. Composition API Extensions
 
-- Components migrated to Vue Composition API
-- Type-safe extensions with TypeScript
-- Advanced reactive patterns
-- Native Vue features
+> **Experimental** — available behind feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`, stable in v6.8.0.
+> See [04-composition-extension-system.md](./04-composition-extension-system.md) for the full technical reference.
 
-**Modern Extension Pattern:**
+Components migrated to Composition API expose a typed public API that extensions can override with full type safety. There are two roles: **component author** (uses `createExtendableSetup`) and **plugin author** (uses `overrideComponentSetup`).
+
+#### Component Author: Making a Setup Extendable
+
+Components opt into the extension system by wrapping their setup with `createExtendableSetup`. The setup return value is split into `public` (accessible to overrides) and `private` (internal only, available as `_private`):
+
+```typescript
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { ref, computed } from 'vue';
+
+// Register the component's public API shape in the global type map
+declare global {
+    interface ComponentPublicApiMapping {
+        'sw-product-list': {
+            columns: Ref<Column[]>;
+            totalCount: Ref<number>;
+            loadData: () => Promise<void>;
+        };
+    }
+}
+
+export default {
+    name: 'sw-product-list',
+    props: { showDrafts: Boolean },
+    setup(props) {
+        return createExtendableSetup(
+            { name: 'sw-product-list', props },
+            (props) => {
+                const columns = ref<Column[]>([]);
+                const totalCount = ref(0);
+                const internalCursor = ref<string | null>(null); // kept private
+
+                const loadData = async () => { /* ... */ };
+
+                return {
+                    public: { columns, totalCount, loadData },
+                    private: { internalCursor },
+                };
+            },
+        );
+    },
+};
+```
+
+Rules for `createExtendableSetup`:
+- The `originalSetup` callback **must** return `{ public?, private? }` — at least one is required.
+- Props must **not** be returned from the setup callback (enforced with a console error).
+- `public` properties form the override API; `private` properties are accessible in overrides via `previousState._private`.
+
+#### Plugin Author: Overriding Component Setup
+
 ```javascript
-// Override component with Composition API
+import { ref, computed } from 'vue';
+
 Shopware.Component.overrideComponentSetup()('sw-product-list', (previousState, props, context) => {
     const customFilters = ref([]);
     const isCustomMode = ref(false);
-    
-    // Extend existing computed property
-    const enhancedColumns = computed(() => {
+
+    // Extend an existing computed property — reads from the previous state ref
+    const columns = computed(() => {
         const baseColumns = previousState.columns.value;
-        
+
         if (isCustomMode.value) {
             return [
                 ...baseColumns,
-                {
-                    property: 'customScore',
-                    label: 'Custom Score',
-                    sortable: true
-                }
+                { property: 'customScore', label: 'Custom Score', sortable: true },
             ];
         }
-        
+
         return baseColumns;
     });
-    
-    // Override existing method
-    const enhancedLoadData = async () => {
-        // Apply custom filters
-        const filters = [...previousState.filters.value, ...customFilters.value];
-        
-        // Call original load with enhanced filters
-        return previousState.loadData(filters);
+
+    // Override an existing method, calling the previous implementation
+    const loadData = async () => {
+        // Apply custom filters before delegating to the previous implementation
+        customFilters.value.forEach(f => { /* apply */ });
+        return previousState.loadData();
     };
-    
+
+    // Access private state (not part of the public API)
+    const cursor = previousState._private.internalCursor;
+
     return {
-        columns: enhancedColumns,
-        loadData: enhancedLoadData,
-        customFilters,
-        isCustomMode
+        columns,          // replaces the existing ref (2-way sync for plain refs)
+        loadData,         // replaces the existing function
+        customFilters,    // new ref added to component state
+        isCustomMode,     // new ref added to component state
     };
+});
+```
+
+#### Supported Override Return Types
+
+| Return value | Behavior |
+|---|---|
+| Plain `ref` (non-computed) | 2-way synced with the existing ref in the component state |
+| `readonly` computed ref | Replaces the existing property directly |
+| Writable computed ref | Wrapped in a new computed with getter + setter |
+| `reactive` object | Merged into the existing reactive object (must preserve all existing keys) |
+| `function` | Replaces the existing method directly |
+
+Returning a prop key in the override result logs a console error and the value is ignored.
+
+#### Options API Backward-Compatibility Shim
+
+When a plugin overrides a Composition API component using old-style Options API patterns (e.g. `data`, `methods`, `computed`, `watch`, mixins, or lifecycle hooks), the administration **automatically activates a compatibility shim** instead of throwing an error. A deprecation warning is logged to the browser console.
+
+**Shim activation** — the shim is enabled when the override config contains any of:
+`data`, `methods`, `computed`, `watch`, `mixins`, `inject`, `extends`, or any lifecycle hook name.
+
+**Supported Options API features:**
+
+| Feature | Notes |
+|---|---|
+| `data()` | Each key becomes a `ref` |
+| `methods` | Bound to a `this` proxy |
+| `computed` | Converted to `computed()` refs; supports getter-only and getter+setter |
+| `watch` | Registered via `watch()`. Dot-notation paths are **not** supported |
+| `inject` | Array, `{ localKey: 'provideKey' }`, and `{ localKey: { from, default } }` forms |
+| `mixins` | Flattened depth-first (deepest ancestor first), then merged |
+| Lifecycle hooks | `beforeCreate`, `created`, `beforeMount`, `mounted`, `beforeUpdate`, `updated`, `beforeUnmount`, `unmounted`, `activated`, `deactivated`, `errorCaptured` |
+
+**`this` proxy resolution order** inside shim methods/computed/watchers:
+1. Local state (`data`, `computed`, `methods` from the override itself)
+2. Injected values (`inject`)
+3. Props
+4. `previousState` (the component's existing Composition API state)
+
+`this.$super('methodName', ...args)` calls the method on `previousState`. For computed refs, `$super` unwraps the ref value.
+
+**Unsupported options (logged as warnings and ignored):**
+
+| Option | Level | Reason |
+|---|---|---|
+| `components`, `directives` | `console.warn` | Component/directive registration belongs to the component definition itself, not to overrides. Register them in the component config instead. |
+| `provide` | `console.warn` | The provide/inject contract is established at component setup time. Overriding it after the fact could silently break descendant injections in unpredictable ways. |
+| `template` | `console.warn` | Composition API components already have a compiled template; replacing it via an override would bypass Vue's template compiler pipeline and conflict with the existing render function. |
+| `extends` | `console.warn` | `extends` creates implicit inheritance chains that are difficult to merge reliably with Composition API state. Use `mixins` or explicit override methods instead. |
+| `inheritAttrs`, `emits` | `console.warn` | These are component-level declarations that affect how Vue compiles and validates the component. They cannot be changed at override time without re-compiling the component. |
+| `render()` | `console.error` — component will not work correctly | A custom render function completely replaces the compiled template. The shim cannot reconcile a custom render function with the existing Composition API template, so the component will break. |
+| Dot-notation `watch` paths (e.g. `'a.b.c'`) | `console.warn` — watcher is skipped | Resolving nested reactive paths requires deep traversal of the Composition API state graph, which adds significant complexity for a pattern that is rarely used in plugins or core code. |
+
+**Lifecycle hooks applied late** (overrides registered after `setup()` has already returned):
+- `beforeCreate`, `created`, `beforeMount`, `mounted` — called immediately
+- `beforeUnmount`, `unmounted`, and other future hooks — cannot be registered; a warning is logged
+
+#### Migration Guide: Options API Override → `overrideComponentSetup`
+
+```javascript
+// Before — Options API override (triggers shim + deprecation warning)
+Shopware.Component.override('sw-product-list', {
+    data() {
+        return { isCustomMode: false };
+    },
+    computed: {
+        columns() {
+            const base = this.$super('columns');
+            return this.isCustomMode ? [...base, { property: 'score' }] : base;
+        },
+    },
+    methods: {
+        async loadData() {
+            await this.$super('loadData');
+            this.isCustomMode = true;
+        },
+    },
+});
+
+// After — native Composition API override (no shim, fully typed)
+Shopware.Component.overrideComponentSetup()('sw-product-list', (previousState) => {
+    const isCustomMode = ref(false);
+
+    const columns = computed(() =>
+        isCustomMode.value
+            ? [...previousState.columns.value, { property: 'score' }]
+            : previousState.columns.value,
+    );
+
+    const loadData = async () => {
+        await previousState.loadData();
+        isCustomMode.value = true;
+    };
+
+    return { isCustomMode, columns, loadData };
 });
 ```
 

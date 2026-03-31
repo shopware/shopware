@@ -25,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
@@ -132,10 +133,25 @@ abstract class EntityDefinition
             return $this->fields;
         }
 
-        $fields = $this->defineFields();
+        // @deprecated tag:v6.8.0 - remove feature flag check, keep only the new behavior
+        if (Feature::isActive('v6.8.0.0')) {
+            // New behavior: defaultFields first, then defineFields (allows override)
+            $fields = new FieldCollection();
 
-        foreach ($this->defaultFields() as $field) {
-            $fields->add($field);
+            foreach ($this->defaultFields() as $field) {
+                $fields->add($field);
+            }
+
+            foreach ($this->defineFields() as $field) {
+                $fields->add($field);
+            }
+        } else {
+            // Old behavior: defineFields first, then defaultFields (default fields override)
+            $fields = $this->defineFields();
+
+            foreach ($this->defaultFields() as $field) {
+                $fields->add($field);
+            }
         }
 
         foreach ($this->extensions as $extension) {
@@ -229,7 +245,7 @@ abstract class EntityDefinition
 
         /** @var array<string> $internalProperties */
         $internalProperties = $this->getFields()
-            ->fmap(function (Field $field): ?string {
+            ->fmap(static function (Field $field): ?string {
                 if ($field->is(ApiAware::class)) {
                     return null;
                 }
@@ -312,7 +328,7 @@ abstract class EntityDefinition
             return $this->primaryKeys;
         }
 
-        $fields = $this->getFields()->filter(function (Field $field): bool {
+        $fields = $this->getFields()->filter(static function (Field $field): bool {
             return $field->is(PrimaryKey::class);
         });
 

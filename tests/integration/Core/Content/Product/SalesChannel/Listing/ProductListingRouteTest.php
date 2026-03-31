@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Listing;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -31,7 +30,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[CoversClass(ProductListingRoute::class)]
 #[Group('store-api')]
 class ProductListingRouteTest extends TestCase
 {

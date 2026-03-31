@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Filesystem\Plugin;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Symfony\Component\Filesystem\Filesystem;
@@ -10,7 +9,6 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
-#[CoversClass(CopyBatchInputFactory::class)]
 class CopyBatchInputFactoryTest extends TestCase
 {
     public function testCopyBatchInputFactoryUsingDirectory(): void

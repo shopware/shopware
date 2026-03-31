@@ -32,7 +32,7 @@ class ElasticsearchAdminResetCommandTest extends TestCase
     public function testExecuteWithEsNotEnabled(): void
     {
         $searchHelper = $this->getMockBuilder(AdminElasticsearchHelper::class)->disableOriginalConstructor()->getMock();
-        $searchHelper->expects($this->any())->method('getEnabled')->willReturn(false);
+        $searchHelper->expects($this->any())->method('isEnabled')->willReturn(false);
         $commandTester = new CommandTester(
             new ElasticsearchAdminResetCommand(
                 $this->client,
@@ -51,7 +51,7 @@ class ElasticsearchAdminResetCommandTest extends TestCase
     public function testExecuteWithInputNo(): void
     {
         $searchHelper = $this->getMockBuilder(AdminElasticsearchHelper::class)->disableOriginalConstructor()->getMock();
-        $searchHelper->expects($this->any())->method('getEnabled')->willReturn(true);
+        $searchHelper->expects($this->any())->method('isEnabled')->willReturn(true);
         $commandTester = new CommandTester(
             new ElasticsearchAdminResetCommand(
                 $this->client,
@@ -72,7 +72,7 @@ class ElasticsearchAdminResetCommandTest extends TestCase
     public function testExecute(): void
     {
         $searchHelper = $this->getMockBuilder(AdminElasticsearchHelper::class)->disableOriginalConstructor()->getMock();
-        $searchHelper->expects($this->any())->method('getEnabled')->willReturn(true);
+        $searchHelper->expects($this->any())->method('isEnabled')->willReturn(true);
 
         $indices = $this->createMock(IndicesNamespace::class);
         $indices->expects($this->once())->method('get')->willReturn([]);

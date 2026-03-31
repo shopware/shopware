@@ -41,6 +41,11 @@ shopware:
         major: true
         toggleable: true
         description: "Experimental! Contains Performance Tweaks for future changes"
+      - name: ENABLE_OPENSEARCH_FOR_ADMIN_API
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Route supported Admin API entity searches through OpenSearch"
       - name: CACHE_CONTEXT_HASH_RULES_OPTIMIZATION
         default: false
         major: false
@@ -56,19 +61,23 @@ shopware:
         major: false
         toggleable: true
         description: "Defers cart errors that happen during SalesChannelContext creation\nThis feature will be standard as of v6.8.0"
-      - name: PRODUCT_ANALYTICS
-        default: false
-        major: false
-        toggleable: true
-        description: "Experimental! Enables Product Analytics which collects usage data in the Administration."
       - name: REPEATED_PAYMENT_FINALIZE
         default: false
         major: true
         toggleable: true
         description: "This allows repeated calls to the /payment/finalize-transaction endpoint with the same token without throwing a 'token expired' exception."
-
+      - name: PERMANENT_AUTOMATIC_PROMOTIONS
+        default: false
+        major: true
+        toggleable: true
+        description: "Automatic promotions cannot be removed anymore and are therefore no longer tracked as blocked after removal."
       - name: METEOR_TEXT_EDITOR
         default: false
         major: false
         toggleable: true
         description: "Enables the Meteor text editor in the administration."
+      - name: JSON_LD_DATA
+        default: false
+        major: true
+        toggleable: true
+        description: "Replace inline microdata (itemscope/itemprop) with JSON-LD structured data in the Storefront. When enabled, legacy microdata attributes are removed and a <script type=\"application/ld+json\"> block is injected into the <head> instead."

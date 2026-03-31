@@ -320,10 +320,8 @@ export default {
                     .then(async () => {
                         if (this.newPassword) {
                             try {
-                                // Re-issue tokens before any API calls, as a password change invalidates all existing tokens
                                 await this.loginService.loginByUsername(this.user.username, this.newPassword);
                             } catch {
-                                // Save succeeded but automatic re-login failed; log out so the user can log in manually with the new password
                                 this.loginService.logout();
                                 return;
                             }
@@ -358,10 +356,8 @@ export default {
                 .then(async () => {
                     if (this.newPassword) {
                         try {
-                            // Re-issue tokens before any API calls, as a password change invalidates all existing tokens
                             await this.loginService.loginByUsername(this.user.username, this.newPassword);
                         } catch {
-                            // Save succeeded but automatic re-login failed; log out so the user can log in manually with the new password
                             this.loginService.logout();
                             return;
                         }

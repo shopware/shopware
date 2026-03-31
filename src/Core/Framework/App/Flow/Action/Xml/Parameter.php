@@ -44,7 +44,7 @@ class Parameter extends XmlElement
                 continue;
             }
 
-            $values[self::kebabCaseToCamelCase($attribute->name)] = XmlUtils::phpize($attribute->value);
+            $values[self::kebabCaseToCamelCase($attribute->name)] = $attribute->value;
         }
 
         return $values;

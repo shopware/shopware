@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -20,7 +19,6 @@ use Shopware\Storefront\Theme\ThemeRuntimeConfigStorage;
  *
  * @phpstan-import-type ThemeRuntimeConfigArrayOverrides from ThemeRuntimeConfig
  */
-#[CoversClass(ThemeRuntimeConfigStorage::class)]
 class ThemeRuntimeConfigStorageTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

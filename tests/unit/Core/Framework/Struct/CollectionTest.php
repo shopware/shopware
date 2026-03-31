@@ -55,6 +55,18 @@ class CollectionTest extends TestCase
         static::assertCount(2, $collection);
     }
 
+    public function testIsEmpty(): void
+    {
+        $collection = new TestCollection();
+        static::assertTrue($collection->isEmpty());
+
+        $collection->add('a');
+        static::assertFalse($collection->isEmpty());
+
+        $collection->clear();
+        static::assertTrue($collection->isEmpty());
+    }
+
     public function testGetNumericKeys(): void
     {
         $collection = new TestCollection();

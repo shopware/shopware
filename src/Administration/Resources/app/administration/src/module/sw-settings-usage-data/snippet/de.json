@@ -40,7 +40,7 @@
         "label-checkbox": "Shopdaten teilen (anonym)"
       },
       "user-data": {
-        "title": "Persönliche Daten",
+        "title": "Nutzungsdaten",
         "description": "Wir nutzen personenbezogene Daten über dein {data} in der Administration, um die Benutzerfreundlichkeit weiter zu verbessern. Alle Einzelheiten findest Du in unserer {privacy-policy}.",
         "emphasizes": {
           "data": "Verhalten"
@@ -54,7 +54,7 @@
             "link": "https://www.shopware.com/de/datenschutz/website/"
           }
         },
-        "label-checkbox": "Persönliche Daten teilen"
+        "label-checkbox": "Nutzungsdaten teilen"
       },
       "opt-out-info": {
         "snippet": "Du kannst deine Einstellungen jederzeit anpassen: Shopdaten unter {settings} und Persönliche Daten unter {profile}.",

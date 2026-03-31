@@ -472,6 +472,7 @@
     "summaryNetPrice": "Net total",
     "summaryTax": "plus %rate%% VAT",
     "summaryTaxLabeled": "plus %rate%% %label%",
+    "summaryTaxInclude": "incl. %rate%% VAT",
     "summaryOffCanvasLabel": "Shopping cart summary",
     "proceedLink": "Go to checkout",
     "addressEqualText": "Same as shipping address",
@@ -736,6 +737,10 @@
           "solution": "Please try again or contact our support."
         }
       }
+    },
+    "animation": {
+      "toggle": "Animation play/pause",
+      "select": "Select animation"
     }
   },
   "wishlist": {

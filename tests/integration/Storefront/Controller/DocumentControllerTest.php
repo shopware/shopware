@@ -56,9 +56,13 @@ class DocumentControllerTest extends TestCase
 
     private Context $context;
 
+    private DocumentGenerator $documentGenerator;
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
 
         $this->context = Context::createDefaultContext();
 
@@ -96,7 +100,7 @@ class DocumentControllerTest extends TestCase
 
         $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, [], null, true);
 
-        $document = static::getContainer()->get(DocumentGenerator::class)->generate(
+        $document = $this->documentGenerator->generate(
             InvoiceRenderer::TYPE,
             [$operation->getOrderId() => $operation],
             $context,
@@ -115,7 +119,7 @@ class DocumentControllerTest extends TestCase
 
         $request->query->set('extension', 'pdf');
 
-        $documentIdStruct = static::getContainer()->get(DocumentGenerator::class)->upload(
+        $documentIdStruct = $this->documentGenerator->upload(
             $document->getId(),
             $context,
             $request
@@ -145,6 +149,9 @@ class DocumentControllerTest extends TestCase
         static::assertSame(404, $browser->getResponse()->getStatusCode());
     }
 
+    /**
+     * @param array<string, string> $operationConfig
+     */
     #[DataProvider('provideFileTypeParams')]
     public function testDownloadDocument(
         string $documentType,
@@ -153,21 +160,27 @@ class DocumentControllerTest extends TestCase
         ?string $pathParameter,
         ?string $queryParameter,
         ?string $acceptHeader = null,
+        array $operationConfig = [],
     ): void {
         $context = Context::createDefaultContext();
 
         $cart = $this->generateDemoCart(1);
         $orderId = $this->persistCart($cart);
 
-        $operation = new DocumentGenerateOperation($orderId);
+        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, $operationConfig);
 
-        $document = static::getContainer()->get(DocumentGenerator::class)->generate(
+        $result = $this->documentGenerator->generate(
             $documentType,
             [$operation->getOrderId() => $operation],
             $context,
-        )->getSuccess()->first();
+        );
 
-        static::assertNotNull($document);
+        $document = $result->getSuccess()->first();
+
+        static::assertNotNull($document, implode(', ', array_map(
+            static fn (\Throwable $e) => $e->getMessage(),
+            $result->getErrors(),
+        )));
 
         $browser = $this->login(self::CUSTOMER_EMAIL_ADDRESS);
 
@@ -219,6 +232,22 @@ class DocumentControllerTest extends TestCase
             'expectedContentType' => ZugferdRenderer::FILE_CONTENT_TYPE,
             'pathParameter' => ZugferdRenderer::FILE_EXTENSION,
             'queryParameter' => null,
+            'acceptHeader' => null,
+            'operationConfig' => [
+                'vatId' => 'DE123456789',
+                'bankBic' => 'DEUTDEDBFRA',
+                'bankIban' => 'DE89370400440532013000',
+                'bankName' => 'Deutsche Bank',
+                'taxOffice' => 'Finanzamt Musterstadt',
+                'companyUrl' => 'https://www.shopware.com',
+                'companyName' => 'Example Company',
+                'companyEmail' => 'mail@shopware.com',
+                'companyPhone' => '+49 123 4567890',
+                'paymentDueDate' => '+30 days',
+                'executiveDirector' => 'Max Mustermann',
+                'placeOfFulfillment' => 'Musterstadt',
+                'placeOfJurisdiction' => 'Musterstadt',
+            ],
         ];
 
         yield 'without params pdf should be returned' => [
@@ -248,7 +277,7 @@ class DocumentControllerTest extends TestCase
 
         $operation = new DocumentGenerateOperation($orderId);
 
-        $document = static::getContainer()->get(DocumentGenerator::class)->generate(
+        $document = $this->documentGenerator->generate(
             InvoiceRenderer::TYPE,
             [$operation->getOrderId() => $operation],
             $context,

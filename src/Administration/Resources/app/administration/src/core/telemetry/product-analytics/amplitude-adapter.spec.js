@@ -3,11 +3,9 @@ jest.mock('@amplitude/analytics-browser', () => ({
     createInstance: jest.fn().mockReturnValue({
         add: jest.fn(),
         init: jest.fn(),
-        reset: jest.fn(),
         track: jest.fn(),
         flush: jest.fn(),
         setOptOut: jest.fn(),
-        setTransport: jest.fn(),
         getUserId: jest.fn(),
         setUserId: jest.fn(),
     }),
@@ -70,17 +68,11 @@ describe('src/core/telemetry/product-analytics/amplitude-adapter', () => {
     it('forwards track and other controls to amplitude instance', () => {
         const adapter = new AmplitudeAdapter('https://s', 'en');
 
-        adapter.reset();
-        expect(mockInstance.reset).toHaveBeenCalled();
-
         adapter.flush();
         expect(mockInstance.flush).toHaveBeenCalled();
 
         adapter.setOptOut(true);
         expect(mockInstance.setOptOut).toHaveBeenCalledWith(true);
-
-        adapter.setTransport('xhr');
-        expect(mockInstance.setTransport).toHaveBeenCalledWith('xhr');
     });
 
     it('tracks events only when initialized', () => {

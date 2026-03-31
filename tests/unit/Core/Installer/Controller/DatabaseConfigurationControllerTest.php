@@ -3,10 +3,10 @@
 namespace Shopware\Tests\Unit\Core\Installer\Controller;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Installer\Controller\DatabaseConfigurationController;
 use Shopware\Core\Installer\Controller\InstallerController;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
@@ -31,6 +31,7 @@ use Twig\Environment;
 #[CoversClass(InstallerController::class)]
 class DatabaseConfigurationControllerTest extends TestCase
 {
+    use EnvTestBehaviour;
     use InstallerControllerTestTrait;
 
     private MockObject&Environment $twig;
@@ -65,10 +66,11 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->controller->setContainer($this->getInstallerContainer($this->twig, ['router' => $this->router]));
     }
 
-    #[BackupGlobals(true)]
     public function testDatabaseGetConfigurationRoute(): void
     {
-        $_SERVER['DATABASE_URL'] = 'mysql://shopware:secret@db.example:3307/shopware_prefill';
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://shopware:secret@db.example:3307/shopware_prefill',
+        ]);
 
         $expectedConnectionInfo = (new DatabaseConnectionInformation())->assign([
             'hostname' => 'db.example',
@@ -100,10 +102,11 @@ class DatabaseConfigurationControllerTest extends TestCase
         static::assertFalse($session->has(DatabaseConnectionInformation::class));
     }
 
-    #[BackupGlobals(true)]
     public function testDatabaseGetConfigurationRouteFallsBackOnInvalidDatabaseUrl(): void
     {
-        $_SERVER['DATABASE_URL'] = 'not-a-valid-url';
+        $this->setEnvVars([
+            'DATABASE_URL' => 'not-a-valid-url',
+        ]);
 
         $this->twig->expects($this->once())->method('render')
             ->with(

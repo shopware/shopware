@@ -42,7 +42,8 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         private readonly AbstractElasticsearchSearchHydrator $hydrator,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly string $timeout,
-        private readonly string $searchType
+        private readonly string $searchType,
+        private readonly ?int $precisionThreshold = null
     ) {
     }
 
@@ -192,6 +193,9 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
             $aggregation = new CardinalityAggregation('total-count');
             $aggregation->setField($accessor);
+            if ($this->precisionThreshold !== null) {
+                $aggregation->addParameter('precision_threshold', $this->precisionThreshold);
+            }
 
             return $this->addPostFilterAggregation($criteria, $definition, $context, $aggregation);
         }
@@ -222,6 +226,9 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
         $aggregation = new CardinalityAggregation('total-count');
         $aggregation->setScript($script);
+        if ($this->precisionThreshold !== null) {
+            $aggregation->addParameter('precision_threshold', $this->precisionThreshold);
+        }
 
         return $this->addPostFilterAggregation($criteria, $definition, $context, $aggregation);
     }

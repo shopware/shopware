@@ -1235,6 +1235,24 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.inner-content').exists()).toBeTruthy();
             expect(wrapper.find('.default-content + .inner-content').exists()).toBeTruthy();
         });
+
+        it('renders the default content innermost when {% parent %} is wrapped by outer HTML', async () => {
+            Shopware.Component.override('sw-product-detail', {
+                template: `
+                    {% block shim_parent_innermost %}
+                        <div class="outer">
+                            <div class="inner">
+                                {% parent %}
+                            </div>
+                        </div>
+                    {% endblock %}
+                `,
+            });
+
+            const wrapper = await createWrapper({ blockName: 'shim_parent_innermost' });
+
+            expect(wrapper.find('.outer > .inner > .default-content').exists()).toBeTruthy();
+        });
     });
 
     // ─── HTML attributes and Vue directives pass-through ─────────────────────

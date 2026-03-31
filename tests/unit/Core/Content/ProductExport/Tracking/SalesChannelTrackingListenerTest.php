@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Tracking;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -35,7 +34,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(SalesChannelTrackingListener::class)]
 class SalesChannelTrackingListenerTest extends TestCase
 {
     public function testGetSubscribedEvents(): void

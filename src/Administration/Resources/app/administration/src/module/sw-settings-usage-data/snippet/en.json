@@ -40,10 +40,10 @@
         "label-checkbox": "Share store data (anonymous)"
       },
       "user-data": {
-        "title": "Personal data",
-        "description": "We use {data} about how you interact with the administration to continously improve usability. You can find all details in our {privacy-policy}.",
+        "title": "Usage data",
+        "description": "We use personal {data} about how you interact with the administration to continously improve usability. You can find all details in our {privacy-policy}.",
         "emphasizes": {
-          "data": "personal data"
+          "data": "usage data"
         },
         "help-text": {
           "data": "<strong>Usage data</strong> within Shopware pertains to the information related to how admin users and storefront vistors interact with our platform. This includes details like interactions with different Shopware admin modules, pages viewed, duration of visits, click paths, and user actions within the platform and storefront. By evaluating the usage data, we can identify areas of the platform that are frequently visit or avoid to measure feature adoption, leading to potential improvements in layout, design, and functionality."
@@ -54,7 +54,7 @@
             "link": "https://www.shopware.com/en/privacy/website/"
           }
         },
-        "label-checkbox": "Share personal data"
+        "label-checkbox": "Share Usage data"
       },
       "opt-out-info": {
         "snippet": "You can change your preferences at any time: manage Store Data settings under {settings}, and Personal Data settings under {profile}.",

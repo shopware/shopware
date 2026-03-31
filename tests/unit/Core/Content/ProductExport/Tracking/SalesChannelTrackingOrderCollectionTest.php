@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Tracking;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\Tracking\SalesChannelTrackingOrderCollection;
 use Shopware\Core\Content\ProductExport\Tracking\SalesChannelTrackingOrderEntity;

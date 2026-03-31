@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\ProductExport\Tracking;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -34,7 +33,6 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(SalesChannelTrackingListener::class)]
 class SalesChannelTrackingListenerTest extends TestCase
 {
     use IntegrationTestBehaviour;

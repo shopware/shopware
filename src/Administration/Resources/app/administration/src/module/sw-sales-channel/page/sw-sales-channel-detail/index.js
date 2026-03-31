@@ -20,6 +20,12 @@ export default {
         'feature',
     ],
 
+    provide() {
+        return {
+            swSalesChannelDetailGetAgenticCommerceExportConfig: () => this.agenticCommerceExportConfig,
+        };
+    },
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder'),
@@ -185,11 +191,19 @@ export default {
         },
 
         loadEntityData() {
-            if (!this.$route.params.id) {
+            const hasRouteId = Boolean(this.$route.params.id);
+            const hasRouteTypeId = Boolean(this.$route.params.typeId);
+
+            if (!hasRouteId && hasRouteTypeId && this.salesChannel?.id) {
+                this.loadAgenticCommerceExportConfig();
                 return;
             }
 
-            if (this.$route.params.typeId) {
+            if (!hasRouteId) {
+                return;
+            }
+
+            if (hasRouteTypeId) {
                 this.loadAgenticCommerceExportConfig();
                 return;
             }

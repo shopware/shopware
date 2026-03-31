@@ -20,13 +20,17 @@ const FOREIGN_KEY_CONSTRAINT_VIOLATION_CODE = '1451';
 export default {
     template,
 
-    inject: [
-        'salesChannelService',
-        'productExportService',
-        'repositoryFactory',
-        'knownIpsService',
-        'acl',
-    ],
+    inject: {
+        salesChannelService: 'salesChannelService',
+        productExportService: 'productExportService',
+        repositoryFactory: 'repositoryFactory',
+        knownIpsService: 'knownIpsService',
+        acl: 'acl',
+        swSalesChannelDetailGetAgenticCommerceExportConfig: {
+            from: 'swSalesChannelDetailGetAgenticCommerceExportConfig',
+            default: () => [],
+        },
+    },
 
     emits: [
         'template-selected',
@@ -148,6 +152,18 @@ export default {
 
         isProductExportChannel() {
             return this.isProductComparison || this.isAgenticCommerce;
+        },
+
+        resolvedAgenticCommerceExportConfig() {
+            if (Array.isArray(this.agenticCommerceExportConfig) && this.agenticCommerceExportConfig.length > 0) {
+                return this.agenticCommerceExportConfig;
+            }
+
+            if (typeof this.swSalesChannelDetailGetAgenticCommerceExportConfig === 'function') {
+                return this.swSalesChannelDetailGetAgenticCommerceExportConfig() ?? [];
+            }
+
+            return [];
         },
 
         isHeadlessSalesChannel() {

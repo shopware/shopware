@@ -11,6 +11,7 @@
  "positionIdentifier + '__after'",
  "positionIdentifier + '__before'",
  "positionIdentifier + '__before'",
+ "sw-agentic-commerce-tracking-config",
  "sw-bulk-edit-customer-account",
  "sw-bulk-edit-customer-custom-field",
  "sw-bulk-edit-customer-tags",

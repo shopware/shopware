@@ -22,21 +22,21 @@
 
     {% block sw_agentic_commerce_tracking_config_affiliate %}
     <mt-text-field
-        :value="trackingConfig.affiliateCode"
+        :model-value="trackingConfig.affiliateCode"
         :label="$tc('sw-sales-channel.agenticCommerceTracking.affiliateCodeLabel')"
         :placeholder="$tc('sw-sales-channel.agenticCommerceTracking.affiliateCodePlaceholder')"
         :disabled="codesDisabled || undefined"
-        @update:value="onAffiliateCodeChange"
+        @update:model-value="onAffiliateCodeChange"
     />
     {% endblock %}
 
     {% block sw_agentic_commerce_tracking_config_campaign %}
     <mt-text-field
-        :value="trackingConfig.campaignCode"
+        :model-value="trackingConfig.campaignCode"
         :label="$tc('sw-sales-channel.agenticCommerceTracking.campaignCodeLabel')"
         :placeholder="$tc('sw-sales-channel.agenticCommerceTracking.campaignCodePlaceholder')"
         :disabled="codesDisabled || undefined"
-        @update:value="onCampaignCodeChange"
+        @update:model-value="onCampaignCodeChange"
     />
     {% endblock %}
 </mt-card>

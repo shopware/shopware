@@ -32,7 +32,7 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
 {
     final public const SESSION_KEY_REFERRAL_CODE = 'salesChannelReferralCode';
 
-    final public const QUERY_PARAM = 'referralCode';
+    final public const QUERY_PARAM = 'referringSalesChannel';
 
     private const TRACKABLE_TYPE_IDS = [
         Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE,

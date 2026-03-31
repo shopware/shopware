@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import swAgenticCommerceTrackingConfig from './index.js';
+import swAgenticCommerceTrackingConfig from './index';
 
 Shopware.Component.register('sw-agentic-commerce-tracking-config', swAgenticCommerceTrackingConfig);
 
@@ -19,12 +19,12 @@ async function createWrapper(salesChannelOverride = {}) {
             stubs: {
                 'mt-card': { template: '<div><slot /></div>' },
                 'mt-switch': {
-                    template: '<input type="checkbox" :checked="modelValue" @change="$emit(\'update:model-value\', $event.target.checked)" />',
+                    template: '<input type="checkbox" :disabled="disabled || undefined" :checked="modelValue" @change="$emit(\'update:model-value\', $event.target.checked)" />',
                     props: ['modelValue', 'disabled'],
                 },
                 'mt-text-field': {
-                    template: '<input type="text" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
-                    props: ['value', 'disabled'],
+                    template: '<input type="text" :disabled="disabled || undefined" :value="modelValue" @input="$emit(\'update:model-value\', $event.target.value)" />',
+                    props: ['modelValue', 'disabled'],
                 },
             },
         },

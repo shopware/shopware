@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DependencyInjection;
 
+use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,6 +14,7 @@ class DependencyInjectionException extends HttpException
     public const BUNDLES_METADATA_IS_NOT_AN_ARRAY = 'FRAMEWORK__BUNDLES_METADATA_IS_NOT_AN_ARRAY';
     public const TAGGED_SERVICE_HAS_WRONG_TYPE = 'FRAMEWORK__TAGGED_SERVICE_HAS_WRONG_TYPE';
     public const PARAMETER_HAS_WRONG_TYPE = 'FRAMEWORK__PARAMETER_HAS_WRONG_TYPE';
+    public const MISSING_ASSIGNABLE_DEFINITION = 'FRAMEWORK__MISSING_ASSIGNABLE_DEFINITION';
 
     public static function projectDirNotInContainer(): self
     {
@@ -38,6 +40,20 @@ class DependencyInjectionException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::TAGGED_SERVICE_HAS_WRONG_TYPE,
             \sprintf('Service "%s" is tagged as "%s" and must therefore be of type "%s".', $service, $tag, $type)
+        );
+    }
+
+    public static function missingAssignableDefinition(string $service, string $tag): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_ASSIGNABLE_DEFINITION,
+            \sprintf(
+                'Service "%s" is tagged as "%s" but none of its constructor arguments reference an "%s" subclass.',
+                $service,
+                $tag,
+                AbstractContentLayoutAssignableDefinition::class
+            )
         );
     }
 

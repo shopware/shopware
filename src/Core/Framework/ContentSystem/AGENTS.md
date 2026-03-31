@@ -9,7 +9,9 @@
 - **Pipeline**: `ContentPipeline` (steps 2-5), `RenderingMode` (FULL vs SKELETON)
 - **Store API**: `SalesChannel/ContentRoute` (single class, DI-parameterized per format + section)
 - **Schema**: `Schema/ContentSystemDataLoaderTypeResolver`, `Schema/ContentSystemDataLoaderTypeMap`, `Schema/ContentSystemDataLoaderTypeSchemaGenerator`
+- **Entity Type Schema**: `Schema/ContentLayoutAssignableEntityResolver`, `Schema/ContentLayoutAssignableEntitySchemaGenerator`
 - **Compiler Pass**: `DependencyInjection/CompilerPass/ContentSystemDataLoaderTypeCompilerPass` — collects loader type info at build time
+- **Compiler Pass**: `DependencyInjection/CompilerPass/ContentLayoutAssignableCompilerPass` — collects assignable entity types at build time
 
 ## Constraints
 
@@ -19,6 +21,8 @@
 - OpenAPI schemas: update `src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/` when modifying endpoints
 - Data loader type introspection: `ContentSystemDataLoaderTypeCompilerPass` calls `getProvidedData()` on all tagged loaders at build time — loaders MUST have `@extends AbstractContentDataLoader<T>` PHPDoc; wildcard loaders listen to `ContentSystemDataLoaderTypesResolvedEvent` for runtime expansion
 - Schema API endpoint: `GET /api/_info/content-system-data-loader-types.json` (registered in `InfoController`)
+- Entity type introspection: `ContentLayoutAssignableCompilerPass` introspects `content_system.context_factory` tagged services for `AbstractContentLayoutAssignableDefinition` arguments — entity types baked into resolver at build time
+- Schema API endpoint: `GET /api/_info/content-system-entity-types.json` (registered in `InfoController`)
 
 ## Quick Reference
 

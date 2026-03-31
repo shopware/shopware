@@ -18,6 +18,7 @@ use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentLayoutAssignableEntitySchemaGenerator;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -238,6 +239,23 @@ class InfoControllerTest extends TestCase
         static::assertSame($expected, json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
     }
 
+    #[TestDox('returns content system entity types as JSON')]
+    public function testContentSystemEntityTypes(): void
+    {
+        $expected = ['entityTypes' => ['product', 'category', 'landing_page']];
+
+        $schemaGenerator = static::createStub(ContentLayoutAssignableEntitySchemaGenerator::class);
+        $schemaGenerator->method('getSchema')->willReturn($expected);
+
+        $controller = $this->createController(entitySchemaGenerator: $schemaGenerator);
+        $response = $controller->contentSystemEntityTypes();
+
+        static::assertSame(200, $response->getStatusCode());
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertSame($expected, json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -252,8 +270,10 @@ class InfoControllerTest extends TestCase
         return json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
     }
 
-    private function createController(?ContentSystemDataLoaderTypeSchemaGenerator $dataLoaderTypeSchemaGenerator = null): InfoController
-    {
+    private function createController(
+        ?ContentSystemDataLoaderTypeSchemaGenerator $dataLoaderTypeSchemaGenerator = null,
+        ?ContentLayoutAssignableEntitySchemaGenerator $entitySchemaGenerator = null,
+    ): InfoController {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
             'shopware.filesystem.private_allowed_extensions' => false,
@@ -302,6 +322,7 @@ class InfoControllerTest extends TestCase
             $this->statsService,
             $this->eventDispatcher,
             $dataLoaderTypeSchemaGenerator ?? static::createStub(ContentSystemDataLoaderTypeSchemaGenerator::class),
+            $entitySchemaGenerator ?? static::createStub(ContentLayoutAssignableEntitySchemaGenerator::class),
         );
     }
 }

@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\App\Event\CustomAppEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentLayoutAssignableEntitySchemaGenerator;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderTypeSchemaGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
@@ -448,6 +449,7 @@ class InfoControllerTest extends TestCase
             $this->createMock(StatsService::class),
             new EventDispatcher(),
             $this->createMock(ContentSystemDataLoaderTypeSchemaGenerator::class),
+            $this->createMock(ContentLayoutAssignableEntitySchemaGenerator::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -525,6 +527,7 @@ class InfoControllerTest extends TestCase
             $this->createMock(StatsService::class),
             new EventDispatcher(),
             $this->createMock(ContentSystemDataLoaderTypeSchemaGenerator::class),
+            $this->createMock(ContentLayoutAssignableEntitySchemaGenerator::class),
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -714,6 +717,26 @@ class InfoControllerTest extends TestCase
             static::assertArrayHasKey('path', $route);
             static::assertArrayHasKey('methods', $route);
         }
+    }
+
+    public function testContentSystemEntityTypes(): void
+    {
+        $client = $this->getBrowser();
+        $client->request('GET', '/api/_info/content-system-entity-types.json');
+
+        $response = $client->getResponse();
+        static::assertSame(200, $response->getStatusCode());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('entityTypes', $data);
+        static::assertIsArray($data['entityTypes']);
+        static::assertContains('product', $data['entityTypes']);
+        static::assertContains('category', $data['entityTypes']);
+        static::assertContains('landing_page', $data['entityTypes']);
     }
 
     public function testFetchMessageStats(): void

@@ -11,9 +11,11 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor;
+use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -237,6 +239,58 @@ class ProductStreamProcessorTest extends TestCase
         $slider = $slot->getData();
         static::assertInstanceOf(ProductSliderStruct::class, $slider);
         static::assertEmpty($slider->getProducts());
+    }
+
+    public function testEnrichPreservesExplicitlyFilteredVariants(): void
+    {
+        $slot = $this->getSlot();
+        $resolverContext = $this->getResolverContext();
+
+        $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
+        $this->config->add($config);
+
+        $product = (new ProductEntity())->assign([
+            'id' => 'product-1',
+            '_uniqueIdentifier' => 'product-1',
+            'parentId' => 'parent-1',
+            'isCloseout' => false,
+            'stock' => 12,
+            'variantListingConfig' => new VariantListingConfig(
+                true,
+                'product-main',
+                null
+            ),
+        ]);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.id', 'product-1'));
+
+        $streamResult = new EntitySearchResult(
+            'product',
+            1,
+            new ProductCollection([$product]),
+            null,
+            $criteria,
+            Context::createDefaultContext()
+        );
+
+        $data = new ElementDataCollection();
+        $data->add('product-slider-entity-fallback_id', $streamResult);
+
+        $this->productRepository->expects($this->once())
+            ->method('search')
+            ->with(static::callback(static function (Criteria $criteria): bool {
+                static::assertSame(['product-1'], array_values($criteria->getIds()));
+
+                return true;
+            }))
+            ->willReturn($this->getEntitySearchResult(new ProductCollection([$product])));
+
+        $this->getProcessor()->enrich($slot, $data, $resolverContext);
+
+        $slider = $slot->getData();
+        static::assertInstanceOf(ProductSliderStruct::class, $slider);
+        static::assertSame(['product-1'], array_values($slider->getProducts()->getIds()));
     }
 
     private function getProcessor(): ProductStreamProcessor

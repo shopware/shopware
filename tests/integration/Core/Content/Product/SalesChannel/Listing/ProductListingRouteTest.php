@@ -150,6 +150,40 @@ class ProductListingRouteTest extends TestCase
         static::assertSame($this->variantIds['greenL'], $response['elements'][0]['id']);
     }
 
+    public function testLoadProductsUsingDynamicGroupWithExplicitVariantKeepsSelection(): void
+    {
+        $this->createData(
+            'product_stream',
+            $this->ids->create('productStream'),
+            null,
+            'greenL'
+        );
+
+        $this->productRepository->upsert([
+            [
+                'id' => $this->productId,
+                'variantListingConfig' => [
+                    'displayParent' => true,
+                    'mainVariantId' => $this->variantIds['redL'],
+                    'configuratorGroupConfig' => [],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category')
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame('product_listing', $response['apiAlias']);
+        static::assertCount(1, $response['elements']);
+        static::assertSame('product', $response['elements'][0]['apiAlias']);
+        static::assertSame($this->variantIds['greenL'], $response['elements'][0]['id']);
+    }
+
     public function testIncludes(): void
     {
         $this->createData();
@@ -551,8 +585,12 @@ class ProductListingRouteTest extends TestCase
         ];
     }
 
-    private function createData(string $productAssignmentType = 'product', ?string $productStreamId = null, ?string $mainVariant = null): void
-    {
+    private function createData(
+        string $productAssignmentType = 'product',
+        ?string $productStreamId = null,
+        ?string $mainVariant = null,
+        ?string $explicitVariant = null
+    ): void {
         $this->productId = Uuid::randomHex();
 
         $this->optionIds = [
@@ -717,11 +755,17 @@ class ProductListingRouteTest extends TestCase
         static::getContainer()->get('product_stream.repository')->create([[
             'id' => $this->ids->create('productStream'),
             'name' => 'test',
-            'filters' => [[
-                'type' => 'equals',
-                'field' => 'options.id',
-                'value' => $this->optionIds['red'],
-            ]],
+            'filters' => $explicitVariant !== null
+                ? [[
+                    'type' => 'equalsAny',
+                    'field' => 'id',
+                    'value' => $this->variantIds[$explicitVariant],
+                ]]
+                : [[
+                    'type' => 'equals',
+                    'field' => 'options.id',
+                    'value' => $this->optionIds['red'],
+                ]],
         ]], Context::createDefaultContext());
 
         $this->categoryRepository->upsert([$data], Context::createDefaultContext());
@@ -735,7 +779,7 @@ class ProductListingRouteTest extends TestCase
                 [
                     'id' => $this->productId,
                     'variantListingConfig' => [
-                        'mainVariantId' => $this->variantIds['greenL'],
+                        'mainVariantId' => $this->variantIds[$mainVariant],
                     ],
                 ],
             ];

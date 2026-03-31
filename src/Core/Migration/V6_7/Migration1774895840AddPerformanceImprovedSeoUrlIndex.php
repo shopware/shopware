@@ -20,7 +20,7 @@ class Migration1774895840AddPerformanceImprovedSeoUrlIndex extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (TableHelper::indexSpansColumns($connection, 'seo_url', 'idx.path_info', ['path_info', 'is_canonical', 'sales_channel_id', 'language_id', 'seo_path_info'])) {
+        if (TableHelper::indexExists($connection, 'seo_url', 'idx.path_info') && TableHelper::indexSpansColumns($connection, 'seo_url', 'idx.path_info', ['path_info', 'is_canonical', 'sales_channel_id', 'language_id', 'seo_path_info'])) {
             return;
         }
 

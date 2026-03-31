@@ -43,6 +43,12 @@ export default {
             default: null,
         },
 
+        allowedFileExtensions: {
+            type: Array,
+            required: false,
+            default: null,
+        },
+
         label: {
             type: String,
             required: false,
@@ -132,7 +138,7 @@ export default {
 
             if (newFiles.length) {
                 const newFile = newFiles[0];
-                if (this.checkFileSize(newFile) && this.checkFileType(newFile)) {
+                if (this.checkFileSize(newFile) && this.checkFileExtension(newFile) && this.checkFileType(newFile)) {
                     this.setSelectedFile(newFile);
                 }
             }
@@ -183,6 +189,27 @@ export default {
             return false;
         },
 
+        checkFileExtension(file) {
+            let extension = file.name.toLowerCase().split('.').pop();
+            if (!this.allowedFileExtensions || !this.allowedFileExtensions.length || this.allowedFileExtensions.indexOf(extension) >= 0) {
+                return true;
+            }
+
+            this.createNotificationError({
+                title: this.$tc('global.default.error'),
+                message: this.$tc(
+                    'global.sw-file-input.notification.invalidFileExtension.message',
+                    {
+                        name: file.name,
+                        supportedExtensions: this.allowedFileExtensions.join(', '),
+                    },
+                    0,
+                ),
+            });
+
+            return false;
+        },
+
         onDragEnter() {
             if (this.disabled) {
                 return;
@@ -225,7 +252,7 @@ export default {
 
             const newFile = newFiles[0];
 
-            if (this.checkFileSize(newFile) && this.checkFileType(newFile)) {
+            if (this.checkFileSize(newFile) && this.checkFileExtension(newFile) && this.checkFileType(newFile)) {
                 this.setSelectedFile(newFile);
             }
 

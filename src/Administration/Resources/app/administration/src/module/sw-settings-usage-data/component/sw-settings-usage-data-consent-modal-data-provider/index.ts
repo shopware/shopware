@@ -128,7 +128,8 @@ export default Shopware.Component.wrapComponentConfig({
 
             const consentStore = useConsentStore();
             const userDataConsentNeedsUpdate =
-                consentStore.consents.product_analytics.status === 'unset' || consentStore.isStale('product_analytics');
+                this.acl.can('user.update_profile') &&
+                (consentStore.consents.product_analytics.status === 'unset' || consentStore.isStale('product_analytics'));
             const storeDataConsentNeedsUpdate =
                 this.acl.can('system.system_config') &&
                 (consentStore.consents.backend_data.status === 'unset' || consentStore.isStale('backend_data'));

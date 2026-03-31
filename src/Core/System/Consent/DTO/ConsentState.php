@@ -42,20 +42,26 @@ class ConsentState
         );
     }
 
-    /**
-     * @param $requireLatestRevision bool - When true a consent is only considered accepted if the accepted revision matches the latest revision
-     */
-    public function isAccepted(bool $requireLatestRevision = false): bool
+    public function isAccepted(): bool
     {
         if ($this->status !== ConsentStatus::ACCEPTED) {
             return false;
         }
 
-        if ($requireLatestRevision) {
-            return $this->acceptedRevision === $this->latestRevision;
+        return true;
+    }
+
+    public function isCurrent(): bool
+    {
+        if (!$this->isAccepted()) {
+            return false;
         }
 
-        return true;
+        if ($this->latestRevision === null) {
+            return true;
+        }
+
+        return $this->acceptedRevision === $this->latestRevision;
     }
 
     public function isRevoked(): bool

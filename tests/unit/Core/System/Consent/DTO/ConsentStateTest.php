@@ -72,7 +72,8 @@ class ConsentStateTest extends TestCase
         );
 
         static::assertNull($consent->acceptedRevision);
-        static::assertFalse($consent->isAccepted(true));
+        static::assertFalse($consent->isAccepted());
+        static::assertFalse($consent->isCurrent());
         static::assertFalse($consent->isStale());
     }
 
@@ -90,7 +91,7 @@ class ConsentStateTest extends TestCase
         );
 
         static::assertTrue($consent->isAccepted());
-        static::assertFalse($consent->isAccepted(true));
+        static::assertFalse($consent->isCurrent());
         static::assertTrue($consent->isStale());
     }
 }

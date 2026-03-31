@@ -13,8 +13,8 @@ export type ConsentDTO = {
     readonly actor: string | null;
     readonly status: 'unset' | 'declined' | 'accepted' | 'revoked';
     readonly updatedAt: string | null;
-    readonly acceptedRevision?: string | null;
-    readonly latestRevision?: string | null;
+    readonly acceptedRevision: string | null;
+    readonly latestRevision: string | null;
 };
 
 type ConsentStoreState = {

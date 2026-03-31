@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(SalesChannelTrackingOrderCollection::class)]
 class SalesChannelTrackingOrderCollectionTest extends TestCase
 {
     public function testCollectionAcceptsCorrectEntityType(): void

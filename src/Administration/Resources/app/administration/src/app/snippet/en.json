@@ -181,7 +181,7 @@
     "sw-field": {
       "notification": {
         "notificationCopySuccessMessage": "Text has been copied to clipboard.",
-        "notificationCopyFailureMessage": "Text could not be copied to clipboard."
+        "notificationCopyFailureMessage": "Text could not be copied to clipboard. Make sure you're accessing the administration via a secure connection (HTTPS) and try again."
       },
       "titleShowPassword": "Show password",
       "titleHidePassword": "Hide password",

@@ -157,8 +157,8 @@ export default {
             }
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
-                message: this.$tc(
+                title: this.$t('global.default.error'),
+                message: this.$t(
                     'global.sw-file-input.notification.invalidFileSize.message',
                     {
                         name: file.name,
@@ -176,8 +176,8 @@ export default {
             }
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
-                message: this.$tc(
+                title: this.$t('global.default.error'),
+                message: this.$t(
                     'global.sw-file-input.notification.invalidFileType.message',
                     {
                         name: file.name,
@@ -190,18 +190,18 @@ export default {
         },
 
         checkFileExtension(file) {
-            let extension = file.name.toLowerCase().split('.').pop();
+            const extension = file.name.toLowerCase().split('.').pop();
             if (
                 !this.allowedFileExtensions ||
                 !this.allowedFileExtensions.length ||
-                this.allowedFileExtensions.indexOf(extension) >= 0
+                this.allowedFileExtensions.includes(extension)
             ) {
                 return true;
             }
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
-                message: this.$tc(
+                title: this.$t('global.default.error'),
+                message: this.$t(
                     'global.sw-file-input.notification.invalidFileExtension.message',
                     {
                         name: file.name,

@@ -19,7 +19,9 @@ responses.addResponse({
     },
 });
 
-async function createWrapper() {
+async function createWrapper(options = {}) {
+    const { props = {}, provide = {} } = options;
+
     return mount(await wrapTestComponent('sw-sales-channel-detail-base', { sync: true }), {
         global: {
             stubs: {
@@ -45,6 +47,7 @@ async function createWrapper() {
                 'sw-category-tree-field': true,
                 'mt-select': true,
                 'sw-custom-field-set-renderer': true,
+                'sw-form-field-renderer': true,
                 'mt-banner': true,
                 'sw-sales-channel-measurement': true,
                 'sw-time-ago': true,
@@ -73,6 +76,7 @@ async function createWrapper() {
                         },
                     }),
                 },
+                ...provide,
             },
             mocks: {
                 $t: jest.fn().mockImplementation((snippet) => snippet),
@@ -83,6 +87,7 @@ async function createWrapper() {
             salesChannel: {},
             productExport: {},
             customFieldSets: [],
+            ...props,
         },
     });
 }
@@ -1317,6 +1322,43 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         expect(wrapper.vm.unservedLanguageVariant).toBe('info');
+    });
+
+    it('should render agentic commerce export config from injected fallback when prop is not forwarded', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                },
+            },
+            provide: {
+                swSalesChannelDetailGetAgenticCommerceExportConfig: () => [
+                    {
+                        provider: 'open-ai',
+                        elements: [
+                            {
+                                name: 'core.openAiProductExport.returnPolicyUrl',
+                                type: 'text',
+                                config: {
+                                    label: 'Return policy URL',
+                                },
+                            },
+                        ],
+                        values: {},
+                        isLoading: false,
+                    },
+                ],
+            },
+        });
+
+        expect(wrapper.vm.isAgenticCommerce).toBe(true);
+        expect(wrapper.vm.resolvedAgenticCommerceExportConfig).toHaveLength(1);
+
+        const card = wrapper.get(
+            'div.mt-card[position-identifier="sw-sales-channel-detail-base-agentic-commerce-export-config-open-ai"]',
+        );
+        expect(card.exists()).toBe(true);
+        expect(wrapper.findAll('sw-form-field-renderer-stub')).toHaveLength(1);
     });
 
     it('should not require a theme when activating an agentic commerce sales channel', async () => {

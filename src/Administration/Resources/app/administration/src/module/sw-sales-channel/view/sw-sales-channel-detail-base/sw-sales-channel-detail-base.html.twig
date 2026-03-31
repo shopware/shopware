@@ -213,7 +213,7 @@
 
     <template v-if="isAgenticCommerce">
         <mt-card
-            v-for="configEntry in agenticCommerceExportConfig"
+            v-for="configEntry in resolvedAgenticCommerceExportConfig"
             :key="configEntry.provider"
             position-identifier="sw-sales-channel-detail-base-agentic-commerce-export-config-open-ai"
             :title="getAgenticCommerceExportCardTitle(configEntry)"

@@ -18,8 +18,12 @@ const mockGet = jest.fn(() =>
         },
     }),
 );
+const mockGetSystemConfig = jest.fn(() => Promise.resolve([]));
+const mockGetSystemConfigValues = jest.fn(() => Promise.resolve({}));
 
-async function createWrapper() {
+async function createWrapper(routeParamsOrLegacyArg = { id: '1a2b3c4d' }) {
+    const routeParams = Array.isArray(routeParamsOrLegacyArg) ? { id: '1a2b3c4d' } : routeParamsOrLegacyArg;
+
     return mount(await wrapTestComponent('sw-sales-channel-detail', { sync: true }), {
         global: {
             stubs: {
@@ -56,16 +60,14 @@ async function createWrapper() {
                     getProductExportTemplateRegistry: () => ({}),
                 },
                 systemConfigApiService: {
-                    getConfig: () => Promise.resolve([]),
-                    getValues: () => Promise.resolve({}),
+                    getConfig: mockGetSystemConfig,
+                    getValues: mockGetSystemConfigValues,
                     batchSave: () => Promise.resolve(),
                 },
             },
             mocks: {
                 $route: {
-                    params: {
-                        id: '1a2b3c4d',
-                    },
+                    params: routeParams,
                     name: '',
                 },
             },
@@ -78,6 +80,8 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         global.activeAclRoles = [];
         mockSave.mockClear();
         mockGet.mockClear();
+        mockGetSystemConfig.mockClear();
+        mockGetSystemConfigValues.mockClear();
     });
 
     it('should disable the save button when privilege does not exist', async () => {
@@ -157,6 +161,54 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
                 }),
             }),
         );
+    });
+
+    it('should provide agentic commerce export config accessor for child views', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            agenticCommerceExportConfig: [
+                {
+                    provider: 'open-ai',
+                    elements: [],
+                    values: {},
+                    isLoading: false,
+                },
+            ],
+        });
+
+        const provide = wrapper.vm.$options.provide.call(wrapper.vm);
+
+        expect(typeof provide.swSalesChannelDetailGetAgenticCommerceExportConfig).toBe('function');
+        expect(provide.swSalesChannelDetailGetAgenticCommerceExportConfig()).toEqual(wrapper.vm.agenticCommerceExportConfig);
+    });
+
+    it('should load agentic commerce export config in create flow when route has typeId but no id', async () => {
+        mockGetSystemConfig.mockResolvedValueOnce([
+            {
+                elements: [
+                    {
+                        name: 'core.openAiProductExport.returnPolicyUrl',
+                    },
+                ],
+            },
+        ]);
+
+        const wrapper = await createWrapper({
+            typeId: Shopware.Defaults.agenticCommerceTypeId,
+        });
+
+        wrapper.vm.salesChannel = {
+            id: 'new-sales-channel-id',
+            typeId: Shopware.Defaults.agenticCommerceTypeId,
+        };
+
+        await wrapper.vm.loadEntityData();
+        await flushPromises();
+
+        expect(mockGetSystemConfig).toHaveBeenCalledWith('core.openAiProductExport');
+        expect(mockGetSystemConfigValues).toHaveBeenCalledWith('core.openAiProductExport', 'new-sales-channel-id');
+        expect(wrapper.vm.agenticCommerceExportConfig[0].elements).toHaveLength(1);
     });
 
     it('should save without reloading entity data when saveOnLanguageChange is called', async () => {

@@ -612,7 +612,7 @@ export default {
         },
 
         onToggleActive() {
-            if (this.salesChannel.active !== true || this.isProductComparison || this.isHeadlessSalesChannel) {
+            if (this.salesChannel.active !== true || this.isProductExportChannel || this.isHeadlessSalesChannel) {
                 return;
             }
 

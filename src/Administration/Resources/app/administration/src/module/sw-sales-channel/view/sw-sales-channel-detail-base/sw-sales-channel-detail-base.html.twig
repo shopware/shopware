@@ -11,7 +11,7 @@
         {% block sw_sales_channel_detail_base_general_input_product_comparison_template %}
         <mt-select
             v-if="isProductExportChannel"
-            v-model="templateName"
+            :model-value="templateName"
             :disabled="!acl.can('sales_channel.editor') || undefined"
             :label="$tc('sw-sales-channel.detail.productComparison.templates.label')"
             :placeholder="$tc('sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate')"

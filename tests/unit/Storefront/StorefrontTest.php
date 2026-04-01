@@ -12,7 +12,6 @@ use Shopware\Storefront\DependencyInjection\StorefrontMigrationReplacementCompil
 use Shopware\Storefront\DependencyInjection\TwigComponentBundlePass;
 use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
-use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Storefront;
 use Shopware\Storefront\System\SalesChannel\SalesChannelAnalyticsLoader;
 use Shopware\Storefront\Theme\ThemeService;
@@ -27,12 +26,6 @@ use Symfony\Component\DependencyInjection\Extension\Extension;
 #[CoversClass(Storefront::class)]
 class StorefrontTest extends TestCase
 {
-    public function testImplementsThemeInterface(): void
-    {
-        // @phpstan-ignore staticMethod.alreadyNarrowedType
-        static::assertInstanceOf(ThemeInterface::class, new Storefront());
-    }
-
     public function testTemplatePriority(): void
     {
         static::assertSame(0, (new Storefront())->getTemplatePriority());

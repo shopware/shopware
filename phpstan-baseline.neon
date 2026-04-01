@@ -259,18 +259,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedContainerEvent.php
 
 		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\CreatedByField\:\:__construct\(\) has parameter \$allowedWriteScopes with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/CreatedByField.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\CreatedByField\:\:getAllowedWriteScopes\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/CreatedByField.php
-
-		-
 			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Runtime\:\:__construct\(\) has parameter \$dependsOn with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -293,18 +281,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Field/StateMachineStateField.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\UpdatedByField\:\:__construct\(\) has parameter \$allowedWriteScopes with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/UpdatedByField.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\UpdatedByField\:\:getAllowedWriteScopes\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/UpdatedByField.php
 
 		-
 			message: '#^Cannot call method is\(\) on Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field\|null\.$#'
@@ -1013,4 +989,3 @@ parameters:
 			identifier: shopware.domainException
 			count: 1
 			path: src/Storefront/Theme/ThemeConfigFieldFactory.php
-

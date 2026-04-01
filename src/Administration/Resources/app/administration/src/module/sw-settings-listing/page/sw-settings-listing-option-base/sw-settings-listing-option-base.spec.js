@@ -237,6 +237,24 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
         ]);
     });
 
+    it('should default createdAt criteria to descending order', async () => {
+        expect(wrapper.vm.getCriteriaTemplate('product.createdAt')).toEqual({
+            field: 'product.createdAt',
+            order: 'desc',
+            priority: 1,
+            naturalSorting: 0,
+        });
+    });
+
+    it('should keep other criteria on ascending order by default', async () => {
+        expect(wrapper.vm.getCriteriaTemplate('product.name')).toEqual({
+            field: 'product.name',
+            order: 'asc',
+            priority: 1,
+            naturalSorting: 0,
+        });
+    });
+
     it('should throw an success notification when saving custom fields', async () => {
         // mock notification function
         wrapper.vm.createNotificationSuccess = jest.fn();

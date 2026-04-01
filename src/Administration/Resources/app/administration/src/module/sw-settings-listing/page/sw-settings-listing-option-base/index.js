@@ -193,7 +193,7 @@ export default {
         getCriteriaTemplate(fieldName) {
             return {
                 field: fieldName,
-                order: 'asc',
+                order: fieldName === 'product.createdAt' ? 'desc' : 'asc',
                 priority: 1,
                 naturalSorting: 0,
             };

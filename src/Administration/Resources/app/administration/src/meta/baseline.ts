@@ -364,7 +364,6 @@ const missingTests = [
     'src/module/sw-flow/constant/flow.constant.js',
     'src/module/sw-flow/index.js',
     'src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard/index.js',
-    'src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-csv-page/index.js',
     'src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-general-page/index.js',
     'src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-mapping-page/index.js',
     'src/module/sw-import-export/component/sw-import-export-edit-profile-field-indicators/index.js',

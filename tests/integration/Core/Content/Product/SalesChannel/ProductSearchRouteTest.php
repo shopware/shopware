@@ -10,7 +10,10 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigCollection;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
+use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -19,15 +22,21 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Routing\Annotation\CriteriaValueResolver;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 /**
  * @internal
@@ -149,6 +158,63 @@ class ProductSearchRouteTest extends TestCase
         static::assertIsArray($response['elements']);
         static::assertCount(1, $response['elements']);
         static::assertSame(self::$ids->get('manufacturer'), $response['elements'][0]['manufacturerId']);
+    }
+
+    public function testCriteriaFilterIsNotDuplicated(): void
+    {
+        $searchRoute = static::getContainer()->get(ProductSearchRoute::class);
+        $criteriaValueResolver = static::getContainer()->get(CriteriaValueResolver::class);
+        $requestCriteriaBuilder = static::getContainer()->get(RequestCriteriaBuilder::class);
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
+
+        static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
+        static::assertInstanceOf(RequestCriteriaBuilder::class, $requestCriteriaBuilder);
+
+        $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
+            'token',
+            self::$ids->get('sales-channel')
+        );
+
+        $request = new Request([
+            'search' => 'Test-Product',
+            'filter' => [
+                ['type' => 'equals', 'field' => 'active', 'value' => true],
+            ],
+            'sort' => [
+                ['field' => 'id', 'order' => FieldSorting::ASCENDING],
+            ],
+        ]);
+        $request->setMethod(Request::METHOD_GET);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ENTITY, ProductDefinition::ENTITY_NAME);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $salesChannelContext->getContext());
+
+        $criteriaArguments = iterator_to_array(
+            $criteriaValueResolver->resolve(
+                $request,
+                new ArgumentMetadata('criteria', Criteria::class, false, false, null)
+            )
+        );
+
+        static::assertCount(1, $criteriaArguments);
+        static::assertInstanceOf(Criteria::class, $criteriaArguments[0]);
+
+        $originalCriteria = $criteriaArguments[0];
+
+        $capturedCriteria = null;
+        $listener = static function (ProductSearchCriteriaEvent $event) use (&$capturedCriteria): void {
+            $capturedCriteria = clone $event->getCriteria();
+        };
+
+        $eventDispatcher->addListener(ProductEvents::PRODUCT_SEARCH_CRITERIA, $listener);
+
+        try {
+            $searchRoute->load($request, $salesChannelContext, clone $originalCriteria);
+        } finally {
+            $eventDispatcher->removeListener(ProductEvents::PRODUCT_SEARCH_CRITERIA, $listener);
+        }
+
+        static::assertInstanceOf(Criteria::class, $capturedCriteria);
+        static::assertEquals($originalCriteria->getFilters(), $capturedCriteria->getFilters());
     }
 
     /**

@@ -844,7 +844,7 @@
           "false": "Nein"
         }
       },
-      "quantitySelect": {
+        "quantitySelect": {
         "legend": "Produkt Anzahl: Gib den gewünschten Wert ein oder benutze die Schaltflächen um die Anzahl zu erhöhen oder zu reduzieren.",
         "areaLiveText": "Anzahl für %product% ist %quantity%.",
         "label": "Anzahl",
@@ -852,7 +852,9 @@
         "increase": "Anzahl erhöhen",
         "increaseOfProduct": "Erhöhe die Anzahl von %product%",
         "decrease": "Anzahl verringern",
-        "decreaseOfProduct": "Verringere die Anzahl %product%"
+        "decreaseOfProduct": "Verringere die Anzahl %product%",
+        "stockAdjusted": "Ihre Menge wurde auf %quantity% aktualisiert.",
+        "outOfStock": "Das Produkt ist nicht mehr verfügbar."
       },
       "configurator": {
         "legend": "%group_name%<span class=\"%hidden_cls%\">&nbsp;auswählen</span>"

@@ -71,6 +71,17 @@ From now on, the defined fields of an EntityDefinition are applied after the def
 This makes it possible to properly overwrite the current default fields `createdAt` and `updatedAt`.
 Check your EntityDefinitions if your entities still behave like intended. (Only applicable if you manually add `CreatedAtField` and/or `UpdatedAtField`)
 
+## `CreatedByField` and `UpdatedByField` default write scopes changed
+
+The default write scopes of `Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedByField` and `Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField` now include `Context::CRUD_API_SCOPE` in addition to `Context::SYSTEM_SCOPE`.
+
+If you rely on the previous system-only behavior, pass the desired scopes explicitly when instantiating the field, for example:
+
+```php
+new CreatedByField([Context::SYSTEM_SCOPE]);
+new UpdatedByField([Context::SYSTEM_SCOPE]);
+```
+
 ## Multiple payment finalize calls allowed
 
 Multiple calls to the `/payment-finalize` endpoint using the same payment token are now allowed.

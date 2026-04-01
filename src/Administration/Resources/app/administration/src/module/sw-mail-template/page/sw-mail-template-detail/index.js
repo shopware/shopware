@@ -381,7 +381,7 @@ export default {
             return Promise.all(updatePromises);
         },
 
-        onClickTestMailTemplate() {
+        async onClickTestMailTemplate() {
             const notificationTestMailSuccess = {
                 message: this.$t('sw-mail-template.general.notificationTestMailSuccessMessage'),
             };
@@ -402,56 +402,49 @@ export default {
             const criteria = new Criteria();
             criteria.addAssociation('languages');
 
-            this.salesChannelRepository.get(this.testMailSalesChannelId, Context.api, criteria).then((salesChannel) => {
-                if (!salesChannel.languages.has(Shopware.Context.api.languageId)) {
-                    this.showLanguageNotAssignedToSalesChannelWarning = true;
+            const salesChannel = await this.salesChannelRepository.get(
+                this.testMailSalesChannelId,
+                Context.api,
+                criteria,
+            );
 
-                    return;
-                }
+            if (!salesChannel.languages.has(Shopware.Context.api.languageId)) {
+                this.showLanguageNotAssignedToSalesChannelWarning = true;
 
-                this.showLanguageNotAssignedToSalesChannelWarning = false;
-            });
+                return;
+            }
 
-            // if (Feature.isActive('v6.8.0.0')) {
-            //     this.mailService
-            //         .sendTestMailTemplate(
-            //             this.testerMail,
-            //             this.testerMail,
-            //             this.mailTemplate,
-            //             this.mailTemplateMedia,
-            //             this.testMailSalesChannelId,
-            //             this.triggerEvent.class,
-            //             true,
-            //             [],
-            //             this.mailTemplate.mailTemplateTypeId,
-            //             this.mailTemplate.id,
-            //         )
-            //         .then((response) => {
-            //             // Size is the length of the mail message, if the size is zero then no mail was sent
-            //             const isMailSent = response?.size !== 0;
-            //             if (!isMailSent) {
-            //                 this.createNotificationError({
-            //                     message: this.$t('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
-            //                 });
-            //                 return;
-            //             }
-            //
-            //             this.createNotificationSuccess(notificationTestMailSuccess);
-            //         })
-            //         .catch((exception) => {
-            //             this.createNotificationError(notificationTestMailError);
-            //             warn(this._name, exception.message, exception.response);
-            //         });
-            //
-            //     return;
-            // }
+            this.showLanguageNotAssignedToSalesChannelWarning = false;
+
+            await this.setMailPreview();
+
+            if (!this.mailPreview) {
+                return;
+            }
+
+            if (this.hasPreviewErrors()) {
+                this.createNotificationError({
+                    message: this.$t('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
+                });
+
+                return;
+            }
 
             this.mailService
-                .testMailTemplate(
+                .sendMailTemplate(
                     this.testerMail,
-                    this.mailPreviewContent(),
+                    this.testerMail,
+                    {
+                        subject: this.mailPreview.subject.content,
+                        senderName: this.mailPreview.senderName.content,
+                        contentHtml: this.mailPreview.contentHtml.content,
+                        contentPlain: this.mailPreview.contentPlain.content,
+                    },
                     this.mailTemplateMedia,
                     this.testMailSalesChannelId,
+                    true,
+                    [],
+                    null,
                     this.mailTemplate.mailTemplateTypeId,
                     this.mailTemplate.id,
                 )
@@ -473,12 +466,22 @@ export default {
                 });
         },
 
+        hasPreviewErrors() {
+            return ['subject', 'senderName', 'contentHtml', 'contentPlain']
+                .some((key) => this.mailPreview?.[key]?.type === 'error');
+        },
+
         onTriggerEventChange(eventName) {
             this.triggerEvent = this.triggerEvents.find((event) => event.name === eventName);
             this.availableVariables = {};
+            this.mailPreview = null;
         },
 
-        onClickShowPreview() {
+        async onClickShowPreview() {
+            await this.setMailPreview();
+        },
+
+        async setMailPreview() {
             this.isLoading = true;
 
             if (!this.triggerEvent) {
@@ -487,7 +490,7 @@ export default {
                 return;
             }
 
-            this.mailPreview = this.mailService
+            return this.mailService
                 .simulateMailTemplate(
                     {
                         subject: this.mailTemplate.subject,
@@ -510,6 +513,8 @@ export default {
                     });
 
                     this.mailPreview = response;
+
+                    return response;
                 })
                 .catch(() => {
                     this.mailPreview = null;

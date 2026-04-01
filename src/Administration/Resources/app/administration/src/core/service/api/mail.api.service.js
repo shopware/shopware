@@ -71,6 +71,9 @@ class MailApiService extends ApiService {
             });
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed.
+     */
     testMailTemplate(
         recipient,
         mailTemplate,

@@ -239,6 +239,10 @@ export default {
                 && !!this.translatedInheritanceLanguageId;
         },
 
+        hasOverriddenTranslatedCustomFields() {
+            return Object.values(this.customFields ?? {}).some((value) => value !== null && value !== undefined);
+        },
+
         async loadInheritedCustomFields() {
             if (!this.isTranslatedCustomFieldInheritanceContext()) {
                 this.inheritedCustomFields = null;
@@ -250,9 +254,17 @@ export default {
             const loadKey = [
                 this.entity.getEntityName(),
                 this.entity.id,
-                Shopware.Context.api.languageId,
                 this.translatedInheritanceLanguageId,
             ].join(':');
+
+            if (!this.hasOverriddenTranslatedCustomFields()) {
+                if (this.translatedInheritanceLoadKey !== loadKey) {
+                    this.inheritedCustomFields = null;
+                    this.translatedInheritanceLoadKey = null;
+                }
+
+                return;
+            }
 
             if (this.translatedInheritanceLoadKey === loadKey) {
                 return;
@@ -274,7 +286,7 @@ export default {
                     return;
                 }
 
-                this.inheritedCustomFields = inheritedEntity?.customFields ?? {};
+                this.inheritedCustomFields = inheritedEntity?.customFields ?? null;
             } catch (error) {
                 console.error(error);
 
@@ -285,17 +297,15 @@ export default {
         },
 
         getInheritedCustomField(customFieldName) {
+            const useTranslatedFallback = this.isTranslatedCustomFieldInheritanceContext()
+                && (this.customFields?.[customFieldName] === null || this.customFields?.[customFieldName] === undefined);
             const inheritedCustomFields = this.parentEntity?.translated?.customFields
-                ?? this.inheritedCustomFields
-                ?? (
-                    this.entity?.customFields?.[customFieldName] === null
-                    || this.entity?.customFields?.[customFieldName] === undefined
-                        ? this.entity?.translated?.customFields
-                        : null
-                );
-            const value = inheritedCustomFields?.[customFieldName] ?? null;
+                ?? (useTranslatedFallback
+                    ? this.inheritedCustomFields ?? this.entity?.translated?.customFields
+                    : this.inheritedCustomFields);
+            const value = inheritedCustomFields?.[customFieldName];
 
-            if (value !== null) {
+            if (value !== null && value !== undefined) {
                 return value;
             }
 

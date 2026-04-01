@@ -44,31 +44,28 @@ class MailApiService extends ApiService {
     ) {
         const apiRoute = `/_action/${this.getApiBasePath()}/send`;
 
-        const data = {
-            contentHtml: mailTemplate.contentHtml ?? mailTemplate.translated?.contentHtml,
-            contentPlain: mailTemplate.contentPlain ?? mailTemplate.translated?.contentPlain,
-            recipients: { [recipientMail]: recipient },
-            salesChannelId: salesChannelId,
-            mediaIds: mailTemplateMedia.getIds(),
-            subject: mailTemplate.subject ?? mailTemplate.translated?.subject,
-            senderMail: mailTemplate.senderMail,
-            senderName: mailTemplate.senderName ?? mailTemplate.translated?.senderName,
-            documentIds,
-            testMode,
-            mailTemplateTypeId,
-            mailTemplateId,
-        };
-
-        if (Shopware.Feature.isActive('v6.8.0.0')) {
-            data.templateData = templateData ?? mailTemplate.mailTemplateType.templateData;
-        } else {
-            data.mailTemplateData = templateData ?? mailTemplate.mailTemplateType.templateData;
-        }
-
         return this.httpClient
-            .post(apiRoute, data, {
-                headers: this.getBasicHeaders(additionalHeaders),
-            })
+            .post(
+                apiRoute,
+                {
+                    contentHtml: mailTemplate.contentHtml ?? mailTemplate.translated?.contentHtml,
+                    contentPlain: mailTemplate.contentPlain ?? mailTemplate.translated?.contentPlain,
+                    mailTemplateData: templateData ?? mailTemplate.mailTemplateType.templateData,
+                    recipients: { [recipientMail]: recipient },
+                    salesChannelId: salesChannelId,
+                    mediaIds: mailTemplateMedia.getIds(),
+                    subject: mailTemplate.subject ?? mailTemplate.translated?.subject,
+                    senderMail: mailTemplate.senderMail,
+                    senderName: mailTemplate.senderName ?? mailTemplate.translated?.senderName,
+                    documentIds,
+                    testMode,
+                    mailTemplateTypeId,
+                    mailTemplateId,
+                },
+                {
+                    headers: this.getBasicHeaders(additionalHeaders),
+                },
+            )
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -97,104 +94,18 @@ class MailApiService extends ApiService {
         );
     }
 
-    sendTestMailTemplate(
-        recipientMail,
-        recipient,
-        mailTemplate,
-        mailTemplateMedia,
-        salesChannelId,
-        flowEventClass = null,
-        entities = [],
-        templateData = [],
-        testMode = false,
-        documentIds = [],
-        mailTemplateTypeId = null,
-        mailTemplateId = null,
-        additionalHeaders = {},
-    ) {
-        if (!Shopware.Feature.isActive('v6.8.0.0')) {
-            // eslint-disable-next-line prefer-promise-reject-errors
-            return Promise.reject('Method only supports >=v6.8.0.0');
-        }
-
-        const apiRoute = `/_action/${this.getApiBasePath()}/send`;
-
-        return this.httpClient
-            .post(
-                apiRoute,
-                {
-                    contentHtml: mailTemplate.contentHtml ?? mailTemplate.translated?.contentHtml,
-                    contentPlain: mailTemplate.contentPlain ?? mailTemplate.translated?.contentPlain,
-                    recipients: { [recipientMail]: recipient },
-                    salesChannelId: salesChannelId,
-                    mediaIds: mailTemplateMedia.getIds(),
-                    subject: mailTemplate.subject ?? mailTemplate.translated?.subject,
-                    senderMail: mailTemplate.senderMail,
-                    senderName: mailTemplate.senderName ?? mailTemplate.translated?.senderName,
-                    flowEventClass,
-                    entities,
-                    templateData,
-                    documentIds,
-                    testMode,
-                    mailTemplateTypeId,
-                    mailTemplateId,
-                },
-                {
-                    headers: this.getBasicHeaders(additionalHeaders),
-                },
-            )
-            .then((response) => {
-                return ApiService.handleResponse(response);
-            });
-    }
-
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed.
+     */
     buildRenderPreview(mailTemplateType, mailTemplate) {
         const apiRoute = `/_action/${this.getApiBasePath()}/build`;
 
-        const data = {};
-
-        if (Shopware.Feature.isActive('v6.8.0.0')) {
-            data.mailTemplateContent = {
-                subject: mailTemplate.subject,
-                senderName: mailTemplate.senderName,
-                contentPlain: mailTemplate.contentPlain,
-                contentHtml: mailTemplate.contentHtml,
-            };
-            data.templateData = mailTemplateType.templateData;
-        } else {
-            data.mailTemplateType = mailTemplateType;
-            data.mailTemplate = mailTemplate;
-        }
-
-        return this.httpClient
-            .post(apiRoute, data, {
-                headers: this.getBasicHeaders(),
-            })
-            .then((response) => {
-                if (Shopware.Feature.isActive('v6.8.0.0')) {
-                    return ApiService.handleResponse(response).contentHtml.content;
-                }
-                return ApiService.handleResponse(response);
-            });
-    }
-
-    buildMailTemplate(mailTemplateContent, strict = false, flowEventClass = null, entities = {}, templateData = {}) {
-        if (!Shopware.Feature.isActive('v6.8.0.0')) {
-            // eslint-disable-next-line prefer-promise-reject-errors
-            return Promise.reject('Method only supports >=v6.8.0.0');
-        }
-
-        const apiRoute = `/_action/${this.getApiBasePath()}/build`;
-
         return this.httpClient
             .post(
                 apiRoute,
                 {
-                    mailTemplateContent,
-                    strict,
-                    flowEventClass,
-                    entities,
-                    templateData,
+                    mailTemplateType: mailTemplateType,
+                    mailTemplate: mailTemplate,
                 },
                 {
                     headers: this.getBasicHeaders(),
@@ -205,17 +116,35 @@ class MailApiService extends ApiService {
             });
     }
 
-    loadAvailableVariables(fieldPath, flowEventClass = null, entities = {}, templateData = {}) {
+    simulateMailTemplate(mailTemplateContent, eventName, strict = false) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/simulate`;
+
+        return this.httpClient
+            .post(
+                apiRoute,
+                {
+                    mailTemplateContent,
+                    eventName,
+                    strict,
+                },
+                {
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    loadAvailableVariables(eventName, parentVariablePath = '') {
         const apiRoute = `/_action/${this.getApiBasePath()}/available-variables`;
 
         return this.httpClient
             .post(
                 apiRoute,
                 {
-                    fieldPath,
-                    flowEventClass,
-                    entities,
-                    templateData,
+                    eventName,
+                    parentVariablePath,
                 },
                 {
                     headers: this.getBasicHeaders(),

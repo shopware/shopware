@@ -79,10 +79,7 @@ export default {
         ]),
 
         loadedAvailableVariables() {
-            if (
-                (!this.triggerEvent && Feature.isActive('v6.8.0.0')) ||
-                ((!this.mailTemplateType || !this.mailTemplateType.templateData) && !Feature.isActive('v6.8.0.0'))
-            ) {
+            if (!this.triggerEvent) {
                 return [];
             }
             if (Object.values(this.availableVariables).length === 0) {
@@ -245,9 +242,7 @@ export default {
                 this.loadEntityData();
             }
 
-            if (Feature.isActive('v6.8.0.0')) {
-                this.loadTriggerEvents();
-            }
+            this.loadTriggerEvents();
         },
 
         loadEntityData() {
@@ -417,39 +412,39 @@ export default {
                 this.showLanguageNotAssignedToSalesChannelWarning = false;
             });
 
-            if (Feature.isActive('v6.8.0.0')) {
-                this.mailService
-                    .sendTestMailTemplate(
-                        this.testerMail,
-                        this.testerMail,
-                        this.mailTemplate,
-                        this.mailTemplateMedia,
-                        this.testMailSalesChannelId,
-                        this.triggerEvent.class,
-                        true,
-                        [],
-                        this.mailTemplate.mailTemplateTypeId,
-                        this.mailTemplate.id,
-                    )
-                    .then((response) => {
-                        // Size is the length of the mail message, if the size is zero then no mail was sent
-                        const isMailSent = response?.size !== 0;
-                        if (!isMailSent) {
-                            this.createNotificationError({
-                                message: this.$t('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
-                            });
-                            return;
-                        }
-
-                        this.createNotificationSuccess(notificationTestMailSuccess);
-                    })
-                    .catch((exception) => {
-                        this.createNotificationError(notificationTestMailError);
-                        warn(this._name, exception.message, exception.response);
-                    });
-
-                return;
-            }
+            // if (Feature.isActive('v6.8.0.0')) {
+            //     this.mailService
+            //         .sendTestMailTemplate(
+            //             this.testerMail,
+            //             this.testerMail,
+            //             this.mailTemplate,
+            //             this.mailTemplateMedia,
+            //             this.testMailSalesChannelId,
+            //             this.triggerEvent.class,
+            //             true,
+            //             [],
+            //             this.mailTemplate.mailTemplateTypeId,
+            //             this.mailTemplate.id,
+            //         )
+            //         .then((response) => {
+            //             // Size is the length of the mail message, if the size is zero then no mail was sent
+            //             const isMailSent = response?.size !== 0;
+            //             if (!isMailSent) {
+            //                 this.createNotificationError({
+            //                     message: this.$t('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
+            //                 });
+            //                 return;
+            //             }
+            //
+            //             this.createNotificationSuccess(notificationTestMailSuccess);
+            //         })
+            //         .catch((exception) => {
+            //             this.createNotificationError(notificationTestMailError);
+            //             warn(this._name, exception.message, exception.response);
+            //         });
+            //
+            //     return;
+            // }
 
             this.mailService
                 .testMailTemplate(
@@ -486,90 +481,42 @@ export default {
         onClickShowPreview() {
             this.isLoading = true;
 
-            if (Feature.isActive('v6.8.0.0')) {
-                this.mailPreview = this.mailService
-                    .buildMailTemplate(
-                        {
-                            subject: this.mailTemplate.subject,
-                            senderName: this.mailTemplate.senderName,
-                            contentHtml: this.mailTemplate.contentHtml,
-                            contentPlain: this.mailTemplate.contentPlain,
-                        },
-                        true,
-                        this.triggerEvent.class,
-                    )
-                    .then((response) => {
-                        Object.keys(response).forEach((key) => {
-                            const entry = response[key];
-
-                            if (entry.type === 'error') {
-                                entry.errorTitle = entry.content.substring(0, entry.content.search(': '));
-                                entry.errorMessage = entry.content.substring(entry.content.search(': ') + 2);
-                                entry.content = undefined;
-                            }
-                        });
-
-                        this.mailPreview = response;
-                    })
-                    .catch(() => {
-                        this.mailPreview = null;
-                    })
-                    .finally(() => {
-                        this.isLoading = false;
-                    });
+            if (!this.triggerEvent) {
+                this.isLoading = false;
 
                 return;
             }
 
             this.mailPreview = this.mailService
-                .buildRenderPreview(this.mailTemplateType, this.mailPreviewContent())
+                .simulateMailTemplate(
+                    {
+                        subject: this.mailTemplate.subject,
+                        senderName: this.mailTemplate.senderName,
+                        contentHtml: this.mailTemplate.contentHtml,
+                        contentPlain: this.mailTemplate.contentPlain,
+                    },
+                    this.triggerEvent.name,
+                    true,
+                )
                 .then((response) => {
+                    Object.keys(response).forEach((key) => {
+                        const entry = response[key];
+
+                        if (entry.type === 'error') {
+                            entry.errorTitle = entry.content.substring(0, entry.content.search(': '));
+                            entry.errorMessage = entry.content.substring(entry.content.search(': ') + 2);
+                            entry.content = undefined;
+                        }
+                    });
+
                     this.mailPreview = response;
                 })
-                .catch((error) => {
+                .catch(() => {
                     this.mailPreview = null;
-                    if (!error.response?.data?.errors?.[0]?.detail) {
-                        this.createNotificationError({
-                            message: this.$t('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
-                        });
-                    } else {
-                        this.createNotificationError({
-                            message: this.$t(
-                                'sw-mail-template.general.notificationSyntaxValidationErrorMessage',
-                                {
-                                    errorMsg: error.response?.data?.errors?.[0]?.detail,
-                                },
-                                0,
-                            ),
-                        });
-                    }
                 })
                 .finally(() => {
                     this.isLoading = false;
                 });
-        },
-
-        translateTemplateField(field) {
-            let fieldSuffix = '';
-
-            switch (field) {
-                case 'subject':
-                    fieldSuffix = 'options.labelSubject';
-                    break;
-                case 'senderName':
-                    fieldSuffix = 'options.labelSenderName';
-                    break;
-                case 'contentHtml':
-                    fieldSuffix = 'mailText.labelContentHtml';
-                    break;
-                case 'contentPlain':
-                    fieldSuffix = 'mailText.labelContentPlain';
-                    break;
-                default:
-                    break;
-            }
-
-            return this.$t(`sw-mail-template.detail.${fieldSuffix}`);
         },
 
         mailPreviewContent() {
@@ -732,60 +679,23 @@ export default {
             return true;
         },
 
-        loadAvailableVariables(variable, variableEntitySchema) {
-            if (Feature.isActive('v6.8.0.0')) {
-                this.mailService.loadAvailableVariables(variable, this.triggerEvent.class).then((response) => {
-                    Object.values(response)
-                        .sort((a, b) => a.fieldName.localeCompare(b.fieldName))
-                        .forEach((value) => {
-                            this.addVariables([
-                                {
-                                    id: `${variable}.${value.fieldName}`,
-                                    schema: `${variable}.${value.fieldName}`,
-                                    name: value.fieldName,
-                                    childCount: value.hasChildren ? 1 : 0,
-                                    parentId: variable,
-                                    afterId: null,
-                                },
-                            ]);
-                        });
-                });
-
-                return [];
-            }
-
-            if (!this.mailTemplateType || !this.mailTemplateType.availableEntities) {
-                return [];
-            }
-
-            const variablePath = variable.concat('.');
-            const variableEntitySchemaPath = variableEntitySchema.concat('.');
-
-            const foundVariables = Object.keys(Shopware.Utils.get(this.mailTemplateType.templateData, variable));
-
-            const keys = foundVariables.map((val) => {
-                const availableVariable = Shopware.Utils.get(this.mailTemplateType.templateData, variablePath.concat(val));
-                const isObject = typeof availableVariable === 'object' && availableVariable !== null;
-                const length = isObject ? Object.values(availableVariable).length : 0;
-
-                // the pattern for schema is `.at(0)` or `.at(1)` instead of `.0` or `.1`
-                const schema = this.isToManyAssociationVariable(variable)
-                    ? `${variableEntitySchemaPath}at(${parseInt(val, 10)})`
-                    : variableEntitySchemaPath + val;
-
-                return {
-                    id: variablePath + val,
-                    schema,
-                    name: val,
-                    childCount: length,
-                    parentId: variable,
-                    afterId: null,
-                };
+        loadAvailableVariables(variable) {
+            this.mailService.loadAvailableVariables(this.triggerEvent.name, variable).then((response) => {
+                Object.values(response)
+                    .sort((a, b) => a.fieldName.localeCompare(b.fieldName))
+                    .forEach((value) => {
+                        this.addVariables([
+                            {
+                                id: `${variable}.${value.fieldName}`,
+                                schema: `${variable}.${value.fieldName}`,
+                                name: value.fieldName,
+                                childCount: value.hasChildren ? 1 : 0,
+                                parentId: variable,
+                                afterId: null,
+                            },
+                        ]);
+                    });
             });
-
-            this.addVariables(keys);
-
-            return true;
         },
 
         isToManyAssociationVariable(variable) {
@@ -807,8 +717,8 @@ export default {
             );
         },
 
-        onGetTreeItems(parent, schema) {
-            this.loadAvailableVariables(parent, schema);
+        onGetTreeItems(parent) {
+            this.loadAvailableVariables(parent);
         },
 
         addVariables(variables) {
@@ -818,54 +728,25 @@ export default {
         },
 
         loadInitialAvailableVariables() {
-            this.availableVariables = {};
-
-            if (Feature.isActive('v6.8.0.0')) {
-                if (!this.triggerEvent) {
-                    return;
-                }
-
-                this.mailService.loadAvailableVariables('', this.triggerEvent.class).then((response) => {
-                    Object.values(response)
-                        .sort((a, b) => a.fieldName.localeCompare(b.fieldName))
-                        .forEach((value) => {
-                            this.addVariables([
-                                {
-                                    id: value.fieldName,
-                                    schema: value.fieldName,
-                                    name: value.fieldName,
-                                    childCount: value.hasChildren ? 1 : 0,
-                                    parentId: null,
-                                    afterId: null,
-                                },
-                            ]);
-                        });
-                });
-
+            if (!this.triggerEvent) {
                 return;
             }
 
-            if (!this.hasTemplateData) {
-                return;
-            }
-
-            Object.keys(this.mailTemplateType.templateData).forEach((variable) => {
-                const availableVariable = Shopware.Utils.get(this.mailTemplateType.templateData, variable);
-                let length = 0;
-                if (typeof availableVariable === 'object' && availableVariable !== null) {
-                    length = Object.values(availableVariable).length;
-                }
-
-                this.addVariables([
-                    {
-                        id: variable,
-                        schema: variable,
-                        name: variable,
-                        childCount: length,
-                        parentId: null,
-                        afterId: null,
-                    },
-                ]);
+            this.mailService.loadAvailableVariables(this.triggerEvent.name).then((response) => {
+                Object.values(response)
+                    .sort((a, b) => a.fieldName.localeCompare(b.fieldName))
+                    .forEach((value) => {
+                        this.addVariables([
+                            {
+                                id: value.fieldName,
+                                schema: value.fieldName,
+                                name: value.fieldName,
+                                childCount: value.hasChildren ? 1 : 0,
+                                parentId: null,
+                                afterId: null,
+                            },
+                        ]);
+                    });
             });
         },
     },

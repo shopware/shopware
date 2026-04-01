@@ -7,7 +7,7 @@ use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-class EntityType extends AbstractEventDataType
+class EntityType implements EventDataType
 {
     final public const TYPE = 'entity';
 
@@ -36,25 +36,11 @@ class EntityType extends AbstractEventDataType
     }
 
     /**
-     * @return class-string<EntityDefinition>
-     */
-    public function getDefinitionClass(): string
-    {
-        return $this->definitionClass;
-    }
-
-    public function getEntityName(): string
-    {
-        return $this->entityName;
-    }
-
-    /**
-     * @return array{nullable: bool, type: string, entityClass: class-string<EntityDefinition>, entityName: string}
+     * @return array{type: string, entityClass: class-string<EntityDefinition>, entityName: string}
      */
     public function toArray(): array
     {
         return [
-            ...parent::toArray(),
             'type' => self::TYPE,
             'entityClass' => $this->definitionClass,
             'entityName' => $this->entityName,

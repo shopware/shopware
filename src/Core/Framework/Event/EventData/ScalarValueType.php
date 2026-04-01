@@ -7,7 +7,7 @@ use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-class ScalarValueType extends AbstractEventDataType
+class ScalarValueType implements EventDataType
 {
     final public const TYPE_STRING = 'string';
     final public const TYPE_INT = 'int';
@@ -36,18 +36,12 @@ class ScalarValueType extends AbstractEventDataType
         $this->type = $type;
     }
 
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
     /**
-     * @return array{nullable: bool, type: self::TYPE_*}
+     * @return array{type: self::TYPE_*}
      */
     public function toArray(): array
     {
         return [
-            ...parent::toArray(),
             'type' => $this->type,
         ];
     }

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
-class EntityCollectionType extends AbstractEventDataType
+class EntityCollectionType implements EventDataType
 {
     final public const TYPE = 'collection';
 
@@ -18,20 +18,11 @@ class EntityCollectionType extends AbstractEventDataType
     }
 
     /**
-     * @return class-string<EntityDefinition>
-     */
-    public function getDefinitionClass(): string
-    {
-        return $this->definitionClass;
-    }
-
-    /**
-     * @return array{nullable:bool, type: string, entityClass: class-string<EntityDefinition>}
+     * @return array{type: string, entityClass: class-string<EntityDefinition>}
      */
     public function toArray(): array
     {
         return [
-            ...parent::toArray(),
             'type' => self::TYPE,
             'entityClass' => $this->definitionClass,
         ];

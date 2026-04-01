@@ -1,10 +1,7 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
-
-/**
- * @sw-package checkout
- */
+import { DOCUMENT_TYPES } from '../../order.types';
 
 function getCollection(entity, collection) {
     return new EntityCollection(
@@ -88,8 +85,14 @@ const documentTypeFixture = [
     },
 ];
 
-async function createWrapper() {
-    return mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
+const defaultProps = {
+    order: orderFixture,
+    isLoading: false,
+};
+
+async function createWrapper(props = defaultProps) {
+    const wrapper = mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
+        props,
         global: {
             stubs: {
                 'sw-card': await wrapTestComponent('sw-card', {
@@ -111,7 +114,13 @@ async function createWrapper() {
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
-                'sw-text-field': true,
+                'sw-select-field': await wrapTestComponent('sw-select-field', { sync: true }),
+                'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
+                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field', { sync: true }),
+                'sw-text-field': await wrapTestComponent('sw-text-field', { sync: true }),
+                'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-context-button': await wrapTestComponent('sw-button', {
                     sync: true,
                 }),
@@ -130,11 +139,17 @@ async function createWrapper() {
                     'sw-order-document-settings-invoice-modal',
                     { sync: true },
                 ),
-                'sw-order-document-settings-credit-note-modal': true,
-                'sw-order-document-settings-storno-modal': true,
-                'sw-data-grid': await wrapTestComponent('sw-data-grid', {
-                    sync: true,
-                }),
+                'sw-order-document-settings-credit-note-modal': await wrapTestComponent(
+                    'sw-order-document-settings-credit-note-modal',
+                ),
+                'sw-order-document-settings-storno-modal': await wrapTestComponent(
+                    'sw-order-document-settings-storno-modal',
+                    { sync: true },
+                ),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
+                'sw-bulk-edit-modal': await wrapTestComponent('sw-bulk-edit-modal', { sync: true }),
+                'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
                 'sw-data-grid-column-boolean': {
                     props: ['value'],
                     template: '<div class="sw-data-grid-column-boolean"><slot></slot></div>',
@@ -151,6 +166,10 @@ async function createWrapper() {
                 'sw-icon': true,
                 'sw-textarea-field': true,
                 'sw-switch-field': true,
+                'sw-field-copyable': true,
+                'sw-field-error': true,
+                'sw-help-text': true,
+                'sw-inheritance-switch': true,
                 'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
                 'sw-loader': true,
                 'sw-extension-component-section': true,
@@ -184,7 +203,7 @@ async function createWrapper() {
                         }),
                 },
                 numberRangeService: {
-                    reserve: () => Promise.resolve({ number: 1000 }),
+                    reserve: () => Promise.resolve({ number: '1000' }),
                 },
                 repositoryFactory: {
                     create: (entity) => ({
@@ -228,11 +247,11 @@ async function createWrapper() {
                 },
             },
         },
-        props: {
-            order: orderFixture,
-            isLoading: false,
-        },
     });
+
+    await flushPromises();
+
+    return wrapper;
 }
 
 describe('src/module/sw-order/component/sw-order-document-card', () => {
@@ -419,64 +438,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(documentTypeSelectModal.exists()).toBeTruthy();
     });
 
-    it('should show modal regarding to current document type', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-
-        await wrapper.setData({
-            currentDocumentType: {
-                id: '0',
-                name: 'Delivery note',
-                technicalName: 'delivery_note',
-                translated: {
-                    name: 'Delivery note',
-                },
-            },
-            showModal: true,
-        });
-
-        expect(wrapper.find('sw-order-document-settings-delivery-note-modal-stub').exists()).toBeTruthy();
-
-        await wrapper.setData({
-            currentDocumentType: {
-                id: '1',
-                name: 'Invoice',
-                technicalName: 'invoice',
-                translated: {
-                    name: 'Invoice',
-                },
-            },
-        });
-
-        expect(wrapper.find('.sw-modal[title="sw-order.documentModal.modalTitle - Invoice"]').exists()).toBeTruthy();
-
-        await wrapper.setData({
-            currentDocumentType: {
-                id: '2',
-                name: 'Cancellation invoice',
-                technicalName: 'storno',
-                translated: {
-                    name: 'Cancellation invoice',
-                },
-            },
-        });
-
-        expect(wrapper.find('sw-order-document-settings-storno-modal-stub').exists()).toBeTruthy();
-
-        await wrapper.setData({
-            currentDocumentType: {
-                id: '3',
-                name: 'Credit note',
-                technicalName: 'credit_note',
-                translated: {
-                    name: 'Credit note',
-                },
-            },
-        });
-
-        expect(wrapper.find('sw-order-document-settings-credit-note-modal-stub').exists()).toBeTruthy();
-    });
-
     it('should show Send document modal when click on Send document option', async () => {
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
@@ -486,6 +447,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 documentFixture,
             ]),
         });
+
         expect(wrapper.find('.sw-data-grid').exists()).toBeTruthy();
 
         const sendDocumentButton = wrapper.find('.sw-order-document-card__context-button-send');
@@ -643,30 +605,74 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         wrapper.vm.downloadDocument.mockRestore();
     });
 
-    it('should call downloadDocument with xml fileType for zugferd_invoice', async () => {
-        global.activeAclRoles = ['order.editor'];
-        wrapper = await createWrapper();
+    it.each([
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_INVOICE,
+            inputSelector: '.sw-order-document-settings-invoice-modal__document-number input',
+            invoice: false,
+        },
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
+            inputSelector: '.sw-order-document-settings-storno-modal__document-number input',
+            invoice: true,
+        },
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
+            inputSelector: '.sw-order-document-settings-credit-note-modal__document-number input',
+            invoice: true,
+        },
+    ])(
+        'should call downloadDocument with xml fileType for $technicalName',
+        async ({ technicalName, inputSelector, invoice }) => {
+            global.activeAclRoles = ['order.editor'];
 
-        const downloadDocumentSpy = jest.spyOn(wrapper.vm, 'downloadDocument').mockImplementation(() => {});
+            wrapper = await createWrapper({
+                ...defaultProps,
+                order: {
+                    ...orderFixture,
+                    documents: [
+                        {
+                            id: '123',
+                            documentType: {
+                                technicalName: DOCUMENT_TYPES.INVOICE,
+                            },
+                            config: {
+                                custom: {
+                                    invoiceNumber: '1000',
+                                },
+                            },
+                        },
+                    ],
+                },
+            });
 
-        await wrapper.setData({
-            currentDocumentType: {
-                id: '5',
-                name: 'E-Invoice (ZUGFeRD)',
-                technicalName: 'zugferd_invoice',
-                translated: { name: 'E-Invoice (ZUGFeRD)' },
-            },
-            showModal: true,
-        });
+            const downloadDocumentSpy = jest.spyOn(wrapper.vm, 'downloadDocument').mockImplementation(() => {});
 
-        await flushPromises();
+            await wrapper.setData({
+                currentDocumentType: {
+                    id: '5',
+                    technicalName,
+                    name: 'test',
+                    translated: { name: 'test' },
+                },
+                showModal: true,
+            });
 
-        await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
-        await flushPromises();
+            await flushPromises();
+            await wrapper.find(inputSelector).setValue('1000');
 
-        expect(downloadDocumentSpy).toHaveBeenCalledWith(expect.any(String), expect.any(String), 'xml');
-        downloadDocumentSpy.mockRestore();
-    });
+            if (invoice) {
+                const invoiceSelect = wrapper.find('.sw-field--select select');
+                await invoiceSelect.setValue('1000');
+            }
+
+            await wrapper.find('.sw-order-document-settings-modal__download-button').trigger('click');
+            await flushPromises();
+
+            expect(downloadDocumentSpy).toHaveBeenCalledWith(expect.any(String), expect.any(String), 'xml');
+            downloadDocumentSpy.mockRestore();
+        },
+    );
 
     it('should call downloadDocument with pdf fileType for regular invoice', async () => {
         global.activeAclRoles = ['order.editor'];
@@ -789,5 +795,64 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         const fileTypes = row.find('.sw-data-grid__cell--fileTypes');
 
         expect(fileTypes.text()).toBe('PDF, HTML');
+    });
+
+    it.each([
+        {
+            technicalName: DOCUMENT_TYPES.INVOICE,
+            expectedSelector: '.sw-order-document-settings-invoice-modal__document-number',
+        },
+        {
+            technicalName: DOCUMENT_TYPES.DELIVERY_NOTE,
+            expectedSelector: 'sw-order-document-settings-delivery-note-modal-stub',
+        },
+        {
+            technicalName: DOCUMENT_TYPES.CREDIT_NOTE,
+            expectedSelector: '.sw-order-document-settings-credit-note-modal__document-number',
+        },
+        {
+            technicalName: DOCUMENT_TYPES.CANCELLATION_INVOICE,
+            expectedSelector: '.sw-order-document-settings-storno-modal__document-number',
+        },
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_INVOICE,
+            expectedSelector: '.sw-order-document-settings-invoice-modal__document-number',
+        },
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE,
+            expectedSelector: '.sw-order-document-settings-invoice-modal__document-number',
+        },
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
+            expectedSelector: '.sw-order-document-settings-storno-modal__document-number',
+        },
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE,
+            expectedSelector: '.sw-order-document-settings-storno-modal__document-number',
+        },
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
+            expectedSelector: '.sw-order-document-settings-credit-note-modal__document-number',
+        },
+        {
+            technicalName: DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE,
+            expectedSelector: '.sw-order-document-settings-credit-note-modal__document-number',
+        },
+    ])('should render correct modal type for $technicalName', async ({ technicalName, expectedSelector }) => {
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            currentDocumentType: {
+                id: '5',
+                technicalName,
+                name: 'test',
+                translated: { name: 'test' },
+            },
+            showModal: true,
+        });
+
+        await flushPromises();
+
+        expect(wrapper.find(expectedSelector).exists()).toBe(true);
     });
 });

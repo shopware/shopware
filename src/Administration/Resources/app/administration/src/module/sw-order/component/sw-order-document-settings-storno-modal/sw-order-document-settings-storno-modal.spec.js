@@ -146,8 +146,8 @@ describe('src/module/sw-order/component/sw-order-document-settings-storno-modal'
 
         const invoiceOptions = wrapper.find('.sw-order-document-settings-storno-modal__invoice-select').findAll('option');
 
-        expect(invoiceOptions.at(1).text()).toBe('1000');
-        expect(invoiceOptions.at(2).text()).toBe('1001');
+        expect(invoiceOptions.at(1).attributes('value')).toBe('1000');
+        expect(invoiceOptions.at(2).attributes('value')).toBe('1001');
     });
 
     it('should disable create button if there is no selected invoice', async () => {

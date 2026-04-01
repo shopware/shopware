@@ -2,7 +2,6 @@
 
 use Danger\Config;
 use Danger\Context;
-use Danger\Platform\Github\Github;
 use Danger\Rule\Condition;
 use Danger\Struct\File;
 

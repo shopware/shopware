@@ -1,4 +1,5 @@
 import template from './sw-order-document-settings-storno-modal.html.twig';
+import { DOCUMENT_TYPES } from '../../order.types';
 
 /**
  * @sw-package checkout
@@ -35,7 +36,7 @@ export default {
                     stornoNumber: '',
                     invoiceNumber: '',
                 },
-                documentNumber: 0,
+                documentNumber: '0',
                 documentComment: '',
                 documentDate: '',
             },
@@ -50,10 +51,21 @@ export default {
         invoices() {
             return this.order.documents.filter((document) => {
                 return (
-                    document.documentType.technicalName === 'invoice' ||
-                    document.documentType.technicalName === 'zugferd_invoice' ||
-                    document.documentType.technicalName === 'zugferd_embedded_invoice'
+                    document.documentType.technicalName === DOCUMENT_TYPES.INVOICE ||
+                    document.documentType.technicalName === DOCUMENT_TYPES.ZUGFERD_INVOICE ||
+                    document.documentType.technicalName === DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE
                 );
+            });
+        },
+
+        invoiceOptions() {
+            return this.invoices.map((invoice) => {
+                const invoiceNumber = invoice.config.custom.invoiceNumber;
+
+                return {
+                    id: invoiceNumber,
+                    name: invoiceNumber,
+                };
             });
         },
     },
@@ -65,7 +77,7 @@ export default {
     methods: {
         createdComponent() {
             this.numberRangeService
-                .reserve(`document_${this.currentDocumentType.technicalName}`, this.order.salesChannelId, true)
+                .reserve(`document_${DOCUMENT_TYPES.CANCELLATION_INVOICE}`, this.order.salesChannelId, true)
                 .then((response) => {
                     this.documentConfig.documentNumber = response.number;
                     this.documentNumberPreview = this.documentConfig.documentNumber;
@@ -82,7 +94,7 @@ export default {
 
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
                 this.numberRangeService
-                    .reserve(`document_${this.currentDocumentType.technicalName}`, this.order.salesChannelId, false)
+                    .reserve(`document_${DOCUMENT_TYPES.CANCELLATION_INVOICE}`, this.order.salesChannelId, false)
                     .then((response) => {
                         this.documentConfig.custom.stornoNumber = response.number;
                         if (response.number !== this.documentConfig.documentNumber) {

@@ -1,4 +1,20 @@
+@import "~scss/variables";
+
 .sw-order-select-document-type-modal {
+    &__type-switch {
+        margin-top: 0;
+
+        .sw-field__label label {
+            padding: 0 10px;
+        }
+    }
+
+    &__divider {
+        width: 100%;
+        border-top: 1px solid $color-gray-300;
+        margin-bottom: 22px;
+    }
+
     &__radio-field {
         &.sw-field {
             margin-bottom: 0;

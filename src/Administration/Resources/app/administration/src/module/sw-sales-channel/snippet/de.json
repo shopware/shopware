@@ -236,7 +236,7 @@
       },
       "agenticCommerce": {
         "tabIntegration": "Integration",
-          "openAiSettingsTitle": "OpenAI-Einstellungen",
+        "openAiSettingsTitle": "OpenAI-Einstellungen",
         "buttonResetTemplate": "Auf Standard zurücksetzen",
         "resetTemplateSuccess": "Template wurde auf Standard zurückgesetzt. Bitte speichern, um die Änderungen zu übernehmen.",
         "errorLoadingTemplate": "Standard-Template konnte nicht geladen werden.",
@@ -257,6 +257,25 @@
               },
               "stepByStep": "<li>Bewirb dich als Merchant unter <a href=\"https://chatgpt.com/merchants/\" target=\"_blank\" rel=\"noopener noreferrer\">chatgpt.com/merchants</a></li><li>Kopiere die Export-URL (unten) und teile diese mit OpenAI gemäß der <a href=\"https://developers.openai.com/commerce/product-feeds\" target=\"_blank\" rel=\"noopener noreferrer\">Produkt-Feed-Dokumentation</a></li><li>Stelle sicher, dass die Export-URL öffentlich erreichbar ist</li>"
             }
+          }
+        }
+      },
+      "productExport": {
+        "tabInsights": "Einblicke",
+        "insights": {
+          "orderCardHeadline": "Vermittelte Bestellungen",
+          "customerCardHeadline": "Vermittelte Kunden",
+          "turnoverCardHeadline": "Vermittelter Umsatz",
+          "numbers": "Anzahl",
+          "totalTurnover": "Umsatz",
+          "summary": "Summe",
+          "dateRanges": {
+            "180Days": "Letzte 180 Tage",
+            "30Days": "Letzte 30 Tage",
+            "14Days": "Letzte 14 Tage",
+            "7Days": "Letzte 7 Tage",
+            "24Hours": "Letzte 24 Stunden",
+            "yesterday": "Gestern"
           }
         }
       },

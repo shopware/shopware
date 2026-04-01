@@ -260,6 +260,25 @@
           }
         }
       },
+      "productExport": {
+        "tabInsights": "Insights",
+        "insights": {
+          "orderCardHeadline": "Referred orders",
+          "customerCardHeadline": "Referred customers",
+          "turnoverCardHeadline": "Referred turnover",
+          "numbers": "Count",
+          "totalTurnover": "Turnover",
+          "summary": "Summary",
+          "dateRanges": {
+            "180Days": "Last 180 days",
+            "30Days": "Last 30 days",
+            "14Days": "Last 14 days",
+            "7Days": "Last 7 days",
+            "24Hours": "Last 24 hours",
+            "yesterday": "Yesterday"
+          }
+        }
+      },
       "hreflang": {
         "title": "Hreflang",
         "titleCard": "Hreflang integration",

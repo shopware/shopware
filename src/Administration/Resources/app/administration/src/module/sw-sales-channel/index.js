@@ -55,6 +55,10 @@ Shopware.Component.register(
     () => import('./view/sw-sales-channel-detail-agentic-commerce-integration'),
 );
 Shopware.Component.register(
+    'sw-sales-channel-detail-product-export-insights',
+    () => import('./view/sw-sales-channel-detail-product-export-insights'),
+);
+Shopware.Component.register(
     'sw-sales-channel-products-assignment-modal',
     () => import('./component/sw-sales-channel-products-assignment-modal'),
 );
@@ -154,6 +158,14 @@ Module.register('sw-sales-channel', {
                 agenticCommerceIntegration: {
                     component: 'sw-sales-channel-detail-agentic-commerce-integration',
                     path: 'agentic-commerce-integration',
+                    meta: {
+                        parentPath: 'sw.sales.channel.list',
+                        privilege: 'sales_channel.viewer',
+                    },
+                },
+                productExportInsights: {
+                    component: 'sw-sales-channel-detail-product-export-insights',
+                    path: 'product-export-insights',
                     meta: {
                         parentPath: 'sw.sales.channel.list',
                         privilege: 'sales_channel.viewer',

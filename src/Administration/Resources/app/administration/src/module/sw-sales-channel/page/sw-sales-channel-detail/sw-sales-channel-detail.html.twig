@@ -90,13 +90,23 @@
                 {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_sales_channel_detail_content_tab_export_template` instead. #}
                 {%  block sw_sales_channel_detail_content_tab_product_comparison %}
                 <sw-tabs-item
-                    v-if="(isProductComparison || isAgenticCommerce) && !isLoading"
+                    v-if="isProductExportChannel && !isLoading"
                     :route="{ name: 'sw.sales.channel.detail.productComparison', params: { id: $route.params.id } }"
                     :title="$tc('sw-sales-channel.detail.tabProductComparison')"
                 >
                     {{ $tc('sw-sales-channel.detail.tabProductComparison') }}
                 </sw-tabs-item>
                 {% endblock %}
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_content_tab_product_export_insights %}
+                <sw-tabs-item
+                    v-if="isAgenticCommerce && !isLoading"
+                    :route="{ name: 'sw.sales.channel.detail.productExportInsights', params: { id: $route.params.id } }"
+                    :title="$tc('sw-sales-channel.detail.productExport.tabInsights')"
+                >
+                    {{ $tc('sw-sales-channel.detail.productExport.tabInsights') }}
+                </sw-tabs-item>
                 {% endblock %}
 
                 {%  block sw_sales_channel_detail_content_tab_analytics %}

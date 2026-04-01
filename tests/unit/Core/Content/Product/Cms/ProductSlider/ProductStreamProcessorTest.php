@@ -20,6 +20,7 @@ use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -241,7 +242,7 @@ class ProductStreamProcessorTest extends TestCase
         static::assertEmpty($slider->getProducts());
     }
 
-    public function testEnrichPreservesExplicitlyFilteredVariants(): void
+    public function testEnrichLoadsMissingExplicitProductIdsWithoutCollapsingThem(): void
     {
         $slot = $this->getSlot();
         $resolverContext = $this->getResolverContext();
@@ -249,48 +250,39 @@ class ProductStreamProcessorTest extends TestCase
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
         $this->config->add($config);
 
-        $product = (new ProductEntity())->assign([
-            'id' => 'product-1',
-            '_uniqueIdentifier' => 'product-1',
-            'parentId' => 'parent-1',
-            'isCloseout' => false,
-            'stock' => 12,
-            'variantListingConfig' => new VariantListingConfig(
-                true,
-                'product-main',
-                null
-            ),
-        ]);
+        $streamCriteria = new Criteria();
+        $streamCriteria->addFilter(new EqualsAnyFilter('product.id', ['child-1', 'child-2']));
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.id', 'product-1'));
+        $selectedVariant = $this->createVariantProduct('child-1', 'parent-1', 'main-variant');
+        $missingVariant = $this->createVariantProduct('child-2', 'parent-1', 'main-variant');
+        $groupedProduct = $this->createVariantProduct('grouped-product', 'parent-1', 'main-variant');
 
-        $streamResult = new EntitySearchResult(
+        $streamProducts = new ProductCollection([$selectedVariant, $groupedProduct]);
+        $streamSearchResult = new EntitySearchResult(
             'product',
-            1,
-            new ProductCollection([$product]),
+            2,
+            $streamProducts,
             null,
-            $criteria,
+            $streamCriteria,
             Context::createDefaultContext()
         );
 
         $data = new ElementDataCollection();
-        $data->add('product-slider-entity-fallback_id', $streamResult);
+        $data->add('product-slider-entity-fallback_id', $streamSearchResult);
 
         $this->productRepository->expects($this->once())
             ->method('search')
-            ->with(static::callback(static function (Criteria $criteria): bool {
-                static::assertSame(['product-1'], array_values($criteria->getIds()));
+            ->willReturnCallback(function (Criteria $criteria) use ($missingVariant, $selectedVariant): EntitySearchResult {
+                static::assertSame(['child-1', 'child-2'], $criteria->getIds());
 
-                return true;
-            }))
-            ->willReturn($this->getEntitySearchResult(new ProductCollection([$product])));
+                return $this->getEntitySearchResult(new ProductCollection([$selectedVariant, $missingVariant]));
+            });
 
         $this->getProcessor()->enrich($slot, $data, $resolverContext);
 
         $slider = $slot->getData();
         static::assertInstanceOf(ProductSliderStruct::class, $slider);
-        static::assertSame(['product-1'], array_values($slider->getProducts()->getIds()));
+        static::assertSame(['child-1', 'child-2'], $slider->getProducts()->getIds());
     }
 
     private function getProcessor(): ProductStreamProcessor
@@ -303,6 +295,20 @@ class ProductStreamProcessorTest extends TestCase
         return new MultiFilter(MultiFilter::CONNECTION_OR, [
             new ContainsFilter('product.name', 'Awesome'),
             new EqualsFilter('product.id', 'product-1'),
+        ]);
+    }
+
+    private function createVariantProduct(string $id, string $parentId, string $mainVariantId): ProductEntity
+    {
+        return (new ProductEntity())->assign([
+            'id' => $id,
+            '_uniqueIdentifier' => $id,
+            'parentId' => $parentId,
+            'variantListingConfig' => new VariantListingConfig(
+                false,
+                $mainVariantId,
+                null
+            ),
         ]);
     }
 }

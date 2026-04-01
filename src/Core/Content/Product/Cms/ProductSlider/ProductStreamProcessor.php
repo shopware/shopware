@@ -10,10 +10,10 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
-use Shopware\Core\Content\Product\ExplicitProductIdCriteriaExtractor;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Content\Product\Util\ExplicitProductIdResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
@@ -132,14 +132,18 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
     private function handleProductStream(
         ProductCollection $streamResult,
         SalesChannelContext $context,
-        Criteria $originCriteria
+        Criteria $originalCriteria
     ): ProductCollection {
-        $finalProductIds = $this->collectFinalProductIds($streamResult, $originCriteria);
+        $explicitProductIds = ExplicitProductIdResolver::fromCriteria($originalCriteria);
+
+        $finalProductIds = $this->collectFinalProductIds($streamResult, $explicitProductIds);
+        $finalProductIds = array_values(array_unique([...$finalProductIds, ...$explicitProductIds]));
+
         if ($finalProductIds === []) {
             return new ProductCollection();
         }
 
-        $criteria = $originCriteria->cloneForRead($finalProductIds);
+        $criteria = $originalCriteria->cloneForRead($finalProductIds);
 
         $products = $this->productRepository->search($criteria, $context)->getEntities();
         $products->sortByIdArray($finalProductIds);
@@ -150,9 +154,9 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
     /**
      * @return list<string>
      */
-    private function collectFinalProductIds(ProductCollection $streamResult, Criteria $criteria): array
+    private function collectFinalProductIds(ProductCollection $streamResult, array $explicitProductIds = []): array
     {
-        $explicitProductIds = ExplicitProductIdCriteriaExtractor::extract($criteria);
+        $explicitProductIds = array_flip($explicitProductIds);
         $finalProductIds = [];
 
         foreach ($streamResult as $product) {

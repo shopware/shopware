@@ -72,8 +72,8 @@
         "titleShowAvailableVariables": "Variables",
         "copyTooltip": "Copy to clipboard.",
         "languageNotAssignedToSalesChannel": "The current language is not assigned to the selected sales channel.",
-        "selectFlowTriggerLabel": "Flow trigger",
-        "selectFlowTriggerHint": "Used to determine available data."
+        "selectTriggerEventLabel": "Trigger event",
+        "selectTriggerEventHint": "Used to determine available data."
       },
       "previewModalTitle": "Preview",
       "buttonSave": "Save",

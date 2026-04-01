@@ -274,11 +274,7 @@
                     :is-loading="isLoading"
                     @modal-close="onCancelShowPreview"
                 >
-                    <template v-if="!isLoading && !feature.isActive('v6.8.0.0')">
-                        <span v-html="mailPreview"></span>
-                    </template>
-
-                    <template v-if="!isLoading && feature.isActive('v6.8.0.0')">
+                    <template v-if="!isLoading">
                         <div
                             class="sw-mail-template-preview-modal__subject"
                         >
@@ -433,10 +429,9 @@
                     {% endblock %}
 
                     <mt-select
-                        v-if="feature.isActive('v6.8.0.0')"
                         value-property="name"
-                        :label="$t('sw-mail-template.detail.sidebar.selectFlowTriggerLabel')"
-                        :model-value="triggerEvent"
+                        :label="$t('sw-mail-template.detail.sidebar.selectTriggerEventLabel')"
+                        :model-value="triggerEvent?.name"
                         :options="triggerEvents"
                         @update:model-value="onTriggerEventChange"
                     >
@@ -445,7 +440,7 @@
                                 size="12"
                                 name="solid-info-circle"
                             />
-                            {{ $t('sw-mail-template.detail.sidebar.selectFlowTriggerHint') }}
+                            {{ $t('sw-mail-template.detail.sidebar.selectTriggerEventHint') }}
                         </template>
                     </mt-select>
 
@@ -467,16 +462,15 @@
             <sw-sidebar-item
                 icon="regular-code"
                 :title="$t('sw-mail-template.detail.sidebar.titleShowAvailableVariables')"
-                :disabled="isLoading || (!hasTemplateData && !feature.isActive('v6.8.0.0'))"
+                :disabled="isLoading"
                 class="sw-mail-template-detail__show-available-variables"
             >
                 <div class="sw-mail-template-detail__available-variables-sidebar-container">
                     <mt-select
-                        v-if="feature.isActive('v6.8.0.0')"
                         class="sw-mail-template-detail__available-variables-sidebar-trigger-select"
                         value-property="name"
-                        :label="$t('sw-mail-template.detail.sidebar.selectFlowTriggerLabel')"
-                        :model-value="triggerEvent"
+                        :label="$t('sw-mail-template.detail.sidebar.selectTriggerEventLabel')"
+                        :model-value="triggerEvent?.name"
                         :options="triggerEvents"
                         @update:model-value="onTriggerEventChange"
                     >
@@ -485,14 +479,11 @@
                                 size="12"
                                 name="solid-info-circle"
                             />
-                            {{ $t('sw-mail-template.detail.sidebar.selectFlowTriggerHint') }}
+                            {{ $t('sw-mail-template.detail.sidebar.selectTriggerEventHint') }}
                         </template>
                     </mt-select>
 
-                    <div
-                        v-if="loadedAvailableVariables.length > 0 || !feature.isActive('v6.8.0.0')"
-                        class="sw-mail-template-detail__available-variables-sidebar-container-tree-container"
-                    >
+                    <div class="sw-mail-template-detail__available-variables-sidebar-container-tree-container">
                         {% block sw_mail_template_available_variables_tree %}
                         <sw-tree
                             class="sw-mail-template-detail__available-variables-sidebar-container__tree"
@@ -557,15 +548,6 @@
 
             {% block sw_mail_template_detail_sidebar_inner_preview %}
             <sw-sidebar-item
-                v-if="!feature.isActive('v6.8.0.0')"
-                icon="regular-eye"
-                :title="$t('sw-mail-template.detail.sidebar.titleShowPreview')"
-                :disabled="isLoading || showPreview || !hasTemplateData"
-                class="sw-mail-template-detail__show-preview-sidebar"
-                @click="onClickShowPreview"
-            />
-            <sw-sidebar-item
-                v-else
                 icon="regular-eye"
                 :title="$t('sw-mail-template.detail.sidebar.titleShowPreview')"
                 :disabled="isLoading || showPreview"
@@ -574,8 +556,8 @@
                 <div class="sw-mail-template-detail__show-preview-sidebar-container">
                     <mt-select
                         value-property="name"
-                        :label="$t('sw-mail-template.detail.sidebar.selectFlowTriggerLabel')"
-                        :model-value="triggerEvent"
+                        :label="$t('sw-mail-template.detail.sidebar.selectTriggerEventLabel')"
+                        :model-value="triggerEvent?.name"
                         :options="triggerEvents"
                         @update:model-value="onTriggerEventChange"
                     >
@@ -584,7 +566,7 @@
                                 size="12"
                                 name="solid-info-circle"
                             />
-                            {{ $t('sw-mail-template.detail.sidebar.selectFlowTriggerHint') }}
+                            {{ $t('sw-mail-template.detail.sidebar.selectTriggerEventHint') }}
                         </template>
                     </mt-select>
 

@@ -3,7 +3,7 @@ import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 
-const { Mixin, Context, Feature } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -20,7 +20,6 @@ export default {
         'entityMappingService',
         'repositoryFactory',
         'acl',
-        'feature',
         'businessEventService',
     ],
 
@@ -177,16 +176,12 @@ export default {
             return false;
         },
 
-        hasTemplateData() {
-            return Object.keys(this.mailTemplateType?.templateData || {}).length > 0;
-        },
-
         lacksEmailSendPermission() {
             return !this.acl.can('api_send_email');
         },
 
         isSendButtonDisabled() {
-            return this.isLoading || !this.testMailRequirementsMet || this.lacksEmailSendPermission;
+            return this.isLoading || !this.testMailRequirementsMet || this.lacksEmailSendPermission || !this.triggerEvent;
         },
     },
 
@@ -444,7 +439,7 @@ export default {
                     this.testMailSalesChannelId,
                     true,
                     [],
-                    null,
+                    {},
                     this.mailTemplate.mailTemplateTypeId,
                     this.mailTemplate.id,
                 )
@@ -490,13 +485,15 @@ export default {
                 return;
             }
 
+            const mailTemplate = this.mailPreviewContent();
+
             return this.mailService
                 .simulateMailTemplate(
                     {
-                        subject: this.mailTemplate.subject,
-                        senderName: this.mailTemplate.senderName,
-                        contentHtml: this.mailTemplate.contentHtml,
-                        contentPlain: this.mailTemplate.contentPlain,
+                        subject: mailTemplate.subject ?? mailTemplate.translated?.subject,
+                        senderName: mailTemplate.senderName ?? mailTemplate.translated?.senderName,
+                        contentHtml: mailTemplate.contentHtml ?? mailTemplate.translated?.contentHtml,
+                        contentPlain: mailTemplate.contentPlain ?? mailTemplate.translated?.contentPlain,
                     },
                     this.triggerEvent.name,
                     true,

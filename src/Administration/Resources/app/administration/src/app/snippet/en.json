@@ -202,6 +202,9 @@
         "invalidFileType": {
           "message": "The selected file \"{name}\" has an unsupported format. Please use one of the following types: {supportedTypes}."
         },
+        "invalidFileExtension": {
+          "message": "The selected file \"{name}\" has an unsupported file extension. Please use one of the following file extensions: {supportedExtensions}."
+        },
         "invalidFileSize": {
           "message": "The selected file \"{name}\" is too big to upload. File size must not exceed {limit}."
         }

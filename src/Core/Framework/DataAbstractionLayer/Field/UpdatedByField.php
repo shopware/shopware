@@ -18,6 +18,8 @@ class UpdatedByField extends FkField
 
     /**
      * @deprecated tag:v6.8.0 - reason:parameter-default-change - $allowedWriteScopes will default to [Context::SYSTEM_SCOPE, Context::CRUD_API_SCOPE] and be not nullable again
+     *
+     * @param list<string>|null $allowedWriteScopes
      */
     public function __construct(?array $allowedWriteScopes = null)
     {
@@ -42,6 +44,9 @@ class UpdatedByField extends FkField
         $this->allowedWriteScopes = $allowedWriteScopes;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getAllowedWriteScopes(): array
     {
         return $this->allowedWriteScopes;

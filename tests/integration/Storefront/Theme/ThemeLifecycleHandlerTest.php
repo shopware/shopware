@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -41,7 +40,6 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleTheme\SimpleTheme
 /**
  * @internal
  */
-#[CoversClass(ThemeLifecycleHandler::class)]
 class ThemeLifecycleHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -84,7 +82,7 @@ class ThemeLifecycleHandlerTest extends TestCase
                 TestDefaults::SALES_CHANNEL,
                 static::isString(),
                 static::isInstanceOf(Context::class),
-                static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
+                static::callback(static fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
             );
 
         $configs = new StorefrontPluginConfigurationCollection([
@@ -105,7 +103,7 @@ class ThemeLifecycleHandlerTest extends TestCase
                 TestDefaults::SALES_CHANNEL,
                 static::isString(),
                 static::isInstanceOf(Context::class),
-                static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
+                static::callback(static fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
             );
 
         $configs = new StorefrontPluginConfigurationCollection([
@@ -151,7 +149,7 @@ class ThemeLifecycleHandlerTest extends TestCase
             ->with(
                 $themeId,
                 static::isInstanceOf(Context::class),
-                static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
+                static::callback(static fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 2)
             );
 
         $configs = new StorefrontPluginConfigurationCollection([
@@ -172,7 +170,7 @@ class ThemeLifecycleHandlerTest extends TestCase
                 TestDefaults::SALES_CHANNEL,
                 static::isString(),
                 static::isInstanceOf(Context::class),
-                static::callback(fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 1 && (
+                static::callback(static fn (StorefrontPluginConfigurationCollection $configs): bool => $configs->count() === 1 && (
                     (
                         $configs->first() instanceof StorefrontPluginConfiguration
                         ? $configs->first()->getTechnicalName()

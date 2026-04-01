@@ -33,20 +33,26 @@ class CoversAttributeRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if ($this->hasCovers($node)) {
-            return [];
+        $classReflection = $node->getClassReflection();
+        $isUnitTest = TestRuleHelper::isUnitTestClass($classReflection);
+        $hasCovers = $this->hasCovers($node);
+
+        if ($hasCovers && !$isUnitTest) {
+            return [
+                RuleErrorBuilder::message('Only Unit & Migration test classes can have CoversClass, CoversFunction or CoversNothing attribute')
+                    ->identifier('shopware.unexpectedTestCovers')
+                    ->build(),
+            ];
         }
 
-        $classReflection = $node->getClassReflection();
-        // Abstract classes do not need to have covers attribute
         if ($classReflection->isAbstract()) {
             return [];
         }
 
-        if (TestRuleHelper::isUnitTestClass($classReflection)) {
+        if ($isUnitTest && !$hasCovers) {
             return [
-                RuleErrorBuilder::message('Unit test classes must have CoversClass, CoversFunction or CoversNothing attribute')
-                    ->identifier('shopware.testCovers')
+                RuleErrorBuilder::message('Unit & Migration test classes must have CoversClass, CoversFunction or CoversNothing attribute')
+                    ->identifier('shopware.expectedTestCovers')
                     ->build(),
             ];
         }

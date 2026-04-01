@@ -4,6 +4,12 @@
 
 <details>
 
+## Default CMS page ID now persisted for categories
+
+The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.
+
+The runtime-only field `cmsPageIdSwitched` on `CategoryDefinition` was removed without replacement.
+
 ## Tax Calculation for percentage discounts / surcharges, e.g. promotions
 
 Taxes of percentage prices are not recalculated anymore, but use the existing tax calculation of the referenced line items.
@@ -49,11 +55,32 @@ The following methods are now abstract and must be implemented by extensions. Th
 - `confirmWithResponse()` returns `SuccessResponse`
 - `unsubscribeWithResponse()` returns `SuccessResponse`
 
+## Removed `/api/_action/mail-template/validate` route
+
+The `/api/_action/mail-template/validate` route has been removed without replacement, as it was not used and did not provide any significant value.
+
 </details>
 
 # Core
 
 <details>
+
+## Changed behaviour of default fields in EntityDefinition
+
+From now on, the defined fields of an EntityDefinition are applied after the default fields.
+This makes it possible to properly overwrite the current default fields `createdAt` and `updatedAt`.
+Check your EntityDefinitions if your entities still behave like intended. (Only applicable if you manually add `CreatedAtField` and/or `UpdatedAtField`)
+
+## `CreatedByField` and `UpdatedByField` default write scopes changed
+
+The default write scopes of `Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedByField` and `Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField` now include `Context::CRUD_API_SCOPE` in addition to `Context::SYSTEM_SCOPE`.
+
+If you rely on the previous system-only behavior, pass the desired scopes explicitly when instantiating the field, for example:
+
+```php
+new CreatedByField([Context::SYSTEM_SCOPE]);
+new UpdatedByField([Context::SYSTEM_SCOPE]);
+```
 
 ## Multiple payment finalize calls allowed
 
@@ -61,6 +88,11 @@ Multiple calls to the `/payment-finalize` endpoint using the same payment token 
 If the token has already been consumed, the user is redirected to the finish page without triggering a PaymentException.
 To support this behavior, a new `consumed` flag has been added to the payment token struct, which indicates if the token has already been processed.
 Since tokens are no longer deleted after use, a new scheduled task runs daily to remove all expired tokens and keep the system clean.
+
+## Automatic promotions are no longer removable
+
+Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
+The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
 
 ## Removal of `$options` parameter in custom validator's constraints
 
@@ -385,6 +417,18 @@ The following unused exceptions were removed:
 * `\Shopware\Core\Content\ImportExport\Exception\LogNotWritableException`
 * `\Shopware\Core\Content\ImportExport\Exception\MappingException`
 
+## SystemConfigService: `$silent` parameter changed default value from `false` to `true`
+
+`SystemConfigService::set()`, `setMultiple()`, and `delete()` changed the default value for the `$silent` parameter from `false` to `true`, meaning config writes **no longer invalidate the HTTP cache** (`system.config-{salesChannelId}` tag) by default. The internal config cache (`system-config`) is always cleared regardless.
+
+If your code writes config values that require immediate cache invalidation (e.g. display settings, feature toggles read via `SystemConfigService::get()` in templates), pass `silent: false` explicitly:
+
+```php
+$this->systemConfigService->set('MyPlugin.config.showBanner', true, $salesChannelId, false);
+```
+
+Please pass `false` only when absolutely necessary, as it leads to invalidation of a huge number of HTTP pages and decreases overall system performance.
+
 ## Removed SystemConfig exceptions
 
 The following exceptions were removed:
@@ -507,7 +551,7 @@ Instead of using the `link` property of the `manufacturer` entity directly, the 
 
 The increment-based message queue statistics system (displayed indexing progress notifications in the Administration) has been removed.
 
-### Removed deprecated `TemplateGroup` class
+## Removed deprecated `TemplateGroup` class
 
 The deprecated class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been removed.
 
@@ -528,11 +572,145 @@ shopware:
           type: 'mysql'
 ```
 
+### Changed Exception Classes towards domain exceptions
+
+The following exception classes were removed and replaced by domain exceptions:
+* `\Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException` -> `\Shopware\Core\System\NumberRange\Exception\NumberRangeException::incrementStorageNotFound()`
+* `\Shopware\Core\System\NumberRange\Exception\NoConfigurationException` -> `\Shopware\Core\System\NumberRange\NumberRangeException::noConfigurationForEntity()`
+
 </details>
 
 # Administration
 
 <details>
+
+## Migrating Options API overrides to the Composition API Extension System
+
+Starting with Shopware 6.7, core components are gradually being migrated from Options API to Composition API using `createExtendableSetup()`. When a component you override has been converted, a backward-compatibility shim keeps your existing `Shopware.Component.override()` call working — but logs a deprecation warning. In Shopware 6.8, all fully-migrated components will require the new `overrideComponentSetup()` API.
+
+This guide shows how to migrate your plugin override to `Shopware.Component.overrideComponentSetup()` so it works natively against Composition API components.
+
+> **Note:** Only migrate overrides for components that have already been converted to use `createExtendableSetup()`. If the target component still uses Options API, keep using `Shopware.Component.override()` as-is.
+
+### Before: Options API override
+
+```javascript
+Shopware.Component.override('sw-product-list', {
+    data() {
+        return {
+            customFilters: [],
+            isCustomMode: false,
+        };
+    },
+
+    computed: {
+        columns() {
+            const original = this.$super('columns');
+            return [...original, { property: 'custom', label: 'Custom' }];
+        },
+    },
+
+    methods: {
+        async loadData() {
+            await this.$super('loadData');
+            this.customFilters = await this.fetchCustomFilters();
+        },
+
+        async fetchCustomFilters() {
+            // ...
+        },
+    },
+
+    watch: {
+        isCustomMode(val) {
+            if (val) this.loadData();
+        },
+    },
+});
+```
+
+### After: Composition API override
+
+```javascript
+import { ref, computed, watch } from 'vue';
+
+Shopware.Component.overrideComponentSetup()('sw-product-list', (previousState, props, context) => {
+    const customFilters = ref([]);
+    const isCustomMode = ref(false);
+
+    // computed — previousState refs are NOT auto-unwrapped, use .value
+    const columns = computed(() => {
+        return [...previousState.columns.value, { property: 'custom', label: 'Custom' }];
+    });
+
+    // method — call the original via previousState
+    async function loadData() {
+        await previousState.loadData.value();
+        customFilters.value = await fetchCustomFilters();
+    }
+
+    async function fetchCustomFilters() {
+        // ...
+    }
+
+    watch(isCustomMode, (val) => {
+        if (val) loadData();
+    });
+
+    return {
+        customFilters,
+        isCustomMode,
+        columns,
+        loadData,
+        fetchCustomFilters,
+    };
+});
+```
+
+### Key differences
+
+| Concept | Options API (`override`) | Composition API (`overrideComponentSetup`) |
+|---|---|---|
+| Reactive state | `data()` returning an object | `ref()` / `reactive()` |
+| Calling the original method | `this.$super('methodName')` | `previousState.methodName.value()` |
+| Accessing original computed | `this.$super('columns')` | `previousState.columns.value` |
+| Watching state | `watch: { prop: handler }` | `watch(ref, handler)` |
+| Accessing props | `this.myProp` | `props.myProp` |
+| Emitting events | `this.$emit(...)` | `context.emit(...)` |
+| Refs are not auto-unwrapped | n/a | Always use `.value` on `previousState` refs |
+
+### TypeScript: typing the override
+
+If the target component declares its public API in `ComponentPublicApiMapping`, you get full type safety:
+
+```typescript
+import { ref, computed } from 'vue';
+import type SwProductList from 'src/module/sw-product/page/sw-product-list';
+
+Shopware.Component.overrideComponentSetup<typeof SwProductList>()(
+    'sw-product-list',
+    (previousState, props) => {
+        // previousState is fully typed — IDE autocomplete works
+        const columns = computed(() => [
+            ...previousState.columns.value,
+            { property: 'custom', label: 'Custom' },
+        ]);
+
+        return { columns };
+    },
+);
+```
+
+### Unsupported Options API patterns
+
+The following patterns have no direct equivalent in `overrideComponentSetup()` and must be restructured:
+
+| Pattern | Alternative |
+|---|---|
+| `provide` | Not supported in overrides; move `provide` into the component itself |
+| `components` / `directives` | Register globally via `Shopware.Component.register()` / `Shopware.Directive.register()` |
+| `render()` function | Not supported in overrides |
+| Dot-notation watch paths (`'a.b.c'`) | Use a `computed` to extract the nested value, then `watch` the computed ref |
 
 ## Removal of `loadConfigSettingGroups()` in `sw-product-detail-variants`
 
@@ -823,9 +1001,66 @@ As part of this update, the following administration component parts have been d
   * method `loadAvailableSalesChannel()` was deprecated without replacement
   * method `showOption()` was deprecated without replacement
 
+## Deprecated unused methods in `sw-order-document-card`
+
+- deprecated method `documentTypeAvailable()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
+- deprecated method `invoiceExists()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
+
 # Storefront
 
 <details>
+
+## Removal of inline microdata in favour of JSON-LD structured data
+
+All inline microdata attributes (`itemscope`, `itemtype`, `itemprop`) have been removed from Storefront templates. Structured data is now emitted exclusively as JSON-LD via `<script type="application/ld+json">` tags in the document `<head>`.
+
+The following templates no longer contain any microdata attributes:
+
+| Template | What was removed |
+|---|---|
+| `base.html.twig` | `itemscope`/`itemtype="WebPage"` on `<html>` |
+| `layout/meta.html.twig` | `layout_head_meta_tags_schema_webpage` block; `itemprop="name"` on `<title>` |
+| `page/content/product-detail.html.twig` | `itemscope`/`itemtype="Product"` on the CMS wrapper |
+| `component/buy-widget/buy-widget.html.twig` | Brand, dimensions, identifiers, Offer/AggregateOffer |
+| `component/buy-widget/buy-widget-price.html.twig` | Tiered Offer rows |
+| `component/delivery-information.html.twig` | Availability `<link>` tags |
+| `component/wishlist/delivery-information.html.twig` | Availability `<link>` tags |
+| `component/review/review-widget.html.twig` | `AggregateRating` |
+| `component/review/review-item.html.twig` | `Review`, `Person` |
+| `layout/breadcrumb.html.twig` | `BreadcrumbList` and `ListItem` |
+| `layout/navbar/navbar.html.twig`, `categories.html.twig`, `content.html.twig` | `SiteNavigationElement` |
+| `layout/navigation/offcanvas/*.html.twig` (5 files) | `SiteNavigationElement` |
+| `element/cms-element-image-gallery.html.twig` | `itemprop="image"` / `itemprop="video"` |
+| `element/cms-element-product-name.html.twig` | `itemprop="name"` |
+| `component/product/description.html.twig` | `itemprop="description"` |
+| `page/content/single-cms-page.html.twig` | `WebPage` on `<html>` |
+| `page/error/error-maintenance.html.twig` | `WebPage` on `<html>` |
+
+If your plugin or theme adds structured data by extending blocks in the templates above, migrate your overrides to the new JSON-LD template extension points described below.
+
+## New JSON-LD structured data block system
+
+Structured data is now output from a set of dedicated templates under `storefront/layout/structured-data/`. Each template exposes two Twig blocks: an outer block containing the data-building logic, and an inner `_script` block containing the `<script>` tag output. The `JSON_LD_DATA` feature flag, which guarded the rollout, is now permanently active and has been removed.
+
+The `<head>` of every page now includes the following blocks in `layout/meta.html.twig`:
+
+- **`layout_head_json_ld_global`** — always rendered on every page; includes `json-ld-website.html.twig` (`WebSite` + `SearchAction`) and `json-ld-organization.html.twig` (`Organization`)
+- **`layout_head_json_ld`** — page-specific; includes `json-ld-webpage.html.twig` (`WebPage`) and `json-ld-breadcrumb.html.twig` (`BreadcrumbList`) by default. Overridden per page type:
+  - `page/product-detail/meta.html.twig` — adds `json-ld-product.html.twig` (`Product`) and sets `WebPage` type to `ProductPage`
+  - `page/content/meta.html.twig` — adds `json-ld-item-list.html.twig` (`ItemList`) and sets `WebPage` type to `CollectionPage` (or `WebPage` for landing pages)
+  - `page/search/meta.html.twig` — adds `json-ld-item-list.html.twig` and sets `WebPage` type to `SearchResultsPage`
+
+To extend or replace a schema in a plugin or theme, use `sw_extends` on the relevant template and override the `_script` block. The data variable (`productData`, `orgData`, `webPageData`, etc.) built by the outer block is available inside the `_script` block:
+
+```twig
+{# MyPlugin/Resources/views/storefront/layout/structured-data/json-ld-product.html.twig #}
+{% sw_extends '@Storefront/storefront/layout/structured-data/json-ld-product.html.twig' %}
+
+{% block page_product_detail_json_ld_script %}
+    {% set productData = productData|merge({'color': page.product.translated.customFields.my_color ?? null}) %}
+    {{ parent() }}
+{% endblock %}
+```
 
 ## Removed block `page_product_detail_product_buy_button_label` from `@Storefront/storefront/component/product/card/action.html.twig`
 
@@ -833,6 +1068,9 @@ The block `page_product_detail_product_buy_button_label` has been removed. Use `
 
 ## TOS checkbox position update
 The Terms of Service (TOS) was relocated to the bottom of the order confirmation page. The checkbox is now hidden by default due to not being necessary and replaced with a descriptive label, while its visibility can be controlled using the new configuration option `core.cart.showTosCheckbox`.
+
+## Revocation checkbox position update
+The revocation checkbox for digital products was relotaced to the bottom of the order confirmation page. The checkbox is now below the TOS checkbox
 
 ## Removal of hardcoded language flags
 
@@ -1261,5 +1499,18 @@ Instead, you must use the `type` field to indicate the product type.
 The `states` field of the `line_item` and `order_line_item` entity has also been removed.
 Use the `productType` field in the `line_item`.`payload` (or `order_line_item`.`payload`) to indicate the product type of a product line item.
 Also the rule `LineItemProductStatesRule` has been removed. Use `LineItemProductTypeRule` instead.
+
+## Customer group registration flow events no longer use a SalesChannelContext
+
+For customer group registration events, the event context is no longer restored via `SalesChannelContextRestorer`.
+This affects:
+
+- `customer.group.registration.accepted` (`\Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted`)
+- `customer.group.registration.declined` (`\Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined`)
+
+If your extension relied on a restored `SalesChannelContext` (for example, customer specific rule ids from that restored context), you need to migrate to the event payload and event context:
+
+- Use `getCustomer()` / `getCustomerGroup()` from the event for entity data.
+- Use `getContext()` from the event for framework context data.
 
 </details>

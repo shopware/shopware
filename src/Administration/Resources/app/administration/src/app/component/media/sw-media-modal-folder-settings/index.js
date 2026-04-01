@@ -277,7 +277,7 @@ export default {
                 this.$nextTick(() => {
                     this.$emit('media-settings-modal-save', this.mediaFolder);
                 });
-            } catch (e) {
+            } catch (_e) {
                 this.createNotificationError({
                     title: this.$root.$tc('global.default.error'),
                     message: this.$root.$tc('global.sw-media-modal-folder-settings.notification.error.message'),

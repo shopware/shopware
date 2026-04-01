@@ -67,8 +67,7 @@ class WriteException extends ShopwareHttpException
                 continue;
             }
 
-            $errorFactory = new ErrorResponseFactory();
-            yield from $errorFactory->getErrorsFromException($innerException, $withTrace);
+            yield from (new ErrorResponseFactory())->getErrorsFromException($innerException, $withTrace);
         }
     }
 
@@ -77,10 +76,7 @@ class WriteException extends ShopwareHttpException
         $messages = [];
 
         foreach ($this->getErrors() as $index => $error) {
-            $pointer = $error['source']['pointer'] ?? '/';
-            \assert(\is_string($pointer));
-            \assert(\is_string($error['detail']));
-            $messages[] = \sprintf('%d. [%s] %s', $index + 1, $pointer, $error['detail']);
+            $messages[] = \sprintf('%d. [%s] %s', $index + 1, $error['source']['pointer'] ?? '/', $error['detail']);
         }
 
         $messagesString = implode(\PHP_EOL, $messages);

@@ -35,7 +35,13 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $customerRepository
             ->method('update')
             ->with([
-                ['id' => 'customer1', 'company' => '', 'customFields' => ['test1' => '1'], 'salutationId' => '1'],
+                [
+                    'id' => 'customer1',
+                    'company' => '',
+                    'customFields' => ['test1' => '1'],
+                    'salutationId' => '1',
+                    'vatIds' => null,
+                ],
             ]);
 
         $storeApiCustomFieldMapper = $this->createMock(StoreApiCustomFieldMapper::class);
@@ -69,7 +75,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository
             ->method('update')
-            ->with(static::callback(function (array $data) {
+            ->with(static::callback(static function (array $data) {
                 static::assertCount(1, $data);
                 static::assertIsArray($data[0]);
                 static::assertArrayHasKey('accountType', $data[0]);
@@ -103,7 +109,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository
             ->method('update')
-            ->with(static::callback(function (array $data) use ($salutationId) {
+            ->with(static::callback(static function (array $data) use ($salutationId) {
                 static::assertCount(1, $data);
                 static::assertIsArray($data[0]);
                 static::assertSame($data[0]['salutationId'], $salutationId);

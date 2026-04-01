@@ -21,6 +21,24 @@ class XmlParserUtilsTest extends TestCase
         static::assertSame(['attr1' => 'value1', 'attr2' => 'value2'], $result);
     }
 
+    public function testParseAttributesPhpizesValueEvenWhenTypeIsString(): void
+    {
+        $element = $this->createDOMElement([
+            'type' => 'string',
+            'value' => '{"foo":"bar"}',
+        ]);
+
+        $result = XmlParserUtils::parseAttributes($element);
+
+        static::assertSame(
+            [
+                'type' => 'string',
+                'value' => ['foo' => 'bar'],
+            ],
+            $result
+        );
+    }
+
     public function testParseChildren(): void
     {
         $element = $this->createDOMElement();
@@ -38,7 +56,7 @@ class XmlParserUtilsTest extends TestCase
         $element->appendChild(new \DOMElement('child1', 'value1'));
         $element->appendChild(new \DOMElement('child2', 'value2'));
 
-        $result = XmlParserUtils::parseChildren($element, fn (\DOMElement $e) => strtoupper($e->nodeValue ?? ''));
+        $result = XmlParserUtils::parseChildren($element, static fn (\DOMElement $e) => strtoupper($e->nodeValue ?? ''));
 
         static::assertSame(['child1' => 'VALUE1', 'child2' => 'VALUE2'], $result);
     }
@@ -70,7 +88,7 @@ class XmlParserUtilsTest extends TestCase
         $element->appendChild(new \DOMElement('child1', 'value1'));
         $element->appendChild(new \DOMElement('child2', 'value2'));
 
-        $result = XmlParserUtils::parseChildrenAsList($element, fn (\DOMElement $e) => strtoupper($e->nodeValue ?? ''));
+        $result = XmlParserUtils::parseChildrenAsList($element, static fn (\DOMElement $e) => strtoupper($e->nodeValue ?? ''));
 
         static::assertSame(['VALUE1', 'VALUE2'], $result);
     }

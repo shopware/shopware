@@ -55,7 +55,7 @@ class SortingListingProcessor extends AbstractListingProcessor
         if ($currentSorting !== null) {
             $fallbackSorting = null;
             if ($this->hasQueriesOrTerm($criteria)) {
-                $fallbackSorting = new FieldSorting('_score', FieldSorting::DESCENDING);
+                $fallbackSorting = new FieldSorting(Criteria::SCORE_FIELD, FieldSorting::DESCENDING);
             }
 
             $criteria->addSorting(
@@ -112,7 +112,7 @@ class SortingListingProcessor extends AbstractListingProcessor
             arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
             $availableSortingsFilter = array_keys($availableSortings);
 
-            $availableSortingsById = array_filter($availableSortingsFilter, fn ($filter) => Uuid::isValid($filter));
+            $availableSortingsById = array_filter($availableSortingsFilter, static fn ($filter) => Uuid::isValid($filter));
 
             $filter = new EqualsAnyFilter('id', $availableSortingsById);
 

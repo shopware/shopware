@@ -29,7 +29,7 @@ class RequestTransformerTest extends TestCase
     public function testSalesChannelIsNotRequired(array $registeredApiPrefixes, string $requestUri): void
     {
         $decorated = $this->createMock(RequestTransformerInterface::class);
-        $decorated->method('transform')->willReturnCallback(fn ($request) => $request);
+        $decorated->method('transform')->willReturnCallback(static fn ($request) => $request);
 
         $resolver = $this->createMock(AbstractSeoResolver::class);
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
@@ -48,7 +48,7 @@ class RequestTransformerTest extends TestCase
     public function testSalesChannelIsRequired(): void
     {
         $decorated = $this->createMock(RequestTransformerInterface::class);
-        $decorated->method('transform')->willReturnCallback(fn ($request) => $request);
+        $decorated->method('transform')->willReturnCallback(static fn ($request) => $request);
 
         $resolver = $this->createMock(AbstractSeoResolver::class);
         $domainLoader = $this->createMock(AbstractDomainLoader::class);
@@ -87,10 +87,10 @@ class RequestTransformerTest extends TestCase
         $domainKey = rtrim($domainUrl, '/') . '/';
 
         $decorated = $this->createMock(RequestTransformerInterface::class);
-        $decorated->method('transform')->willReturnCallback(fn ($request) => $request);
+        $decorated->method('transform')->willReturnCallback(static fn ($request) => $request);
 
         $resolver = $this->createMock(AbstractSeoResolver::class);
-        $resolver->method('resolve')->willReturnCallback(fn ($langId, $scId, $seoPathInfo) => [
+        $resolver->method('resolve')->willReturnCallback(static fn ($langId, $scId, $seoPathInfo) => [
             'pathInfo' => '/' . ltrim($seoPathInfo, '/'),
             'isCanonical' => false,
         ]);

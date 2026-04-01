@@ -170,7 +170,7 @@ export default {
                 },
             );
 
-            this.variableStores.id = storeOptions;
+            this.variableStores[id] = storeOptions;
         },
         getVariableOptions(id) {
             if (this.variableStores.hasOwnProperty(id)) {
@@ -275,7 +275,6 @@ export default {
             this.debouncedPreviews[entity.id]();
         },
         setErrorMessagesForEntity(entity, value = null) {
-            // eslint-disable-next-line no-lonely-if
             this.errorMessages[entity.id] = value;
         },
         fetchSeoUrlPreview(entity) {

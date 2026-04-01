@@ -17,6 +17,9 @@ class ResponseFactoryInterfaceValueResolver implements ValueResolverInterface
     {
     }
 
+    /**
+     * @return \Generator<ResponseFactoryInterface>
+     */
     public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
         if ($argument->getType() !== ResponseFactoryInterface::class) {

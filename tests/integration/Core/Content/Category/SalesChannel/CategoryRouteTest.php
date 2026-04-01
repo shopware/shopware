@@ -2,13 +2,11 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Category\SalesChannel;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -36,7 +34,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  */
 #[Group('store-api')]
 #[Package('discovery')]
-#[CoversClass(CategoryRoute::class)]
 class CategoryRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

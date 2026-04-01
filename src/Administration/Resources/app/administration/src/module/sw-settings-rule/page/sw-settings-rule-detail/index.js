@@ -129,12 +129,14 @@ export default {
         },
 
         tabItems() {
+            const id = this.ruleId || this.$route?.params?.id;
+
             return [
                 {
                     title: this.$tc('sw-settings-rule.detail.tabGeneral'),
                     route: {
                         name: 'sw.settings.rule.detail.base',
-                        params: { id: this.$route.params.id },
+                        params: { id },
                     },
                     cssClassSuffix: 'general',
                 },
@@ -142,7 +144,7 @@ export default {
                     title: this.$tc('sw-settings-rule.detail.tabAssignments'),
                     route: {
                         name: 'sw.settings.rule.detail.assignments',
-                        params: { id: this.$route.params.id },
+                        params: { id },
                     },
                     cssClassSuffix: 'assignments',
                 },

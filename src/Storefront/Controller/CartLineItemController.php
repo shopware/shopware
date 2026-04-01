@@ -341,7 +341,7 @@ class CartLineItemController extends StorefrontController
             return false;
         }
 
-        $this->addCartErrors($cart, fn (Error $error) => $error->isPersistent());
+        $this->addCartErrors($cart, static fn (Error $error) => $error->isPersistent());
 
         return true;
     }
@@ -349,7 +349,7 @@ class CartLineItemController extends StorefrontController
     /**
      * @param ?array{quantity: int, stackable: bool, removable: bool} $defaultValues
      *
-     * @return array<string|int, mixed>
+     * @return array<string, mixed>
      */
     private function getLineItemArray(RequestDataBag $lineItemData, ?array $defaultValues): array
     {

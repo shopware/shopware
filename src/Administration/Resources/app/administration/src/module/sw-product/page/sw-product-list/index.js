@@ -18,7 +18,6 @@ export default {
         'repositoryFactory',
         'numberRangeService',
         'acl',
-        'productTypeService',
         'filterFactory',
     ],
 
@@ -34,7 +33,7 @@ export default {
             currencies: [],
             sortBy: 'createdAt',
             sortDirection: 'DESC',
-            naturalSorting: false,
+            naturalSorting: true,
             isLoading: false,
             isBulkLoading: false,
             total: 0,
@@ -42,6 +41,7 @@ export default {
             cloning: false,
             productEntityVariantModal: false,
             filterCriteria: [],
+            // @deprecated tag:v6.8.0 - Will be removed
             productTypeOptions: [
                 {
                     label: this.$t('sw-product.type.physical'),
@@ -159,7 +159,7 @@ export default {
                     placeholder: this.$tc('sw-product.filters.productNumberFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    criteriaFilterType: 'equals',
+                    criteriaFilterType: this.adminEsEnable ? 'equals' : 'contains',
                 },
                 'active-filter': {
                     property: 'active',
@@ -240,7 +240,10 @@ export default {
                     label: this.$t('sw-product.filters.productTypeFilter.label'),
                     placeholder: this.$t('sw-product.filters.productTypeFilter.placeholder'),
                     type: 'multi-select-filter',
-                    options: this.productTypeOptions,
+                    options: this.productTypes.map((type) => ({
+                        label: this.$t(`sw-product.type.${type}`),
+                        value: type,
+                    })),
                 },
                 'release-date-filter': {
                     property: 'releaseDate',
@@ -296,6 +299,13 @@ export default {
 
             return Context.app.adminEsEnable ?? false;
         },
+
+        productTypes() {
+            return [
+                'physical',
+                'digital',
+            ];
+        },
     },
 
     beforeRouteLeave(to, from, next) {
@@ -314,19 +324,14 @@ export default {
         async getList() {
             this.isLoading = true;
 
-            this.productTypeService.fetchProductTypes().then((types) => {
-                this.productTypeOptions = types.map((type) => {
-                    return {
-                        label: this.$te(`sw-product.type.${type}`) ? this.$t(`sw-product.type.${type}`) : type,
-                        value: type,
-                    };
-                });
-            });
-
             let criteria = await Shopware.Service('filterService').mergeWithStoredFilters(
                 this.storeKey,
                 this.productCriteria,
             );
+
+            if (!criteria.filters.some((filter) => filter.field === 'type')) {
+                criteria.addPostFilter(Criteria.equalsAny('type', this.productTypes));
+            }
 
             if (this.adminEsEnable) {
                 criteria.setTerm(this.term);
@@ -455,7 +460,7 @@ export default {
                 },
                 {
                     property: 'productNumber',
-                    naturalSorting: true,
+                    naturalSorting: this.naturalSorting,
                     label: this.$tc('sw-product.list.columnProductNumber'),
                     align: 'right',
                     allowResize: true,

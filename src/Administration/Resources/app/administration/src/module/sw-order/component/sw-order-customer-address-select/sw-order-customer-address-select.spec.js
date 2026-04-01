@@ -40,6 +40,18 @@ const addresses = [
     },
 ];
 
+function addressMatchesSearch(address, searchTerm) {
+    const searchableValues = [
+        address.street,
+        address.zipcode,
+        address.city,
+        address.country?.translated?.name,
+        address.countryState?.translated?.name,
+    ].filter(Boolean);
+
+    return searchableValues.some((value) => value.toLowerCase().includes(searchTerm.toLowerCase()));
+}
+
 const customerData = {
     id: '123',
     salesChannel: {
@@ -47,20 +59,24 @@ const customerData = {
     },
     billingAddressId: '1',
     shippingAddressId: '2',
-    addresses: new EntityCollection('/customer-address', 'customer-address', null, null, []),
+    addresses: new EntityCollection('/customer-address', 'customer-address', null, null, addresses),
 };
 
-async function createWrapper() {
-    return mount(
+async function createWrapper({ availableAddresses = addresses, props = {} } = {}) {
+    const wrapper = mount(
         await wrapTestComponent('sw-order-customer-address-select', {
             sync: true,
         }),
         {
             props: {
-                customer: { ...customerData },
+                customer: {
+                    ...customerData,
+                    addresses: new EntityCollection('/customer-address', 'customer-address', null, null, availableAddresses),
+                },
                 value: '1',
                 sameAddressLabel: 'Same address',
                 sameAddressValue: '2',
+                ...props,
             },
             global: {
                 stubs: {
@@ -100,12 +116,18 @@ async function createWrapper() {
                         create: () => {
                             return {
                                 search: (criteria) => {
+                                    const filteredAddresses = criteria.term
+                                        ? availableAddresses.filter((address) =>
+                                              addressMatchesSearch(address, criteria.term),
+                                          )
+                                        : availableAddresses;
+
                                     const collection = new EntityCollection(
                                         '/customer-address',
                                         'customer-address',
                                         null,
                                         null,
-                                        criteria.term !== null ? [addresses[0]] : addresses,
+                                        filteredAddresses.slice(0, criteria.limit ?? filteredAddresses.length),
                                     );
 
                                     return Promise.resolve(collection);
@@ -118,6 +140,8 @@ async function createWrapper() {
             },
         },
     );
+
+    return wrapper;
 }
 
 describe('src/module/sw-order/component/sw-order-customer-address-select', () => {
@@ -148,7 +172,7 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         expect(selectionLabel.text()).toBe('Same as billing address');
     });
 
-    it('should filter entries correctly', async () => {
+    it('should replace the options with matching search results', async () => {
         jest.useFakeTimers();
 
         const wrapper = await createWrapper();
@@ -169,8 +193,126 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         await flushPromises();
         await wrapper.vm.$nextTick();
 
-        expect(addresses[0].hidden).toBe(false);
-        expect(addresses[1].hidden).toBe(true);
+        expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual([
+            '1',
+            '2',
+        ]);
+    });
+
+    it('should find customer addresses beyond the first 25 entries', async () => {
+        jest.useFakeTimers();
+
+        const manyAddresses = Array.from({ length: 30 }, (_, index) => ({
+            id: `${index + 1}`,
+            city: index === 25 ? 'Needle City' : `City ${index + 1}`,
+            zipcode: `${10000 + index}`,
+            street: `Street ${index + 1}`,
+            country: {
+                translated: {
+                    name: 'USA',
+                },
+            },
+            countryState: {
+                translated: {
+                    name: 'California',
+                },
+            },
+        }));
+
+        const wrapper = await createWrapper({ availableAddresses: manyAddresses });
+        await flushPromises();
+
+        const singleSelect = wrapper.findComponent('.sw-single-select');
+        await singleSelect.find('.sw-select__selection').trigger('click');
+
+        expect(singleSelect.findAll('.sw-select-result')).toHaveLength(30);
+
+        const input = wrapper.find('.sw-single-select__selection-input');
+        await input.setValue('Needle');
+        await input.trigger('input');
+
+        jest.advanceTimersByTime(100);
+
+        await flushPromises();
+        await wrapper.vm.$nextTick();
+
+        const resultItems = singleSelect.findAll('.sw-select-result');
+
+        expect(resultItems).toHaveLength(2);
+        expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual([
+            '1',
+            '26',
+        ]);
+        expect(wrapper.vm.customerAddresses[1].city).toBe('Needle City');
+    });
+
+    it('should not keep unrelated addresses when the search has no matches', async () => {
+        jest.useFakeTimers();
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.find('.sw-select__selection').trigger('click');
+
+        const input = wrapper.find('.sw-single-select__selection-input');
+        await input.setValue('Does not exist');
+        await input.trigger('input');
+
+        jest.advanceTimersByTime(100);
+
+        await flushPromises();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual(['1']);
+    });
+
+    it('should keep the selected address available when it is outside the filtered result set', async () => {
+        jest.useFakeTimers();
+
+        const manyAddresses = Array.from({ length: 30 }, (_, index) => ({
+            id: `${index + 1}`,
+            city: index === 25 ? 'Needle City' : `City ${index + 1}`,
+            zipcode: `${10000 + index}`,
+            street: index === 25 ? 'Search Result Street' : `Street ${index + 1}`,
+            country: {
+                translated: {
+                    name: 'USA',
+                },
+            },
+            countryState: {
+                translated: {
+                    name: 'California',
+                },
+            },
+        }));
+
+        const wrapper = await createWrapper({
+            availableAddresses: manyAddresses,
+            props: {
+                value: '30',
+                sameAddressValue: '1',
+            },
+        });
+        await flushPromises();
+
+        await wrapper.find('.sw-select__selection').trigger('click');
+
+        const input = wrapper.find('.sw-single-select__selection-input');
+        await input.setValue('Needle');
+        await input.trigger('input');
+
+        jest.advanceTimersByTime(100);
+
+        await flushPromises();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual([
+            '30',
+            '26',
+        ]);
+
+        const selectionLabel = wrapper.find('.sw-single-select__selection-text');
+        expect(selectionLabel.text()).toBe('Street 30, 10029, City 30, California, USA');
     });
 
     it('should reload addresses on customer change', async () => {

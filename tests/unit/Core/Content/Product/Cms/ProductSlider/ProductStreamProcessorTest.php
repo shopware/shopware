@@ -20,6 +20,7 @@ use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -27,7 +28,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\Tax\TaxCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -251,18 +251,16 @@ class ProductStreamProcessorTest extends TestCase
         $this->config->add($config);
 
         $streamCriteria = new Criteria();
-        $streamCriteria->addExtension('productStreamExplicitProductSelection', new ArrayStruct([
-            'ids' => ['child-1', 'child-2'],
-            'criteria' => new Criteria(),
-        ]));
+        $streamCriteria->addFilter(new EqualsAnyFilter('product.id', ['child-1', 'child-2']));
 
         $selectedVariant = $this->createVariantProduct('child-1', 'parent-1', 'main-variant');
         $missingVariant = $this->createVariantProduct('child-2', 'parent-1', 'main-variant');
+        $groupedProduct = $this->createVariantProduct('grouped-product', 'parent-1', 'main-variant');
 
-        $streamProducts = new ProductCollection([$selectedVariant]);
+        $streamProducts = new ProductCollection([$selectedVariant, $groupedProduct]);
         $streamSearchResult = new EntitySearchResult(
             'product',
-            1,
+            2,
             $streamProducts,
             null,
             $streamCriteria,
@@ -272,18 +270,9 @@ class ProductStreamProcessorTest extends TestCase
         $data = new ElementDataCollection();
         $data->add('product-slider-entity-fallback_id', $streamSearchResult);
 
-        $invocation = 0;
-        $this->productRepository->expects($this->exactly(2))
+        $this->productRepository->expects($this->once())
             ->method('search')
-            ->willReturnCallback(function (Criteria $criteria) use (&$invocation, $missingVariant, $selectedVariant): EntitySearchResult {
-                ++$invocation;
-
-                if ($invocation === 1) {
-                    static::assertSame(['child-2'], $criteria->getIds());
-
-                    return $this->getEntitySearchResult(new ProductCollection([$missingVariant]));
-                }
-
+            ->willReturnCallback(function (Criteria $criteria) use ($missingVariant, $selectedVariant): EntitySearchResult {
                 static::assertSame(['child-1', 'child-2'], $criteria->getIds());
 
                 return $this->getEntitySearchResult(new ProductCollection([$selectedVariant, $missingVariant]));

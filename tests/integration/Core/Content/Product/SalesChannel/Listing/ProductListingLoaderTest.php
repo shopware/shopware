@@ -394,7 +394,7 @@ class ProductListingLoaderTest extends TestCase
         $this->createProduct([], true);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.id', $this->variantIds['greenL']));
+        $criteria->addFilter(new EqualsFilter('id', $this->variantIds['greenL']));
         $listing = $this->fetchListing($criteria);
 
         static::assertSame(1, $listing->getTotal());
@@ -435,7 +435,7 @@ class ProductListingLoaderTest extends TestCase
         $this->createProduct([], true);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('product.id', [$this->variantIds['greenL'], $this->variantIds['greenXl']]));
+        $criteria->addFilter(new EqualsAnyFilter('id', [$this->variantIds['greenL'], $this->variantIds['greenXl']]));
         $listing = $this->fetchListing($criteria);
 
         static::assertSame(2, $listing->getTotal());

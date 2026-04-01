@@ -15,14 +15,10 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
+use Shopware\Core\Content\Product\Util\ExplicitProductIdResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -145,7 +141,7 @@ class ProductListingLoader
      */
     private function loadPreviews(array $ids, SalesChannelContext $context): array
     {
-        $ids = array_combine($ids, $ids);
+        $ids = $this->createIdentityMapping($ids);
 
         $config = $this->connection->fetchAllAssociative(
             '# product-listing-loader::resolve-previews
@@ -267,8 +263,8 @@ class ProductListingLoader
 
     private function resolveIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
-        $ungroupedCriteria = clone $criteria;
-        $explicitProductIds = $this->resolveExplicitProductIds($ungroupedCriteria);
+        $originalCriteria = clone $criteria;
+        $explicitProductIds = ExplicitProductIdResolver::fromCriteria($originalCriteria);
 
         $this->addGrouping($criteria);
 
@@ -297,7 +293,7 @@ class ProductListingLoader
             return $groupedResult;
         }
 
-        $explicitResult = $this->loadExplicitProductIds($ungroupedCriteria, $missingExplicitProductIds, $context);
+        $explicitResult = $this->loadExplicitProductIds($originalCriteria, $missingExplicitProductIds, $context);
         if ($explicitResult->getIds() === []) {
             return $groupedResult;
         }
@@ -312,10 +308,12 @@ class ProductListingLoader
      */
     private function resolvePreviews(array $keys, Criteria $criteria, SalesChannelContext $context): array
     {
-        $mapping = array_combine($keys, $keys);
-        \assert(\is_array($mapping));
+        $mapping = $this->createIdentityMapping($keys);
 
-        $explicitProductIds = array_flip(array_intersect($keys, $this->resolveExplicitProductIds($criteria)));
+        $explicitProductIds = array_fill_keys(
+            array_intersect($keys, ExplicitProductIdResolver::fromCriteria($criteria)),
+            true
+        );
 
         $hasOptionFilter = $this->hasOptionFilter($criteria);
 
@@ -369,56 +367,18 @@ class ProductListingLoader
     }
 
     /**
-     * @return list<string>
-     */
-    private function resolveExplicitProductIds(Criteria $criteria): array
-    {
-        return array_values(array_unique($this->collectExplicitProductIds($criteria->getFilters())));
-    }
-
-    /**
-     * @param array<array-key, Filter> $filters
+     * @param list<string> $ids
      *
-     * @return list<string>
+     * @return array<string, string>
      */
-    private function collectExplicitProductIds(array $filters): array
+    private function createIdentityMapping(array $ids): array
     {
-        $ids = [];
-
-        foreach ($filters as $filter) {
-            if ($filter instanceof NotFilter) {
-                continue;
-            }
-
-            if ($filter instanceof MultiFilter) {
-                array_push($ids, ...$this->collectExplicitProductIds($filter->getQueries()));
-
-                continue;
-            }
-
-            if ($filter instanceof EqualsFilter && $this->isExplicitProductIdField($filter->getField()) && \is_string($filter->getValue())) {
-                $ids[] = $filter->getValue();
-
-                continue;
-            }
-
-            if (!$filter instanceof EqualsAnyFilter || !$this->isExplicitProductIdField($filter->getField())) {
-                continue;
-            }
-
-            foreach ($filter->getValue() as $value) {
-                if (\is_string($value)) {
-                    $ids[] = $value;
-                }
-            }
+        $mapping = [];
+        foreach ($ids as $id) {
+            $mapping[$id] = $id;
         }
 
-        return $ids;
-    }
-
-    private function isExplicitProductIdField(string $field): bool
-    {
-        return preg_replace('/^product\./', '', $field) === 'id';
+        return $mapping;
     }
 
     /**
@@ -444,18 +404,10 @@ class ProductListingLoader
 
     private function mergeIdSearchResults(IdSearchResult $groupedResult, IdSearchResult $explicitResult): IdSearchResult
     {
-        $data = [];
-        foreach ($groupedResult->getIds() as $id) {
-            \assert(\is_string($id));
-            $data[$id] = [
-                'primaryKey' => $id,
-                'data' => $groupedResult->getDataOfId($id),
-            ];
-        }
+        $data = $this->buildSearchResultData($groupedResult);
 
         $addedIds = 0;
-        foreach ($explicitResult->getIds() as $id) {
-            \assert(\is_string($id));
+        foreach ($this->getStringIds($explicitResult) as $id) {
             if (isset($data[$id])) {
                 continue;
             }
@@ -490,5 +442,29 @@ class ProductListingLoader
         }
 
         return $result;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getStringIds(IdSearchResult $result): array
+    {
+        return array_values(array_filter($result->getIds(), static fn ($id): bool => \is_string($id)));
+    }
+
+    /**
+     * @return array<string, array{primaryKey: string, data: array<string, mixed>}>
+     */
+    private function buildSearchResultData(IdSearchResult $result): array
+    {
+        $data = [];
+        foreach ($this->getStringIds($result) as $id) {
+            $data[$id] = [
+                'primaryKey' => $id,
+                'data' => $result->getDataOfId($id),
+            ];
+        }
+
+        return $data;
     }
 }

@@ -69,7 +69,7 @@ Shopware.Utils.EventBus.off('consent', eventHandler);
         scopeName: 'system' | 'admin_user';
         actor: string | null;
         status: 'unset' | 'declined' | 'accepted' | 'revoked';
-        updated_at: string | null;
+        updatedAt: string | null;
     };
     timestamp: Date;
 }

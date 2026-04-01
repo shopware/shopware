@@ -32,6 +32,20 @@ Simply upload a model with one or multiple animations baked into the file, bind 
 
 ## App System
 
+### App requirements validation
+
+Apps can now declare requirements in their manifest via a new `<requirements>` element. Requirements are validated during app installation and updates in production. If a requirement is not met, the process fails with `FRAMEWORK__APP_REQUIREMENTS_NOT_MET` and an actionable message.
+
+The first introduced requirement, `<public-access/>`, verifies that `APP_URL` uses HTTPS, does not point to an IP or reserved/local development host, and that `/api/_info/health-check` returns HTTP 200 when called from the Shopware server. This helps catch misconfigurations before apps that rely on webhooks or other external communication fail silently.
+
+```xml
+<requirements>
+    <public-access/>
+</requirements>
+```
+
+Unknown requirements are ignored and logged as warnings.
+
 ## Hosting & Configuration
 
 ### Possibility to disable product search keyword indexing
@@ -399,6 +413,12 @@ The webpack dev server overlay for runtime errors has been disabled in hot-reloa
 ### `HEAD`-requests do not trigger the registration double-opt-in
 
 As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
+
+## App System
+
+## Hosting & Configuration
+
+## Critical Fixes
 
 # 6.7.8.1
 

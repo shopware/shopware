@@ -362,13 +362,12 @@ class DefinitionValidator
             ];
 
             if ($field instanceof BoolField) {
-                $getterMethods[] = lcfirst($propertyName);
                 $getterMethods[] = 'is' . $propertyName;
                 $getterMethods[] = 'has' . $propertyName;
                 $getterMethods[] = 'has' . preg_replace('/^has/', '', $propertyName);
             }
 
-            $hasGetter = false;
+            $hasGetter = str_starts_with($propertyName, 'was') && $reflection->hasMethod($propertyName);
 
             if (!$reflection->hasProperty($propertyName)) {
                 $properties[] = \sprintf('Missing property %s in %s', $propertyName, $struct);

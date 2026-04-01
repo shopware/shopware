@@ -78,7 +78,7 @@ class TimeRangeRuleTest extends TestCase
         $timezoneEuropeBerlin = new \DateTimeZone('Europe/Berlin');
         $timezoneUTC = new \DateTimeZone('UTC');
 
-        $reference = new \DateTimeImmutable('12:00', $timezoneUTC);
+        $reference = new \DateTimeImmutable('2025-05-25 04:20:42', $timezoneUTC);
         $local = $reference->setTimezone($timezoneEuropeBerlin);
         $toTime = $local->format('H:i');
 
@@ -99,7 +99,7 @@ class TimeRangeRuleTest extends TestCase
         $timezoneEuropeBerlin = new \DateTimeZone('Europe/Berlin');
         $timezoneUTC = new \DateTimeZone('UTC');
 
-        $reference = new \DateTimeImmutable('12:00', $timezoneUTC);
+        $reference = new \DateTimeImmutable('2025-05-25 04:20:42', $timezoneUTC);
         $local = $reference->setTimezone($timezoneEuropeBerlin);
         $toTime = $local->modify('-1 hour')->format('H:i');
 

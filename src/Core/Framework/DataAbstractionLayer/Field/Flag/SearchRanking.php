@@ -11,9 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 class SearchRanking extends Flag
 {
     final public const ASSOCIATION_SEARCH_RANKING = 0.25;
-    final public const MIDDLE_SEARCH_RANKING = 250;
-    final public const LOW_SEARCH_RANKING = 80;
-    final public const HIGH_SEARCH_RANKING = 500;
+    final public const MIDDLE_SEARCH_RANKING = 250.0;
+    final public const LOW_SEARCH_RANKING = 80.0;
+    final public const HIGH_SEARCH_RANKING = 500.0;
 
     public function __construct(
         protected float $ranking,

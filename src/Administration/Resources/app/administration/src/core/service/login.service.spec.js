@@ -4,7 +4,6 @@
 
 import LoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import MockAdapter from 'axios-mock-adapter';
 import { CookieStorage } from 'cookie-storage';
 
@@ -43,11 +42,9 @@ describe('core/service/login.service.js', () => {
         }
 
         Object.defineProperty(document, 'cookie', {
-            // eslint-disable-next-line func-names
             set: function (value) {
                 cookieStorageMock = `${cookieStorageMock}${value};`;
             },
-            // eslint-disable-next-line func-names
             get: function () {
                 return cookieStorageMock;
             },
@@ -89,6 +86,7 @@ describe('core/service/login.service.js', () => {
         expect(loginService).toHaveProperty('setBearerAuthentication');
         expect(loginService).toHaveProperty('restartAutoTokenRefresh');
         expect(loginService).toHaveProperty('logout');
+        expect(loginService).toHaveProperty('logoutSso');
         expect(loginService).toHaveProperty('isLoggedIn');
         expect(loginService).toHaveProperty('addOnTokenChangedListener');
         expect(loginService).toHaveProperty('addOnLogoutListener');
@@ -390,7 +388,6 @@ describe('core/service/login.service.js', () => {
     });
 
     it('should be logged in when token exists and there is a valid last activity', async () => {
-        // eslint-disable-next-line max-len
         document.cookie =
             'bearerAuth=%7B%22access%22%3A%22eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImU5Njk3NjdmMWQ0M2FhMzBiOGRjNDU3NDU0YWNjZWU4YjM3MzRjYTMyZDVlZDcwYTU4Yjg3ZWZjMWRkYzI5MjFhYTE1NzBjOWI4Zjk0NjZkIn0.eyJhdWQiOiJhZG1pbmlzdHJhdGlvbiIsImp0aSI6ImU5Njk3NjdmMWQ0M2FhMzBiOGRjNDU3NDU0YWNjZWU4YjM3MzRjYTMyZDVlZDcwYTU4Yjg3ZWZjMWRkYzI5MjFhYTE1NzBjOWI4Zjk0NjZkIiwiaWF0IjoxNjA2Mjk0MTM2LCJuYmYiOjE2MDYyOTQxMzYsImV4cCI6MTYwNjI5NDczNiwic3ViIjoiZTAzOWY0YzMyZjllNGMxZjgyMDNlMzVmZjdmZDQ1NzUiLCJzY29wZXMiOlsid3JpdGUiLCJhZG1pbiJdfQ.KNMWZqRJXM-lamNSuNvCsyZkR0zYkvS72DxjbJDAKqQex-PNUsDBDll9E4B7W5dLmIurTbxbzB4c8ztfPVkdXcZg5EORIIU8JRTjpbtwKhnXohEODsNqFPYGjFfhJnwcpt8tXvJ1BFXQdGR0UcHqPe-qLqWP9U1CZRht3A-9EvQFfzyqV9RJTs83tZ5MQI1LowjKIx1C6yxQ4CaQ-d-YUkerDguCukCg_z_Qkf2ME5tfdiiVp_uKCqknXNrNzs5y6LX0xnrLXBOGrcC3ZNF7RxmWxM-MzLaDa6kcYxc-k-QP3I89qDitZVU7LYTvK4WW_eH4qfOyVEzqSJuwtsoShA%22%2C%22refresh%22%3A%22def502006b139951ad0e625d58b94953b05b68ab5cd05abbc68b375ba21abf3e155a162020fd3175f2b057dc095c7ee53ac6686df506baba3053521be09354faa0142aee26a1548edf3f11fb724b1f0c60d044bc66c1c1304f59501a2f1b60378a5200e9254fcbde8c25fc9f745f31aacdaebbc77b3611226d22ee68128f28182a419ab2b04bfba9f240c4d743263dd8e798afccc7c0c2d2cc1c2df6ac6c097d17d9f991a408b5b6534a4a71fad3f7348139fa5b95b483fd2d3e206047fda7c60e099723dab5ff5197113faccd23a3aba8d8c948fd7e4d8da59dc74f9c160fd1de812900f51b5d06bd61dae754b87dc18efec9acdc82447042189871e69db6cbaaed1d82aef3cc8958c553cd5c75c98f0d174887c6a71a3f60aae584e2711198d3af88177f43bb630c6ee4e2453b11a6783953e1e6ef84ba2085f1414a4bf0638e65a047f1fb1b0b0dd59f4df68ef245d465c38dae2a7c887db636832b060c78e40b11667641653e5e4ec7a0eaacb1fdb1eef80e699d695183be585f4f3db16022e33f36ad300282487fcc17eee807085d079cdd2f129b30c5d5aea861d0%22%2C%22expiry%22%3A1606294737%7D';
         const { loginService } = loginServiceFactory();
@@ -401,7 +398,6 @@ describe('core/service/login.service.js', () => {
     });
 
     it('should be logged out when token exists, but the last activity is too old', async () => {
-        // eslint-disable-next-line max-len
         document.cookie =
             'bearerAuth=%7B%22access%22%3A%22eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImU5Njk3NjdmMWQ0M2FhMzBiOGRjNDU3NDU0YWNjZWU4YjM3MzRjYTMyZDVlZDcwYTU4Yjg3ZWZjMWRkYzI5MjFhYTE1NzBjOWI4Zjk0NjZkIn0.eyJhdWQiOiJhZG1pbmlzdHJhdGlvbiIsImp0aSI6ImU5Njk3NjdmMWQ0M2FhMzBiOGRjNDU3NDU0YWNjZWU4YjM3MzRjYTMyZDVlZDcwYTU4Yjg3ZWZjMWRkYzI5MjFhYTE1NzBjOWI4Zjk0NjZkIiwiaWF0IjoxNjA2Mjk0MTM2LCJuYmYiOjE2MDYyOTQxMzYsImV4cCI6MTYwNjI5NDczNiwic3ViIjoiZTAzOWY0YzMyZjllNGMxZjgyMDNlMzVmZjdmZDQ1NzUiLCJzY29wZXMiOlsid3JpdGUiLCJhZG1pbiJdfQ.KNMWZqRJXM-lamNSuNvCsyZkR0zYkvS72DxjbJDAKqQex-PNUsDBDll9E4B7W5dLmIurTbxbzB4c8ztfPVkdXcZg5EORIIU8JRTjpbtwKhnXohEODsNqFPYGjFfhJnwcpt8tXvJ1BFXQdGR0UcHqPe-qLqWP9U1CZRht3A-9EvQFfzyqV9RJTs83tZ5MQI1LowjKIx1C6yxQ4CaQ-d-YUkerDguCukCg_z_Qkf2ME5tfdiiVp_uKCqknXNrNzs5y6LX0xnrLXBOGrcC3ZNF7RxmWxM-MzLaDa6kcYxc-k-QP3I89qDitZVU7LYTvK4WW_eH4qfOyVEzqSJuwtsoShA%22%2C%22refresh%22%3A%22def502006b139951ad0e625d58b94953b05b68ab5cd05abbc68b375ba21abf3e155a162020fd3175f2b057dc095c7ee53ac6686df506baba3053521be09354faa0142aee26a1548edf3f11fb724b1f0c60d044bc66c1c1304f59501a2f1b60378a5200e9254fcbde8c25fc9f745f31aacdaebbc77b3611226d22ee68128f28182a419ab2b04bfba9f240c4d743263dd8e798afccc7c0c2d2cc1c2df6ac6c097d17d9f991a408b5b6534a4a71fad3f7348139fa5b95b483fd2d3e206047fda7c60e099723dab5ff5197113faccd23a3aba8d8c948fd7e4d8da59dc74f9c160fd1de812900f51b5d06bd61dae754b87dc18efec9acdc82447042189871e69db6cbaaed1d82aef3cc8958c553cd5c75c98f0d174887c6a71a3f60aae584e2711198d3af88177f43bb630c6ee4e2453b11a6783953e1e6ef84ba2085f1414a4bf0638e65a047f1fb1b0b0dd59f4df68ef245d465c38dae2a7c887db636832b060c78e40b11667641653e5e4ec7a0eaacb1fdb1eef80e699d695183be585f4f3db16022e33f36ad300282487fcc17eee807085d079cdd2f129b30c5d5aea861d0%22%2C%22expiry%22%3A1606294737%7D';
         const { loginService } = loginServiceFactory();
@@ -754,6 +750,223 @@ describe('core/service/login.service.js', () => {
                     access: 'updated_token',
                 }),
             );
+        });
+    });
+
+    describe('logoutSso', () => {
+        let originalFetch;
+
+        beforeEach(() => {
+            originalFetch = global.fetch;
+            global.fetch = jest.fn(() => Promise.resolve({ ok: true }));
+        });
+
+        afterEach(() => {
+            global.fetch = originalFetch;
+            sessionStorage.removeItem('sw-sso-session');
+        });
+
+        it('should revoke server tokens, clear auth state, and redirect to SSO with prompt=login', async () => {
+            const { loginService, clientMock } = loginServiceFactory();
+            const navigateToSpy = jest.fn();
+            loginService._navigateTo = navigateToSpy;
+
+            clientMock.onPost('/oauth/token').reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            clientMock.onGet(/\/oauth\/sso\/config/).reply(200, {
+                useDefault: false,
+                url: 'https://idp.example.com/authorize?client_id=test',
+            });
+
+            await loginService.logoutSso();
+
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining('/_action/user/logout'),
+                expect.objectContaining({ method: 'POST' }),
+            );
+            expect(loginService.getBearerAuthentication()).toBeFalsy();
+            expect(navigateToSpy).toHaveBeenCalledWith('https://idp.example.com/authorize?client_id=test&usePromptLogin=1');
+        });
+
+        it('should fall back to regular logout when SSO config fetch fails', async () => {
+            Shopware.Application.view.router = {
+                currentRoute: { value: { fullPath: '/sw/dashboard/index', name: 'sw.dashboard.index' } },
+                push: jest.fn(),
+            };
+
+            const { loginService, clientMock } = loginServiceFactory();
+            const navigateToSpy = jest.fn();
+            loginService._navigateTo = navigateToSpy;
+
+            clientMock.onPost('/oauth/token').reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            clientMock.onGet(/\/oauth\/sso\/config/).reply(500);
+
+            await loginService.logoutSso();
+
+            expect(loginService.getBearerAuthentication()).toBeFalsy();
+            expect(navigateToSpy).not.toHaveBeenCalled();
+        });
+
+        it('should fall back to regular logout when SSO config has no url', async () => {
+            Shopware.Application.view.router = {
+                currentRoute: { value: { fullPath: '/sw/dashboard/index', name: 'sw.dashboard.index' } },
+                push: jest.fn(),
+            };
+
+            const { loginService, clientMock } = loginServiceFactory();
+            const navigateToSpy = jest.fn();
+            loginService._navigateTo = navigateToSpy;
+
+            clientMock.onPost('/oauth/token').reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            clientMock.onGet(/\/oauth\/sso\/config/).reply(200, {
+                useDefault: true,
+                url: '',
+            });
+
+            await loginService.logoutSso();
+
+            expect(loginService.getBearerAuthentication()).toBeFalsy();
+            expect(navigateToSpy).not.toHaveBeenCalled();
+        });
+
+        it('should continue even if server-side token revocation fails', async () => {
+            global.fetch = jest.fn(() => Promise.reject(new TypeError('Network error')));
+
+            const { loginService, clientMock } = loginServiceFactory();
+            const navigateToSpy = jest.fn();
+            loginService._navigateTo = navigateToSpy;
+
+            clientMock.onPost('/oauth/token').reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            clientMock.onGet(/\/oauth\/sso\/config/).reply(200, {
+                useDefault: false,
+                url: 'https://idp.example.com/authorize?client_id=test',
+            });
+
+            await loginService.logoutSso();
+
+            expect(loginService.getBearerAuthentication()).toBeFalsy();
+            expect(navigateToSpy).toHaveBeenCalledWith('https://idp.example.com/authorize?client_id=test&usePromptLogin=1');
+        });
+
+        it('should not redirect to SSO when useDefault is true and session is not SSO', async () => {
+            Shopware.Application.view.router = {
+                currentRoute: { value: { fullPath: '/sw/dashboard/index', name: 'sw.dashboard.index' } },
+                push: jest.fn(),
+            };
+
+            const { loginService, clientMock } = loginServiceFactory();
+            const navigateToSpy = jest.fn();
+            loginService._navigateTo = navigateToSpy;
+
+            clientMock.onPost('/oauth/token').reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            sessionStorage.removeItem('sw-sso-session');
+
+            clientMock.onGet(/\/oauth\/sso\/config/).reply(200, {
+                useDefault: true,
+                url: 'https://idp.example.com/authorize?client_id=test',
+            });
+
+            await loginService.logoutSso();
+
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining('/_action/user/logout'),
+                expect.objectContaining({ method: 'POST' }),
+            );
+            expect(loginService.getBearerAuthentication()).toBeFalsy();
+            expect(navigateToSpy).not.toHaveBeenCalled();
+        });
+
+        it('should redirect to SSO when useDefault is true but session was SSO', async () => {
+            const { loginService, clientMock } = loginServiceFactory();
+            const navigateToSpy = jest.fn();
+            loginService._navigateTo = navigateToSpy;
+
+            clientMock.onPost('/oauth/token').reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            sessionStorage.setItem('sw-sso-session', 'true');
+
+            clientMock.onGet(/\/oauth\/sso\/config/).reply(200, {
+                useDefault: true,
+                url: 'https://idp.example.com/authorize?client_id=test',
+            });
+
+            await loginService.logoutSso();
+
+            expect(loginService.getBearerAuthentication()).toBeFalsy();
+            expect(navigateToSpy).toHaveBeenCalledWith('https://idp.example.com/authorize?client_id=test&usePromptLogin=1');
+            expect(sessionStorage.getItem('sw-sso-session')).toBe('true');
+        });
+
+        it('should notify logout listeners when switching account', async () => {
+            const { loginService, clientMock } = loginServiceFactory();
+            const navigateToSpy = jest.fn();
+            loginService._navigateTo = navigateToSpy;
+            const logoutListener = jest.fn();
+            loginService.addOnLogoutListener(logoutListener);
+
+            clientMock.onPost('/oauth/token').reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN',
+            });
+
+            await loginService.loginByUsername('admin', 'shopware');
+
+            clientMock.onGet(/\/oauth\/sso\/config/).reply(200, {
+                useDefault: false,
+                url: 'https://idp.example.com/authorize?client_id=test',
+            });
+
+            await loginService.logoutSso();
+
+            expect(logoutListener).toHaveBeenCalled();
         });
     });
 

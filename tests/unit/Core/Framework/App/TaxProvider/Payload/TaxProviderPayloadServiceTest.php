@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayload;
 use Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService;
@@ -46,6 +47,7 @@ class TaxProviderPayloadServiceTest extends TestCase
 
     public function testRequest(): void
     {
+        $shopId = ShopId::v2($this->ids->get('shop-id'));
         $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $definitionInstanceRegistry
             ->method('getByEntityClass')
@@ -54,7 +56,7 @@ class TaxProviderPayloadServiceTest extends TestCase
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
-            ->willReturn($this->ids->get('shop-id'));
+            ->willReturn($shopId);
 
         $entityEncoder = new JsonEntityEncoder(
             new Serializer([new StructNormalizer()], [new JsonEncoder()])
@@ -188,6 +190,7 @@ class TaxProviderPayloadServiceTest extends TestCase
 
     public function testAppSecretMissing(): void
     {
+        $shopId = ShopId::v2('123');
         $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $definitionInstanceRegistry
             ->method('getByEntityClass')
@@ -196,7 +199,7 @@ class TaxProviderPayloadServiceTest extends TestCase
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
-            ->willReturn($this->ids->get('shop-id'));
+            ->willReturn($shopId);
 
         $entityEncoder = new JsonEntityEncoder(
             new Serializer([new StructNormalizer()], [new JsonEncoder()])

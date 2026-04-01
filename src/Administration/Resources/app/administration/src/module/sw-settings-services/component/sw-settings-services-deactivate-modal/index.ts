@@ -23,6 +23,11 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
         async disableServices(done: () => void) {
             this.isLoading = true;
 
@@ -31,7 +36,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 await shopwareServicesService.disableAllServices();
 
-                window.location.reload();
+                this._reloadPage();
             } catch (exceptionResponse) {
                 Shopware.Store.get('notification').createNotification({
                     title: this.$t('global.default.error'),

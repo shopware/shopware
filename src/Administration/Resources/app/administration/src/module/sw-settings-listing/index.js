@@ -3,7 +3,7 @@
  */
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-listing', () => import('./page/sw-settings-listing'));
 Shopware.Component.register('sw-settings-listing-option-base', () => import('./page/sw-settings-listing-option-base'));
 Shopware.Component.extend(
@@ -31,7 +31,7 @@ Shopware.Component.register(
     'sw-settings-listing-visibility-detail',
     () => import('./component/sw-settings-listing-visibility-detail'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-listing', {

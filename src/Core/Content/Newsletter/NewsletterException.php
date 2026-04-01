@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Newsletter;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\RateLimiter\RateLimiterException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('after-sales')]
@@ -35,8 +37,21 @@ class NewsletterException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use RateLimiterException::limitExceeded
+     */
     public static function newsletterThrottled(int $waitTime): NewsletterException
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(
+                self::class,
+                __FUNCTION__,
+                'v6.8.0.0',
+                'RateLimiterException::limitExceeded()'
+            )
+        );
+
         return new self(
             Response::HTTP_TOO_MANY_REQUESTS,
             self::NEWSLETTER_RECIPIENT_THROTTLED,

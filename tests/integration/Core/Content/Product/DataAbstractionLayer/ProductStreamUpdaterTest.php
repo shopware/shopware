@@ -143,7 +143,7 @@ class ProductStreamUpdaterTest extends TestCase
                 'type' => 'range',
                 'field' => 'cheapestPrice.percentage',
                 'parameters' => [
-                    'lt' => 50,
+                    'gt' => 50,
                 ],
             ]],
         ];

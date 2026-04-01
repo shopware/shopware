@@ -12,7 +12,6 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
-use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -316,13 +315,13 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
         );
 
-        static::expectException(NewsletterException::class);
+        static::expectException(RateLimitExceededException::class);
 
         $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
     }
 
     /**
-     * @param array{isDoubleOptIn: bool, doubleOptInRegistered: bool} $doiSettings
+     * @param array{'core.newsletter.doubleOptIn': bool, 'core.newsletter.doubleOptInRegistered': bool} $doiSettings
      * @param array{id: string, email: string} $customerData
      * @param array{id: string, email: string} $recipientData
      */

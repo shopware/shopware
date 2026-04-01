@@ -3,7 +3,24 @@
  */
 import { useShopwareServicesStore } from '../store/shopware-services.store';
 
-/* eslint-disable import/prefer-default-export */
+let reloadFn: () => void = () => window.location.reload();
+
+/**
+ * Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26).
+ * @private
+ */
+export function _reloadPage() {
+    reloadFn();
+}
+
+/**
+ * For testing only.
+ * @private
+ */
+export function __setReloadFn(fn: () => void) {
+    reloadFn = fn;
+}
+
 /**
  * @private
  */
@@ -17,7 +34,7 @@ export async function grantPermissions() {
 
     await Shopware.Service('shopwareServicesService').acceptRevision(currentRevision);
 
-    window.location.reload();
+    _reloadPage();
 }
 
 /**
@@ -26,6 +43,5 @@ export async function grantPermissions() {
 export async function revokePermissions() {
     await Shopware.Service('shopwareServicesService').revokePermissions();
 
-    window.location.reload();
+    _reloadPage();
 }
-/* eslint-enable import/prefer-default-export */

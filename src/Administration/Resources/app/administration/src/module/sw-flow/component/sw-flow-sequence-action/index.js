@@ -502,7 +502,6 @@ export default {
 
                 action.group = action.group || this.flowBuilderService.getGroup('GENERAL');
 
-                // eslint-disable-next-line max-len
                 actions.push(
                     actions.splice(
                         actions.findIndex((el) => el.group === this.flowBuilderService.getGroup('GENERAL')),

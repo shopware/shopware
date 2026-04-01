@@ -8,7 +8,10 @@ import './sw-cms-mapping-field.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: ['cmsService'],
+    inject: [
+        'cmsService',
+        'repositoryFactory',
+    ],
 
     props: {
         config: {
@@ -36,7 +39,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         entity: {
-            type: String,
+            type: String as PropType<Extract<keyof EntitySchema.Entities, string> | null>,
             required: false,
             default: null,
         },
@@ -59,6 +62,7 @@ export default Shopware.Component.wrapComponentConfig({
             mappingTypes: {} as unknown,
             allowedMappingTypes: [] as string[],
             demoValue: null as unknown,
+            demoValueFetchId: 0,
         };
     },
 
@@ -91,7 +95,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         'cmsPageState.currentDemoEntity': {
             handler() {
-                this.updateDemoValue();
+                void this.updateDemoValue();
             },
         },
     },
@@ -103,7 +107,7 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         createdComponent() {
             this.updateMappingTypes();
-            this.updateDemoValue();
+            void this.updateDemoValue();
         },
 
         updateMappingTypes() {
@@ -121,21 +125,47 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        updateDemoValue() {
+        async updateDemoValue() {
             if (this.config.source !== 'mapped') {
+                this.demoValueFetchId += 1;
+                this.demoValue = null;
+
                 return;
             }
 
-            this.demoValue = this.getDemoValue(this.config.value as string);
+            const fetchId = this.demoValueFetchId + 1;
+            this.demoValueFetchId = fetchId;
+
+            const demoValue = this.getDemoValue(this.config.value as string);
+            this.demoValue = demoValue;
+
+            if (this.valueTypes !== 'entity' || this.entity === null || typeof demoValue !== 'string') {
+                return;
+            }
+
+            try {
+                const entity = await this.repositoryFactory.create(this.entity).get(demoValue, Shopware.Context.api);
+
+                if (fetchId !== this.demoValueFetchId || !entity) {
+                    return;
+                }
+
+                this.demoValue = entity;
+            } catch {
+                if (fetchId === this.demoValueFetchId) {
+                    this.demoValue = demoValue;
+                }
+            }
         },
 
         onMappingSelect(property: string) {
             this.config.source = 'mapped';
             this.config.value = property;
-            this.demoValue = this.getDemoValue(property);
+            void this.updateDemoValue();
         },
 
         onMappingRemove() {
+            this.demoValueFetchId += 1;
             this.config.source = 'static';
             this.config.value = this.config.type === Array ? [] : null;
             this.demoValue = null;

@@ -4,7 +4,6 @@
 import { mount } from '@vue/test-utils';
 
 import ImportExportUpdateByMappingService from 'src/module/sw-import-export/service/importExportUpdateByMapping.service';
-// eslint-disable-next-line import/no-unresolved
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
 
 describe('module/sw-import-export/components/sw-import-export-edit-profile-modal-identifiers', () => {

@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
+use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -56,6 +57,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createProductStreamSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
+                ->append($this->createWebhookSection())
             ->end();
 
         return $treeBuilder;
@@ -608,9 +610,15 @@ class Configuration implements ConfigurationInterface
                 ->defaultValue('mysql')
                 ->end()
             ->arrayNode('config')
+                ->addDefaultsIfNotSet()
                 ->children()
                     ->scalarNode('connection')->defaultValue(null)->end()
                 ->end()
+            ->end()
+            ->end()
+            ->validate()
+                ->ifTrue(static fn (array $v) => $v['increment_storage'] === 'redis' && ($v['config']['connection'] ?? null) === null)
+                ->thenInvalid('The "config.connection" option is required when "increment_storage" is set to "redis".')
             ->end();
 
         return $rootNode;
@@ -642,6 +650,12 @@ class Configuration implements ConfigurationInterface
             ->arrayNode('allowed_types')
                 ->defaultValue([ProductDefinition::TYPE_PHYSICAL, ProductDefinition::TYPE_DIGITAL])
                 ->scalarPrototype()->end()
+            ->end()
+            ->arrayNode('search_keyword')
+                ->addDefaultsIfNotSet()
+                ->children()
+                    ->booleanNode('indexing')->defaultTrue()->end()
+                ->end()
             ->end();
 
         return $rootNode;
@@ -893,6 +907,13 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('elasticsearch')
                     ->children()
                         ->booleanNode('check_for_existence')->defaultTrue()->end()
+                    ->end()
+                ->end()
+                ->arrayNode('system_config')
+                    ->useAttributeAsKey('scope')
+                    ->arrayPrototype()
+                        ->useAttributeAsKey('key')
+                        ->variablePrototype()->end()
                     ->end()
                 ->end()
             ->end();
@@ -1221,6 +1242,23 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('jwks_path')->isRequired()->end()
                 ->scalarNode('scope')->isRequired()->end()
                 ->scalarNode('register_url')->isRequired()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createWebhookSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('webhook');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->enumNode('failure_strategy')
+                    ->info('@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation')
+                    ->values(WebhookFailureStrategy::values())
+                    ->defaultValue(WebhookFailureStrategy::DisableOnThreshold->value)
+                ->end()
             ->end();
 
         return $rootNode;

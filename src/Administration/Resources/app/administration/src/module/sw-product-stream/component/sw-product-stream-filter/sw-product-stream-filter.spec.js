@@ -36,12 +36,19 @@ async function createWrapper(privileges = []) {
                 conditionDataProviderService: {
                     getPlaceholderData: () => {},
                     getComponentByCondition: () => {},
+                    getOperatorSet: () => [{ identifier: 'empty' }],
                     allowedJsonAccessors: {
                         'json.test': {
                             value: 'json.test',
                             type: 'string',
                         },
+                        'cheapestPrice.percentage': {
+                            value: 'cheapestPrice.percentage',
+                            type: 'float',
+                            trans: 'percentage',
+                        },
                     },
+                    isNegatedType: () => false,
                 },
                 availableTypes: {},
                 availableGroups: [],
@@ -151,5 +158,77 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.fields).toEqual(['json.test']);
+    });
+
+    it('should set default value to 100 when selecting cheapestPrice.percentage field', async () => {
+        const wrapper = await createWrapper(['product_stream.editor']);
+
+        await wrapper.setProps({
+            condition: {
+                field: null,
+                type: null,
+                value: null,
+                parameters: null,
+            },
+        });
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.updateFields({ field: 'cheapestPrice.percentage', index: 0 });
+
+        expect(wrapper.vm.actualCondition.value).toBe('100');
+    });
+
+    it('should set default value to 100 for cheapestPrice.percentage with non-range type', async () => {
+        const wrapper = await createWrapper(['product_stream.editor']);
+
+        await wrapper.setProps({
+            condition: {
+                field: 'cheapestPrice.percentage',
+                type: null,
+                value: null,
+                parameters: null,
+            },
+        });
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.changeType({ type: 'equals', parameters: null });
+
+        expect(wrapper.vm.actualCondition.value).toBe('100');
+    });
+
+    it('should set default parameters to 100 for cheapestPrice.percentage with range type', async () => {
+        const wrapper = await createWrapper(['product_stream.editor']);
+
+        await wrapper.setProps({
+            condition: {
+                field: 'cheapestPrice.percentage',
+                type: null,
+                value: null,
+                parameters: null,
+            },
+        });
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.changeType({ type: 'range', parameters: { gte: null, lte: null } });
+
+        expect(wrapper.vm.actualCondition.parameters).toEqual({ gte: 100, lte: 100 });
+    });
+
+    it('should not set default value for non-percentage fields', async () => {
+        const wrapper = await createWrapper(['product_stream.editor']);
+
+        await wrapper.setProps({
+            condition: {
+                field: null,
+                type: null,
+                value: null,
+                parameters: null,
+            },
+        });
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.updateFields({ field: 'cheapestPrice', index: 0 });
+
+        expect(wrapper.vm.actualCondition.value).toBeNull();
     });
 });

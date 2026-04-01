@@ -625,6 +625,54 @@
                 ]
             }
         },
+        "/product/purchase-limit": {
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Fetch current purchase quantity limits for products",
+                "description": "Returns the current min/max/step purchase constraints for the given products, reflecting live stock or configured limitations. Intended for use on PDP to show actual values on product pages.",
+                "operationId": "readProductsPurchaseLimit",
+                "parameters": [
+                    {
+                        "name": "ids[]",
+                        "in": "query",
+                        "description": "List of product IDs to fetch quantity limits for.",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Current quantity limits for the requested products",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ProductPurchaseLimit"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
         "/product/{productId}/find-variant": {
             "post": {
                 "tags": [

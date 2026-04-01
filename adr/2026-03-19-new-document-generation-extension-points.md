@@ -7,18 +7,18 @@ tags: [core, documents]
 
 ## Disclaimer
 
-This ADR doesn't server as documentation (and might get outdated),
-the final extension points will be documented in our dev docs during implementation and maintained there.
-Instead, it serves as an agreed-upon approach on how these extension points should be implemented.
+This ADR does not serve as documentation (and might get outdated).
+The final extension points will be documented in our dev docs during implementation and maintained there.
+Instead, it serves as an agreed-upon approach for how these extension points should be implemented.
 
-If you haven't, you should read
+If you have not already, you should read
 [2026-03-17-refactor-of-document-generation.md](https://github.com/shopware/shopware/blob/trunk/adr/2026-03-17-refactor-of-document-generation.md)
 and [2026-03-18-new-document-generation-architecture.md](https://github.com/shopware/shopware/blob/trunk/adr/2026-03-18-new-document-generation-architecture.md)
 first, to understand the reasoning behind and goals of the new document generation as well as the overall architecture.
 
 ## Plugin system
 
-The plugin system can take advantage of using tagged Symfony services, similar to how the core document types + formats
+The plugin system can take advantage of tagged Symfony services, similar to how the core document types + formats
 are implemented, as well as use the Twig template extension system.
 
 ### Adjusting the generated HTML / PDF / XML content and presentation
@@ -27,7 +27,7 @@ are implemented, as well as use the Twig template extension system.
    with the `shopware.documentV2.provider` tag to the DI container
   It allows you to enrich the order with extra associations and add extra data to certain document types
 2. Extend the Twig templates you are interested in. You have access to all data passed into the template,
-  including data from your own data providers and can extend / override Twig blocks
+  including data from your own data providers, and can extend / override Twig blocks
 
 ### Adding a new document format
 
@@ -38,7 +38,7 @@ are implemented, as well as use the Twig template extension system.
    It allows you to enrich the order with extra associations and add extra data to certain document types
 3. Add your Renderer, which extends `AbstractDocumentRenderer` and is tagged
   with the `shopware.documentV2.renderer` tag to the DI container
-  - It can also make use of existing renderers output by declaring dependencies on other formats
+  - It can also make use of existing renderers' output by declaring dependencies on other formats
 
 ### Adding a new document type
 
@@ -47,20 +47,20 @@ are implemented, as well as use the Twig template extension system.
 2. (Optional) Add a DataProvider, which extends `AbstractDocumentDataProvider` and is tagged
    with the `shopware.documentV2.provider` tag to the DI container
    It allows you to enrich the order with extra associations and add extra data for your document type
-3. Provide twig templates for HTML and optionally XML to make use of our default `HtmlRenderer` and `ZugferdXmlRenderer`.
+3. Provide Twig templates for HTML and optionally XML to make use of our default `HtmlRenderer` and `ZugferdXmlRenderer`.
   You can take advantage of the `PdfRenderer` as well (which only needs HTML output), without writing any rendering code
-  yourself besides the twig templates
+  yourself besides the Twig templates
 
 ## App system
 
-The app system can only take advantage of the Twig template extension system, which also Shopware Themes use,
+The app system can only take advantage of the Twig template extension system, which Shopware themes also use,
 which makes it less powerful than the plugin counterpart.
 
 One option to add more data to a document could be to add custom fields on the order entity
 (e.g. via the AdminSDK or App backend and webhooks),
 which we load by default and apps can just use in their Twig template customizations.
 
-To optionally still allow further customization there will be additional webhooks.
+To still allow further customization, there will be additional webhooks.
 
 ### Adjusting the generated HTML / PDF / XML content and presentation
 
@@ -73,8 +73,8 @@ To optionally still allow further customization there will be additional webhook
 1. Add your desired document type + format(s) to your App manifest, so it can be selected, for example, in the admin
 2. Subscribe to webhook `TBA`, you are responsible for:
   - generating the specified document type in all specified format(s) from scratch
-  - uploading the document file(s) back to shopware
-  - it will be stored in shopware as static documents,
-    similar how merchants can bypass our generation and upload documents directly
+  - uploading the document file(s) back to Shopware
+  - it will be stored in Shopware as static documents,
+    similar to how merchants can bypass our generation and upload documents directly
   - you have some strict time constraints to perform all the above so your document artifacts can be used by Shopware,
-    for example in the flow builder and included in a customer mail
+    for example in Flow Builder and included in a customer mail

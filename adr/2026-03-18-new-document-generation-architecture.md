@@ -7,14 +7,14 @@ tags: [core, documents]
 
 ## Disclaimer
 
-This document focuses on the higher level architecture and design decisions
+This document focuses on the high-level architecture and design decisions
 of the new (refactored) document generation.
 It does not cover every little detail of the implementation, which
 will be figured out during the implementation phase.
 Instead, it tries to reduce uncertainty and set a clear direction that everyone agrees on,
 so that the implementation doesn't end up being done twice.
 
-If you haven't, you should read
+If you have not already, you should read
 [2026-03-17-refactor-of-document-generation.md](https://github.com/shopware/shopware/blob/trunk/adr/2026-03-17-refactor-of-document-generation.md)
 first, to understand the reasoning behind and goals of the new document generation.
 
@@ -30,7 +30,7 @@ Document file:
 A document file of a certain document type represented in a certain format (e.g. invoice in PDF).
 
 Document:
-A document with a single document number and represented by one or more files in specific formats
+A document with a single document number is represented by one or more files in specific formats
 (e.g. invoice number 1001, available in PDF and HTML).
 All associated document files are based on the same order (version) data and document number.
 
@@ -63,7 +63,7 @@ erDiagram
 ### Generation dependencies
 
 We learned from the current implementation that there are often dependencies between document formats.
-This diagram shows the dependencies between document formats when generating an invoice in Zugferd-Embbedded-PDF format:
+This diagram shows the dependencies between document formats when generating an invoice in Zugferd-Embedded-PDF format:
 
 ```mermaid
 stateDiagram-v2
@@ -75,23 +75,23 @@ stateDiagram-v2
 
 Where the generation process could look like this:
 
-1. Generate HTML from a twig template and order data
+1. Generate HTML from a Twig template and order data
 2. Generate PDF from the HTML using DomPDF
-3. Generate Zugferd XML from a different twig template and order data
+3. Generate Zugferd XML from a different Twig template and order data
 4. Generate Zugferd Embedded PDF by combining the Zugferd XML and the PDF into a single file
 5. Only step 4 is persisted as an artifact (`document_file`) of the document generation, as requested by the user
 
-But potentially multiple formats can be artifacts of the same generation process,
-for example, if the user wants to generate an invoice in PDF, HTML and ZugferdXML format,
+But potentially multiple formats can be artifacts of the same generation process.
+For example, if the user wants to generate an invoice in PDF, HTML, and Zugferd XML format,
 all of them would be persisted as artifacts (`document_file`).
 
 ## High-level architecture
 
 - The `DocumentGenerator` owns the orchestration of the generation process.
-- The `DocumentDataProvider`'s own data collection and enrichment.
-- The `DocumentRenderer`'s own transformation into specific formatted artifacts.
+- The `DocumentDataProvider` layer owns data collection and enrichment.
+- The `DocumentRenderer` layer owns the transformation into specific formatted artifacts.
 
-Next each level is described in more detail.
+Next, each level is described in more detail.
 
 ### Caller API (DocumentGenerator)
 
@@ -126,7 +126,7 @@ The caller is responsible for:
 On success, it returns the document entity, which was already persisted with all its document files in the DB.
 You can use it to access the media URL of the generated document files as well as other metadata.
 
-There will be also a Symfony controller and admin API HTTP endpoint calling this method, to make
+There will also be a Symfony controller and admin API HTTP endpoint calling this method, to make
 it possible to generate documents from the admin frontend as well.
 
 ### Provider design
@@ -140,7 +140,7 @@ Every document data provider is:
 - extends from the abstract `AbstractDocumentDataProvider` class to follow a certain interface
 - is automatically called by the `DocumentGenerator` service at the right time and at most once per generation call
 
-Based on Symfony tagged services, which makes it easy for us and for third party plugins
+This is based on Symfony tagged services, which makes it easy for us and for third-party plugins
 to add new document data providers.
 
 A rough draft of the `AbstractDocumentDataProvider` interface looks like this
@@ -230,7 +230,7 @@ abstract class AbstractDocumentRenderer
     abstract public function renderToString(RenderInput $renderInput, RenderState $renderState): RenderResult;
 
     /**
-     * Persist the rendered document to a file, returning its shopware media id.
+     * Persist the rendered document to a file, returning its Shopware media ID.
      */
     abstract public function persistToFile(RenderInput $renderInput, RenderResult $renderResult): string;
 }

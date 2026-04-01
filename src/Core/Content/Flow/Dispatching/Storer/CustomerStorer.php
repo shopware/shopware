@@ -11,9 +11,6 @@ use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Event\EventData\EntityType;
-use Shopware\Core\Framework\Event\EventData\EventDataCollection;
-use Shopware\Core\Framework\Event\EventData\ForeignKeyType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -32,13 +29,6 @@ class CustomerStorer extends FlowStorer
         private readonly EventDispatcherInterface $dispatcher,
         private readonly CustomerProvider $customerProvider,
     ) {
-    }
-
-    public static function getStoreData(): EventDataCollection
-    {
-        return (new EventDataCollection())
-            ->add(CustomerAware::CUSTOMER_ID, new ForeignKeyType(CustomerDefinition::class))
-            ->add(CustomerAware::CUSTOMER, (new EntityType(CustomerDefinition::class))->setNullable());
     }
 
     /**

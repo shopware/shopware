@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\MailTemplate;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\Event\EventData\EventDataType;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,6 +14,7 @@ class MailTemplateException extends HttpException
     public const MAIL_TEMPLATE_NOT_FOUND = 'CONTENT__MAIL_TEMPLATE_NOT_FOUND';
     public const MAIL_TEMPLATE_UNKNOWN_EVENT_DATA_TYPE = 'CONTENT__MAIL_TEMPLATE_UNKNOWN_EVENT_DATA_TYPE';
     public const MAIL_TEMPLATE_UNKNOWN_FIELD_TYPE = 'CONTENT__MAIL_TEMPLATE_UNKNOWN_FIELD_TYPE';
+    public const INVALID_REQUEST_PARAMETER_TYPE = 'CONTENT__MAIL_TEMPLATE_INVALID_REQUEST_PARAMETER_TYPE';
 
     public static function invalidMailTemplateContent(): self
     {
@@ -34,15 +34,29 @@ class MailTemplateException extends HttpException
         );
     }
 
+    public static function invalidRequestParameterType(string $parameter, string $expectedType, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_REQUEST_PARAMETER_TYPE,
+            'Invalid request parameter "{{ parameter }}". Expected type "{{ expectedType }}", got "{{ actualType }}".',
+            [
+                'parameter' => $parameter,
+                'expectedType' => $expectedType,
+                'actualType' => $actualType,
+            ]
+        );
+    }
+
     /**
-     * @param class-string<EventDataType> $dataTypeClass
+     * @param string $dataType
      */
-    public static function unknownEventDataType(string $dataTypeClass): self
+    public static function unknownEventDataType(string $dataType): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MAIL_TEMPLATE_UNKNOWN_EVENT_DATA_TYPE,
-            'Unknown event data type: ' . $dataTypeClass,
+            'Unknown event data type: ' . $dataType,
         );
     }
 

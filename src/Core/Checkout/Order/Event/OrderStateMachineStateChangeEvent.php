@@ -2,19 +2,16 @@
 
 namespace Shopware\Core\Checkout\Order\Event;
 
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
-use Shopware\Core\Content\Flow\Dispatching\Storer\A11yRenderedDocumentStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\TimezoneStorer;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\FlowEventAware;
@@ -44,11 +41,7 @@ class OrderStateMachineStateChangeEvent extends Event implements SalesChannelAwa
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->merge(OrderStorer::getStoreData())
-            ->merge(MailStorer::getStoreData())
-            ->merge(TimezoneStorer::getStoreData())
-            ->merge(CustomerStorer::getStoreData())
-            ->merge(A11yRenderedDocumentStorer::getStoreData());
+            ->add('order', new EntityType(OrderDefinition::class));
     }
 
     public function getMailStruct(): MailRecipientStruct

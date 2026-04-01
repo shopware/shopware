@@ -4,20 +4,12 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Content\Flow\Dispatching\Aware\MessageAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Framework\Event\EventData\EventDataCollection;
-use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('after-sales')]
 class MessageStorer extends FlowStorer
 {
-    public static function getStoreData(): EventDataCollection
-    {
-        return (new EventDataCollection())
-            ->add(MessageAware::MESSAGE, new ObjectType());
-    }
-
     /**
      * @param array<mixed> $stored
      *

@@ -4,8 +4,8 @@ namespace Shopware\Core\System\User\Recovery;
 
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
-use Shopware\Core\Content\Flow\Dispatching\Storer\UserStorer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\UserAware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -49,8 +50,8 @@ class UserRecoveryRequestEvent extends Event implements UserAware, MailAware, Sc
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->merge(UserStorer::getStoreData())
-            ->add(FlowMailVariables::RESET_URL, new ScalarValueType('string'))
+            ->add('userRecovery', new EntityType(UserRecoveryDefinition::class))
+            ->add('resetUrl', new ScalarValueType('string'))
         ;
     }
 

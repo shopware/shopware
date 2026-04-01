@@ -2,21 +2,15 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review\Event;
 
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
-use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\ProductStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\TimezoneStorer;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
-use Shopware\Core\Framework\Event\EventData\ForeignKeyType;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
-use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\ProductAware;
@@ -49,26 +43,8 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->merge(MailStorer::getStoreData())
-            ->merge(TimezoneStorer::getStoreData())
-            ->merge(ProductStorer::getStoreData())
-            ->merge(CustomerStorer::getStoreData())
-            ->add(
-                FlowMailVariables::REVIEW_FORM_DATA,
-                (new ObjectType())
-                    ->add('forwardTo', new ScalarValueType(ScalarValueType::TYPE_STRING))
-                    ->add('parentId', new ScalarValueType(ScalarValueType::TYPE_STRING))
-                    ->add('forwardParameters', new ScalarValueType(ScalarValueType::TYPE_STRING))
-                    ->add('id', new ScalarValueType(ScalarValueType::TYPE_STRING))
-                    ->add('points', new ScalarValueType(ScalarValueType::TYPE_STRING))
-                    ->add('title', new ScalarValueType(ScalarValueType::TYPE_STRING))
-                    ->add('content', new ScalarValueType(ScalarValueType::TYPE_STRING))
-                    ->add('name', new ScalarValueType(ScalarValueType::TYPE_STRING))
-                    ->add('lastName', new ScalarValueType(ScalarValueType::TYPE_STRING))
-                    ->add('email', new ScalarValueType(ScalarValueType::TYPE_STRING))
-                    ->add('customerId', new ForeignKeyType(CustomerDefinition::class))
-                    ->add('productId', new ForeignKeyType(ProductDefinition::class))
-            );
+            ->add(FlowMailVariables::REVIEW_FORM_DATA, new ObjectType())
+            ->add(ProductAware::PRODUCT, new EntityType(ProductDefinition::class));
     }
 
     /**

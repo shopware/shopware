@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerGroupStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\TimezoneStorer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
+use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\FlowEventAware;
@@ -38,10 +37,8 @@ class CustomerGroupRegistrationDeclined extends Event implements SalesChannelAwa
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->merge(CustomerStorer::getStoreData())
-            ->merge(MailStorer::getStoreData())
-            ->merge(TimezoneStorer::getStoreData())
-            ->merge(CustomerGroupStorer::getStoreData());
+            ->add('customer', new EntityType(CustomerDefinition::class))
+            ->add('customerGroup', new EntityType(CustomerGroupDefinition::class));
     }
 
     public function getName(): string

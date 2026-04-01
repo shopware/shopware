@@ -56,6 +56,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+        <service id="Shopware\Core\Content\Mail\Payload\MailPayloadFactory"/>
+
         <service id="core_mailer" alias="mailer" />
 
         <service id="Shopware\Core\Content\Mail\Transport\MailerTransportLoader">

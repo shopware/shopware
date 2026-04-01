@@ -10,9 +10,6 @@ use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerGroupProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
-use Shopware\Core\Framework\Event\EventData\EntityType;
-use Shopware\Core\Framework\Event\EventData\EventDataCollection;
-use Shopware\Core\Framework\Event\EventData\ForeignKeyType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -31,13 +28,6 @@ class CustomerGroupStorer extends FlowStorer
         private readonly EventDispatcherInterface $dispatcher,
         private readonly CustomerGroupProvider $customerGroupProvider,
     ) {
-    }
-
-    public static function getStoreData(): EventDataCollection
-    {
-        return (new EventDataCollection())
-            ->add(CustomerGroupAware::CUSTOMER_GROUP_ID, new ForeignKeyType(CustomerGroupDefinition::class))
-            ->add(CustomerGroupAware::CUSTOMER_GROUP, (new EntityType(CustomerGroupDefinition::class))->setNullable());
     }
 
     /**

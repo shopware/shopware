@@ -38,6 +38,9 @@
         <service id="Shopware\Core\Content\MailTemplate\Api\MailActionController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService"/>
+            <argument type="service" id="Shopware\Core\Content\Mail\Payload\MailPayloadFactory"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequestFactory"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -54,6 +57,22 @@
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailDataProvider"/>
             <argument type="service" id="mail_template.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailDataSimulator"/>
+        </service>
+
+        <service id="Shopware\Core\Content\MailTemplate\Service\MailDataSimulator">
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="language.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory">
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService"/>
+        </service>
+
+        <service id="Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequestFactory">
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService"/>
+            <argument type="service" id="Shopware\Core\Content\Mail\Payload\MailPayloadFactory"/>
         </service>
     </services>
 </container>

@@ -2,17 +2,15 @@
 
 namespace Shopware\Core\Checkout\Order\Event;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
-use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\OrderTransactionStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\TimezoneStorer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\FlowEventAware;
@@ -85,11 +83,8 @@ class OrderPaymentMethodChangedEvent extends Event implements SalesChannelAware,
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->merge(OrderStorer::getStoreData())
-            ->merge(CustomerStorer::getStoreData())
-            ->merge(MailStorer::getStoreData())
-            ->merge(TimezoneStorer::getStoreData())
-            ->merge(OrderTransactionStorer::getStoreData());
+            ->add('order', new EntityType(OrderDefinition::class))
+            ->add('orderTransaction', new EntityType(OrderTransactionDefinition::class));
     }
 
     public function getCustomerId(): string

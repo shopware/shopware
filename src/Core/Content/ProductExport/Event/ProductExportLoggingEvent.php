@@ -5,8 +5,6 @@ namespace Shopware\Core\Content\ProductExport\Event;
 use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
-use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\TimezoneStorer;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -90,9 +88,7 @@ class ProductExportLoggingEvent extends Event implements LogAware, MailAware, Sc
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->merge(MailStorer::getStoreData())
-            ->merge(TimezoneStorer::getStoreData())
-            ->add(FlowMailVariables::EVENT_NAME, new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add('name', new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
     public function getMailStruct(): MailRecipientStruct

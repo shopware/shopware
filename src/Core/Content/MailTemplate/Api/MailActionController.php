@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Content\MailTemplate\Api;
 
+use Shopware\Core\Content\Mail\Payload\MailPayloadFactory;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
+use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequestFactory;
+use Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -29,6 +31,9 @@ class MailActionController extends AbstractController
     public function __construct(
         private readonly StringTemplateRenderer $templateRenderer,
         private readonly MailTemplateService $mailTemplateService,
+        private readonly MailPayloadFactory $mailPayloadFactory,
+        private readonly PreviewRequestFactory $previewRequestFactory,
+        private readonly GetDataAndSendRequestFactory $getDataAndSendRequestFactory,
     ) {
     }
 
@@ -45,41 +50,34 @@ class MailActionController extends AbstractController
     )]
     public function send(RequestDataBag $post, Context $context): JsonResponse
     {
-        $data = $post->all();
+        $mailPayload = $this->mailPayloadFactory->make($post); // TODO We filter out keys from the request this way. Is that ok for plugins?
 
-        if (Feature::isActive('v6.8.0.0')) {
-            $flowEventClass = $post->get('flowEventClass');
-            \assert(new ($flowEventClass) instanceof FlowEventAware);
-
-            $entitiesDataBag = $post->get('entities', new DataBag());
-            \assert($entitiesDataBag instanceof DataBag);
-            $entities = $entitiesDataBag->all();
-
-            $templateDataDataBag = $post->get('templateData', new DataBag());
-            \assert($templateDataDataBag instanceof DataBag);
-            $templateData = $templateDataDataBag->all();
-
-            $message = $this->mailTemplateService->getTemplateDataAndSend(
-                $data,
-                $context,
-                $flowEventClass,
-                $entities,
-                $templateData,
-            );
-        } else {
-            $message = $this->mailTemplateService->send($data, $context, $data['mailTemplateData'] ?? []);
+        $mailTemplateData = $post->get('mailTemplateData', []);
+        if (!\is_array($mailTemplateData)) {
+            $mailTemplateData = [];
         }
+
+        $message = $this->mailTemplateService->send($mailPayload, $context, $mailTemplateData);
 
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use {@see preview} to validate mail template rendering instead.
+     */
     #[Route(
         path: '/api/_action/mail-template/validate',
         name: 'api.action.mail_template.validate',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:read']],
         methods: [Request::METHOD_POST]
     )]
     public function validate(RequestDataBag $post, Context $context): JsonResponse
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'Route "api.action.mail_template.validate" is deprecated and will be removed in v6.8.0.0. Use "api.action.mail_template.preview" to validate mail template rendering instead.',
+        );
+
         $this->templateRenderer->initialize();
         $this->templateRenderer->render($post->get('contentHtml', ''), [], $context);
         $this->templateRenderer->render($post->get('contentPlain', ''), [], $context);
@@ -87,46 +85,23 @@ class MailActionController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use {@see preview} instead.
+     */
     #[Route(
         path: '/api/_action/mail-template/build',
         name: 'api.action.mail_template.build',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:read']],
         methods: [Request::METHOD_POST]
     )]
     public function build(RequestDataBag $post, Context $context): JsonResponse
     {
-        if (Feature::isActive('v6.8.0.0')) {
-            $mailTemplateContent = $post->get('mailTemplateContent');
-            \assert($mailTemplateContent instanceof DataBag);
-            $mailTemplateContent = $mailTemplateContent->all();
-
-            $flowEventClass = $post->get('flowEventClass');
-            \assert(new ($flowEventClass) instanceof FlowEventAware);
-
-            $entitiesDataBag = $post->get('entities', new DataBag());
-            \assert($entitiesDataBag instanceof DataBag);
-            $entities = $entitiesDataBag->all();
-
-            $templateDataDataBag = $post->get('templateData', new DataBag());
-            \assert($templateDataDataBag instanceof DataBag);
-            $templateData = $templateDataDataBag->all();
-
-            $strict = $post->get('strict', false);
-            \assert(\is_bool($strict));
-
-            $renderedTemplate = $this->mailTemplateService->preview(
-                $mailTemplateContent,
-                $context,
-                $strict,
-                $flowEventClass,
-                $entities,
-                $templateData,
-            );
-
-            return new JsonResponse($renderedTemplate);
-        }
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'Route "api.action.mail_template.build" is deprecated and will be removed in v6.8.0.0. Use "api.action.mail_template.preview" instead.',
+        );
 
         $data = $post->all();
-
         $templateData = $data['mailTemplateType']['templateData'] ?? [];
         $template = $data['mailTemplate']['contentHtml'] ?? null;
 
@@ -141,46 +116,60 @@ class MailActionController extends AbstractController
         return new JsonResponse($renderedTemplate);
     }
 
+    /**
+     * This route is used to render mail template content against simulated data for a given event name.
+     * It differs from the "preview" route in that it generates the template data automatically
+     * instead of expecting entity IDs and template data in the request.
+     */
+    #[Route(
+        path: '/api/_action/mail-template/simulate',
+        name: 'api.action.mail_template.simulate',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:read']],
+        methods: [Request::METHOD_POST]
+    )]
+    public function simulate(RequestDataBag $post, Context $context): JsonResponse
+    {
+        $mailTemplateContent = $post->get('mailTemplateContent');
+        if (!$mailTemplateContent instanceof DataBag) {
+            throw MailTemplateException::invalidRequestParameterType('mailTemplateContent', 'object', get_debug_type($mailTemplateContent));
+        }
+        $mailTemplateContent = $mailTemplateContent->all();
+
+        $eventName = $post->get('eventName');
+        if (!\is_string($eventName)) {
+            throw MailTemplateException::invalidRequestParameterType('eventName', 'string', get_debug_type($eventName));
+        }
+
+        $strict = $post->get('strict', false);
+        if (!\is_bool($strict)) {
+            throw MailTemplateException::invalidRequestParameterType('strict', 'bool', get_debug_type($strict));
+        }
+
+        $renderedTemplate = $this->mailTemplateService->simulate($mailTemplateContent, $eventName, $context, $strict);
+
+        return new JsonResponse($renderedTemplate);
+    }
+
+    /**
+     * This route is used to render a persisted mail template with the entity IDs and template data provided in the request.
+     * It differs from the "simulate" route in that it uses caller-provided data instead of generating simulated data from an event name.
+     */
     #[Route(
         path: '/api/_action/mail-template/preview',
         name: 'api.action.mail_template.preview',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:read']],
         methods: [Request::METHOD_POST]
     )]
     public function preview(RequestDataBag $post, Context $context): JsonResponse
     {
-        $templateId = $post->getString('mailTemplateId');
-
-        $mailTemplate = $this->mailTemplateService->loadTemplate($templateId, $context);
-
-        $templateContent = [
-            'subject' => $mailTemplate->getSubject() ?? '',
-            'senderName' => $mailTemplate->getSenderName() ?? '',
-            'contentHtml' => $mailTemplate->getContentHtml() ?? '',
-            'contentPlain' => $mailTemplate->getContentPlain() ?? '',
-        ];
-
-        $flowEventClass = $post->get('flowEventClass');
-        \assert(new ($flowEventClass) instanceof FlowEventAware);
-
-        $entitiesDataBag = $post->get('entities', new DataBag());
-        \assert($entitiesDataBag instanceof DataBag);
-        $entities = $entitiesDataBag->all();
-
-        $templateDataDataBag = $post->get('templateData', new DataBag());
-        \assert($templateDataDataBag instanceof DataBag);
-        $templateData = $templateDataDataBag->all();
+        $previewRequest = $this->previewRequestFactory->make($post, $context);
 
         $strict = $post->get('strict', false);
-        \assert(\is_bool($strict));
+        if (!\is_bool($strict)) {
+            throw MailTemplateException::invalidRequestParameterType('strict', 'bool', get_debug_type($strict));
+        }
 
-        $renderedTemplate = $this->mailTemplateService->preview(
-            $templateContent,
-            $context,
-            $strict,
-            $flowEventClass,
-            $entities,
-            $templateData
-        );
+        $renderedTemplate = $this->mailTemplateService->preview($previewRequest, $context, $strict);
 
         return new JsonResponse($renderedTemplate);
     }
@@ -198,54 +187,34 @@ class MailActionController extends AbstractController
     )]
     public function getDataAndSend(RequestDataBag $post, Context $context): JsonResponse
     {
-        $data = $post->all();
+        $request = $this->getDataAndSendRequestFactory->make($post, $context);
 
-        $templateId = $post->get('mailTemplateId');
-
-        $mailTemplate = $this->mailTemplateService->loadTemplate($templateId, $context);
-
-        $data['contentHtml'] ??= $mailTemplate->getContentHtml();
-        $data['contentPlain'] ??= $mailTemplate->getContentPlain();
-        $data['subject'] ??= $mailTemplate->getSubject();
-        $data['senderName'] ??= $mailTemplate->getSenderName();
-
-        $flowEventClass = $post->get('flowEventClass');
-        \assert(new ($flowEventClass) instanceof FlowEventAware);
-
-        $entitiesDataBag = $post->get('entities', new DataBag());
-        \assert($entitiesDataBag instanceof DataBag);
-        $entities = $entitiesDataBag->all();
-
-        $templateDataDataBag = $post->get('templateData', new DataBag());
-        \assert($templateDataDataBag instanceof DataBag);
-        $templateData = $templateDataDataBag->all();
-
-        $message = $this->mailTemplateService->getTemplateDataAndSend($data, $context, $flowEventClass, $entities, $templateData);
+        $message = $this->mailTemplateService->getTemplateDataAndSend($request, $context);
 
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
     }
 
+    /**
+     * This route is used to list variables available for a business event and an optional parent variable path.
+     */
     #[Route(
         path: '/api/_action/mail-template/available-variables',
         name: 'api.action.mail_template.available_variables',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:read']],
         methods: [Request::METHOD_POST]
     )]
     public function availableVariables(RequestDataBag $post, Context $context): JsonResponse
     {
-        $fieldPath = $post->get('fieldPath', '');
-        \assert(\is_string($fieldPath));
+        $eventName = $post->get('eventName');
+        if (!\is_string($eventName)) {
+            throw MailTemplateException::invalidRequestParameterType('eventName', 'string', get_debug_type($eventName));
+        }
 
-        $flowEventClass = $post->get('flowEventClass');
-        \assert(new ($flowEventClass) instanceof FlowEventAware);
+        $parentVariablePath = $post->get('parentVariablePath', '');
+        if (!\is_string($parentVariablePath)) {
+            throw MailTemplateException::invalidRequestParameterType('parentVariablePath', 'string', get_debug_type($parentVariablePath));
+        }
 
-        $entitiesDataBag = $post->get('entities', new DataBag());
-        \assert($entitiesDataBag instanceof DataBag);
-        $entities = $entitiesDataBag->all();
-
-        $templateDataDataBag = $post->get('templateData', new DataBag());
-        \assert($templateDataDataBag instanceof DataBag);
-        $templateData = $templateDataDataBag->all();
-
-        return new JsonResponse($this->mailTemplateService->availableVariables($fieldPath, $context, $flowEventClass, $entities, $templateData));
+        return new JsonResponse($this->mailTemplateService->getAvailableVariables($eventName, $context, $parentVariablePath));
     }
 }

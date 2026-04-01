@@ -3,11 +3,10 @@
 namespace Shopware\Core\Content\Newsletter\Event;
 
 use Shopware\Core\Content\Flow\Dispatching\Aware\NewsletterRecipientAware;
-use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\NewsletterRecipientStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\TimezoneStorer;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\FlowEventAware;
@@ -46,9 +45,7 @@ class NewsletterConfirmEvent extends Event implements SalesChannelAware, MailAwa
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->merge(MailStorer::getStoreData())
-            ->merge(TimezoneStorer::getStoreData())
-            ->merge(NewsletterRecipientStorer::getStoreData());
+            ->add('newsletterRecipient', new EntityType(NewsletterRecipientDefinition::class));
     }
 
     public function getNewsletterRecipient(): NewsletterRecipientEntity

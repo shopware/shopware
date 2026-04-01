@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
-use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\TimezoneStorer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
@@ -37,10 +36,8 @@ class DoubleOptInGuestOrderEvent extends Event implements SalesChannelAware, Cus
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->merge(CustomerStorer::getStoreData())
-            ->merge(MailStorer::getStoreData())
-            ->merge(TimezoneStorer::getStoreData())
-            ->add(FlowMailVariables::CONFIRM_URL, new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add('customer', new EntityType(CustomerDefinition::class))
+            ->add('confirmUrl', new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
     /**

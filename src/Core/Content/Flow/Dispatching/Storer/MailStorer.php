@@ -7,34 +7,15 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Event\EventData\AssociativeArrayType;
-use Shopware\Core\Framework\Event\EventData\EventDataCollection;
-use Shopware\Core\Framework\Event\EventData\ForeignKeyType;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
-use Shopware\Core\Framework\Event\EventData\ObjectType;
-use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 #[Package('after-sales')]
 class MailStorer extends FlowStorer
 {
-    public static function getStoreData(): EventDataCollection
-    {
-        return (new EventDataCollection())
-            ->add(
-                MailAware::MAIL_STRUCT,
-                (new ObjectType())
-                    ->add('recipients', new AssociativeArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING), new ScalarValueType(ScalarValueType::TYPE_STRING)))
-                    ->add('bcc', (new ScalarValueType(ScalarValueType::TYPE_STRING))->setNullable())
-                    ->add('cc', (new ScalarValueType(ScalarValueType::TYPE_STRING))->setNullable())
-            )
-            ->add(MailAware::SALES_CHANNEL_ID, (new ForeignKeyType(SalesChannelDefinition::class))->setNullable());
-    }
-
     /**
      * @param array<string, mixed> $stored
      *

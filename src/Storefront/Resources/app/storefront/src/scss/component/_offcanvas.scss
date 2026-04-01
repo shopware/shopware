@@ -37,7 +37,7 @@ The sliding direction can be left or right.
         }
     }
 
-    // @deprecated tag:v6.8.0.0 - Styling for offcanvas footer is deprecated because it is not used.
+    // @deprecated tag:v6.8.0 - Styling for offcanvas footer is deprecated because it is not used.
     @if not feature('V6_8_0_0') {
         .offcanvas-footer {
             // stylelint-disable-next-line scss/at-extend-no-missing-placeholder

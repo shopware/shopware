@@ -61,6 +61,15 @@ class JoinGroupBuilder
             unset($groups['operator'], $groups['negated']);
 
             foreach ($groups as $path => $groupFilters) {
+                if (\is_string($operator) && !$negated && $this->shouldSplitPrimaryFilters($groupFilters, $operator)) {
+                    foreach ($groupFilters as $groupFilter) {
+                        $new[] = new JoinGroup([$groupFilter], $path, '_' . $level, $operator);
+                        ++$level;
+                    }
+
+                    continue;
+                }
+
                 $relevant = \in_array($path, $duplicates, true) || $negated;
 
                 if (!$relevant) {
@@ -208,5 +217,40 @@ class JoinGroupBuilder
         $duplicates = array_filter($duplicates, static fn (int $count) => $count > 1);
 
         return array_keys($duplicates);
+    }
+
+    /**
+     * Repeated primary-key constraints on the same to-many field cannot be satisfied by a single joined row.
+     * Split them into individual join groups so each constraint gets its own EXISTS subquery.
+     *
+     * @param list<SingleFieldFilter> $groupFilters
+     */
+    private function shouldSplitPrimaryFilters(array $groupFilters, string $operator): bool
+    {
+        if ($operator !== MultiFilter::CONNECTION_AND || \count($groupFilters) < 2) {
+            return false;
+        }
+
+        $field = null;
+
+        foreach ($groupFilters as $groupFilter) {
+            if (!$groupFilter->isPrimary()) {
+                return false;
+            }
+
+            $currentField = $groupFilter->getField();
+
+            if ($field === null) {
+                $field = $currentField;
+
+                continue;
+            }
+
+            if ($field !== $currentField) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

@@ -895,6 +895,10 @@ The following deprecations apply to `sw-mail-template-index`:
 * `term` data property will be removed in v6.8.0.0
 * `onChangeLanguage` method: the if/else block will be replaced with just the if-branch logic in v6.8.0.0
 
+### Admin boot loading spinner shows error instead of infinite loading
+
+The loading spinner shown while the admin is booting up no longer spins indefinitely when an error occurs. The error is now displayed instead.
+
 ## Storefront
 
 ### Cookie consent now language-aware

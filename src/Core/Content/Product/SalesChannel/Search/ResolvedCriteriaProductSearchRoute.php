@@ -7,9 +7,7 @@ use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,8 +25,6 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
     public function __construct(
         private readonly AbstractProductSearchRoute $decorated,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly DefinitionInstanceRegistry $registry,
-        private readonly RequestCriteriaBuilder $criteriaBuilder,
         private readonly CompositeListingProcessor $processor
     ) {
     }
@@ -41,13 +37,6 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {
         $criteria->addState(self::STATE);
-
-        $criteria = $this->criteriaBuilder->handleRequest(
-            $request,
-            $criteria,
-            $this->registry->getByEntityName('product'),
-            $context->getContext()
-        );
 
         // will be handled via processor in next line
         $criteria->setLimit(null);

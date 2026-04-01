@@ -119,7 +119,7 @@ class ConsentService implements ResetInterface
             }
         }
 
-        $revision = $this->resolveAcceptedRevision($consent, $revision);
+        $revision = $this->resolveRevisionForAcceptance($consent, $revision);
 
         if ($stored !== null && $stored->status === ConsentStatus::ACCEPTED && $stored->revision === $revision) {
             return $this->createConsentState($consent, $stored, $revision);
@@ -161,7 +161,11 @@ class ConsentService implements ResetInterface
         $this->invalidateState();
     }
 
-    private function resolveAcceptedRevision(ConsentDefinition $consent, ?string $revision): ?string
+    /**
+     * If no revision is provided, the current latest revision is accepted implicitly.
+     * If a revision is provided explicitly, it must still match the current latest revision.
+     */
+    private function resolveRevisionForAcceptance(ConsentDefinition $consent, ?string $revision): ?string
     {
         $latestRevision = $consent->getLatestRevision();
 

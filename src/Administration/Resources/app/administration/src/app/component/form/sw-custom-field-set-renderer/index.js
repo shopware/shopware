@@ -102,16 +102,22 @@ export default {
     data() {
         return {
             customFields: {},
+            inheritedCustomFields: null,
             loadingFields: [],
             tabWaitMaxAttempts: 10,
             tabWaitsAttempts: 0,
             refreshVisibleSets: false,
+            translatedInheritanceLoadKey: null,
         };
     },
 
     computed: {
         hasParent() {
-            return this.parentEntity ? !!this.parentEntity.id : false;
+            if (this.parentEntity?.id) {
+                return true;
+            }
+
+            return this.isTranslatedCustomFieldInheritanceContext();
         },
 
         visibleCustomFieldSets() {
@@ -160,9 +166,24 @@ export default {
                 'sw-field',
             ];
         },
+
+        translatedInheritanceLanguageId() {
+            const language = Shopware.Store.get('context')?.api?.language;
+            const parentLanguageId = language?.parentId;
+
+            if (!parentLanguageId || Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId) {
+                return null;
+            }
+
+            return parentLanguageId;
+        },
     },
 
     watch: {
+        translatedInheritanceLanguageId() {
+            this.loadInheritedCustomFields();
+        },
+
         'entity.customFieldSetSelectionActive': {
             handler(value) {
                 this.onChangeCustomFieldSetSelectionActive(value);
@@ -179,6 +200,7 @@ export default {
         entity: {
             handler() {
                 this.initializeCustomFields();
+                this.loadInheritedCustomFields();
             },
             deep: true,
         },
@@ -198,6 +220,7 @@ export default {
     methods: {
         createdComponent() {
             this.initializeCustomFields();
+            this.loadInheritedCustomFields();
             this.onChangeCustomFieldSets();
         },
 
@@ -209,10 +232,70 @@ export default {
             this.customFields = this.entity.customFields;
         },
 
-        getInheritedCustomField(customFieldName) {
-            const value = this.parentEntity?.translated?.customFields?.[customFieldName] ?? null;
+        isTranslatedCustomFieldInheritanceContext() {
+            return !this.parentEntity?.id
+                && !!this.entity?.id
+                && typeof this.entity?.getEntityName === 'function'
+                && !!this.translatedInheritanceLanguageId;
+        },
 
-            if (value) {
+        async loadInheritedCustomFields() {
+            if (!this.isTranslatedCustomFieldInheritanceContext()) {
+                this.inheritedCustomFields = null;
+                this.translatedInheritanceLoadKey = null;
+
+                return;
+            }
+
+            const loadKey = [
+                this.entity.getEntityName(),
+                this.entity.id,
+                Shopware.Context.api.languageId,
+                this.translatedInheritanceLanguageId,
+            ].join(':');
+
+            if (this.translatedInheritanceLoadKey === loadKey) {
+                return;
+            }
+
+            this.translatedInheritanceLoadKey = loadKey;
+
+            const context = {
+                ...Shopware.Context.api,
+                languageId: this.translatedInheritanceLanguageId,
+            };
+
+            try {
+                const inheritedEntity = await this.repositoryFactory
+                    .create(this.entity.getEntityName())
+                    .get(this.entity.id, context);
+
+                if (this.translatedInheritanceLoadKey !== loadKey) {
+                    return;
+                }
+
+                this.inheritedCustomFields = inheritedEntity?.customFields ?? {};
+            } catch (error) {
+                console.error(error);
+
+                if (this.translatedInheritanceLoadKey === loadKey) {
+                    this.inheritedCustomFields = null;
+                }
+            }
+        },
+
+        getInheritedCustomField(customFieldName) {
+            const inheritedCustomFields = this.parentEntity?.translated?.customFields
+                ?? this.inheritedCustomFields
+                ?? (
+                    this.entity?.customFields?.[customFieldName] === null
+                    || this.entity?.customFields?.[customFieldName] === undefined
+                        ? this.entity?.translated?.customFields
+                        : null
+                );
+            const value = inheritedCustomFields?.[customFieldName] ?? null;
+
+            if (value !== null) {
                 return value;
             }
 

@@ -11,7 +11,25 @@ function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
 }
 
-async function createWrapper(props) {
+function createDeferred() {
+    let resolve;
+    let reject;
+
+    const promise = new Promise((promiseResolve, promiseReject) => {
+        resolve = promiseResolve;
+        reject = promiseReject;
+    });
+
+    return {
+        promise,
+        resolve,
+        reject,
+    };
+}
+
+async function createWrapper(props, options = {}) {
+    const { repositoryFactoryCreate } = options;
+
     return mount(
         await wrapTestComponent('sw-custom-field-set-renderer', {
             sync: true,
@@ -100,146 +118,154 @@ async function createWrapper(props) {
                 },
                 provide: {
                     repositoryFactory: {
-                        create: (entity) => ({
-                            search: () => {
-                                if (entity === 'media') {
-                                    return Promise.resolve([
-                                        {
-                                            hasFile: true,
-                                            fileName: 'media_after',
-                                            fileExtension: 'jpg',
-                                            id: uuid.get('media after'),
-                                        },
-                                        {
-                                            hasFile: true,
-                                            fileName: 'media_before',
-                                            fileExtension: 'jpg',
-                                            id: uuid.get('media before'),
-                                        },
-                                    ]);
-                                }
+                        create: (entity) => {
+                            const overriddenRepository = repositoryFactoryCreate?.(entity);
 
-                                if (entity === 'country') {
-                                    return Promise.resolve([
-                                        {
-                                            id: uuid.get('Germany'),
-                                            name: 'Germany',
-                                        },
-                                        {
-                                            id: uuid.get('Vietnam'),
-                                            name: 'Vietnam',
-                                        },
-                                    ]);
-                                }
+                            if (overriddenRepository) {
+                                return overriddenRepository;
+                            }
 
-                                return Promise.resolve('bar');
-                            },
-                            get: (id) => {
-                                if (entity === 'media') {
-                                    if (id === uuid.get('media before')) {
-                                        return Promise.resolve({
-                                            hasFile: true,
-                                            fileName: 'media_before',
-                                            fileExtension: 'jpg',
-                                            id: uuid.get('media before'),
-                                        });
-                                    }
-
-                                    if (id === uuid.get('media after')) {
-                                        return Promise.resolve({
-                                            hasFile: true,
-                                            fileName: 'media_after',
-                                            fileExtension: 'jpg',
-                                            id: uuid.get('media after'),
-                                        });
-                                    }
-                                }
-
-                                if (id === uuid.get('custom_sports')) {
-                                    return Promise.resolve({
-                                        id: uuid.get('custom_sports'),
-                                        name: 'custom_sports',
-                                        position: 1,
-                                        config: {
-                                            label: { 'en-GB': 'Sports' },
-                                        },
-                                        customFields: [
+                            return {
+                                search: () => {
+                                    if (entity === 'media') {
+                                        return Promise.resolve([
                                             {
-                                                active: true,
-                                                name: 'custom_sports_football',
-                                                type: 'text',
-                                                config: {
-                                                    customFieldPosition: 1,
-                                                    customFieldType: 'text',
-                                                    componentName: 'sw-field',
+                                                hasFile: true,
+                                                fileName: 'media_after',
+                                                fileExtension: 'jpg',
+                                                id: uuid.get('media after'),
+                                            },
+                                            {
+                                                hasFile: true,
+                                                fileName: 'media_before',
+                                                fileExtension: 'jpg',
+                                                id: uuid.get('media before'),
+                                            },
+                                        ]);
+                                    }
+
+                                    if (entity === 'country') {
+                                        return Promise.resolve([
+                                            {
+                                                id: uuid.get('Germany'),
+                                                name: 'Germany',
+                                            },
+                                            {
+                                                id: uuid.get('Vietnam'),
+                                                name: 'Vietnam',
+                                            },
+                                        ]);
+                                    }
+
+                                    return Promise.resolve('bar');
+                                },
+                                get: (id) => {
+                                    if (entity === 'media') {
+                                        if (id === uuid.get('media before')) {
+                                            return Promise.resolve({
+                                                hasFile: true,
+                                                fileName: 'media_before',
+                                                fileExtension: 'jpg',
+                                                id: uuid.get('media before'),
+                                            });
+                                        }
+
+                                        if (id === uuid.get('media after')) {
+                                            return Promise.resolve({
+                                                hasFile: true,
+                                                fileName: 'media_after',
+                                                fileExtension: 'jpg',
+                                                id: uuid.get('media after'),
+                                            });
+                                        }
+                                    }
+
+                                    if (id === uuid.get('custom_sports')) {
+                                        return Promise.resolve({
+                                            id: uuid.get('custom_sports'),
+                                            name: 'custom_sports',
+                                            position: 1,
+                                            config: {
+                                                label: { 'en-GB': 'Sports' },
+                                            },
+                                            customFields: [
+                                                {
+                                                    active: true,
+                                                    name: 'custom_sports_football',
                                                     type: 'text',
-                                                },
-                                            },
-                                            {
-                                                active: true,
-                                                name: 'custom_sports_score',
-                                                type: 'float',
-                                                config: {
-                                                    type: 'number',
-                                                    label: {
-                                                        'en-GB': 'qui et vel',
+                                                    config: {
+                                                        customFieldPosition: 1,
+                                                        customFieldType: 'text',
+                                                        componentName: 'sw-field',
+                                                        type: 'text',
                                                     },
-                                                    numberType: 'float',
-                                                    placeholder: {
-                                                        'en-GB': 'Type a floating point number...',
-                                                    },
-                                                    componentName: 'sw-field',
-                                                    customFieldType: 'number',
-                                                    customFieldPosition: 1,
                                                 },
-                                            },
-                                        ],
-                                    });
-                                }
-
-                                if (entity === 'country') {
-                                    if (id === uuid.get('Germany')) {
-                                        return Promise.resolve({
-                                            id: uuid.get('Germany'),
-                                            name: 'Germany',
+                                                {
+                                                    active: true,
+                                                    name: 'custom_sports_score',
+                                                    type: 'float',
+                                                    config: {
+                                                        type: 'number',
+                                                        label: {
+                                                            'en-GB': 'qui et vel',
+                                                        },
+                                                        numberType: 'float',
+                                                        placeholder: {
+                                                            'en-GB': 'Type a floating point number...',
+                                                        },
+                                                        componentName: 'sw-field',
+                                                        customFieldType: 'number',
+                                                        customFieldPosition: 1,
+                                                    },
+                                                },
+                                            ],
                                         });
                                     }
 
-                                    if (id === uuid.get('Vietnam')) {
-                                        return Promise.resolve({
-                                            id: uuid.get('Vietnam'),
-                                            name: 'Vietnam',
-                                        });
-                                    }
-                                }
+                                    if (entity === 'country') {
+                                        if (id === uuid.get('Germany')) {
+                                            return Promise.resolve({
+                                                id: uuid.get('Germany'),
+                                                name: 'Germany',
+                                            });
+                                        }
 
-                                if (id === uuid.get('custom_clothing')) {
-                                    return Promise.resolve({
-                                        id: uuid.get('custom_clothing'),
-                                        name: 'custom_clothing',
-                                        position: 1,
-                                        config: {
-                                            label: { 'en-GB': 'Clothing' },
-                                        },
-                                        customFields: [
-                                            {
-                                                active: true,
-                                                name: 'custom_clothing_name',
-                                                type: 'text',
-                                                config: {
-                                                    customFieldPosition: 1,
-                                                    customFieldType: 'text',
-                                                    componentName: 'sw-field',
+                                        if (id === uuid.get('Vietnam')) {
+                                            return Promise.resolve({
+                                                id: uuid.get('Vietnam'),
+                                                name: 'Vietnam',
+                                            });
+                                        }
+                                    }
+
+                                    if (id === uuid.get('custom_clothing')) {
+                                        return Promise.resolve({
+                                            id: uuid.get('custom_clothing'),
+                                            name: 'custom_clothing',
+                                            position: 1,
+                                            config: {
+                                                label: { 'en-GB': 'Clothing' },
+                                            },
+                                            customFields: [
+                                                {
+                                                    active: true,
+                                                    name: 'custom_clothing_name',
                                                     type: 'text',
+                                                    config: {
+                                                        customFieldPosition: 1,
+                                                        customFieldType: 'text',
+                                                        componentName: 'sw-field',
+                                                        type: 'text',
+                                                    },
                                                 },
-                                            },
-                                        ],
-                                    });
-                                }
+                                            ],
+                                        });
+                                    }
 
-                                return Promise.resolve({});
-                            },
-                        }),
+                                    return Promise.resolve({});
+                                },
+                            };
+                        },
                     },
                     validationService: {},
                     mediaService: {},
@@ -679,6 +705,685 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         const customFieldEl = wrapper.find('.sw-inherit-wrapper input[name=customFieldName]');
         expect(customFieldEl.exists()).toBe(true);
         expect(customFieldEl.element.value).toBe('inherit me');
+    });
+
+    it('should render translated custom field values without a parent entity', async () => {
+        const previousLanguageId = Shopware.Context.api.languageId;
+        const previousSystemLanguageId = Shopware.Context.api.systemLanguageId;
+        const previousLanguage = Shopware.Store.get('context').api.language;
+
+        Shopware.Context.api.languageId = 'de-DE';
+        Shopware.Context.api.systemLanguageId = 'en-GB';
+        Shopware.Store.get('context').api.language = {
+            id: 'de-DE',
+            parentId: 'en-GB',
+        };
+
+        const productRepositoryGet = jest.fn(() => Promise.resolve({
+            customFields: {
+                translatedTextField: 'inherit me from translation',
+                translatedCheckboxField: true,
+            },
+        }));
+
+        try {
+            const props = {
+                sets: createEntityCollection([
+                    {
+                        id: 'example',
+                        name: 'example',
+                        config: {},
+                        customFields: [
+                            {
+                                name: 'translatedTextField',
+                                type: 'text',
+                                config: {
+                                    componentName: 'sw-field',
+                                    customFieldType: 'text',
+                                    type: 'text',
+                                    label: 'translatedTextFieldLabel',
+                                },
+                            },
+                            {
+                                name: 'translatedCheckboxField',
+                                type: 'bool',
+                                config: {
+                                    componentName: 'sw-field',
+                                    customFieldType: 'checkbox',
+                                    type: 'checkbox',
+                                    label: 'translatedCheckboxFieldLabel',
+                                },
+                            },
+                        ],
+                    },
+                ]),
+                entity: {
+                    id: 'product-id',
+                    getEntityName: () => 'product',
+                    customFields: null,
+                    translated: {
+                        customFields: {
+                            translatedTextField: 'inherit me from translation',
+                            translatedCheckboxField: true,
+                        },
+                    },
+                    customFieldSetSelectionActive: null,
+                    customFieldSets: createEntityCollection(),
+                },
+                parentEntity: null,
+            };
+
+            wrapper = await createWrapper(props, {
+                repositoryFactoryCreate: (entity) => {
+                    if (entity !== 'product') {
+                        return null;
+                    }
+
+                    return {
+                        get: productRepositoryGet,
+                        search: jest.fn(),
+                    };
+                },
+            });
+            await flushPromises();
+
+            const customTextFieldEl = wrapper.find('.sw-form-field-renderer-field__translatedTextField input[type="text"]');
+            const customCheckboxFieldEl = wrapper.find(
+                '.sw-form-field-renderer-field__translatedCheckboxField input[type="checkbox"]',
+            );
+
+            expect(productRepositoryGet).toHaveBeenCalledWith(
+                'product-id',
+                expect.objectContaining({
+                    languageId: 'en-GB',
+                }),
+            );
+            expect(wrapper.vm.hasParent).toBe(true);
+            expect(customTextFieldEl.exists()).toBe(true);
+            expect(customTextFieldEl.element.value).toBe('inherit me from translation');
+            expect(customCheckboxFieldEl.exists()).toBe(true);
+            expect(customCheckboxFieldEl.element.checked).toBe(true);
+        } finally {
+            Shopware.Store.get('context').api.language = previousLanguage;
+            Shopware.Context.api.languageId = previousLanguageId;
+            Shopware.Context.api.systemLanguageId = previousSystemLanguageId;
+        }
+    });
+
+    it('should not enable translated inheritance for a non-system root language', async () => {
+        const previousLanguageId = Shopware.Context.api.languageId;
+        const previousSystemLanguageId = Shopware.Context.api.systemLanguageId;
+        const previousLanguage = Shopware.Store.get('context').api.language;
+
+        Shopware.Context.api.languageId = 'de-DE';
+        Shopware.Context.api.systemLanguageId = 'en-GB';
+        Shopware.Store.get('context').api.language = {
+            id: 'de-DE',
+            parentId: null,
+        };
+
+        const productRepositoryGet = jest.fn(() => Promise.resolve({
+            customFields: {
+                translatedTextField: 'inherit me from system language',
+            },
+        }));
+
+        try {
+            wrapper = await createWrapper({
+                sets: createEntityCollection([
+                    {
+                        id: 'example',
+                        name: 'example',
+                        config: {},
+                        customFields: [
+                            {
+                                name: 'translatedTextField',
+                                type: 'text',
+                                config: {
+                                    componentName: 'sw-field',
+                                    customFieldType: 'text',
+                                    type: 'text',
+                                    label: 'translatedTextFieldLabel',
+                                },
+                            },
+                        ],
+                    },
+                ]),
+                entity: {
+                    id: 'product-id',
+                    getEntityName: () => 'product',
+                    customFields: null,
+                    translated: {
+                        customFields: {
+                            translatedTextField: 'root language value',
+                        },
+                    },
+                    customFieldSetSelectionActive: null,
+                    customFieldSets: createEntityCollection(),
+                },
+                parentEntity: null,
+            }, {
+                repositoryFactoryCreate: (entity) => {
+                    if (entity !== 'product') {
+                        return null;
+                    }
+
+                    return {
+                        get: productRepositoryGet,
+                        search: jest.fn(),
+                    };
+                },
+            });
+            await flushPromises();
+
+            const textField = wrapper.find('.sw-form-field-renderer-field__translatedTextField input[type="text"]');
+            const inheritanceSwitch = wrapper.find('.sw-form-field-renderer-field__translatedTextField .mt-inheritance-switch');
+
+            expect(wrapper.vm.hasParent).toBe(false);
+            expect(productRepositoryGet).not.toHaveBeenCalled();
+            expect(inheritanceSwitch.exists()).toBe(false);
+            expect(textField.element.value).toBe('');
+        } finally {
+            Shopware.Store.get('context').api.language = previousLanguage;
+            Shopware.Context.api.languageId = previousLanguageId;
+            Shopware.Context.api.systemLanguageId = previousSystemLanguageId;
+        }
+    });
+
+    it('should keep translated inheritance per custom field when another translated field has its own value', async () => {
+        const previousLanguageId = Shopware.Context.api.languageId;
+        const previousSystemLanguageId = Shopware.Context.api.systemLanguageId;
+        const previousLanguage = Shopware.Store.get('context').api.language;
+
+        Shopware.Context.api.languageId = 'de-DE';
+        Shopware.Context.api.systemLanguageId = 'en-GB';
+        Shopware.Store.get('context').api.language = {
+            id: 'de-DE',
+            parentId: 'en-GB',
+        };
+
+        const productRepositoryGet = jest.fn(() => Promise.resolve({
+            customFields: {
+                translatedTextField: 'inherit me from default language',
+                translatedCheckboxField: true,
+            },
+        }));
+
+        try {
+            wrapper = await createWrapper({
+                sets: createEntityCollection([
+                    {
+                        id: 'example',
+                        name: 'example',
+                        config: {},
+                        customFields: [
+                            {
+                                name: 'translatedTextField',
+                                type: 'text',
+                                config: {
+                                    componentName: 'sw-field',
+                                    customFieldType: 'text',
+                                    type: 'text',
+                                    label: 'translatedTextFieldLabel',
+                                },
+                            },
+                            {
+                                name: 'translatedCheckboxField',
+                                type: 'bool',
+                                config: {
+                                    componentName: 'sw-field',
+                                    customFieldType: 'checkbox',
+                                    type: 'checkbox',
+                                    label: 'translatedCheckboxFieldLabel',
+                                },
+                            },
+                        ],
+                    },
+                ]),
+                entity: {
+                    id: 'product-id',
+                    getEntityName: () => 'product',
+                    customFields: {
+                        translatedTextField: 'translated own value',
+                    },
+                    translated: {
+                        customFields: {
+                            translatedTextField: 'translated own value',
+                            translatedCheckboxField: true,
+                        },
+                    },
+                    customFieldSetSelectionActive: null,
+                    customFieldSets: createEntityCollection(),
+                },
+                parentEntity: null,
+            }, {
+                repositoryFactoryCreate: (entity) => {
+                    if (entity !== 'product') {
+                        return null;
+                    }
+
+                    return {
+                        get: productRepositoryGet,
+                        search: jest.fn(),
+                    };
+                },
+            });
+            await flushPromises();
+
+            const textField = wrapper.find('.sw-form-field-renderer-field__translatedTextField input[type="text"]');
+            const checkboxField = wrapper.find('.sw-form-field-renderer-field__translatedCheckboxField input[type="checkbox"]');
+            const textInheritanceSwitch = wrapper.find('.sw-form-field-renderer-field__translatedTextField .mt-inheritance-switch');
+            const checkboxInheritanceSwitch = wrapper.find(
+                '.sw-form-field-renderer-field__translatedCheckboxField .mt-inheritance-switch',
+            );
+
+            expect(wrapper.vm.hasParent).toBe(true);
+            expect(productRepositoryGet).toHaveBeenCalledTimes(1);
+            expect(textField.element.value).toBe('translated own value');
+            expect(checkboxField.element.checked).toBe(true);
+            expect(textInheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
+            expect(checkboxInheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+
+            await textInheritanceSwitch.trigger('click');
+            await flushPromises();
+
+            const restoredTextField = wrapper.find('.sw-form-field-renderer-field__translatedTextField input[type="text"]');
+            const restoredCheckboxField = wrapper.find(
+                '.sw-form-field-renderer-field__translatedCheckboxField input[type="checkbox"]',
+            );
+            const restoredCheckboxInheritanceSwitch = wrapper.find(
+                '.sw-form-field-renderer-field__translatedCheckboxField .mt-inheritance-switch',
+            );
+
+            expect(wrapper.vm.entity.customFields.translatedTextField).toBeNull();
+            expect(restoredTextField.element.value).toBe('inherit me from default language');
+            expect(restoredCheckboxField.element.checked).toBe(true);
+            expect(restoredCheckboxInheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+        } finally {
+            Shopware.Store.get('context').api.language = previousLanguage;
+            Shopware.Context.api.languageId = previousLanguageId;
+            Shopware.Context.api.systemLanguageId = previousSystemLanguageId;
+        }
+    });
+
+    it('should load translated inheritance from the selected language parent instead of the system language', async () => {
+        const previousLanguageId = Shopware.Context.api.languageId;
+        const previousSystemLanguageId = Shopware.Context.api.systemLanguageId;
+        const previousLanguage = Shopware.Store.get('context').api.language;
+
+        Shopware.Context.api.languageId = 'de-DE';
+        Shopware.Context.api.systemLanguageId = 'en-GB';
+        Shopware.Store.get('context').api.language = {
+            id: 'de-DE',
+            parentId: 'fr-FR',
+        };
+
+        const productRepositoryGet = jest.fn((id, context) => Promise.resolve({
+            customFields: {
+                translatedTextField: context.languageId === 'fr-FR'
+                    ? 'inherit me from parent language'
+                    : 'inherit me from system language',
+            },
+        }));
+
+        try {
+            wrapper = await createWrapper({
+                sets: createEntityCollection([
+                    {
+                        id: 'example',
+                        name: 'example',
+                        config: {},
+                        customFields: [
+                            {
+                                name: 'translatedTextField',
+                                type: 'text',
+                                config: {
+                                    componentName: 'sw-field',
+                                    customFieldType: 'text',
+                                    type: 'text',
+                                    label: 'translatedTextFieldLabel',
+                                },
+                            },
+                        ],
+                    },
+                ]),
+                entity: {
+                    id: 'product-id',
+                    getEntityName: () => 'product',
+                    customFields: null,
+                    translated: {
+                        customFields: {
+                            translatedTextField: 'inherit me from parent language',
+                        },
+                    },
+                    customFieldSetSelectionActive: null,
+                    customFieldSets: createEntityCollection(),
+                },
+                parentEntity: null,
+            }, {
+                repositoryFactoryCreate: (entity) => {
+                    if (entity !== 'product') {
+                        return null;
+                    }
+
+                    return {
+                        get: productRepositoryGet,
+                        search: jest.fn(),
+                    };
+                },
+            });
+            await flushPromises();
+
+            const textField = wrapper.find('.sw-form-field-renderer-field__translatedTextField input[type="text"]');
+
+            expect(productRepositoryGet).toHaveBeenCalledWith(
+                'product-id',
+                expect.objectContaining({
+                    languageId: 'fr-FR',
+                }),
+            );
+            expect(textField.element.value).toBe('inherit me from parent language');
+        } finally {
+            Shopware.Store.get('context').api.language = previousLanguage;
+            Shopware.Context.api.languageId = previousLanguageId;
+            Shopware.Context.api.systemLanguageId = previousSystemLanguageId;
+        }
+    });
+
+    it('should render inherited false and zero values in translated custom fields', async () => {
+        const previousLanguageId = Shopware.Context.api.languageId;
+        const previousSystemLanguageId = Shopware.Context.api.systemLanguageId;
+        const previousLanguage = Shopware.Store.get('context').api.language;
+
+        Shopware.Context.api.languageId = 'de-DE';
+        Shopware.Context.api.systemLanguageId = 'en-GB';
+        Shopware.Store.get('context').api.language = {
+            id: 'de-DE',
+            parentId: 'en-GB',
+        };
+
+        const productRepositoryGet = jest.fn(() => Promise.resolve({
+            customFields: {
+                translatedCheckboxField: false,
+                translatedNumberField: 0,
+            },
+        }));
+
+        try {
+            wrapper = await createWrapper({
+                sets: createEntityCollection([
+                    {
+                        id: 'example',
+                        name: 'example',
+                        config: {},
+                        customFields: [
+                            {
+                                name: 'translatedCheckboxField',
+                                type: 'bool',
+                                config: {
+                                    componentName: 'sw-field',
+                                    customFieldType: 'checkbox',
+                                    type: 'checkbox',
+                                    label: 'translatedCheckboxFieldLabel',
+                                },
+                            },
+                            {
+                                name: 'translatedNumberField',
+                                type: 'int',
+                                config: {
+                                    componentName: 'sw-field',
+                                    customFieldType: 'number',
+                                    type: 'number',
+                                    label: 'translatedNumberFieldLabel',
+                                },
+                            },
+                        ],
+                    },
+                ]),
+                entity: {
+                    id: 'product-id',
+                    getEntityName: () => 'product',
+                    customFields: null,
+                    translated: {
+                        customFields: {
+                            translatedCheckboxField: false,
+                            translatedNumberField: 0,
+                        },
+                    },
+                    customFieldSetSelectionActive: null,
+                    customFieldSets: createEntityCollection(),
+                },
+                parentEntity: null,
+            }, {
+                repositoryFactoryCreate: (entity) => {
+                    if (entity !== 'product') {
+                        return null;
+                    }
+
+                    return {
+                        get: productRepositoryGet,
+                        search: jest.fn(),
+                    };
+                },
+            });
+            await flushPromises();
+
+            const checkboxField = wrapper.find('.sw-form-field-renderer-field__translatedCheckboxField input[type="checkbox"]');
+            const numberField = wrapper.find('.sw-form-field-renderer-field__translatedNumberField input[type="text"]');
+
+            expect(productRepositoryGet).toHaveBeenCalledTimes(1);
+            expect(checkboxField.exists()).toBe(true);
+            expect(checkboxField.element.checked).toBe(false);
+            expect(numberField.exists()).toBe(true);
+            expect(numberField.element.value).toBe('0');
+        } finally {
+            Shopware.Store.get('context').api.language = previousLanguage;
+            Shopware.Context.api.languageId = previousLanguageId;
+            Shopware.Context.api.systemLanguageId = previousSystemLanguageId;
+        }
+    });
+
+    it('should keep translated custom field fallback values when loading inherited fields fails', async () => {
+        const previousLanguageId = Shopware.Context.api.languageId;
+        const previousSystemLanguageId = Shopware.Context.api.systemLanguageId;
+        const previousLanguage = Shopware.Store.get('context').api.language;
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+        Shopware.Context.api.languageId = 'de-DE';
+        Shopware.Context.api.systemLanguageId = 'en-GB';
+        Shopware.Store.get('context').api.language = {
+            id: 'de-DE',
+            parentId: 'en-GB',
+        };
+
+        const productRepositoryGet = jest.fn(() => Promise.reject(new Error('simulated fetch failure')));
+
+        try {
+            wrapper = await createWrapper({
+                sets: createEntityCollection([
+                    {
+                        id: 'example',
+                        name: 'example',
+                        config: {},
+                        customFields: [
+                            {
+                                name: 'translatedCheckboxField',
+                                type: 'bool',
+                                config: {
+                                    componentName: 'sw-field',
+                                    customFieldType: 'checkbox',
+                                    type: 'checkbox',
+                                    label: 'translatedCheckboxFieldLabel',
+                                },
+                            },
+                            {
+                                name: 'translatedNumberField',
+                                type: 'int',
+                                config: {
+                                    componentName: 'sw-field',
+                                    customFieldType: 'number',
+                                    type: 'number',
+                                    label: 'translatedNumberFieldLabel',
+                                },
+                            },
+                        ],
+                    },
+                ]),
+                entity: {
+                    id: 'product-id',
+                    getEntityName: () => 'product',
+                    customFields: null,
+                    translated: {
+                        customFields: {
+                            translatedCheckboxField: false,
+                            translatedNumberField: 0,
+                        },
+                    },
+                    customFieldSetSelectionActive: null,
+                    customFieldSets: createEntityCollection(),
+                },
+                parentEntity: null,
+            }, {
+                repositoryFactoryCreate: (entity) => {
+                    if (entity !== 'product') {
+                        return null;
+                    }
+
+                    return {
+                        get: productRepositoryGet,
+                        search: jest.fn(),
+                    };
+                },
+            });
+            await flushPromises();
+
+            const checkboxField = wrapper.find('.sw-form-field-renderer-field__translatedCheckboxField input[type="checkbox"]');
+            const numberField = wrapper.find('.sw-form-field-renderer-field__translatedNumberField input[type="text"]');
+
+            expect(productRepositoryGet).toHaveBeenCalledTimes(1);
+            expect(consoleErrorSpy).toHaveBeenCalled();
+            expect(checkboxField.element.checked).toBe(false);
+            expect(numberField.element.value).toBe('0');
+        } finally {
+            consoleErrorSpy.mockRestore();
+            Shopware.Store.get('context').api.language = previousLanguage;
+            Shopware.Context.api.languageId = previousLanguageId;
+            Shopware.Context.api.systemLanguageId = previousSystemLanguageId;
+        }
+    });
+
+    it('should ignore stale inherited field responses after the entity changes', async () => {
+        const previousLanguageId = Shopware.Context.api.languageId;
+        const previousSystemLanguageId = Shopware.Context.api.systemLanguageId;
+        const previousLanguage = Shopware.Store.get('context').api.language;
+        const inheritedFieldA = createDeferred();
+        const inheritedFieldB = createDeferred();
+
+        Shopware.Context.api.languageId = 'de-DE';
+        Shopware.Context.api.systemLanguageId = 'en-GB';
+        Shopware.Store.get('context').api.language = {
+            id: 'de-DE',
+            parentId: 'en-GB',
+        };
+
+        const productRepositoryGet = jest.fn((id) => {
+            if (id === 'product-a') {
+                return inheritedFieldA.promise;
+            }
+
+            return inheritedFieldB.promise;
+        });
+
+        try {
+            wrapper = await createWrapper({
+                sets: createEntityCollection([
+                    {
+                        id: 'example',
+                        name: 'example',
+                        config: {},
+                        customFields: [
+                            {
+                                name: 'translatedTextField',
+                                type: 'text',
+                                config: {
+                                    componentName: 'sw-field',
+                                    customFieldType: 'text',
+                                    type: 'text',
+                                    label: 'translatedTextFieldLabel',
+                                },
+                            },
+                        ],
+                    },
+                ]),
+                entity: {
+                    id: 'product-a',
+                    getEntityName: () => 'product',
+                    customFields: null,
+                    translated: {
+                        customFields: {
+                            translatedTextField: 'translated value A',
+                        },
+                    },
+                    customFieldSetSelectionActive: null,
+                    customFieldSets: createEntityCollection(),
+                },
+                parentEntity: null,
+            }, {
+                repositoryFactoryCreate: (entity) => {
+                    if (entity !== 'product') {
+                        return null;
+                    }
+
+                    return {
+                        get: productRepositoryGet,
+                        search: jest.fn(),
+                    };
+                },
+            });
+
+            await wrapper.setProps({
+                entity: {
+                    id: 'product-b',
+                    getEntityName: () => 'product',
+                    customFields: null,
+                    translated: {
+                        customFields: {
+                            translatedTextField: 'translated value B',
+                        },
+                    },
+                    customFieldSetSelectionActive: null,
+                    customFieldSets: createEntityCollection(),
+                },
+            });
+
+            inheritedFieldB.resolve({
+                customFields: {
+                    translatedTextField: 'inherited value B',
+                },
+            });
+
+            await flushPromises();
+
+            let textField = wrapper.find('.sw-form-field-renderer-field__translatedTextField input[type="text"]');
+            expect(textField.element.value).toBe('inherited value B');
+            expect(wrapper.vm.inheritedCustomFields.translatedTextField).toBe('inherited value B');
+
+            inheritedFieldA.resolve({
+                customFields: {
+                    translatedTextField: 'inherited value A',
+                },
+            });
+
+            await flushPromises();
+
+            textField = wrapper.find('.sw-form-field-renderer-field__translatedTextField input[type="text"]');
+            expect(textField.element.value).toBe('inherited value B');
+            expect(wrapper.vm.inheritedCustomFields.translatedTextField).toBe('inherited value B');
+        } finally {
+            Shopware.Store.get('context').api.language = previousLanguage;
+            Shopware.Context.api.languageId = previousLanguageId;
+            Shopware.Context.api.systemLanguageId = previousSystemLanguageId;
+        }
     });
 
     it('should not filter custom field sets when selection not active', async () => {

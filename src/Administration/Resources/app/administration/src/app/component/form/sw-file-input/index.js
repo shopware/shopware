@@ -164,7 +164,6 @@ export default {
                         name: file.name,
                         limit: fileSize(this.maxFileSize),
                     },
-                    0,
                 ),
             });
             return false;
@@ -183,7 +182,6 @@ export default {
                         name: file.name,
                         supportedTypes: this.allowedMimeTypes.join(', '),
                     },
-                    0,
                 ),
             });
             return false;
@@ -207,7 +205,6 @@ export default {
                         name: file.name,
                         supportedExtensions: this.allowedFileExtensions.join(', '),
                     },
-                    0,
                 ),
             });
 

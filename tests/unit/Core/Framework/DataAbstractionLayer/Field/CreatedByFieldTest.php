@@ -40,4 +40,13 @@ class CreatedByFieldTest extends TestCase
             static::assertSame([Context::SYSTEM_SCOPE, Context::CRUD_API_SCOPE], $field->getAllowedWriteScopes());
         });
     }
+
+    public function testExplicitScopesStayUntouchedInV680(): void
+    {
+        Feature::fake(['v6.8.0.0'], function (): void {
+            $field = new CreatedByField([Context::SYSTEM_SCOPE]);
+
+            static::assertSame([Context::SYSTEM_SCOPE], $field->getAllowedWriteScopes());
+        });
+    }
 }

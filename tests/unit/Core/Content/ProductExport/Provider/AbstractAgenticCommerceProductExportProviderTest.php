@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Provider\AbstractAgenticCommerceProductExportProvider;
+use Shopware\Core\Content\ProductExport\Tracking\SalesChannelTrackingListener;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -22,14 +23,17 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
     {
         $provider = $this->createProvider();
 
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setConfiguration(['affiliateCode' => 'aff-1', 'campaignCode' => 'camp-1']);
+        $agenticChannel = new SalesChannelEntity();
+        $agenticChannel->setConfiguration(['affiliateCode' => 'aff-1', 'campaignCode' => 'camp-1']);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getSalesChannel')->willReturn($salesChannel);
         $context->method('getSalesChannelId')->willReturn('channel-id');
 
-        $result = $provider->extendRenderContext(new ProductExportEntity(), $context, []);
+        $productExport = new ProductExportEntity();
+        $productExport->setSalesChannelId('agentic-channel-id');
+        $productExport->setSalesChannel($agenticChannel);
+
+        $result = $provider->extendRenderContext($productExport, $context, []);
 
         static::assertArrayHasKey('provider', $result);
         static::assertInstanceOf(ArrayStruct::class, $result['provider']);
@@ -39,17 +43,20 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
     {
         $provider = $this->createProvider(['extra' => 'value']);
 
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setConfiguration([
+        $agenticChannel = new SalesChannelEntity();
+        $agenticChannel->setConfiguration([
             'affiliateCode' => 'affiliate-1',
             'campaignCode' => 'campaign-1',
         ]);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getSalesChannel')->willReturn($salesChannel);
         $context->method('getSalesChannelId')->willReturn('channel-id');
 
-        $result = $provider->extendRenderContext(new ProductExportEntity(), $context, []);
+        $productExport = new ProductExportEntity();
+        $productExport->setSalesChannelId('agentic-channel-id');
+        $productExport->setSalesChannel($agenticChannel);
+
+        $result = $provider->extendRenderContext($productExport, $context, []);
 
         $provider = $result['provider'];
         static::assertInstanceOf(ArrayStruct::class, $provider);
@@ -58,46 +65,21 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
         static::assertSame('value', $provider->get('extra'));
     }
 
-    public function testExtendRenderContextInheritsTrackingCodesFromStorefront(): void
-    {
-        $provider = $this->createProvider();
-
-        $storefrontChannel = new SalesChannelEntity();
-        $storefrontChannel->setConfiguration([
-            'affiliateCode' => 'affiliate-1',
-            'campaignCode' => 'campaign-1',
-        ]);
-
-        $productExport = new ProductExportEntity();
-        $productExport->setStorefrontSalesChannel($storefrontChannel);
-
-        $agenticChannel = new SalesChannelEntity();
-        $agenticChannel->setConfiguration(['inheritStorefrontTrackingCodes' => true]);
-
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getSalesChannel')->willReturn($agenticChannel);
-        $context->method('getSalesChannelId')->willReturn('channel-id');
-
-        $result = $provider->extendRenderContext($productExport, $context, []);
-
-        $providerStruct = $result['provider'];
-        static::assertInstanceOf(ArrayStruct::class, $providerStruct);
-        static::assertSame('affiliate-1', $providerStruct->get('affiliateCode'));
-        static::assertSame('campaign-1', $providerStruct->get('campaignCode'));
-    }
-
     public function testExtendRenderContextWithNoConfiguration(): void
     {
         $provider = $this->createProvider();
 
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setConfiguration([]);
+        $agenticChannel = new SalesChannelEntity();
+        $agenticChannel->setConfiguration([]);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getSalesChannel')->willReturn($salesChannel);
         $context->method('getSalesChannelId')->willReturn('channel-id');
 
-        $result = $provider->extendRenderContext(new ProductExportEntity(), $context, []);
+        $productExport = new ProductExportEntity();
+        $productExport->setSalesChannelId('agentic-channel-id');
+        $productExport->setSalesChannel($agenticChannel);
+
+        $result = $provider->extendRenderContext($productExport, $context, []);
 
         $providerStruct = $result['provider'];
         static::assertInstanceOf(ArrayStruct::class, $providerStruct);
@@ -109,34 +91,40 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
     {
         $provider = $this->createProvider();
 
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setConfiguration([]);
+        $agenticChannel = new SalesChannelEntity();
+        $agenticChannel->setConfiguration([]);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getSalesChannel')->willReturn($salesChannel);
         $context->method('getSalesChannelId')->willReturn('channel-id');
 
-        $result = $provider->extendRenderContext(new ProductExportEntity(), $context, []);
+        $productExport = new ProductExportEntity();
+        $productExport->setSalesChannelId('agentic-channel-id');
+        $productExport->setSalesChannel($agenticChannel);
+
+        $result = $provider->extendRenderContext($productExport, $context, []);
 
         $providerStruct = $result['provider'];
         static::assertInstanceOf(ArrayStruct::class, $providerStruct);
         static::assertSame('test-provider', $providerStruct->get('name'));
-        static::assertSame('channel-id', $providerStruct->get('referralCode'));
+        static::assertSame('agentic-channel-id', $providerStruct->get(SalesChannelTrackingListener::QUERY_PARAM));
     }
 
     public function testExtendRenderContextMergesWithExistingContext(): void
     {
         $provider = $this->createProvider();
 
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setConfiguration([]);
+        $agenticChannel = new SalesChannelEntity();
+        $agenticChannel->setConfiguration([]);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getSalesChannel')->willReturn($salesChannel);
         $context->method('getSalesChannelId')->willReturn('channel-id');
 
         $existing = ['key' => 'value'];
-        $result = $provider->extendRenderContext(new ProductExportEntity(), $context, $existing);
+        $productExport = new ProductExportEntity();
+        $productExport->setSalesChannelId('agentic-channel-id');
+        $productExport->setSalesChannel($agenticChannel);
+
+        $result = $provider->extendRenderContext($productExport, $context, $existing);
 
         static::assertArrayHasKey('key', $result);
         static::assertArrayHasKey('provider', $result);
@@ -146,13 +134,17 @@ class AbstractAgenticCommerceProductExportProviderTest extends TestCase
     {
         $provider = $this->createProvider();
 
-        $salesChannel = new SalesChannelEntity();
+        $agenticChannel = new SalesChannelEntity();
+        // configuration not set (null)
 
         $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getSalesChannel')->willReturn($salesChannel);
         $context->method('getSalesChannelId')->willReturn('channel-id');
 
-        $result = $provider->extendRenderContext(new ProductExportEntity(), $context, []);
+        $productExport = new ProductExportEntity();
+        $productExport->setSalesChannelId('agentic-channel-id');
+        $productExport->setSalesChannel($agenticChannel);
+
+        $result = $provider->extendRenderContext($productExport, $context, []);
 
         $providerStruct = $result['provider'];
         static::assertInstanceOf(ArrayStruct::class, $providerStruct);

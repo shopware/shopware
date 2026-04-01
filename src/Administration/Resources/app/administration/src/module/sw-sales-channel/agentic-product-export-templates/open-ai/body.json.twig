@@ -26,13 +26,20 @@
     {% endfor %}
 {% endif %}
 {% set hasVariantListing = productExport.includeVariants and (product.parentId or product.childCount > 0) %}
+{% set productUrl = seoUrl('frontend.detail.page', {'productId': product.id}) ~ '?referringSalesChannel=' ~ provider.referringSalesChannel %}
+{% if provider.affiliateCode %}
+    {% set productUrl = productUrl ~ '&affiliateCode=' ~ provider.affiliateCode %}
+{% endif %}
+{% if provider.campaignCode %}
+    {% set productUrl = productUrl ~ '&campaignCode=' ~ provider.campaignCode %}
+{% endif %}
 {% set feedRow = {
     'is_eligible_search': provider.isEligibleSearch,
     'is_eligible_checkout': provider.isEligibleCheckout,
     'item_id': product.productNumber ? product.productNumber : product.id,
     'title': title,
     'description': description,
-    'url': seoUrl('frontend.detail.page', {'productId': product.id}),
+    'url': productUrl,
     'image_url': imageUrl,
     'price': (regularPriceValue|number_format(context.currency.itemRounding.decimals, '.', '')) ~ ' ' ~ context.currency.isoCode,
     'availability': product.available ? 'in_stock' : (product.restockTime ? 'backorder' : 'out_of_stock'),

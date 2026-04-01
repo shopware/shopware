@@ -922,5 +922,9 @@ export default {
         onAgenticCommerceExportFieldUpdate(configEntry, fieldName, value) {
             configEntry.values[fieldName] = value;
         },
+
+        onTrackingConfigChange(config) {
+            this.salesChannel.configuration = config;
+        },
     },
 };

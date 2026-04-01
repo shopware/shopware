@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\ProductExport\Provider;
 
+use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Content\ProductExport\Tracking\SalesChannelTrackingListener;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -32,15 +34,14 @@ abstract class AbstractAgenticCommerceProductExportProvider
         SalesChannelContext $salesChannelContext,
         array $renderContext,
     ): array {
-        $agenticConfig = $salesChannelContext->getSalesChannel()->getConfiguration() ?? [];
-        $trackingCodes = $this->resolveTrackingCodes($productExport, $agenticConfig);
+        $agenticConfig = $productExport->getSalesChannel()?->getConfiguration() ?? [];
 
         $renderContext['provider'] = new ArrayStruct(array_merge(
             [
                 'name' => $this->getTechnicalName(),
-                'referralCode' => $salesChannelContext->getSalesChannelId(),
-                'affiliateCode' => $trackingCodes['affiliateCode'],
-                'campaignCode' => $trackingCodes['campaignCode'],
+                SalesChannelTrackingListener::QUERY_PARAM => $productExport->getSalesChannelId(),
+                OrderService::AFFILIATE_CODE_KEY => $agenticConfig[OrderService::AFFILIATE_CODE_KEY] ?? null,
+                OrderService::CAMPAIGN_CODE_KEY => $agenticConfig[OrderService::CAMPAIGN_CODE_KEY] ?? null,
             ],
             $this->buildProviderContext($productExport, $salesChannelContext),
         ));
@@ -58,26 +59,4 @@ abstract class AbstractAgenticCommerceProductExportProvider
         ProductExportEntity $productExport,
         SalesChannelContext $salesChannelContext,
     ): array;
-
-    /**
-     * @param array<string, mixed> $agenticConfig
-     *
-     * @return array{affiliateCode: ?string, campaignCode: ?string}
-     */
-    protected function resolveTrackingCodes(ProductExportEntity $productExport, array $agenticConfig): array
-    {
-        if ($agenticConfig['inheritStorefrontTrackingCodes'] ?? false) {
-            $storefrontConfig = $productExport->getStorefrontSalesChannel()?->getConfiguration() ?? [];
-
-            return [
-                'affiliateCode' => $storefrontConfig['affiliateCode'] ?? null,
-                'campaignCode' => $storefrontConfig['campaignCode'] ?? null,
-            ];
-        }
-
-        return [
-            'affiliateCode' => $agenticConfig['affiliateCode'] ?? null,
-            'campaignCode' => $agenticConfig['campaignCode'] ?? null,
-        ];
-    }
 }

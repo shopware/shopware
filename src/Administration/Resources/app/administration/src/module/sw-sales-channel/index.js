@@ -55,6 +55,10 @@ Shopware.Component.register(
     () => import('./view/sw-sales-channel-detail-agentic-commerce-integration'),
 );
 Shopware.Component.register(
+    'sw-agentic-commerce-tracking-config',
+    () => import('./component/sw-agentic-commerce-tracking-config'),
+);
+Shopware.Component.register(
     'sw-sales-channel-detail-product-export-insights',
     () => import('./view/sw-sales-channel-detail-product-export-insights'),
 );

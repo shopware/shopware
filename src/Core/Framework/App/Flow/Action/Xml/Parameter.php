@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\App\Flow\Action\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
-use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -37,6 +36,16 @@ class Parameter extends XmlElement
 
     protected static function parse(\DOMElement $element): array
     {
-        return XmlParserUtils::parseAttributes($element);
+        $values = [];
+
+        foreach ($element->attributes as $attribute) {
+            if (!$attribute instanceof \DOMAttr) {
+                continue;
+            }
+
+            $values[self::kebabCaseToCamelCase($attribute->name)] = $attribute->value;
+        }
+
+        return $values;
     }
 }

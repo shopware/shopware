@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework;
+namespace Shopware\Tests\Devops\Core\Framework;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Log\Package;
@@ -20,7 +19,6 @@ use Symfony\Component\Finder\Finder;
  * @internal
  */
 #[Package('framework')]
-#[Group('slow')]
 class ServiceDefinitionTest extends TestCase
 {
     use KernelTestBehaviour;

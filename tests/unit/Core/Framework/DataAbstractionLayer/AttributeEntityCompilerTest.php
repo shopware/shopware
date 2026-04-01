@@ -8,10 +8,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\AutoIncrement;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\CustomFields as CustomFieldsAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ListField as ListFieldAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToOne;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Password;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
@@ -24,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
@@ -42,11 +45,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SerializedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
@@ -607,7 +612,7 @@ class AttributeEntityCompilerTest extends TestCase
                         ],
                     ],
                     [
-                        'type' => PriceField::class,
+                        'type' => FieldType::PRICE,
                         'name' => 'price',
                         'class' => PriceField::class,
                         'flags' => [],
@@ -971,6 +976,43 @@ class AttributeEntityCompilerTest extends TestCase
                         'args' => [
                             'html_string',
                             'htmlString',
+                        ],
+                    ],
+                    [
+                        'type' => FieldType::EMAIL,
+                        'name' => 'email',
+                        'class' => EmailField::class,
+                        'flags' => [],
+                        'translated' => false,
+                        'args' => [
+                            'email',
+                            'email',
+                        ],
+                    ],
+                    [
+                        'type' => Password::TYPE,
+                        'name' => 'password',
+                        'class' => PasswordField::class,
+                        'flags' => [],
+                        'translated' => false,
+                        'args' => [
+                            'password',
+                            'password',
+                            \PASSWORD_DEFAULT,
+                            [],
+                            'customer',
+                        ],
+                    ],
+                    [
+                        'type' => ListFieldAttr::TYPE,
+                        'name' => 'tags',
+                        'class' => ListField::class,
+                        'flags' => [],
+                        'translated' => false,
+                        'args' => [
+                            'tags',
+                            'tags',
+                            StringField::class,
                         ],
                     ],
                     [

@@ -63,19 +63,18 @@ export default {
 
     data() {
         return {
-            normalizedValue: null,
             collection: null,
         };
     },
 
     watch: {
-        value() {
+        normalizedValue(value) {
             if (this.collection === null) {
                 this.createdComponent();
                 return;
             }
 
-            if (this.collection.getIds() === this.normalizedValue) {
+            if (Shopware.Utils.types.isEqual(this.collection.getIds(), value)) {
                 return;
             }
 
@@ -87,18 +86,22 @@ export default {
         this.createdComponent();
     },
 
+    computed: {
+        normalizedValue() {
+            return this.value ?? [];
+        },
+    },
+
     methods: {
         // note: this method also gets called when `value` updates
         createdComponent() {
-            this.normalizedValue = this.value ?? [];
-
             const collection = new EntityCollection(this.repository.route, this.repository.entityName, this.context);
 
             if (this.collection === null) {
                 this.collection = collection;
             }
 
-            if (this.normalizedValue.length <= 0) {
+            if (this.normalizedValue.length === 0) {
                 this.collection = collection;
                 return Promise.resolve(this.collection);
             }

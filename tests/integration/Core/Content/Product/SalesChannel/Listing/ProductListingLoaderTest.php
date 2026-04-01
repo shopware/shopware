@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -388,6 +389,59 @@ class ProductListingLoaderTest extends TestCase
         static::assertTrue($firstVariant->hasExtension('search'));
     }
 
+    public function testExplicitProductIdKeepsSelectedVariantWhenMainVariantConfigured(): void
+    {
+        $this->createProduct([], true);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.id', $this->variantIds['greenL']));
+        $listing = $this->fetchListing($criteria);
+
+        static::assertSame(1, $listing->getTotal());
+
+        $selectedVariant = $listing->getEntities()->first();
+        static::assertNotNull($selectedVariant);
+        static::assertSame($this->variantIds['greenL'], $selectedVariant->getId());
+        static::assertTrue($selectedVariant->hasExtension('search'));
+    }
+
+    public function testExplicitProductIdKeepsSelectedVariantWhenMainProductConfigured(): void
+    {
+        $this->createProduct(['color', 'size'], false);
+
+        $this->productRepository->update([[
+            'id' => $this->productId,
+            'variantListingConfig' => [
+                'displayParent' => true,
+                'mainVariantId' => $this->mainVariantId,
+                'configuratorGroupConfig' => $this->getListingConfiguration(['color', 'size']),
+            ],
+        ]], $this->salesChannelContext->getContext());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.id', $this->variantIds['greenL']));
+        $listing = $this->fetchListing($criteria);
+
+        static::assertSame(1, $listing->getTotal());
+
+        $selectedVariant = $listing->getEntities()->first();
+        static::assertNotNull($selectedVariant);
+        static::assertSame($this->variantIds['greenL'], $selectedVariant->getId());
+        static::assertTrue($selectedVariant->hasExtension('search'));
+    }
+
+    public function testExplicitProductIdsReturnAllSelectedVariantsFromSameDisplayGroup(): void
+    {
+        $this->createProduct([], true);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.id', [$this->variantIds['greenL'], $this->variantIds['greenXl']]));
+        $listing = $this->fetchListing($criteria);
+
+        static::assertSame(2, $listing->getTotal());
+        static::assertSameCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], $listing->getIds());
+    }
+
     public function testMainVariantAndVariantGroupsWithPostFilterOnOptions(): void
     {
         // main variant and variant groups be set initially
@@ -404,9 +458,33 @@ class ProductListingLoaderTest extends TestCase
         static::assertNotNull($firstVariant);
         $variantId = $firstVariant->getId();
 
-        $expectedVariants = [$this->variantIds['greenL'], $this->variantIds['greenXl']];
-        static::assertContains($variantId, $expectedVariants);
+        static::assertSame($this->mainVariantId, $variantId);
         static::assertTrue($firstVariant->hasExtension('search'));
+    }
+
+    public function testMainProductWithPostFilterOnOptionsKeepsParentProduct(): void
+    {
+        $this->createProduct(['color', 'size'], false);
+
+        $this->productRepository->update([[
+            'id' => $this->productId,
+            'variantListingConfig' => [
+                'displayParent' => true,
+                'mainVariantId' => $this->mainVariantId,
+                'configuratorGroupConfig' => $this->getListingConfiguration(['color', 'size']),
+            ],
+        ]], $this->salesChannelContext->getContext());
+
+        $criteria = new Criteria();
+        $criteria->addPostFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
+        $listing = $this->fetchListing($criteria);
+
+        static::assertSame(1, $listing->getTotal());
+
+        $mainProduct = $listing->getEntities()->first();
+        static::assertNotNull($mainProduct);
+        static::assertSame($this->productId, $mainProduct->getId());
+        static::assertTrue($mainProduct->hasExtension('search'));
     }
 
     public static function searchStatesProvider(): \Generator

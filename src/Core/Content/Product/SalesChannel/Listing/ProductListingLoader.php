@@ -17,7 +17,12 @@ use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSea
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -262,6 +267,9 @@ class ProductListingLoader
 
     private function resolveIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
+        $ungroupedCriteria = clone $criteria;
+        $explicitProductIds = $this->resolveExplicitProductIds($ungroupedCriteria);
+
         $this->addGrouping($criteria);
 
         $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
@@ -282,7 +290,19 @@ class ProductListingLoader
             );
         }
 
-        return $this->productRepository->searchIds($criteria, $context);
+        $groupedResult = $this->productRepository->searchIds($criteria, $context);
+
+        $missingExplicitProductIds = array_values(array_diff($explicitProductIds, $groupedResult->getIds()));
+        if ($missingExplicitProductIds === []) {
+            return $groupedResult;
+        }
+
+        $explicitResult = $this->loadExplicitProductIds($ungroupedCriteria, $missingExplicitProductIds, $context);
+        if ($explicitResult->getIds() === []) {
+            return $groupedResult;
+        }
+
+        return $this->mergeIdSearchResults($groupedResult, $explicitResult);
     }
 
     /**
@@ -293,10 +313,13 @@ class ProductListingLoader
     private function resolvePreviews(array $keys, Criteria $criteria, SalesChannelContext $context): array
     {
         $mapping = array_combine($keys, $keys);
+        \assert(\is_array($mapping));
+
+        $explicitProductIds = array_flip(array_intersect($keys, $this->resolveExplicitProductIds($criteria)));
 
         $hasOptionFilter = $this->hasOptionFilter($criteria);
 
-        $shouldLoadPreviews = $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
+        $shouldLoadPreviews = $this->shouldLoadPreviews($criteria, $context);
 
         if ($shouldLoadPreviews) {
             $mapping = $this->extensions->publish(
@@ -306,18 +329,18 @@ class ProductListingLoader
             );
         }
 
+        foreach ($explicitProductIds as $id => $_) {
+            $mapping[$id] = $id;
+        }
+
         $event = new ProductListingResolvePreviewEvent($context, $criteria, $mapping, $hasOptionFilter);
         $this->dispatcher->dispatch($event);
 
         return $event->getMapping();
     }
 
-    private function shouldLoadPreviews(bool $hasOptionFilter, Criteria $criteria, SalesChannelContext $context): bool
+    private function shouldLoadPreviews(Criteria $criteria, SalesChannelContext $context): bool
     {
-        if ($hasOptionFilter === true) {
-            return false;
-        }
-
         $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
 
         $shouldLoadPreviewsOnSearch = !$this->systemConfigService->getBool(
@@ -343,5 +366,129 @@ class ProductListingLoader
         $read->addAssociation('options.group');
 
         return $this->productRepository->search($read, $context);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function resolveExplicitProductIds(Criteria $criteria): array
+    {
+        return array_values(array_unique($this->collectExplicitProductIds($criteria->getFilters())));
+    }
+
+    /**
+     * @param array<array-key, Filter> $filters
+     *
+     * @return list<string>
+     */
+    private function collectExplicitProductIds(array $filters): array
+    {
+        $ids = [];
+
+        foreach ($filters as $filter) {
+            if ($filter instanceof NotFilter) {
+                continue;
+            }
+
+            if ($filter instanceof MultiFilter) {
+                array_push($ids, ...$this->collectExplicitProductIds($filter->getQueries()));
+
+                continue;
+            }
+
+            if ($filter instanceof EqualsFilter && $this->isExplicitProductIdField($filter->getField()) && \is_string($filter->getValue())) {
+                $ids[] = $filter->getValue();
+
+                continue;
+            }
+
+            if (!$filter instanceof EqualsAnyFilter || !$this->isExplicitProductIdField($filter->getField())) {
+                continue;
+            }
+
+            foreach ($filter->getValue() as $value) {
+                if (\is_string($value)) {
+                    $ids[] = $value;
+                }
+            }
+        }
+
+        return $ids;
+    }
+
+    private function isExplicitProductIdField(string $field): bool
+    {
+        return preg_replace('/^product\./', '', $field) === 'id';
+    }
+
+    /**
+     * @param list<string> $ids
+     */
+    private function loadExplicitProductIds(Criteria $criteria, array $ids, SalesChannelContext $context): IdSearchResult
+    {
+        $criteria->setIds($ids);
+        $criteria->setOffset(null);
+        $criteria->setLimit(null);
+
+        if ($this->systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $context->getSalesChannelId()
+        )) {
+            $criteria->addFilter(
+                $this->productCloseoutFilterFactory->create($context)
+            );
+        }
+
+        return $this->productRepository->searchIds($criteria, $context);
+    }
+
+    private function mergeIdSearchResults(IdSearchResult $groupedResult, IdSearchResult $explicitResult): IdSearchResult
+    {
+        $data = [];
+        foreach ($groupedResult->getIds() as $id) {
+            \assert(\is_string($id));
+            $data[$id] = [
+                'primaryKey' => $id,
+                'data' => $groupedResult->getDataOfId($id),
+            ];
+        }
+
+        $addedIds = 0;
+        foreach ($explicitResult->getIds() as $id) {
+            \assert(\is_string($id));
+            if (isset($data[$id])) {
+                continue;
+            }
+
+            $data[$id] = [
+                'primaryKey' => $id,
+                'data' => $explicitResult->getDataOfId($id),
+            ];
+            ++$addedIds;
+        }
+
+        $result = new IdSearchResult(
+            $groupedResult->getTotal() + $addedIds,
+            $data,
+            $groupedResult->getCriteria(),
+            $groupedResult->getContext()
+        );
+
+        $states = array_values(array_unique([
+            ...$groupedResult->getStates(),
+            ...$explicitResult->getStates(),
+        ]));
+        if ($states !== []) {
+            $result->addState(...$states);
+        }
+
+        $result->addExtensions($groupedResult->getExtensions());
+        foreach ($explicitResult->getExtensions() as $name => $extension) {
+            if (!$result->hasExtension($name)) {
+                $result->addExtension($name, $extension);
+            }
+        }
+
+        return $result;
     }
 }

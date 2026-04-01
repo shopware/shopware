@@ -158,13 +158,10 @@ export default {
 
             this.createNotificationError({
                 title: this.$t('global.default.error'),
-                message: this.$t(
-                    'global.sw-file-input.notification.invalidFileSize.message',
-                    {
-                        name: file.name,
-                        limit: fileSize(this.maxFileSize),
-                    },
-                ),
+                message: this.$t('global.sw-file-input.notification.invalidFileSize.message', {
+                    name: file.name,
+                    limit: fileSize(this.maxFileSize),
+                }),
             });
             return false;
         },
@@ -176,13 +173,10 @@ export default {
 
             this.createNotificationError({
                 title: this.$t('global.default.error'),
-                message: this.$t(
-                    'global.sw-file-input.notification.invalidFileType.message',
-                    {
-                        name: file.name,
-                        supportedTypes: this.allowedMimeTypes.join(', '),
-                    },
-                ),
+                message: this.$t('global.sw-file-input.notification.invalidFileType.message', {
+                    name: file.name,
+                    supportedTypes: this.allowedMimeTypes.join(', '),
+                }),
             });
             return false;
         },
@@ -199,13 +193,10 @@ export default {
 
             this.createNotificationError({
                 title: this.$t('global.default.error'),
-                message: this.$t(
-                    'global.sw-file-input.notification.invalidFileExtension.message',
-                    {
-                        name: file.name,
-                        supportedExtensions: this.allowedFileExtensions.join(', '),
-                    },
-                ),
+                message: this.$t('global.sw-file-input.notification.invalidFileExtension.message', {
+                    name: file.name,
+                    supportedExtensions: this.allowedFileExtensions.join(', '),
+                }),
             });
 
             return false;

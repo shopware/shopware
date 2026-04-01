@@ -18,6 +18,9 @@
             :process-success="isSaveSuccessful"
             :disabled="!allowSaving || isLoading || productComparison.invalidFileName"
             variant="primary"
+            data-analytics-id="sw_sales_channel.detail.sales_channel_save"
+            :data-analytics-sales-channel-type-id="salesChannel?.typeId ?? ''"
+            :data-analytics-sales-channel-is-new="salesChannel?.isNew?.() ?? false"
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >

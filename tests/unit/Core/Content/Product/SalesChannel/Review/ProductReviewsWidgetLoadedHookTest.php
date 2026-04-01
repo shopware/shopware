@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\AbstractProductPurchaseLimitRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
@@ -47,6 +48,7 @@ class ProductReviewsWidgetLoadedHookTest extends TestCase
             $this->createMock(AbstractProductReviewSaveRoute::class),
             $this->createMock(SeoUrlPlaceholderHandlerInterface::class),
             $this->productReviewLoaderMock,
+            $this->createMock(AbstractProductPurchaseLimitRoute::class),
         );
     }
 

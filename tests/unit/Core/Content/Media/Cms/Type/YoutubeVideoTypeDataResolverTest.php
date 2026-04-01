@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Content\Media\Cms\Type;
+namespace Shopware\Tests\Unit\Core\Content\Media\Cms\Type;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -33,8 +32,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(YoutubeVideoCmsElementResolver::class)]
 class YoutubeVideoTypeDataResolverTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     private YoutubeVideoCmsElementResolver $resolver;
 
     protected function setUp(): void

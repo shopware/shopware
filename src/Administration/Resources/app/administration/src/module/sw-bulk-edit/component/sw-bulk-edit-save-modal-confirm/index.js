@@ -77,6 +77,10 @@ export default {
 
             return triggeredFlows;
         },
+
+        hasDocumentDeletionSelected() {
+            return this.bulkEditData?.delete?.isChanged === true;
+        },
     },
 
     created() {

@@ -264,6 +264,15 @@ class ProductListingLoader
     {
         $this->addGrouping($criteria);
 
+        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
+
+        if ($isSearchRoute && $this->systemConfigService->getBool(
+            'core.listing.findBestVariant',
+            $context->getSalesChannelId()
+        )) {
+            $criteria->addState(Criteria::STATE_SCORE_RANKED_GROUPING);
+        }
+
         if ($this->systemConfigService->getBool(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             $context->getSalesChannelId()

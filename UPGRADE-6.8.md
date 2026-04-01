@@ -55,6 +55,10 @@ The following methods are now abstract and must be implemented by extensions. Th
 - `confirmWithResponse()` returns `SuccessResponse`
 - `unsubscribeWithResponse()` returns `SuccessResponse`
 
+## Removed `/api/_action/mail-template/validate` route
+
+The `/api/_action/mail-template/validate` route has been removed without replacement, as it was not used and did not provide any significant value.
+
 </details>
 
 # Core
@@ -66,6 +70,17 @@ The following methods are now abstract and must be implemented by extensions. Th
 From now on, the defined fields of an EntityDefinition are applied after the default fields.
 This makes it possible to properly overwrite the current default fields `createdAt` and `updatedAt`.
 Check your EntityDefinitions if your entities still behave like intended. (Only applicable if you manually add `CreatedAtField` and/or `UpdatedAtField`)
+
+## `CreatedByField` and `UpdatedByField` default write scopes changed
+
+The default write scopes of `Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedByField` and `Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField` now include `Context::CRUD_API_SCOPE` in addition to `Context::SYSTEM_SCOPE`.
+
+If you rely on the previous system-only behavior, pass the desired scopes explicitly when instantiating the field, for example:
+
+```php
+new CreatedByField([Context::SYSTEM_SCOPE]);
+new UpdatedByField([Context::SYSTEM_SCOPE]);
+```
 
 ## Multiple payment finalize calls allowed
 
@@ -568,6 +583,134 @@ The following exception classes were removed and replaced by domain exceptions:
 # Administration
 
 <details>
+
+## Migrating Options API overrides to the Composition API Extension System
+
+Starting with Shopware 6.7, core components are gradually being migrated from Options API to Composition API using `createExtendableSetup()`. When a component you override has been converted, a backward-compatibility shim keeps your existing `Shopware.Component.override()` call working — but logs a deprecation warning. In Shopware 6.8, all fully-migrated components will require the new `overrideComponentSetup()` API.
+
+This guide shows how to migrate your plugin override to `Shopware.Component.overrideComponentSetup()` so it works natively against Composition API components.
+
+> **Note:** Only migrate overrides for components that have already been converted to use `createExtendableSetup()`. If the target component still uses Options API, keep using `Shopware.Component.override()` as-is.
+
+### Before: Options API override
+
+```javascript
+Shopware.Component.override('sw-product-list', {
+    data() {
+        return {
+            customFilters: [],
+            isCustomMode: false,
+        };
+    },
+
+    computed: {
+        columns() {
+            const original = this.$super('columns');
+            return [...original, { property: 'custom', label: 'Custom' }];
+        },
+    },
+
+    methods: {
+        async loadData() {
+            await this.$super('loadData');
+            this.customFilters = await this.fetchCustomFilters();
+        },
+
+        async fetchCustomFilters() {
+            // ...
+        },
+    },
+
+    watch: {
+        isCustomMode(val) {
+            if (val) this.loadData();
+        },
+    },
+});
+```
+
+### After: Composition API override
+
+```javascript
+import { ref, computed, watch } from 'vue';
+
+Shopware.Component.overrideComponentSetup()('sw-product-list', (previousState, props, context) => {
+    const customFilters = ref([]);
+    const isCustomMode = ref(false);
+
+    // computed — previousState refs are NOT auto-unwrapped, use .value
+    const columns = computed(() => {
+        return [...previousState.columns.value, { property: 'custom', label: 'Custom' }];
+    });
+
+    // method — call the original via previousState
+    async function loadData() {
+        await previousState.loadData.value();
+        customFilters.value = await fetchCustomFilters();
+    }
+
+    async function fetchCustomFilters() {
+        // ...
+    }
+
+    watch(isCustomMode, (val) => {
+        if (val) loadData();
+    });
+
+    return {
+        customFilters,
+        isCustomMode,
+        columns,
+        loadData,
+        fetchCustomFilters,
+    };
+});
+```
+
+### Key differences
+
+| Concept | Options API (`override`) | Composition API (`overrideComponentSetup`) |
+|---|---|---|
+| Reactive state | `data()` returning an object | `ref()` / `reactive()` |
+| Calling the original method | `this.$super('methodName')` | `previousState.methodName.value()` |
+| Accessing original computed | `this.$super('columns')` | `previousState.columns.value` |
+| Watching state | `watch: { prop: handler }` | `watch(ref, handler)` |
+| Accessing props | `this.myProp` | `props.myProp` |
+| Emitting events | `this.$emit(...)` | `context.emit(...)` |
+| Refs are not auto-unwrapped | n/a | Always use `.value` on `previousState` refs |
+
+### TypeScript: typing the override
+
+If the target component declares its public API in `ComponentPublicApiMapping`, you get full type safety:
+
+```typescript
+import { ref, computed } from 'vue';
+import type SwProductList from 'src/module/sw-product/page/sw-product-list';
+
+Shopware.Component.overrideComponentSetup<typeof SwProductList>()(
+    'sw-product-list',
+    (previousState, props) => {
+        // previousState is fully typed — IDE autocomplete works
+        const columns = computed(() => [
+            ...previousState.columns.value,
+            { property: 'custom', label: 'Custom' },
+        ]);
+
+        return { columns };
+    },
+);
+```
+
+### Unsupported Options API patterns
+
+The following patterns have no direct equivalent in `overrideComponentSetup()` and must be restructured:
+
+| Pattern | Alternative |
+|---|---|
+| `provide` | Not supported in overrides; move `provide` into the component itself |
+| `components` / `directives` | Register globally via `Shopware.Component.register()` / `Shopware.Directive.register()` |
+| `render()` function | Not supported in overrides |
+| Dot-notation watch paths (`'a.b.c'`) | Use a `computed` to extract the nested value, then `watch` the computed ref |
 
 ## Removal of `loadConfigSettingGroups()` in `sw-product-detail-variants`
 

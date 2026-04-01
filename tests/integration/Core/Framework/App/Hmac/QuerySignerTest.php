@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Hmac;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Uri;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppEntity;
@@ -21,7 +20,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
-#[CoversClass(QuerySigner::class)]
 #[Package('framework')]
 class QuerySignerTest extends TestCase
 {

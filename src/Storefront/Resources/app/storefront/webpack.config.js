@@ -20,6 +20,7 @@ if (process.env.IPV4FIRST) {
 const isProdMode = process.env.NODE_ENV === 'production';
 const isHotMode = process.env.MODE === 'hot';
 const isDevMode = process.env.NODE_ENV !== 'production' && process.env.MODE !== 'hot';
+const isDebugMode = process.env.DEBUG === 'true';
 
 const projectRootPath = process.env.PROJECT_ROOT
     ? path.resolve(process.env.PROJECT_ROOT)
@@ -200,6 +201,17 @@ const coreConfig = {
                                     loader: 'sass-loader',
                                     options: {
                                         sourceMap: true,
+                                        sassOptions: {
+                                            ...(!isDebugMode ? {
+                                                silenceDeprecations: [
+                                                    'import',
+                                                    'global-builtin',
+                                                    'color-functions',
+                                                    'mixed-decls',
+                                                    'slash-div',
+                                                ],
+                                            } : {}),
+                                        },
                                     },
                                 },
                             ],
@@ -313,6 +325,9 @@ const coreConfig = {
         },
     },
     stats: 'minimal',
+    infrastructureLogging: {
+        level: 'warn',
+    },
     target: 'web',
 };
 
@@ -427,7 +442,7 @@ if (isHotMode) {
     const scssDumpedThemeVariables = path.resolve(projectRootPath, `var/theme-variables/${themeId}.scss`);
     const scssDumpedVariables = (fs.existsSync(scssDumpedThemeVariables)) ? scssDumpedThemeVariables : scssDumpedFallbackVariables;
 
-    if (fs.existsSync(scssDumpedThemeVariables)) {
+    if (fs.existsSync(scssDumpedThemeVariables) && isDebugMode) {
         console.log(chalk.bgCyanBright.black(`# Theme variable file: ${scssDumpedVariables}`));
     }
     if (!fs.existsSync(scssDumpedThemeVariables)) {
@@ -482,9 +497,7 @@ const mergedCoreConfig = merge([
                     open: false,
                     devMiddleware: {
                         publicPath: `${hostName}/`,
-                        stats: {
-                            colors: true,
-                        },
+                        stats: 'none',
                     },
                     hot: false,
                     compress: false,
@@ -501,6 +514,7 @@ const mergedCoreConfig = merge([
                         overlay: {
                             warnings: false,
                             errors: true,
+                            runtimeErrors: false,
                         },
                     },
                     headers: {

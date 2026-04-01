@@ -2,11 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\RateLimiter\Policy;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoff;
-use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoffLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -22,7 +20,6 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
 /**
  * @internal
  */
-#[CoversClass(TimeBackoffLimiter::class)]
 class TimeBackoffLimiterTest extends TestCase
 {
     use CustomerTestTrait;

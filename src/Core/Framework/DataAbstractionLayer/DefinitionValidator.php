@@ -365,9 +365,10 @@ class DefinitionValidator
                 $getterMethods[] = 'is' . $propertyName;
                 $getterMethods[] = 'has' . $propertyName;
                 $getterMethods[] = 'has' . preg_replace('/^has/', '', $propertyName);
+                $getterMethods[] = 'was' . preg_replace('/^was/', '', $propertyName);
             }
 
-            $hasGetter = str_starts_with($propertyName, 'was') && $reflection->hasMethod($propertyName);
+            $hasGetter = false;
 
             if (!$reflection->hasProperty($propertyName)) {
                 $properties[] = \sprintf('Missing property %s in %s', $propertyName, $struct);

@@ -7,7 +7,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductListingPreviewCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
 use Shopware\Core\Content\Product\Extension\LoadPreviewExtension;
-use Shopware\Core\Content\Product\ExplicitProductIdCriteriaExtractor;
 use Shopware\Core\Content\Product\Extension\ResolveListingExtension;
 use Shopware\Core\Content\Product\Extension\ResolveListingIdsExtension;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -357,28 +356,6 @@ class ProductListingLoader
     /**
      * @param array<string, string> $mapping
      *
-     * @return array<string, string>
-     */
-    private function preserveExplicitProductIds(Criteria $criteria, array $mapping): array
-    {
-        $explicitProductIds = ExplicitProductIdCriteriaExtractor::extract($criteria);
-
-        if ($explicitProductIds === []) {
-            return $mapping;
-        }
-
-        foreach (array_keys($mapping) as $originalId) {
-            if (isset($explicitProductIds[$originalId])) {
-                $mapping[$originalId] = $originalId;
-            }
-        }
-
-        return $mapping;
-    }
-
-    /**
-     * @param array<string, string> $mapping
-     *
      * @return EntitySearchResult<ProductCollection>
      */
     private function resolveData(Criteria $criteria, array $mapping, SalesChannelContext $context): EntitySearchResult
@@ -396,9 +373,10 @@ class ProductListingLoader
      */
     private function createIdentityMapping(array $ids): array
     {
-        $mapping = [];
-        foreach ($ids as $id) {
-            $mapping[$id] = $id;
+        $mapping = array_combine($ids, $ids);
+
+        if ($mapping === false) {
+            return [];
         }
 
         return $mapping;

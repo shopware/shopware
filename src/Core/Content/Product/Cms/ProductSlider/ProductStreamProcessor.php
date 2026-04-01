@@ -132,9 +132,9 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
     private function handleProductStream(
         ProductCollection $streamResult,
         SalesChannelContext $context,
-        Criteria $originalCriteria
+        Criteria $originCriteria
     ): ProductCollection {
-        $explicitProductIds = ExplicitProductIdResolver::fromCriteria($originalCriteria);
+        $explicitProductIds = ExplicitProductIdResolver::fromCriteria($originCriteria);
 
         $finalProductIds = $this->collectFinalProductIds($streamResult, $explicitProductIds);
         $finalProductIds = array_values(array_unique([...$finalProductIds, ...$explicitProductIds]));
@@ -143,7 +143,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
             return new ProductCollection();
         }
 
-        $criteria = $originalCriteria->cloneForRead($finalProductIds);
+        $criteria = $originCriteria->cloneForRead($finalProductIds);
 
         $products = $this->productRepository->search($criteria, $context)->getEntities();
         $products->sortByIdArray($finalProductIds);

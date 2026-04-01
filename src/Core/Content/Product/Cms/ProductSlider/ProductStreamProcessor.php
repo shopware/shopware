@@ -12,8 +12,8 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Content\Product\Util\ExplicitProductIdResolver;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
@@ -138,6 +138,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
 
         $finalProductIds = $this->collectFinalProductIds($streamResult, $explicitProductIds);
         $finalProductIds = array_values(array_unique([...$finalProductIds, ...$explicitProductIds]));
+        $finalProductIds = \array_slice($finalProductIds, 0, $originCriteria->getLimit() ?? null);
 
         if ($finalProductIds === []) {
             return new ProductCollection();

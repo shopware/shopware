@@ -293,12 +293,29 @@ class ProductListingLoader
             return $groupedResult;
         }
 
+        $groupedResultForExplicitMerge = $groupedResult;
+
+        if ($this->hasPagination($originalCriteria)) {
+            $groupedResultForExplicitMerge = $this->loadAllGroupedIds($criteria, $context);
+            $missingExplicitProductIds = array_values(array_diff($explicitProductIds, $groupedResultForExplicitMerge->getIds()));
+
+            if ($missingExplicitProductIds === []) {
+                return $groupedResult;
+            }
+        }
+
         $explicitResult = $this->loadExplicitProductIds($originalCriteria, $missingExplicitProductIds, $context);
         if ($explicitResult->getIds() === []) {
             return $groupedResult;
         }
 
-        return $this->mergeIdSearchResults($groupedResult, $explicitResult);
+        $mergedResult = $this->mergeIdSearchResults($groupedResultForExplicitMerge, $explicitResult, $explicitProductIds);
+
+        if (!$this->hasPagination($originalCriteria)) {
+            return $mergedResult;
+        }
+
+        return $this->paginateIdSearchResult($mergedResult, $originalCriteria);
     }
 
     /**
@@ -387,6 +404,7 @@ class ProductListingLoader
      */
     private function loadExplicitProductIds(Criteria $criteria, array $ids, SalesChannelContext $context): IdSearchResult
     {
+        $criteria = clone $criteria;
         $criteria->setIds($ids);
         $criteria->setOffset(null);
         $criteria->setLimit(null);
@@ -403,9 +421,52 @@ class ProductListingLoader
         return $this->productRepository->searchIds($criteria, $context);
     }
 
-    private function mergeIdSearchResults(IdSearchResult $groupedResult, IdSearchResult $explicitResult): IdSearchResult
+    private function loadAllGroupedIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
-        $data = $this->buildSearchResultData($groupedResult);
+        $criteria = clone $criteria;
+        $criteria->setOffset(null);
+        $criteria->setLimit(null);
+
+        return $this->productRepository->searchIds($criteria, $context);
+    }
+
+    /**
+     * @param list<string> $allExplicitIds
+     */
+    private function mergeIdSearchResults(IdSearchResult $groupedResult, IdSearchResult $explicitResult, array $allExplicitIds): IdSearchResult
+    {
+        $groupedIds = $this->getStringIds($groupedResult);
+        $resolvedExplicitIds = $this->resolveMergedExplicitIds($groupedIds, $this->getStringIds($explicitResult), $allExplicitIds);
+        $displayGroups = $this->loadDisplayGroups([
+            ...$groupedIds,
+            ...$resolvedExplicitIds,
+        ], $groupedResult);
+
+        $explicitProductIds = array_fill_keys($resolvedExplicitIds, true);
+        $explicitDisplayGroups = array_fill_keys(
+            array_values(array_filter(
+                array_map(static fn (string $id): ?string => $displayGroups[$id] ?? null, $resolvedExplicitIds),
+                static fn (?string $displayGroup): bool => $displayGroup !== null
+            )),
+            true
+        );
+
+        $data = [];
+        $removedGroupedIds = 0;
+        foreach ($groupedIds as $id) {
+            $displayGroup = $displayGroups[$id] ?? null;
+
+            if ($displayGroup !== null && isset($explicitDisplayGroups[$displayGroup]) && !isset($explicitProductIds[$id])) {
+                ++$removedGroupedIds;
+
+                continue;
+            }
+
+            $data[$id] = [
+                'primaryKey' => $id,
+                'data' => $groupedResult->getDataOfId($id),
+            ];
+        }
 
         $addedIds = 0;
         foreach ($this->getStringIds($explicitResult) as $id) {
@@ -421,28 +482,116 @@ class ProductListingLoader
         }
 
         $result = new IdSearchResult(
-            $groupedResult->getTotal() + $addedIds,
+            $groupedResult->getTotal() - $removedGroupedIds + $addedIds,
             $data,
             $groupedResult->getCriteria(),
             $groupedResult->getContext()
         );
 
-        $states = array_values(array_unique([
-            ...$groupedResult->getStates(),
-            ...$explicitResult->getStates(),
-        ]));
-        if ($states !== []) {
-            $result->addState(...$states);
-        }
-
-        $result->addExtensions($groupedResult->getExtensions());
-        foreach ($explicitResult->getExtensions() as $name => $extension) {
-            if (!$result->hasExtension($name)) {
-                $result->addExtension($name, $extension);
-            }
-        }
+        $this->copyResultMetaData($result, $groupedResult, $explicitResult);
 
         return $result;
+    }
+
+    /**
+     * @param list<string> $groupedIds
+     * @param list<string> $loadedExplicitIds
+     * @param list<string> $allExplicitIds
+     *
+     * @return list<string>
+     */
+    private function resolveMergedExplicitIds(array $groupedIds, array $loadedExplicitIds, array $allExplicitIds): array
+    {
+        $availableIds = array_fill_keys([
+            ...$groupedIds,
+            ...$loadedExplicitIds,
+        ], true);
+
+        return array_values(array_filter(
+            $allExplicitIds,
+            static fn (string $id): bool => isset($availableIds[$id])
+        ));
+    }
+
+    /**
+     * @param list<string> $ids
+     *
+     * @return array<string, string>
+     */
+    private function loadDisplayGroups(array $ids, IdSearchResult $result): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(id)) as id, display_group as displayGroup
+             FROM product
+             WHERE version_id = :version
+             AND id IN (:ids)',
+            [
+                'version' => Uuid::fromHexToBytes($result->getContext()->getVersionId()),
+                'ids' => Uuid::fromHexToBytesList(array_values(array_unique($ids))),
+            ],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        $displayGroups = [];
+        foreach ($rows as $row) {
+            if (!\is_string($row['id']) || !\is_string($row['displayGroup'])) {
+                continue;
+            }
+
+            $displayGroups[$row['id']] = $row['displayGroup'];
+        }
+
+        return $displayGroups;
+    }
+
+    private function paginateIdSearchResult(IdSearchResult $result, Criteria $criteria): IdSearchResult
+    {
+        $ids = \array_slice(
+            $this->getStringIds($result),
+            $criteria->getOffset() ?? 0,
+            $criteria->getLimit()
+        );
+
+        $paginatedResult = new IdSearchResult(
+            $result->getTotal(),
+            $this->buildSearchResultData($result, $ids),
+            $criteria,
+            $result->getContext()
+        );
+
+        $this->copyResultMetaData($paginatedResult, $result);
+
+        return $paginatedResult;
+    }
+
+    private function hasPagination(Criteria $criteria): bool
+    {
+        return $criteria->getOffset() !== null || $criteria->getLimit() !== null;
+    }
+
+    private function copyResultMetaData(IdSearchResult $target, IdSearchResult ...$sources): void
+    {
+        $states = [];
+        foreach ($sources as $source) {
+            array_push($states, ...$source->getStates());
+        }
+
+        $states = array_values(array_unique($states));
+        if ($states !== []) {
+            $target->addState(...$states);
+        }
+
+        foreach ($sources as $source) {
+            foreach ($source->getExtensions() as $name => $extension) {
+                if (!$target->hasExtension($name)) {
+                    $target->addExtension($name, $extension);
+                }
+            }
+        }
     }
 
     /**
@@ -456,10 +605,12 @@ class ProductListingLoader
     /**
      * @return array<string, array{primaryKey: string, data: array<string, mixed>}>
      */
-    private function buildSearchResultData(IdSearchResult $result): array
+    private function buildSearchResultData(IdSearchResult $result, ?array $ids = null): array
     {
+        $ids ??= $this->getStringIds($result);
+
         $data = [];
-        foreach ($this->getStringIds($result) as $id) {
+        foreach ($ids as $id) {
             $data[$id] = [
                 'primaryKey' => $id,
                 'data' => $result->getDataOfId($id),

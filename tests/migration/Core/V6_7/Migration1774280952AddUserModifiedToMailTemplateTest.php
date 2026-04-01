@@ -40,18 +40,7 @@ class Migration1774280952AddUserModifiedToMailTemplateTest extends TestCase
     public function testAddColumn(): void
     {
         $this->migration->update($this->connection);
-
-        $columns = array_column(
-            $this->connection->fetchAllAssociative('SHOW COLUMNS FROM `mail_template` LIKE \'was_modified_by_user\''),
-            'Field'
-        );
-
-        static::assertContains('was_modified_by_user', $columns);
-    }
-
-    public function testAddColumnIsIdempotent(): void
-    {
-        $this->migration->update($this->connection);
+        // run twice to verify idempotency
         $this->migration->update($this->connection);
 
         $columns = array_column(
@@ -60,11 +49,6 @@ class Migration1774280952AddUserModifiedToMailTemplateTest extends TestCase
         );
 
         static::assertContains('was_modified_by_user', $columns);
-    }
-
-    public function testUpdateSetsAllExistingToTrue(): void
-    {
-        $this->migration->update($this->connection);
 
         $count = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM `mail_template` WHERE `was_modified_by_user` = 0');
 

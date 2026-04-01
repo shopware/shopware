@@ -35,13 +35,13 @@ class WasModifiedByUserFieldSerializer extends BoolFieldSerializer
                     'This field is write-protected.',
                     [],
                     $data->getValue(),
-                    $data->getKey(),
+                    '/' . $data->getKey(),
                     $data->getValue()
                 )
             );
 
             $parameters->getContext()->getExceptions()->add(
-                new WriteConstraintViolationException($violationList, $parameters->getPath() . '/' . $data->getKey())
+                new WriteConstraintViolationException($violationList, $parameters->getPath())
             );
 
             return;

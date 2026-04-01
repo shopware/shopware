@@ -166,7 +166,7 @@ class WasModifiedByUserFieldTest extends TestCase
         static::assertFalse($entity->get('wasModifiedByUser'));
     }
 
-    public function testSystemScopeUpdatePreservesDirtyTrue(): void
+    public function testSystemScopeUpdatePreservesWasModifiedByUserTrue(): void
     {
         $id = Uuid::randomHex();
         $context = Context::createDefaultContext();

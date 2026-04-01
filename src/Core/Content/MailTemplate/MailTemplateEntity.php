@@ -58,11 +58,6 @@ class MailTemplateEntity extends Entity
         $this->systemDefault = $systemDefault;
     }
 
-    public function getWasModifiedByUser(): bool
-    {
-        return $this->wasModifiedByUser;
-    }
-
     public function wasModifiedByUser(): bool
     {
         return $this->wasModifiedByUser;

@@ -78,8 +78,9 @@ class TimeRangeRuleTest extends TestCase
         $timezoneEuropeBerlin = new \DateTimeZone('Europe/Berlin');
         $timezoneUTC = new \DateTimeZone('UTC');
 
-        $offset = $timezoneEuropeBerlin->getOffset(new \DateTimeImmutable('now', $timezoneUTC)) / 3600;
-        $toTime = (12 + $offset) . ':00';
+        $reference = new \DateTimeImmutable('12:00', $timezoneUTC);
+        $local = $reference->setTimezone($timezoneEuropeBerlin);
+        $toTime = $local->format('H:i');
 
         $rule->assign(['fromTime' => '00:00', 'toTime' => $toTime, 'timezone' => 'Europe/Berlin']);
 
@@ -98,8 +99,9 @@ class TimeRangeRuleTest extends TestCase
         $timezoneEuropeBerlin = new \DateTimeZone('Europe/Berlin');
         $timezoneUTC = new \DateTimeZone('UTC');
 
-        $offset = $timezoneEuropeBerlin->getOffset(new \DateTimeImmutable('now', $timezoneUTC)) / 3600;
-        $toTime = (11 + $offset) . ':00';
+        $reference = new \DateTimeImmutable('12:00', $timezoneUTC);
+        $local = $reference->setTimezone($timezoneEuropeBerlin);
+        $toTime = $local->modify('-1 hour')->format('H:i');
 
         $rule->assign(['fromTime' => '00:00', 'toTime' => $toTime, 'timezone' => 'Europe/Berlin']);
 

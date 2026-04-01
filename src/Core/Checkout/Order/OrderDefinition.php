@@ -110,10 +110,10 @@ class OrderDefinition extends EntityDefinition
             (new StringField('source', 'source'))->addFlags(new ApiAware()),
             (new StringField('tax_calculation_type', 'taxCalculationType'))->addFlags(new ApiAware()),
 
-            (new StateMachineStateField('state_id', 'stateId', OrderStates::STATE_MACHINE))->addFlags(new Required())->setDescription('Unique identity of state.'),
-            (new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id'))->addFlags(new ApiAware())->setDescription('Current order state (e.g., open, in_progress, completed, cancelled)'),
-            (new ListField('rule_ids', 'ruleIds', StringField::class))->setDescription('Unique identity of rule.'),
-            (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
+            (new StateMachineStateField('state_id', 'stateId', OrderStates::STATE_MACHINE))->addFlags(new Required()),
+            (new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id'))->addFlags(new ApiAware()),
+            new ListField('rule_ids', 'ruleIds', StringField::class),
+            (new CustomFields())->addFlags(new ApiAware()),
             (new CreatedByField([Context::SYSTEM_SCOPE, Context::CRUD_API_SCOPE]))->addFlags(new ApiAware())->setDescription('Unique identity of createdBy.'),
             (new UpdatedByField([Context::SYSTEM_SCOPE, Context::CRUD_API_SCOPE]))->addFlags(new ApiAware())->setDescription('Unique identity of updatedBy.'),
 

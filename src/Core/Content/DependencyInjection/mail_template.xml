@@ -48,8 +48,6 @@
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MailDataProvider">
             <argument type="tagged" tag="shopware.mail.data_provider" index-by="key"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="language.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService">
@@ -64,6 +62,7 @@
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="language.repository"/>
+            <argument type="tagged" tag="shopware.mail.data_provider" index-by="key"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory">

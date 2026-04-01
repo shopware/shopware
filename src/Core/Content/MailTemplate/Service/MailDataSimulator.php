@@ -14,6 +14,7 @@ use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\AbstractProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -82,7 +83,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
-use Shopware\Core\Framework\Event\EventData\AssociativeArrayType;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
@@ -104,13 +104,21 @@ use Symfony\Component\HttpFoundation\IpUtils;
 class MailDataSimulator
 {
     /**
+     * @var array<string, AbstractProvider<Entity, EntityCollection<Entity>>>
+     */
+    private array $dataProviders;
+
+    /**
      * @param EntityRepository<LanguageCollection> $languageRepository
+     * @param iterable<string, AbstractProvider<Entity, EntityCollection<Entity>>> $dataProviders
      */
     public function __construct(
         private readonly BusinessEventCollector $businessEventCollector,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly EntityRepository $languageRepository,
+        iterable $dataProviders,
     ) {
+        $this->dataProviders = $dataProviders instanceof \Traversable ? iterator_to_array($dataProviders) : $dataProviders;
     }
 
     /**
@@ -164,7 +172,7 @@ class MailDataSimulator
      */
     private function generateEventDataTypeData(array $dataType, array &$referenceData, Context $context, Generator $faker): mixed
     {
-        if ($dataType['type'] === AssociativeArrayType::TYPE || $dataType['type'] === ArrayType::TYPE) {
+        if ($dataType['type'] === ArrayType::TYPE) {
             return [];
         }
 

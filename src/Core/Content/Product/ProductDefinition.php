@@ -227,7 +227,7 @@ class ProductDefinition extends EntityDefinition
 
             (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited())->setDescription('Main product image displayed in listings and detail pages'),
 
-            (new ManyToOneAssociationField('openGraphMedia', 'open_graph_media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware())->setDescription('Open Graph image for social media sharing'),
+            (new ManyToOneAssociationField('openGraphMedia', 'open_graph_media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware(), new Inherited())->setDescription('Open Graph image for social media sharing'),
 
             (new ManyToOneAssociationField('featureSet', 'product_feature_set_id', ProductFeatureSetDefinition::class, 'id'))->addFlags(new Inherited()),
 

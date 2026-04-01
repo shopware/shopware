@@ -4,7 +4,9 @@ namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -12,6 +14,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 #[Package('framework')]
 class Migration1774345867AddProductOpenGraphFields extends MigrationStep
 {
+    use InheritanceUpdaterTrait;
+
     public function getCreationTimestamp(): int
     {
         return 1774345867;
@@ -54,5 +58,11 @@ class Migration1774345867AddProductOpenGraphFields extends MigrationStep
                     REFERENCES `media` (`id`) ON DELETE SET NULL ON UPDATE CASCADE'
             );
         }
+
+        if (!TableHelper::columnExists($connection, 'product', 'openGraphMedia')) {
+            $this->updateInheritance($connection, 'product', 'openGraphMedia');
+        }
+
+        $this->registerIndexer($connection, 'product.indexer', ['product.inheritance']);
     }
 }

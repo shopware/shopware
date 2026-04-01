@@ -48,6 +48,10 @@ export default {
             return this.repositoryFactory.create('product');
         },
 
+        currentOpenGraphMediaId() {
+            return this.product?.openGraphMediaId ?? this.parentProduct?.openGraphMediaId ?? null;
+        },
+
         hasParent() {
             return !!this.parentProduct.id;
         },
@@ -177,14 +181,27 @@ export default {
             this.selectValue = this.product.canonicalProductId;
         },
 
-        'product.openGraphMediaId': {
+        currentOpenGraphMediaId: {
             async handler(mediaId) {
                 if (!mediaId) {
                     this.openGraphMediaItem = null;
                     return;
                 }
 
-                this.openGraphMediaItem = await this.mediaRepository.get(mediaId);
+                const media = this.getLoadedOpenGraphMedia(mediaId);
+
+                if (media) {
+                    this.openGraphMediaItem = media;
+                    return;
+                }
+
+                const fetchedMedia = await this.mediaRepository.get(mediaId);
+
+                if (this.currentOpenGraphMediaId !== mediaId) {
+                    return;
+                }
+
+                this.openGraphMediaItem = fetchedMedia;
             },
             immediate: true,
         },
@@ -217,6 +234,22 @@ export default {
                     this.$refs.canonicalProductSelect.resetActiveItem();
                 });
             });
+        },
+
+        getLoadedOpenGraphMedia(mediaId) {
+            if (!mediaId) {
+                return null;
+            }
+
+            if (this.product?.openGraphMedia?.id === mediaId) {
+                return this.product.openGraphMedia;
+            }
+
+            if (this.parentProduct?.openGraphMedia?.id === mediaId) {
+                return this.parentProduct.openGraphMedia;
+            }
+
+            return null;
         },
 
         onOpenOgMediaModal() {

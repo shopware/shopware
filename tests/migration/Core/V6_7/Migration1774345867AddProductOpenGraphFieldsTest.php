@@ -33,11 +33,14 @@ class Migration1774345867AddProductOpenGraphFieldsTest extends TestCase
 
     public function testColumnsAndForeignKeyAreCreated(): void
     {
+        $this->rollbackInheritanceColumn();
+
         $migration = new Migration1774345867AddProductOpenGraphFields();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
         static::assertTrue(TableHelper::columnExists($this->connection, 'product', 'open_graph_media_id'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'product', 'openGraphMedia'));
         static::assertTrue(TableHelper::columnExists($this->connection, 'product_translation', 'og_title'));
         static::assertTrue(TableHelper::columnExists($this->connection, 'product_translation', 'og_description'));
         static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'fk.product.open_graph_media_id'));
@@ -59,5 +62,14 @@ class Migration1774345867AddProductOpenGraphFieldsTest extends TestCase
         $migration->update($this->connection);
 
         static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'fk.product.open_graph_media_id'));
+    }
+
+    private function rollbackInheritanceColumn(): void
+    {
+        if (!TableHelper::columnExists($this->connection, 'product', 'openGraphMedia')) {
+            return;
+        }
+
+        $this->connection->executeStatement('ALTER TABLE `product` DROP COLUMN `openGraphMedia`');
     }
 }

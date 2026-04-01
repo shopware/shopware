@@ -30,15 +30,15 @@
             <tag name="shopware.documentV2.renderer"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\DocumentV2\Renderer\InvoicePdfRenderer">
+        <service id="Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer">
             <tag name="shopware.documentV2.renderer"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\DocumentV2\Renderer\InvoiceZugferdXmlRenderer">
+        <service id="Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer">
             <tag name="shopware.documentV2.renderer"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\DocumentV2\Renderer\InvoiceEmbeddedZugferdRenderer">
+        <service id="Shopware\Core\Checkout\DocumentV2\Renderer\EmbeddedZugferdRenderer">
             <tag name="shopware.documentV2.renderer"/>
         </service>
 

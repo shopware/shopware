@@ -14,14 +14,14 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('after-sales')]
-class InvoicePdfRenderer extends AbstractDocumentRenderer
+class PdfRenderer extends AbstractDocumentRenderer
 {
-    public const TYPE = DocumentType::Invoice->value;
     public const FORMAT = DocumentFormat::Pdf->value;
 
-    public function getDocumentTypes(): array
+    public function supports(string $docType): bool
     {
-        return [self::TYPE];
+        // supports all document types
+        return true;
     }
 
     public function getFormat(): string

@@ -12,13 +12,11 @@ use Shopware\Core\Framework\Log\Package;
 abstract class AbstractDocumentRenderer
 {
     /**
-     * All document types this renderer supports.
+     * If the renderer supports a specific document type.
      *
      * @see DocumentType
-     *
-     * @return list<string> document types passed as strings
      */
-    abstract public function getDocumentTypes(): array;
+    abstract public function supports(string $docType): bool;
 
     /**
      * The format this renderer produces.
@@ -36,14 +34,6 @@ abstract class AbstractDocumentRenderer
     public function getDependencies(): array
     {
         return [];
-    }
-
-    /**
-     * Enrich order criteria with additional associations
-     */
-    public function enrichOrderCriteria(string $docType, Criteria $criteria): void
-    {
-        // nothing by default
     }
 
     /**

@@ -13,9 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 class DocumentGenerator
 {
     /**
-     * Lookup table for document renderer classes by document type and format.
-     *
-     * @var array<string, array<string, AbstractDocumentRenderer>>
+     * @var list<AbstractDocumentRenderer>
      */
     private array $renderers = [];
 
@@ -26,16 +24,14 @@ class DocumentGenerator
         iterable $renderers,
         private readonly DocumentDataProviderCollector $dataProviderCollector,
     ) {
-        // todo: build this lookup table in a custom compiler pass / service locator,
-        // based on the tag attributes in the container
         foreach ($renderers as $renderer) {
-            foreach ($renderer->getDocumentTypes() as $docType) {
-                $this->renderers[$docType][$renderer->getFormat()] = $renderer;
-            }
+            $this->renderers[] = $renderer;
         }
     }
 
     /**
+     * for possible default doc types @see DocumentType
+     *
      * @param list<string> $formats
      */
     public function generate(
@@ -53,7 +49,13 @@ class DocumentGenerator
             throw new \RuntimeException('Live version not supported here, use an existing one or create one first');
         }
 
-        $renderers = $this->renderers[$docType] ?? [];
+        $renderers = [];
+        foreach ($this->renderers as $renderer) {
+            if ($renderer->supports($docType)) {
+                $renderers[$renderer->getFormat()] = $renderer;
+            }
+        }
+
         if (empty($renderers)) {
             // todo: error handling
             throw new \RuntimeException('No renderers found for document type "' . $docType . '"');

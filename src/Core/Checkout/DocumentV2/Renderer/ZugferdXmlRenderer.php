@@ -14,14 +14,16 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('after-sales')]
-class InvoiceZugferdXmlRenderer extends AbstractDocumentRenderer
+class ZugferdXmlRenderer extends AbstractDocumentRenderer
 {
-    public const TYPE = DocumentType::Invoice->value;
     public const FORMAT = DocumentFormat::ZugferdXml->value;
 
-    public function getDocumentTypes(): array
+    public function supports(string $docType): bool
     {
-        return [self::TYPE];
+        // todo: think about if it makes sense to check based on if there is a twig template for the doc type
+        return $docType === DocumentType::Invoice->value
+            || $docType === DocumentType::CancellationInvoice->value
+            || $docType === DocumentType::CreditNote->value;
     }
 
     public function getFormat(): string
@@ -31,8 +33,7 @@ class InvoiceZugferdXmlRenderer extends AbstractDocumentRenderer
 
     public function renderToString(RenderInput $renderInput, RenderState $renderState): RenderResult
     {
-        // todo: do zugferd stuff here
-        // todo: maybe also render with twig?
+        // todo: also render with twig
 
         return new RenderResult('<zugferd xml/>');
     }

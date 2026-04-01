@@ -29,28 +29,16 @@ class HtmlRenderer extends AbstractDocumentRenderer
     ) {
     }
 
-    public function getDocumentTypes(): array
+    public function supports(string $docType): bool
     {
-        return [
-            DocumentType::Invoice->value,
-            DocumentType::CancellationInvoice->value,
-            DocumentType::CreditNote->value,
-            DocumentType::DeliveryNote->value,
-        ];
+        // todo: for now support all doc types,
+        // todo: optionally maybe check if a template exists for the given doc type?
+        return true;
     }
 
     public function getFormat(): string
     {
         return self::FORMAT;
-    }
-
-    public function enrichOrderCriteria(string $docType, Criteria $criteria): void
-    {
-        if ($docType === DocumentType::CreditNote->value) {
-            // do something different
-        }
-
-        $criteria->addAssociation('lineItems');
     }
 
     public function renderToString(RenderInput $renderInput, RenderState $renderState): RenderResult

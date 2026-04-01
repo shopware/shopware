@@ -14,14 +14,15 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('after-sales')]
-class InvoiceEmbeddedZugferdRenderer extends AbstractDocumentRenderer
+class EmbeddedZugferdRenderer extends AbstractDocumentRenderer
 {
-    public const TYPE = DocumentType::Invoice->value;
     public const FORMAT = DocumentFormat::EmbeddedZugferd->value;
 
-    public function getDocumentTypes(): array
+    public function supports(string $docType): bool
     {
-        return [self::TYPE];
+        return $docType === DocumentType::Invoice->value
+            || $docType === DocumentType::CancellationInvoice->value
+            || $docType === DocumentType::CreditNote->value;
     }
 
     public function getFormat(): string
@@ -31,18 +32,18 @@ class InvoiceEmbeddedZugferdRenderer extends AbstractDocumentRenderer
 
     public function getDependencies(): array
     {
-        return [InvoicePdfRenderer::FORMAT, InvoiceZugferdXmlRenderer::FORMAT];
+        return [PdfRenderer::FORMAT, ZugferdXmlRenderer::FORMAT];
     }
 
     public function renderToString(RenderInput $renderInput, RenderState $renderState): RenderResult
     {
         // TODO: Implement renderToString() method.
-        $pdfResult = $renderState->getRenderedContent(InvoicePdfRenderer::FORMAT);
+        $pdfResult = $renderState->getRenderedContent(PdfRenderer::FORMAT);
         if (!$pdfResult instanceof RenderResult) {
             // todo: error handling
             throw new \RuntimeException('Missing pdf renderer result');
         }
-        $zugferdXmlResult = $renderState->getRenderedContent(InvoiceZugferdXmlRenderer::FORMAT);
+        $zugferdXmlResult = $renderState->getRenderedContent(ZugferdXmlRenderer::FORMAT);
         if (!$zugferdXmlResult instanceof RenderResult) {
             // todo: error handling
             throw new \RuntimeException('Missing zugferdXml renderer result');

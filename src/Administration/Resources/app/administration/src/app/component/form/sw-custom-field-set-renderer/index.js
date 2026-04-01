@@ -113,11 +113,7 @@ export default {
 
     computed: {
         hasParent() {
-            if (this.parentEntity?.id) {
-                return true;
-            }
-
-            return this.isTranslatedCustomFieldInheritanceContext();
+            return !!this.parentEntity?.id || this.isTranslatedCustomFieldInheritanceContext();
         },
 
         visibleCustomFieldSets() {
@@ -243,72 +239,45 @@ export default {
             return Object.values(this.customFields ?? {}).some((value) => value !== null && value !== undefined);
         },
 
-        async loadInheritedCustomFields() {
-            if (!this.isTranslatedCustomFieldInheritanceContext()) {
-                this.inheritedCustomFields = null;
-                this.translatedInheritanceLoadKey = null;
+        resetTranslatedInheritanceState() {
+            this.inheritedCustomFields = null;
+            this.translatedInheritanceLoadKey = null;
+        },
 
-                return;
-            }
-
-            const loadKey = [
+        getTranslatedInheritanceLoadKey() {
+            return [
                 this.entity.getEntityName(),
                 this.entity.id,
                 this.translatedInheritanceLanguageId,
             ].join(':');
+        },
 
-            if (!this.hasOverriddenTranslatedCustomFields()) {
-                if (this.translatedInheritanceLoadKey !== loadKey) {
-                    this.inheritedCustomFields = null;
-                    this.translatedInheritanceLoadKey = null;
-                }
-
-                return;
-            }
-
-            if (this.translatedInheritanceLoadKey === loadKey) {
-                return;
-            }
-
-            this.translatedInheritanceLoadKey = loadKey;
-
-            const context = {
+        getTranslatedInheritanceContext() {
+            return {
                 ...Shopware.Context.api,
                 languageId: this.translatedInheritanceLanguageId,
             };
-
-            try {
-                const inheritedEntity = await this.repositoryFactory
-                    .create(this.entity.getEntityName())
-                    .get(this.entity.id, context);
-
-                if (this.translatedInheritanceLoadKey !== loadKey) {
-                    return;
-                }
-
-                this.inheritedCustomFields = inheritedEntity?.customFields ?? null;
-            } catch (error) {
-                console.error(error);
-
-                if (this.translatedInheritanceLoadKey === loadKey) {
-                    this.inheritedCustomFields = null;
-                }
-            }
         },
 
-        getInheritedCustomField(customFieldName) {
-            const useTranslatedFallback = this.isTranslatedCustomFieldInheritanceContext()
-                && (this.customFields?.[customFieldName] === null || this.customFields?.[customFieldName] === undefined);
-            const inheritedCustomFields = this.parentEntity?.translated?.customFields
-                ?? (useTranslatedFallback
-                    ? this.inheritedCustomFields ?? this.entity?.translated?.customFields
-                    : this.inheritedCustomFields);
-            const value = inheritedCustomFields?.[customFieldName];
+        isInheritedTranslatedCustomField(customFieldName) {
+            return this.customFields?.[customFieldName] === null || this.customFields?.[customFieldName] === undefined;
+        },
 
-            if (value !== null && value !== undefined) {
-                return value;
+        getInheritedCustomFields(customFieldName) {
+            const parentCustomFields = this.parentEntity?.translated?.customFields;
+
+            if (parentCustomFields) {
+                return parentCustomFields;
             }
 
+            if (!this.isTranslatedCustomFieldInheritanceContext() || !this.isInheritedTranslatedCustomField(customFieldName)) {
+                return this.inheritedCustomFields;
+            }
+
+            return this.inheritedCustomFields ?? this.entity?.translated?.customFields;
+        },
+
+        getDefaultInheritedCustomFieldValue(customFieldName) {
             const customFieldInformation = this.getCustomFieldInformation(customFieldName);
             const customFieldType = customFieldInformation.type;
 
@@ -336,6 +305,58 @@ export default {
                     return null;
                 }
             }
+        },
+
+        async loadInheritedCustomFields() {
+            if (!this.isTranslatedCustomFieldInheritanceContext()) {
+                this.resetTranslatedInheritanceState();
+
+                return;
+            }
+
+            const loadKey = this.getTranslatedInheritanceLoadKey();
+
+            if (!this.hasOverriddenTranslatedCustomFields()) {
+                if (this.translatedInheritanceLoadKey !== loadKey) {
+                    this.resetTranslatedInheritanceState();
+                }
+
+                return;
+            }
+
+            if (this.translatedInheritanceLoadKey === loadKey) {
+                return;
+            }
+
+            this.translatedInheritanceLoadKey = loadKey;
+
+            try {
+                const inheritedEntity = await this.repositoryFactory
+                    .create(this.entity.getEntityName())
+                    .get(this.entity.id, this.getTranslatedInheritanceContext());
+
+                if (this.translatedInheritanceLoadKey !== loadKey) {
+                    return;
+                }
+
+                this.inheritedCustomFields = inheritedEntity?.customFields ?? null;
+            } catch (error) {
+                console.error(error);
+
+                if (this.translatedInheritanceLoadKey === loadKey) {
+                    this.inheritedCustomFields = null;
+                }
+            }
+        },
+
+        getInheritedCustomField(customFieldName) {
+            const value = this.getInheritedCustomFields(customFieldName)?.[customFieldName];
+
+            if (value !== null && value !== undefined) {
+                return value;
+            }
+
+            return this.getDefaultInheritedCustomFieldValue(customFieldName);
         },
 
         getCustomFieldInformation(customFieldName) {

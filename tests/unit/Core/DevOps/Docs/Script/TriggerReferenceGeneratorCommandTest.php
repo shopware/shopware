@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -32,20 +33,36 @@ class TriggerReferenceGeneratorCommandTest extends TestCase
 
     public function testExecuteFailsWhenDescriptionsFileDoesNotExist(): void
     {
-        $this->filesystem->method('exists')->willReturn(false);
-        $this->collector->expects($this->never())->method('collect');
+        $this->filesystem->method('readFile')->willThrowException(new IOException('File not found.'));
+        $this->collector->expects($this->once())->method('collect')->willReturn(new BusinessEventCollectorResponse());
 
-        $command = new TriggerReferenceGeneratorCommandTestable($this->collector, $this->filesystem, []);
+        $command = new TriggerReferenceGeneratorCommand($this->collector, $this->filesystem);
         $tester = new CommandTester($command);
 
         static::assertSame(Command::FAILURE, $tester->execute([]));
-        static::assertStringContainsString('Descriptions file is missing', $tester->getDisplay());
-        static::assertStringContainsString('trigger-event-description.php', $tester->getDisplay());
+        static::assertStringContainsString('Descriptions file is missing or unreadable', $tester->getDisplay());
+        static::assertStringContainsString('trigger-event-description.json', $tester->getDisplay());
+    }
+
+    public function testExecuteFailsWhenDescriptionsFileContainsInvalidJson(): void
+    {
+        $this->filesystem->method('readFile')->willReturn('"just a string"');
+
+        $this->collector->expects($this->once())->method('collect')->willReturn(new BusinessEventCollectorResponse());
+
+        $command = new TriggerReferenceGeneratorCommand($this->collector, $this->filesystem);
+        $tester = new CommandTester($command);
+
+        static::assertSame(Command::FAILURE, $tester->execute([]));
+        static::assertStringContainsString('Failed to parse descriptions file', $tester->getDisplay());
     }
 
     public function testExecuteSucceedsAndWritesMarkdownFile(): void
     {
-        $this->filesystem->method('exists')->willReturn(true);
+        $this->filesystem->method('readFile')->willReturn(json_encode([
+            'test.event.one' => 'Triggers when an order enters status "Open"',
+            'test.event.two' => 'Triggers when an order enters status "Cancelled"',
+        ], \JSON_THROW_ON_ERROR));
 
         $response = new BusinessEventCollectorResponse();
         $response->set('test.event.one', new BusinessEventDefinition(
@@ -70,14 +87,7 @@ class TriggerReferenceGeneratorCommandTest extends TestCase
                 $writtenContent = $content;
             });
 
-        $command = new TriggerReferenceGeneratorCommandTestable(
-            $this->collector,
-            $this->filesystem,
-            [
-                'test.event.one' => 'First test event',
-                'test.event.two' => 'Second test event',
-            ]
-        );
+        $command = new TriggerReferenceGeneratorCommand($this->collector, $this->filesystem);
         $tester = new CommandTester($command);
 
         static::assertSame(Command::SUCCESS, $tester->execute([]));
@@ -85,15 +95,15 @@ class TriggerReferenceGeneratorCommandTest extends TestCase
         static::assertStringContainsString('# Trigger Events Reference', $writtenContent);
         static::assertStringContainsString('| Event | Description |', $writtenContent);
         static::assertStringContainsString('test.event.one', $writtenContent);
-        static::assertStringContainsString('First test event', $writtenContent);
+        static::assertStringContainsString('Triggers when an order enters status "Open"', $writtenContent);
         static::assertStringContainsString('test.event.two', $writtenContent);
-        static::assertStringContainsString('Second test event', $writtenContent);
+        static::assertStringContainsString('Triggers when an order enters status "Cancelled"', $writtenContent);
         static::assertStringContainsString('Trigger reference generated', $tester->getDisplay());
     }
 
     public function testExecuteUsesEventClassAsDescriptionFallback(): void
     {
-        $this->filesystem->method('exists')->willReturn(true);
+        $this->filesystem->method('readFile')->willReturn('{}');
 
         $response = new BusinessEventCollectorResponse();
         $response->set('no.description.event', new BusinessEventDefinition(
@@ -111,7 +121,7 @@ class TriggerReferenceGeneratorCommandTest extends TestCase
                 $writtenContent = $content;
             });
 
-        $command = new TriggerReferenceGeneratorCommandTestable($this->collector, $this->filesystem, []);
+        $command = new TriggerReferenceGeneratorCommand($this->collector, $this->filesystem);
         $tester = new CommandTester($command);
 
         static::assertSame(Command::SUCCESS, $tester->execute([]));
@@ -120,24 +130,9 @@ class TriggerReferenceGeneratorCommandTest extends TestCase
         static::assertStringContainsString(\stdClass::class, $writtenContent);
     }
 
-    public function testRealLoadDescriptionsAndOutputPathAreCovered(): void
-    {
-        $this->filesystem->method('exists')->willReturn(true);
-
-        $response = new BusinessEventCollectorResponse();
-        $this->collector->method('collect')->willReturn($response);
-
-        $this->filesystem->expects($this->once())->method('dumpFile');
-
-        $command = new TriggerReferenceGeneratorCommand($this->collector, $this->filesystem);
-        $tester = new CommandTester($command);
-
-        static::assertSame(Command::SUCCESS, $tester->execute([]));
-    }
-
     public function testExecuteSortsRowsByEventName(): void
     {
-        $this->filesystem->method('exists')->willReturn(true);
+        $this->filesystem->method('readFile')->willReturn('{}');
 
         $response = new BusinessEventCollectorResponse();
         $response->set('z.event', new BusinessEventDefinition(name: 'z.event', class: \stdClass::class, data: [], aware: []));
@@ -151,7 +146,7 @@ class TriggerReferenceGeneratorCommandTest extends TestCase
                 $writtenContent = $content;
             });
 
-        $command = new TriggerReferenceGeneratorCommandTestable($this->collector, $this->filesystem, []);
+        $command = new TriggerReferenceGeneratorCommand($this->collector, $this->filesystem);
         $tester = new CommandTester($command);
 
         static::assertSame(Command::SUCCESS, $tester->execute([]));
@@ -162,32 +157,5 @@ class TriggerReferenceGeneratorCommandTest extends TestCase
         static::assertNotFalse($positionA);
         static::assertNotFalse($positionZ);
         static::assertLessThan($positionZ, $positionA);
-    }
-}
-
-/**
- * @internal
- *
- * Overrides description loading to avoid any filesystem access in unit tests.
- */
-class TriggerReferenceGeneratorCommandTestable extends TriggerReferenceGeneratorCommand
-{
-    /**
-     * @param array<string, string> $descriptions
-     */
-    public function __construct(
-        BusinessEventCollector $collector,
-        Filesystem $filesystem,
-        private readonly array $descriptions,
-    ) {
-        parent::__construct($collector, $filesystem);
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    protected function loadDescriptions(): array
-    {
-        return $this->descriptions;
     }
 }

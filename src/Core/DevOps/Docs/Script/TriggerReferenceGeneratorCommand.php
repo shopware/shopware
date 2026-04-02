@@ -10,6 +10,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -22,7 +23,7 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Package('framework')]
 class TriggerReferenceGeneratorCommand extends Command
 {
-    private const EVENT_DESCRIPTIONS = __DIR__ . '/../../Resources/templates/trigger-event-description.php';
+    private const EVENT_DESCRIPTIONS = __DIR__ . '/../../Resources/templates/trigger-event-description.json';
     private const OUTPUT_PATH = __DIR__ . '/../../Resources/generated/trigger-events-reference.md';
 
     public function __construct(
@@ -38,17 +39,24 @@ class TriggerReferenceGeneratorCommand extends Command
 
         $io->comment('Generating Markdown reference for business/flow triggers.');
 
-        if (!$this->filesystem->exists(self::EVENT_DESCRIPTIONS)) {
+        $events = $this->collector->collect(Context::createCLIContext());
+
+        try {
+            $descriptions = json_decode($this->filesystem->readFile(self::EVENT_DESCRIPTIONS), true, flags: \JSON_THROW_ON_ERROR);
+        } catch (IOException) {
             $io->error(\sprintf(
-                'Descriptions file is missing: %s. The generated reference requires trigger-event-description.php.',
+                'Descriptions file is missing or unreadable: %s. The generated reference requires trigger-event-description.json.',
                 self::EVENT_DESCRIPTIONS
             ));
 
             return self::FAILURE;
         }
 
-        $events = $this->collector->collect(Context::createCLIContext());
-        $descriptions = $this->loadDescriptions();
+        if (!\is_array($descriptions)) {
+            $io->error('Failed to parse descriptions file: trigger-event-description.json contains invalid JSON.');
+
+            return self::FAILURE;
+        }
 
         // Sort events by name for stable output
         $rows = [];
@@ -88,16 +96,5 @@ class TriggerReferenceGeneratorCommand extends Command
         $io->success(\sprintf('Trigger reference generated: %s', self::OUTPUT_PATH));
 
         return self::SUCCESS;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    protected function loadDescriptions(): array
-    {
-        /** @var array<string, string> $descriptions */
-        $descriptions = require self::EVENT_DESCRIPTIONS;
-
-        return $descriptions;
     }
 }

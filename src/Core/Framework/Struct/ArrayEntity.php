@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class ArrayEntity extends Entity implements \ArrayAccess
 {
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with next major version, as it is unused
+     */
     protected ?string $_entityName = 'array-entity';
 
     /**

@@ -139,7 +139,6 @@
             <file>tests/integration/Core/Framework/AdditionalPermissionValidationTest.php</file>
             <file>tests/integration/Core/Framework/ApiRoutesHaveASchemaTest.php</file>
             <file>tests/integration/Core/Framework/KernelTest.php</file>
-            <file>tests/integration/Core/Framework/ServiceDefinitionTest.php</file>
             <directory>tests/integration/Core/Framework/Adapter</directory>
             <directory>tests/integration/Core/Framework/Api</directory>
             <directory>tests/integration/Core/Framework/App</directory>

@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Api\MailActionController;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -75,6 +76,44 @@ class MailActionControllerTest extends TestCase
         );
 
         $mailActionController->send($data, $context);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testSendDoesNotPassMediaIdsToExtensionToAvoidDuplication(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $data = new RequestDataBag([
+            'id' => 'random',
+            'mailTemplateData' => [],
+            'mediaIds' => [$mediaId],
+        ]);
+
+        $this->mailService->expects($this->once())
+            ->method('send')
+            ->with(
+                static::callback(static function (array $data) use ($mediaId) {
+                    static::assertInstanceOf(MailAttachmentsConfig::class, $data['attachmentsConfig']);
+
+                    /** @var MailAttachmentsConfig $config */
+                    $config = $data['attachmentsConfig'];
+                    $extension = $config->getExtension();
+
+                    static::assertInstanceOf(MailSendSubscriberConfig::class, $extension);
+                    static::assertSame([], $extension->getMediaIds());
+                    static::assertSame([$mediaId], $data['mediaIds']);
+
+                    return true;
+                }),
+                static::anything(),
+                static::anything()
+            );
+
+        $mailActionController = new MailActionController(
+            $this->mailService,
+            $this->stringTemplateRenderer
+        );
+
+        $mailActionController->send($data, Context::createDefaultContext());
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]

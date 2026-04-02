@@ -550,7 +550,7 @@
             <sw-sidebar-item
                 icon="regular-eye"
                 :title="$t('sw-mail-template.detail.sidebar.titleShowPreview')"
-                :disabled="isLoading || showPreview"
+                :disabled="!previewAllowed"
                 class="sw-mail-template-detail__show-preview-sidebar"
             >
                 <div class="sw-mail-template-detail__show-preview-sidebar-container">

@@ -4,7 +4,6 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ShopwareNamespaceStyleRule;
 
@@ -13,7 +12,6 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ShopwareNamespaceStyleRule;
  *
  * @extends RuleTestCase<ShopwareNamespaceStyleRule>
  */
-#[CoversClass(ShopwareNamespaceStyleRule::class)]
 class ShopwareNamespaceStyleRuleTest extends RuleTestCase
 {
     #[RunInSeparateProcess]

@@ -60,6 +60,7 @@ class ContentTest extends TestCase
             'flow',
             'measurement_system',
             'shared',
+            'product_export_tracking.php',
             'media_test',
             'installed.json',
             'MailerConfigurationCompilerPass.php',

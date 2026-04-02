@@ -349,7 +349,7 @@ class CartLineItemController extends StorefrontController
     /**
      * @param ?array{quantity: int, stackable: bool, removable: bool} $defaultValues
      *
-     * @return array<string|int, mixed>
+     * @return array<string, mixed>
      */
     private function getLineItemArray(RequestDataBag $lineItemData, ?array $defaultValues): array
     {

@@ -21,20 +21,14 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isValid(Request $request, array $captchaConfig): bool
     {
         if (!$request->request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
             return false;
         }
 
-        $captchaConfig = \func_get_args()[1] ?? [];
-
-        $secretKey = !empty($captchaConfig['config']['secretKey']) ? $captchaConfig['config']['secretKey'] : null;
-
-        if (!\is_string($secretKey)) {
+        $secretKey = $captchaConfig['config']['secretKey'] ?? null;
+        if (!\is_string($secretKey) || $secretKey === '') {
             return false;
         }
 
@@ -48,17 +42,20 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
             ]);
 
             $responseRaw = $response->getBody()->getContents();
-            $response = json_decode($responseRaw, true);
+            try {
+                $response = json_decode($responseRaw, true, flags: \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                $response = [];
+            }
 
-            return $response && (bool) $response['success'];
+            return \is_array($response)
+                && $response !== []
+                && $response['success'];
         } catch (ClientExceptionInterface) {
             return false;
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName(): string
     {
         return self::CAPTCHA_NAME;

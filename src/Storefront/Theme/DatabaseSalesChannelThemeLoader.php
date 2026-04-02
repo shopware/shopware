@@ -63,10 +63,10 @@ class DatabaseSalesChannelThemeLoader
             $themes['grandParentNames'] = $this->getGrantParents($themes['grandParentThemeId']);
         }
 
-        $usedThemes = array_filter([
+        $usedThemes = array_values(array_filter([
             $themes['themeName'] ?? null,
             $themes['parentThemeName'] ?? null,
-        ]);
+        ]));
 
         if (isset($themes['grandParentNames'])) {
             $usedThemes = array_merge($usedThemes, $themes['grandParentNames']);
@@ -89,10 +89,10 @@ class DatabaseSalesChannelThemeLoader
             'id' => Uuid::fromHexToBytes($grandParentThemeId),
         ]);
 
-        $filtered = array_filter([
+        $filtered = array_values(array_filter([
             $grandParents['themeName'] ?? null,
             $grandParents['parentThemeName'] ?? null,
-        ]);
+        ]));
 
         if (\is_array($grandParents) && isset($grandParents['grandParentThemeId']) && \is_string($grandParents['grandParentThemeId'])) {
             $filtered = array_merge($filtered, $this->getGrantParents($grandParents['grandParentThemeId']));

@@ -90,4 +90,18 @@ class DatabaseSalesChannelThemeLoaderTest extends TestCase
         $secondAttempt = $this->themeLoader->load($otherSalesChannelId);
         static::assertSame([], $secondAttempt);
     }
+
+    public function testLoadWithMissingThemeNameUsesParentTheme(): void
+    {
+        $expectedDB = [
+            'themeName' => null,
+            'parentThemeName' => 'SwagTheme',
+            'themeId' => Uuid::randomHex(),
+        ];
+
+        $this->connection->expects($this->once())->method('fetchAssociative')->willReturn($expectedDB);
+
+        $actualTheme = $this->themeLoader->load(Uuid::randomHex());
+        static::assertSame(['SwagTheme'], $actualTheme);
+    }
 }

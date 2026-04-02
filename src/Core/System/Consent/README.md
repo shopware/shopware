@@ -38,7 +38,7 @@
    public function getScopeName(): string;          // Name of the scope (see ConsentScope implementations)
    public function getSince(): \DateTimeImmutable;  // Introduction date of the consent
    public function getRequiredPermissions(): array; // Array of permission strings required to accept/revoke this consent
-   public function getLatestRevision(): ?string;    // Current revision of the consent, or null if this consent does not use revisions
+   public function getLatestRevision(): ?string;    // Current revision of the consent, or null if unused; remote-backed revisions must be cached
  }
  ```
 

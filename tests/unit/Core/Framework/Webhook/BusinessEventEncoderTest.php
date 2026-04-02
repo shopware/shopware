@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\System\Tax\TaxEntity;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -41,8 +40,7 @@ class BusinessEventEncoderTest extends TestCase
 
         $entityEncoder = $this->createMock(JsonEntityEncoder::class);
         $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $requestStack = $this->createMock(RequestStack::class);
-        $businessEventEncoder = new BusinessEventEncoder($entityEncoder, $definitionRegistry, $requestStack);
+        $businessEventEncoder = new BusinessEventEncoder($entityEncoder, $definitionRegistry);
 
         $data = $businessEventEncoder->encodeData($data, $stored);
 

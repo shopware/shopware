@@ -40,7 +40,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
-use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
@@ -320,54 +319,12 @@ class InfoControllerTest extends TestCase
                 'name' => 'checkout.customer.login',
                 'class' => CustomerLoginEvent::class,
                 'data' => [
-                    'customerId' => [
-                        'nullable' => false,
-                        'type' => 'string',
-                        'referenceClass' => CustomerDefinition::class,
-                    ],
                     'customer' => [
-                        'nullable' => true,
                         'type' => 'entity',
                         'entityClass' => CustomerDefinition::class,
                         'entityName' => 'customer',
                     ],
-                    'mailStruct' => [
-                        'nullable' => false,
-                        'type' => 'object',
-                        'data' => [
-                            'recipients' => [
-                                'nullable' => false,
-                                'type' => 'associative_array',
-                                'of' => [
-                                    'nullable' => false,
-                                    'type' => 'string',
-                                ],
-                                'key' => [
-                                    'nullable' => false,
-                                    'type' => 'string',
-                                ],
-                            ],
-                            'bcc' => [
-                                'nullable' => true,
-                                'type' => 'string',
-                            ],
-                            'cc' => [
-                                'nullable' => true,
-                                'type' => 'string',
-                            ],
-                        ],
-                    ],
-                    'salesChannelId' => [
-                        'nullable' => true,
-                        'type' => 'string',
-                        'referenceClass' => SalesChannelDefinition::class,
-                    ],
-                    'timezone' => [
-                        'nullable' => false,
-                        'type' => 'string',
-                    ],
                     'contextToken' => [
-                        'nullable' => false,
                         'type' => 'string',
                     ],
                 ],
@@ -389,104 +346,10 @@ class InfoControllerTest extends TestCase
                 'name' => 'checkout.order.placed',
                 'class' => CheckoutOrderPlacedEvent::class,
                 'data' => [
-                    'orderId' => [
-                        'nullable' => false,
-                        'type' => 'string',
-                        'referenceClass' => OrderDefinition::class,
-                    ],
                     'order' => [
-                        'nullable' => true,
                         'type' => 'entity',
                         'entityClass' => OrderDefinition::class,
                         'entityName' => 'order',
-                    ],
-                    'mailStruct' => [
-                        'nullable' => false,
-                        'type' => 'object',
-                        'data' => [
-                            'recipients' => [
-                                'nullable' => false,
-                                'type' => 'associative_array',
-                                'of' => [
-                                    'nullable' => false,
-                                    'type' => 'string',
-                                ],
-                                'key' => [
-                                    'nullable' => false,
-                                    'type' => 'string',
-                                ],
-                            ],
-                            'bcc' => [
-                                'nullable' => true,
-                                'type' => 'string',
-                            ],
-                            'cc' => [
-                                'nullable' => true,
-                                'type' => 'string',
-                            ],
-                        ],
-                    ],
-                    'salesChannelId' => [
-                        'nullable' => true,
-                        'type' => 'string',
-                        'referenceClass' => 'Shopware\Core\System\SalesChannel\SalesChannelDefinition',
-                    ],
-                    'timezone' => [
-                        'nullable' => false,
-                        'type' => 'string',
-                    ],
-                    'customerId' => [
-                        'nullable' => false,
-                        'type' => 'string',
-                        'referenceClass' => 'Shopware\Core\Checkout\Customer\CustomerDefinition',
-                    ],
-                    'customer' => [
-                        'nullable' => true,
-                        'type' => 'entity',
-                        'entityClass' => 'Shopware\Core\Checkout\Customer\CustomerDefinition',
-                        'entityName' => 'customer',
-                    ],
-                    'customerGroupId' => [
-                        'nullable' => false,
-                        'type' => 'string',
-                        'referenceClass' => 'Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition',
-                    ],
-                    'customerGroup' => [
-                        'nullable' => true,
-                        'type' => 'entity',
-                        'entityClass' => 'Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition',
-                        'entityName' => 'customer_group',
-                    ],
-                    'a11yDocumentIds' => [
-                        'nullable' => false,
-                        'type' => 'array',
-                        'of' => [
-                            'nullable' => false,
-                            'type' => 'string',
-                            'referenceClass' => 'Shopware\Core\Checkout\Document\DocumentDefinition',
-                        ],
-                    ],
-                    'a11yDocuments' => [
-                        'nullable' => false,
-                        'type' => 'array',
-                        'of' => [
-                            'nullable' => false,
-                            'type' => 'object',
-                            'data' => [
-                                'documentId' => [
-                                    'nullable' => false,
-                                    'type' => 'string',
-                                ],
-                                'deepLinkCode' => [
-                                    'nullable' => false,
-                                    'type' => 'string',
-                                ],
-                                'fileExtension' => [
-                                    'nullable' => false,
-                                    'type' => 'string',
-                                ],
-                            ],
-                        ],
                     ],
                 ],
                 'aware' => [
@@ -509,93 +372,10 @@ class InfoControllerTest extends TestCase
                 'name' => 'state_enter.order_delivery.state.shipped_partially',
                 'class' => OrderStateMachineStateChangeEvent::class,
                 'data' => [
-                    'orderId' => [
-                        'nullable' => false,
-                        'type' => 'string',
-                        'referenceClass' => 'Shopware\Core\Checkout\Order\OrderDefinition',
-                    ],
                     'order' => [
-                        'nullable' => true,
                         'type' => 'entity',
-                        'entityClass' => 'Shopware\Core\Checkout\Order\OrderDefinition',
+                        'entityClass' => OrderDefinition::class,
                         'entityName' => 'order',
-                    ],
-                    'mailStruct' => [
-                        'nullable' => false,
-                        'type' => 'object',
-                        'data' => [
-                            'recipients' => [
-                                'nullable' => false,
-                                'type' => 'associative_array',
-                                'of' => [
-                                    'nullable' => false,
-                                    'type' => 'string',
-                                ],
-                                'key' => [
-                                    'nullable' => false,
-                                    'type' => 'string',
-                                ],
-                            ],
-                            'bcc' => [
-                                'nullable' => true,
-                                'type' => 'string',
-                            ],
-                            'cc' => [
-                                'nullable' => true,
-                                'type' => 'string',
-                            ],
-                        ],
-                    ],
-                    'salesChannelId' => [
-                        'nullable' => true,
-                        'type' => 'string',
-                        'referenceClass' => 'Shopware\Core\System\SalesChannel\SalesChannelDefinition',
-                    ],
-                    'timezone' => [
-                        'nullable' => false,
-                        'type' => 'string',
-                    ],
-                    'customerId' => [
-                        'nullable' => false,
-                        'type' => 'string',
-                        'referenceClass' => 'Shopware\Core\Checkout\Customer\CustomerDefinition',
-                    ],
-                    'customer' => [
-                        'nullable' => true,
-                        'type' => 'entity',
-                        'entityClass' => 'Shopware\Core\Checkout\Customer\CustomerDefinition',
-                        'entityName' => 'customer',
-                    ],
-                    'a11yDocumentIds' => [
-                        'nullable' => false,
-                        'type' => 'array',
-                        'of' => [
-                            'nullable' => false,
-                            'type' => 'string',
-                            'referenceClass' => 'Shopware\Core\Checkout\Document\DocumentDefinition',
-                        ],
-                    ],
-                    'a11yDocuments' => [
-                        'nullable' => false,
-                        'type' => 'array',
-                        'of' => [
-                            'nullable' => false,
-                            'type' => 'object',
-                            'data' => [
-                                'documentId' => [
-                                    'nullable' => false,
-                                    'type' => 'string',
-                                ],
-                                'deepLinkCode' => [
-                                    'nullable' => false,
-                                    'type' => 'string',
-                                ],
-                                'fileExtension' => [
-                                    'nullable' => false,
-                                    'type' => 'string',
-                                ],
-                            ],
-                        ],
                     ],
                 ],
                 'aware' => [

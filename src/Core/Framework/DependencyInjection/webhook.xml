@@ -48,7 +48,6 @@
         <service id="Shopware\Core\Framework\Webhook\BusinessEventEncoder">
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\WebhookDefinition">

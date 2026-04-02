@@ -103,8 +103,7 @@ class HookableEventDocTest extends TestCase
         static::assertSame('`perm`', $doc->getPermissions());
         static::assertSame(json_encode([
             'foo' => 'string',
-            'bar' => EntityType::TYPE,
-            'baz' => EntityCollectionType::TYPE,
+            EntityType::TYPE => 'dummy',
         ], \JSON_THROW_ON_ERROR), $doc->getPayload());
     }
 
@@ -168,7 +167,7 @@ class HookableEventDocTest extends TestCase
         ];
         $result = self::callParsingSimpleBusinessEventPayload($dataTypes);
         // Only the last wins, so EntityType::TYPE => 'dummy'
-        static::assertSame(['foo' => 'entity', 'bar' => 'collection'], $result);
+        static::assertSame(['entity' => 'dummy'], ['entity' => $result[EntityType::TYPE]]);
     }
 }
 

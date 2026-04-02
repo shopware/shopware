@@ -27,7 +27,6 @@ class DocsException extends HttpException
     final public const MISSING_RETURN_ANNOTATION_FOR_METHOD = 'DEVOPS_DOCS_MISSING_RETURN_ANNOTATION_FOR_METHOD';
     final public const CONFIGURED_EXAMPLE_FILE_NOT_FOUND = 'DEVOPS_DOCS_CONFIGURED_EXAMPLE_FILE_NOT_FOUND';
     final public const CONFIGURED_EXAMPLE_FILE_NOT_UNIQUE = 'DEVOPS_DOCS_CONFIGURED_EXAMPLE_FILE_NOT_UNIQUE';
-    final public const CANNOT_PARSE_PAYLOAD_OF_EVENT = 'DEVOPS_DOCS_CANNOT_PARSE_PAYLOAD_OF_EVENT';
 
     public static function noHookClassesFound(): self
     {
@@ -216,18 +215,6 @@ class DocsException extends HttpException
                 'class' => $class,
                 'pattern' => $pattern,
                 'files' => implode('", "', $files),
-            ],
-        );
-    }
-
-    public static function canNotParsePayloadOfEvent(string $eventType): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::CANNOT_PARSE_PAYLOAD_OF_EVENT,
-            'Can not parsing payload for {{ eventType }}.',
-            [
-                'eventType' => $eventType,
             ],
         );
     }

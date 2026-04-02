@@ -8,6 +8,11 @@
 
 ## Administration
 
+### Prevent full Administration reload when switching iframe locations
+
+Switching the `locationId` of an iframe rendered via the Meteor Admin SDK no longer triggers an unnecessary full reload of the Administration.
+This fixes interruptions when navigating between iframe locations in extension-based administration apps.
+
 ## Storefront
 
 ### Order cancellation only shown for open orders

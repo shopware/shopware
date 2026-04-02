@@ -308,10 +308,7 @@ class ProductListingLoader
     {
         $mapping = array_combine($keys, $keys);
 
-        $explicitProductIds = array_fill_keys(
-            array_intersect($keys, ExplicitProductIdResolver::fromCriteria($criteria)),
-            true
-        );
+        $explicitProductIds = array_values(array_intersect($keys, ExplicitProductIdResolver::fromCriteria($criteria)));
 
         $hasOptionFilter = $this->hasOptionFilter($criteria);
 
@@ -325,7 +322,7 @@ class ProductListingLoader
             );
         }
 
-        foreach ($explicitProductIds as $id => $_) {
+        foreach ($explicitProductIds as $id) {
             $mapping[$id] = $id;
         }
 

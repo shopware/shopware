@@ -38,18 +38,17 @@ class TriggerReferenceGeneratorCommand extends Command
 
         $io->comment('Generating Markdown reference for business/flow triggers.');
 
-        if (!$this->filesystem->exists($this->getEventDescriptionsPath())) {
+        if (!$this->filesystem->exists(self::EVENT_DESCRIPTIONS)) {
             $io->error(\sprintf(
                 'Descriptions file is missing: %s. The generated reference requires trigger-event-description.php.',
-                $this->getEventDescriptionsPath()
+                self::EVENT_DESCRIPTIONS
             ));
 
             return self::FAILURE;
         }
 
         $events = $this->collector->collect(Context::createCLIContext());
-        /** @var array<string, string> $descriptions */
-        $descriptions = require $this->getEventDescriptionsPath();
+        $descriptions = $this->loadDescriptions();
 
         // Sort events by name for stable output
         $rows = [];
@@ -79,25 +78,26 @@ class TriggerReferenceGeneratorCommand extends Command
         }
 
         $content = \implode(\PHP_EOL, $lines) . \PHP_EOL;
-        $this->filesystem->dumpFile($this->getOutputPath(), $content);
+        $this->filesystem->dumpFile(self::OUTPUT_PATH, $content);
 
         // Also print to stdout for convenience
         foreach ($lines as $line) {
             $io->writeln($line);
         }
 
-        $io->success(\sprintf('Trigger reference generated: %s', $this->getOutputPath()));
+        $io->success(\sprintf('Trigger reference generated: %s', self::OUTPUT_PATH));
 
         return self::SUCCESS;
     }
 
-    protected function getEventDescriptionsPath(): string
+    /**
+     * @return array<string, string>
+     */
+    protected function loadDescriptions(): array
     {
-        return self::EVENT_DESCRIPTIONS;
-    }
+        /** @var array<string, string> $descriptions */
+        $descriptions = require self::EVENT_DESCRIPTIONS;
 
-    protected function getOutputPath(): string
-    {
-        return self::OUTPUT_PATH;
+        return $descriptions;
     }
 }

@@ -19,59 +19,23 @@ use Symfony\Component\Filesystem\Filesystem;
 #[CoversClass(TriggerReferenceGeneratorCommand::class)]
 class TriggerReferenceGeneratorCommandTest extends TestCase
 {
-    private static string $fixtureDir;
-
-    private static string $descriptionsPath;
-
-    private static string $outputPath;
-
     private BusinessEventCollector&MockObject $collector;
 
-    public static function setUpBeforeClass(): void
-    {
-        self::$fixtureDir = __DIR__ . '/../../../../_fixtures';
-        if (!is_dir(self::$fixtureDir)) {
-            mkdir(self::$fixtureDir, 0777, true);
-        }
-        self::$descriptionsPath = self::$fixtureDir . '/trigger-event-description-test.php';
-        self::$outputPath = self::$fixtureDir . '/trigger-events-reference-test.md';
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        foreach ([self::$descriptionsPath, self::$outputPath] as $path) {
-            if (is_file($path)) {
-                unlink($path);
-            }
-        }
-    }
+    private Filesystem&MockObject $filesystem;
 
     protected function setUp(): void
     {
         parent::setUp();
-        foreach ([self::$descriptionsPath, self::$outputPath] as $path) {
-            if (is_file($path)) {
-                unlink($path);
-            }
-        }
         $this->collector = $this->createMock(BusinessEventCollector::class);
+        $this->filesystem = $this->createMock(Filesystem::class);
     }
 
     public function testExecuteFailsWhenDescriptionsFileDoesNotExist(): void
     {
-        $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->method('exists')
-            ->with(self::$descriptionsPath)
-            ->willReturn(false);
-
+        $this->filesystem->method('exists')->willReturn(false);
         $this->collector->expects($this->never())->method('collect');
 
-        $command = new TriggerReferenceGeneratorCommandTestable(
-            $this->collector,
-            $filesystem,
-            self::$descriptionsPath,
-            self::$outputPath
-        );
+        $command = new TriggerReferenceGeneratorCommandTestable($this->collector, $this->filesystem, []);
         $tester = new CommandTester($command);
 
         static::assertSame(Command::FAILURE, $tester->execute([]));
@@ -81,66 +45,149 @@ class TriggerReferenceGeneratorCommandTest extends TestCase
 
     public function testExecuteSucceedsAndWritesMarkdownFile(): void
     {
-        file_put_contents(self::$descriptionsPath, <<<'PHP'
-<?php declare(strict_types=1);
-return [
-    'test.event.one' => 'First test event',
-    'test.event.two' => 'Second test event',
-];
-PHP);
+        $this->filesystem->method('exists')->willReturn(true);
 
         $response = new BusinessEventCollectorResponse();
-        $response->set('test.event.one', new BusinessEventDefinition('test.event.one', \stdClass::class, [], []));
-        $response->set('test.event.two', new BusinessEventDefinition('test.event.two', \stdClass::class, [], []));
+        $response->set('test.event.one', new BusinessEventDefinition(
+            name: 'test.event.one',
+            class: \stdClass::class,
+            data: [],
+            aware: []
+        ));
+        $response->set('test.event.two', new BusinessEventDefinition(
+            name: 'test.event.two',
+            class: \stdClass::class,
+            data: [],
+            aware: []
+        ));
 
         $this->collector->method('collect')->willReturn($response);
 
+        $writtenContent = null;
+        $this->filesystem->expects($this->once())
+            ->method('dumpFile')
+            ->willReturnCallback(static function (string $path, string $content) use (&$writtenContent): void {
+                $writtenContent = $content;
+            });
+
         $command = new TriggerReferenceGeneratorCommandTestable(
             $this->collector,
-            new Filesystem(),
-            self::$descriptionsPath,
-            self::$outputPath
+            $this->filesystem,
+            [
+                'test.event.one' => 'First test event',
+                'test.event.two' => 'Second test event',
+            ]
         );
         $tester = new CommandTester($command);
 
         static::assertSame(Command::SUCCESS, $tester->execute([]));
-        static::assertFileExists(self::$outputPath);
-
-        $content = file_get_contents(self::$outputPath);
-        static::assertNotFalse($content);
-        static::assertStringContainsString('# Trigger Events Reference', $content);
-        static::assertStringContainsString('| Event | Description |', $content);
-        static::assertStringContainsString('test.event.one', $content);
-        static::assertStringContainsString('First test event', $content);
-        static::assertStringContainsString('test.event.two', $content);
-        static::assertStringContainsString('Second test event', $content);
+        static::assertIsString($writtenContent);
+        static::assertStringContainsString('# Trigger Events Reference', $writtenContent);
+        static::assertStringContainsString('| Event | Description |', $writtenContent);
+        static::assertStringContainsString('test.event.one', $writtenContent);
+        static::assertStringContainsString('First test event', $writtenContent);
+        static::assertStringContainsString('test.event.two', $writtenContent);
+        static::assertStringContainsString('Second test event', $writtenContent);
         static::assertStringContainsString('Trigger reference generated', $tester->getDisplay());
+    }
+
+    public function testExecuteUsesEventClassAsDescriptionFallback(): void
+    {
+        $this->filesystem->method('exists')->willReturn(true);
+
+        $response = new BusinessEventCollectorResponse();
+        $response->set('no.description.event', new BusinessEventDefinition(
+            name: 'no.description.event',
+            class: \stdClass::class,
+            data: [],
+            aware: []
+        ));
+
+        $this->collector->method('collect')->willReturn($response);
+
+        $writtenContent = null;
+        $this->filesystem->method('dumpFile')
+            ->willReturnCallback(static function (string $path, string $content) use (&$writtenContent): void {
+                $writtenContent = $content;
+            });
+
+        $command = new TriggerReferenceGeneratorCommandTestable($this->collector, $this->filesystem, []);
+        $tester = new CommandTester($command);
+
+        static::assertSame(Command::SUCCESS, $tester->execute([]));
+        static::assertIsString($writtenContent);
+        static::assertStringContainsString('no.description.event', $writtenContent);
+        static::assertStringContainsString(\stdClass::class, $writtenContent);
+    }
+
+    public function testRealLoadDescriptionsAndOutputPathAreCovered(): void
+    {
+        $this->filesystem->method('exists')->willReturn(true);
+
+        $response = new BusinessEventCollectorResponse();
+        $this->collector->method('collect')->willReturn($response);
+
+        $this->filesystem->expects($this->once())->method('dumpFile');
+
+        $command = new TriggerReferenceGeneratorCommand($this->collector, $this->filesystem);
+        $tester = new CommandTester($command);
+
+        static::assertSame(Command::SUCCESS, $tester->execute([]));
+    }
+
+    public function testExecuteSortsRowsByEventName(): void
+    {
+        $this->filesystem->method('exists')->willReturn(true);
+
+        $response = new BusinessEventCollectorResponse();
+        $response->set('z.event', new BusinessEventDefinition(name: 'z.event', class: \stdClass::class, data: [], aware: []));
+        $response->set('a.event', new BusinessEventDefinition(name: 'a.event', class: \stdClass::class, data: [], aware: []));
+
+        $this->collector->method('collect')->willReturn($response);
+
+        $writtenContent = null;
+        $this->filesystem->method('dumpFile')
+            ->willReturnCallback(static function (string $path, string $content) use (&$writtenContent): void {
+                $writtenContent = $content;
+            });
+
+        $command = new TriggerReferenceGeneratorCommandTestable($this->collector, $this->filesystem, []);
+        $tester = new CommandTester($command);
+
+        static::assertSame(Command::SUCCESS, $tester->execute([]));
+        static::assertIsString($writtenContent);
+
+        $positionA = strpos($writtenContent, 'a.event');
+        $positionZ = strpos($writtenContent, 'z.event');
+        static::assertNotFalse($positionA);
+        static::assertNotFalse($positionZ);
+        static::assertLessThan($positionZ, $positionA);
     }
 }
 
 /**
  * @internal
  *
- * Allows overriding description and output paths to avoid writing to production paths.
+ * Overrides description loading to avoid any filesystem access in unit tests.
  */
 class TriggerReferenceGeneratorCommandTestable extends TriggerReferenceGeneratorCommand
 {
+    /**
+     * @param array<string, string> $descriptions
+     */
     public function __construct(
         BusinessEventCollector $collector,
         Filesystem $filesystem,
-        private readonly string $eventDescriptionsPath,
-        private readonly string $outputPath,
+        private readonly array $descriptions,
     ) {
         parent::__construct($collector, $filesystem);
     }
 
-    protected function getEventDescriptionsPath(): string
+    /**
+     * @return array<string, string>
+     */
+    protected function loadDescriptions(): array
     {
-        return $this->eventDescriptionsPath;
-    }
-
-    protected function getOutputPath(): string
-    {
-        return $this->outputPath;
+        return $this->descriptions;
     }
 }

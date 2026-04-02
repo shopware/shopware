@@ -10,9 +10,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider as FrameworkShopIdProvider
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\UsageData\Api\ConsentController;
 use Shopware\Core\System\UsageData\Client\GatewayClient;
-use Shopware\Core\System\UsageData\Consent\BannerService;
 use Shopware\Core\System\UsageData\Consent\ConsentReporter;
 use Shopware\Core\System\UsageData\EntitySync\CollectEntityDataMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessageHandler;
@@ -37,19 +35,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
-
-    $services->set(ConsentController::class)
-        ->public()
-        ->args([
-            new Reference(ConsentService::class),
-            new Reference(BannerService::class),
-        ])
-        ->call('setContainer', [new Reference('service_container')]);
-
-    $services->set(BannerService::class)
-        ->args([
-            new Reference('user_config.repository'),
-        ]);
 
     $services->set(EntityDeleteSubscriber::class)
         ->args([

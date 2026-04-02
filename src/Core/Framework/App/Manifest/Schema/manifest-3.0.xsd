@@ -139,6 +139,13 @@
                     </xs:unique>
                 </xs:element>
                 <xs:element name="gateways" type="gateways" minOccurs="0"/>
+                <xs:element name="requirements" type="requirements" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            Define requirements your app needs to function properly.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
             </xs:all>
             <xs:attribute name="validates-permissions" use="optional">
                 <xs:simpleType>
@@ -600,6 +607,12 @@
             <xs:element type="xs:string" name="name"/>
             <xs:element type="xs:int" name="priority"/>
             <xs:element type="xs:anyURI" name="process-url"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="requirements">
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <!-- Allow any requirement element; presence means enabled -->
+            <xs:any processContents="lax"/>
         </xs:choice>
     </xs:complexType>
 </xs:schema>

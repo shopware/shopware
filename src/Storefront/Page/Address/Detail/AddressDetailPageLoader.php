@@ -43,7 +43,7 @@ class AddressDetailPageLoader
         private readonly AbstractSalutationRoute $salutationRoute,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractListAddressRoute $listAddressRoute,
-        private readonly AbstractSalutationsSorter $salutationSorter,
+        private readonly AbstractSalutationsSorter $salutationsSorter,
         private readonly AbstractTranslator $translator
     ) {
     }
@@ -97,7 +97,7 @@ class AddressDetailPageLoader
     {
         $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
 
-        return $this->salutationSorter->sort($salutations);
+        return $this->salutationsSorter->sort($salutations);
     }
 
     /**

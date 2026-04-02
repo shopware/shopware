@@ -47,7 +47,7 @@ class CheckoutRegisterPageLoader
         private readonly AbstractSalutationRoute $salutationRoute,
         private readonly AbstractCountryRoute $countryRoute,
         private readonly AbstractTranslator $translator,
-        private readonly AbstractSalutationsSorter $salutationSorter
+        private readonly AbstractSalutationsSorter $salutationsSorter
     ) {
     }
 
@@ -121,7 +121,7 @@ class CheckoutRegisterPageLoader
     {
         $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
 
-        return $this->salutationSorter->sort($salutations);
+        return $this->salutationsSorter->sort($salutations);
     }
 
     private function getCountries(SalesChannelContext $salesChannelContext): CountryCollection

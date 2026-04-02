@@ -33,7 +33,7 @@ class AccountProfilePageLoader
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractSalutationRoute $salutationRoute,
-        private readonly AbstractSalutationsSorter $salutationSorter,
+        private readonly AbstractSalutationsSorter $salutationsSorter,
         private readonly AbstractTranslator $translator
     ) {
     }
@@ -88,6 +88,6 @@ class AccountProfilePageLoader
             ->load($event->getStoreApiRequest(), $context, $event->getCriteria())
             ->getSalutations();
 
-        return $this->salutationSorter->sort($salutations);
+        return $this->salutationsSorter->sort($salutations);
     }
 }

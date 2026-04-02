@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\DevOps\Docs\App;
 
-use Shopware\Core\DevOps\Docs\DocsException;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
+use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
+use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -59,7 +61,7 @@ class HookableEventDoc
                 json_encode(HookableEventDoc::parsingSimpleEntityWrittenEvent($eventInfo[0], $eventInfo[1]), \JSON_THROW_ON_ERROR)
             );
         } catch (\JsonException) {
-            throw DocsException::canNotParsePayloadOfEvent('written event');
+            throw new \RuntimeException('Can not parsing payload for written event');
         }
     }
 
@@ -76,7 +78,7 @@ class HookableEventDoc
                 json_encode(HookableEventDoc::parsingSimpleBusinessEventPayload($event->getData()), \JSON_THROW_ON_ERROR)
             );
         } catch (\JsonException) {
-            throw DocsException::canNotParsePayloadOfEvent('business event');
+            throw new \RuntimeException('Can not parsing payload for business event');
         }
     }
 
@@ -87,9 +89,20 @@ class HookableEventDoc
      */
     private static function parsingSimpleBusinessEventPayload(array $dataTypes): array
     {
-        return array_map(function ($dataType) {
-            return $dataType['type'];
-        }, $dataTypes);
+        $data = [];
+        foreach ($dataTypes as $name => $dataType) {
+            if ($dataType['type'] === EntityType::TYPE || $dataType['type'] === EntityCollectionType::TYPE) {
+                /** @var EntityDefinition $definition */
+                $definition = new $dataType['entityClass']();
+                $data[EntityType::TYPE] = $definition->getEntityName();
+
+                continue;
+            }
+
+            $data[$name] = $dataType['type'];
+        }
+
+        return $data;
     }
 
     /**

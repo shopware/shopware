@@ -27,7 +27,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class ExplicitProductListingIdMergerTest extends TestCase
 {
     /**
-     * @var MockObject&SalesChannelRepository<ProductCollection>
+     * @var MockObject&SalesChannelRepository<EntityCollection<ProductEntity>>
      */
     private MockObject&SalesChannelRepository $productRepository;
 
@@ -403,7 +403,7 @@ class ExplicitProductListingIdMergerTest extends TestCase
     /**
      * @param array<string, string> $displayGroups
      *
-     * @return EntitySearchResult<PartialEntity>
+     * @return EntitySearchResult<EntityCollection<PartialEntity>>
      */
     private function createDisplayGroupSearchResult(array $displayGroups): EntitySearchResult
     {

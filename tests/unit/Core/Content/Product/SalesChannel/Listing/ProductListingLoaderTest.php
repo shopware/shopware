@@ -397,6 +397,8 @@ class ProductListingLoaderTest extends TestCase
 
     /**
      * @param list<string> $ids
+     * 
+     * @return EntitySearchResult<EntityCollection<ProductEntity>>
      */
     private function createProductSearchResult(Criteria $criteria, array $ids): EntitySearchResult
     {
@@ -410,6 +412,8 @@ class ProductListingLoaderTest extends TestCase
 
     /**
      * @param array<string, string> $displayGroups
+     *
+     * @return EntitySearchResult<EntityCollection<PartialEntity>>
      */
     private function createDisplayGroupSearchResult(array $displayGroups): EntitySearchResult
     {

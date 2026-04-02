@@ -183,6 +183,8 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
 
     /**
      * @internal should not be used directly, loop over an array facade directly inside twig instead
+     *
+     * @return \Generator<array<string|int, mixed>>
      */
     public function getIterator(): \Generator
     {

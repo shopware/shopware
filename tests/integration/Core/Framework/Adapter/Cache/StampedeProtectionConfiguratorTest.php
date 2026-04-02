@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\StampedeProtectionConfigurator;
@@ -11,7 +10,6 @@ use Symfony\Component\Cache\LockRegistry;
 /**
  * @internal
  */
-#[CoversClass(StampedeProtectionConfigurator::class)]
 class StampedeProtectionConfiguratorTest extends TestCase
 {
     private const TEST_LOCK_FILES = ['/tmp/test-lock-1'];

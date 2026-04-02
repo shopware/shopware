@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Order;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Order\OrderAddressService;
@@ -20,7 +19,6 @@ use Shopware\Core\Test\Integration\Traits\OrderFixture;
 /**
  * @internal
  */
-#[CoversClass(OrderAddressService::class)]
 #[Package('checkout')]
 class OrderAddressServiceTest extends TestCase
 {

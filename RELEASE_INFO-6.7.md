@@ -1,4 +1,61 @@
-# 6.7.9.0 (upcoming)
+# 6.7.10.0 (upcoming)
+
+## Features
+
+## API
+
+## Core
+
+## Administration
+
+## Storefront
+
+### Order cancellation only shown for open orders
+
+The account order cancellation action is now only shown for orders in state `open`.
+This prevents customers from being offered an invalid cancel action for completed orders.
+
+### Live purchase limits for closeout products on the product detail page
+
+The buy-widget quantity selector now fetches live `minPurchase`, `purchaseSteps`, and `maxPurchase` values for closeout products (internally uses new Store API endpoint `GET /store-api/product/purchase-limit`) on first user interaction (focus or click).
+This ensures the selector reflects actual stock even when the PDP HTML is served from HTTP cache.
+
+The fetch is triggered by the `QuantitySelectorPlugin` when a `purchaseLimitUrl` option is set on the quantity selector element.
+This is injected via `data-quantity-selector-options` by `buy-widget-form.html.twig` for closeout products.
+If you override `buy_widget_buy_container` or related blocks in `buy-widget-form.html.twig`,
+preserve the `data-quantity-selector-options` attribute with a `purchaseLimitUrl` key and the `js-quantity-stock-adjusted-template` `<template>` element to use this functionality.
+
+### GLTF Animations
+
+User are now able to play animations from their 3D models in the Storefront.
+Simply upload a model with one or multiple animations baked into the file, bind the file to a product and display it in the Storefront.
+
+## App System
+
+### App requirements validation
+
+Apps can now declare requirements in their manifest via a new `<requirements>` element. Requirements are validated during app installation and updates in production. If a requirement is not met, the process fails with `FRAMEWORK__APP_REQUIREMENTS_NOT_MET` and an actionable message.
+
+The first introduced requirement, `<public-access/>`, verifies that `APP_URL` uses HTTPS, does not point to an IP or reserved/local development host, and that `/api/_info/health-check` returns HTTP 200 when called from the Shopware server. This helps catch misconfigurations before apps that rely on webhooks or other external communication fail silently.
+
+```xml
+<requirements>
+    <public-access/>
+</requirements>
+```
+
+Unknown requirements are ignored and logged as warnings.
+
+## Hosting & Configuration
+
+### Possibility to disable product search keyword indexing
+
+The new configuration key `shopware.product.search_keyword.indexing` can be used to disable the product search keyword indexing.
+This is helpful for stores that do not require search keywords and want to avoid the overhead of maintaining those indices while still having basic search functionality or using third-party search solutions.
+
+## Critical Fixes
+
+# 6.7.9.0
 
 ## Features
 
@@ -26,14 +83,14 @@ The migration is controlled by the new `JSON_LD_DATA` feature flag. When the fla
 
 The following schema types are now emitted as JSON-LD:
 
-| Schema | Pages |
-|---|---|
-| `WebSite` + `SearchAction` | All pages (enables Google Sitelinks Searchbox) |
-| `Organization` with logo | All pages |
-| `WebPage` / `ProductPage` / `CollectionPage` / `SearchResultsPage` | All pages (type narrows per context) |
-| `BreadcrumbList` | All pages with a navigation breadcrumb |
-| `Product` | Product detail page |
-| `ItemList` | Category pages, search results |
+| Schema                                                             | Pages                                          |
+|--------------------------------------------------------------------|------------------------------------------------|
+| `WebSite` + `SearchAction`                                         | All pages (enables Google Sitelinks Searchbox) |
+| `Organization` with logo                                           | All pages                                      |
+| `WebPage` / `ProductPage` / `CollectionPage` / `SearchResultsPage` | All pages (type narrows per context)           |
+| `BreadcrumbList`                                                   | All pages with a navigation breadcrumb         |
+| `Product`                                                          | Product detail page                            |
+| `ItemList`                                                         | Category pages, search results                 |
 
 The `Product` schema on the product detail page is significantly more complete compared to the previous microdata:
 
@@ -70,14 +127,14 @@ To add or change properties, override the `_script` block, merge your changes in
 
 The available outer / script block pairs are:
 
-| Template | Outer block | Script block |
-|---|---|---|
-| `json-ld-webpage.html.twig` | `layout_structured_data_webpage` | `layout_structured_data_webpage_script` |
-| `json-ld-breadcrumb.html.twig` | `layout_structured_data_breadcrumb` | `layout_structured_data_breadcrumb_script` |
+| Template                         | Outer block                           | Script block                                 |
+|----------------------------------|---------------------------------------|----------------------------------------------|
+| `json-ld-webpage.html.twig`      | `layout_structured_data_webpage`      | `layout_structured_data_webpage_script`      |
+| `json-ld-breadcrumb.html.twig`   | `layout_structured_data_breadcrumb`   | `layout_structured_data_breadcrumb_script`   |
 | `json-ld-organization.html.twig` | `layout_structured_data_organization` | `layout_structured_data_organization_script` |
-| `json-ld-website.html.twig` | `layout_structured_data_website` | `layout_structured_data_website_script` |
-| `json-ld-item-list.html.twig` | `layout_structured_data_item_list` | `layout_structured_data_item_list_script` |
-| `json-ld-product.html.twig` | `page_product_detail_json_ld` | `page_product_detail_json_ld_script` |
+| `json-ld-website.html.twig`      | `layout_structured_data_website`      | `layout_structured_data_website_script`      |
+| `json-ld-item-list.html.twig`    | `layout_structured_data_item_list`    | `layout_structured_data_item_list_script`    |
+| `json-ld-product.html.twig`      | `page_product_detail_json_ld`         | `page_product_detail_json_ld_script`         |
 
 ### [Experimental] Use OpenSearch for Admin API searches
 
@@ -140,6 +197,10 @@ When `bin/console system:setup:staging` is executed, the configured keys are wri
 
 ## API
 
+### Minimum value constraints added to quantity fields in ProductPriceDefinition
+
+The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
+
 ### Deprecation of newsletter route methods
 
 The following methods are deprecated and will be removed with the next major version:
@@ -156,10 +217,10 @@ The new methods currently return `StoreApiResponse` in the abstract classes. In 
 
 The Store API newsletter routes now return `200 OK` with a response body instead of `204 No Content`:
 
-| Route | Response                                                       |
-|-------|----------------------------------------------------------------|
-| `/store-api/newsletter/subscribe` | `{"success": true, "status": "notSet\|optIn\|optOut\|direct"}` |
-| `/store-api/newsletter/confirm` | `{"success": true}`                                            |
+| Route                               | Response                                                       |
+|-------------------------------------|----------------------------------------------------------------|
+| `/store-api/newsletter/subscribe`   | `{"success": true, "status": "notSet\|optIn\|optOut\|direct"}` |
+| `/store-api/newsletter/confirm`     | `{"success": true}`                                            |
 | `/store-api/newsletter/unsubscribe` | `{"success": true}`                                            |
 
 ### OpenAPI enums via DAL `Choice` flag
@@ -169,6 +230,10 @@ This information is used to enrich the generated OpenAPI schema with `enum` valu
 
 By default, `Choice` is non-strict and does not affect write validation.
 If you want to enforce values on write, set `strict: true` when creating the flag; the write layer will then validate the input for supported field types (string, int, float).
+
+### Deprecated `/api/_action/mail-template/validate` route
+
+The `/api/_action/mail-template/validate` route is deprecated and will be removed without replacement in v6.8.0.0, as it was not used and did not provide any significant value.
 
 ## Core
 
@@ -200,6 +265,15 @@ In v6.8.0.0, `silent` parameter in SystemConfigService methods will default to `
 A new scheduled task `customer.cleanup_customer_recovery` has been added that automatically removes expired customer recovery records from the database on a daily basis.
 
 Customer recovery records (password reset tokens) expire after 2 hours. Previously these records were never removed, causing the `customer_recovery` table to grow indefinitely. The new task deletes all records older than 48 hours.
+
+### New attribute field types for entity definitions
+
+The attribute-based entity definition system now supports additional field types:
+
+- `FieldType::EMAIL` maps to `EmailField` for email validation
+- `#[Password]` attribute for password fields with configurable hashing algorithm, hash options, and scope
+- `#[ListField]` attribute for storing lists with optional typed field specification
+- `FieldType::PRICE` maps to `PriceField` for price storage
 
 ### Inheritance added to product main categories
 
@@ -241,6 +315,10 @@ the `shopware.filesystem.s3.client` service to provide a custom Symfony HTTP cli
 custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
 
 ## Administration
+
+### CMS data mapping source for media custom fields
+
+Fixed media custom fields not being available as data mapping source for image elements in category and product CMS layouts. Shop Administrators can now reliably bind media custom fields to images in CMS pages without workarounds.
 
 ## Storefront
 
@@ -327,6 +405,10 @@ window.PluginManager.callPluginMethod(pluginName, methodName, ...args)
 ### Block renaming
 
 * Deprecated block `page_product_detail_product_buy_button_label` in `Resources/views/storefront/component/product/card/action.html.twig` which will be removed in v6.8.0. Use block `component_product_box_action_buy_button_label` instead.
+
+### Disabled runtime error overlay in webpack dev server
+
+The webpack dev server overlay for runtime errors has been disabled in hot-reload mode. The overlay frequently interrupted the development workflow by covering the entire viewport for non-critical runtime errors, making it difficult to interact with the storefront during development. Error details remain available in the browser console.
 
 ### `HEAD`-requests do not trigger the registration double-opt-in
 
@@ -446,6 +528,23 @@ Additionally, the `SerializerField` will become internal in the next major relea
 
 ## Administration
 
+### Options API backward-compatibility shim for Composition API components
+
+When a Shopware core component is migrated from Options API to Composition API using `createExtendableSetup()`, existing plugin overrides written with `Shopware.Component.override()` now continue to work automatically via a compatibility shim — no immediate changes to your plugin are required.
+
+The shim is activated transparently whenever an Options API override (containing `methods`, `computed`, `data`, `watch`, `mixins`, or lifecycle hooks) targets a component that has been converted to Composition API. It converts the override at runtime and logs a deprecation warning in the browser console directing developers to migrate to `Shopware.Component.overrideComponentSetup()`.
+
+**What this means for you:**
+
+- **No immediate action required.** Your existing `Shopware.Component.override()` calls continue to work, including `this.$super()` chaining, `data`, `computed`, `watch`, and `mixins`.
+- **A deprecation warning will appear** in the browser console for each affected override. This is your signal to migrate.
+- **Lifecycle hooks** (`mounted`, `created`, etc.) are supported by the shim and mapped to their Composition API equivalents.
+- Dot-notation watch paths (e.g. `watch: { 'a.b.c': handler }`) are not supported and will be skipped with a console warning.
+
+To migrate proactively or to silence the warnings, see the [Composition API Extension System migration guide](UPGRADE-6.8.md#migrating-options-api-overrides-to-the-composition-api-extension-system) in `UPGRADE-6.8.md`.
+
+This feature is part of the experimental Composition API Extension System (`ADMIN_COMPOSITION_API_EXTENSION_SYSTEM` feature flag) and will become stable in v6.8.0.
+
 ### Product detail variants: `configSettingGroups` as computed and deprecations
 
 In `sw-product-detail-variants`, the following changes were made:
@@ -558,7 +657,6 @@ The downside is that the indexing of the data into OpenSearch takes slightly lon
 When the flag is disabled (which is the default), Administration lists, filters, and DAL searches continue to use MySQL exactly as in previous releases.
 Once enabled, supported Admin API entities reuse the Admin OpenSearch indices for criteria-based searches, which requires admin OpenSearch to be configured and re-indexed via `bin/console es:admin:index`.
 
-
 ### New config option to fine tune Admin OpenSearch indexing
 
 There is a new config option `elasticsearch.admin.indexing_batch_size` that allows you to configure the batch size for Admin OpenSearch indexing.
@@ -579,6 +677,7 @@ The following HTTP cache reverse proxy configuration options have been doing not
   - `shopware.http_cache.reverse_proxy.purge_all.urls`
 
 If you are currently using any of these options, you can safely remove them from your configuration.
+
 ### Configurable Elasticsearch shard and replica counts
 
 The `number_of_shards` and `number_of_replicas` settings for Elasticsearch indices are now configurable via environment variables instead of being hardcoded.
@@ -815,6 +914,10 @@ The following deprecations apply to `sw-mail-template-index`:
 * The `listing` mixin will be removed in v6.8.0.0
 * `term` data property will be removed in v6.8.0.0
 * `onChangeLanguage` method: the if/else block will be replaced with just the if-branch logic in v6.8.0.0
+
+### Admin boot loading spinner shows error instead of infinite loading
+
+The loading spinner shown while the admin is booting up no longer spins indefinitely when an error occurs. The error is now displayed instead.
 
 ## Storefront
 

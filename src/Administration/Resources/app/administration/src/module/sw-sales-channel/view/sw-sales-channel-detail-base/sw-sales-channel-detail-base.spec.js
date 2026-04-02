@@ -44,6 +44,7 @@ async function createWrapper(options = {}) {
                 'sw-help-text': true,
                 'sw-sales-channel-detail-hreflang': true,
                 'sw-sales-channel-detail-domains': true,
+                'sw-agentic-commerce-tracking-config': true,
                 'sw-category-tree-field': true,
                 'mt-select': true,
                 'sw-custom-field-set-renderer': true,
@@ -1477,5 +1478,63 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.vm.showDeleteModal).toBe(false);
         expect(wrapper.vm.deleteSalesChannel).toHaveBeenCalledWith('test-id');
         expect(mockPush).not.toHaveBeenCalled();
+    });
+
+    it('should render tracking config component for agentic commerce sales channel', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                    configuration: {},
+                },
+            },
+        });
+
+        expect(wrapper.find('sw-agentic-commerce-tracking-config-stub').exists()).toBe(true);
+    });
+
+    it('should not render tracking config component for non-agentic commerce sales channel', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID,
+                },
+            },
+        });
+
+        expect(wrapper.find('sw-agentic-commerce-tracking-config-stub').exists()).toBe(false);
+    });
+
+    it('should pass disabled state to tracking config component when user lacks editor permission', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                    configuration: {},
+                },
+            },
+            provide: {
+                acl: {
+                    can: (permission) => permission !== 'sales_channel.editor',
+                },
+            },
+        });
+
+        const trackingConfig = wrapper.find('sw-agentic-commerce-tracking-config-stub');
+        expect(trackingConfig.exists()).toBe(true);
+        expect(trackingConfig.attributes('disabled')).toBeDefined();
+    });
+
+    it('should update salesChannel.configuration when onTrackingConfigChange is called', async () => {
+        const salesChannel = {
+            typeId: Shopware.Defaults.agenticCommerceTypeId,
+            configuration: {},
+        };
+        const wrapper = await createWrapper({ props: { salesChannel } });
+
+        const newConfig = { affiliateCode: 'aff-123', campaignCode: 'camp-456' };
+        wrapper.vm.onTrackingConfigChange(newConfig);
+
+        expect(wrapper.vm.salesChannel.configuration).toEqual(newConfig);
     });
 });

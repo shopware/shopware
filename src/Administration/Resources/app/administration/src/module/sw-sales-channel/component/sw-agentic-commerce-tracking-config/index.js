@@ -31,24 +31,9 @@ export default {
 
             return this.salesChannel.configuration;
         },
-
-        codesDisabled() {
-            return this.disabled || !!this.trackingConfig.inheritStorefrontTrackingCodes;
-        },
     },
 
     methods: {
-        onInheritToggle(value) {
-            this.trackingConfig.inheritStorefrontTrackingCodes = value;
-
-            if (value) {
-                this.trackingConfig.affiliateCode = null;
-                this.trackingConfig.campaignCode = null;
-            }
-
-            this.$emit('change', { ...this.trackingConfig });
-        },
-
         onAffiliateCodeChange(value) {
             this.trackingConfig.affiliateCode = value;
             this.$emit('change', { ...this.trackingConfig });

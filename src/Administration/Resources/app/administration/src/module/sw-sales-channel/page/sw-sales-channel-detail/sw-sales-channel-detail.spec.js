@@ -5,24 +5,41 @@
 import { mount } from '@vue/test-utils';
 
 const mockSave = jest.fn(() => Promise.resolve());
-const mockGet = jest.fn(() =>
-    Promise.resolve({
-        id: '1a2b3c4d',
-        analyticsId: '1a2b3c',
-        analytics: {
-            id: '1a2b3c',
-            trackingId: 'tracking-id',
-        },
-        productExports: {
-            first: () => ({}),
-        },
-    }),
-);
+const mockGet = jest.fn();
 const mockGetSystemConfig = jest.fn(() => Promise.resolve([]));
 const mockGetSystemConfigValues = jest.fn(() => Promise.resolve({}));
 
-async function createWrapper(routeParamsOrLegacyArg = { id: '1a2b3c4d' }) {
-    const routeParams = Array.isArray(routeParamsOrLegacyArg) ? { id: '1a2b3c4d' } : routeParamsOrLegacyArg;
+const defaultSalesChannelResponse = {
+    id: '1a2b3c4d',
+    typeId: Shopware.Defaults.storefrontSalesChannelTypeId,
+    analyticsId: '1a2b3c',
+    analytics: {
+        id: '1a2b3c',
+        trackingId: 'tracking-id',
+    },
+    productExports: {
+        first: () => ({}),
+    },
+};
+
+async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
+    const normalizedOptions = Array.isArray(optionsOrLegacyArg)
+        ? { routeParams: { id: '1a2b3c4d' } }
+        : optionsOrLegacyArg.routeParams || optionsOrLegacyArg.salesChannelResponse
+          ? optionsOrLegacyArg
+          : { routeParams: optionsOrLegacyArg };
+
+    const { routeParams = { id: '1a2b3c4d' }, salesChannelResponse = {} } = normalizedOptions;
+
+    mockGet.mockResolvedValue({
+        ...defaultSalesChannelResponse,
+        ...salesChannelResponse,
+        analytics: {
+            ...defaultSalesChannelResponse.analytics,
+            ...(salesChannelResponse.analytics ?? {}),
+        },
+        productExports: salesChannelResponse.productExports ?? defaultSalesChannelResponse.productExports,
+    });
 
     return mount(await wrapTestComponent('sw-sales-channel-detail', { sync: true }), {
         global: {
@@ -31,6 +48,7 @@ async function createWrapper(routeParamsOrLegacyArg = { id: '1a2b3c4d' }) {
                     template: `
     <div class="sw-page">
         <slot name="smart-bar-actions"></slot>
+        <slot name="content"></slot>
     </div>
                     `,
                 },
@@ -39,10 +57,21 @@ async function createWrapper(routeParamsOrLegacyArg = { id: '1a2b3c4d' }) {
                     props: ['disabled'],
                 },
                 'sw-language-switch': true,
-                'sw-card-view': true,
+                'sw-card-view': {
+                    template: '<div class="sw-card-view"><slot /></div>',
+                },
                 'sw-language-info': true,
-                'sw-tabs': true,
-                'sw-tabs-item': true,
+                'sw-tabs': {
+                    template: '<div class="sw-tabs"><slot /></div>',
+                },
+                'sw-tabs-item': {
+                    template: '<div class="sw-tabs-item"><slot /></div>',
+                    props: [
+                        'route',
+                        'title',
+                        'disabled',
+                    ],
+                },
                 'router-view': true,
                 'sw-skeleton': true,
             },
@@ -209,6 +238,86 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(mockGetSystemConfig).toHaveBeenCalledWith('core.openAiProductExport');
         expect(mockGetSystemConfigValues).toHaveBeenCalledWith('core.openAiProductExport', 'new-sales-channel-id');
         expect(wrapper.vm.agenticCommerceExportConfig[0].elements).toHaveLength(1);
+    });
+
+    it('shows the insights tab for agentic commerce channels and hides storefront analytics', async () => {
+        const wrapper = await createWrapper({
+            routeParams: {
+                id: '1a2b3c4d',
+            },
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.agenticCommerceTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.text()).toContain('sw-sales-channel.detail.productExport.tabInsights');
+        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.tabAnalytics');
+    });
+
+    it('shows storefront analytics tab for storefront channels and hides insights', async () => {
+        const wrapper = await createWrapper({
+            routeParams: {
+                id: '1a2b3c4d',
+            },
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.storefrontSalesChannelTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAnalytics');
+        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
+    });
+
+    it('hides the insights tab for product comparison channels', async () => {
+        const wrapper = await createWrapper({
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.productComparisonTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
+    });
+
+    it('returns true for isProductExportChannel on product comparison and agentic channels', async () => {
+        const agenticWrapper = await createWrapper({
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.agenticCommerceTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        expect(agenticWrapper.vm.isProductExportChannel).toBe(true);
+
+        const comparisonWrapper = await createWrapper({
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.productComparisonTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        expect(comparisonWrapper.vm.isProductExportChannel).toBe(true);
+        agenticWrapper.unmount();
+        comparisonWrapper.unmount();
+    });
+
+    it('returns false for isProductExportChannel on storefront channels', async () => {
+        const wrapper = await createWrapper({
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.storefrontSalesChannelTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.isProductExportChannel).toBe(false);
     });
 
     it('should save without reloading entity data when saveOnLanguageChange is called', async () => {

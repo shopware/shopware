@@ -114,6 +114,10 @@ export default {
             return this.salesChannel.typeId === Defaults.agenticCommerceTypeId;
         },
 
+        isProductExportChannel() {
+            return this.isProductComparison || this.isAgenticCommerce;
+        },
+
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
@@ -340,7 +344,7 @@ export default {
         },
 
         prepareSaveData() {
-            const needsProductExport = this.isProductComparison || this.isAgenticCommerce;
+            const needsProductExport = this.isProductExportChannel;
 
             if (needsProductExport && !this.salesChannel.productExports.length) {
                 this.salesChannel.productExports.add(this.productExport);

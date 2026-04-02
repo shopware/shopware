@@ -42,6 +42,7 @@ class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
 
         $productExport = new ProductExportEntity();
         $productExport->setId(Uuid::randomHex());
+        $productExport->setSalesChannelId(Uuid::randomHex());
         $productExport->setProvider('open-ai');
 
         $salesChannelContext = $this->createSalesChannelContext();
@@ -107,6 +108,7 @@ class AgenticCommerceProductExportProviderContextSubscriberTest extends TestCase
 
         $productExport = new ProductExportEntity();
         $productExport->setId(Uuid::randomHex());
+        $productExport->setSalesChannelId(Uuid::randomHex());
         $productExport->setProvider('open-ai');
 
         $salesChannelContext = $this->createSalesChannelContext();

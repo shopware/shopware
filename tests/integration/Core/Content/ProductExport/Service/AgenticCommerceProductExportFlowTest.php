@@ -3,13 +3,15 @@
 namespace Shopware\Tests\Integration\Core\Content\ProductExport\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
-use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Content\ProductExport\Tracking\SalesChannelTrackingListener;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -41,7 +43,7 @@ class AgenticCommerceProductExportFlowTest extends TestCase
      */
     private EntityRepository $productExportRepository;
 
-    private ProductExportGeneratorInterface $productExportGenerator;
+    private ProductExportGenerator $productExportGenerator;
 
     private Context $context;
 
@@ -96,8 +98,8 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         static::assertCount(1, $lines);
         static::assertJson($lines[0]);
 
-        /** @var array<string, mixed> $exportedProduct */
         $exportedProduct = json_decode($lines[0], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($exportedProduct);
 
         static::assertSame($product['productNumber'], $exportedProduct['item_id']);
         static::assertTrue($exportedProduct['is_eligible_search']);
@@ -124,7 +126,114 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         static::assertSame($productExport->getSalesChannelDomain()?->getUrl(), $exportedProduct['seller_url']);
         static::assertSame($productExport->getSalesChannelDomain()?->getUrl(), $exportedProduct['return_policy']);
         static::assertStringContainsString((string) $productExport->getSalesChannelDomain()?->getUrl(), $exportedProduct['url']);
+
+        $query = parse_url($exportedProduct['url'], \PHP_URL_QUERY);
+        parse_str(\is_string($query) ? $query : '', $queryParameters);
+        static::assertSame($agenticSalesChannel['id'], $queryParameters[SalesChannelTrackingListener::QUERY_PARAM] ?? null);
+
         static::assertStringStartsWith('https://example.com/images/openai-feed-product.jpg', $exportedProduct['image_url']);
+    }
+
+    /**
+     * @return array<string, array{config: array<string, string>, expectedAffiliate: ?string, expectedCampaign: ?string}>
+     */
+    public static function provideTrackingCodeCombinations(): array
+    {
+        return [
+            'no tracking codes' => [
+                'config' => [],
+                'expectedAffiliate' => null,
+                'expectedCampaign' => null,
+            ],
+            'affiliate code only' => [
+                'config' => [OrderService::AFFILIATE_CODE_KEY => 'my-affiliate'],
+                'expectedAffiliate' => 'my-affiliate',
+                'expectedCampaign' => null,
+            ],
+            'campaign code only' => [
+                'config' => [OrderService::CAMPAIGN_CODE_KEY => 'my-campaign'],
+                'expectedAffiliate' => null,
+                'expectedCampaign' => 'my-campaign',
+            ],
+            'both affiliate and campaign codes' => [
+                'config' => [
+                    OrderService::AFFILIATE_CODE_KEY => 'my-affiliate',
+                    OrderService::CAMPAIGN_CODE_KEY => 'my-campaign',
+                ],
+                'expectedAffiliate' => 'my-affiliate',
+                'expectedCampaign' => 'my-campaign',
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string, string> $config
+     */
+    #[DataProvider('provideTrackingCodeCombinations')]
+    public function testProductUrlContainsConfiguredTrackingCodes(
+        array $config,
+        ?string $expectedAffiliate,
+        ?string $expectedCampaign,
+    ): void {
+        $product = $this->createExportableProduct();
+        $productStreamId = $this->createProductStreamForProduct($product['id']);
+
+        $agenticSalesChannel = $this->createSalesChannel([
+            'id' => Uuid::randomHex(),
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE,
+            'name' => 'Agentic Commerce Feed',
+            'configuration' => $config,
+            'countries' => [
+                ['id' => $this->getDefaultCountryId()],
+            ],
+            'domains' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://agentic-commerce.localhost',
+                ],
+            ],
+        ]);
+
+        $productExport = $this->createProductExport($agenticSalesChannel['id'], $productStreamId);
+        $result = $this->productExportGenerator->generate($productExport, new ExportBehavior());
+
+        static::assertNotNull($result);
+        static::assertFalse($result->hasErrors());
+
+        $lines = array_values(array_filter(
+            preg_split('/\R/', $result->getContent()) ?: [],
+            static fn (string $line): bool => trim($line) !== '',
+        ));
+
+        static::assertCount(1, $lines);
+
+        $exportedProduct = json_decode($lines[0], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($exportedProduct);
+        static::assertArrayHasKey('url', $exportedProduct);
+
+        $query = parse_url($exportedProduct['url'], \PHP_URL_QUERY);
+        parse_str(\is_string($query) ? $query : '', $queryParameters);
+
+        static::assertSame(
+            $agenticSalesChannel['id'],
+            $queryParameters[SalesChannelTrackingListener::QUERY_PARAM] ?? null,
+            'referringSalesChannel must always be present in the product URL',
+        );
+
+        if ($expectedAffiliate !== null) {
+            static::assertSame($expectedAffiliate, $queryParameters[OrderService::AFFILIATE_CODE_KEY] ?? null);
+        } else {
+            static::assertArrayNotHasKey(OrderService::AFFILIATE_CODE_KEY, $queryParameters);
+        }
+
+        if ($expectedCampaign !== null) {
+            static::assertSame($expectedCampaign, $queryParameters[OrderService::CAMPAIGN_CODE_KEY] ?? null);
+        } else {
+            static::assertArrayNotHasKey(OrderService::CAMPAIGN_CODE_KEY, $queryParameters);
+        }
     }
 
     public function testAgenticCommerceSalesChannelGeneratesMappedVariantFieldsForOpenAiFeed(): void
@@ -177,8 +286,8 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         static::assertCount(1, $lines);
         static::assertJson($lines[0]);
 
-        /** @var array<string, mixed> $exportedProduct */
         $exportedProduct = json_decode($lines[0], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($exportedProduct);
 
         static::assertTrue($exportedProduct['listing_has_variations']);
         static::assertSame('SKU-' . $variant['productNumber'] . '-10.99', $exportedProduct['offer_id']);

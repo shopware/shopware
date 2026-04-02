@@ -18,14 +18,6 @@ async function createWrapper(salesChannelOverride = {}) {
         global: {
             stubs: {
                 'mt-card': { template: '<div><slot /></div>' },
-                'mt-switch': {
-                    template:
-                        '<input type="checkbox" :disabled="disabled || undefined" :checked="modelValue" @change="$emit(\'update:model-value\', $event.target.checked)" />',
-                    props: [
-                        'modelValue',
-                        'disabled',
-                    ],
-                },
                 'mt-text-field': {
                     template:
                         '<input type="text" :disabled="disabled || undefined" :value="modelValue" @input="$emit(\'update:model-value\', $event.target.value)" />',
@@ -47,29 +39,6 @@ describe('sw-agentic-commerce-tracking-config', () => {
         expect(inputs).toHaveLength(2);
         expect(inputs[0].attributes('disabled')).toBeUndefined();
         expect(inputs[1].attributes('disabled')).toBeUndefined();
-    });
-
-    it('disables code fields when inheritStorefrontTrackingCodes is true', async () => {
-        const wrapper = await createWrapper({
-            configuration: { inheritStorefrontTrackingCodes: true },
-        });
-
-        const inputs = wrapper.findAll('input[type="text"]');
-        expect(inputs[0].attributes('disabled')).toBeDefined();
-        expect(inputs[1].attributes('disabled')).toBeDefined();
-    });
-
-    it('emits change with updated config when inherit toggle is turned on', async () => {
-        const wrapper = await createWrapper();
-
-        const toggle = wrapper.find('input[type="checkbox"]');
-        await toggle.setValue(true);
-
-        expect(wrapper.emitted('change')).toBeTruthy();
-        const emitted = wrapper.emitted('change')[0][0];
-        expect(emitted.inheritStorefrontTrackingCodes).toBe(true);
-        expect(emitted.affiliateCode).toBeNull();
-        expect(emitted.campaignCode).toBeNull();
     });
 
     it('emits change with affiliateCode when affiliate field changes', async () => {
@@ -96,9 +65,7 @@ describe('sw-agentic-commerce-tracking-config', () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({ disabled: true });
 
-        const toggle = wrapper.find('input[type="checkbox"]');
         const inputs = wrapper.findAll('input[type="text"]');
-        expect(toggle.attributes('disabled')).toBeDefined();
         expect(inputs[0].attributes('disabled')).toBeDefined();
         expect(inputs[1].attributes('disabled')).toBeDefined();
     });

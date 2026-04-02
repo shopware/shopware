@@ -260,6 +260,25 @@
           }
         }
       },
+      "productExport": {
+        "tabInsights": "Insights",
+        "insights": {
+          "orderCardHeadline": "Referred orders",
+          "customerCardHeadline": "Referred customers",
+          "turnoverCardHeadline": "Referred turnover",
+          "numbers": "Count",
+          "totalTurnover": "Turnover",
+          "summary": "Summary",
+          "dateRanges": {
+            "180Days": "Last 180 days",
+            "30Days": "Last 30 days",
+            "14Days": "Last 14 days",
+            "7Days": "Last 7 days",
+            "24Hours": "Last 24 hours",
+            "yesterday": "Yesterday"
+          }
+        }
+      },
       "hreflang": {
         "title": "Hreflang",
         "titleCard": "Hreflang integration",
@@ -341,8 +360,6 @@
     "agenticCommerceTracking": {
       "cardTitle": "Tracking codes",
       "description": "Configure the affiliate and campaign codes that will be embedded in product URLs of this channel's feeds. These codes identify orders and customers referred from this Agentic Commerce channel.",
-      "inheritLabel": "Inherit tracking codes from linked storefront",
-      "inheritHelpText": "When enabled, the affiliate and campaign codes configured on this channel's linked storefront sales channel are used in the feed URLs. The codes below will be ignored.",
       "affiliateCodeLabel": "Affiliate code",
       "affiliateCodePlaceholder": "Enter affiliate code…",
       "campaignCodeLabel": "Campaign code",

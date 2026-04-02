@@ -233,6 +233,15 @@
         </mt-card>
     </template>
 
+    {% block sw_sales_channel_detail_agentic_commerce_tracking %}
+    <sw-agentic-commerce-tracking-config
+        v-if="isAgenticCommerce"
+        :sales-channel="salesChannel"
+        :disabled="!acl.can('sales_channel.editor') || undefined"
+        @change="onTrackingConfigChange"
+    />
+    {% endblock %}
+
     {% block sw_sales_channel_shipping_payment %}
     <mt-card
         v-if="salesChannel && !isProductExportChannel"

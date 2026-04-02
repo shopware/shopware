@@ -229,10 +229,12 @@ export default {
         },
 
         isTranslatedCustomFieldInheritanceContext() {
-            return !this.parentEntity?.id
-                && !!this.entity?.id
-                && typeof this.entity?.getEntityName === 'function'
-                && !!this.translatedInheritanceLanguageId;
+            return (
+                !this.parentEntity?.id &&
+                !!this.entity?.id &&
+                typeof this.entity?.getEntityName === 'function' &&
+                !!this.translatedInheritanceLanguageId
+            );
         },
 
         hasOverriddenTranslatedCustomFields() {
@@ -270,7 +272,10 @@ export default {
                 return parentCustomFields;
             }
 
-            if (!this.isTranslatedCustomFieldInheritanceContext() || !this.isInheritedTranslatedCustomField(customFieldName)) {
+            if (
+                !this.isTranslatedCustomFieldInheritanceContext() ||
+                !this.isInheritedTranslatedCustomField(customFieldName)
+            ) {
                 return this.inheritedCustomFields;
             }
 

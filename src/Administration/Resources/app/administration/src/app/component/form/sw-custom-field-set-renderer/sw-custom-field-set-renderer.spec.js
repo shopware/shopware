@@ -295,12 +295,7 @@ function createProductRepositoryOptions(productRepositoryGet) {
     };
 }
 
-function createTranslatedInheritanceField({
-    name,
-    type,
-    customFieldType,
-    inputType,
-}) {
+function createTranslatedInheritanceField({ name, type, customFieldType, inputType }) {
     return {
         name,
         type,
@@ -351,11 +346,7 @@ function createTranslatedFieldSet(customFields) {
     ]);
 }
 
-function createTranslatedEntity({
-    id = 'product-id',
-    customFields = null,
-    translatedCustomFields = {},
-} = {}) {
+function createTranslatedEntity({ id = 'product-id', customFields = null, translatedCustomFields = {} } = {}) {
     return {
         id,
         getEntityName: () => 'product',
@@ -368,7 +359,10 @@ function createTranslatedEntity({
     };
 }
 
-async function withTranslatedLanguageContext({ languageId = 'de-DE', systemLanguageId = 'en-GB', parentId = 'en-GB' } = {}, callback) {
+async function withTranslatedLanguageContext(
+    { languageId = 'de-DE', systemLanguageId = 'en-GB', parentId = 'en-GB' } = {},
+    callback,
+) {
     const previousLanguageId = Shopware.Context.api.languageId;
     const previousSystemLanguageId = Shopware.Context.api.systemLanguageId;
     const previousLanguage = Shopware.Store.get('context').api.language;
@@ -820,19 +814,22 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         const productRepositoryGet = jest.fn();
 
         await withTranslatedLanguageContext({}, async () => {
-            wrapper = await createWrapper({
-                sets: createTranslatedFieldSet([
-                    createTranslatedTextField(),
-                    createTranslatedCheckboxField(),
-                ]),
-                entity: createTranslatedEntity({
-                    translatedCustomFields: {
-                        translatedTextField: 'inherit me from translation',
-                        translatedCheckboxField: true,
-                    },
-                }),
-                parentEntity: null,
-            }, createProductRepositoryOptions(productRepositoryGet));
+            wrapper = await createWrapper(
+                {
+                    sets: createTranslatedFieldSet([
+                        createTranslatedTextField(),
+                        createTranslatedCheckboxField(),
+                    ]),
+                    entity: createTranslatedEntity({
+                        translatedCustomFields: {
+                            translatedTextField: 'inherit me from translation',
+                            translatedCheckboxField: true,
+                        },
+                    }),
+                    parentEntity: null,
+                },
+                createProductRepositoryOptions(productRepositoryGet),
+            );
             await flushPromises();
 
             const customTextFieldEl = wrapper.find('.sw-form-field-renderer-field__translatedTextField input[type="text"]');
@@ -853,19 +850,24 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         const productRepositoryGet = jest.fn();
 
         await withTranslatedLanguageContext({ parentId: null }, async () => {
-            wrapper = await createWrapper({
-                sets: createTranslatedFieldSet([createTranslatedTextField()]),
-                entity: createTranslatedEntity({
-                    translatedCustomFields: {
-                        translatedTextField: 'root language value',
-                    },
-                }),
-                parentEntity: null,
-            }, createProductRepositoryOptions(productRepositoryGet));
+            wrapper = await createWrapper(
+                {
+                    sets: createTranslatedFieldSet([createTranslatedTextField()]),
+                    entity: createTranslatedEntity({
+                        translatedCustomFields: {
+                            translatedTextField: 'root language value',
+                        },
+                    }),
+                    parentEntity: null,
+                },
+                createProductRepositoryOptions(productRepositoryGet),
+            );
             await flushPromises();
 
             const textField = wrapper.find('.sw-form-field-renderer-field__translatedTextField input[type="text"]');
-            const inheritanceSwitch = wrapper.find('.sw-form-field-renderer-field__translatedTextField .mt-inheritance-switch');
+            const inheritanceSwitch = wrapper.find(
+                '.sw-form-field-renderer-field__translatedTextField .mt-inheritance-switch',
+            );
 
             expect(wrapper.vm.hasParent).toBe(false);
             expect(productRepositoryGet).not.toHaveBeenCalled();
@@ -875,35 +877,44 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
     });
 
     it('should keep translated inheritance per custom field when another translated field has its own value', async () => {
-        const productRepositoryGet = jest.fn(() => Promise.resolve({
-            customFields: {
-                translatedTextField: 'inherit me from default language',
-                translatedCheckboxField: true,
-            },
-        }));
+        const productRepositoryGet = jest.fn(() =>
+            Promise.resolve({
+                customFields: {
+                    translatedTextField: 'inherit me from default language',
+                    translatedCheckboxField: true,
+                },
+            }),
+        );
 
         await withTranslatedLanguageContext({}, async () => {
-            wrapper = await createWrapper({
-                sets: createTranslatedFieldSet([
-                    createTranslatedTextField(),
-                    createTranslatedCheckboxField(),
-                ]),
-                entity: createTranslatedEntity({
-                    customFields: {
-                        translatedTextField: 'translated own value',
-                    },
-                    translatedCustomFields: {
-                        translatedTextField: 'translated own value',
-                        translatedCheckboxField: true,
-                    },
-                }),
-                parentEntity: null,
-            }, createProductRepositoryOptions(productRepositoryGet));
+            wrapper = await createWrapper(
+                {
+                    sets: createTranslatedFieldSet([
+                        createTranslatedTextField(),
+                        createTranslatedCheckboxField(),
+                    ]),
+                    entity: createTranslatedEntity({
+                        customFields: {
+                            translatedTextField: 'translated own value',
+                        },
+                        translatedCustomFields: {
+                            translatedTextField: 'translated own value',
+                            translatedCheckboxField: true,
+                        },
+                    }),
+                    parentEntity: null,
+                },
+                createProductRepositoryOptions(productRepositoryGet),
+            );
             await flushPromises();
 
             const textField = wrapper.find('.sw-form-field-renderer-field__translatedTextField input[type="text"]');
-            const checkboxField = wrapper.find('.sw-form-field-renderer-field__translatedCheckboxField input[type="checkbox"]');
-            const textInheritanceSwitch = wrapper.find('.sw-form-field-renderer-field__translatedTextField .mt-inheritance-switch');
+            const checkboxField = wrapper.find(
+                '.sw-form-field-renderer-field__translatedCheckboxField input[type="checkbox"]',
+            );
+            const textInheritanceSwitch = wrapper.find(
+                '.sw-form-field-renderer-field__translatedTextField .mt-inheritance-switch',
+            );
             const checkboxInheritanceSwitch = wrapper.find(
                 '.sw-form-field-renderer-field__translatedCheckboxField .mt-inheritance-switch',
             );
@@ -934,30 +945,38 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
     });
 
     it('should load translated inheritance from the selected language parent instead of the system language', async () => {
-        const productRepositoryGet = jest.fn((id, context) => Promise.resolve({
-            customFields: {
-                translatedTextField: context.languageId === 'fr-FR'
-                    ? 'inherit me from parent language'
-                    : 'inherit me from system language',
-            },
-        }));
+        const productRepositoryGet = jest.fn((id, context) =>
+            Promise.resolve({
+                customFields: {
+                    translatedTextField:
+                        context.languageId === 'fr-FR'
+                            ? 'inherit me from parent language'
+                            : 'inherit me from system language',
+                },
+            }),
+        );
 
         await withTranslatedLanguageContext({ parentId: 'fr-FR' }, async () => {
-            wrapper = await createWrapper({
-                sets: createTranslatedFieldSet([createTranslatedTextField()]),
-                entity: createTranslatedEntity({
-                    customFields: {
-                        translatedTextField: 'translated own value',
-                    },
-                    translatedCustomFields: {
-                        translatedTextField: 'translated own value',
-                    },
-                }),
-                parentEntity: null,
-            }, createProductRepositoryOptions(productRepositoryGet));
+            wrapper = await createWrapper(
+                {
+                    sets: createTranslatedFieldSet([createTranslatedTextField()]),
+                    entity: createTranslatedEntity({
+                        customFields: {
+                            translatedTextField: 'translated own value',
+                        },
+                        translatedCustomFields: {
+                            translatedTextField: 'translated own value',
+                        },
+                    }),
+                    parentEntity: null,
+                },
+                createProductRepositoryOptions(productRepositoryGet),
+            );
             await flushPromises();
 
-            const textInheritanceSwitch = wrapper.find('.sw-form-field-renderer-field__translatedTextField .mt-inheritance-switch');
+            const textInheritanceSwitch = wrapper.find(
+                '.sw-form-field-renderer-field__translatedTextField .mt-inheritance-switch',
+            );
 
             expect(productRepositoryGet).toHaveBeenCalledWith(
                 'product-id',
@@ -979,22 +998,27 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         const productRepositoryGet = jest.fn();
 
         await withTranslatedLanguageContext({}, async () => {
-            wrapper = await createWrapper({
-                sets: createTranslatedFieldSet([
-                    createTranslatedCheckboxField(),
-                    createTranslatedNumberField(),
-                ]),
-                entity: createTranslatedEntity({
-                    translatedCustomFields: {
-                        translatedCheckboxField: false,
-                        translatedNumberField: 0,
-                    },
-                }),
-                parentEntity: null,
-            }, createProductRepositoryOptions(productRepositoryGet));
+            wrapper = await createWrapper(
+                {
+                    sets: createTranslatedFieldSet([
+                        createTranslatedCheckboxField(),
+                        createTranslatedNumberField(),
+                    ]),
+                    entity: createTranslatedEntity({
+                        translatedCustomFields: {
+                            translatedCheckboxField: false,
+                            translatedNumberField: 0,
+                        },
+                    }),
+                    parentEntity: null,
+                },
+                createProductRepositoryOptions(productRepositoryGet),
+            );
             await flushPromises();
 
-            const checkboxField = wrapper.find('.sw-form-field-renderer-field__translatedCheckboxField input[type="checkbox"]');
+            const checkboxField = wrapper.find(
+                '.sw-form-field-renderer-field__translatedCheckboxField input[type="checkbox"]',
+            );
             const numberField = wrapper.find('.sw-form-field-renderer-field__translatedNumberField input[type="text"]');
 
             expect(productRepositoryGet).not.toHaveBeenCalled();
@@ -1011,28 +1035,33 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
         try {
             await withTranslatedLanguageContext({}, async () => {
-                wrapper = await createWrapper({
-                    sets: createTranslatedFieldSet([
-                        createTranslatedTextField(),
-                        createTranslatedCheckboxField(),
-                        createTranslatedNumberField(),
-                    ]),
-                    entity: createTranslatedEntity({
-                        customFields: {
-                            translatedTextField: 'translated own value',
-                        },
-                        translatedCustomFields: {
-                            translatedTextField: 'translated own value',
-                            translatedCheckboxField: false,
-                            translatedNumberField: 0,
-                        },
-                    }),
-                    parentEntity: null,
-                }, createProductRepositoryOptions(productRepositoryGet));
+                wrapper = await createWrapper(
+                    {
+                        sets: createTranslatedFieldSet([
+                            createTranslatedTextField(),
+                            createTranslatedCheckboxField(),
+                            createTranslatedNumberField(),
+                        ]),
+                        entity: createTranslatedEntity({
+                            customFields: {
+                                translatedTextField: 'translated own value',
+                            },
+                            translatedCustomFields: {
+                                translatedTextField: 'translated own value',
+                                translatedCheckboxField: false,
+                                translatedNumberField: 0,
+                            },
+                        }),
+                        parentEntity: null,
+                    },
+                    createProductRepositoryOptions(productRepositoryGet),
+                );
                 await flushPromises();
 
                 const textField = wrapper.find('.sw-form-field-renderer-field__translatedTextField input[type="text"]');
-                const checkboxField = wrapper.find('.sw-form-field-renderer-field__translatedCheckboxField input[type="checkbox"]');
+                const checkboxField = wrapper.find(
+                    '.sw-form-field-renderer-field__translatedCheckboxField input[type="checkbox"]',
+                );
                 const numberField = wrapper.find('.sw-form-field-renderer-field__translatedNumberField input[type="text"]');
 
                 expect(productRepositoryGet).toHaveBeenCalledTimes(1);
@@ -1059,19 +1088,22 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         });
 
         await withTranslatedLanguageContext({}, async () => {
-            wrapper = await createWrapper({
-                sets: createTranslatedFieldSet([createTranslatedTextField()]),
-                entity: createTranslatedEntity({
-                    id: 'product-a',
-                    customFields: {
-                        translatedTextField: 'translated value A',
-                    },
-                    translatedCustomFields: {
-                        translatedTextField: 'translated value A',
-                    },
-                }),
-                parentEntity: null,
-            }, createProductRepositoryOptions(productRepositoryGet));
+            wrapper = await createWrapper(
+                {
+                    sets: createTranslatedFieldSet([createTranslatedTextField()]),
+                    entity: createTranslatedEntity({
+                        id: 'product-a',
+                        customFields: {
+                            translatedTextField: 'translated value A',
+                        },
+                        translatedCustomFields: {
+                            translatedTextField: 'translated value A',
+                        },
+                    }),
+                    parentEntity: null,
+                },
+                createProductRepositoryOptions(productRepositoryGet),
+            );
 
             await wrapper.setProps({
                 entity: createTranslatedEntity({
@@ -1099,7 +1131,9 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             });
             await flushPromises();
 
-            const textInheritanceSwitch = wrapper.find('.sw-form-field-renderer-field__translatedTextField .mt-inheritance-switch');
+            const textInheritanceSwitch = wrapper.find(
+                '.sw-form-field-renderer-field__translatedTextField .mt-inheritance-switch',
+            );
 
             expect(wrapper.vm.inheritedCustomFields.translatedTextField).toBe('inherited value B');
 

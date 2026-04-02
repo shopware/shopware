@@ -487,6 +487,8 @@ export default {
 
     watch: {
         productId() {
+            // Prevent stale parent/variant state from surviving a detail-route switch.
+            Shopware.Store.get('swProductDetail').$reset();
             this.createdComponent();
         },
     },

@@ -1133,4 +1133,33 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
         expect(store.parentProduct).toEqual({});
     });
+
+    it('should clear stale variant data when switching between existing product detail routes', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        const getFunction = jest.fn(() => Promise.resolve({ id: 'parent-123', variation: [] }));
+
+        await wrapper.unmount();
+
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            getFunction,
+            'parent-123',
+        );
+
+        await flushPromises();
+
+        store.product = {
+            id: 'variant-old',
+            parentId: 'parent-old',
+            variation: [],
+        };
+        store.parentProduct = { id: 'parent-old', name: 'Old Parent' };
+
+        getFunction.mockImplementation(() => new Promise(() => {}));
+
+        await wrapper.setProps({ productId: 'variant-456' });
+        await nextTick();
+
+        expect(store.parentProduct).toEqual({});
+    });
 });

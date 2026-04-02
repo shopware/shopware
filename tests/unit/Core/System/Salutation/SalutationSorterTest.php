@@ -53,7 +53,7 @@ class SalutationSorterTest extends TestCase
         static::assertSame(
             ['not_specified', 'test', 'mr', 'mrs'],
             \array_values(\array_map(
-                static fn (SalutationEntity $salutation): string => $salutation->getSalutationKey(),
+                static fn (SalutationEntity $salutation): string => (string) $salutation->getSalutationKey(),
                 \iterator_to_array($salutations)
             ))
         );
@@ -79,7 +79,7 @@ class SalutationSorterTest extends TestCase
         static::assertSame(
             ['mr', 'mrs'],
             \array_values(\array_map(
-                static fn (SalutationEntity $salutation): string => $salutation->getSalutationKey(),
+                static fn (SalutationEntity $salutation): string => (string) $salutation->getSalutationKey(),
                 \iterator_to_array($salutations)
             ))
         );

@@ -141,7 +141,7 @@ class ProductListingLoader
      */
     private function loadPreviews(array $ids, SalesChannelContext $context): array
     {
-        $ids = $this->createIdentityMapping($ids);
+        $ids = array_combine($ids, $ids);
 
         $config = $this->connection->fetchAllAssociative(
             '# product-listing-loader::resolve-previews
@@ -304,7 +304,7 @@ class ProductListingLoader
      */
     private function resolvePreviews(array $keys, Criteria $criteria, SalesChannelContext $context): array
     {
-        $mapping = $this->createIdentityMapping($keys);
+        $mapping = array_combine($keys, $keys);
 
         $explicitProductIds = array_fill_keys(
             array_intersect($keys, ExplicitProductIdResolver::fromCriteria($criteria)),
@@ -364,16 +364,6 @@ class ProductListingLoader
 
     /**
      * @param list<string> $ids
-     *
-     * @return array<string, string>
-     */
-    private function createIdentityMapping(array $ids): array
-    {
-        return array_combine($ids, $ids);
-    }
-
-    /**
-     * @param list<string> $ids
      */
     private function loadMatchingExplicitProductIds(Criteria $criteria, array $ids, SalesChannelContext $context): IdSearchResult
     {
@@ -404,7 +394,7 @@ class ProductListingLoader
     }
 
     /**
-     * A grouped listing may return `[main-variant-a, variant-b]`, while the stream explicitly selected `[variant-a-2]`. 
+     * A grouped listing may return `[main-variant-a, variant-b]`, while the stream explicitly selected `[variant-a-2]`.
      * In that case we reload the missing explicit id and then replace the grouped representative `main-variant-a` with `variant-a-2`.
      *
      * @param list<string> $explicitProductIds
@@ -470,10 +460,10 @@ class ProductListingLoader
      */
     private function mergeGroupedAndExplicitResults(IdSearchResult $groupedResult, IdSearchResult $explicitResult, array $explicitProductIds): IdSearchResult
     {
-        $groupedIds = $this->getStringIds($groupedResult);
+        $groupedIds = $groupedResult->getIds();
         $resolvedExplicitIds = $this->resolveVisibleExplicitProductIds(
             $groupedIds,
-            $this->getStringIds($explicitResult),
+            $explicitResult->getIds(),
             $explicitProductIds
         );
         $displayGroups = $this->loadDisplayGroupsForIds([
@@ -504,7 +494,7 @@ class ProductListingLoader
             ];
         }
 
-        foreach ($this->getStringIds($explicitResult) as $id) {
+        foreach ($explicitResult->getIds() as $id) {
             if (isset($data[$id])) {
                 continue;
             }
@@ -554,7 +544,9 @@ class ProductListingLoader
      */
     private function findExplicitProductIdsMissingFromListing(array $explicitProductIds, IdSearchResult $result): array
     {
-        return array_values(array_diff($explicitProductIds, $this->getStringIds($result)));
+        $resultIds = $result->getIds();
+
+        return array_values(array_diff($explicitProductIds, $resultIds));
     }
 
     /**
@@ -582,10 +574,6 @@ class ProductListingLoader
 
         $displayGroups = [];
         foreach ($rows as $row) {
-            if (!\is_string($row['id']) || !\is_string($row['displayGroup'])) {
-                continue;
-            }
-
             $displayGroups[$row['id']] = $row['displayGroup'];
         }
 
@@ -594,8 +582,10 @@ class ProductListingLoader
 
     private function paginateIdSearchResult(IdSearchResult $result, Criteria $criteria): IdSearchResult
     {
+        $resultIds = $result->getIds();
+
         $ids = \array_slice(
-            $this->getStringIds($result),
+            $resultIds,
             $criteria->getOffset() ?? 0,
             $criteria->getLimit()
         );
@@ -639,19 +629,13 @@ class ProductListingLoader
     }
 
     /**
-     * @return list<string>
-     */
-    private function getStringIds(IdSearchResult $result): array
-    {
-        return array_values(array_filter($result->getIds(), static fn ($id): bool => \is_string($id)));
-    }
-
-    /**
+     * @param list<string> $existingIds
+     *
      * @return array<string, array{primaryKey: string, data: array<string, mixed>}>
      */
-    private function buildSearchResultData(IdSearchResult $result, ?array $ids = null): array
+    private function buildSearchResultData(IdSearchResult $result, array $existingIds): array
     {
-        $ids ??= $this->getStringIds($result);
+        $ids = $existingIds !== [] ? $existingIds : $result->getIds();
 
         $data = [];
         foreach ($ids as $id) {

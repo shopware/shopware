@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -59,7 +60,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntity;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityCollection;
@@ -70,7 +70,6 @@ use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\Strin
 /**
  * @internal
  */
-#[Package('framework')]
 #[CoversClass(AttributeEntityCompiler::class)]
 class AttributeEntityCompilerTest extends TestCase
 {
@@ -85,71 +84,37 @@ class AttributeEntityCompilerTest extends TestCase
     {
         $compiledResult = (new AttributeEntityCompiler())->compile(AttributeEntityWithInheritance::class);
 
-        // Find the main entity definition (not mapping tables)
-        $entityDefinition = null;
-        foreach ($compiledResult as $result) {
-            if ($result['type'] === 'entity' && $result['entity_name'] === 'attribute_entity_inheritance') {
-                $entityDefinition = $result;
-                break;
-            }
-        }
+        $entityDefinition = $this->findEntityDefinition($compiledResult, 'attribute_entity_inheritance');
+        $fields = array_column($entityDefinition['fields'], null, 'name');
 
-        static::assertNotNull($entityDefinition, 'Entity definition not found in compiled result');
+        $inheritedStringField = $fields['inheritedString'] ?? null;
+        $inheritedCurrencyIdField = $fields['currencyId'] ?? null;
+        $inheritedCurrencyField = $fields['currency'] ?? null;
+        $inheritedWithForeignKeyField = $fields['inheritedWithForeignKey'] ?? null;
+        $inheritedProductField = $fields['product'] ?? null;
 
-        // Find fields with Inherited and ReverseInherited flag
-        $inheritedStringField = null;
-        $inheritedCurrencyIdField = null;
-        $inheritedCurrencyField = null;
-        $inheritedWithForeignKeyField = null;
-        $inheritedProductField = null;
-
-        foreach ($entityDefinition['fields'] as $field) {
-            switch ($field['name'] ?? null) {
-                case 'inheritedString':
-                    $inheritedStringField = $field;
-                    break;
-                case 'currencyId':
-                    $inheritedCurrencyIdField = $field;
-                    break;
-                case 'currency':
-                    $inheritedCurrencyField = $field;
-                    break;
-                case 'inheritedWithForeignKey':
-                    $inheritedWithForeignKeyField = $field;
-                    break;
-                case 'product':
-                    $inheritedProductField = $field;
-                    break;
-            }
-        }
-
-        // Verify inherited string field has Inherited flag with correct class
         static::assertNotNull($inheritedStringField, 'inheritedString field not found');
         static::assertArrayHasKey(InheritedFlag::class, $inheritedStringField['flags'], 'inheritedString should have Inherited flag');
         static::assertIsArray($inheritedStringField['flags'][InheritedFlag::class]);
         static::assertSame(InheritedFlag::class, $inheritedStringField['flags'][InheritedFlag::class]['class']);
         static::assertSame(['foreignKey' => null], $inheritedStringField['flags'][InheritedFlag::class]['args'] ?? null);
 
-        // Verify inherited FK field has Inherited flag
         static::assertNotNull($inheritedCurrencyIdField, 'currencyId field not found');
         static::assertArrayHasKey(InheritedFlag::class, $inheritedCurrencyIdField['flags'], 'currencyId should have Inherited flag');
         static::assertIsArray($inheritedCurrencyIdField['flags'][InheritedFlag::class]);
         static::assertSame(InheritedFlag::class, $inheritedCurrencyIdField['flags'][InheritedFlag::class]['class']);
 
-        // Verify inherited association field has Inherited flag
         static::assertNotNull($inheritedCurrencyField, 'currency field not found');
         static::assertArrayHasKey(InheritedFlag::class, $inheritedCurrencyField['flags'], 'currency should have Inherited flag');
         static::assertIsArray($inheritedCurrencyField['flags'][InheritedFlag::class]);
         static::assertSame(InheritedFlag::class, $inheritedCurrencyField['flags'][InheritedFlag::class]['class']);
 
-        // Verify inherited field with custom foreignKey parameter
         static::assertNotNull($inheritedWithForeignKeyField, 'inheritedWithForeignKey field not found');
         static::assertArrayHasKey(InheritedFlag::class, $inheritedWithForeignKeyField['flags'], 'inheritedWithForeignKey should have Inherited flag');
         static::assertIsArray($inheritedWithForeignKeyField['flags'][InheritedFlag::class]);
         static::assertSame(InheritedFlag::class, $inheritedWithForeignKeyField['flags'][InheritedFlag::class]['class']);
         static::assertSame(['foreignKey' => 'custom_fk'], $inheritedWithForeignKeyField['flags'][InheritedFlag::class]['args'] ?? null, 'foreignKey parameter should be passed through');
 
-        // Verify inherited association field has ReverseInherited flag
         static::assertNotNull($inheritedProductField, 'product field not found');
         static::assertArrayHasKey(ReverseInheritedFlag::class, $inheritedProductField['flags'], 'product should have ReverseInherited flag');
         static::assertIsArray($inheritedProductField['flags'][ReverseInheritedFlag::class]);
@@ -161,67 +126,59 @@ class AttributeEntityCompilerTest extends TestCase
     {
         $compiledResult = (new AttributeEntityCompiler())->compile(AttributeEntityWithSearchRanking::class);
 
-        // Find the main entity definition (not mapping tables)
-        $entityDefinition = null;
-        foreach ($compiledResult as $result) {
-            if ($result['type'] === 'entity' && $result['entity_name'] === 'attribute_entity_search_ranking') {
-                $entityDefinition = $result;
-                break;
-            }
-        }
+        $entityDefinition = $this->findEntityDefinition($compiledResult, 'attribute_entity_search_ranking');
+        $fields = array_column($entityDefinition['fields'], null, 'name');
 
-        static::assertNotNull($entityDefinition, 'Entity definition not found in compiled result');
+        $currencyField = $fields['currency'] ?? null;
+        $middleRankedStringField = $fields['middleRankedString'] ?? null;
+        $lowRankedStringField = $fields['lowRankedString'] ?? null;
+        $highRankedStringField = $fields['highRankedString'] ?? null;
 
-        // Find fields with SearchRanking flag
-        $currencyField = null;
-        $middleRankedStringField = null;
-        $lowRankedStringField = null;
-        $highRankedStringField = null;
-
-        foreach ($entityDefinition['fields'] as $field) {
-            switch ($field['name'] ?? null) {
-                case 'currency':
-                    $currencyField = $field;
-                    break;
-                case 'middleRankedString':
-                    $middleRankedStringField = $field;
-                    break;
-                case 'lowRankedString':
-                    $lowRankedStringField = $field;
-                    break;
-                case 'highRankedString':
-                    $highRankedStringField = $field;
-                    break;
-            }
-        }
-
-        // Verify currency field has SearchRanking flag with correct class and args
         static::assertNotNull($currencyField, 'currency field not found');
         static::assertArrayHasKey(SearchRankingFlag::class, $currencyField['flags'], 'currency should have SearchRanking flag');
         static::assertIsArray($currencyField['flags'][SearchRankingFlag::class]);
         static::assertSame(SearchRankingFlag::class, $currencyField['flags'][SearchRankingFlag::class]['class']);
         static::assertSame(['ranking' => SearchRanking::ASSOCIATION_SEARCH_RANKING, 'tokenize' => true], $currencyField['flags'][SearchRankingFlag::class]['args'] ?? null);
 
-        // Verify middle ranked string field has SearchRanking flag with correct class and args
         static::assertNotNull($middleRankedStringField, 'middle ranked string field not found');
         static::assertArrayHasKey(SearchRankingFlag::class, $middleRankedStringField['flags'], 'middle ranked string field should have SearchRanking flag');
         static::assertIsArray($middleRankedStringField['flags'][SearchRankingFlag::class]);
         static::assertSame(SearchRankingFlag::class, $middleRankedStringField['flags'][SearchRankingFlag::class]['class']);
         static::assertSame(['ranking' => SearchRanking::MIDDLE_SEARCH_RANKING, 'tokenize' => false], $middleRankedStringField['flags'][SearchRankingFlag::class]['args'] ?? null);
 
-        // Verify low ranked string field has SearchRanking flag with correct class and args
         static::assertNotNull($lowRankedStringField, 'low ranked string field not found');
         static::assertArrayHasKey(SearchRankingFlag::class, $lowRankedStringField['flags'], 'low ranked string field should have SearchRanking flag');
         static::assertIsArray($lowRankedStringField['flags'][SearchRankingFlag::class]);
         static::assertSame(SearchRankingFlag::class, $lowRankedStringField['flags'][SearchRankingFlag::class]['class']);
         static::assertSame(['ranking' => SearchRanking::LOW_SEARCH_RANKING, 'tokenize' => true], $lowRankedStringField['flags'][SearchRankingFlag::class]['args'] ?? null);
 
-        // Verify high ranked string field has SearchRanking flag with correct class and args
         static::assertNotNull($highRankedStringField, 'high ranked string field not found');
         static::assertArrayHasKey(SearchRankingFlag::class, $highRankedStringField['flags'], 'high ranked string field should have SearchRanking flag');
         static::assertIsArray($highRankedStringField['flags'][SearchRankingFlag::class]);
         static::assertSame(SearchRankingFlag::class, $highRankedStringField['flags'][SearchRankingFlag::class]['class']);
         static::assertSame(['ranking' => SearchRanking::HIGH_SEARCH_RANKING, 'tokenize' => false], $highRankedStringField['flags'][SearchRankingFlag::class]['args'] ?? null);
+    }
+
+    public function testCompileReturnsEmptyArrayForClassWithoutEntityAttribute(): void
+    {
+        $result = (new AttributeEntityCompiler())->compile(Entity::class);
+
+        static::assertSame([], $result);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $compiledResult
+     *
+     * @return array<string, mixed>
+     */
+    private function findEntityDefinition(array $compiledResult, string $entityName): array
+    {
+        $filtered = array_filter(
+            $compiledResult,
+            static fn (array $result) => $result['type'] === 'entity' && $result['entity_name'] === $entityName
+        );
+
+        return array_values($filtered)[0] ?? static::fail('Entity definition "' . $entityName . '" not found');
     }
 
     /**
@@ -468,6 +425,7 @@ class AttributeEntityCompilerTest extends TestCase
                         'args' => [
                             'string',
                             'string',
+                            255,
                         ],
                     ],
                     [
@@ -635,6 +593,7 @@ class AttributeEntityCompilerTest extends TestCase
                         'args' => [
                             'trans_string',
                             'transString',
+                            255,
                         ],
                     ],
                     [
@@ -745,6 +704,7 @@ class AttributeEntityCompilerTest extends TestCase
                         'args' => [
                             'another_column_name',
                             'differentName',
+                            255,
                         ],
                     ],
                     [
@@ -790,6 +750,7 @@ class AttributeEntityCompilerTest extends TestCase
                         'args' => [
                             'empty_string',
                             'emptyString',
+                            255,
                         ],
                     ],
                     [
@@ -976,6 +937,7 @@ class AttributeEntityCompilerTest extends TestCase
                         'args' => [
                             'html_string',
                             'htmlString',
+                            255,
                         ],
                     ],
                     [
@@ -987,6 +949,19 @@ class AttributeEntityCompilerTest extends TestCase
                         'args' => [
                             'email',
                             'email',
+                            255,
+                        ],
+                    ],
+                    [
+                        'type' => FieldType::STRING,
+                        'name' => 'longString',
+                        'class' => StringField::class,
+                        'flags' => [],
+                        'translated' => false,
+                        'args' => [
+                            'long_string',
+                            'longString',
+                            4096,
                         ],
                     ],
                     [

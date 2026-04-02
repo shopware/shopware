@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 readonly class AgenticCommerceProductExportProviderRegistry
 {
     /**
+     * @internal
+     *
      * @param iterable<AbstractAgenticCommerceProductExportProvider> $providers
      */
     public function __construct(private iterable $providers)

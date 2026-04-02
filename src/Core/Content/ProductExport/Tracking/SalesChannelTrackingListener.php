@@ -29,6 +29,8 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
+ *
+ * @final
  */
 #[Package('discovery')]
 class SalesChannelTrackingListener implements EventSubscriberInterface
@@ -44,6 +46,8 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
     private const CACHE_KEY_PREFIX = 'trackable-sales-channel-';
 
     /**
+     * @internal
+     *
      * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
      * @param EntityRepository<SalesChannelTrackingOrderCollection> $salesChannelTrackingOrderRepository
      * @param EntityRepository<SalesChannelTrackingCustomerCollection> $salesChannelTrackingCustomerRepository

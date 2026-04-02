@@ -19,6 +19,36 @@ const mockGet = jest.fn(() =>
     }),
 );
 
+const mockTemplates = {
+    'google-product-search-de': {
+        name: 'google-product-search-de',
+        bodyTemplate: '<item><g:id>{{ product.productNumber }}</g:id></item>',
+        headerTemplate: '<?xml version="1.0" encoding="UTF-8" ?>',
+        footerTemplate: '</channel></rss>',
+        fileName: 'google.xml',
+        encoding: 'UTF-8',
+        fileFormat: 'xml',
+    },
+    'idealo': {
+        name: 'idealo',
+        bodyTemplate: '"{{ product.productNumber }}"|"{{ product.translated.name }}"',
+        headerTemplate: '"sku"|"title"',
+        footerTemplate: '',
+        fileName: 'idealo.csv',
+        encoding: 'UTF-8',
+        fileFormat: 'csv',
+    },
+    'open_ai': {
+        name: 'open_ai',
+        bodyTemplate: '{{ feedRow|json_encode(constant("JSON_UNESCAPED_SLASHES"))|raw }}',
+        headerTemplate: '',
+        footerTemplate: '',
+        providerName: 'open-ai',
+        encoding: 'UTF-8',
+        fileFormat: 'jsonl',
+    },
+};
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-sales-channel-detail', { sync: true }), {
         global: {
@@ -215,5 +245,111 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(wrapper.vm.isSaveSuccessful).toBe(false);
         expect(wrapper.vm.isLoading).toBe(false);
         expect(mockGet).not.toHaveBeenCalled();
+    });
+
+    it('should detect open_ai agentic commerce template on load when product export bodyTemplate matches', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.salesChannel.productExports = {
+            first: () => ({ bodyTemplate: mockTemplates.open_ai.bodyTemplate }),
+        };
+
+        wrapper.vm.detectCurrentTemplate();
+
+        expect(wrapper.vm.productComparison.templateName).toBe('open_ai');
+    });
+
+    it('should not detect a template when product export bodyTemplate does not match any registered template', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.salesChannel.productExports = {
+            first: () => ({ bodyTemplate: '<custom>{{ product.name }}</custom>' }),
+        };
+
+        wrapper.vm.detectCurrentTemplate();
+
+        expect(wrapper.vm.productComparison.templateName).toBeNull();
+    });
+
+    it('should set templateName without modal when selecting a product comparison template with unchanged content', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const google = mockTemplates['google-product-search-de'];
+        wrapper.vm.salesChannel.productExports = {
+            first: () => ({
+                bodyTemplate: google.bodyTemplate,
+                headerTemplate: google.headerTemplate,
+                footerTemplate: google.footerTemplate,
+                fileName: google.fileName,
+                encoding: google.encoding,
+                fileFormat: google.fileFormat,
+                name: google.name,
+            }),
+        };
+
+        wrapper.vm.onTemplateSelected('google-product-search-de');
+
+        expect(wrapper.vm.productComparison.templateName).toBe('google-product-search-de');
+        expect(wrapper.vm.productComparison.showTemplateModal).toBe(false);
+    });
+
+    it('should store previousTemplateName and show modal when switching from google to idealo template', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.productComparison.templateName = 'google-product-search-de';
+
+        const { bodyTemplate, headerTemplate, footerTemplate } = mockTemplates['google-product-search-de'];
+        wrapper.vm.salesChannel.productExports = {
+            first: () => ({ bodyTemplate, headerTemplate, footerTemplate }),
+        };
+
+        wrapper.vm.onTemplateSelected('idealo');
+
+        expect(wrapper.vm.productComparison.previousTemplateName).toBe('google-product-search-de');
+        expect(wrapper.vm.productComparison.templateName).toBe('idealo');
+        expect(wrapper.vm.productComparison.showTemplateModal).toBe(true);
+    });
+
+    it('should restore previousTemplateName when template modal is closed without confirming', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.productComparison.templateName = 'idealo';
+        wrapper.vm.productComparison.previousTemplateName = 'google-product-search-de';
+        wrapper.vm.productComparison.showTemplateModal = true;
+        wrapper.vm.productComparison.selectedTemplate = { ...mockTemplates.idealo };
+
+        wrapper.vm.onTemplateModalClose();
+
+        expect(wrapper.vm.productComparison.templateName).toBe('google-product-search-de');
+        expect(wrapper.vm.productComparison.previousTemplateName).toBeNull();
+        expect(wrapper.vm.productComparison.selectedTemplate).toBeNull();
+        expect(wrapper.vm.productComparison.showTemplateModal).toBe(false);
+    });
+
+    it('should apply open_ai agentic commerce template with providerName mapping and keep templateName on confirm', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.productComparison.previousTemplateName = 'google-product-search-de';
+        wrapper.vm.productComparison.templateName = 'open_ai';
+        wrapper.vm.productComparison.selectedTemplate = { ...mockTemplates.open_ai };
+        wrapper.vm.productComparison.showTemplateModal = true;
+
+        const productExport = wrapper.vm.productExport;
+
+        wrapper.vm.onTemplateModalConfirm();
+
+        expect(productExport.bodyTemplate).toBe(mockTemplates.open_ai.bodyTemplate);
+        expect(productExport.headerTemplate).toBe('');
+        expect(productExport.footerTemplate).toBe('');
+        expect(productExport.provider).toBe('open-ai');
+        expect(wrapper.vm.productComparison.templateName).toBe('open_ai');
+        expect(wrapper.vm.productComparison.previousTemplateName).toBeNull();
+        expect(wrapper.vm.productComparison.showTemplateModal).toBe(false);
     });
 });

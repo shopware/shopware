@@ -287,7 +287,6 @@ class ProductListingLoader
         }
 
         $groupedResult = $this->productRepository->searchIds($criteria, $context);
-
         $missingExplicitProductIds = array_values(array_diff($explicitProductIds, $groupedResult->getIds()));
         if ($missingExplicitProductIds === []) {
             return $groupedResult;

@@ -514,6 +514,34 @@ class ProductListingLoaderTest extends TestCase
         ]));
     }
 
+    public function testExplicitProductIdsWithAndFilterKeepMatchingSelection(): void
+    {
+        $this->createProduct(['color', 'size'], true);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.parentId', $this->productId));
+        $criteria->addFilter(new EqualsAnyFilter('product.id', [$this->variantIds['greenL'], $this->variantIds['greenXl']]));
+        $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
+        $listing = $this->productListingLoader->load($criteria, $this->salesChannelContext);
+
+        static::assertSame(2, $listing->getTotal());
+        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], $listing->getIds());
+    }
+
+    public function testExplicitProductIdsWithAndFilterReturnIntersectionOnly(): void
+    {
+        $this->createProduct(['color', 'size'], true);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.parentId', $this->productId));
+        $criteria->addFilter(new EqualsAnyFilter('product.id', [$this->variantIds['greenL'], $this->variantIds['greenXl']]));
+        $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['xl']));
+        $listing = $this->productListingLoader->load($criteria, $this->salesChannelContext);
+
+        static::assertSame(1, $listing->getTotal());
+        static::assertSame([$this->variantIds['greenXl']], array_values($listing->getIds()));
+    }
+
     public function testMainVariantAndVariantGroupsWithPostFilterOnOptions(): void
     {
         // main variant and variant groups be set initially

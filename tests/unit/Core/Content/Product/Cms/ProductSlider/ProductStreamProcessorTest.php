@@ -11,17 +11,14 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor;
-use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
@@ -242,87 +239,6 @@ class ProductStreamProcessorTest extends TestCase
         static::assertEmpty($slider->getProducts());
     }
 
-    public function testEnrichLoadsMissingExplicitProductIdsWithoutCollapsingThem(): void
-    {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
-
-        $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
-        $this->config->add($config);
-
-        $streamCriteria = new Criteria();
-        $streamCriteria->addFilter(new EqualsAnyFilter('product.id', ['child-1', 'child-2']));
-
-        $selectedVariant = $this->createVariantProduct('child-1', 'parent-1', 'main-variant');
-        $missingVariant = $this->createVariantProduct('child-2', 'parent-1', 'main-variant');
-        $streamProducts = new ProductCollection([$selectedVariant]);
-        $streamSearchResult = new EntitySearchResult(
-            'product',
-            1,
-            $streamProducts,
-            null,
-            $streamCriteria,
-            Context::createDefaultContext()
-        );
-
-        $data = new ElementDataCollection();
-        $data->add('product-slider-entity-fallback_id', $streamSearchResult);
-
-        $this->productRepository->expects($this->once())
-            ->method('search')
-            ->willReturnCallback(function (Criteria $criteria) use ($missingVariant, $selectedVariant): EntitySearchResult {
-                static::assertSame(['child-1', 'child-2'], $criteria->getIds());
-
-                return $this->getEntitySearchResult(new ProductCollection([$selectedVariant, $missingVariant]));
-            });
-
-        $this->getProcessor()->enrich($slot, $data, $resolverContext);
-
-        $slider = $slot->getData();
-        static::assertInstanceOf(ProductSliderStruct::class, $slider);
-        static::assertSame(['child-1', 'child-2'], array_values($slider->getProducts()->getIds()));
-    }
-
-    public function testEnrichRespectsConfiguredLimitWhenExplicitIdsExpandSameDisplayGroup(): void
-    {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
-
-        $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
-        $this->config->add($config);
-
-        $streamCriteria = new Criteria();
-        $streamCriteria->addFilter(new EqualsAnyFilter('product.id', ['child-1', 'child-2']));
-        $streamCriteria->setLimit(1);
-
-        $selectedVariant = $this->createVariantProduct('child-1', 'parent-1', 'main-variant');
-        $streamSearchResult = new EntitySearchResult(
-            'product',
-            1,
-            new ProductCollection([$selectedVariant]),
-            null,
-            $streamCriteria,
-            Context::createDefaultContext()
-        );
-
-        $data = new ElementDataCollection();
-        $data->add('product-slider-entity-fallback_id', $streamSearchResult);
-
-        $this->productRepository->expects($this->once())
-            ->method('search')
-            ->willReturnCallback(function (Criteria $criteria) use ($selectedVariant): EntitySearchResult {
-                static::assertSame(['child-1'], array_values($criteria->getIds()));
-
-                return $this->getEntitySearchResult(new ProductCollection([$selectedVariant]));
-            });
-
-        $this->getProcessor()->enrich($slot, $data, $resolverContext);
-
-        $slider = $slot->getData();
-        static::assertInstanceOf(ProductSliderStruct::class, $slider);
-        static::assertSame(['child-1'], array_values($slider->getProducts()->getIds()));
-    }
-
     private function getProcessor(): ProductStreamProcessor
     {
         return new ProductStreamProcessor($this->productStreamBuilder, $this->productRepository, $this->eventDispatcher);
@@ -333,20 +249,6 @@ class ProductStreamProcessorTest extends TestCase
         return new MultiFilter(MultiFilter::CONNECTION_OR, [
             new ContainsFilter('product.name', 'Awesome'),
             new EqualsFilter('product.id', 'product-1'),
-        ]);
-    }
-
-    private function createVariantProduct(string $id, string $parentId, string $mainVariantId): ProductEntity
-    {
-        return (new ProductEntity())->assign([
-            'id' => $id,
-            '_uniqueIdentifier' => $id,
-            'parentId' => $parentId,
-            'variantListingConfig' => new VariantListingConfig(
-                false,
-                $mainVariantId,
-                null
-            ),
         ]);
     }
 }

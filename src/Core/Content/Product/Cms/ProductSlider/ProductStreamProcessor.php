@@ -12,7 +12,6 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\Util\ExplicitProductIdResolver;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
@@ -134,12 +133,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         SalesChannelContext $context,
         Criteria $originCriteria
     ): ProductCollection {
-        $explicitProductIds = ExplicitProductIdResolver::fromCriteria($originCriteria);
-
-        $finalProductIds = $this->collectFinalProductIds($streamResult, $explicitProductIds);
-        $finalProductIds = array_values(array_unique([...$finalProductIds, ...$explicitProductIds]));
-        $finalProductIds = \array_slice($finalProductIds, 0, $originCriteria->getLimit() ?? null);
-
+        $finalProductIds = $this->collectFinalProductIds($streamResult);
         if ($finalProductIds === []) {
             return new ProductCollection();
         }
@@ -155,18 +149,10 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
     /**
      * @return list<string>
      */
-    private function collectFinalProductIds(ProductCollection $streamResult, array $explicitProductIds = []): array
+    private function collectFinalProductIds(ProductCollection $streamResult): array
     {
-        $explicitProductIds = array_flip($explicitProductIds);
         $finalProductIds = [];
-
         foreach ($streamResult as $product) {
-            if (isset($explicitProductIds[$product->getId()])) {
-                $finalProductIds[] = $product->getId();
-
-                continue;
-            }
-
             $variantConfig = $product->getVariantListingConfig();
 
             if (!$variantConfig) {

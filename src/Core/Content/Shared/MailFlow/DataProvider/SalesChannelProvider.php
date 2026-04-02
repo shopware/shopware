@@ -2,30 +2,33 @@
 
 namespace Shopware\Core\Content\Shared\MailFlow\DataProvider;
 
-use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentDefinition;
-use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
  *
- * @extends AbstractProvider<DocumentEntity, DocumentCollection>
+ * @extends AbstractProvider<SalesChannelEntity, SalesChannelCollection>
  */
 #[Package('after-sales')]
-class DocumentProvider extends AbstractProvider
+class SalesChannelProvider extends AbstractProvider
 {
     public function getEntityName(): string
     {
-        return DocumentDefinition::ENTITY_NAME;
+        return SalesChannelDefinition::ENTITY_NAME;
     }
 
     protected function constructCriteria(string $entityId): Criteria
     {
         $criteria = new Criteria([$entityId]);
 
-        $criteria->addAssociation('documentA11yMediaFile');
+        $criteria->addAssociations([
+            'domains',
+            'mailHeaderFooter',
+        ]);
 
         return $criteria;
     }

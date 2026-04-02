@@ -56,6 +56,20 @@
             <tag name="shopware.mail.data_provider" key="order_transaction"/>
         </service>
 
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\SalesChannelProvider">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="sales_channel"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\StateMachineStateProvider">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.mail.data_provider" key="state_machine_state"/>
+        </service>
+
         <service id="Shopware\Core\Content\Shared\MailFlow\DataProvider\UserRecoveryProvider">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="service_container"/>

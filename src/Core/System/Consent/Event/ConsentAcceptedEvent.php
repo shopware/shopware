@@ -12,6 +12,7 @@ readonly class ConsentAcceptedEvent
         public string $consentScope,
         public string $identifier,
         public string $actor,
+        public ?string $revision = null,
     ) {
     }
 }

@@ -32,6 +32,7 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
+use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
@@ -71,7 +72,7 @@ class WebhookManagerTest extends TestCase
         $stack = HandlerStack::create($this->clientMock);
         $stack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
         $guzzle = new Client(['handler' => $stack]);
-        $this->webhookClient = new WebhookClient($guzzle, $this->clock);
+        $this->webhookClient = new WebhookClient($guzzle);
         $this->eventFactory = $this->createMock(HookableEventFactory::class);
         $this->bus = new CollectingMessageBus();
     }
@@ -357,11 +358,10 @@ class WebhookManagerTest extends TestCase
         $expectedContents = json_decode($expectedRequest->getBody()->getContents(), true);
         $contents = json_decode($request->getBody()->getContents(), true);
         static::assertIsArray($contents);
-        static::assertArrayHasKey('createdTimestamp', $contents);
         static::assertArrayHasKey('timestamp', $contents);
         static::assertArrayHasKey('source', $contents);
         static::assertArrayHasKey('eventId', $contents['source']);
-        unset($contents['createdTimestamp'], $contents['timestamp'], $contents['source']['eventId']);
+        unset($contents['timestamp'], $contents['source']['eventId']);
         static::assertEquals($expectedContents, $contents);
     }
 
@@ -425,6 +425,44 @@ class WebhookManagerTest extends TestCase
     {
         $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
         $appPayloadServiceHelper->expects($this->any())->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
+        $appPayloadServiceHelper->expects($this->any())->method('createWebhookRequest')->willReturnCallback(
+            function (
+                array $payload,
+                string $url,
+                string $shopwareVersion,
+                int $connectionTimeout,
+                int $requestTimeout,
+                ?string $secret = null,
+                ?string $languageId = null,
+                ?string $userLocale = null,
+                array $webhookHeaders = []
+            ): WebhookRequest {
+                $payload['timestamp'] = time();
+                $jsonPayload = json_encode($payload, \JSON_THROW_ON_ERROR);
+                $headers = array_merge(
+                    ['Content-Type' => 'application/json', 'sw-version' => $shopwareVersion],
+                    $webhookHeaders
+                );
+
+                if ($languageId !== null && $userLocale !== null) {
+                    $headers[AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE] = $languageId;
+                    $headers[AuthMiddleware::SHOPWARE_USER_LANGUAGE] = $userLocale;
+                }
+
+                $options = ['connect_timeout' => $connectionTimeout, 'timeout' => $requestTimeout];
+                if ($secret !== null) {
+                    $options[AuthMiddleware::APP_REQUEST_TYPE] = [AuthMiddleware::APP_SECRET => $secret];
+                }
+
+                return new WebhookRequest(
+                    new Request('POST', $url, $headers, $jsonPayload),
+                    $headers,
+                    $jsonPayload,
+                    time(),
+                    $options,
+                );
+            }
+        );
 
         return new WebhookManager(
             $this->webhookLoader,

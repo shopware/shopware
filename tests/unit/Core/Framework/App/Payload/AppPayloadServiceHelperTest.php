@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 
@@ -57,7 +58,8 @@ class AppPayloadServiceHelperTest extends TestCase
             $this->createMock(JsonEntityEncoder::class),
             $shopIdProvider,
             $inAppPurchase,
-            'https://shopware.com'
+            'https://shopware.com',
+            new MockClock(),
         );
 
         $source = $appPayloadServiceHelper->buildSource('1.0.0', 'TestApp');
@@ -95,7 +97,8 @@ class AppPayloadServiceHelperTest extends TestCase
             $entityEncoder,
             $this->createMock(ShopIdProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),
-            'https://shopware.com'
+            'https://shopware.com',
+            new MockClock(),
         );
 
         $array = $appPayloadServiceHelper->encode($payload);
@@ -119,7 +122,8 @@ class AppPayloadServiceHelperTest extends TestCase
             $entityEncoder,
             $shopIdProvider,
             StaticInAppPurchaseFactory::createWithFeatures(),
-            'https://shopware.com'
+            'https://shopware.com',
+            new MockClock(),
         );
 
         $app = new AppEntity();
@@ -161,7 +165,8 @@ class AppPayloadServiceHelperTest extends TestCase
             $entityEncoder,
             $shopIdProvider,
             StaticInAppPurchaseFactory::createWithFeatures(),
-            'https://shopware.com'
+            'https://shopware.com',
+            new MockClock(),
         );
 
         $app = new AppEntity();
@@ -204,7 +209,8 @@ class AppPayloadServiceHelperTest extends TestCase
             $entityEncoder,
             $shopIdProvider,
             StaticInAppPurchaseFactory::createWithFeatures(),
-            'https://shopware.com'
+            'https://shopware.com',
+            new MockClock(),
         );
 
         $app = new AppEntity();

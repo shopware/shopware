@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Webhook\Handler;
 use GuzzleHttp\Exception\BadResponseException;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
+use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
@@ -31,6 +32,7 @@ final readonly class WebhookEventMessageHandler
      */
     public function __construct(
         private WebhookClient $webhookClient,
+        private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
         private readonly ClockInterface $clock,
         private EntityRepository $webhookEventLogRepository,
         private RelatedWebhooks $relatedWebhooks,
@@ -40,7 +42,17 @@ final readonly class WebhookEventMessageHandler
     public function __invoke(WebhookEventMessage $message): void
     {
         $context = Context::createDefaultContext();
-        $request = $this->webhookClient->createRequest($message);
+        $request = $this->appPayloadServiceHelper->createWebhookRequest(
+            $message->getPayload(),
+            $message->getUrl(),
+            $message->getShopwareVersion(),
+            WebhookClient::CONNECT_TIMEOUT,
+            WebhookClient::REQUEST_TIMEOUT,
+            $message->getSecret(),
+            $message->getLanguageId(),
+            $message->getUserLocale(),
+            $message->getWebhookHeaders(),
+        );
 
         $this->updateLogIfItExists(
             [

@@ -94,7 +94,6 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         static::assertSame('POST', $request->getMethod());
         static::assertSame($body['body'], 'payload');
-        static::assertSame($webhookEventMessage->getCreatedTimestamp(), $body['createdTimestamp']);
         static::assertGreaterThanOrEqual($body['timestamp'], $timestamp);
         static::assertTrue($request->hasHeader('sw-version'));
         static::assertSame($request->getHeaderLine('sw-version'), '6.4');
@@ -189,7 +188,6 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         static::assertSame('POST', $request->getMethod());
         static::assertSame($body['body'], 'payload');
-        static::assertSame($webhookEventMessage->getCreatedTimestamp(), $body['createdTimestamp']);
         static::assertGreaterThanOrEqual($body['timestamp'], $timestamp);
         static::assertTrue($request->hasHeader('sw-version'));
         static::assertSame($request->getHeaderLine('sw-version'), '6.4');
@@ -262,7 +260,6 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         static::assertSame('POST', $request->getMethod());
         static::assertSame($body['body'], 'payload');
-        static::assertSame($webhookEventMessage->getCreatedTimestamp(), $body['createdTimestamp']);
         static::assertGreaterThanOrEqual($body['timestamp'], $timestamp);
         static::assertTrue($request->hasHeader('sw-version'));
         static::assertSame($request->getHeaderLine('sw-version'), '6.4');

@@ -175,7 +175,17 @@ class WebhookManager implements ResetInterface
         foreach ($webhooksForEvent as $webhook) {
             $message = $this->createWebhookMessage($webhook, $event, $languageId, $userLocale);
             if ($message !== null) {
-                $requests[$message->getWebhookEventId()] = $this->webhookClient->createRequest($message);
+                $requests[$message->getWebhookEventId()] = $this->appPayloadServiceHelper->createWebhookRequest(
+                    $message->getPayload(),
+                    $message->getUrl(),
+                    $message->getShopwareVersion(),
+                    WebhookClient::CONNECT_TIMEOUT,
+                    WebhookClient::REQUEST_TIMEOUT,
+                    $message->getSecret(),
+                    $message->getLanguageId(),
+                    $message->getUserLocale(),
+                    $message->getWebhookHeaders(),
+                );
             }
         }
 

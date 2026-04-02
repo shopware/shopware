@@ -170,9 +170,8 @@ class WebhookManagerTest extends TestCase
         static::assertSame('Max', $data['data']['payload']['customer']['firstName']);
         static::assertSame('Mustermann', $data['data']['payload']['customer']['lastName']);
         static::assertArrayHasKey('timestamp', $data);
-        static::assertArrayHasKey('createdTimestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
-        unset($data['timestamp'], $data['createdTimestamp'], $data['data']['payload']['customer'], $data['source']['eventId']);
+        unset($data['timestamp'], $data['data']['payload']['customer'], $data['source']['eventId']);
         static::assertSame([
             'data' => [
                 'payload' => [
@@ -250,9 +249,8 @@ class WebhookManagerTest extends TestCase
 
         $payload = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $payload);
-        static::assertArrayHasKey('createdTimestamp', $payload);
         static::assertArrayHasKey('eventId', $payload['source']);
-        unset($payload['timestamp'], $payload['createdTimestamp'], $payload['source']['eventId']);
+        unset($payload['timestamp'], $payload['source']['eventId']);
 
         static::assertSame([
             'data' => [
@@ -294,9 +292,8 @@ class WebhookManagerTest extends TestCase
 
             $payload = json_decode($request->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
             static::assertArrayHasKey('timestamp', $payload);
-            static::assertArrayHasKey('createdTimestamp', $payload);
             static::assertArrayHasKey('eventId', $payload['source']);
-            unset($payload['timestamp'], $payload['createdTimestamp'], $payload['source']['eventId']);
+            unset($payload['timestamp'], $payload['source']['eventId']);
 
             static::assertSame(
                 [
@@ -377,9 +374,8 @@ class WebhookManagerTest extends TestCase
         $payload = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         $actualUpdatedFields = $payload['data']['payload'][0]['updatedFields'];
         static::assertArrayHasKey('timestamp', $payload);
-        static::assertArrayHasKey('createdTimestamp', $payload);
         static::assertArrayHasKey('eventId', $payload['source']);
-        unset($payload['data']['payload'][0]['updatedFields'], $payload['timestamp'], $payload['createdTimestamp'], $payload['source']['eventId']);
+        unset($payload['data']['payload'][0]['updatedFields'], $payload['timestamp'], $payload['source']['eventId']);
 
         static::assertSame([
             'data' => [
@@ -474,9 +470,8 @@ class WebhookManagerTest extends TestCase
 
         $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
-        static::assertArrayHasKey('createdTimestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
-        unset($data['timestamp'], $data['createdTimestamp'], $data['source']['eventId']);
+        unset($data['timestamp'], $data['source']['eventId']);
 
         static::assertSame([
             'data' => [
@@ -528,9 +523,8 @@ class WebhookManagerTest extends TestCase
 
         $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
-        static::assertArrayHasKey('createdTimestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
-        unset($data['timestamp'], $data['createdTimestamp'], $data['source']['eventId']);
+        unset($data['timestamp'], $data['source']['eventId']);
 
         static::assertSame([
             'data' => [
@@ -677,9 +671,8 @@ class WebhookManagerTest extends TestCase
 
         $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
-        static::assertArrayHasKey('createdTimestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
-        unset($data['timestamp'], $data['createdTimestamp'], $data['source']['eventId']);
+        unset($data['timestamp'], $data['source']['eventId']);
 
         static::assertSame([
             'data' => [
@@ -744,9 +737,8 @@ class WebhookManagerTest extends TestCase
 
         $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
-        static::assertArrayHasKey('createdTimestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
-        unset($data['timestamp'], $data['createdTimestamp'], $data['source']['eventId']);
+        unset($data['timestamp'], $data['source']['eventId']);
 
         static::assertSame([
             'data' => [
@@ -802,9 +794,8 @@ class WebhookManagerTest extends TestCase
 
         $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('timestamp', $data);
-        static::assertArrayHasKey('createdTimestamp', $data);
         static::assertArrayHasKey('eventId', $data['source']);
-        unset($data['timestamp'], $data['createdTimestamp'], $data['source']['eventId']);
+        unset($data['timestamp'], $data['source']['eventId']);
 
         static::assertSame([
             'data' => [
@@ -895,7 +886,7 @@ class WebhookManagerTest extends TestCase
 
                 return true;
             }))
-            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB', createdTimestamp: (new \DateTimeImmutable())->getTimestamp())));
+            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB', )));
 
         $this->getManager($client, false)->dispatch($event);
     }
@@ -947,7 +938,7 @@ class WebhookManagerTest extends TestCase
 
                 return true;
             }))
-            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, null, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB', createdTimestamp: (new \DateTimeImmutable())->getTimestamp())));
+            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, null, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB', )));
 
         $this->getManager($client, false)->dispatch($event);
     }
@@ -1075,7 +1066,7 @@ class WebhookManagerTest extends TestCase
             static::getContainer()->get(HookableEventFactory::class),
             static::getContainer()->get(AppLocaleProvider::class),
             static::getContainer()->get(AppPayloadServiceHelper::class),
-            new WebhookClient($guzzle, $clock),
+            new WebhookClient($guzzle),
             $clock,
             $this->bus,
             $this->shopUrl,

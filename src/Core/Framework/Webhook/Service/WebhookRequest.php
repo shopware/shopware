@@ -17,14 +17,14 @@ final readonly class WebhookRequest
      * while the event log should persist the curated payload we prepared before handing it to the client.
      *
      * @param array<string, string> $headers
+     * @param array<string, mixed> $options Pre-built Guzzle request options (timeouts, auth middleware config)
      */
     public function __construct(
         public RequestInterface $request,
         public array $headers,
         public string $body,
         public int $timestamp,
-        #[\SensitiveParameter]
-        public ?string $secret,
+        public array $options = [],
     ) {
     }
 }

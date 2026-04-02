@@ -201,6 +201,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
             <argument type="string">%env(APP_URL)%</argument>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActiveAppsLoader">

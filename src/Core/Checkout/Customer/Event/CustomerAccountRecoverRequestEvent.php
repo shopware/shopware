@@ -74,10 +74,10 @@ class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAw
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('customerRecovery', new EntityType(CustomerRecoveryDefinition::class))
-            ->add('customer', new EntityType(CustomerDefinition::class))
-            ->add('resetUrl', new ScalarValueType(ScalarValueType::TYPE_STRING))
-            ->add('shopName', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add(CustomerRecoveryAware::CUSTOMER_RECOVERY, new EntityType(CustomerRecoveryDefinition::class))
+            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class))
+            ->add(FlowMailVariables::RESET_URL, new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add(FlowMailVariables::SHOP_NAME, new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
     public function getMailStruct(): MailRecipientStruct

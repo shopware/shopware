@@ -53,7 +53,7 @@ class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, Sales
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('order', new EntityType(OrderDefinition::class));
+            ->add(OrderAware::ORDER, new EntityType(OrderDefinition::class));
     }
 
     public function getContext(): Context

@@ -56,7 +56,7 @@ class CustomerLogoutEvent extends Event implements SalesChannelAware, ShopwareSa
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('customer', new EntityType(CustomerDefinition::class));
+            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class));
     }
 
     public function getCustomerId(): string

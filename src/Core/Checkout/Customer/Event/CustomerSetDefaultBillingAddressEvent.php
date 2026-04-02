@@ -2,8 +2,11 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
@@ -13,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('checkout')]
-class CustomerSetDefaultBillingAddressEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, FlowEventAware
+class CustomerSetDefaultBillingAddressEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, FlowEventAware, CustomerAware
 {
     final public const EVENT_NAME = 'checkout.customer.default.billing.address.event';
 
@@ -34,6 +37,11 @@ class CustomerSetDefaultBillingAddressEvent extends Event implements SalesChanne
         return $this->customer;
     }
 
+    public function getCustomerId(): string
+    {
+        return $this->customer->getId();
+    }
+
     public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->salesChannelContext;
@@ -51,7 +59,8 @@ class CustomerSetDefaultBillingAddressEvent extends Event implements SalesChanne
 
     public static function getAvailableData(): EventDataCollection
     {
-        return new EventDataCollection();
+        return (new EventDataCollection())
+            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class));
     }
 
     public function getAddressId(): string

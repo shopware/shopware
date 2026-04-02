@@ -45,7 +45,7 @@ class NewsletterUnsubscribeEvent extends Event implements SalesChannelAware, Mai
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('newsletterRecipient', new EntityType(NewsletterRecipientDefinition::class));
+            ->add(NewsletterRecipientAware::NEWSLETTER_RECIPIENT, new EntityType(NewsletterRecipientDefinition::class));
     }
 
     public function getNewsletterRecipient(): NewsletterRecipientEntity

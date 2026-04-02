@@ -8,6 +8,7 @@ let repositoryFactoryMock;
 let repositoryFactoryCreateMock;
 
 async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {}) {
+    const swProductDetailLoadAll = jest.fn(() => Promise.resolve());
     const productMediaRepositoryMock = {
         create: jest.fn(() => {
             return {
@@ -85,6 +86,7 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
                     stopEventListener: () => {},
                 },
                 fileValidationService: {},
+                swProductDetailLoadAll,
             },
             stubs: {
                 'sw-container': await wrapTestComponent('sw-container', {
@@ -529,6 +531,21 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         await flushPromises();
 
         expect(wrapper.vm.productRepository.save).toHaveBeenCalledTimes(1);
+    });
+
+    it('should reload product detail state after deleting variants', async () => {
+        global.activeAclRoles = ['product.deleter'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const deleteContextButton = wrapper.find('.sw-context-menu-item.sw-context-menu-item--danger');
+        await deleteContextButton.trigger('click');
+
+        await wrapper.findByText('button', 'sw-product.variations.generatedListDeleteModalButtonDelete').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.swProductDetailLoadAll).toHaveBeenCalledTimes(1);
     });
 
     it('should contain a currencyColumns computed property', async () => {

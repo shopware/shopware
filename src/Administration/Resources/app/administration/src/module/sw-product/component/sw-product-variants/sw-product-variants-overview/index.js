@@ -17,6 +17,7 @@ export default {
         'acl',
         'feature',
         'mediaService',
+        'swProductDetailLoadAll',
     ],
 
     emits: [
@@ -720,15 +721,18 @@ export default {
                 this.productRepository
                     .syncDeleted(variantIds)
                     .then(() => {
+                        this.$refs.variantGrid.resetSelection();
+
+                        return this.swProductDetailLoadAll()
+                            .then(() => this.getList());
+                    })
+                    .then(() => {
                         this.modalLoading = false;
                         this.toBeDeletedVariantIds = [];
 
                         this.createNotificationSuccess({
                             message: this.$t('sw-product.variations.generatedListMessageDeleteSuccess'),
                         });
-
-                        this.$refs.variantGrid.resetSelection();
-                        this.getList();
                     })
                     .catch(() => {
                         this.modalLoading = false;

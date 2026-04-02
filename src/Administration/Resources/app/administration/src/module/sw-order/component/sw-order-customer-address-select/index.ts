@@ -202,8 +202,7 @@ export default Component.wrapComponentConfig({
                 return customerAddresses;
             }
 
-            const selectedAddress =
-                this.customerAddresses.find((address) => address.id === this.addressId);
+            const selectedAddress = this.customerAddresses.find((address) => address.id === this.addressId);
 
             if (selectedAddress) {
                 customerAddresses.unshift(selectedAddress);

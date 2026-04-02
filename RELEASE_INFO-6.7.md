@@ -59,6 +59,10 @@ This is helpful for stores that do not require search keywords and want to avoid
 
 ## Features
 
+### Product Open Graph fields for SEO and social sharing
+
+Merchants can now set custom Open Graph title, description, and image per product in the product SEO tab in the administration. These values are used for the storefront product detail page meta tags (`og:title`, `og:description`, `og:image`), improving how product links appear when shared on social media and in search results. The fields are stored in the database, exposed via the Admin and Store API on the product entity, and default to the product meta title, meta description, and cover image when not set.
+
 ### Default CMS page ID now persisted for categories
 
 Previously, when a category had no CMS page assigned, the default CMS page ID was only set at runtime during entity loading. This caused missing `cmsPage` association data when loading categories with criteria that included the `cmsPage` association.

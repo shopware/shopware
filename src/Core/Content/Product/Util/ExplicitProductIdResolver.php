@@ -14,9 +14,6 @@ use Shopware\Core\Framework\Log\Package;
 final class ExplicitProductIdResolver
 {
     /**
-     * Product stream and DAL filters may address the product primary key either as plain `id`
-     * or as the fully qualified `product.id`.
-     *
      * @var list<string>
      */
     private const SUPPORTED_FIELDS = ['id', 'product.id'];
@@ -37,32 +34,6 @@ final class ExplicitProductIdResolver
     public static function fromFilters(array $filters): array
     {
         return array_values(array_unique(self::collect($filters)));
-    }
-
-    /**
-     * When explicit product ids are evaluated via `Criteria::setIds()`, the original explicit-id
-     * predicates become redundant. This method simplifies the filter tree accordingly so the
-     * remaining criteria only represent the additional constraints.
-     *
-     * @param array<array-key, Filter> $filters
-     *
-     * @return list<Filter>
-     */
-    public static function removeExplicitIdFilters(array $filters): array
-    {
-        $simplified = [];
-
-        foreach ($filters as $filter) {
-            $result = self::simplifyFilter($filter);
-
-            if ($result === true || $result === null) {
-                continue;
-            }
-
-            $simplified[] = $result;
-        }
-
-        return $simplified;
     }
 
     /**
@@ -103,61 +74,6 @@ final class ExplicitProductIdResolver
         }
 
         return $ids;
-    }
-
-    private static function simplifyFilter(Filter $filter): Filter|bool|null
-    {
-        if ($filter instanceof NotFilter) {
-            return $filter;
-        }
-
-        if (self::isExplicitIdFilter($filter)) {
-            return true;
-        }
-
-        if (!$filter instanceof MultiFilter) {
-            return $filter;
-        }
-
-        if ($filter->getOperator() === MultiFilter::CONNECTION_XOR) {
-            return $filter;
-        }
-
-        $queries = [];
-        foreach ($filter->getQueries() as $query) {
-            $simplified = self::simplifyFilter($query);
-
-            if ($simplified === true) {
-                if ($filter->getOperator() === MultiFilter::CONNECTION_OR) {
-                    return true;
-                }
-
-                continue;
-            }
-
-            if ($simplified instanceof Filter) {
-                $queries[] = $simplified;
-            }
-        }
-
-        if ($queries === []) {
-            return true;
-        }
-
-        if (\count($queries) === 1) {
-            return $queries[0];
-        }
-
-        return new MultiFilter($filter->getOperator(), $queries);
-    }
-
-    private static function isExplicitIdFilter(Filter $filter): bool
-    {
-        if ($filter instanceof EqualsFilter) {
-            return self::isSupportedField($filter->getField()) && \is_string($filter->getValue());
-        }
-
-        return $filter instanceof EqualsAnyFilter && self::isSupportedField($filter->getField());
     }
 
     private static function isSupportedField(string $field): bool

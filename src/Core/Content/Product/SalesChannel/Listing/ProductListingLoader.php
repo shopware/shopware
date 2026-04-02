@@ -287,34 +287,14 @@ class ProductListingLoader
         }
 
         $groupedResult = $this->productRepository->searchIds($criteria, $context);
-        $missingExplicitProductIds = array_values(array_diff($explicitProductIds, $groupedResult->getIds()));
-        if ($missingExplicitProductIds === []) {
-            return $groupedResult;
-        }
 
-        $groupedResultForExplicitMerge = $groupedResult;
-
-        if ($this->hasPagination($originalCriteria)) {
-            $groupedResultForExplicitMerge = $this->loadAllGroupedIds($criteria, $context);
-            $missingExplicitProductIds = array_values(array_diff($explicitProductIds, $groupedResultForExplicitMerge->getIds()));
-
-            if ($missingExplicitProductIds === []) {
-                return $groupedResult;
-            }
-        }
-
-        $explicitResult = $this->loadExplicitProductIds($originalCriteria, $missingExplicitProductIds, $context);
-        if ($explicitResult->getIds() === []) {
-            return $groupedResult;
-        }
-
-        $mergedResult = $this->mergeIdSearchResults($groupedResultForExplicitMerge, $explicitResult, $explicitProductIds);
-
-        if (!$this->hasPagination($originalCriteria)) {
-            return $mergedResult;
-        }
-
-        return $this->paginateIdSearchResult($mergedResult, $originalCriteria);
+        return $this->mergeExplicitProductSelection(
+            $groupedResult,
+            $criteria,
+            $originalCriteria,
+            $explicitProductIds,
+            $context
+        );
     }
 
     /**
@@ -389,19 +369,13 @@ class ProductListingLoader
      */
     private function createIdentityMapping(array $ids): array
     {
-        $mapping = array_combine($ids, $ids);
-
-        if ($mapping === false) {
-            return [];
-        }
-
-        return $mapping;
+        return array_combine($ids, $ids);
     }
 
     /**
      * @param list<string> $ids
      */
-    private function loadExplicitProductIds(Criteria $criteria, array $ids, SalesChannelContext $context): IdSearchResult
+    private function loadMatchingExplicitProductIds(Criteria $criteria, array $ids, SalesChannelContext $context): IdSearchResult
     {
         $criteria = clone $criteria;
         $criteria->setIds($ids);
@@ -420,7 +394,7 @@ class ProductListingLoader
         return $this->productRepository->searchIds($criteria, $context);
     }
 
-    private function loadAllGroupedIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
+    private function loadAllGroupedListingIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
         $criteria = clone $criteria;
         $criteria->setOffset(null);
@@ -430,13 +404,79 @@ class ProductListingLoader
     }
 
     /**
-     * @param list<string> $allExplicitIds
+     * A grouped listing may return `[main-variant-a, variant-b]`, while the stream explicitly selected `[variant-a-2]`. 
+     * In that case we reload the missing explicit id and then replace the grouped representative `main-variant-a` with `variant-a-2`.
+     *
+     * @param list<string> $explicitProductIds
      */
-    private function mergeIdSearchResults(IdSearchResult $groupedResult, IdSearchResult $explicitResult, array $allExplicitIds): IdSearchResult
+    private function mergeExplicitProductSelection(
+        IdSearchResult $groupedResult,
+        Criteria $groupedCriteria,
+        Criteria $originalCriteria,
+        array $explicitProductIds,
+        SalesChannelContext $context
+    ): IdSearchResult {
+        $missingExplicitProductIds = $this->findExplicitProductIdsMissingFromListing($explicitProductIds, $groupedResult);
+        if ($missingExplicitProductIds === []) {
+            return $groupedResult;
+        }
+
+        $completeGroupedResult = $groupedResult;
+        if ($this->hasPagination($originalCriteria)) {
+            $completeGroupedResult = $this->loadAllGroupedListingIds($groupedCriteria, $context);
+            $missingExplicitProductIds = $this->findExplicitProductIdsMissingFromListing($explicitProductIds, $completeGroupedResult);
+
+            if ($missingExplicitProductIds === []) {
+                return $groupedResult;
+            }
+        }
+
+        $matchingExplicitResult = $this->loadMatchingExplicitProductIds($originalCriteria, $missingExplicitProductIds, $context);
+        if ($matchingExplicitResult->getIds() === []) {
+            return $groupedResult;
+        }
+
+        $mergedResult = $this->mergeGroupedAndExplicitResults($completeGroupedResult, $matchingExplicitResult, $explicitProductIds);
+
+        if (!$this->hasPagination($originalCriteria)) {
+            return $mergedResult;
+        }
+
+        return $this->paginateIdSearchResult($mergedResult, $originalCriteria);
+    }
+
+    /**
+     * Grouping collapses each display group to a single representative.
+     * When an explicit product selection targets another member of that same display group,
+     * we remove the grouped representative and keep the explicitly selected products instead.
+     *
+     * Example:
+     * grouped ids:
+     * `[red-l, blue-m]`
+     *
+     * explicit ids that are still valid for the listing:
+     * `[green-l, green-xl]`
+     *
+     * display groups:
+     * `red-l`     => `shirt-parent-a`
+     * `green-l`   => `shirt-parent-a`
+     * `green-xl`  => `shirt-parent-a`
+     * `blue-m`    => `shirt-parent-b`
+     *
+     * final ids:
+     * `[green-l, green-xl, blue-m]`
+     *
+     * @param list<string> $explicitProductIds
+     */
+    private function mergeGroupedAndExplicitResults(IdSearchResult $groupedResult, IdSearchResult $explicitResult, array $explicitProductIds): IdSearchResult
     {
         $groupedIds = $this->getStringIds($groupedResult);
-        $resolvedExplicitIds = $this->resolveMergedExplicitIds($groupedIds, $this->getStringIds($explicitResult), $allExplicitIds);
-        $displayGroups = $this->loadDisplayGroups([
+        $resolvedExplicitIds = $this->resolveVisibleExplicitProductIds(
+            $groupedIds,
+            $this->getStringIds($explicitResult),
+            $explicitProductIds
+        );
+        $displayGroups = $this->loadDisplayGroupsForIds([
             ...$groupedIds,
             ...$resolvedExplicitIds,
         ], $groupedResult);
@@ -451,13 +491,10 @@ class ProductListingLoader
         );
 
         $data = [];
-        $removedGroupedIds = 0;
         foreach ($groupedIds as $id) {
             $displayGroup = $displayGroups[$id] ?? null;
 
             if ($displayGroup !== null && isset($explicitDisplayGroups[$displayGroup]) && !isset($explicitProductIds[$id])) {
-                ++$removedGroupedIds;
-
                 continue;
             }
 
@@ -467,7 +504,6 @@ class ProductListingLoader
             ];
         }
 
-        $addedIds = 0;
         foreach ($this->getStringIds($explicitResult) as $id) {
             if (isset($data[$id])) {
                 continue;
@@ -477,11 +513,10 @@ class ProductListingLoader
                 'primaryKey' => $id,
                 'data' => $explicitResult->getDataOfId($id),
             ];
-            ++$addedIds;
         }
 
         $result = new IdSearchResult(
-            $groupedResult->getTotal() - $removedGroupedIds + $addedIds,
+            \count($data),
             $data,
             $groupedResult->getCriteria(),
             $groupedResult->getContext()
@@ -495,11 +530,11 @@ class ProductListingLoader
     /**
      * @param list<string> $groupedIds
      * @param list<string> $loadedExplicitIds
-     * @param list<string> $allExplicitIds
+     * @param list<string> $explicitProductIds
      *
      * @return list<string>
      */
-    private function resolveMergedExplicitIds(array $groupedIds, array $loadedExplicitIds, array $allExplicitIds): array
+    private function resolveVisibleExplicitProductIds(array $groupedIds, array $loadedExplicitIds, array $explicitProductIds): array
     {
         $availableIds = array_fill_keys([
             ...$groupedIds,
@@ -507,9 +542,19 @@ class ProductListingLoader
         ], true);
 
         return array_values(array_filter(
-            $allExplicitIds,
+            $explicitProductIds,
             static fn (string $id): bool => isset($availableIds[$id])
         ));
+    }
+
+    /**
+     * @param list<string> $explicitProductIds
+     *
+     * @return list<string>
+     */
+    private function findExplicitProductIdsMissingFromListing(array $explicitProductIds, IdSearchResult $result): array
+    {
+        return array_values(array_diff($explicitProductIds, $this->getStringIds($result)));
     }
 
     /**
@@ -517,7 +562,7 @@ class ProductListingLoader
      *
      * @return array<string, string>
      */
-    private function loadDisplayGroups(array $ids, IdSearchResult $result): array
+    private function loadDisplayGroupsForIds(array $ids, IdSearchResult $result): array
     {
         if ($ids === []) {
             return [];

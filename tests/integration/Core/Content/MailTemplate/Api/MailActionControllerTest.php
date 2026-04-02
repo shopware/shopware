@@ -28,7 +28,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -43,7 +42,6 @@ class MailActionControllerTest extends TestCase
     use AdminApiTestBehaviour;
     use IntegrationTestBehaviour;
 
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testSendSuccess(): void
     {
         $context = Context::createDefaultContext();

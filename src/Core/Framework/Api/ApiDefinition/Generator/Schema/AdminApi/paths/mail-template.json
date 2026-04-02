@@ -20,20 +20,22 @@
                                     "salesChannelId",
                                     "contentHtml",
                                     "contentPlain",
-                                    "subject",
-                                    "senderName"
+                                    "subject"
                                 ],
                                 "properties": {
                                     "recipients": {
-                                        "description": "A list of recipients with name and mail address.",
+                                        "description": "A map of recipients with name and mail address.",
                                         "type": "object",
                                         "example": {
                                             "test1@example.com": "Test user 1",
                                             "test2@example.com": "Test user 2"
                                         },
                                         "additionalProperties": {
-                                            "description": "Name of the recipient.",
-                                            "type": "string"
+                                            "description": "Name of the recipient. Can be null to omit the display name.",
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         }
                                     },
                                     "salesChannelId": {
@@ -59,10 +61,24 @@
                                     },
                                     "senderEmail": {
                                         "description": "Mail address of the sender. If not set, `core.basicInformation.email` or `core.mailerSettings.senderAddress` will be used from the shop configuration.",
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "senderMail": {
+                                        "description": "Mail address of the sender. Legacy alias for `senderEmail`.",
+                                        "type": "string",
+                                        "format": "email"
                                     },
                                     "mediaIds": {
                                         "description": "List of media identifiers which should be attached to the mail.",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        }
+                                    },
+                                    "documentIds": {
+                                        "description": "List of document identifiers which should be attached to the mail.",
                                         "type": "array",
                                         "items": {
                                             "type": "string",
@@ -96,54 +112,103 @@
                                         }
                                     },
                                     "recipientsBcc": {
-                                        "description": "A list of recipients with name and mail address to be set in BCC.",
-                                        "type": "object",
-                                        "example": {
-                                            "test1@example.com": "Test user 1",
-                                            "test2@example.com": "Test user 2"
-                                        },
-                                        "additionalProperties": {
-                                            "description": "Name of the recipient.",
-                                            "type": "string"
-                                        }
+                                        "description": "A mail address or a map of recipients with name and mail address to be set in BCC.",
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "example": {
+                                                    "test1@example.com": "Test user 1",
+                                                    "test2@example.com": "Test user 2"
+                                                },
+                                                "additionalProperties": {
+                                                    "description": "Name of the recipient. Can be null to omit the display name.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
                                     },
                                     "recipientsCc": {
-                                        "description": "A list of recipients with name and mail address to be set in CC.",
-                                        "type": "object",
-                                        "example": {
-                                            "test1@example.com": "Test user 1",
-                                            "test2@example.com": "Test user 2"
-                                        },
-                                        "additionalProperties": {
-                                            "description": "Name of the recipient.",
-                                            "type": "string"
-                                        }
+                                        "description": "A mail address or a map of recipients with name and mail address to be set in CC.",
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "example": {
+                                                    "test1@example.com": "Test user 1",
+                                                    "test2@example.com": "Test user 2"
+                                                },
+                                                "additionalProperties": {
+                                                    "description": "Name of the recipient. Can be null to omit the display name.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
                                     },
                                     "replyTo": {
-                                        "description": "A list of mail addresses with name and mail address to be set in reply to.",
-                                        "type": "object",
-                                        "example": {
-                                            "test1@example.com": "Test user 1",
-                                            "test2@example.com": "Test user 2"
-                                        },
-                                        "additionalProperties": {
-                                            "description": "Name of the recipient.",
-                                            "type": "string"
-                                        }
+                                        "description": "A mail address or a map of mail addresses with name to be set in reply-to.",
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "example": {
+                                                    "test1@example.com": "Test user 1",
+                                                    "test2@example.com": "Test user 2"
+                                                },
+                                                "additionalProperties": {
+                                                    "description": "Name of the recipient. Can be null to omit the display name.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
                                     },
                                     "returnPath": {
-                                        "description": "A list of mail addresses with name and mail address to be set in return path.",
-                                        "type": "object",
-                                        "example": {
-                                            "test1@example.com": "Test user 1",
-                                            "test2@example.com": "Test user 2"
-                                        },
-                                        "additionalProperties": {
-                                            "description": "Name of the recipient.",
-                                            "type": "string"
-                                        }
+                                        "description": "A mail address or a map of mail addresses with name to be set in return-path.",
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "example": {
+                                                    "test1@example.com": "Test user 1",
+                                                    "test2@example.com": "Test user 2"
+                                                },
+                                                "additionalProperties": {
+                                                    "description": "Name of the recipient. Can be null to omit the display name.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
                                     },
-                                    "templateData": {
+                                    "mailTemplateId": {
+                                        "description": "Identifier of the mail template that should be used for attachments and sender defaults.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "mailTemplateData": {
                                         "description": "A map of available data that is used to fill the mail template.",
                                         "type": "object",
                                         "additionalProperties": true,
@@ -152,6 +217,10 @@
                                                 "name": "Storefront"
                                             }
                                         }
+                                    },
+                                    "testMode": {
+                                        "description": "Enables test mode while sending the mail.",
+                                        "type": "boolean"
                                     }
                                 },
                                 "type": "object"
@@ -178,6 +247,10 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Invalid request data",
+                        "$ref": "#/components/responses/400"
                     }
                 }
             }
@@ -190,6 +263,7 @@
                 "summary": "Validate a mail content",
                 "description": "Validates if content for a mail can be rendered without sending an email.",
                 "operationId": "validate",
+                "deprecated": true,
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -229,6 +303,7 @@
                 "summary": "Build up a mail template",
                 "description": "Generates a preview of a mail template when all the required data is passed through the request.",
                 "operationId": "build",
+                "deprecated": true,
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -288,6 +363,93 @@
                 }
             }
         },
+        "/_action/mail-template/simulate": {
+            "post": {
+                "tags": [
+                    "Mail Operations"
+                ],
+                "summary": "Simulate a mail template",
+                "description": "Generates simulated data for a given event name and renders the provided mail template content against it.",
+                "operationId": "simulateMailTemplate",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "mailTemplateContent",
+                                    "eventName"
+                                ],
+                                "properties": {
+                                    "mailTemplateContent": {
+                                        "description": "A map of mail template fields and their template content to render.",
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        },
+                                        "example": {
+                                            "subject": "Order {{ order.orderNumber }} confirmation",
+                                            "senderName": "{{ salesChannel.name }}",
+                                            "contentHtml": "<div>Hello {{ order.orderCustomer.firstName }}</div>",
+                                            "contentPlain": "Hello {{ order.orderCustomer.firstName }}"
+                                        }
+                                    },
+                                    "eventName": {
+                                        "description": "The business event name used to generate simulated mail template data.",
+                                        "type": "string",
+                                        "example": "checkout.order.placed"
+                                    },
+                                    "strict": {
+                                        "description": "Enables strict checking during the mail template rendering and surfaces errors for unknown variables.",
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The rendered preview of the mail template.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "object",
+                                        "required": [
+                                            "type",
+                                            "content"
+                                        ],
+                                        "properties": {
+                                            "type": {
+                                                "description": "The type of the render result (either `success` or `error`)",
+                                                "type": "string",
+                                                "enum": [
+                                                    "success",
+                                                    "error"
+                                                ],
+                                                "example": "success"
+                                            },
+                                            "content": {
+                                                "description": "The rendered content of the mail template field. Also contains the error when rendering this field wasn't possible.",
+                                                "type": "string",
+                                                "example": "Example mail"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data or invalid eventName",
+                        "$ref": "#/components/responses/400"
+                    }
+                }
+            }
+        },
         "/_action/mail-template/preview": {
             "post": {
                 "tags": [
@@ -314,11 +476,6 @@
                                     "strict": {
                                         "description": "Enables strict checking during the mail template and enables errors on e.g. unknown variables.",
                                         "type": "boolean"
-                                    },
-                                    "flowEventClass":{
-                                        "description": "The class of the flow trigger event that provides the available variables.",
-                                        "type": "string",
-                                        "example": "Shopware\\Core\\Content\\Product\\SalesChannel\\Review\\Event\\ReviewFormEvent"
                                     },
                                     "entities": {
                                         "description": "A map of entity names and corresponding identifiers that define entities which should be used additionally during rendering.",
@@ -375,6 +532,10 @@
                                                 "type": {
                                                     "description": "The type of the render result (either `success` or `error`)",
                                                     "type": "string",
+                                                    "enum": [
+                                                        "success",
+                                                        "error"
+                                                    ],
                                                     "example": "success"
                                                 },
                                                 "content": {
@@ -394,6 +555,10 @@
                                                 "type": {
                                                     "description": "The type of the render result (either `success` or `error`)",
                                                     "type": "string",
+                                                    "enum": [
+                                                        "success",
+                                                        "error"
+                                                    ],
                                                     "example": "success"
                                                 },
                                                 "content": {
@@ -413,6 +578,10 @@
                                                 "type": {
                                                     "description": "The type of the render result (either `success` or `error`)",
                                                     "type": "string",
+                                                    "enum": [
+                                                        "success",
+                                                        "error"
+                                                    ],
                                                     "example": "success"
                                                 },
                                                 "content": {
@@ -432,6 +601,10 @@
                                                 "type": {
                                                     "description": "The type of the render result (either `success` or `error`)",
                                                     "type": "string",
+                                                    "enum": [
+                                                        "success",
+                                                        "error"
+                                                    ],
                                                     "example": "success"
                                                 },
                                                 "content": {
@@ -486,8 +659,11 @@
                                             "test2@example.com": "Test user 2"
                                         },
                                         "additionalProperties": {
-                                            "description": "Name of the recipient.",
-                                            "type": "string"
+                                            "description": "Name of the recipient. Can be null to omit the display name.",
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
                                         }
                                     },
                                     "salesChannelId": {
@@ -516,8 +692,21 @@
                                         "type": "string",
                                         "format": "email"
                                     },
+                                    "senderMail": {
+                                        "description": "Mail address of the sender. Legacy alias for `senderEmail`.",
+                                        "type": "string",
+                                        "format": "email"
+                                    },
                                     "mediaIds": {
                                         "description": "List of media identifiers which should be attached to the mail.",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$"
+                                        }
+                                    },
+                                    "documentIds": {
+                                        "description": "List of document identifiers which should be attached to the mail.",
                                         "type": "array",
                                         "items": {
                                             "type": "string",
@@ -551,57 +740,96 @@
                                         }
                                     },
                                     "recipientsBcc": {
-                                        "description": "A list of recipients with name and mail address to be set in BCC.",
-                                        "type": "object",
-                                        "example": {
-                                            "test1@example.com": "Test user 1",
-                                            "test2@example.com": "Test user 2"
-                                        },
-                                        "additionalProperties": {
-                                            "description": "Name of the recipient.",
-                                            "type": "string"
-                                        }
+                                        "description": "A mail address or a map of recipients with name and mail address to be set in BCC.",
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "example": {
+                                                    "test1@example.com": "Test user 1",
+                                                    "test2@example.com": "Test user 2"
+                                                },
+                                                "additionalProperties": {
+                                                    "description": "Name of the recipient. Can be null to omit the display name.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
                                     },
                                     "recipientsCc": {
-                                        "description": "A list of recipients with name and mail address to be set in CC.",
-                                        "type": "object",
-                                        "example": {
-                                            "test1@example.com": "Test user 1",
-                                            "test2@example.com": "Test user 2"
-                                        },
-                                        "additionalProperties": {
-                                            "description": "Name of the recipient.",
-                                            "type": "string"
-                                        }
+                                        "description": "A mail address or a map of recipients with name and mail address to be set in CC.",
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "example": {
+                                                    "test1@example.com": "Test user 1",
+                                                    "test2@example.com": "Test user 2"
+                                                },
+                                                "additionalProperties": {
+                                                    "description": "Name of the recipient. Can be null to omit the display name.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
                                     },
                                     "replyTo": {
-                                        "description": "A list of mail addresses with name and mail address to be set in reply to.",
-                                        "type": "object",
-                                        "example": {
-                                            "test1@example.com": "Test user 1",
-                                            "test2@example.com": "Test user 2"
-                                        },
-                                        "additionalProperties": {
-                                            "description": "Name of the recipient.",
-                                            "type": "string"
-                                        }
+                                        "description": "A mail address or a map of mail addresses with name to be set in reply-to.",
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "example": {
+                                                    "test1@example.com": "Test user 1",
+                                                    "test2@example.com": "Test user 2"
+                                                },
+                                                "additionalProperties": {
+                                                    "description": "Name of the recipient. Can be null to omit the display name.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
                                     },
                                     "returnPath": {
-                                        "description": "A list of mail addresses with name and mail address to be set in return path.",
-                                        "type": "object",
-                                        "example": {
-                                            "test1@example.com": "Test user 1",
-                                            "test2@example.com": "Test user 2"
-                                        },
-                                        "additionalProperties": {
-                                            "description": "Name of the recipient.",
-                                            "type": "string"
-                                        }
-                                    },
-                                    "flowEventClass":{
-                                        "description": "The class of the flow trigger event that provides the available variables.",
-                                        "type": "string",
-                                        "example": "Shopware\\Core\\Content\\Product\\SalesChannel\\Review\\Event\\ReviewFormEvent"
+                                        "description": "A mail address or a map of mail addresses with name to be set in return-path.",
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "example": {
+                                                    "test1@example.com": "Test user 1",
+                                                    "test2@example.com": "Test user 2"
+                                                },
+                                                "additionalProperties": {
+                                                    "description": "Name of the recipient. Can be null to omit the display name.",
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            }
+                                        ]
                                     },
                                     "entities": {
                                         "description": "A map of entity names and corresponding identifiers that define entities which should be used additionally during rendering.",
@@ -627,6 +855,10 @@
                                                 "orderNumber": "SW10042"
                                             }
                                         }
+                                    },
+                                    "testMode": {
+                                        "description": "Enables test mode while sending the mail.",
+                                        "type": "boolean"
                                     }
                                 },
                                 "type": "object"
@@ -664,10 +896,10 @@
         "/_action/mail-template/available-variables": {
             "post": {
                 "tags": [
-                  "Mail Operations"
+                    "Mail Operations"
                 ],
-                "summary": "Fetch the available variables for a flow trigger event and a given variable path.",
-                "description": "Fetches the available variables that a flow trigger event provides for a certain variable path to determine which variables can be used in a mail template, that is send via the flow trigger event.",
+                "summary": "Fetch the available variables for a business event and an optional parent variable path.",
+                "description": "Fetches the available variables that a business event provides for a certain parent variable path to determine which variables can be used in a mail template.",
                 "operationId": "mailTemplateAvailableVariables",
                 "requestBody": {
                     "required": true,
@@ -675,43 +907,18 @@
                         "application\/json": {
                             "schema": {
                                 "required": [
-                                    "fieldPath"
+                                    "eventName"
                                 ],
                                 "properties": {
-                                    "fieldPath":{
-                                        "description": "The path to the field of which the available variables should be returned. If no value (an empty string) is provided, the toplevel variables of the flow trigger event are returned.",
+                                    "eventName": {
+                                        "description": "The business event name that provides the available variables.",
                                         "type": "string",
-                                        "example": "product.translated"
+                                        "example": "checkout.order.placed"
                                     },
-                                    "flowEventClass":{
-                                        "description": "The class of the flow trigger event that provides the available variables.",
+                                    "parentVariablePath": {
+                                        "description": "The path to the parent field of which the available variables should be returned. If omitted or empty, the top-level variables of the business event are returned.",
                                         "type": "string",
-                                        "example": "Shopware\\Core\\Content\\Product\\SalesChannel\\Review\\Event\\ReviewFormEvent"
-                                    },
-                                    "entities": {
-                                        "description": "A map of entity names and corresponding identifiers that define additionally available entities whose fields can be used as variables.",
-                                        "type": "object",
-                                        "additionalProperties": {
-                                            "type": "string",
-                                            "pattern": "^[0-9a-f]{32}$"
-                                        },
-                                        "example": {
-                                            "order": "b3c4d5e6f7a8b90a1b2c3d4e5f67890a",
-                                            "customer": "a1b2c3d4e5f67890b3c4d5e6f7a8b90a"
-                                        }
-                                    },
-                                    "templateData": {
-                                        "description": "A map of template data whose keys can be used as variables.",
-                                        "type": "object",
-                                        "additionalProperties": true,
-                                        "example": {
-                                            "salesChannel": {
-                                                "name": "Storefront"
-                                            },
-                                            "order": {
-                                                "orderNumber": "SW10042"
-                                            }
-                                        }
+                                        "example": "order.transactions"
                                     }
                                 },
                                 "type": "object"
@@ -738,7 +945,7 @@
                                                 "example": "salesChannel"
                                             },
                                             "hasChildren": {
-                                                "description": "Shows if behind the variable are more nested variables which can be accessed by another request to this endpoint with the updated field path: `<fieldPath>.<fieldName>`",
+                                                "description": "Shows if behind the variable are more nested variables which can be accessed by another request to this endpoint with the updated parent variable path: `<parentVariablePath>.<fieldName>`",
                                                 "type": "boolean",
                                                 "example": true
                                             }
@@ -749,6 +956,10 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Invalid request data or invalid eventName",
+                        "$ref": "#/components/responses/400"
                     }
                 }
             }

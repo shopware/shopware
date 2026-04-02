@@ -1,4 +1,5 @@
 import type { Extension } from '../../../store/extensions.store';
+import { location } from '@shopware-ag/meteor-admin-sdk';
 import template from './sw-iframe-renderer.html.twig';
 import './sw-iframe-renderer.scss';
 
@@ -171,6 +172,10 @@ export default Shopware.Component.wrapComponentConfig({
         onIframeLoad() {
             // Hard dev server reload of a plugin was triggered. To ensure consistency, we need to reload the entire page.
             // This also fixes a crash where ui components are added in an endless loop. See PR #14347.
+            if (this.locationId !== location.MAIN_HIDDEN) {
+                return;
+            }
+
             if (this.isFirstLoad) {
                 this.isFirstLoad = false;
             } else {

@@ -21,7 +21,9 @@ use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
+use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
@@ -307,6 +309,68 @@ class AppLifecycleTest extends TestCase
         static::assertSame('test', $appRepository->upserts[0][0]['name']);
     }
 
+    public function testInstallThrowsWhenRequirementsNotMet(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+
+        $validator = $this->createMock(AppRequirementsValidator::class);
+        $validator->expects($this->once())
+            ->method('validate')
+            ->with($manifest)
+            ->willReturn([
+                new UnmetRequirement('test', 'public-access', 'APP_URL must be publicly reachable'),
+            ]);
+
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection()]);
+
+        $appRepository = $this->getAppRepositoryMock([[]]);
+        $appLifecycle = $this->getAppLifecycle(
+            $appRepository,
+            $languageRepository,
+            $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml'),
+            static::createStub(DeletedAppsGateway::class),
+            $validator
+        );
+
+        $expected = AppException::requirementsNotMet(
+            new UnmetRequirement('test', 'public-access', 'APP_URL must be publicly reachable'),
+        );
+        $this->expectExceptionObject($expected);
+        $appLifecycle->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
+    }
+
+    public function testUpdateThrowsWhenRequirementsNotMet(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+
+        $validator = $this->createMock(AppRequirementsValidator::class);
+        $validator->expects($this->once())
+            ->method('validate')
+            ->with($manifest)
+            ->willReturn([
+                new UnmetRequirement('test', 'public-access', 'APP_URL must be publicly reachable'),
+            ]);
+
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection()]);
+
+        $appRepository = $this->getAppRepositoryMock([[['id' => Uuid::randomHex(), 'path' => '', 'configurable' => false, 'allowDisable' => true]]]);
+        $appLifecycle = $this->getAppLifecycle(
+            $appRepository,
+            $languageRepository,
+            $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml'),
+            static::createStub(DeletedAppsGateway::class),
+            $validator
+        );
+
+        $expected = AppException::requirementsNotMet(
+            new UnmetRequirement('test', 'public-access', 'APP_URL must be publicly reachable'),
+        );
+        $this->expectExceptionObject($expected);
+        $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
+    }
+
     public function testUpdateResetsConfigurableFlagToFalseWhenConfigXMLWasRemoved(): void
     {
         $this->io->rename(__DIR__ . '/../_fixtures/Resources/config', __DIR__ . '/../_fixtures/Resources/noconfighere');
@@ -359,6 +423,7 @@ class AppLifecycleTest extends TestCase
         EntityRepository $languageRepository,
         StaticSourceResolver $appSourceResolver,
         ?DeletedAppsGateway $deletedAppsGateway = null,
+        ?AppRequirementsValidator $requirementsValidator = null
     ): AppLifecycle {
         /** @var StaticEntityRepository<AclRoleCollection> $aclRoleRepo */
         $aclRoleRepo = new StaticEntityRepository([new AclRoleCollection()]);
@@ -391,6 +456,7 @@ class AppLifecycleTest extends TestCase
             $appSourceResolver,
             $this->createMock(ConfigReader::class),
             $deletedAppsGateway,
+            $requirementsValidator ?? static::createStub(AppRequirementsValidator::class)
         );
     }
 

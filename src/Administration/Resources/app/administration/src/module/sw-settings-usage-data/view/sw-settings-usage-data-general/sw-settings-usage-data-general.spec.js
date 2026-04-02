@@ -5,13 +5,6 @@ import SwSettingsUsageDataStoreDataConsent from '../../component/sw-settings-usa
  * @sw-package data-services
  */
 
-const usageDataService = {
-    getConsent: () => jest.fn(),
-    acceptConsent: () => jest.fn(),
-    revokeConsent: () => jest.fn(),
-    hideBanner: () => jest.fn(),
-};
-
 async function createWrapper() {
     return mount(
         await wrapTestComponent('sw-settings-usage-data-general', {
@@ -19,12 +12,8 @@ async function createWrapper() {
         }),
         {
             global: {
-                provide: {
-                    usageDataService,
-                },
                 renderStubDefaultSlot: true,
                 stubs: {
-                    'sw-usage-data-consent-banner': await wrapTestComponent('sw-usage-data-consent-banner'),
                     'sw-extension-component-section': true,
                     'sw-internal-link': true,
                     'i18n-t': {
@@ -46,14 +35,5 @@ describe('src/module/sw-settings-usage-data/view/sw-settings-usage-data-general'
         await flushPromises();
 
         expect(wrapper.findComponent(SwSettingsUsageDataStoreDataConsent).exists()).toBe(true);
-    });
-
-    it('should refresh the consent information when created', async () => {
-        const getConsentSpy = jest.spyOn(usageDataService, 'getConsent');
-
-        wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(getConsentSpy).toHaveBeenCalled();
     });
 });

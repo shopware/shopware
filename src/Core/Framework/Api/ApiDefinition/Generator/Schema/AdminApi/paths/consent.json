@@ -28,15 +28,21 @@
                       "identifier": "userId-12345",
                       "status": "accepted",
                       "actor": "userId-12345",
-                      "updatedAt": "2024-01-15T10:20:30Z"
+                      "updatedAt": "2024-01-15T10:20:30Z",
+                      "acceptedUntil": "2024-01-15T10:20:30Z",
+                      "acceptedRevision": "2026-02-01",
+                      "latestRevision": "2026-02-01"
                     },
                     "backend_data": {
                       "name": "backend_data",
                       "scopeName": "system",
                       "identifier": "system",
-                      "status": "requested",
+                      "status": "unset",
                       "actor": null,
-                      "updatedAt": null
+                      "updatedAt": null,
+                      "acceptedUntil": null,
+                      "acceptedRevision": null,
+                      "latestRevision": null
                     }
                   }
                 }
@@ -67,11 +73,19 @@
                     "consent": {
                       "type": "string",
                       "description": "The name of the consent to accept"
+                    },
+                    "revision": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "Optional accepted revision. Only the consent definition's latest revision is accepted. When omitted, the latest revision is used automatically."
                     }
                   },
                   "required": ["consent"],
                   "example": {
-                    "consent": "product_analytics"
+                    "consent": "product_analytics",
+                    "revision": "2026-02-01"
                   }
                 }
               }
@@ -87,6 +101,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad request - Consent revision is invalid for current acceptance"
           },
           "404": {
             "description": "Bad request - Consent not found or consent property was empty"
@@ -203,6 +220,20 @@
             ],
             "format": "date-time",
             "description": "The timestamp until when the consent is accepted. null if never accepted"
+          },
+          "acceptedRevision": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The accepted consent revision. null unless the consent is currently accepted for a revision-aware consent."
+          },
+          "latestRevision": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The current latest revision defined for the consent. null when the consent does not use revisions."
           }
         }
       }

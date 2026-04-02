@@ -68,4 +68,18 @@ class ConsentExceptionTest extends TestCase
         static::assertSame('No scope found with name "invalid-scope".', $e->getMessage());
         static::assertSame(['scope' => 'invalid-scope'], $e->getParameters());
     }
+
+    public function testInvalidRevision(): void
+    {
+        $e = ConsentException::invalidRevision('product_analytics', '1.0.0', '2.0.0');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(ConsentException::INVALID_REVISION, $e->getErrorCode());
+        static::assertSame('Cannot accept consent "product_analytics" for revision "1.0.0". The latest revision is "2.0.0".', $e->getMessage());
+        static::assertSame([
+            'consent' => 'product_analytics',
+            'providedRevision' => '1.0.0',
+            'latestRevision' => '2.0.0',
+        ], $e->getParameters());
+    }
 }

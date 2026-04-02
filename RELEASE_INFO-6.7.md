@@ -8,6 +8,11 @@
 
 ## Administration
 
+### Re-render iframe integrations when location changes
+
+Iframe-based Administration extensions now re-render correctly when their `locationId` changes.
+This fixes stale iframe content when switching locations in Meteor Admin SDK integrations and also prevents unnecessary full-page reloads.
+
 ## Storefront
 
 ### Order cancellation only shown for open orders

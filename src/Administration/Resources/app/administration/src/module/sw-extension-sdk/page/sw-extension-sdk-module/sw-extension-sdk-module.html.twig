@@ -53,6 +53,7 @@
         {% block sw_extension_sdk_module_content_iframe_renderer %}
         <sw-iframe-renderer
             v-if="!isLoading"
+            :key="module.locationId"
             ref="iframeRenderer"
             :src="module.baseUrl"
             :location-id="module.locationId"

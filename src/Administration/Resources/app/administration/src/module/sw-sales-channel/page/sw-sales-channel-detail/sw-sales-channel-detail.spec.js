@@ -25,9 +25,9 @@ const defaultSalesChannelResponse = {
 async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
     const normalizedOptions = Array.isArray(optionsOrLegacyArg)
         ? { routeParams: { id: '1a2b3c4d' } }
-        : (optionsOrLegacyArg.routeParams || optionsOrLegacyArg.salesChannelResponse)
-            ? optionsOrLegacyArg
-            : { routeParams: optionsOrLegacyArg };
+        : optionsOrLegacyArg.routeParams || optionsOrLegacyArg.salesChannelResponse
+          ? optionsOrLegacyArg
+          : { routeParams: optionsOrLegacyArg };
 
     const { routeParams = { id: '1a2b3c4d' }, salesChannelResponse = {} } = normalizedOptions;
 

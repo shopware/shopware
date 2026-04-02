@@ -11,6 +11,9 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
 #[Package('inventory')]
 final class ExplicitProductListingIdMerger
 {

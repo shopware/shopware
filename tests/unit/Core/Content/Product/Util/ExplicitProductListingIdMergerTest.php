@@ -20,9 +20,15 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
 #[CoversClass(ExplicitProductListingIdMerger::class)]
 class ExplicitProductListingIdMergerTest extends TestCase
 {
+    /**
+     * @var MockObject&SalesChannelRepository<ProductCollection>
+     */
     private MockObject&SalesChannelRepository $productRepository;
 
     private MockObject&SystemConfigService $systemConfigService;
@@ -396,6 +402,8 @@ class ExplicitProductListingIdMergerTest extends TestCase
 
     /**
      * @param array<string, string> $displayGroups
+     *
+     * @return EntitySearchResult<PartialEntity>
      */
     private function createDisplayGroupSearchResult(array $displayGroups): EntitySearchResult
     {

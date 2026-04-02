@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Content\Shared\MailFlow\DataProvider;
+namespace Shopware\Tests\Unit\Core\Content\Shared\MailFlow\DataProvider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;

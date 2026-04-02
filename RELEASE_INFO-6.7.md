@@ -318,6 +318,17 @@ Both `AwsS3v3Factory` and `PresignedUploadUrlGenerator` are wired via DI to the 
 the `shopware.filesystem.s3.client` service to provide a custom Symfony HTTP client with
 custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
 
+### `#[Field]` attribute supports custom `maxLength` for string fields
+
+The `maxLength` parameter is now available on `#[Field]` for `FieldType::STRING` and `FieldType::EMAIL` fields. Previously the max length was always 255, matching `StringField`'s default, with no way to override it. Setting `maxLength` passes the value through to the underlying `StringField` constructor and the `StringFieldSerializer` validation.
+
+```php
+#[Field(type: FieldType::STRING, maxLength: 4096)]
+public ?string $url = null;
+```
+
+A value of `0` disables length validation entirely. This is pre-existing `StringFieldSerializer` behavior where any value below `1` is treated as unconstrained.
+
 ## Administration
 
 ### CMS data mapping source for media custom fields

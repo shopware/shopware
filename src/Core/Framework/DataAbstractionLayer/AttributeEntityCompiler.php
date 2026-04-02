@@ -85,7 +85,7 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
  *     class: class-string<DalField>,
  *     flags: array<string, array{class: string, args?: array<string, string|bool|float|null>|list<string>}>,
  *     translated: bool,
- *     args: list<string|false>
+ *     args: list<string|int|false>
  * }
  */
 #[Package('framework')]
@@ -209,7 +209,7 @@ class AttributeEntityCompiler
      *     class: class-string<DalField>,
      *     flags: array<string, array{class: string, args?: array<string, string|bool|float|null>|list<string>}>,
      *     translated: bool,
-     *     args: list<string|false>
+     *     args: list<string|int|false>
      * }|null
      */
     private function parseField(string $entity, \ReflectionProperty $property): ?array
@@ -304,6 +304,8 @@ class AttributeEntityCompiler
             $field instanceof Password => [$column, $property->getName(), $field->algorithm, $field->hashOptions, $field->for],
             $field instanceof ListFieldAttr => [$column, $property->getName(), $field->fieldType],
             $field->type === FieldType::ENUM => [$column, $property->getName(), $this->getFirstEnumCase($property)],
+            $field->type === FieldType::STRING,
+            $field->type === FieldType::EMAIL => [$column, $property->getName(), $field->maxLength],
             default => [$column, $property->getName()],
         };
     }

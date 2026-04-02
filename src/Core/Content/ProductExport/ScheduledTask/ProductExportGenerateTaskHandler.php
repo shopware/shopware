@@ -91,6 +91,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
                 SELECT
                     LOWER(HEX(product_export.id)) AS id,
                     product_export.generated_at,
+                    product_export.next_generation_at,
                     product_export.interval,
                     product_export.is_running,
                     product_export.updated_at,
@@ -148,6 +149,11 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 
         if ($productExport['generated_at'] === null) {
             return true;
+        }
+
+        $nextGenerationAt = $productExport['next_generation_at'];
+        if (\is_string($nextGenerationAt)) {
+            return $now >= new \DateTimeImmutable($nextGenerationAt);
         }
 
         $generatedAt = new \DateTimeImmutable($productExport['generated_at']);

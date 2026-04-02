@@ -132,10 +132,17 @@ final readonly class ProductExportPartialGenerationHandler
         int $offset,
         Context $context
     ): ?ProductExportResult {
-        $this->productExportRepository->update([[
+        $update = [
             'id' => $productExport->getId(),
             'isRunning' => true,
-        ]], $context);
+        ];
+
+        if ($offset === 0) {
+            $nextGenerationAt = new \DateTimeImmutable();
+            $update['nextGenerationAt'] = $nextGenerationAt->modify(\sprintf('+%d seconds', $productExport->getInterval()));
+        }
+
+        $this->productExportRepository->update([$update], $context);
 
         return $this->productExportGenerator->generate(
             $productExport,

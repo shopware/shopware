@@ -507,6 +507,136 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         expect(lifecycleSpy).toHaveBeenCalledTimes(1);
     });
 
+    it('should compose route guards from extends, mixins and component config for route-loaded components', async () => {
+        const guardOrder = {
+            enter: [],
+            update: [],
+            leave: [],
+        };
+        const enterCallbacks = [];
+        const suffix = Shopware.Utils.createId();
+        const firstMixinName = `route-guard-first-${suffix}`;
+        const secondMixinName = `route-guard-second-${suffix}`;
+        const baseComponentName = `route-guard-base-${suffix}`;
+        const componentName = `route-guard-component-${suffix}`;
+
+        Shopware.Mixin.register(firstMixinName, {
+            beforeRouteEnter(to, from, next) {
+                guardOrder.enter.push('first-mixin');
+                next((vm) => enterCallbacks.push(`first-mixin:${vm.id}`));
+            },
+            beforeRouteUpdate(to, from, next) {
+                guardOrder.update.push('first-mixin');
+                next();
+            },
+            beforeRouteLeave(to, from, next) {
+                guardOrder.leave.push('first-mixin');
+                next();
+            },
+        });
+
+        Shopware.Mixin.register(secondMixinName, {
+            beforeRouteEnter(to, from, next) {
+                guardOrder.enter.push('second-mixin');
+                next((vm) => enterCallbacks.push(`second-mixin:${vm.id}`));
+            },
+            beforeRouteUpdate(to, from, next) {
+                guardOrder.update.push('second-mixin');
+                next();
+            },
+            beforeRouteLeave(to, from, next) {
+                guardOrder.leave.push('second-mixin');
+                next();
+            },
+        });
+
+        Shopware.Component.register(baseComponentName, {
+            template: '<div></div>',
+            name: baseComponentName,
+            beforeRouteEnter(to, from, next) {
+                guardOrder.enter.push('base-component');
+                next((vm) => enterCallbacks.push(`base-component:${vm.id}`));
+            },
+            beforeRouteUpdate(to, from, next) {
+                guardOrder.update.push('base-component');
+                next();
+            },
+            beforeRouteLeave(to, from, next) {
+                guardOrder.leave.push('base-component');
+                next();
+            },
+        });
+
+        Shopware.Component.extend(componentName, baseComponentName, {
+            template: '<div></div>',
+            name: componentName,
+            mixins: [
+                firstMixinName,
+                secondMixinName,
+            ],
+            beforeRouteEnter(to, from, next) {
+                guardOrder.enter.push('component');
+                next((vm) => enterCallbacks.push(`component:${vm.id}`));
+            },
+            beforeRouteUpdate(to, from, next) {
+                guardOrder.update.push('component');
+                next();
+            },
+            beforeRouteLeave(to, from, next) {
+                guardOrder.leave.push('component');
+                next();
+            },
+        });
+
+        const routeComponent = await vueAdapter.getComponentForRoute(componentName)();
+
+        expect(routeComponent).not.toBe(false);
+
+        if (routeComponent === false) {
+            throw new Error('Expected component config for route component');
+        }
+
+        let enterGuardCallback;
+        await routeComponent.beforeRouteEnter({}, {}, (callback) => {
+            enterGuardCallback = callback;
+        });
+
+        expect(guardOrder.enter).toEqual([
+            'base-component',
+            'first-mixin',
+            'second-mixin',
+            'component',
+        ]);
+        expect(typeof enterGuardCallback).toBe('function');
+
+        enterGuardCallback({ id: 'vm-instance' });
+
+        expect(enterCallbacks).toEqual([
+            'base-component:vm-instance',
+            'first-mixin:vm-instance',
+            'second-mixin:vm-instance',
+            'component:vm-instance',
+        ]);
+
+        await routeComponent.beforeRouteUpdate({}, {}, jest.fn());
+
+        expect(guardOrder.update).toEqual([
+            'base-component',
+            'first-mixin',
+            'second-mixin',
+            'component',
+        ]);
+
+        await routeComponent.beforeRouteLeave({}, {}, jest.fn());
+
+        expect(guardOrder.leave).toEqual([
+            'base-component',
+            'first-mixin',
+            'second-mixin',
+            'component',
+        ]);
+    });
+
     it('should build & create a vue.js component', async () => {
         const componentDefinition = {
             name: 'sw-foo',

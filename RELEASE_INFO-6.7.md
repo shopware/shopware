@@ -8,6 +8,11 @@
 
 ## Administration
 
+### Fixed mixin-based route guards for lazy-loaded administration routes
+
+Mixin-defined route guards such as `beforeRouteLeave` are now executed reliably for lazy-loaded Administration route components.
+This fixes cases where cleanup logic in shared mixins, for example in listing pages, was skipped during navigation to detail pages.
+
 ## Storefront
 
 ### Order cancellation only shown for open orders

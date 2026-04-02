@@ -76,7 +76,7 @@ async function createWrapper() {
                     'sw-container': true,
                     'sw-language-info': true,
                     'sw-help-text': true,
-                    'sw-multi-select': true,
+                    'sw-entity-multi-select': true,
                     'sw-entity-single-select': {
                         template: '<div class="sw-entity-single-select"></div>',
                         props: ['disabled'],

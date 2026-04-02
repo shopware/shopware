@@ -57,6 +57,7 @@ class ContentTest extends TestCase
             'landing_page',
             'flow',
             'measurement_system',
+            'product_export_tracking.php',
             'media_test',
             'installed.json',
             'MailerConfigurationCompilerPass.php',

@@ -120,6 +120,7 @@ export default {
         async createdComponent() {
             this.updateButtons();
             this.setTitle();
+            Shopware.Store.get('swBulkEdit').resetDocumentGenerationResult();
             try {
                 await this.createDocuments();
                 await this.deleteDocuments();
@@ -165,42 +166,62 @@ export default {
             const creditNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'credit_note');
             const deliveryNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'delivery_note');
 
+            let totalRequested = 0;
+            let totalErrors = 0;
+
             if (invoiceDocuments.length > 0) {
-                await this.createDocument('invoice', invoiceDocuments);
+                const { requested, failed } = await this.createDocument('invoice', invoiceDocuments);
+                totalRequested += requested;
+                totalErrors += failed;
             }
 
             if (stornoDocuments.length > 0) {
-                await this.createDocument('storno', stornoDocuments);
+                const { requested, failed } = await this.createDocument('storno', stornoDocuments);
+                totalRequested += requested;
+                totalErrors += failed;
             }
 
             if (creditNoteDocuments.length > 0) {
-                await this.createDocument('credit_note', creditNoteDocuments);
+                const { requested, failed } = await this.createDocument('credit_note', creditNoteDocuments);
+                totalRequested += requested;
+                totalErrors += failed;
             }
 
             if (deliveryNoteDocuments.length > 0) {
-                await this.createDocument('delivery_note', deliveryNoteDocuments);
+                const { requested, failed } = await this.createDocument('delivery_note', deliveryNoteDocuments);
+                totalRequested += requested;
+                totalErrors += failed;
             }
+
+            Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(totalRequested, totalErrors);
         },
 
         async createDocument(documentType, payload) {
+            const requestedTotal = payload.length;
+
             if (payload.length <= this.requestsPerPayload) {
-                await this.orderDocumentApiService.generate(documentType, payload);
+                const response = await this.orderDocumentApiService.generate(documentType, payload);
+                const errorCount = Object.keys(response.data?.errors ?? {}).length;
                 this.document[documentType].isReached = 100;
 
-                return Promise.resolve();
+                return { requested: requestedTotal, failed: errorCount };
             }
 
             const chunkedPayload = chunkArray(payload, this.requestsPerPayload);
             const percentages = Math.round(100 / chunkedPayload.length);
+            let errorCount = 0;
 
-            return Promise.all(
+            await Promise.all(
                 chunkedPayload.map(async (item) => {
-                    await this.orderDocumentApiService.generate(documentType, item);
+                    const response = await this.orderDocumentApiService.generate(documentType, item);
+                    // errorCount += response.data?.errors?.length ?? 0;
+                    errorCount += Object.keys(response.data?.errors ?? {}).length;
                     this.document[documentType].isReached = this.document[documentType].isReached + percentages;
                 }),
-            ).then(() => {
-                this.document[documentType].isReached = 100;
-            });
+            );
+
+            this.document[documentType].isReached = 100;
+            return { requested: requestedTotal, failed: errorCount };
         },
 
         async deleteDocuments() {

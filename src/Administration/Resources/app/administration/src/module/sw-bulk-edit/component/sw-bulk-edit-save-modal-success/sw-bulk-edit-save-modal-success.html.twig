@@ -21,6 +21,20 @@
     </p>
     {% endblock %}
 
+    {% block sw_bulk_edit_save_modal_document_generation_errors %}
+        <mt-banner
+            v-if="hasDocumentGenerationErrors"
+            :title="$t('sw-bulk-edit.modal.success.documentGenerationWarning')"
+            variant="attention"
+            class="sw-bulk-edit-save-modal-success__warning-document-generation"
+        >
+            {{ $t('sw-bulk-edit.modal.success.documentGenerationWarningHelpText', {
+                generated: documentGenerationResult.requested - documentGenerationResult.failed,
+                failed: documentGenerationResult.failed,
+            }) }}
+        </mt-banner>
+    {% endblock %}
+
     {% block sw_bulk_edit_save_modal_success_download_document %}
     <ul
         v-if="selectedDocumentTypes.length > 0"
@@ -42,7 +56,7 @@
                 variant="secondary"
                 @click="downloadDocument(selectedDocumentType.technicalName)"
             >
-                {{ $tc('sw-bulk-edit.modal.success.buttonDownload') }}
+                {{ $t('sw-bulk-edit.modal.success.buttonDownload') }}
             </mt-button>
         </li>
     </ul>

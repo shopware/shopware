@@ -93,6 +93,14 @@ export default {
                 ? this.$tc('sw-bulk-edit.modal.success.instruction')
                 : this.$tc('sw-bulk-edit.modal.success.description');
         },
+
+        documentGenerationResult() {
+            return Shopware.Store.get('swBulkEdit').documentGenerationResult;
+        },
+
+        hasDocumentGenerationErrors() {
+            return this.documentGenerationResult.failed > 0;
+        },
     },
 
     created() {

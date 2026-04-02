@@ -259,7 +259,9 @@
         "description": "Mehrfachänderung abgeschlossen.",
         "instruction": "Mehrfachänderung erfolgreich abgeschlossen.",
         "buttonDownload": "Download",
-        "messageNoDocumentsFound": "Keine Dokumente vorhanden"
+        "messageNoDocumentsFound": "Keine Dokumente vorhanden",
+        "documentGenerationWarning": "Einige Dokumente konnten nicht generiert werden:",
+        "documentGenerationWarningHelpText": "{generated} erfolgreich erstellt, {failed} fehlgeschlagen."
       },
       "error": {
         "title": "Mehrfachänderung - Fehler",

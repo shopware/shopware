@@ -64,11 +64,6 @@
                                         "type": "string",
                                         "format": "email"
                                     },
-                                    "senderMail": {
-                                        "description": "Mail address of the sender. Legacy alias for `senderEmail`.",
-                                        "type": "string",
-                                        "format": "email"
-                                    },
                                     "mediaIds": {
                                         "description": "List of media identifiers which should be attached to the mail.",
                                         "type": "array",
@@ -209,7 +204,7 @@
                                         "pattern": "^[0-9a-f]{32}$"
                                     },
                                     "mailTemplateData": {
-                                        "description": "A map of available data that is used to fill the mail template.",
+                                        "description": "A map of available data that is used to fill the mail template. Values in this map override generated or entity-derived template data with the same top-level keys.",
                                         "type": "object",
                                         "additionalProperties": true,
                                         "example": {
@@ -219,7 +214,7 @@
                                         }
                                     },
                                     "testMode": {
-                                        "description": "Enables test mode while sending the mail.",
+                                        "description": "Enables mail test mode. The mail is still sent, but template rendering runs with the renderer's test mode enabled, a fallback `order.deepLinkCode` of `home` is injected when missing, and debug headers such as `X-Shopware-Language-Id` plus available event or sales-channel headers are added to the message.",
                                         "type": "boolean"
                                     }
                                 },
@@ -416,6 +411,7 @@
                             "application\/json": {
                                 "schema": {
                                     "type": "object",
+                                    "description": "A map of render results keyed by the same field names that were provided in the request's `mailTemplateContent` object.",
                                     "additionalProperties": {
                                         "type": "object",
                                         "required": [
@@ -490,7 +486,7 @@
                                         }
                                     },
                                     "templateData": {
-                                        "description": "A map of template data that should be used additionally during rendering.",
+                                        "description": "A map of template data that should be used additionally during rendering. Values in this map override generated or entity-derived template data with the same top-level keys.",
                                         "type": "object",
                                         "additionalProperties": true,
                                         "example": {
@@ -692,11 +688,6 @@
                                         "type": "string",
                                         "format": "email"
                                     },
-                                    "senderMail": {
-                                        "description": "Mail address of the sender. Legacy alias for `senderEmail`.",
-                                        "type": "string",
-                                        "format": "email"
-                                    },
                                     "mediaIds": {
                                         "description": "List of media identifiers which should be attached to the mail.",
                                         "type": "array",
@@ -844,7 +835,7 @@
                                         }
                                     },
                                     "templateData": {
-                                        "description": "A map of template data that should be used additionally during rendering.",
+                                        "description": "A map of template data that should be used additionally during rendering. Values in this map override generated or entity-derived template data with the same top-level keys.",
                                         "type": "object",
                                         "additionalProperties": true,
                                         "example": {
@@ -857,7 +848,7 @@
                                         }
                                     },
                                     "testMode": {
-                                        "description": "Enables test mode while sending the mail.",
+                                        "description": "Enables mail test mode. The mail is still sent, but template rendering runs with the renderer's test mode enabled, a fallback `order.deepLinkCode` of `home` is injected when missing, and debug headers such as `X-Shopware-Language-Id` plus available event or sales-channel headers are added to the message.",
                                         "type": "boolean"
                                     }
                                 },

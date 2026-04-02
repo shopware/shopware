@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
  *
  * @extends EntityCollection<SalesChannelTrackingCustomerEntity>
  */

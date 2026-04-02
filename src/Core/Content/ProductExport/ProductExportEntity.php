@@ -39,6 +39,9 @@ class ProductExportEntity extends Entity
 
     protected string $fileFormat;
 
+    /**
+     * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
+     */
     protected ?string $provider = null;
 
     protected ?ProductStreamEntity $productStream = null;

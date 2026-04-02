@@ -15,8 +15,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Handles common functionality like tracking.
  * Concrete providers only need to implement {@see buildProviderContext()} for their format-specific fields.
  *
- * @internal
- *
  * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
  */
 #[Package('discovery')]

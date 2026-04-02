@@ -25,7 +25,7 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
  */
 #[Package('discovery')]
 class SalesChannelTrackingListener implements EventSubscriberInterface

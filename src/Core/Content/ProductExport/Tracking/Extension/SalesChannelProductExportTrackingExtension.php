@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
  */
 #[Package('discovery')]
 class SalesChannelProductExportTrackingExtension extends EntityExtension

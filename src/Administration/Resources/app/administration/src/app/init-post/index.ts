@@ -7,7 +7,6 @@
 import initUserInformation from './user-information.init';
 import initLanguage from './language.init';
 import initWorker from './worker.init';
-import initUsageData from './usage-data.init';
 import initTelemetry from './telemetry.init';
 import initProductAnalytics from './product-analytics.init';
 
@@ -18,5 +17,4 @@ export default {
     worker: initWorker,
     telemetry: initTelemetry,
     productAnalytics: initProductAnalytics,
-    usageData: initUsageData,
 };

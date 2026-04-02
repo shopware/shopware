@@ -28,10 +28,10 @@
 {% set hasVariantListing = productExport.includeVariants and (product.parentId or product.childCount > 0) %}
 {% set productUrl = seoUrl('frontend.detail.page', {'productId': product.id}) ~ '?referringSalesChannel=' ~ provider.referringSalesChannel %}
 {% if provider.affiliateCode %}
-    {% set productUrl = productUrl ~ '&affiliateCode=' ~ provider.affiliateCode %}
+    {% set productUrl = productUrl ~ '&affiliateCode=' ~ provider.affiliateCode|url_encode %}
 {% endif %}
 {% if provider.campaignCode %}
-    {% set productUrl = productUrl ~ '&campaignCode=' ~ provider.campaignCode %}
+    {% set productUrl = productUrl ~ '&campaignCode=' ~ provider.campaignCode|url_encode %}
 {% endif %}
 {% set feedRow = {
     'is_eligible_search': provider.isEligibleSearch,

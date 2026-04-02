@@ -364,7 +364,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         );
     });
 
-    it('should trigger full page reload when iframe is reloaded after initial load', async () => {
+    it('should trigger full page reload when hidden main iframe is reloaded after initial load', async () => {
         Shopware.Store.get('extensions').addExtension({
             name: 'foo',
             baseUrl: 'https://example.com',
@@ -374,7 +374,11 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
             active: true,
         });
 
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper({
+            props: {
+                locationId: location.MAIN_HIDDEN,
+            },
+        });
         await flushPromises();
 
         jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
@@ -389,5 +393,29 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         // Second load (iframe reload): should trigger full page reload
         await iframe.trigger('load');
         expect(wrapper.vm._reloadPage).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not trigger full page reload when non-hidden iframe is reloaded after initial load', async () => {
+        Shopware.Store.get('extensions').addExtension({
+            name: 'foo',
+            baseUrl: 'https://example.com',
+            permissions: [],
+            version: '1.0.0',
+            type: 'app',
+            active: true,
+        });
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+        const iframe = wrapper.find('iframe');
+        expect(iframe.exists()).toBe(true);
+
+        await iframe.trigger('load');
+        await iframe.trigger('load');
+
+        expect(wrapper.vm._reloadPage).not.toHaveBeenCalled();
     });
 });

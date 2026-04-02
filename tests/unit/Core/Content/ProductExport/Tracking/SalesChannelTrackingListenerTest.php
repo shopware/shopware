@@ -22,7 +22,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelEvents;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -30,6 +33,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * @internal
@@ -45,6 +49,10 @@ class SalesChannelTrackingListenerTest extends TestCase
         static::assertArrayHasKey(KernelEvents::CONTROLLER, $events);
         static::assertArrayHasKey(EntityWrittenContainerEvent::class, $events);
         static::assertSame('createTrackingRecords', $events[EntityWrittenContainerEvent::class]);
+        static::assertArrayHasKey(SalesChannelEvents::SALES_CHANNEL_WRITTEN, $events);
+        static::assertSame('invalidateTrackableChannelCache', $events[SalesChannelEvents::SALES_CHANNEL_WRITTEN]);
+        static::assertArrayHasKey(SalesChannelEvents::SALES_CHANNEL_DELETED, $events);
+        static::assertSame('invalidateTrackableChannelCache', $events[SalesChannelEvents::SALES_CHANNEL_DELETED]);
     }
 
     public function testStoreReferralCodeDoesNothingForNonStorefrontRoute(): void
@@ -118,10 +126,8 @@ class SalesChannelTrackingListenerTest extends TestCase
 
         $listener->storeReferralCode($this->createControllerEvent($request));
 
-        static::assertSame(
-            $channelId,
-            $request->getSession()->get(SalesChannelTrackingListener::SESSION_KEY_REFERRAL_CODE)
-        );
+        $sessionData = $request->getSession()->get(SalesChannelTrackingListener::SESSION_KEY_REFERRAL_CODE);
+        static::assertSame($channelId, $sessionData);
     }
 
     public function testCreateTrackingRecordsSkipsNonLiveVersion(): void
@@ -283,6 +289,7 @@ class SalesChannelTrackingListenerTest extends TestCase
             $customerRepo,
             $logger,
             $requestStack,
+            new TagAwareAdapter(new ArrayAdapter()),
         );
 
         $event = $this->createContainerEvent(OrderDefinition::ENTITY_NAME, [Uuid::randomHex()]);
@@ -319,6 +326,7 @@ class SalesChannelTrackingListenerTest extends TestCase
             $customerRepo,
             $logger,
             $requestStack,
+            new TagAwareAdapter(new ArrayAdapter()),
         );
 
         $event = $this->createContainerEvent(CustomerDefinition::ENTITY_NAME, [Uuid::randomHex()]);
@@ -428,6 +436,38 @@ class SalesChannelTrackingListenerTest extends TestCase
         static::assertSame($customerId, $customerRecord['customerId']);
     }
 
+    public function testInvalidateTrackableChannelCachePurgesCachedResult(): void
+    {
+        $channelId = Uuid::randomHex();
+        $cache = new TagAwareAdapter(new ArrayAdapter());
+
+        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepo */
+        $salesChannelRepo = new StaticEntityRepository([[], [$channelId]]);
+        $requestStack = new RequestStack();
+        $request = $this->createStorefrontRequest($channelId);
+        $requestStack->push($request);
+
+        $listener = new SalesChannelTrackingListener(
+            $salesChannelRepo,
+            new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]),
+            new StaticEntityRepository([new SalesChannelTrackingCustomerCollection()]),
+            new NullLogger(),
+            $requestStack,
+            $cache,
+        );
+
+        $listener->storeReferralCode($this->createControllerEvent($request));
+        static::assertFalse($request->getSession()->has(SalesChannelTrackingListener::SESSION_KEY_REFERRAL_CODE));
+
+        $context = Context::createDefaultContext();
+        $writeResult = new EntityWriteResult($channelId, [], 'sales_channel', EntityWriteResult::OPERATION_UPDATE);
+        $writtenEvent = new EntityWrittenEvent('sales_channel', [$writeResult], $context);
+        $listener->invalidateTrackableChannelCache($writtenEvent);
+
+        $listener->storeReferralCode($this->createControllerEvent($request));
+        static::assertTrue($request->getSession()->has(SalesChannelTrackingListener::SESSION_KEY_REFERRAL_CODE));
+    }
+
     /**
      * @param list<string> $salesChannelIds
      * @param StaticEntityRepository<SalesChannelTrackingOrderCollection>|null $orderRepo
@@ -438,6 +478,7 @@ class SalesChannelTrackingListenerTest extends TestCase
         ?StaticEntityRepository $orderRepo = null,
         ?StaticEntityRepository $customerRepo = null,
         Request|false|null $mainRequest = false,
+        ?TagAwareCacheInterface $cache = null,
     ): SalesChannelTrackingListener {
         /** @var StaticEntityRepository<SalesChannelTrackingOrderCollection> $orderRepo */
         $orderRepo ??= new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]);
@@ -458,6 +499,7 @@ class SalesChannelTrackingListenerTest extends TestCase
             $customerRepo,
             new NullLogger(),
             $requestStack,
+            $cache ?? new TagAwareAdapter(new ArrayAdapter()),
         );
     }
 

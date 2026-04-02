@@ -39,6 +39,7 @@ return static function (ContainerConfigurator $container): void {
             service('sales_channel_tracking_customer.repository'),
             service('logger'),
             service('request_stack'),
+            service('cache.object'),
         ])
         ->tag('kernel.event_subscriber');
 };

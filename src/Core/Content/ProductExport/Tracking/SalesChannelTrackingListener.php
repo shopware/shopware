@@ -18,11 +18,14 @@ use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
@@ -38,6 +41,8 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
         Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE,
     ];
 
+    private const CACHE_KEY_PREFIX = 'trackable-sales-channel-';
+
     /**
      * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
      * @param EntityRepository<SalesChannelTrackingOrderCollection> $salesChannelTrackingOrderRepository
@@ -49,6 +54,7 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
         private readonly EntityRepository $salesChannelTrackingCustomerRepository,
         private readonly LoggerInterface $logger,
         private readonly RequestStack $requestStack,
+        private readonly TagAwareCacheInterface $cache,
     ) {
     }
 
@@ -59,6 +65,8 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
                 ['storeReferralCode', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE_POST],
             ],
             EntityWrittenContainerEvent::class => 'createTrackingRecords',
+            SalesChannelEvents::SALES_CHANNEL_WRITTEN => 'invalidateTrackableChannelCache',
+            SalesChannelEvents::SALES_CHANNEL_DELETED => 'invalidateTrackableChannelCache',
         ];
     }
 
@@ -108,6 +116,16 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
         }
     }
 
+    public function invalidateTrackableChannelCache(EntityWrittenEvent $event): void
+    {
+        $tags = array_map(
+            static fn (string $id): string => self::CACHE_KEY_PREFIX . $id,
+            $event->getIds(),
+        );
+
+        $this->cache->invalidateTags($tags);
+    }
+
     private function resolveReferralCode(EntityWrittenContainerEvent $event): ?string
     {
         if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
@@ -122,7 +140,11 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
 
         $referralCode = $request->getSession()->get(self::SESSION_KEY_REFERRAL_CODE);
 
-        return \is_string($referralCode) && $referralCode !== '' ? $referralCode : null;
+        if (!\is_string($referralCode) || $referralCode === '') {
+            return null;
+        }
+
+        return $referralCode;
     }
 
     private function trackOrders(EntityWrittenEvent $orderEvent, Context $context, string $referralCode): void
@@ -195,13 +217,19 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
         ));
     }
 
-    private function isTrackableChannel(string $referralCode): bool
+    private function isTrackableChannel(string $salesChannelId): bool
     {
-        $criteria = new Criteria([$referralCode]);
-        $criteria->addFilter(new EqualsAnyFilter('typeId', self::TRACKABLE_TYPE_IDS));
-        $criteria->setLimit(1);
+        $cacheKey = self::CACHE_KEY_PREFIX . $salesChannelId;
 
-        return $this->salesChannelRepository->searchIds($criteria, Context::createDefaultContext())->getTotal() > 0;
+        return $this->cache->get($cacheKey, function (ItemInterface $item) use ($salesChannelId): bool {
+            $item->tag(self::CACHE_KEY_PREFIX . $salesChannelId);
+
+            $criteria = new Criteria([$salesChannelId]);
+            $criteria->addFilter(new EqualsAnyFilter('typeId', self::TRACKABLE_TYPE_IDS));
+            $criteria->setLimit(1);
+
+            return $this->salesChannelRepository->searchIds($criteria, Context::createDefaultContext())->getTotal() > 0;
+        });
     }
 
     private function getCurrentRequest(): ?Request

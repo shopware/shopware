@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\ProductExport\Tracking\Extension\OrderSalesChannelTrackingExtension;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -25,7 +24,7 @@ class OrderSalesChannelTrackingExtensionTest extends TestCase
         static::assertSame(OrderDefinition::ENTITY_NAME, $extension->getEntityName());
     }
 
-    public function testExtendFieldsAddsCascadeDeleteAssociation(): void
+    public function testExtendFieldsAddsAssociation(): void
     {
         $extension = new OrderSalesChannelTrackingExtension();
         $collection = new FieldCollection();
@@ -37,6 +36,5 @@ class OrderSalesChannelTrackingExtensionTest extends TestCase
         $field = $collection->first();
         static::assertInstanceOf(OneToOneAssociationField::class, $field);
         static::assertSame('salesChannelTracking', $field->getPropertyName());
-        static::assertTrue($field->is(CascadeDelete::class));
     }
 }

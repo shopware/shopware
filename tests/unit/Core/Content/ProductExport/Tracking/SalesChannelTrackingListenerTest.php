@@ -447,10 +447,15 @@ class SalesChannelTrackingListenerTest extends TestCase
         $request = $this->createStorefrontRequest($channelId);
         $requestStack->push($request);
 
+        /** @var StaticEntityRepository<SalesChannelTrackingOrderCollection> $orderRepo */
+        $orderRepo = new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]);
+        /** @var StaticEntityRepository<SalesChannelTrackingCustomerCollection> $customerRepo */
+        $customerRepo = new StaticEntityRepository([new SalesChannelTrackingCustomerCollection()]);
+
         $listener = new SalesChannelTrackingListener(
             $salesChannelRepo,
-            new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]),
-            new StaticEntityRepository([new SalesChannelTrackingCustomerCollection()]),
+            $orderRepo,
+            $customerRepo,
             new NullLogger(),
             $requestStack,
             $cache,

@@ -73,6 +73,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\WasModifiedByUserField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
@@ -129,6 +130,7 @@ class SchemaBuilder
 
         BoolField::class => Types::BOOLEAN,
         LockedField::class => Types::BOOLEAN,
+        WasModifiedByUserField::class => Types::BOOLEAN,
 
         PasswordField::class => Types::STRING,
         StringField::class => Types::STRING,

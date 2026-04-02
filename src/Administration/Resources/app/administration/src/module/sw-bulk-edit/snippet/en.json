@@ -269,6 +269,7 @@
         }
       },
       "warningText": "Please wait for the bulk edit to complete. This may take a while. If you close the browser tab or cancel the process prematurely, not all changes will be applied. You can run the bulk edit again at any time.",
+      "warningTextDocumentDeletion": "Documents are a part of an order and may be relevant for tax purposes. Deleting them may affect the traceability of your accounting records. Please ensure that deletion is legally permitted." ,
       "messageBeforeTabLeave": "Bulk edits are being made. If you close the tab, not all changes may be applied."
     },
     "order": {
@@ -345,6 +346,10 @@
         "downloadDocuments": {
           "label": "Download: Documents",
           "helpText": "With this option, the most recent documents available are offered for download. Multiple documents are merged into the same file. The download is available after the multiple change has been completed."
+        },
+        "deleteDocuments": {
+          "label": "Delete: Documents",
+          "helpText": "With this option, all selected types of documents will be deleted."
         },
         "forceDocumentCreation": "Force document creation",
         "forceDocumentCreationHelpText": "The document is also generated if the order already contains a document of this type."

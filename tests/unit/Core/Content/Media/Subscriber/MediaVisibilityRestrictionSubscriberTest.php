@@ -57,10 +57,7 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         );
         $subscriber->securePrivateMediaAggregation($aggregatingEvent);
 
-        static::assertSame(
-            $countAggregation,
-            $criteria->getAggregations()[\array_key_first($criteria->getAggregations())]
-        );
+        static::assertSame($countAggregation, array_first($criteria->getAggregations()));
     }
 
     public function testSecurePrivateFlagIgnoresNonMediaEntities(): void
@@ -86,10 +83,7 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         );
         $subscriber->securePrivateMediaAggregation($aggregatingEvent);
 
-        static::assertSame(
-            $countAggregation,
-            $criteria->getAggregations()[\array_key_first($criteria->getAggregations())]
-        );
+        static::assertSame($countAggregation, array_first($criteria->getAggregations()));
     }
 
     public function testSecurePrivateFoldersMediaFolder(): void

@@ -75,7 +75,11 @@ class EntitySearcher implements EntitySearcherInterface
             $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
 
-        $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);
+        if ($query->hasState(Criteria::SCORE_FIELD) && $criteria->hasState(Criteria::STATE_SCORE_RANKED_GROUPING) && $criteria->getGroupFields() !== []) {
+            $query = $this->buildScoreRankedQuery($query, $definition, $criteria, $context, $table);
+        } else {
+            $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);
+        }
 
         // add pagination
         if ($criteria->getOffset() !== null) {
@@ -143,6 +147,43 @@ class EntitySearcher implements EntitySearcherInterface
         }
 
         return new IdSearchResult($total, $converted, $criteria, $context);
+    }
+
+    /**
+     * Wraps a scored query with ROW_NUMBER() OVER(PARTITION BY ... ORDER BY _score DESC)
+     * to guarantee the highest-scoring row is selected for each group.
+     */
+    private function buildScoreRankedQuery(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context, string $table): QueryBuilder
+    {
+        $query->addGroupBy(
+            EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape('id')
+        );
+
+        $partitionColumns = [];
+        foreach (array_values($criteria->getGroupFields()) as $i => $grouping) {
+            $accessor = $this->queryHelper->getFieldAccessor($grouping->getField(), $definition, $table, $context);
+            $alias = '_group_' . $i;
+            $query->addSelect($accessor . ' as `' . $alias . '`');
+            $partitionColumns[] = 'inner_q.`' . $alias . '`';
+        }
+
+        $query->resetOrderBy();
+
+        $innerSql = $query->getSQL();
+
+        $outer = new QueryBuilder($this->connection);
+        $outer->select('ranked.*')
+            ->from(\sprintf(
+                '(SELECT inner_q.*, ROW_NUMBER() OVER(PARTITION BY %s ORDER BY inner_q._score DESC, inner_q.id ASC) as _rn FROM (%s) inner_q)',
+                implode(', ', $partitionColumns),
+                $innerSql
+            ), 'ranked')
+            ->andWhere('ranked._rn = 1')
+            ->addOrderBy('ranked._score', 'DESC');
+
+        $outer->setParameters($query->getParameters(), $query->getParameterTypes());
+
+        return $outer;
     }
 
     private function addTotalCountMode(Criteria $criteria, QueryBuilder $query): void

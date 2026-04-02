@@ -75,8 +75,11 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     #[Route(
         path: '/store-api/product/{productId}',
         name: 'store-api.product.detail',
-        methods: [Request::METHOD_POST, Request::METHOD_GET],
-        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ProductDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
+        defaults: [
+            PlatformRequest::ATTRIBUTE_ENTITY => ProductDefinition::ENTITY_NAME,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_POST, Request::METHOD_GET]
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
     {

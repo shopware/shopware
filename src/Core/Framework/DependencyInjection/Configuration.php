@@ -650,6 +650,12 @@ class Configuration implements ConfigurationInterface
             ->arrayNode('allowed_types')
                 ->defaultValue([ProductDefinition::TYPE_PHYSICAL, ProductDefinition::TYPE_DIGITAL])
                 ->scalarPrototype()->end()
+            ->end()
+            ->arrayNode('search_keyword')
+                ->addDefaultsIfNotSet()
+                ->children()
+                    ->booleanNode('indexing')->defaultTrue()->end()
+                ->end()
             ->end();
 
         return $rootNode;
@@ -901,6 +907,13 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('elasticsearch')
                     ->children()
                         ->booleanNode('check_for_existence')->defaultTrue()->end()
+                    ->end()
+                ->end()
+                ->arrayNode('system_config')
+                    ->useAttributeAsKey('scope')
+                    ->arrayPrototype()
+                        ->useAttributeAsKey('key')
+                        ->variablePrototype()->end()
                     ->end()
                 ->end()
             ->end();

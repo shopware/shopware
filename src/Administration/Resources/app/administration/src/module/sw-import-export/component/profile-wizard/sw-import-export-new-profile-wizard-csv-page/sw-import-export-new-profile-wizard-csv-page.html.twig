@@ -7,7 +7,7 @@
     {% block sw_import_export_new_profile_wizard_csv_page_csv_upload %}
     <sw-file-input
         v-model:value="csvFile"
-        :allowed-mime-types="['text/csv']"
+        :allowed-file-extensions="['csv']"
         :label="$tc('sw-import-export.profile.csvUploadText')"
         class="sw-import-export-new-profile-wizard-csv-page__file-upload"
         @update:value="onFileChange"

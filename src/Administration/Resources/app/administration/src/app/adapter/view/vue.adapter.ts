@@ -44,6 +44,7 @@ import MtLink from '@shopware-ag/meteor-component-library/dist/esm/MtLink';
 import MtUnitField from '@shopware-ag/meteor-component-library/dist/esm/MtUnitField';
 import MtSnackbar from '@shopware-ag/meteor-component-library/dist/esm/MtSnackbar';
 import MtBadge from '@shopware-ag/meteor-component-library/dist/esm/MtBadge';
+import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromoBadge';
 
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useSystem from '../../composables/use-system';
@@ -76,20 +77,7 @@ export default class VueAdapter extends ViewAdapter {
         this.app = createApp({
             name: 'ShopwareAdministration',
             template: '<sw-admin />',
-            mounted() {
-                // `DELAY` matches animation-delay that is used in `administration/index.html`
-                const DELAY = 2000;
-                const MIN_VISIBLE_TIME = 300;
-
-                const startTime = window._pageLoadTime_;
-                const elapsedTime = Date.now() - startTime;
-                // prevent flickering, show loading indicator longer than necessary:
-                const buffer = elapsedTime < DELAY ? 0 : Math.max(DELAY + MIN_VISIBLE_TIME - elapsedTime, 0);
-
-                setTimeout(() => {
-                    document.getElementById('page-loading-screen')?.remove();
-                }, buffer);
-            },
+            mounted: () => window.removePageLoadingIndicator(),
         });
     }
 
@@ -378,6 +366,7 @@ export default class VueAdapter extends ViewAdapter {
             MtUnitField,
             MtSnackbar,
             MtBadge,
+            MtPromoBadge,
         } as const;
 
         const lazyMeteorComponents = {

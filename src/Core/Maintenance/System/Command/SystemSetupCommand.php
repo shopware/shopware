@@ -145,7 +145,7 @@ class SystemSetupCommand extends Command
         $env['APP_ENV'] = $io->choice('Application environment', ['prod', 'dev'], $input->getOption('app-env'));
 
         // TODO: optionally check http connection (create test file in public and request)
-        $validator = Validation::createCallable(new NotBlank(), new Url());
+        $validator = Validation::createCallable(new NotBlank(), new Url(requireTld: false));
         $env['APP_URL'] = $io->ask('URL to your /public folder', $input->getOption('app-url'), $validator);
 
         $io->section('Application information');

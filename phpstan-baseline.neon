@@ -67,54 +67,6 @@ parameters:
 			path: src/Core/Content/Newsletter/Event/NewsletterSubscribeUrlEvent.php
 
 		-
-			message: '#^Mixed variable in a `\$a\-\>get\(''group''\)\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 3
-			path: src/Core/Content/Product/ProductVariationBuilder.php
-
-		-
-			message: '#^Mixed variable in a `\$b\-\>get\(''group''\)\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 3
-			path: src/Core/Content/Product/ProductVariationBuilder.php
-
-		-
-			message: '#^Mixed variable in a `\$option\-\>get\(''group''\)\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 1
-			path: src/Core/Content/Product/ProductVariationBuilder.php
-
-		-
-			message: '#^Mixed variable in a `\$group\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 5
-			path: src/Core/Content/Product/PropertyGroupSorter.php
-
-		-
-			message: '#^Mixed variable in a `\$group\-\>get\(''options''\)\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 1
-			path: src/Core/Content/Product/PropertyGroupSorter.php
-
-		-
-			message: '#^Mixed variable in a `\$origin\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 1
-			path: src/Core/Content/Product/PropertyGroupSorter.php
-
-		-
-			message: '#^Mixed variable in a `\$sorted\[\$groupId\]\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 2
-			path: src/Core/Content/Product/PropertyGroupSorter.php
-
-		-
-			message: '#^Mixed variable in a `\$sorted\[\$groupId\]\-\>get\(''options''\)\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 1
-			path: src/Core/Content/Product/PropertyGroupSorter.php
-
-		-
 			message: '#^Method Shopware\\Core\\Content\\Product\\SalesChannel\\FindVariant\\FoundCombination\:\:getOptions\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -307,18 +259,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Event/EntityLoadedContainerEvent.php
 
 		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\CreatedByField\:\:__construct\(\) has parameter \$allowedWriteScopes with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/CreatedByField.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\CreatedByField\:\:getAllowedWriteScopes\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/CreatedByField.php
-
-		-
 			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\Runtime\:\:__construct\(\) has parameter \$dependsOn with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -331,12 +271,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Field/Flag/Runtime.php
 
 		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Flag\\WriteProtected\:\:getAllowedScopes\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/Flag/WriteProtected.php
-
-		-
 			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\StateMachineStateField\:\:__construct\(\) has parameter \$allowedWriteScopes with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -347,18 +281,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Field/StateMachineStateField.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\UpdatedByField\:\:__construct\(\) has parameter \$allowedWriteScopes with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/UpdatedByField.php
-
-		-
-			message: '#^Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\UpdatedByField\:\:getAllowedWriteScopes\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/UpdatedByField.php
 
 		-
 			message: '#^Cannot call method is\(\) on Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field\|null\.$#'
@@ -637,12 +559,6 @@ parameters:
 			path: src/Core/Framework/Plugin/Command/Lifecycle/AbstractPluginLifecycleCommand.php
 
 		-
-			message: '#^Method Shopware\\Core\\Framework\\Plugin\\KernelPluginLoader\\StaticKernelPluginLoader\:\:__construct\(\) has parameter \$plugins with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Framework/Plugin/KernelPluginLoader/StaticKernelPluginLoader.php
-
-		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
 			identifier: shopware.domainException
 			count: 1
@@ -677,12 +593,6 @@ parameters:
 			identifier: shopware.domainException
 			count: 2
 			path: src/Core/Framework/RateLimiter/Policy/TimeBackoffLimiter.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 2
-			path: src/Core/Framework/Routing/Annotation/CriteriaValueResolver.php
 
 		-
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
@@ -892,12 +802,6 @@ parameters:
 			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
 			identifier: shopware.domainException
 			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 1
 			path: src/Core/System/SalesChannel/Entity/SalesChannelDefinitionInstanceRegistry.php
 
 		-
@@ -923,24 +827,6 @@ parameters:
 			identifier: shopware.domainException
 			count: 4
 			path: src/Core/System/User/Api/UserValidationController.php
-
-		-
-			message: '#^Method Shopware\\Core\\Test\\Integration\\Helper\\MailEventListener\:\:__construct\(\) has parameter \$mapping with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Test/Integration/Helper/MailEventListener.php
-
-		-
-			message: '#^Method Shopware\\Core\\Test\\Integration\\Helper\\MailEventListener\:\:get\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Test/Integration/Helper/MailEventListener.php
-
-		-
-			message: '#^Property Shopware\\Core\\Test\\Integration\\Helper\\MailEventListener\:\:\$events type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Core/Test/Integration/Helper/MailEventListener.php
 
 		-
 			message: '#^Method Shopware\\Elasticsearch\\DependencyInjection\\ElasticsearchExtension\:\:addConfig\(\) has parameter \$options with no value type specified in iterable type array\.$#'
@@ -1103,9 +989,3 @@ parameters:
 			identifier: shopware.domainException
 			count: 1
 			path: src/Storefront/Theme/ThemeConfigFieldFactory.php
-
-		-
-			message: '#^Throwing new exceptions within classes are not allowed\. Please use domain exception pattern\. See https\://github\.com/shopware/platform/blob/v6\.4\.20\.0/adr/2022\-02\-24\-domain\-exceptions\.md$#'
-			identifier: shopware.domainException
-			count: 1
-			path: src/Storefront/Theme/ThemeFileResolver.php

@@ -61,7 +61,7 @@ class CacheStateValidator
 
         $cookie = Cookie::create(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE);
 
-        $responseStates = $response->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY)[$cookie->getDomain()][$cookie->getPath()][$cookie->getName()] ?? null;
+        $responseStates = $response->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY)[$cookie->getDomain() ?? ''][$cookie->getPath()][$cookie->getName()] ?? null;
 
         if ($responseStates) {
             // if the response contains a state cookie, we use it instead of the request cookie

@@ -3,6 +3,8 @@
     height: 100%;
     position: absolute;
     display: flex;
+    flex-direction: column;
+    gap: 1rem;
     align-items: center;
     justify-content: center;
     top: 0;
@@ -50,6 +52,14 @@
     display: grid;
     grid-auto-columns: auto;
     position: relative;
+}
+
+#page-loading-screen .loading-indicator__error {
+    color: var(--color-text-error-default, #d92d20);
+    white-space: pre-wrap;
+    word-break: break-word;
+    text-align: left;
+    text-wrap: pretty;
 }
 
 @keyframes mt-loader-rotator {

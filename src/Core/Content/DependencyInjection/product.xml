@@ -385,8 +385,6 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute" decoration-priority="-2000" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute.inner"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor" />
         </service>
 

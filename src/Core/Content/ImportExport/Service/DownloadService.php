@@ -68,8 +68,9 @@ class DownloadService
                 (string) preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $originalName)
             ),
             'Content-Length' => $this->filesystem->fileSize($entity->getPath()),
-            'Content-Type' => 'application/octet-stream',
+            'Content-Type' => $this->resolveContentType($originalName),
         ];
+
         $stream = $this->filesystem->readStream($entity->getPath());
         if (!\is_resource($stream)) {
             throw ImportExportException::fileNotFound($fileId);
@@ -100,5 +101,13 @@ class DownloadService
         $diff = time() - $entity->getUpdatedAt()->getTimestamp();
 
         return $diff < 300;
+    }
+
+    private function resolveContentType(string $originalName): string
+    {
+        return match (strtolower((string) pathinfo($originalName, \PATHINFO_EXTENSION))) {
+            'csv' => 'text/csv',
+            default => 'application/octet-stream',
+        };
     }
 }

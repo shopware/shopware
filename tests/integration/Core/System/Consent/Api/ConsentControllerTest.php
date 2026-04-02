@@ -39,6 +39,17 @@ class ConsentControllerTest extends TestCase
         static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode());
     }
 
+    public function testAcceptConsentRejectsExplicitRevisionForNonRevisionedConsent(): void
+    {
+        $browser = $this->getBrowser(true);
+        $browser->jsonRequest('POST', '/api/consents/accept', [
+            'consent' => 'backend_data',
+            'revision' => '1.0.0',
+        ]);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $browser->getResponse()->getStatusCode());
+    }
+
     public function testRevokeConsentRequiresAuthentication(): void
     {
         $browser = $this->getBrowser(false);

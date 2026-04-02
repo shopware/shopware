@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Doctrine;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Exception\DeadlockException;
-use Doctrine\DBAL\Exception\RetryableException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
@@ -20,6 +19,8 @@ class RetryableTransactionTest extends TestCase
 {
     public function testRetryableTransactionRetriesOnDeadlock(): void
     {
+        $this->expectException(DeadlockException::class);
+
         $counter = 0;
         $f = static function () use (&$counter): void {
             ++$counter;
@@ -33,14 +34,10 @@ class RetryableTransactionTest extends TestCase
         $connection->method('getTransactionNestingLevel')->willReturn(0);
         $connection->method('transactional')->willReturnCallback($f);
 
-        $e = null;
         try {
             RetryableTransaction::retryable($connection, $f);
-            /** @phpstan-ignore catch.neverThrown (exceptions are thrown in passed closure) */
-        } catch (\Throwable $e) {
+        } finally {
+            static::assertSame(11, $counter);
         }
-
-        static::assertInstanceOf(RetryableException::class, $e);
-        static::assertSame(11, $counter);
     }
 }

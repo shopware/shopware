@@ -49,6 +49,6 @@ class PriceFieldAccessorBuilderTest extends TestCase
 
         $sql = $this->builder->buildAccessor('product', $priceField, $context, 'price.percentage');
 
-        static::assertSame('(ROUND((ROUND(CAST((COALESCE((JSON_UNQUOTE(JSON_EXTRACT(`product`.`price`, "$.cb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) + 0.0))) as DECIMAL(30, 20)), 2)) * 100, 0) / 100)', $sql);
+        static::assertSame('(100 - (ROUND((ROUND(CAST((COALESCE((JSON_UNQUOTE(JSON_EXTRACT(`product`.`price`, "$.cb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage.gross")) + 0.0))) as DECIMAL(30, 20)), 2)) * 100, 0) / 100))', $sql);
     }
 }

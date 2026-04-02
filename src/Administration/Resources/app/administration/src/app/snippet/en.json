@@ -181,7 +181,7 @@
     "sw-field": {
       "notification": {
         "notificationCopySuccessMessage": "Text has been copied to clipboard.",
-        "notificationCopyFailureMessage": "Text could not be copied to clipboard."
+        "notificationCopyFailureMessage": "Text could not be copied to clipboard. Make sure you're accessing the administration via a secure connection (HTTPS) and try again."
       },
       "titleShowPassword": "Show password",
       "titleHidePassword": "Hide password",
@@ -201,6 +201,9 @@
       "notification": {
         "invalidFileType": {
           "message": "The selected file \"{name}\" has an unsupported format. Please use one of the following types: {supportedTypes}."
+        },
+        "invalidFileExtension": {
+          "message": "The selected file \"{name}\" has an unsupported file extension. Please use one of the following file extensions: {supportedExtensions}."
         },
         "invalidFileSize": {
           "message": "The selected file \"{name}\" is too big to upload. File size must not exceed {limit}."

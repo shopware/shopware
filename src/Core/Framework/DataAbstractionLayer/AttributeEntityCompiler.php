@@ -73,6 +73,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\WasModifiedByUserField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
@@ -419,6 +420,9 @@ class AttributeEntityCompiler
             unset($flags[Required::class]);
         }
         if ($field->type === CustomFieldsAttr::TYPE) {
+            unset($flags[Required::class]);
+        }
+        if (is_a($field->type, WasModifiedByUserField::class, true)) {
             unset($flags[Required::class]);
         }
 

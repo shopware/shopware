@@ -110,18 +110,15 @@ export default {
                         return null;
                     }
 
-                    return {
-                        label: this.addressLabel(item),
-                        ...item,
-                    };
+                    item.label = this.addressLabel(item);
+                    return item;
                 })
                 .filter((item) => item !== null);
 
-            this.address &&
-                addresses.unshift({
-                    label: this.addressLabel(this.address),
-                    ...this.address,
-                });
+            if (this.address) {
+                this.address.label = this.addressLabel(this.address);
+                addresses.unshift(this.address);
+            }
 
             return addresses;
         },

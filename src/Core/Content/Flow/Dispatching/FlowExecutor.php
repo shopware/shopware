@@ -189,7 +189,15 @@ class FlowExecutor
     private function callHandle(ActionSequence $sequence, StorableFlow $event): void
     {
         if ($sequence->appFlowActionId) {
-            $this->callApp($sequence, $event);
+            $eventData = $this->appFlowActionProvider->getWebhookPayloadAndHeaders($event, $sequence->appFlowActionId);
+
+            $globalEvent = new AppFlowActionEvent(
+                $sequence->action,
+                $eventData['headers'],
+                $eventData['payload'],
+            );
+
+            $this->dispatcher->dispatch($globalEvent, $sequence->action);
 
             return;
         }
@@ -223,23 +231,6 @@ class FlowExecutor
 
             throw FlowException::transactionFailed($e);
         }
-    }
-
-    private function callApp(ActionSequence $sequence, StorableFlow $event): void
-    {
-        if (!$sequence->appFlowActionId) {
-            return;
-        }
-
-        $eventData = $this->appFlowActionProvider->getWebhookPayloadAndHeaders($event, $sequence->appFlowActionId);
-
-        $globalEvent = new AppFlowActionEvent(
-            $sequence->action,
-            $eventData['headers'],
-            $eventData['payload'],
-        );
-
-        $this->dispatcher->dispatch($globalEvent, $sequence->action);
     }
 
     private function sequenceRuleMatches(StorableFlow $event, string $ruleId): bool

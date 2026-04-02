@@ -26,7 +26,7 @@ class ConsentRepository
     public function fetchAllConsentStates(): array
     {
         $result = $this->connection->fetchAllAssociative(
-            'SELECT name, identifier, state, actor, updated_at FROM consent_state'
+            'SELECT name, identifier, state, actor, updated_at, revision FROM consent_state'
         );
 
         return array_map(
@@ -35,7 +35,8 @@ class ConsentRepository
                 $row['identifier'],
                 ConsentStatus::from($row['state']),
                 $row['actor'],
-                $row['updated_at']
+                $row['updated_at'],
+                $row['revision'] ?? null,
             ),
             $result
         );
@@ -45,8 +46,13 @@ class ConsentRepository
         ConsentDefinition $consent,
         string $scopeIdentifier,
         ConsentStatus $state,
-        string $actorId
+        string $actorId,
+        ?string $revision = null,
     ): void {
+        if ($state !== ConsentStatus::ACCEPTED) {
+            $revision = null;
+        }
+
         $now = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $actor = $this->connection->executeQuery('SELECT username from user WHERE id = :id', [
@@ -58,11 +64,12 @@ class ConsentRepository
         }
 
         $this->connection->executeStatement('
-        INSERT INTO consent_state (id, name, identifier, state, actor, updated_at)
-        VALUES (:id, :consentName, :identifier, :insertState, :actor, :updatedAt)
+        INSERT INTO consent_state (id, name, identifier, state, actor, revision, updated_at)
+        VALUES (:id, :consentName, :identifier, :insertState, :actor, :revision, :updatedAt)
         ON DUPLICATE KEY UPDATE
             state = CASE WHEN state = "declined" AND :state = "revoked" THEN "declined" ELSE :state END,
             actor = :actor,
+            revision = :revision,
             updated_at = :updatedAt
         ', [
             'id' => Uuid::randomBytes(),
@@ -71,6 +78,7 @@ class ConsentRepository
             'insertState' => $state === ConsentStatus::REVOKED ? ConsentStatus::DECLINED->value : $state->value,
             'state' => $state->value,
             'actor' => $actor,
+            'revision' => $revision,
             'updatedAt' => $now,
         ], ['id' => 'binary']);
     }

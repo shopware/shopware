@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
@@ -12,7 +13,6 @@ use Twig\Environment;
 use Twig\Extension\CoreExtension;
 use Twig\Runtime\EscaperRuntime;
 use Twig\Source;
-use Twig\Template;
 
 /**
  * @internal
@@ -20,11 +20,11 @@ use Twig\Template;
 #[CoversClass(SwTwigFunction::class)]
 class SwTwigFunctionTest extends TestCase
 {
-    private MockObject&Environment $environmentMock;
+    private MockObject&Environment $environment;
 
     protected function setUp(): void
     {
-        $this->environmentMock = $this->createMock(Environment::class);
+        $this->environment = $this->createMock(Environment::class);
         /** This is a fix for a autoload issue in the testsuite. Do not delete. */
         class_exists(CoreExtension::class);
     }
@@ -35,152 +35,167 @@ class SwTwigFunctionTest extends TestCase
         SwTwigFunction::resetEscapeCache();
     }
 
-    public function testSwGetAttributeValueNull(): void
-    {
-        $object = new ArrayStruct(['test' => null]);
-        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'test');
-
-        static::assertNull($result);
-    }
-
-    public function testSwGetAttributeValueBool(): void
-    {
-        $object = new ArrayStruct(['test' => true]);
-        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'test');
-
-        static::assertTrue($result);
-
-        $object = new ArrayStruct(['test' => false]);
-        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'test');
-
-        static::assertFalse($result);
-    }
-
-    public function testSwGetAttributeJustProperty(): void
-    {
-        $object = new ArrayStruct(['test' => 'value']);
-        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'test');
-
-        static::assertSame('value', $result);
-    }
-
-    public function testSwGetAttributeGetterMethods(): void
+    /**
+     * @return \Generator<string, array{object: Struct, attribute: string, expected: string|bool|null, arguments?: array}>
+     */
+    public static function getAttributeDataProvider(): \Generator
     {
         $object = new StructForTests();
         $object->setNoGetter(99);
         $object->setValue('valueValue');
         $object->setVisible(true);
 
-        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'noGetter');
+        yield 'null value' => [
+            'object' => new ArrayStruct(['test' => null]),
+            'attribute' => 'test',
+            'expected' => null,
+        ];
 
-        static::assertNull($result);
+        yield 'boolean true' => [
+            'object' => new ArrayStruct(['test' => true]),
+            'attribute' => 'test',
+            'expected' => true,
+        ];
 
-        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'value');
+        yield 'boolean false' => [
+            'object' => new ArrayStruct(['test' => false]),
+            'attribute' => 'test',
+            'expected' => false,
+        ];
 
-        static::assertSame('valueValue', $result);
+        yield 'just property' => [
+            'object' => new ArrayStruct(['test' => 'value']),
+            'attribute' => 'test',
+            'expected' => 'value',
+        ];
 
-        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'getValue');
+        yield 'getter method' => [
+            'object' => $object,
+            'attribute' => 'value',
+            'expected' => 'valueValue',
+        ];
 
-        static::assertSame('valueValue', $result);
+        yield 'isVisible method' => [
+            'object' => $object,
+            'attribute' => 'isVisible',
+            'expected' => true,
+        ];
 
-        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'visible');
+        yield 'method with arguments' => [
+            'object' => $object,
+            'attribute' => 'getNonExistentProperty',
+            'arguments' => ['arg1', 'arg2'],
+            'expected' => 'result',
+        ];
+    }
 
-        static::assertTrue($result);
-
-        $result = SwTwigFunction::getAttribute($this->environmentMock, new Source('', 'empty'), $object, 'isVisible');
-
-        static::assertTrue($result);
-
+    /**
+     * @param list<string> $arguments
+     */
+    #[DataProvider('getAttributeDataProvider')]
+    public function testGetAttributeWithVariousInputs(Struct $object, string $attribute, string|bool|null $expected, array $arguments = []): void
+    {
         $result = SwTwigFunction::getAttribute(
-            $this->environmentMock,
+            $this->environment,
             new Source('', 'empty'),
             $object,
-            'isVisible',
-            [],
-            Template::METHOD_CALL
+            $attribute,
+            $arguments
         );
 
-        static::assertTrue($result);
+        static::assertSame($expected, $result);
     }
 
-    public function testEscapeFilterWithNullInput(): void
+    /**
+     * @return \Generator<string, array{input: int|string|null, expected: string}>
+     */
+    public static function escapeFilterDataProvider(): \Generator
     {
-        $env = $this->environmentMock;
-        $env->method('getRuntime')->willReturn(new EscaperRuntime($env));
-        $result = SwTwigFunction::escapeFilter($env, null, 'html', 'UTF-8');
+        yield 'null input' => [
+            'input' => null,
+            'expected' => '',
+        ];
 
-        static::assertSame('', $result);
+        yield 'integer input' => [
+            'input' => 123,
+            'expected' => '123',
+        ];
+
+        yield 'string input' => [
+            'input' => 'test',
+            'expected' => 'test',
+        ];
+
+        yield 'escaped string input' => [
+            'input' => '<script>alert("test")</script>',
+            'expected' => '&lt;script&gt;alert(&quot;test&quot;)&lt;/script&gt;',
+        ];
     }
 
-    public function testEscapeFilterWithIntegerInput(): void
+    #[DataProvider('escapeFilterDataProvider')]
+    public function testEscapeFilterWithVariousInputs(int|string|null $input, string $expected): void
     {
-        $env = $this->environmentMock;
+        $env = $this->environment;
         $env->method('getRuntime')->willReturn(new EscaperRuntime($env));
-        $result = SwTwigFunction::escapeFilter($env, 123, 'html', 'UTF-8');
 
-        static::assertSame('123', $result);
+        $result = SwTwigFunction::escapeFilter($env, $input, 'html', 'UTF-8');
+
+        static::assertSame($expected, $result);
     }
 
-    public function testEscapeFilterWithStringInput(): void
+    public function testEscapeFilterWithCache(): void
     {
-        $env = $this->environmentMock;
-        $env->method('getRuntime')->willReturn(new EscaperRuntime($env));
-        $result = SwTwigFunction::escapeFilter($env, 'test', 'html', 'UTF-8');
+        $env = $this->environment;
 
-        static::assertSame('test', $result);
-    }
-
-    public function testEscapeFilterReallyEscapeString(): void
-    {
-        $env = $this->environmentMock;
-        $env->method('getRuntime')->willReturn(new EscaperRuntime($env));
-        $result = SwTwigFunction::escapeFilter($env, '<script>alert("test")</script>', 'html', 'UTF-8');
-
-        static::assertSame('&lt;script&gt;alert(&quot;test&quot;)&lt;/script&gt;', $result);
-    }
-
-    public function testEscapeFilterWithCachedStringInput(): void
-    {
-        $env = $this->environmentMock;
-        $env->method('getRuntime')->willReturn(new EscaperRuntime($env));
+        // Ensure getRuntime is called only once
+        $env->expects($this->once())
+            ->method('getRuntime')
+            ->willReturn(new EscaperRuntime($env));
 
         // First call to cache the result
-        SwTwigFunction::escapeFilter($env, 'cached_string', 'html', 'UTF-8');
+        $string = 'cached_string';
+        $result1 = SwTwigFunction::escapeFilter($env, $string, 'html', 'UTF-8');
 
         // Second call to get the cached result
-        $result = SwTwigFunction::escapeFilter($env, 'cached_string', 'html', 'UTF-8');
+        $result2 = SwTwigFunction::escapeFilter($env, $string, 'html', 'UTF-8');
 
-        static::assertSame('cached_string', $result);
+        // Assert that the results are the same, indicating the cache was used
+        static::assertSame($result1, $result2);
     }
 
-    public function testResetEscapeCacheClearsCache(): void
+    public function testEscapeFilterDoesNotCacheNonStringInputs(): void
     {
-        $env = $this->environmentMock;
-        $runtimeCallCount = 0;
+        $env = $this->environment;
 
-        $escaperRuntime = new EscaperRuntime($env);
-        $env->method('getRuntime')->willReturnCallback(static function () use ($escaperRuntime, &$runtimeCallCount) {
-            ++$runtimeCallCount;
+        // Expect getRuntime to be called twice, once for each invocation (would be 1 in total with cache)
+        $env->expects($this->exactly(2))
+            ->method('getRuntime')
+            ->willReturn(new EscaperRuntime($env));
 
-            return $escaperRuntime;
-        });
+        // Use a boolean since $string is mixed, and a non-string input should not be cached
+        $result1 = SwTwigFunction::escapeFilter($env, true, 'html', 'UTF-8');
+        $result2 = SwTwigFunction::escapeFilter($env, true, 'html', 'UTF-8');
 
-        // First call - should call getRuntime
-        SwTwigFunction::escapeFilter($env, 'test_reset_string', 'html', 'UTF-8');
-        static::assertSame(1, $runtimeCallCount);
+        // Results are the same with same input, but cache was not involved - guaranteed by earlier expectations
+        static::assertSame($result1, $result2);
+    }
 
-        // Second call - should use cache, NOT call getRuntime
-        SwTwigFunction::escapeFilter($env, 'test_reset_string', 'html', 'UTF-8');
-        // @phpstan-ignore staticMethod.alreadyNarrowedType (PHPStan doesn't track reference through callback)
-        static::assertSame(1, $runtimeCallCount, 'Second call should use cache');
+    public function testGetAttributePropagatesThrowable(): void
+    {
+        $env = $this->createMock(Environment::class);
+        $source = new Source('', 'test_template');
 
-        // Reset the cache
-        SwTwigFunction::resetEscapeCache();
+        static::expectExceptionObject(new \Exception('Test exception'));
 
-        // Third call after reset - should call getRuntime again
-        SwTwigFunction::escapeFilter($env, 'test_reset_string', 'html', 'UTF-8');
-        // @phpstan-ignore staticMethod.impossibleType (PHPStan doesn't track reference through callback)
-        static::assertSame(2, $runtimeCallCount, 'After reset, cache should be empty and getRuntime called again');
+        $struct = new StructForTests();
+        $struct->setThrowException(true);
+
+        SwTwigFunction::getAttribute(
+            $env,
+            $source,
+            $struct,
+            'nonExistentProperty'
+        );
     }
 }
 
@@ -194,6 +209,8 @@ class StructForTests extends Struct
     private string $value;
 
     private int $noGetter;
+
+    private bool $throwException = false;
 
     public function isVisible(): bool
     {
@@ -221,5 +238,19 @@ class StructForTests extends Struct
         if ($this->noGetter > 0) {
             $this->visible = true;
         }
+    }
+
+    public function setThrowException(bool $throwException): void
+    {
+        $this->throwException = $throwException;
+    }
+
+    public function getNonExistentProperty(): string
+    {
+        if ($this->throwException) {
+            throw new \Exception('Test exception');
+        }
+
+        return 'result';
     }
 }

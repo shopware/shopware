@@ -8,7 +8,17 @@ test(
             '@Storefront',
         ],
     },
-    async ({ ShopCustomer, TestDataService, StorefrontHome, StorefrontProductDetail, SalesChannelBaseConfig }) => {
+    async ({
+        ShopCustomer,
+        TestDataService,
+        AdminApiContext,
+        StorefrontHome,
+        StorefrontProductDetail,
+        SalesChannelBaseConfig,
+        InstanceMeta,
+    }) => {
+        await test.skip(InstanceMeta.isSaaS, 'Skipping on SaaS instances due to instability in variant creation.');
+        // TODO: https://github.com/shopware/shopware/issues/14608
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
         const prices = [
             {
@@ -49,12 +59,73 @@ test(
             price: prices,
             variantListingConfig: { displayParent: true },
         });
+        const parentProductWithDifferentListPrices = await TestDataService.createBasicProduct({
+            price: prices,
+            variantListingConfig: { displayParent: true },
+        });
         const propertyGroupColor = await TestDataService.createColorPropertyGroup();
         const propertyGroups: PropertyGroup[] = [];
         propertyGroups.push(propertyGroupColor);
         const variantProducts = await TestDataService.createVariantProducts(parentProduct, propertyGroups, {
             price: prices,
         });
+        const variantProductsWithDifferentListPrices = await TestDataService.createVariantProducts(parentProductWithDifferentListPrices, propertyGroups, {
+            price: [
+                {
+                    currencyId: currency.id,
+                    gross: 10,
+                    linked: false,
+                    net: 8.4,
+                    listPrice: {
+                        currencyId: currency.id,
+                        gross: 20,
+                        linked: false,
+                        net: 16.8,
+                    },
+                    percentage: {
+                        gross: 50,
+                        net: 50,
+                    },
+                },
+                {
+                    currencyId: SalesChannelBaseConfig.defaultCurrencyId,
+                    gross: 10,
+                    linked: false,
+                    net: 8.4,
+                },
+            ],
+        });
+
+        const updateVariantResponse = await AdminApiContext.patch(`product/${variantProductsWithDifferentListPrices[1].id}`, {
+            data: {
+                price: [
+                    {
+                        currencyId: currency.id,
+                        gross: 10,
+                        linked: false,
+                        net: 8.4,
+                        listPrice: {
+                            currencyId: currency.id,
+                            gross: 30,
+                            linked: false,
+                            net: 25.2,
+                        },
+                        percentage: {
+                            gross: 66.67,
+                            net: 66.67,
+                        },
+                    },
+                    {
+                        currencyId: SalesChannelBaseConfig.defaultCurrencyId,
+                        gross: 10,
+                        linked: false,
+                        net: 8.4,
+                    },
+                ],
+            },
+        });
+
+        expect(updateVariantResponse.ok()).toBeTruthy();
 
         await TestDataService.clearCaches();
 
@@ -83,6 +154,18 @@ test(
                     '(50% saved)',
                 );
             }
+        });
+
+        await test.step('Validating different variant list prices switch the listing to a from-state without a concrete list price.', async () => {
+            const parentListing = StorefrontHome.productListItems.filter({
+                has: StorefrontHome.page.getByRole('link', { name: parentProductWithDifferentListPrices.name }),
+            });
+
+            await ShopCustomer.goesTo(StorefrontHome.url());
+            await ShopCustomer.expects(parentListing.locator('.product-price-info')).toContainText(/From/i);
+            await ShopCustomer.expects(parentListing.locator('.product-price-info')).toContainText(formatPrice(10.0));
+            await ShopCustomer.expects(parentListing.locator('.list-price')).not.toBeVisible();
+            await ShopCustomer.expects(parentListing.locator('.badge-discount')).not.toBeVisible();
         });
     },
 );

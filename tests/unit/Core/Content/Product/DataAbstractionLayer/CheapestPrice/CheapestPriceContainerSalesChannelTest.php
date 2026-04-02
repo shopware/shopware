@@ -19,6 +19,92 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(CheapestPriceContainer::class)]
 class CheapestPriceContainerSalesChannelTest extends TestCase
 {
+    public function testHasListPriceRangeUsesNetTaxStateConsistently(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->setTaxState(CartPrice::TAX_STATE_NET);
+
+        $container = new CheapestPriceContainer([
+            'variant1' => [
+                'default' => [
+                    'price' => [[
+                        'currencyId' => Defaults::CURRENCY,
+                        'gross' => 10.0,
+                        'net' => 8.4,
+                        'linked' => true,
+                        'listPrice' => ['gross' => 20.0, 'net' => 16.8, 'linked' => true],
+                    ]],
+                    'is_ranged' => false,
+                    'rule_id' => 'default',
+                    'parent_id' => 'parent1',
+                    'purchase_unit' => 1.0,
+                    'reference_unit' => 1.0,
+                ],
+            ],
+            'variant2' => [
+                'default' => [
+                    'price' => [[
+                        'currencyId' => Defaults::CURRENCY,
+                        'gross' => 10.0,
+                        'net' => 8.4,
+                        'linked' => true,
+                        'listPrice' => ['gross' => 20.0, 'net' => 16.8, 'linked' => true],
+                    ]],
+                    'is_ranged' => false,
+                    'rule_id' => 'default',
+                    'parent_id' => 'parent1',
+                    'purchase_unit' => 1.0,
+                    'reference_unit' => 1.0,
+                ],
+            ],
+        ]);
+
+        static::assertFalse($container->hasListPriceRange($context));
+    }
+
+    public function testHasListPriceRangeDetectsDifferentListPrices(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->setTaxState(CartPrice::TAX_STATE_NET);
+
+        $container = new CheapestPriceContainer([
+            'variant1' => [
+                'default' => [
+                    'price' => [[
+                        'currencyId' => Defaults::CURRENCY,
+                        'gross' => 10.0,
+                        'net' => 8.4,
+                        'linked' => true,
+                        'listPrice' => ['gross' => 20.0, 'net' => 16.8, 'linked' => true],
+                    ]],
+                    'is_ranged' => false,
+                    'rule_id' => 'default',
+                    'parent_id' => 'parent1',
+                    'purchase_unit' => 1.0,
+                    'reference_unit' => 1.0,
+                ],
+            ],
+            'variant2' => [
+                'default' => [
+                    'price' => [[
+                        'currencyId' => Defaults::CURRENCY,
+                        'gross' => 10.0,
+                        'net' => 8.4,
+                        'linked' => true,
+                        'listPrice' => ['gross' => 30.0, 'net' => 25.2, 'linked' => true],
+                    ]],
+                    'is_ranged' => false,
+                    'rule_id' => 'default',
+                    'parent_id' => 'parent1',
+                    'purchase_unit' => 1.0,
+                    'reference_unit' => 1.0,
+                ],
+            ],
+        ]);
+
+        static::assertTrue($container->hasListPriceRange($context));
+    }
+
     public function testResolveReturnsPriceWithoutStoredSalesChannelIds(): void
     {
         $container = new CheapestPriceContainer([

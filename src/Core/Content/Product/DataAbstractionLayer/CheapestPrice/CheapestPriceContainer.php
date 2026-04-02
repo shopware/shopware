@@ -10,6 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\FloatComparator;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('framework')]
 class CheapestPriceContainer extends Struct
@@ -224,6 +226,58 @@ class CheapestPriceContainer extends Struct
         return $this->ruleIds;
     }
 
+    public function hasListPriceRange(Context|SalesChannelContext $context): bool
+    {
+        if ($context instanceof SalesChannelContext) {
+            $context = $context->getContext();
+        }
+
+        $ruleIds = $context->getRuleIds();
+        $ruleIds[] = 'default';
+
+        $defaultWasAdded = false;
+        $source = $context->getSource();
+        $currentSalesChannelId = $source instanceof SalesChannelApiSource ? $source->getSalesChannelId() : null;
+
+        $reference = null;
+        $hasReference = false;
+
+        foreach ($this->value as $group) {
+            foreach ($ruleIds as $ruleId) {
+                $price = $this->filterByRuleId($group, $ruleId, $defaultWasAdded);
+
+                if ($price === null) {
+                    continue;
+                }
+
+                if ($currentSalesChannelId && !$this->isVariantPriceAvailableInSalesChannel($price, $currentSalesChannelId)) {
+                    continue;
+                }
+
+                $current = $this->getListPriceValue($price, $context);
+
+                if (!$hasReference) {
+                    $reference = $current;
+                    $hasReference = true;
+
+                    break;
+                }
+
+                if ($reference === null || $current === null) {
+                    return $reference !== $current;
+                }
+
+                if (!FloatComparator::equals($reference, $current)) {
+                    return true;
+                }
+
+                break;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * @param array<mixed> $prices
      *
@@ -258,6 +312,27 @@ class CheapestPriceContainer extends Struct
         }
 
         $value = $context->getTaxState() === CartPrice::TAX_STATE_GROSS ? $currency['gross'] : $currency['net'];
+
+        if ($currency['currencyId'] !== $context->getCurrencyId()) {
+            $value *= $context->getCurrencyFactor();
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param array<mixed> $price
+     */
+    private function getListPriceValue(array $price, Context $context): ?float
+    {
+        $currency = $this->getCurrencyPrice($price['price'], $context->getCurrencyId());
+
+        if (!$currency || !isset($currency['listPrice'])) {
+            return null;
+        }
+
+        $taxKey = $context->getTaxState() === CartPrice::TAX_STATE_GROSS ? 'gross' : 'net';
+        $value = $currency['listPrice'][$taxKey];
 
         if ($currency['currencyId'] !== $context->getCurrencyId()) {
             $value *= $context->getCurrencyFactor();

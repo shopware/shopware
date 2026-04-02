@@ -45,6 +45,7 @@ class MailTemplateService
     {
         $criteria = new Criteria([$templateId]);
         $criteria->addAssociation('mailTemplateType');
+        $criteria->addAssociation('media.media');
         $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();
 
         if ($mailTemplate === null) {
@@ -136,14 +137,18 @@ class MailTemplateService
             $request->templateData
         );
 
-        return $this->send($request->mailPayload, $context, $templateData);
+        return $this->send($request->mailPayload, $context, $templateData, $request->mailTemplate);
     }
 
     /**
      * @param array<string|int,mixed> $templateData
      */
-    public function send(MailPayload $mailPayload, Context $context, array $templateData): ?Email
-    {
+    public function send(
+        MailPayload $mailPayload,
+        Context $context,
+        array $templateData,
+        ?MailTemplateEntity $mailTemplate = null,
+    ): ?Email {
         $data = $mailPayload->toArray();
 
         $extension = new MailSendSubscriberConfig(
@@ -163,7 +168,7 @@ class MailTemplateService
 
         $data['attachmentsConfig'] = new MailAttachmentsConfig(
             $context,
-            new MailTemplateEntity(),
+            $mailTemplate ?? new MailTemplateEntity(),
             $extension,
             [],
             $orderId,

@@ -51,13 +51,19 @@ class MailActionController extends AbstractController
     public function send(RequestDataBag $post, Context $context): JsonResponse
     {
         $mailPayload = $this->mailPayloadFactory->make($post); // TODO We filter out keys from the request this way. Is that ok for plugins?
+        $mailTemplate = null;
+
+        $mailTemplateId = $post->get('mailTemplateId');
+        if (\is_string($mailTemplateId) && $mailTemplateId !== '') {
+            $mailTemplate = $this->mailTemplateService->loadTemplate($mailTemplateId, $context);
+        }
 
         $mailTemplateData = $post->get('mailTemplateData', []);
         if (!\is_array($mailTemplateData)) {
             $mailTemplateData = [];
         }
 
-        $message = $this->mailTemplateService->send($mailPayload, $context, $mailTemplateData);
+        $message = $this->mailTemplateService->send($mailPayload, $context, $mailTemplateData, $mailTemplate);
 
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
     }

@@ -74,7 +74,7 @@ class MailAttachmentsBuilder
         }
 
         if ($extensions->getMediaIds() === []) {
-            return $attachments;
+            return $this->deduplicateAttachments($attachments);
         }
 
         $criteria = new Criteria($extensions->getMediaIds());
@@ -85,7 +85,7 @@ class MailAttachmentsBuilder
             $attachments[] = $this->mediaService->getAttachment($media, $context);
         }
 
-        return $attachments;
+        return $this->deduplicateAttachments($attachments);
     }
 
     /**
@@ -142,5 +142,35 @@ class MailAttachmentsBuilder
         }
 
         return $attachments;
+    }
+
+    /**
+     * @param MailAttachments $attachments
+     *
+     * @return MailAttachments
+     */
+    private function deduplicateAttachments(array $attachments): array
+    {
+        $seen = [];
+        $deduplicated = [];
+
+        foreach ($attachments as $attachment) {
+            $key = $attachment['id'] ?? sha1(
+                $attachment['fileName']
+                . '|'
+                . ($attachment['mimeType'] ?? '')
+                . '|'
+                . $attachment['content']
+            );
+
+            if (isset($seen[$key])) {
+                continue;
+            }
+
+            $seen[$key] = true;
+            $deduplicated[] = $attachment;
+        }
+
+        return $deduplicated;
     }
 }

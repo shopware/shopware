@@ -290,6 +290,10 @@ class ProductListingLoader
 
         $groupedResult = $this->productRepository->searchIds($criteria, $context);
 
+        if ($explicitProductIds === []) {
+            return $groupedResult;
+        }
+
         return $this->explicitProductListingIdMerger->merge(
             $groupedResult,
             $criteria,

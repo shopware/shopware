@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\Util\ExplicitProductListingIdMerger;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -359,6 +360,63 @@ class ProductListingLoaderTest extends TestCase
         static::assertSame(['variant-id'], array_values($result->getIds()));
     }
 
+    public function testLoadDoesNotLookupDisplayGroupsWhenNoExplicitProductIdsAreConfigured(): void
+    {
+        $this->systemConfigService
+            ->expects($this->exactly(2))
+            ->method('getBool')
+            ->willReturnCallback(function (string $key, string $salesChannelId): bool {
+                static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);
+
+                return match ($key) {
+                    'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
+                    'core.listing.findBestVariant' => false,
+                    default => throw new \RuntimeException('Unexpected config key ' . $key),
+                };
+            });
+
+        $this->productRepository
+            ->expects($this->once())
+            ->method('searchIds')
+            ->willReturnCallback(function (Criteria $criteria): IdSearchResult {
+                static::assertSame([], $criteria->getIds());
+
+                return $this->createIdSearchResult($criteria, [
+                    'variant-id' => ['score' => 10.0],
+                ]);
+            });
+
+        $this->productRepository
+            ->expects($this->once())
+            ->method('aggregate')
+            ->willReturn(new AggregationResultCollection());
+
+        $this->eventDispatcher->addListener(
+            ExtensionDispatcher::pre(LoadPreviewExtension::NAME),
+            static function (LoadPreviewExtension $extension): void {
+                $extension->result = array_combine($extension->ids, $extension->ids);
+                $extension->stopPropagation();
+            }
+        );
+
+        $this->productRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria): EntitySearchResult {
+                static::assertNotSame(['id', 'displayGroup'], $criteria->getFields());
+                static::assertSame(['variant-id'], $criteria->getIds());
+                static::assertTrue($criteria->hasAssociation('options'));
+
+                return $this->createProductSearchResult($criteria, ['variant-id']);
+            });
+
+        $loader = $this->createLoader();
+
+        $result = $loader->load(new Criteria(), $this->salesChannelContext);
+
+        static::assertSame(['variant-id'], array_values($result->getIds()));
+    }
+
     private function createLoader(): ProductListingLoader
     {
         return new ProductListingLoader(
@@ -410,13 +468,14 @@ class ProductListingLoaderTest extends TestCase
     /**
      * @param array<string, string> $displayGroups
      *
-     * @return EntitySearchResult<EntityCollection>
+     * @return EntitySearchResult<EntityCollection<PartialEntity>>
      */
     private function createDisplayGroupSearchResult(array $displayGroups): EntitySearchResult
     {
+        /** @var EntityCollection<PartialEntity> $products */
         $products = new EntityCollection();
         foreach ($displayGroups as $id => $displayGroup) {
-            $products->add((new \Shopware\Core\Framework\DataAbstractionLayer\PartialEntity())->assign([
+            $products->add((new PartialEntity())->assign([
                 'id' => $id,
                 'displayGroup' => $displayGroup,
             ]));

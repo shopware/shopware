@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Util;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\Util\ExplicitProductListingIdMerger;
 use Shopware\Core\Framework\Context;
@@ -27,7 +28,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class ExplicitProductListingIdMergerTest extends TestCase
 {
     /**
-     * @var MockObject&SalesChannelRepository<EntityCollection>
+     * @var MockObject&SalesChannelRepository<ProductCollection>
      */
     private MockObject&SalesChannelRepository $productRepository;
 
@@ -451,10 +452,11 @@ class ExplicitProductListingIdMergerTest extends TestCase
     /**
      * @param array<string, string> $displayGroups
      *
-     * @return EntitySearchResult<EntityCollection>
+     * @return EntitySearchResult<EntityCollection<PartialEntity>>
      */
     private function createDisplayGroupSearchResult(array $displayGroups): EntitySearchResult
     {
+        /** @var EntityCollection<PartialEntity> $products */
         $products = new EntityCollection(array_map(
             static fn (string $id, string $displayGroup): PartialEntity => (new PartialEntity())->assign([
                 'id' => $id,

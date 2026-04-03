@@ -723,8 +723,7 @@ export default {
                     .then(() => {
                         this.$refs.variantGrid.resetSelection();
 
-                        return this.swProductDetailLoadAll()
-                            .then(() => this.getList());
+                        return this.swProductDetailLoadAll().then(() => this.getList());
                     })
                     .then(() => {
                         this.modalLoading = false;

@@ -539,8 +539,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const deleteContextButton = wrapper.find('.sw-context-menu-item.sw-context-menu-item--danger');
-        await deleteContextButton.trigger('click');
+        wrapper.vm.onVariationDelete({ id: 1 });
+        await wrapper.vm.$nextTick();
 
         await wrapper.findByText('button', 'sw-product.variations.generatedListDeleteModalButtonDelete').trigger('click');
         await flushPromises();

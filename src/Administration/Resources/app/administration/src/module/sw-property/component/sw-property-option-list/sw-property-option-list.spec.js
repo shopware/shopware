@@ -264,7 +264,13 @@ describe('module/sw-property/component/sw-property-option-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const selectedOption = propertyGroup.options[0];
+        const selectedOption = {
+            ...propertyGroup.options[0],
+            _isNew: false,
+            isNew() {
+                return this._isNew;
+            },
+        };
 
         wrapper.vm.$refs.grid.load = jest.fn(() => Promise.resolve());
 

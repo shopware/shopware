@@ -662,6 +662,26 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.bulkEditProduct.price.value).toBeTruthy();
     });
 
+    it('should add default taxId when price is changed without selecting tax change', async () => {
+        const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+
+        await flushPromises();
+
+        const priceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-price');
+        const priceGrossInput = priceFieldsForm.find('input');
+        await priceGrossInput.setValue('6');
+        await flushPromises();
+
+        await priceFieldsForm.find('.sw-bulk-edit-change-field__change input').setValue('checked');
+
+        wrapper.vm.onProcessData();
+
+        const taxChangeField = wrapper.vm.bulkEditSelected.find((field) => field.field === 'taxId');
+        expect(taxChangeField).toBeDefined();
+        expect(taxChangeField.type).toBe('overwrite');
+        expect(taxChangeField.value).toBe('rate1');
+    });
+
     it('should be getting the list price when the price field is exists', async () => {
         const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 

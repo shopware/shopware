@@ -375,6 +375,80 @@ class ExplicitProductListingIdMergerTest extends TestCase
         static::assertSame(3, $result->getTotal());
     }
 
+    public function testMergeResetsNextPagesCountModeForInternalIdReloads(): void
+    {
+        $groupedCriteria = new Criteria();
+        $groupedCriteria->setLimit(24);
+        $groupedCriteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
+
+        $currentPageResult = $this->createIdSearchResult($groupedCriteria, [
+            'blue-m' => ['score' => 5.0],
+        ], 2);
+
+        $fullGroupedResult = $this->createIdSearchResult($groupedCriteria, [
+            'red-l' => ['score' => 10.0],
+            'blue-m' => ['score' => 5.0],
+        ], 2);
+
+        $originalCriteria = new Criteria();
+        $originalCriteria->setLimit(24);
+        $originalCriteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
+
+        $matchingExplicitResult = $this->createIdSearchResult($originalCriteria, [
+            'green-l' => ['score' => 8.0],
+            'green-xl' => ['score' => 7.0],
+        ]);
+
+        $this->systemConfigService
+            ->expects($this->once())
+            ->method('getBool')
+            ->willReturn(false);
+
+        $this->productRepository
+            ->expects($this->exactly(2))
+            ->method('searchIds')
+            ->willReturnCallback(function (Criteria $criteria) use ($fullGroupedResult, $matchingExplicitResult): IdSearchResult {
+                static $call = 0;
+                ++$call;
+
+                static::assertNull($criteria->getOffset());
+                static::assertNull($criteria->getLimit());
+                static::assertSame(Criteria::TOTAL_COUNT_MODE_NONE, $criteria->getTotalCountMode());
+
+                if ($call === 1) {
+                    static::assertSame([], $criteria->getIds());
+
+                    return $fullGroupedResult;
+                }
+
+                static::assertSame(['green-l', 'green-xl'], $criteria->getIds());
+
+                return $matchingExplicitResult;
+            });
+
+        $this->productRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturn($this->createDisplayGroupSearchResult([
+                'red-l' => 'shirt-parent-a',
+                'blue-m' => 'shirt-parent-b',
+                'green-l' => 'shirt-parent-a',
+                'green-xl' => 'shirt-parent-a',
+            ]));
+
+        $merger = $this->createMerger();
+
+        $result = $merger->merge(
+            $currentPageResult,
+            $groupedCriteria,
+            $originalCriteria,
+            ['green-l', 'green-xl'],
+            $this->salesChannelContext
+        );
+
+        static::assertSame(['green-l', 'green-xl', 'blue-m'], $result->getIds());
+    }
+
     public function testMergeCanReturnAnEmptyPageAfterPagination(): void
     {
         $groupedCriteria = new Criteria();

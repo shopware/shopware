@@ -144,10 +144,8 @@ final class ExplicitProductListingIdMerger
      */
     private function loadMatchingExplicitProductIds(Criteria $criteria, array $ids, SalesChannelContext $context): IdSearchResult
     {
-        $criteria = clone $criteria;
+        $criteria = $this->cloneForUnboundedIdReload($criteria);
         $criteria->setIds($ids);
-        $criteria->setOffset(null);
-        $criteria->setLimit(null);
 
         if ($this->systemConfigService->getBool(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
@@ -161,11 +159,19 @@ final class ExplicitProductListingIdMerger
 
     private function loadAllGroupedListingIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
+        $criteria = $this->cloneForUnboundedIdReload($criteria);
+
+        return $this->productRepository->searchIds($criteria, $context);
+    }
+
+    private function cloneForUnboundedIdReload(Criteria $criteria): Criteria
+    {
         $criteria = clone $criteria;
         $criteria->setOffset(null);
         $criteria->setLimit(null);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
-        return $this->productRepository->searchIds($criteria, $context);
+        return $criteria;
     }
 
     /**

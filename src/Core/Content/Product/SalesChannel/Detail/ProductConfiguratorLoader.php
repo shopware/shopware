@@ -52,6 +52,7 @@ class ProductConfiguratorLoader
         );
 
         $current = $this->buildCurrentOptions($product, $groups);
+        $emptyGroupIds = [];
 
         foreach ($groups as $group) {
             $options = $group->getOptions();
@@ -70,6 +71,14 @@ class ProductConfiguratorLoader
 
                 $option->setCombinable($combinable);
             }
+
+            if ($options->count() === 0) {
+                $emptyGroupIds[] = $group->getId();
+            }
+        }
+
+        foreach ($emptyGroupIds as $groupId) {
+            $groups->remove($groupId);
         }
 
         return $groups;

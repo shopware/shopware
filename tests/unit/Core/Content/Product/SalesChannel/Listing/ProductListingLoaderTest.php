@@ -112,10 +112,7 @@ class ProductListingLoaderTest extends TestCase
         $this->eventDispatcher->addListener(
             ExtensionDispatcher::pre(LoadPreviewExtension::NAME),
             static function (LoadPreviewExtension $extension): void {
-                $extension->result = [
-                    'blue-m' => 'blue-m',
-                    'green-l' => 'green-l',
-                ];
+                $extension->result = array_combine($extension->ids, $extension->ids);
                 $extension->stopPropagation();
             }
         );
@@ -134,10 +131,10 @@ class ProductListingLoaderTest extends TestCase
                     ]);
                 }
 
-                static::assertSame(['blue-m', 'green-l'], $criteria->getIds());
+                static::assertSame(['green-l', 'blue-m'], $criteria->getIds());
                 static::assertTrue($criteria->hasAssociation('options'));
 
-                return $this->createProductSearchResult($criteria, ['blue-m', 'green-l']);
+                return $this->createProductSearchResult($criteria, ['green-l', 'blue-m']);
             });
 
         $loader = $this->createLoader();
@@ -147,7 +144,7 @@ class ProductListingLoaderTest extends TestCase
 
         $result = $loader->load($criteria, $this->salesChannelContext);
 
-        static::assertSame(['blue-m', 'green-l'], array_values($result->getIds()));
+        static::assertSame(['green-l', 'blue-m'], array_values($result->getIds()));
         static::assertSame(2, $result->getTotal());
     }
 
@@ -397,8 +394,8 @@ class ProductListingLoaderTest extends TestCase
 
     /**
      * @param list<string> $ids
-     * 
-     * @return EntitySearchResult<EntityCollection<ProductEntity>>
+     *
+     * @return EntitySearchResult<ProductCollection>
      */
     private function createProductSearchResult(Criteria $criteria, array $ids): EntitySearchResult
     {
@@ -413,7 +410,7 @@ class ProductListingLoaderTest extends TestCase
     /**
      * @param array<string, string> $displayGroups
      *
-     * @return EntitySearchResult<EntityCollection<PartialEntity>>
+     * @return EntitySearchResult<EntityCollection>
      */
     private function createDisplayGroupSearchResult(array $displayGroups): EntitySearchResult
     {

@@ -504,6 +504,11 @@ class ProductListingLoaderTest extends TestCase
         static::assertCount(24, $firstPage->getIds());
         static::assertCount(24, $secondPage->getIds());
         static::assertCount($firstPage->getTotal() - 48, $thirdPage->getIds());
+        static::assertSame([
+            $this->variantIds['greenXl'],
+            $this->variantIds['redL'],
+            $this->variantIds['greenL'],
+        ], \array_slice(array_values($firstPage->getIds()), 0, 3));
         static::assertSame([], array_values(array_intersect($firstPage->getIds(), $secondPage->getIds())));
         static::assertSame([], array_values(array_intersect($firstPage->getIds(), $thirdPage->getIds())));
         static::assertSame([], array_values(array_intersect($secondPage->getIds(), $thirdPage->getIds())));

@@ -58,12 +58,12 @@ final class ExplicitProductListingIdMerger
             }
         }
 
-        $matchingExplicitResult = $this->loadMatchingExplicitProductIds($originalCriteria, $missingExplicitProductIds, $context);
+        $matchingExplicitResult = $this->loadMatchingExplicitProductIds($originalCriteria, $explicitProductIds, $context);
         if ($matchingExplicitResult->getIds() === []) {
             return $groupedResult;
         }
 
-        $mergedResult = $this->mergeGroupedAndExplicitResults(
+        $mergedResult = $this->replaceGroupedProductsWithExplicitProducts(
             $completeGroupedResult,
             $matchingExplicitResult,
             $explicitProductIds,
@@ -78,84 +78,58 @@ final class ExplicitProductListingIdMerger
     }
 
     /**
-     * Grouping collapses each display group to a single representative.
-     * When an explicit product selection targets another member of that same display group,
-     * we remove the grouped representative and keep the explicitly selected products instead.
+     * Grouping keeps only one product per display group. When explicit selections contain other
+     * variants from the same display group, we replace the grouped representative at its current
+     * position with the explicitly selected products in their original sort order.
      *
      * Example:
-     * grouped ids:
-     * `[red-l, blue-m]`
-     *
-     * explicit ids that are still valid for the listing:
-     * `[green-l, green-xl]`
-     *
-     * display groups:
-     * `red-l`     => `shirt-parent-a`
-     * `green-l`   => `shirt-parent-a`
-     * `green-xl`  => `shirt-parent-a`
-     * `blue-m`    => `shirt-parent-b`
-     *
-     * final ids:
-     * `[green-l, green-xl, blue-m]`
+     * grouped ids   = `[red-l, blue-m]`
+     * explicit ids  = `[green-l, green-xl]`
+     * display group = `shirt-parent-a` for `red-l`, `green-l`, `green-xl`
+     * final ids     = `[green-l, green-xl, blue-m]`
      *
      * @param IdSearchResult<string> $groupedResult
      * @param IdSearchResult<string> $explicitResult
      * @param list<string> $explicitProductIds
      */
-    private function mergeGroupedAndExplicitResults(
+    private function replaceGroupedProductsWithExplicitProducts(
         IdSearchResult $groupedResult,
         IdSearchResult $explicitResult,
         array $explicitProductIds,
         SalesChannelContext $context
     ): IdSearchResult {
         $groupedIds = $groupedResult->getIds();
-        $resolvedExplicitIds = $this->resolveVisibleExplicitProductIds(
-            $groupedIds,
-            $explicitResult->getIds(),
-            $explicitProductIds
-        );
+        $matchingExplicitIds = $this->matchExplicitProductIdsInSortOrder($explicitResult->getIds(), $explicitProductIds);
         $displayGroups = $this->loadDisplayGroupsForIds([
             ...$groupedIds,
-            ...$resolvedExplicitIds,
+            ...$matchingExplicitIds,
         ], $context);
-
-        $explicitProductIds = array_fill_keys($resolvedExplicitIds, true);
-        $explicitDisplayGroups = array_fill_keys(
-            array_values(array_filter(
-                array_map(static fn (string $id): ?string => $displayGroups[$id] ?? null, $resolvedExplicitIds),
-                static fn (?string $displayGroup): bool => $displayGroup !== null
-            )),
-            true
+        [$replacementIdsByGroupedId, $trailingExplicitIds] = $this->buildExplicitReplacementMap(
+            $groupedIds,
+            $matchingExplicitIds,
+            $displayGroups
         );
 
-        $data = [];
-        foreach ($groupedIds as $id) {
-            $displayGroup = $displayGroups[$id] ?? null;
+        $mergedData = [];
+        foreach ($groupedIds as $groupedId) {
+            $replacementIds = $replacementIdsByGroupedId[$groupedId] ?? null;
+            if ($replacementIds !== null) {
+                $this->appendIdsFromResult($mergedData, $explicitResult, $replacementIds);
 
-            if ($displayGroup !== null && isset($explicitDisplayGroups[$displayGroup]) && !isset($explicitProductIds[$id])) {
                 continue;
             }
 
-            $data[$id] = [
-                'primaryKey' => $id,
-                'data' => $groupedResult->getDataOfId($id),
+            $mergedData[$groupedId] = [
+                'primaryKey' => $groupedId,
+                'data' => $groupedResult->getDataOfId($groupedId),
             ];
         }
 
-        foreach ($explicitResult->getIds() as $id) {
-            if (isset($data[$id])) {
-                continue;
-            }
-
-            $data[$id] = [
-                'primaryKey' => $id,
-                'data' => $explicitResult->getDataOfId($id),
-            ];
-        }
+        $this->appendIdsFromResult($mergedData, $explicitResult, $trailingExplicitIds);
 
         $result = new IdSearchResult(
-            \count($data),
-            $data,
+            \count($mergedData),
+            $mergedData,
             $groupedResult->getCriteria(),
             $groupedResult->getContext()
         );
@@ -195,23 +169,14 @@ final class ExplicitProductListingIdMerger
     }
 
     /**
-     * @param list<string> $groupedIds
      * @param list<string> $loadedExplicitIds
      * @param list<string> $explicitProductIds
      *
      * @return list<string>
      */
-    private function resolveVisibleExplicitProductIds(array $groupedIds, array $loadedExplicitIds, array $explicitProductIds): array
+    private function matchExplicitProductIdsInSortOrder(array $loadedExplicitIds, array $explicitProductIds): array
     {
-        $availableIds = array_fill_keys([
-            ...$groupedIds,
-            ...$loadedExplicitIds,
-        ], true);
-
-        return array_values(array_filter(
-            $explicitProductIds,
-            static fn (string $id): bool => isset($availableIds[$id])
-        ));
+        return array_values(array_intersect($loadedExplicitIds, $explicitProductIds));
     }
 
     /**
@@ -259,6 +224,61 @@ final class ExplicitProductListingIdMerger
         }
 
         return $displayGroups;
+    }
+
+    /**
+     * @param list<string> $groupedIds
+     * @param list<string> $explicitIds
+     * @param array<string, string> $displayGroups
+     *
+     * @return array{0: array<string, list<string>>, 1: list<string>}
+     */
+    private function buildExplicitReplacementMap(array $groupedIds, array $explicitIds, array $displayGroups): array
+    {
+        $groupedRepresentativeIdsByDisplayGroup = [];
+        foreach ($groupedIds as $groupedId) {
+            $displayGroup = $displayGroups[$groupedId] ?? null;
+            if ($displayGroup === null || isset($groupedRepresentativeIdsByDisplayGroup[$displayGroup])) {
+                continue;
+            }
+
+            $groupedRepresentativeIdsByDisplayGroup[$displayGroup] = $groupedId;
+        }
+
+        $replacementIdsByGroupedId = [];
+        $trailingExplicitIds = [];
+
+        foreach ($explicitIds as $id) {
+            $displayGroup = $displayGroups[$id] ?? null;
+            if ($displayGroup === null || !isset($groupedRepresentativeIdsByDisplayGroup[$displayGroup])) {
+                $trailingExplicitIds[] = $id;
+
+                continue;
+            }
+
+            $replacementIdsByGroupedId[$groupedRepresentativeIdsByDisplayGroup[$displayGroup]][] = $id;
+        }
+
+        return [$replacementIdsByGroupedId, $trailingExplicitIds];
+    }
+
+    /**
+     * @param array<string, array{primaryKey: string, data: array<string, mixed>}> $data
+     * @param IdSearchResult<string> $explicitResult
+     * @param list<string> $ids
+     */
+    private function appendIdsFromResult(array &$data, IdSearchResult $explicitResult, array $ids): void
+    {
+        foreach ($ids as $id) {
+            if (isset($data[$id])) {
+                continue;
+            }
+
+            $data[$id] = [
+                'primaryKey' => $id,
+                'data' => $explicitResult->getDataOfId($id),
+            ];
+        }
     }
 
     /**

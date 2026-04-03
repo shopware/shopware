@@ -27,7 +27,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class ExplicitProductListingIdMergerTest extends TestCase
 {
     /**
-     * @var MockObject&SalesChannelRepository<EntityCollection<ProductEntity>>
+     * @var MockObject&SalesChannelRepository<EntityCollection>
      */
     private MockObject&SalesChannelRepository $productRepository;
 
@@ -264,11 +264,59 @@ class ExplicitProductListingIdMergerTest extends TestCase
             $this->salesChannelContext
         );
 
-        static::assertSame(['blue-m', 'green-l', 'green-xl'], $result->getIds());
+        static::assertSame(['green-l', 'green-xl', 'blue-m'], $result->getIds());
         static::assertSame(3, $result->getTotal());
         static::assertSame(['grouped', 'explicit'], $result->getStates());
         static::assertTrue($result->hasExtension('grouped-extension'));
         static::assertTrue($result->hasExtension('explicit-extension'));
+    }
+
+    public function testMergeDoesNotDuplicateExplicitRepresentativeAndKeepsExplicitSortOrder(): void
+    {
+        $groupedCriteria = new Criteria();
+        $originalCriteria = new Criteria();
+
+        $groupedResult = $this->createIdSearchResult($groupedCriteria, [
+            'green-xl' => ['score' => 9.0],
+            'blue-m' => ['score' => 5.0],
+        ]);
+
+        $matchingExplicitResult = $this->createIdSearchResult($originalCriteria, [
+            'green-l' => ['score' => 10.0],
+            'green-xl' => ['score' => 9.0],
+        ]);
+
+        $this->systemConfigService
+            ->expects($this->once())
+            ->method('getBool')
+            ->willReturn(false);
+
+        $this->productRepository
+            ->expects($this->once())
+            ->method('searchIds')
+            ->willReturn($matchingExplicitResult);
+
+        $this->productRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturn($this->createDisplayGroupSearchResult([
+                'green-xl' => 'shirt-parent-a',
+                'green-l' => 'shirt-parent-a',
+                'blue-m' => 'shirt-parent-b',
+            ]));
+
+        $merger = $this->createMerger();
+
+        $result = $merger->merge(
+            $groupedResult,
+            $groupedCriteria,
+            $originalCriteria,
+            ['green-l', 'green-xl'],
+            $this->salesChannelContext
+        );
+
+        static::assertSame(['green-l', 'green-xl', 'blue-m'], $result->getIds());
+        static::assertSame(3, $result->getTotal());
     }
 
     public function testMergePaginatesMergedResultBackToOriginalOffsetAndLimit(): void
@@ -322,7 +370,7 @@ class ExplicitProductListingIdMergerTest extends TestCase
             $this->salesChannelContext
         );
 
-        static::assertSame(['green-l'], $result->getIds());
+        static::assertSame(['green-xl'], $result->getIds());
         static::assertSame(3, $result->getTotal());
     }
 
@@ -403,7 +451,7 @@ class ExplicitProductListingIdMergerTest extends TestCase
     /**
      * @param array<string, string> $displayGroups
      *
-     * @return EntitySearchResult<EntityCollection<PartialEntity>>
+     * @return EntitySearchResult<EntityCollection>
      */
     private function createDisplayGroupSearchResult(array $displayGroups): EntitySearchResult
     {

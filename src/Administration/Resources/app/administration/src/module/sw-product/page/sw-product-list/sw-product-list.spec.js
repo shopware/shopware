@@ -720,6 +720,100 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(products[0].productNumber).toBe('SW10001');
     });
 
+    it('should promote inherited manufacturer variants when searching by product number with a manufacturer filter', async () => {
+        const manufacturerId = 'manufacturer-a';
+        const parentId = 'parent-product-id';
+        const variantId = 'variant-product-id';
+
+        await wrapper.setData({
+            term: 'SW10001',
+        });
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.filterCriteria.push(Criteria.equalsAny('manufacturer.id', [manufacturerId]));
+
+        const buildSearchResult = (products) => {
+            return Object.assign([...products], {
+                total: products.length,
+                criteria: mockCriteria(),
+                context: mockContext(),
+            });
+        };
+
+        const buildProduct = (product) => {
+            return {
+                active: true,
+                stock: 333,
+                availableStock: 333,
+                available: true,
+                price: mockPrices(),
+                manufacturer: {
+                    name: 'Manufacturer A',
+                },
+                ...product,
+            };
+        };
+
+        let variantFound = false;
+        wrapper.vm.productRepository.search = jest.fn(async (criteria, context) => {
+            lastProductSearchCriteria = criteria;
+
+            const hasManufacturerFilter = criteria.filters.some((filter) => filter.field === 'manufacturer.id');
+
+            if (!variantFound) {
+                if (criteria.term === 'SW10001' && hasManufacturerFilter && context?.inheritance) {
+                    variantFound = true;
+
+                    return buildSearchResult([
+                        buildProduct({
+                            id: variantId,
+                            parentId,
+                            productNumber: 'SW10001-variant',
+                            manufacturer: null,
+                        }),
+                    ]);
+                }
+
+                return buildSearchResult([]);
+            }
+
+            const promotedParentQuery = criteria.queries?.some((query) => {
+                const values = Array.isArray(query.query.value) ? query.query.value : [query.query.value];
+
+                return query.query.field === 'id' && values.includes(parentId);
+            });
+
+            if (!promotedParentQuery) {
+                return buildSearchResult([]);
+            }
+
+            return buildSearchResult([
+                buildProduct({
+                    id: parentId,
+                    productNumber: 'SW10001',
+                }),
+            ]);
+        });
+
+        await wrapper.vm.getList();
+        await flushPromises();
+
+        expect(wrapper.vm.productRepository.search).toHaveBeenNthCalledWith(
+            1,
+            expect.anything(),
+            expect.objectContaining({
+                inheritance: true,
+            }),
+        );
+        expect(
+            lastProductSearchCriteria.queries.some((query) => {
+                return query.query.field === 'id' && `${query.query.value}`.includes(parentId);
+            }),
+        ).toBe(true);
+        expect(wrapper.vm.total).toBe(1);
+        expect(wrapper.vm.products[0].id).toBe(parentId);
+    });
+
     it('should consider criteria filters via updateCriteria', async () => {
         await wrapper.vm.getList();
         await flushPromises();

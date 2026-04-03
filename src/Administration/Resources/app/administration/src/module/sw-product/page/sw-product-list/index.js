@@ -364,7 +364,10 @@ export default {
 
             try {
                 if (this.term) {
-                    const variants = await this.productRepository.search(variantCriteria);
+                    const variants = await this.productRepository.search(variantCriteria, {
+                        ...Context.api,
+                        inheritance: true,
+                    });
                     if (variants.length > 0) {
                         const parentIds = [];
 

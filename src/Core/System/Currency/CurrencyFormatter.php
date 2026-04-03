@@ -26,7 +26,7 @@ class CurrencyFormatter implements ResetInterface
     /**
      * @throws InconsistentCriteriaIdsException
      */
-    public function formatCurrencyByLanguage(float $price, string $currency, string $languageId, Context $context, ?int $decimals = null): string
+    public function formatCurrencyByLanguage(float $price, string $currency, string $languageId, Context $context, ?int $decimals = null, ?string $shortName = null): string
     {
         $decimals ??= $context->getRounding()->getDecimals();
 
@@ -35,7 +35,13 @@ class CurrencyFormatter implements ResetInterface
         );
         $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
 
-        return (string) $formatter->formatCurrency($price, $currency);
+        $formatted = (string) $formatter->formatCurrency($price, $currency);
+
+        if ($shortName !== null && $shortName !== '') {
+            return \str_replace($currency, $shortName, $formatted);
+        }
+
+        return $formatted;
     }
 
     public function reset(): void

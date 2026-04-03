@@ -85,6 +85,25 @@ class CurrencyFormatterTest extends TestCase
     }
 
     /**
+     * @param non-empty-string $expectedSymbol
+     */
+    #[DataProvider('shortNameProvider')]
+    public function testFormatCurrencyByLanguageUsesShortName(float $price, string $localeCode, string $currencyISO, string $shortName, string $expectedSymbol): void
+    {
+        $this->localeProvider->expects($this->once())->method('getLocaleForLanguageId')->willReturn($localeCode);
+        $formattedPrice = $this->formatter->formatCurrencyByLanguage(
+            $price,
+            $currencyISO,
+            Uuid::randomHex(),
+            $this->createContext(2),
+            null,
+            $shortName,
+        );
+
+        static::assertStringContainsString($expectedSymbol, $formattedPrice);
+    }
+
+    /**
      * @return array<array{float, int, non-empty-string, non-empty-string, non-empty-string, non-empty-string}> price, locale.code, decimal places, currency iso, expected currency symbol
      */
     public static function formattingParameterProvider(): array
@@ -93,6 +112,18 @@ class CurrencyFormatterTest extends TestCase
             [71.01, 2, 'es-ES', ',', 'EUR', '€'],
             [7.10, 2, 'cs-CZ', ',', 'CZK', 'Kč'],
             [0.71, 3, 'en-GB', '.', 'GBP', '£'],
+        ];
+    }
+
+    /**
+     * @return array<array{float, non-empty-string, non-empty-string, non-empty-string, non-empty-string}>
+     */
+    public static function shortNameProvider(): array
+    {
+        return [
+            'PLN with custom short name in de_DE' => [10.00, 'de-DE', 'PLN', 'zł', 'zł'],
+            'SEK with custom short name in de_DE' => [10.00, 'de-DE', 'SEK', 'kr', 'kr'],
+            'CLP with custom short name in en_GB' => [10.00, 'en-GB', 'CLP', 'CL$', 'CL$'],
         ];
     }
 

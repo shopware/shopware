@@ -843,8 +843,8 @@ export default {
         },
 
         syncVariantPriceInheritance() {
-            const priceInherited = this.product.price === null;
-            const purchasePricesInherited = this.product.purchasePrices === null;
+            const priceInherited = this.product.price == null;
+            const purchasePricesInherited = this.product.purchasePrices == null;
 
             // Price is inherited — purchasePrices must also inherit
             if (priceInherited) {

@@ -1005,6 +1005,39 @@ describe('module/sw-product/page/sw-product-detail', () => {
         ]);
     });
 
+    it('should sync purchasePrices from parent when price is not inherited but purchasePrices is undefined', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            (id) => {
+                if (id === 'parent-id') {
+                    return Promise.resolve({
+                        id: 'parent-id',
+                        price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
+                        purchasePrices: [{ currencyId: undefined, net: 42, gross: 50, linked: true }],
+                    });
+                }
+
+                return Promise.resolve({
+                    id: 'variant-id',
+                    parentId: 'parent-id',
+                    price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
+                    purchasePrices: undefined,
+                });
+            },
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.product.purchasePrices).toEqual([
+            { currencyId: undefined, gross: 50, net: 42, linked: true },
+        ]);
+    });
+
     it('should ignore purchase price if its set', async () => {
         wrapper = await createWrapper(
             () => Promise.resolve([]),

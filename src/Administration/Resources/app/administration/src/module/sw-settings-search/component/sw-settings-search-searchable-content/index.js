@@ -59,6 +59,15 @@ export default {
                     },
                 },
                 {
+                    label: this.$t('sw-settings-search.generalTab.configFields.parentName'),
+                    value: 'parent.name',
+                    defaultConfigs: {
+                        searchable: true,
+                        ranking: 500,
+                        tokenize: true,
+                    },
+                },
+                {
                     label: this.$t('sw-settings-search.generalTab.configFields.description'),
                     value: 'description',
                     defaultConfigs: {

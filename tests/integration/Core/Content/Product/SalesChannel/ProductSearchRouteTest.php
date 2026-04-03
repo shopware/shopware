@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -32,6 +33,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -373,6 +375,99 @@ class ProductSearchRouteTest extends TestCase
         // Limited to max 10 entries
         static::assertCount(1, $response['elements']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
+    }
+
+    public function testSearchFindsVariantByParentNameWhenFindBestVariantIsEnabled(): void
+    {
+        $ids = new IdsCollection();
+
+        /** @var EntityRepository<ProductCollection> $productRepository */
+        $productRepository = static::getContainer()->get('product.repository');
+
+        $products = [
+            (new ProductBuilder($ids, 'parent-variant-name'))
+                ->name('ticket 13976 parent name')
+                ->price(10)
+                ->visibility(self::$ids->get('sales-channel'))
+                ->variant(
+                    (new ProductBuilder($ids, 'parent-variant-name.1'))
+                        ->name('child 1')
+                        ->price(11)
+                        ->visibility(self::$ids->get('sales-channel'))
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($ids, 'parent-variant-name.2'))
+                        ->name('child 2')
+                        ->price(12)
+                        ->visibility(self::$ids->get('sales-channel'))
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($ids, 'parent-variant-name.3'))
+                        ->name('child 3')
+                        ->price(13)
+                        ->visibility(self::$ids->get('sales-channel'))
+                        ->build()
+                )
+                ->build(),
+        ];
+
+        $productRepository->create($products, Context::createDefaultContext());
+        $productRepository->update([
+            [
+                'id' => $ids->get('parent-variant-name'),
+                'variantListingConfig' => [
+                    'displayParent' => true,
+                    'mainVariantId' => null,
+                    'configuratorGroupConfig' => [],
+                ],
+            ],
+        ], Context::createDefaultContext());
+        $this->searchKeywordUpdater->update([
+            $ids->get('parent-variant-name'),
+            $ids->get('parent-variant-name.1'),
+            $ids->get('parent-variant-name.2'),
+            $ids->get('parent-variant-name.3'),
+        ], Context::createDefaultContext());
+
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
+            'token',
+            self::$ids->get('sales-channel')
+        );
+
+        $systemConfigService->set(
+            'core.listing.findBestVariant',
+            true,
+            $salesChannelContext->getSalesChannelId()
+        );
+
+        try {
+            $searchRoute = static::getContainer()->get(ProductSearchRoute::class);
+            $suggestRoute = static::getContainer()->get(ProductSuggestRoute::class);
+
+            foreach ([$searchRoute, $suggestRoute] as $route) {
+                $result = $route->load(
+                    new Request(['search' => 'ticket 13976 parent name']),
+                    $salesChannelContext,
+                    new Criteria()
+                );
+
+                static::assertSame(1, $result->getListingResult()->getTotal());
+
+                $product = $result->getListingResult()->getEntities()->first();
+                static::assertInstanceOf(SalesChannelProductEntity::class, $product);
+                static::assertNotSame($ids->get('parent-variant-name'), $product->getId());
+                static::assertSame($ids->get('parent-variant-name'), $product->getParentId());
+            }
+        } finally {
+            $systemConfigService->set(
+                'core.listing.findBestVariant',
+                false,
+                $salesChannelContext->getSalesChannelId()
+            );
+        }
     }
 
     /**

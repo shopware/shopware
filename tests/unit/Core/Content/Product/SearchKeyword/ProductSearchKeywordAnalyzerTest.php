@@ -325,6 +325,63 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         );
     }
 
+    public function testAnalyzeIncludesParentNameWhenConfigured(): void
+    {
+        $parent = new ProductEntity();
+        $parent->assign([
+            'translated' => [
+                'name' => 'Parent Product',
+            ],
+        ]);
+
+        $product = new ProductEntity();
+        $product->assign([
+            'translated' => [
+                'name' => 'Child Product',
+            ],
+            'parent' => $parent,
+        ]);
+
+        $tokenizer = new Tokenizer(3, ['-', '_']);
+        $tokenFilter = $this->createMock(AbstractTokenFilter::class);
+        $tokenFilter->method('filter')->willReturnArgument(0);
+
+        $configLoader = $this->createMock(SearchConfigLoader::class);
+        $configLoader->method('load')
+            ->willReturn([
+                [
+                    'min_search_length' => 3,
+                ],
+            ]);
+
+        $analyzer = new ProductSearchKeywordAnalyzer($tokenizer, $tokenFilter, $configLoader);
+        $keywords = $analyzer->analyze($product, $this->context, [
+            [
+                'field' => 'name',
+                'tokenize' => true,
+                'ranking' => 100,
+            ],
+            [
+                'field' => 'parent.name',
+                'tokenize' => true,
+                'ranking' => 80,
+            ],
+        ]);
+
+        static::assertEqualsCanonicalizing(
+            ['child', 'child product', 'parent', 'parent product', 'product'],
+            $keywords->getKeys()
+        );
+
+        $childKeyword = $keywords->get('child');
+        $parentKeyword = $keywords->get('parent');
+
+        static::assertNotNull($childKeyword);
+        static::assertNotNull($parentKeyword);
+        static::assertSame(100.0, $childKeyword->getRanking());
+        static::assertSame(80.0, $parentKeyword->getRanking());
+    }
+
     private static function getLongTextDescription(): string
     {
         return self::getLongTextPart1() . self::getLongTextPart2();

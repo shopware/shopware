@@ -282,6 +282,16 @@ class ElasticsearchProductDefinitionTest extends TestCase
             'properties' => [
                 'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'parentId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'parent' => [
+                    'type' => 'nested',
+                    'properties' => [
+                        'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                        '_count' => [
+                            'type' => 'long',
+                        ],
+                        'name' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
+                    ],
+                ],
                 'categoryTree' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'categoryIds' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'propertyIds' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
@@ -992,6 +1002,49 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertCount(1, $document['productNumber']);
     }
 
+    public function testParentContainsParentName(): void
+    {
+        $registry = $this->getDefinitionRegistry();
+        $definition = $registry->get(ProductDefinition::class);
+        static::assertInstanceOf(ProductDefinition::class, $definition);
+
+        $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
+            Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
+        ]);
+
+        $connection = $this->getConnectionWithProductData(
+            productNumber: 'PRODUCT-123',
+            parentProductNumber: 'PARENT-456',
+            name: 'Child Product',
+            parentName: 'Parent Product'
+        );
+        $definition = new ElasticsearchProductDefinition(
+            $definition,
+            $connection,
+            $this->createMock(ProductSearchQueryBuilder::class),
+            $this->createMock(ElasticsearchFieldBuilder::class),
+            $this->createMock(ElasticsearchFieldMapper::class),
+            $salesChannelLanguageLoader,
+            false,
+            'dev',
+            $this->createMock(LanguageLoaderInterface::class)
+        );
+
+        $uuid = $this->ids->get('product-1');
+        $documents = $definition->fetch([$uuid], Context::createDefaultContext());
+        static::assertArrayHasKey($uuid, $documents);
+
+        $document = $documents[$uuid];
+
+        static::assertArrayHasKey('parent', $document);
+        static::assertArrayHasKey('name', $document['parent']);
+        static::assertArrayHasKey(Defaults::LANGUAGE_SYSTEM, $document['parent']['name']);
+        static::assertSame(
+            'Parent Product',
+            $document['parent']['name'][Defaults::LANGUAGE_SYSTEM]
+        );
+    }
+
     private function getConnection(int $numberOfTranslations = 1): MockObject&Connection
     {
         $connection = $this->createMock(Connection::class);
@@ -1087,8 +1140,12 @@ class ElasticsearchProductDefinitionTest extends TestCase
         return $connection;
     }
 
-    private function getConnectionWithProductData(string $productNumber, ?string $parentProductNumber): MockObject&Connection
-    {
+    private function getConnectionWithProductData(
+        string $productNumber,
+        ?string $parentProductNumber,
+        string $name = 'Test Product',
+        ?string $parentName = null
+    ): MockObject&Connection {
         $connection = $this->createMock(Connection::class);
 
         $baseProductData = [
@@ -1128,7 +1185,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         $translationData = [
             'id' => $this->ids->get('product-1'),
-            'name' => 'Test Product',
+            'name' => $name,
+            'parentName' => $parentName,
             'customFields' => '{}',
             'manufacturerName' => 'Test Manufacturer',
             'categories' => '[]',

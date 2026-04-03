@@ -450,6 +450,21 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(wrapper.vm.searchTerm).toBe('Foo product');
     });
 
+    it('should keep the current search term in $route watcher when the new route has no term', async () => {
+        wrapper = await createWrapper({
+            initialSearchType: 'product',
+            initialSearch: 'shirt',
+        });
+
+        const route = {
+            query: {},
+        };
+
+        wrapper.vm.$options.watch.$route.call(wrapper.vm, route);
+
+        expect(wrapper.vm.searchTerm).toBe('shirt');
+    });
+
     it('should search with repository when no service is set in searchTypeService', async () => {
         wrapper = await createWrapper(
             {
@@ -578,6 +593,62 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await moduleFilterItems.at(1).trigger('click');
 
         expect(moduleFilterSelect.text()).toBe('global.entities.product');
+    });
+
+    it('should change search bar type when activating module filters with keyboard', async () => {
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+            },
+            {
+                all: {
+                    entityName: '',
+                    placeholderSnippet: '',
+                    listingRoute: '',
+                },
+                ...searchTypeServiceTypes,
+            },
+        );
+
+        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
+        await moduleFilterSelect.trigger('click');
+
+        const moduleFilterItems = wrapper.findAll(
+            '.sw-search-bar__types_module-filters-container .sw-search-bar__type-item',
+        );
+        await moduleFilterItems.at(1).trigger('keydown.enter');
+
+        expect(moduleFilterSelect.text()).toBe('global.entities.product');
+    });
+
+    it('should keep the search term when switching module filters', async () => {
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+            },
+            {
+                all: {
+                    entityName: '',
+                    placeholderSnippet: '',
+                    listingRoute: '',
+                },
+                ...searchTypeServiceTypes,
+            },
+        );
+
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.setValue('shirt');
+
+        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
+        await moduleFilterSelect.trigger('click');
+
+        const moduleFilterItems = wrapper.findAll(
+            '.sw-search-bar__types_module-filters-container .sw-search-bar__type-item',
+        );
+        await moduleFilterItems.at(2).trigger('click');
+
+        expect(wrapper.vm.searchTerm).toBe('shirt');
+        expect(searchInput.element.value).toBe('shirt');
     });
 
     it('should search with repository after selecting module filter', async () => {

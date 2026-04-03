@@ -265,6 +265,7 @@
                 role="row"
                 tabindex="0"
                 @mouseenter="onMouseEnterSearchType(index)"
+                @keydown.enter.prevent="onClickType(type.entityName)"
                 @click="onClickType(type.entityName)"
             >
                 <span
@@ -333,6 +334,7 @@
                 role="row"
                 tabindex="0"
                 @mouseenter="onMouseEnterSearchType(index)"
+                @keydown.enter.prevent="onClickType(type.entityName)"
                 @click="onClickType(type.entityName)"
             >
                 <span

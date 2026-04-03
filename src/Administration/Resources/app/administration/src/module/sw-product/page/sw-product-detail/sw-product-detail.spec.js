@@ -252,6 +252,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await wrapper.setProps({
             productId: '1234',
         });
+        Shopware.Store.get('swProductDetail').product = { parentId: 'parent-id' };
+        await nextTick();
 
         const contextButton = wrapper.find('.sw-product-settings-mode');
         expect(contextButton.exists()).toBeFalsy();
@@ -1140,11 +1142,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         await wrapper.unmount();
 
-        wrapper = await createWrapper(
-            () => Promise.resolve([]),
-            getFunction,
-            'parent-123',
-        );
+        wrapper = await createWrapper(() => Promise.resolve([]), getFunction, 'parent-123');
 
         await flushPromises();
 

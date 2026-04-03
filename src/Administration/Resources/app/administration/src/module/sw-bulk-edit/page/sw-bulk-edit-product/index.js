@@ -29,7 +29,13 @@ export default {
             isLoadedData: false,
             isSaveSuccessful: false,
             displayAdvancePricesModal: false,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
             isDisabledListPrice: true,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
             isDisabledRegulationPrice: true,
             bulkEditProduct: {},
             bulkEditSelected: [],
@@ -280,9 +286,7 @@ export default {
                             ? this.$t('sw-bulk-edit.product.prices.listPrice.label')
                             : this.$t('sw-bulk-edit.product.prices.listPrice.changeLabel'),
                         placeholder: this.$t('sw-bulk-edit.product.prices.listPrice.placeholderListPrice'),
-                        disabled: this.isChild
-                            ? this.bulkEditProduct?.isPriceInherited?.isInherited
-                            : this.isDisabledListPrice,
+                        disabled: this.isChild ? this.bulkEditProduct?.isPriceInherited?.isInherited : false,
                     },
                 },
                 {
@@ -296,9 +300,7 @@ export default {
                             ? this.$t('sw-bulk-edit.product.prices.regulationPrice.label')
                             : this.$t('sw-bulk-edit.product.prices.regulationPrice.changeLabel'),
                         placeholder: this.$t('sw-bulk-edit.product.prices.regulationPrice.placeholderRegulationPrice'),
-                        disabled: this.isChild
-                            ? this.bulkEditProduct?.isPriceInherited?.isInherited
-                            : this.isDisabledRegulationPrice,
+                        disabled: this.isChild ? this.bulkEditProduct?.isPriceInherited?.isInherited : false,
                     },
                 },
             ];
@@ -1110,11 +1112,6 @@ export default {
                 return;
             }
 
-            if (item === 'price') {
-                this.isDisabledListPrice = !this.bulkEditProduct.price.isChanged;
-                this.isDisabledRegulationPrice = !this.bulkEditProduct.price.isChanged;
-            }
-
             if (value && typeof value !== 'boolean') {
                 this.product[item] = Array.isArray(value) ? value : [value];
             }
@@ -1212,21 +1209,61 @@ export default {
 
         processListPrice() {
             const priceField = this.bulkEditSelected.find((dataField) => {
-                return dataField.field === 'price' && !types.isEmpty(dataField.value);
+                return dataField.field === 'price';
             });
+
+            if (priceField?.value === null) {
+                return;
+            }
 
             if (priceField) {
                 priceField.value[0].listPrice = this.product?.listPrice[0];
+            } else {
+                // Add price change when only listPrice is changed - price payload is required for API
+                this.bulkEditSelected.push({
+                    field: 'price',
+                    type: 'overwrite',
+                    value: [
+                        {
+                            currencyId: this.currency.id,
+                            gross: null,
+                            net: null,
+                            linked: true,
+                            listPrice: this.product?.listPrice[0],
+                            regulationPrice: null,
+                        },
+                    ],
+                });
             }
         },
 
         processRegulationPrice() {
             const priceField = this.bulkEditSelected.find((dataField) => {
-                return dataField.field === 'price' && !types.isEmpty(dataField.value);
+                return dataField.field === 'price';
             });
+
+            if (priceField?.value === null) {
+                return;
+            }
 
             if (priceField) {
                 priceField.value[0].regulationPrice = this.product?.regulationPrice[0];
+            } else {
+                // Add price change when only regulationPrice is changed - price payload is required for API
+                this.bulkEditSelected.push({
+                    field: 'price',
+                    type: 'overwrite',
+                    value: [
+                        {
+                            currencyId: this.currency.id,
+                            gross: null,
+                            net: null,
+                            linked: true,
+                            listPrice: null,
+                            regulationPrice: this.product?.regulationPrice[0],
+                        },
+                    ],
+                });
             }
         },
 

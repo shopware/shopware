@@ -719,6 +719,128 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(changeField.value[0]).toHaveProperty('listPrice');
     });
 
+    it('should send listPrice in request when only listPrice is changed without price', async () => {
+        const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+
+        await flushPromises();
+
+        wrapper.vm.product.listPrice = [
+            {
+                currencyId: wrapper.vm.currency.id,
+                gross: 100,
+                net: 84.03,
+                linked: true,
+            },
+        ];
+        wrapper.vm.bulkEditProduct.listPrice.isChanged = true;
+
+        wrapper.vm.onProcessData();
+
+        const changeField = wrapper.vm.bulkEditSelected.find((field) => field.field === 'price');
+        expect(changeField).toBeDefined();
+        expect(changeField.value[0]).toHaveProperty('listPrice');
+        expect(changeField.value[0].listPrice.gross).toBe(100);
+
+        expect(changeField.value[0].gross).toBeNull();
+        expect(changeField.value[0].net).toBeNull();
+    });
+
+    it('should send regulationPrice in request when only regulationPrice is changed without price', async () => {
+        const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+
+        await flushPromises();
+
+        wrapper.vm.product.regulationPrice = [
+            {
+                currencyId: wrapper.vm.currency.id,
+                gross: 150,
+                net: 126.05,
+                linked: true,
+            },
+        ];
+        wrapper.vm.bulkEditProduct.regulationPrice.isChanged = true;
+
+        wrapper.vm.onProcessData();
+
+        const changeField = wrapper.vm.bulkEditSelected.find((field) => field.field === 'price');
+        expect(changeField).toBeDefined();
+        expect(changeField.value[0]).toHaveProperty('regulationPrice');
+        expect(changeField.value[0].regulationPrice.gross).toBe(150);
+
+        expect(changeField.value[0].gross).toBeNull();
+        expect(changeField.value[0].net).toBeNull();
+    });
+
+    it('should preserve child price inheritance when restoring inherited prices', async () => {
+        const wrapper = await createWrapper(
+            undefined,
+            {
+                name: 'sw.bulk.edit.product',
+                params: { parentId: 'productId' },
+            },
+            {
+                productRepositoryMock: {
+                    create: jest.fn(() => ({
+                        isNew: () => true,
+                    })),
+                    get: jest.fn(() => {
+                        return Promise.resolve({
+                            id: 'productId',
+                            name: 'parentProduct',
+                            tax: {
+                                id: 'rate1',
+                                taxRate: 19,
+                            },
+                            price: [
+                                {
+                                    currencyId: 'currencyId1',
+                                    gross: 10,
+                                    net: 8.4,
+                                    linked: true,
+                                    listPrice: {
+                                        currencyId: 'currencyId1',
+                                        gross: 12,
+                                        net: 10.08,
+                                        linked: true,
+                                    },
+                                    regulationPrice: {
+                                        currencyId: 'currencyId1',
+                                        gross: 11,
+                                        net: 9.24,
+                                        linked: true,
+                                    },
+                                },
+                            ],
+                            purchasePrices: [
+                                {
+                                    currencyId: 'currencyId1',
+                                    gross: 8,
+                                    net: 6.72,
+                                    linked: true,
+                                },
+                            ],
+                        });
+                    }),
+                },
+            },
+        );
+
+        await flushPromises();
+
+        wrapper.vm.onInheritanceRemove({ name: 'isPriceInherited' });
+        wrapper.vm.bulkEditProduct.isPriceInherited.isChanged = true;
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.onInheritanceRestore({ name: 'isPriceInherited' });
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.onProcessData();
+
+        const priceChanges = wrapper.vm.bulkEditSelected.filter((field) => field.field === 'price');
+        expect(priceChanges).toHaveLength(1);
+        expect(priceChanges[0].value).toBeNull();
+    });
+
     it('should be correct data when select categories', async () => {
         const productEntity = {
             categories: [
@@ -961,6 +1083,17 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             },
         ],
         [
+            false,
+            'price',
+            [
+                {
+                    currencyId: 'currencyId',
+                    gross: '1',
+                    net: '2',
+                },
+            ],
+        ],
+        [
             true,
             'price',
             true,
@@ -998,7 +1131,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         let expected;
         if (value && typeof value !== 'boolean') {
-            expected = [value];
+            expected = Array.isArray(value) ? value : [value];
         }
 
         expect(wrapper.vm.product[item]).toEqual(expected);

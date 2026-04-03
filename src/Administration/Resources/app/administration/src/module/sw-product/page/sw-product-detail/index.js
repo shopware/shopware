@@ -843,8 +843,11 @@ export default {
         },
 
         syncVariantPriceInheritance() {
-            const priceInherited = this.product.price == null;
-            const purchasePricesInherited = this.product.purchasePrices == null;
+            // Variant overview can leave inherited fields unset (`undefined`) instead of normalizing them to `null`.
+            // Arrays still represent explicit variant-owned prices, so only nullish values count as inherited here.
+            const priceInherited = this.product.price === null || this.product.price === undefined;
+            const purchasePricesInherited =
+                this.product.purchasePrices === null || this.product.purchasePrices === undefined;
 
             // Price is inherited — purchasePrices must also inherit
             if (priceInherited) {

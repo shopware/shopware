@@ -368,7 +368,8 @@ class ProductListingLoaderTest extends TestCase
         static::assertNotNull($firstVariant);
         $variantId = $firstVariant->getId();
 
-        static::assertSame($this->mainVariantId, $variantId);
+        $expectedVariants = [$this->variantIds['greenL'], $this->variantIds['greenXl']];
+        static::assertContains($variantId, $expectedVariants);
         static::assertTrue($firstVariant->hasExtension('search'));
     }
 

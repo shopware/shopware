@@ -224,13 +224,13 @@ class ProductListingLoaderTest extends TestCase
         static::assertSame(['explicit-id', 'remapped-id'], array_values($result->getIds()));
     }
 
-    public function testLoadStillLoadsPreviewOnSearchRouteWithOptionPostFilter(): void
+    public function testLoadSkipsPreviewOnSearchRouteWithOptionPostFilter(): void
     {
         $previewLoaded = false;
         $resolvePreviewEventSeen = false;
 
         $this->systemConfigService
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(2))
             ->method('getBool')
             ->willReturnCallback(function (string $key, string $salesChannelId): bool {
                 static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);
@@ -272,17 +272,17 @@ class ProductListingLoaderTest extends TestCase
         $this->eventDispatcher->addListener(ProductListingResolvePreviewEvent::class, static function (ProductListingResolvePreviewEvent $event) use (&$resolvePreviewEventSeen): void {
             $resolvePreviewEventSeen = true;
             static::assertTrue($event->hasOptionFilter());
-            static::assertSame(['variant-id' => 'preview-id'], $event->getMapping());
+            static::assertSame(['variant-id' => 'variant-id'], $event->getMapping());
         });
 
         $this->productRepository
             ->expects($this->once())
             ->method('search')
             ->willReturnCallback(function (Criteria $criteria): EntitySearchResult {
-                static::assertSame(['preview-id'], $criteria->getIds());
+                static::assertSame(['variant-id'], $criteria->getIds());
                 static::assertTrue($criteria->hasAssociation('options'));
 
-                return $this->createProductSearchResult($criteria, ['preview-id']);
+                return $this->createProductSearchResult($criteria, ['variant-id']);
             });
 
         $loader = $this->createLoader();
@@ -293,9 +293,9 @@ class ProductListingLoaderTest extends TestCase
 
         $result = $loader->load($criteria, $this->salesChannelContext);
 
-        static::assertTrue($previewLoaded);
+        static::assertFalse($previewLoaded);
         static::assertTrue($resolvePreviewEventSeen);
-        static::assertSame(['preview-id'], array_values($result->getIds()));
+        static::assertSame(['variant-id'], array_values($result->getIds()));
     }
 
     public function testLoadSkipsPreviewOnSearchRouteWhenFindBestVariantIsEnabled(): void

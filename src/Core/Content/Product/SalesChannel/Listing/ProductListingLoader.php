@@ -316,7 +316,7 @@ class ProductListingLoader
 
         $hasOptionFilter = $this->hasOptionFilter($criteria);
 
-        $shouldLoadPreviews = $this->shouldLoadPreviews($criteria, $context);
+        $shouldLoadPreviews = $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
 
         if ($shouldLoadPreviews) {
             $mapping = $this->extensions->publish(
@@ -336,8 +336,12 @@ class ProductListingLoader
         return $event->getMapping();
     }
 
-    private function shouldLoadPreviews(Criteria $criteria, SalesChannelContext $context): bool
+    private function shouldLoadPreviews(bool $hasOptionFilter, Criteria $criteria, SalesChannelContext $context): bool
     {
+        if ($hasOptionFilter === true) {
+            return false;
+        }
+
         $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
 
         $shouldLoadPreviewsOnSearch = !$this->systemConfigService->getBool(

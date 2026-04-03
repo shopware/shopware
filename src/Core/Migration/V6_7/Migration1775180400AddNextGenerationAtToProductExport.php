@@ -5,7 +5,6 @@ namespace Shopware\Core\Migration\V6_7;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -20,11 +19,7 @@ class Migration1775180400AddNextGenerationAtToProductExport extends MigrationSte
 
     public function update(Connection $connection): void
     {
-        if (TableHelper::columnExists($connection, 'product_export', 'next_generation_at')) {
-            return;
-        }
-
-        $connection->executeStatement('ALTER TABLE `product_export` ADD COLUMN `next_generation_at` DATETIME(3) NULL AFTER `generated_at`');
+        $this->addColumn($connection, 'product_export', 'next_generation_at', 'DATETIME(3)');
     }
 
     public function updateDestructive(Connection $connection): void

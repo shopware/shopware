@@ -255,10 +255,9 @@ class ProductExportPartialGenerationHandlerTest extends TestCase
         $productExport->setCurrencyId(Defaults::CURRENCY);
         $productExport->setInterval(300);
 
-        $domain = $this->createConfiguredMock(SalesChannelDomainEntity::class, [
-            'getLanguageId' => Defaults::LANGUAGE_SYSTEM,
-            'getCurrencyId' => Defaults::CURRENCY,
-        ]);
+        $domain = new SalesChannelDomainEntity();
+        $domain->setLanguageId(Defaults::LANGUAGE_SYSTEM);
+        $domain->setCurrencyId(Defaults::CURRENCY);
         $productExport->setSalesChannelDomain($domain);
 
         return $productExport;

@@ -2,12 +2,15 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartLoadRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -15,9 +18,11 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Content\Flow\FlowException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -238,6 +243,20 @@ class CheckoutController extends StorefrontController
             $this->addFlash('danger', $message);
 
             return $this->forwardToRoute('frontend.checkout.confirm.page');
+        } catch (WriteException $e) {
+            $cart = $this->cartService->getCart($context->getToken(), $context);
+
+            $cartErrors = $this->handleWriteExceptionForAddressConstraintViolations($e, $cart, $context);
+
+            if ($cartErrors->count() === 0) {
+                throw $e;
+            }
+
+            $this->addCartErrors($cart);
+
+            $cartErrors->clear();
+
+            return $this->forwardToRoute('frontend.checkout.confirm.page');
         }
 
         try {
@@ -329,5 +348,42 @@ class CheckoutController extends StorefrontController
         }
 
         return false;
+    }
+
+    private function handleWriteExceptionForAddressConstraintViolations(WriteException $writeException, Cart $cart, SalesChannelContext $context): ErrorCollection
+    {
+        $customer = $context->getCustomer();
+
+        if ($customer === null) {
+            return $cart->getErrors();
+        }
+
+        foreach ($writeException->getExceptions() as $exception) {
+            if (!$exception instanceof WriteConstraintViolationException) {
+                continue;
+            }
+
+            if (preg_match('/^\/\d+\/deliveries\/\d+\/shippingOrderAddress$/', $exception->getPath())) {
+                $shippingAddress = $customer->getActiveShippingAddress();
+
+                if ($shippingAddress instanceof CustomerAddressEntity) {
+                    $cart->getErrors()->add(new AddressValidationError(false, $exception->getViolations(), $shippingAddress->getId()));
+                }
+
+                continue;
+            }
+
+            if (preg_match('/^\/\d+\/addresses\/\d+$/', $exception->getPath())) {
+                $billingAddress = $customer->getActiveBillingAddress();
+
+                if ($billingAddress instanceof CustomerAddressEntity) {
+                    $cart->getErrors()->add(new AddressValidationError(true, $exception->getViolations(), $billingAddress->getId()));
+                }
+
+                continue;
+            }
+        }
+
+        return $cart->getErrors();
     }
 }

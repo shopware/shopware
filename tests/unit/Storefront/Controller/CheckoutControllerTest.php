@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -13,6 +14,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartLoadRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -20,10 +22,12 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Content\Flow\FlowException;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\Test\Generator;
@@ -43,6 +47,8 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
@@ -526,6 +532,56 @@ class CheckoutControllerTest extends TestCase
         static::assertSame('forward to frontend.checkout.finish.page', $response->getContent());
     }
 
+    #[DataProvider('invalidAddressProvider')]
+    public function testOrderInvalidAddressWriteException(
+        string $invalidPath,
+        CustomerAddressEntity $shippingAddress,
+        CustomerAddressEntity $billingAddress,
+        string $expectedErrorSnippetKey
+    ): void {
+        $cart = new Cart(Uuid::randomHex());
+        $cart->add(new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE));
+
+        $this->cartServiceMock->method('getCart')->willReturn($cart);
+
+        $request = new Request();
+        $request->setSession($this->createMock(Session::class));
+
+        $customer = new CustomerEntity();
+        $customer->setActiveShippingAddress($shippingAddress);
+        $customer->setActiveBillingAddress($billingAddress);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+
+        $writeException = new WriteException();
+        $writeException->add(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation(
+                    'This value should not be blank.',
+                    'This value should not be blank.',
+                    ['{{ value }}' => 'null'],
+                    null,
+                    '/city',
+                    null,
+                    null,
+                    NotBlank::IS_BLANK_ERROR,
+                    new NotBlank(),
+                    null
+                ),
+            ]),
+            $invalidPath
+        ));
+
+        $this->orderServiceMock->expects($this->once())->method('createOrder')->willThrowException($writeException);
+
+        $response = $this->controller->order(new RequestDataBag(), $context, $request);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame('forward to frontend.checkout.confirm.page', $response->getContent());
+        static::assertSame(['danger' => [$expectedErrorSnippetKey]], $this->controller->flashBag);
+    }
+
     public function testOrderTransitionException(): void
     {
         $request = new Request();
@@ -661,6 +717,33 @@ class CheckoutControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertEmpty($response->getContent());
     }
+
+    /**
+     * @return array<string, array{0: string, 1: CustomerAddressEntity, 2: CustomerAddressEntity, 3: string}>
+     */
+    public static function invalidAddressProvider(): array
+    {
+        $shippingAddress = new CustomerAddressEntity();
+        $shippingAddress->setId(Uuid::randomHex());
+
+        $billingAddress = new CustomerAddressEntity();
+        $billingAddress->setId(Uuid::randomHex());
+
+        return [
+            'invalid shipping address' => [
+                '/0/deliveries/0/shippingOrderAddress',
+                $shippingAddress,
+                $billingAddress,
+                'checkout.shipping-address-invalid',
+            ],
+            'invalid billing address' => [
+                '/0/addresses/0',
+                $shippingAddress,
+                $billingAddress,
+                'checkout.billing-address-invalid',
+            ],
+        ];
+    }
 }
 
 /**
@@ -669,4 +752,24 @@ class CheckoutControllerTest extends TestCase
 class CheckoutControllerTestClass extends CheckoutController
 {
     use StorefrontControllerMockTrait;
+
+    protected function addCartErrors(Cart $cart, ?\Closure $filter = null): void
+    {
+        $errors = $cart->getErrors();
+        if ($filter !== null) {
+            $errors = $errors->filter($filter);
+        }
+
+        $groups = [
+            'info' => $errors->getNotices(),
+            'warning' => $errors->getWarnings(),
+            'danger' => $errors->getErrors(),
+        ];
+
+        foreach ($groups as $type => $errorGroup) {
+            foreach ($errorGroup as $error) {
+                $this->addFlash($type, 'checkout.' . $error->getMessageKey());
+            }
+        }
+    }
 }

@@ -29,7 +29,7 @@ jobs:
           cat composer.json
           composer validate --no-check-publish --no-check-lock
 
-      - uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # 3.1.1
+      - uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
         with:
           custom-cache-key: ${{ runner.os }}-setup-shopware-composer-8.2-${{ hashFiles('composer.json', 'custom/plugins/**/composer.json') }}
           working-directory: ""
@@ -159,7 +159,7 @@ jobs:
           api-gen loadSchema --apiType=store
 
       - name: Upload OpenApi StoreAPI schema
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # 6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # 7.0.0
         with:
           name: storeApiSchema.json
           path: ./api-types/storeApiSchema.json
@@ -186,7 +186,7 @@ jobs:
           redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
 
       - name: Upload OpenApi AdminAPI schema
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # 6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # 7.0.0
         with:
           name: adminApiSchema.json
           path: ./api-types/adminApiSchema.json
@@ -257,7 +257,7 @@ jobs:
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "${{ matrix.suite }}" --coverage-cobertura coverage.xml --log-junit junit.xml
 
       - name: Upload coverage
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # 5
+        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # 5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:

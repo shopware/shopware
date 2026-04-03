@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -114,6 +115,18 @@ class TokenQueryBuilder
     {
         if ($this->isTextField($field)) {
             return $this->buildTextMatchQuery($token, $config);
+        }
+
+        if ($field instanceof BoolField) {
+            $token = match ($token) {
+                '1', 'true' => true,
+                '0', 'false' => false,
+                default => null,
+            };
+
+            if ($token === null) {
+                return null;
+            }
         }
 
         if ($field instanceof IntField || $field instanceof FloatField || $field instanceof PriceField) {

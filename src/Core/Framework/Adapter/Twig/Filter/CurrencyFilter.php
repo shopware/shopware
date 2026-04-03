@@ -61,10 +61,10 @@ class CurrencyFilter extends AbstractExtension
             throw AdapterException::currencyFilterMissingContext();
         }
 
-        $shortName = null;
+        $symbol = null;
         if (!$currencyIsoCode && $twigContext['context'] instanceof SalesChannelContext) {
             $currencyIsoCode = $twigContext['context']->getCurrency()->getIsoCode();
-            $shortName = $twigContext['context']->getCurrency()->getSymbol();
+            $symbol = $twigContext['context']->getCurrency()->getSymbol();
         }
 
         if (!$currencyIsoCode) {
@@ -89,6 +89,12 @@ class CurrencyFilter extends AbstractExtension
             $price = 0.0;
         }
 
-        return $this->currencyFormatter->formatCurrencyByLanguage($price, $currencyIsoCode, $languageId, $context, $decimals, $shortName);
+        $formatted = $this->currencyFormatter->formatCurrencyByLanguage($price, $currencyIsoCode, $languageId, $context, $decimals);
+
+        if ($symbol !== null && $symbol !== '') {
+            return \str_replace($currencyIsoCode, $symbol, $formatted);
+        }
+
+        return $formatted;
     }
 }

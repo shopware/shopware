@@ -17,6 +17,10 @@ use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSea
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -107,24 +111,6 @@ class ProductListingLoader
         return $result;
     }
 
-    private function hasOptionFilter(Criteria $criteria): bool
-    {
-        $filters = $criteria->getPostFilters();
-
-        $fields = [];
-        foreach ($filters as $filter) {
-            array_push($fields, ...$filter->getFields());
-        }
-
-        $fields = array_map(static fn (string $field) => preg_replace('/^product./', '', $field), $fields);
-
-        if (\in_array('options.id', $fields, true)) {
-            return true;
-        }
-
-        return \in_array('optionIds', $fields, true);
-    }
-
     private function addGrouping(Criteria $criteria): void
     {
         $criteria->addGroupField(new FieldGrouping('displayGroup'));
@@ -133,12 +119,13 @@ class ProductListingLoader
 
     /**
      * @param array<string> $ids
+     * @param list<list<string>> $propertyGroupOptionFilterSets
      *
      * @throws \JsonException
      *
      * @return array<string>
      */
-    private function loadPreviews(array $ids, SalesChannelContext $context): array
+    private function loadPreviews(array $ids, SalesChannelContext $context, array $propertyGroupOptionFilterSets = []): array
     {
         $ids = array_combine($ids, $ids);
 
@@ -162,6 +149,7 @@ class ProductListingLoader
         );
 
         $mapping = [];
+        $configuredMainVariants = [];
         foreach ($config as $item) {
             if ($item['variantListingConfig'] === null) {
                 continue;
@@ -170,6 +158,7 @@ class ProductListingLoader
 
             if (isset($variantListingConfig['mainVariantId']) && $variantListingConfig['mainVariantId']) {
                 $mapping[$item['id']] = $variantListingConfig['mainVariantId'];
+                $configuredMainVariants[$item['id']] = $variantListingConfig['mainVariantId'];
             }
 
             if (isset($variantListingConfig['displayParent']) && $variantListingConfig['displayParent']) {
@@ -202,6 +191,7 @@ class ProductListingLoader
         $available = $this->productRepository->searchIds($criteria, $context);
 
         $remapped = [];
+        $mappedMainVariants = [];
         // replace existing ids with main variant id
         foreach ($ids as $id) {
             // id has no mapped main_variant - keep old id
@@ -223,6 +213,70 @@ class ProductListingLoader
 
             // main variant is configured and available - add main variant id
             $remapped[$id] = $main;
+
+            if (
+                $propertyGroupOptionFilterSets !== []
+                && isset($configuredMainVariants[$id])
+                && $main === $configuredMainVariants[$id]
+            ) {
+                $mappedMainVariants[$id] = $main;
+            }
+        }
+
+        if ($propertyGroupOptionFilterSets === [] || $mappedMainVariants === []) {
+            return $remapped;
+        }
+
+        $filterPropertyGroupOptionIds = [];
+        foreach ($propertyGroupOptionFilterSets as $propertyGroupOptionFilterSet) {
+            array_push($filterPropertyGroupOptionIds, ...$propertyGroupOptionFilterSet);
+        }
+        $filterPropertyGroupOptionIds = array_values(array_unique($filterPropertyGroupOptionIds));
+
+        // Each filter set represents one required property group.
+        // A representative stays valid only if it matches every group via product_option or product_property.
+        $matchingRepresentatives = $this->connection->fetchFirstColumn(
+            '# product-listing-loader::filter-preview-by-option-filter
+            SELECT LOWER(HEX(`matches`.`product_id`))
+            FROM (
+                SELECT `product_id`, `property_group_option_id`
+                FROM `product_option`
+                WHERE `product_version_id` = :version
+                  AND `product_id` IN (:ids)
+                  AND `property_group_option_id` IN (:filterPropertyGroupOptionIds)
+
+                UNION DISTINCT
+
+                SELECT `product_id`, `property_group_option_id`
+                FROM `product_property`
+                WHERE `product_version_id` = :version
+                  AND `product_id` IN (:ids)
+                  AND `property_group_option_id` IN (:filterPropertyGroupOptionIds)
+            ) AS `matches`
+            INNER JOIN `property_group_option`
+                ON `property_group_option`.`id` = `matches`.`property_group_option_id`
+            GROUP BY `matches`.`product_id`
+            HAVING COUNT(DISTINCT `property_group_option`.`property_group_id`) = :requiredPropertyGroupCount',
+            [
+                'ids' => Uuid::fromHexToBytesList(array_values(array_unique($mappedMainVariants))),
+                'filterPropertyGroupOptionIds' => Uuid::fromHexToBytesList($filterPropertyGroupOptionIds),
+                'version' => Uuid::fromHexToBytes($context->getContext()->getVersionId()),
+                'requiredPropertyGroupCount' => \count($propertyGroupOptionFilterSets),
+            ],
+            [
+                'ids' => ArrayParameterType::BINARY,
+                'filterPropertyGroupOptionIds' => ArrayParameterType::BINARY,
+            ]
+        );
+
+        $matchingRepresentatives = array_fill_keys($matchingRepresentatives, true);
+
+        foreach ($mappedMainVariants as $id => $representativeId) {
+            if (isset($matchingRepresentatives[$representativeId])) {
+                continue;
+            }
+
+            $remapped[$id] = $id;
         }
 
         return $remapped;
@@ -294,7 +348,8 @@ class ProductListingLoader
     {
         $mapping = array_combine($keys, $keys);
 
-        $hasOptionFilter = $this->hasOptionFilter($criteria);
+        $propertyGroupOptionFilterSets = $this->getPropertyGroupOptionFilterSets($criteria);
+        $hasOptionFilter = $propertyGroupOptionFilterSets !== [];
 
         $shouldLoadPreviews = $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
 
@@ -302,7 +357,9 @@ class ProductListingLoader
             $mapping = $this->extensions->publish(
                 name: LoadPreviewExtension::NAME,
                 extension: new LoadPreviewExtension($keys, $context),
-                function: $this->loadPreviews(...)
+                function: function (array $ids, SalesChannelContext $context) use ($propertyGroupOptionFilterSets): array {
+                    return $this->loadPreviews($ids, $context, $propertyGroupOptionFilterSets);
+                }
             );
         }
 
@@ -315,6 +372,13 @@ class ProductListingLoader
     private function shouldLoadPreviews(bool $hasOptionFilter, Criteria $criteria, SalesChannelContext $context): bool
     {
         if ($hasOptionFilter === true) {
+            if (
+                $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE)
+                && $this->systemConfigService->getBool('core.listing.findBestVariant', $context->getSalesChannelId())
+            ) {
+                return false;
+            }
+
             return true;
         }
 
@@ -343,5 +407,74 @@ class ProductListingLoader
         $read->addAssociation('options.group');
 
         return $this->productRepository->search($read, $context);
+    }
+
+    /**
+     * @return list<list<string>>
+     */
+    private function getPropertyGroupOptionFilterSets(Criteria $criteria): array
+    {
+        $propertyGroupOptionFilterSets = [];
+        foreach ($criteria->getPostFilters() as $filter) {
+            array_push($propertyGroupOptionFilterSets, ...$this->extractPropertyGroupOptionFilterSets($filter));
+        }
+
+        return $propertyGroupOptionFilterSets;
+    }
+
+    /**
+     * @return list<list<string>>
+     */
+    private function extractPropertyGroupOptionFilterSets(Filter $filter): array
+    {
+        if ($filter instanceof MultiFilter) {
+            if ($filter->getOperator() === MultiFilter::CONNECTION_AND) {
+                $propertyGroupOptionFilterSets = [];
+                foreach ($filter->getQueries() as $query) {
+                    array_push($propertyGroupOptionFilterSets, ...$this->extractPropertyGroupOptionFilterSets($query));
+                }
+
+                return $propertyGroupOptionFilterSets;
+            }
+
+            if ($filter->getOperator() === MultiFilter::CONNECTION_OR) {
+                $propertyGroupOptionFilterSet = [];
+                foreach ($filter->getQueries() as $query) {
+                    $nestedPropertyGroupOptionFilterSets = $this->extractPropertyGroupOptionFilterSets($query);
+                    foreach ($nestedPropertyGroupOptionFilterSets as $nestedPropertyGroupOptionFilterSet) {
+                        array_push($propertyGroupOptionFilterSet, ...$nestedPropertyGroupOptionFilterSet);
+                    }
+                }
+
+                if ($propertyGroupOptionFilterSet === []) {
+                    return [];
+                }
+
+                return [array_values(array_unique($propertyGroupOptionFilterSet))];
+            }
+        }
+
+        if ($filter instanceof EqualsFilter && $this->isOptionFilterField($filter->getField())) {
+            $value = $filter->getValue();
+            if (\is_string($value) && $value !== '') {
+                return [[$value]];
+            }
+        }
+
+        if ($filter instanceof EqualsAnyFilter && $this->isOptionFilterField($filter->getField())) {
+            $values = array_values(array_filter($filter->getValue(), static fn (mixed $value): bool => \is_string($value) && $value !== ''));
+            if ($values !== []) {
+                return [array_values(array_unique($values))];
+            }
+        }
+
+        return [];
+    }
+
+    private function isOptionFilterField(string $field): bool
+    {
+        $field = (string) preg_replace('/^product\./', '', $field);
+
+        return \in_array($field, ['optionIds', 'options.id', 'propertyIds', 'properties.id'], true);
     }
 }

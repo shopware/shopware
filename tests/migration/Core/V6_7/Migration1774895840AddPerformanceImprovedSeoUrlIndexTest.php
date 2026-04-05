@@ -32,17 +32,9 @@ class Migration1774895840AddPerformanceImprovedSeoUrlIndexTest extends TestCase
 
         $migration = new Migration1774895840AddPerformanceImprovedSeoUrlIndex();
         $migration->update($this->connection);
+        $migration->update($this->connection);
 
         static::assertTrue(TableHelper::indexExists($this->connection, 'seo_url', 'idx.path_info'));
-        static::assertTrue(TableHelper::indexSpansColumns($this->connection, 'seo_url', 'idx.path_info', ['path_info', 'is_canonical', 'sales_channel_id', 'language_id', 'seo_path_info']));
-    }
-
-    public function testMigrationIsIdempotent(): void
-    {
-        $migration = new Migration1774895840AddPerformanceImprovedSeoUrlIndex();
-        $migration->update($this->connection);
-        $migration->update($this->connection);
-
         static::assertTrue(TableHelper::indexSpansColumns($this->connection, 'seo_url', 'idx.path_info', ['path_info', 'is_canonical', 'sales_channel_id', 'language_id', 'seo_path_info']));
     }
 }

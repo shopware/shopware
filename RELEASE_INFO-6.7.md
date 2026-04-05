@@ -6,14 +6,6 @@
 
 ## Core
 
-### Improved SEO URL index for faster hreflang lookup
-
-Changed the `idx.path_info` index on the `seo_url` table to a composite index that covers all columns used in the hreflang URL lookup query, where the new order prioritizes high-cardinality equality filters and uses prefix indexing, to reduce the overall size of the index:
-
-```sql
-INDEX idx.path_info (path_info(255), is_canonical, sales_channel_id, language_id, seo_path_info(255))
-```
-
 ## Administration
 
 ## Storefront

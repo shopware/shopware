@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Util\Database\TableHelper;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('inventory')]
 class Migration1774895840AddPerformanceImprovedSeoUrlIndex extends MigrationStep
 {
     public function getCreationTimestamp(): int

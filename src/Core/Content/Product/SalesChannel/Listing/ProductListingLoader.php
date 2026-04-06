@@ -314,18 +314,18 @@ class ProductListingLoader
 
     private function shouldLoadPreviews(bool $hasOptionFilter, Criteria $criteria, SalesChannelContext $context): bool
     {
-        $findBestVariant = $this->systemConfigService->getBool(
+        $loadPreview = !$this->systemConfigService->getBool(
             'core.listing.findBestVariant',
             $context->getSalesChannelId()
         );
 
         if ($hasOptionFilter === true) {
-            return !$findBestVariant;
+            return $loadPreview;
         }
 
         $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
 
-        if (!$findBestVariant && $isSearchRoute) {
+        if ($loadPreview && $isSearchRoute) {
             return true;
         }
 

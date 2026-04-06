@@ -4,6 +4,8 @@
 
 import template from './sw-sales-channel-create-base.html.twig';
 
+const utils = Shopware.Utils;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -15,9 +17,16 @@ export default {
     methods: {
         createdComponent() {
             this.onGenerateKeys();
-            if (this.isProductComparison) {
+            if (this.isProductComparison || this.isAgenticCommerce) {
                 this.onGenerateProductExportKey(false);
             }
+            if (this.isAgenticCommerce) {
+                this.prefillAgenticCommerceDefaults();
+            }
+        },
+
+        prefillAgenticCommerceDefaults() {
+            this.productExport.fileName = `agentic-commerce-${utils.createId()}.jsonl`;
         },
     },
 };

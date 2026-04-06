@@ -101,6 +101,106 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
         expect(result).toBe(true);
     });
 
+    it('should preserve base price fields (gross/net/linked) when only listPrice is changed', async () => {
+        const currencyId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
+        const handler = getBulkEditProductHandler();
+        const originalBasePrice = {
+            currencyId,
+            gross: 50,
+            net: 42.02,
+            linked: true,
+            listPrice: { currencyId, gross: 80, net: 67.23, linked: true },
+        };
+
+        handler.getProducts = jest.fn().mockResolvedValue(undefined);
+        handler.products = [
+            {
+                id: 'product_1',
+                price: [originalBasePrice],
+            },
+        ];
+
+        const syncSpy = jest.spyOn(handler.syncService, 'sync').mockResolvedValue({ data: [] });
+
+        await handler.bulkEdit(
+            ['product_1'],
+            [
+                {
+                    field: 'price',
+                    type: 'overwrite',
+                    value: [
+                        {
+                            currencyId,
+                            gross: null,
+                            net: null,
+                            linked: true,
+                            listPrice: { currencyId, gross: 100, net: 84.03, linked: true },
+                            regulationPrice: null,
+                        },
+                    ],
+                },
+            ],
+        );
+
+        const syncPayload = syncSpy.mock.calls[0][0];
+        const productPayload = syncPayload['upsert-product'].payload[0];
+
+        expect(productPayload.price[0].gross).toBe(50);
+        expect(productPayload.price[0].net).toBe(42.02);
+        expect(productPayload.price[0].linked).toBe(true);
+        expect(productPayload.price[0].listPrice.gross).toBe(100);
+    });
+
+    it('should preserve base price fields (gross/net/linked) when only regulationPrice is changed', async () => {
+        const currencyId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
+        const handler = getBulkEditProductHandler();
+        const originalBasePrice = {
+            currencyId,
+            gross: 75,
+            net: 63.03,
+            linked: true,
+            regulationPrice: { currencyId, gross: 90, net: 75.63, linked: true },
+        };
+
+        handler.getProducts = jest.fn().mockResolvedValue(undefined);
+        handler.products = [
+            {
+                id: 'product_1',
+                price: [originalBasePrice],
+            },
+        ];
+
+        const syncSpy = jest.spyOn(handler.syncService, 'sync').mockResolvedValue({ data: [] });
+
+        await handler.bulkEdit(
+            ['product_1'],
+            [
+                {
+                    field: 'price',
+                    type: 'overwrite',
+                    value: [
+                        {
+                            currencyId,
+                            gross: null,
+                            net: null,
+                            linked: true,
+                            listPrice: null,
+                            regulationPrice: { currencyId, gross: 150, net: 126.05, linked: true },
+                        },
+                    ],
+                },
+            ],
+        );
+
+        const syncPayload = syncSpy.mock.calls[0][0];
+        const productPayload = syncPayload['upsert-product'].payload[0];
+
+        expect(productPayload.price[0].gross).toBe(75);
+        expect(productPayload.price[0].net).toBe(63.03);
+        expect(productPayload.price[0].linked).toBe(true);
+        expect(productPayload.price[0].regulationPrice.gross).toBe(150);
+    });
+
     describe('test buildBulkSyncPayload', () => {
         let handler = null;
 

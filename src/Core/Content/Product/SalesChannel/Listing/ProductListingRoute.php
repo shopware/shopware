@@ -114,7 +114,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         }
 
         $criteria->addFilter(
-            new EqualsFilter('product.categoriesRo.id', $category->getId())
+            new EqualsFilter('product.categories.id', $category->getId())
         );
     }
 }

@@ -59,7 +59,7 @@ class ProductListingRouteTest extends TestCase
             'product.visibilities.visibility',
             'product.visibilities.salesChannelId',
             'product.active',
-            'product.categoriesRo.id',
+            'product.categories.id',
         ], $criteria->getFilterFields());
     }
 
@@ -159,7 +159,7 @@ class ProductListingRouteTest extends TestCase
             'product.visibilities.visibility',
             'product.visibilities.salesChannelId',
             'product.active',
-            'product.categoriesRo.id',
+            'product.categories.id',
         ], $criteria->getFilterFields());
     }
 }

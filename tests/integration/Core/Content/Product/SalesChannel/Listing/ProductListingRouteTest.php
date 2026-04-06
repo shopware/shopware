@@ -10,6 +10,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -169,6 +170,17 @@ class ProductListingRouteTest extends TestCase
         static::assertSame('product_listing', $response['apiAlias']);
         static::assertArrayNotHasKey('elements', $response);
         static::assertArrayHasKey('total', $response);
+    }
+
+    public function testDoesNotLoadNestedProductsForManualAssignments(): void
+    {
+        [$parentCategoryId, $childCategoryId, $productId] = $this->createNestedManualAssignmentData();
+
+        $parentListing = $this->loadListing($parentCategoryId);
+        static::assertCount(0, $parentListing->getEntities());
+
+        $childListing = $this->loadListing($childCategoryId);
+        static::assertSame([$productId], $childListing->getEntities()->getIds());
     }
 
     /**
@@ -766,5 +778,60 @@ class ProductListingRouteTest extends TestCase
         }
 
         $this->productRepository->update($products, Context::createDefaultContext());
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: string}
+     */
+    private function createNestedManualAssignmentData(): array
+    {
+        $parentCategoryId = Uuid::randomHex();
+        $childCategoryId = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+
+        $this->categoryRepository->create([
+            [
+                'id' => $parentCategoryId,
+                'name' => 'parent-category',
+            ],
+            [
+                'id' => $childCategoryId,
+                'name' => 'child-category',
+                'parentId' => $parentCategoryId,
+            ],
+        ], Context::createDefaultContext());
+
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'name' => 'nested-product',
+                'productNumber' => $productId,
+                'stock' => 10,
+                'active' => true,
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                ],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'categories' => [
+                    ['id' => $childCategoryId],
+                ],
+                'visibilities' => [
+                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        return [$parentCategoryId, $childCategoryId, $productId];
+    }
+
+    private function loadListing(string $categoryId): ProductListingResult
+    {
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), $this->ids->get('sales-channel'));
+
+        return static::getContainer()
+            ->get(ProductListingRoute::class)
+            ->load($categoryId, new Request(), $context, new Criteria())
+            ->getResult();
     }
 }

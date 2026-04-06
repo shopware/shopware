@@ -435,7 +435,7 @@ class ProductControllerTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'productId' => $id,
                     'customerId' => $this->createCustomer()->getId(),
-                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    'salesChannelId' => $this->getSalesChannelId(),
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'status' => true,
                     'title' => 'Test',

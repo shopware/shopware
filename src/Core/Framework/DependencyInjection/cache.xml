@@ -119,6 +119,7 @@
             <argument>%shopware.product_stream.indexing%</argument>
 
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Category\Event\CategoryIndexerEvent" method="invalidateCategoryRouteByCategoryIds" priority="2000" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Category\Event\CategoryIndexerEvent" method="invalidateProductListingRouteByCategoryIds" priority="2000" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent" method="invalidateIndexedLandingPages" priority="2000" />
 
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Product\Events\InvalidateProductCache" method="invalidateProduct" priority="2001" />
@@ -128,6 +129,7 @@
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateLanguageRoute" priority="2003" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateNavigationRoute" priority="2004" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidatePaymentMethodRoute" priority="2005" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateChangedCategoryListings" priority="2006" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateManufacturerFilters" priority="2007" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidatePropertyFilters" priority="2008" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateContext" priority="2010" />

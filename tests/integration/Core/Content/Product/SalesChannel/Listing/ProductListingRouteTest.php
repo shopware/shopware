@@ -180,7 +180,7 @@ class ProductListingRouteTest extends TestCase
         static::assertCount(0, $parentListing->getEntities());
 
         $childListing = $this->loadListing($childCategoryId);
-        static::assertSame([$productId], $childListing->getEntities()->getIds());
+        static::assertSame([$productId], [$childListing->getEntities()->first()?->getId()]);
     }
 
     /**

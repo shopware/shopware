@@ -11,7 +11,6 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
@@ -42,7 +41,6 @@ class ProductListingRouteTest extends TestCase
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT,
                 ]),
             ]),
-            new EntityCollection(),
         ]);
 
         $eventDispatcher = new EventDispatcher();
@@ -55,7 +53,7 @@ class ProductListingRouteTest extends TestCase
         );
 
         $criteria = new Criteria();
-        $controller->load($categoryId, new Request(), $this->createSalesChannelContextMock(), $criteria);
+        $controller->load($categoryId, new Request(), $this->createMock(SalesChannelContext::class), $criteria);
 
         static::assertSame([
             'product.visibilities.visibility',
@@ -70,18 +68,14 @@ class ProductListingRouteTest extends TestCase
         $categoryId = 'categoryId';
         $streamId = 'streamId';
         /** @var StaticEntityRepository<CategoryCollection> */
-        $categoryRepository = new StaticEntityRepository([
-            new EntityCollection([
-                new PartialEntity(
-                    [
-                        'id' => $categoryId,
-                        'productStreamId' => $streamId,
-                        'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
-                    ]
-                ),
-            ]),
-            new EntityCollection(),
-        ]);
+        $categoryRepository = new StaticEntityRepository([new EntityCollection([
+            new PartialEntity(
+                [
+                    'id' => $categoryId,
+                    'productStreamId' => $streamId,
+                    'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                ]
+            )])]);
 
         $productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
         $productStreamBuilder->method('buildFilters')
@@ -100,7 +94,7 @@ class ProductListingRouteTest extends TestCase
         $result = $controller->load(
             $categoryId,
             new Request(),
-            $this->createSalesChannelContextMock(),
+            $this->createMock(SalesChannelContext::class),
             $criteria
         )->getResult();
 
@@ -112,64 +106,6 @@ class ProductListingRouteTest extends TestCase
         ], $criteria->getFilterFields());
 
         static::assertSame($streamId, $result->getStreamId());
-    }
-
-    public function testFiltersAndTagsAreSetForDescendantCategories(): void
-    {
-        $categoryId = 'parent-category';
-        $childCategoryId = 'child-category';
-        $streamId = 'streamId';
-
-        /** @var StaticEntityRepository<CategoryCollection> */
-        $categoryRepository = new StaticEntityRepository([
-            new EntityCollection([
-                new PartialEntity([
-                    'id' => $categoryId,
-                    'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT,
-                ]),
-            ]),
-            new EntityCollection([
-                new PartialEntity([
-                    'id' => $childCategoryId,
-                    'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
-                    'productStreamId' => $streamId,
-                ]),
-            ]),
-        ]);
-
-        $productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
-        $productStreamBuilder->method('buildFilters')
-            ->with($streamId, $this->isInstanceOf(Context::class))
-            ->willReturn([new EqualsFilter('product.product_stream', $streamId)]);
-
-        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
-        $cacheTagCollector->expects($this->once())
-            ->method('addTag')
-            ->with(
-                ProductListingRoute::buildName($categoryId),
-                ProductListingRoute::buildName($childCategoryId),
-                'product-stream-' . $streamId
-            );
-
-        $eventDispatcher = new EventDispatcher();
-        $controller = new ProductListingRoute(
-            $this->createMock(ProductListingLoader::class),
-            $categoryRepository,
-            $productStreamBuilder,
-            $cacheTagCollector,
-            new ExtensionDispatcher($eventDispatcher),
-        );
-
-        $criteria = new Criteria();
-        $controller->load($categoryId, new Request(), $this->createSalesChannelContextMock(), $criteria);
-
-        static::assertSame([
-            'product.visibilities.visibility',
-            'product.visibilities.salesChannelId',
-            'product.active',
-            'product.categories.id',
-            'product.product_stream',
-        ], $criteria->getFilterFields());
     }
 
     public function testClassIsBaseOfDecorationChain(): void
@@ -199,7 +135,6 @@ class ProductListingRouteTest extends TestCase
                     'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT,
                 ]),
             ]),
-            new EntityCollection(),
         ]);
 
         $eventDispatcher = new EventDispatcher();
@@ -218,7 +153,7 @@ class ProductListingRouteTest extends TestCase
         );
 
         $criteria = new Criteria();
-        $controller->load($categoryId, new Request(), $this->createSalesChannelContextMock(), $criteria);
+        $controller->load($categoryId, new Request(), $this->createMock(SalesChannelContext::class), $criteria);
 
         static::assertSame([
             'product.visibilities.visibility',
@@ -226,14 +161,5 @@ class ProductListingRouteTest extends TestCase
             'product.active',
             'product.categories.id',
         ], $criteria->getFilterFields());
-    }
-
-    private function createSalesChannelContextMock(): SalesChannelContext
-    {
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getContext')->willReturn(Context::createDefaultContext());
-        $context->method('getSalesChannelId')->willReturn('sales-channel-id');
-
-        return $context;
     }
 }

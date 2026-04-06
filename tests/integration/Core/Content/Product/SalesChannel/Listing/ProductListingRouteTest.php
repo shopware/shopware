@@ -7,11 +7,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -173,26 +172,15 @@ class ProductListingRouteTest extends TestCase
         static::assertArrayHasKey('total', $response);
     }
 
-    public function testLoadsNestedProductsForManualAssignments(): void
+    public function testDoesNotLoadNestedProductsForManualAssignments(): void
     {
         [$parentCategoryId, $childCategoryId, $productId] = $this->createNestedManualAssignmentData();
 
         $parentListing = $this->loadListing($parentCategoryId);
-        static::assertSame([$productId], $parentListing->getEntities()->getIds());
+        static::assertCount(0, $parentListing->getEntities());
 
         $childListing = $this->loadListing($childCategoryId);
         static::assertSame([$productId], $childListing->getEntities()->getIds());
-    }
-
-    public function testLoadsNestedProductsForMixedAssignments(): void
-    {
-        [$parentCategoryId, $manualChildCategoryId, $streamChildCategoryId, $manualProductId, $streamProductId] = $this->createNestedMixedAssignmentData();
-
-        $parentIds = $this->loadListing($parentCategoryId)->getEntities()->getIds();
-
-        static::assertEqualsCanonicalizing([$manualProductId, $streamProductId], $parentIds);
-        static::assertSame([$manualProductId], $this->loadListing($manualChildCategoryId)->getEntities()->getIds());
-        static::assertSame([$streamProductId], $this->loadListing($streamChildCategoryId)->getEntities()->getIds());
     }
 
     /**
@@ -834,87 +822,6 @@ class ProductListingRouteTest extends TestCase
         ], Context::createDefaultContext());
 
         return [$parentCategoryId, $childCategoryId, $productId];
-    }
-
-    /**
-     * @return array{0: string, 1: string, 2: string, 3: string, 4: string}
-     */
-    private function createNestedMixedAssignmentData(): array
-    {
-        $parentCategoryId = Uuid::randomHex();
-        $manualChildCategoryId = Uuid::randomHex();
-        $streamChildCategoryId = Uuid::randomHex();
-        $manualProductId = Uuid::randomHex();
-        $streamProductId = Uuid::randomHex();
-        $streamId = Uuid::randomHex();
-        $streamProductNumber = 'stream-product-' . Uuid::randomHex();
-
-        $this->categoryRepository->create([
-            [
-                'id' => $parentCategoryId,
-                'name' => 'parent-category',
-            ],
-            [
-                'id' => $manualChildCategoryId,
-                'name' => 'manual-child-category',
-                'parentId' => $parentCategoryId,
-            ],
-            [
-                'id' => $streamChildCategoryId,
-                'name' => 'stream-child-category',
-                'parentId' => $parentCategoryId,
-                'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
-                'productStreamId' => $streamId,
-            ],
-        ], Context::createDefaultContext());
-
-        static::getContainer()->get('product_stream.repository')->create([
-            [
-                'id' => $streamId,
-                'name' => 'nested-stream',
-                'filters' => [[
-                    'type' => 'equals',
-                    'field' => 'productNumber',
-                    'value' => $streamProductNumber,
-                ]],
-            ],
-        ], Context::createDefaultContext());
-
-        $this->productRepository->create([
-            [
-                'id' => $manualProductId,
-                'name' => 'manual-product',
-                'productNumber' => $manualProductId,
-                'stock' => 10,
-                'active' => true,
-                'price' => [
-                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
-                ],
-                'tax' => ['name' => 'test', 'taxRate' => 15],
-                'categories' => [
-                    ['id' => $manualChildCategoryId],
-                ],
-                'visibilities' => [
-                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ],
-            [
-                'id' => $streamProductId,
-                'name' => 'stream-product',
-                'productNumber' => $streamProductNumber,
-                'stock' => 10,
-                'active' => true,
-                'price' => [
-                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
-                ],
-                'tax' => ['name' => 'test', 'taxRate' => 15],
-                'visibilities' => [
-                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ],
-        ], Context::createDefaultContext());
-
-        return [$parentCategoryId, $manualChildCategoryId, $streamChildCategoryId, $manualProductId, $streamProductId];
     }
 
     private function loadListing(string $categoryId): ProductListingResult

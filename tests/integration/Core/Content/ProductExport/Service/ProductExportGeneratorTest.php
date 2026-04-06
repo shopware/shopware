@@ -5,6 +5,8 @@ namespace Shopware\Tests\Integration\Core\Content\ProductExport\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
@@ -55,6 +57,11 @@ class ProductExportGeneratorTest extends TestCase
 
     private ProductExportGeneratorInterface $service;
 
+    /**
+     * @var list<string>
+     */
+    private array $productIds = [];
+
     protected function setUp(): void
     {
         $this->repository = static::getContainer()->get('product_export.repository');
@@ -75,6 +82,29 @@ class ProductExportGeneratorTest extends TestCase
 
         static::assertInstanceOf(ProductExportResult::class, $exportResult);
         static::assertStringEqualsFile(__DIR__ . '/fixtures/test-export.csv', $exportResult->getContent());
+    }
+
+    public function testExportProvidesSeoCategoryWhenTemplateReferencesIt(): void
+    {
+        $productExportId = $this->createTestEntity([
+            'bodyTemplate' => '{{ product.id }},{{ product.seoCategory.id }}',
+        ]);
+
+        $categoryId = $this->createNavigationSubcategory();
+
+        foreach (\array_slice($this->productIds, 0, 2) as $productId) {
+            $this->assignMainCategoryToProduct($productId, $categoryId);
+        }
+
+        $criteria = $this->createProductExportCriteria($productExportId);
+
+        $productExport = $this->repository->search($criteria, $this->context)->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
+
+        $exportResult = $this->service->generate($productExport, new ExportBehavior());
+
+        static::assertInstanceOf(ProductExportResult::class, $exportResult);
+        static::assertStringContainsString($this->productIds[0] . ',' . $categoryId, $exportResult->getContent());
     }
 
     public function testProductExportGenerationEvents(): void
@@ -138,6 +168,7 @@ class ProductExportGeneratorTest extends TestCase
             static::getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
             static::getContainer()->get('twig'),
             static::getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(\Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(TwigVariableParserFactory::class)
         );
@@ -205,6 +236,7 @@ class ProductExportGeneratorTest extends TestCase
             static::getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
             static::getContainer()->get('twig'),
             static::getContainer()->get(ProductDefinition::class),
+            static::getContainer()->get(\Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(TwigVariableParserFactory::class)
         );
@@ -295,13 +327,7 @@ class ProductExportGeneratorTest extends TestCase
 
     private function getSalesChannelId(): string
     {
-        /** @var EntityRepository<SalesChannelCollection> $repository */
-        $repository = static::getContainer()->get('sales_channel.repository');
-
-        $salesChannel = $repository->search(new Criteria(), $this->context)->first();
-        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
-
-        return $salesChannel->getId();
+        return $this->getSalesChannel()->getId();
     }
 
     private function getSalesChannelDomain(): SalesChannelDomainEntity
@@ -318,6 +344,11 @@ class ProductExportGeneratorTest extends TestCase
     private function getSalesChannelDomainId(): string
     {
         return $this->getSalesChannelDomain()->getId();
+    }
+
+    private function getNavigationCategoryId(): string
+    {
+        return $this->getSalesChannel()->getNavigationCategoryId();
     }
 
     /**
@@ -354,7 +385,9 @@ class ProductExportGeneratorTest extends TestCase
     {
         $connection = static::getContainer()->get(Connection::class);
 
-        $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
+        $products = $this->createProducts();
+        $this->productIds = array_column($products, 'id');
+        $randomProductIds = implode('|', \array_slice($this->productIds, 0, 2));
 
         $connection->executeStatement("
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
@@ -440,5 +473,52 @@ class ProductExportGeneratorTest extends TestCase
         $productRepository->create($products, $this->context);
 
         return $products;
+    }
+
+    private function getSalesChannel(): SalesChannelEntity
+    {
+        /** @var EntityRepository<SalesChannelCollection> $repository */
+        $repository = static::getContainer()->get('sales_channel.repository');
+
+        $salesChannel = $repository->search(new Criteria(), $this->context)->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
+
+        return $salesChannel;
+    }
+
+    private function createNavigationSubcategory(): string
+    {
+        $categoryId = Uuid::randomHex();
+
+        /** @var EntityRepository<CategoryCollection> $categoryRepository */
+        $categoryRepository = static::getContainer()->get(\sprintf('%s.repository', CategoryDefinition::ENTITY_NAME));
+
+        $categoryRepository->create([[
+            'id' => $categoryId,
+            'name' => 'SEO export category',
+            'active' => true,
+            'visible' => true,
+            'parentId' => $this->getNavigationCategoryId(),
+        ]], $this->context);
+
+        return $categoryId;
+    }
+
+    private function assignMainCategoryToProduct(string $productId, string $categoryId): void
+    {
+        /** @var EntityRepository $productRepository */
+        $productRepository = static::getContainer()->get('product.repository');
+
+        $productRepository->update([[
+            'id' => $productId,
+            'categories' => [
+                ['id' => $categoryId],
+            ],
+            'mainCategories' => [[
+                'id' => Uuid::randomHex(),
+                'categoryId' => $categoryId,
+                'salesChannelId' => $this->getSalesChannelId(),
+            ]],
+        ]], $this->context);
     }
 }

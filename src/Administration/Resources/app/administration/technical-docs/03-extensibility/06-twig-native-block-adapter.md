@@ -80,7 +80,7 @@ The inner content of any `{% block %}` is therefore already valid Vue template H
 ## Architecture
 
 ```
-Boot time
+Boot time  (override() only — register() does not touch the block index)
 ─────────────────────────────────────────────────────────────────────
 Shopware.Component.override('sw-product-detail', { template: '...' })
     │

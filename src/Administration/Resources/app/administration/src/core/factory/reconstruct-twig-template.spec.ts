@@ -78,7 +78,9 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
 
         it('recursively reconstructs the content of a nested {% block %} token', () => {
             const tokens = [
-                blockToken('inner_block', [rawToken('<div class="inner"></div>')]),
+                blockToken('outer_block', [
+                    blockToken('inner_block', [rawToken('<div class="inner"></div>')]),
+                ]),
             ];
 
             expect(reconstructInnerTemplate(tokens)).toBe('<div class="inner"></div>');

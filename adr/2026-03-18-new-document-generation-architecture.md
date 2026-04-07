@@ -252,6 +252,11 @@ abstract class AbstractDocumentRenderer
 Some further remarks on the renderers:
 
 - They declare if they support a certain document type by returning `true` from their `supports` implementation
+  - The reasoning why they don't just return an array of supported types is easier extensibility,
+    e.g. extensions likely want to reuse the logic of the `HtmlRenderer` or `PdfRenderer` when adding a new doc type.
+    The `supports` method could check if a Twig template exists for the given doc type and support it out of the box.
+    Extensions could still provide their own Renderer and override the existing ones if desired
+    (giving the tagged service higher priority than the ones provided by Shopware)
 - They can register dependencies on other renderers (document formats) via `getDependencies()`
 - They can access their dependencies (output of other renderers) via the `RenderState`
 - They get access to the `RenderInput` which contains

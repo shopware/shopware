@@ -39,27 +39,16 @@ describe('core/factory/twig-block-index.ts', () => {
             expect(hasBlockEntries('block_b')).toBe(true);
         });
 
-        it('stores the component name on the block entry', () => {
+        it('stores the component name and inner template on the block entry', () => {
             indexTwigBlocksFromTemplate(
                 'sw-product-detail',
                 `
-                {% block comp_name_block %}<div></div>{% endblock %}
+                {% block comp_name_block %}<div class="inner"></div>{% endblock %}
             `,
             );
 
             const [entry] = getBlockEntries('comp_name_block');
             expect(entry.componentName).toBe('sw-product-detail');
-        });
-
-        it('stores a non-empty inner template for a block with HTML content', () => {
-            indexTwigBlocksFromTemplate(
-                'sw-product-detail',
-                `
-                {% block inner_tmpl_block %}<div class="inner"></div>{% endblock %}
-            `,
-            );
-
-            const [entry] = getBlockEntries('inner_tmpl_block');
             expect(entry.innerTemplate).toContain('class="inner"');
         });
 

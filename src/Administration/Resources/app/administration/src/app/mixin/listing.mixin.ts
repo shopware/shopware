@@ -115,7 +115,11 @@ export default Shopware.Mixin.register(
             }
         },
 
-        beforeRouteLeave() {
+        beforeRouteLeave(to) {
+            if (typeof to.name === 'string' && to.name.startsWith('sw.bulk.edit.')) {
+                return;
+            }
+
             Shopware.Store.get('shopwareApps').selectedIds = [];
             Shopware.Store.get('swBulkEdit').selectedIds = [];
         },

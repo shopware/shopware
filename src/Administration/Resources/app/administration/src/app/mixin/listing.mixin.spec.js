@@ -144,6 +144,13 @@ async function createRouteWrapper() {
                     template: '<div class="detail-route-component"></div>',
                 },
             },
+            {
+                name: 'sw.bulk.edit.product',
+                path: '/sw/bulk/edit/product',
+                component: {
+                    template: '<div class="bulk-edit-route-component"></div>',
+                },
+            },
         ],
         history: createWebHashHistory(),
     });
@@ -324,6 +331,27 @@ describe('src/app/mixin/listing.mixin.ts', () => {
 
         expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([]);
         expect(Shopware.Store.get('swBulkEdit').selectedIds).toEqual([]);
+
+        await routeWrapper.unmount();
+    });
+
+    it('should keep app selections when navigating from a route-loaded listing component to bulk edit', async () => {
+        await wrapper.unmount();
+        wrapper = undefined;
+
+        const routeWrapper = await createRouteWrapper();
+
+        Shopware.Store.get('shopwareApps').selectedIds = ['product-id'];
+        Shopware.Store.get('swBulkEdit').selectedIds = ['product-id'];
+
+        await router.push({
+            name: 'sw.bulk.edit.product',
+        });
+
+        await flushPromises();
+
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual(['product-id']);
+        expect(Shopware.Store.get('swBulkEdit').selectedIds).toEqual(['product-id']);
 
         await routeWrapper.unmount();
     });

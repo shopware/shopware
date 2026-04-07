@@ -264,26 +264,21 @@ const configResolveMethod = async (): Promise<ComponentConfig> => {
 
 ### 5. Hook into `sw-block/index.ts`
 
-The `name`-prop path in `setup()` gains an early check against the block index:
+Two separate function namespaces are involved here:
+
+- `hasBlockEntries` / `getBlockEntries` — from `twig-block-index.ts`; they query the Twig block index built during boot.
+- `addBlock` / `removeBlock` — from `useBlockContext()`; they register/deregister slots in the sw-block slot context (used by the `extends` path).
+
+For the `name`-prop path, shim slots are **not** registered via `addBlock`. They are created once in `setup()` and stored in a local variable, keeping each `<sw-block name="...">` instance isolated:
 
 ```ts
-if (props.name) {
-    // Bridge legacy Twig overrides targeting this block name
-    if (hasBlockEntries(props.name)) {
-        const entries = getBlockEntries(props.name);
-        const shimSlots = entries.map(entry => createShimSlot(entry, props.name));
-
-        shimSlots.forEach(slot => addBlock(props.name, slot));
-        onBeforeUnmount(() => {
-            shimSlots.forEach(slot => removeBlock(props.name, slot));
-        });
-    }
-
-    // ... existing sw-block render logic unchanged
-}
+const shimSlots: Slot[] =
+    props.name && hasBlockEntries(props.name)
+        ? getBlockEntries(props.name).map((entry) => createShimSlot(entry, props.name!))
+        : [];
 ```
 
-Lifecycle-driven cleanup: when the host component unmounts (e.g., navigating away), `onBeforeUnmount` removes the shim slots from `blockContext`. On remount, they are re-added. This matches the behavior of native `<sw-block extends="...">` exactly.
+Shim slots are not registered in the global `blockContext` so that multiple simultaneous instances of `<sw-block name="foo">` each maintain their own isolated shim slots and cannot double-render each other's content.
 
 ---
 

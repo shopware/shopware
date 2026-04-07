@@ -13,7 +13,7 @@ The TwigJS block system requires the administration to run template compilation 
 - Runtime performance overhead from template compilation
 - Templates must be written in `.html.twig` files instead of SFCs
 - No TypeScript awareness inside templates
-- Complex debugging when override chains go wrong
+- Harder to trace override issues because TwigJS merges templates as strings outside the normal Vue component/devtools flow
 
 The **native block system** replaces all of that with pure Vue 3 components. Blocks and overrides are registered and resolved using Vue's reactivity model, so there is no separate compilation step and no secondary templating language.
 

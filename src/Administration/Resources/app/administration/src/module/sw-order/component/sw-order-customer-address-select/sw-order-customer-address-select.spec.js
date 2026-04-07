@@ -312,8 +312,7 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
             '26',
         ]);
 
-        const selectionLabel = wrapper.find('.sw-single-select__selection-text');
-        expect(selectionLabel.text()).toBe('Street 30, 10029, City 30, California, USA');
+        expect(wrapper.find('li[selected="true"]').text()).toBe('Street 30, 10029, City 30, California, USA');
     });
 
     it('should reload addresses on customer change', async () => {

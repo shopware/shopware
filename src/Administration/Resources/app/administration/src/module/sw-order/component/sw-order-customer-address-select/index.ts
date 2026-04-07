@@ -173,7 +173,7 @@ export default Component.wrapComponentConfig({
             return this.addressRepository
                 .search(this.addressCriteria)
                 .then((addresses: EntityCollection<'customer_address'>): void => {
-                    this.customerAddresses = this.getDisplayedCustomerAddresses(addresses);
+                    this.setCustomerAddresses(this.getDisplayedCustomerAddresses(addresses));
                 })
                 .finally(() => {
                     this.isLoading = false;
@@ -188,7 +188,7 @@ export default Component.wrapComponentConfig({
             return this.addressRepository
                 .search(this.addressCriteria)
                 .then((addresses: EntityCollection<'customer_address'>) => {
-                    this.customerAddresses = this.getDisplayedCustomerAddresses(addresses);
+                    this.setCustomerAddresses(this.getDisplayedCustomerAddresses(addresses));
                 })
                 .finally(() => {
                     this.isLoading = false;
@@ -197,6 +197,10 @@ export default Component.wrapComponentConfig({
 
         searchAddressResults() {
             return this.customerAddresses;
+        },
+
+        setCustomerAddresses(addresses: Entity<'customer_address'>[]): void {
+            this.customerAddresses.splice(0, this.customerAddresses.length, ...addresses);
         },
 
         getDisplayedCustomerAddresses(addresses: EntityCollection<'customer_address'>): Entity<'customer_address'>[] {

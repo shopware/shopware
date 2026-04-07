@@ -967,6 +967,10 @@ The following deprecations apply to `sw-mail-template-index`:
 * `term` data property will be removed in v6.8.0.0
 * `onChangeLanguage` method: the if/else block will be replaced with just the if-branch logic in v6.8.0.0
 
+### Fixed `sw-entity-multi-id-select` crash when used in plugin system config with sales channel inheritance
+
+When `sw-entity-multi-id-select` was used via the `<component>` tag in a plugin's `config.xml`, switching to a non-default sales channel caused a TypeError because the inheritance system passed `null` as the value instead of an array. The component now handles `null` gracefully, aligning with the convention that components used via `<component>` in system config must accept `null` as their value.
+
 ### Admin boot loading spinner shows error instead of infinite loading
 
 The loading spinner shown while the admin is booting up no longer spins indefinitely when an error occurs. The error is now displayed instead.

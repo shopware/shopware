@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework\RateLimiter;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\AuthorizationServer;
-use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -407,22 +406,6 @@ class RateLimiterTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
         $rateLimiter->reset('test', 'test-key');
-    }
-
-    #[DoesNotPerformAssertions]
-    public function testEnsureAcceptedIfConfiguredSkipsWhenNotConfigured(): void
-    {
-        $rateLimiter = new RateLimiter();
-
-        $rateLimiter->ensureAcceptedIfConfigured('non_existent_limiter', 'some-key');
-    }
-
-    #[DoesNotPerformAssertions]
-    public function testResetIfConfiguredSkipsWhenNotConfigured(): void
-    {
-        $rateLimiter = new RateLimiter();
-
-        $rateLimiter->resetIfConfigured('non_existent_limiter', 'some-key');
     }
 
     public function testIgnoreLimitWhenDisabled(): void

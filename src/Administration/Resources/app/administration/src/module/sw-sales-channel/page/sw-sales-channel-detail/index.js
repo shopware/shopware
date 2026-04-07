@@ -349,8 +349,7 @@ export default {
             }
 
             const matchedTemplate = this.productComparison.templateOptions.find((template) => {
-                return template.bodyTemplate !== undefined &&
-                    template.bodyTemplate === this.productExport.bodyTemplate;
+                return template.bodyTemplate !== undefined && template.bodyTemplate === this.productExport.bodyTemplate;
             });
 
             if (matchedTemplate) {

@@ -486,6 +486,4 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(wrapper.vm.productComparison.previousTemplateName).toBeNull();
         expect(wrapper.vm.productComparison.showTemplateModal).toBe(false);
     });
-
-
 });

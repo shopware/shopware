@@ -23,7 +23,6 @@ final class Serialization
     {
         $serialized = \serialize($object);
 
-        /** @phpstan-ignore shopware.unserializeUsage */
         $result = \unserialize($serialized);
 
         Assert::assertInstanceOf($object::class, $result);
@@ -45,7 +44,6 @@ final class Serialization
      */
     public static function assertUnserializedInstanceOf(string $class, string $serialized): object
     {
-        /** @phpstan-ignore shopware.unserializeUsage */
         $result = \unserialize($serialized);
 
         Assert::assertInstanceOf($class, $result);
@@ -60,7 +58,6 @@ final class Serialization
      */
     public static function assertUnserializedSame(int|float|string|bool|array|null $expected, string $serialized, string $message = ''): int|float|string|bool|array|null
     {
-        /** @phpstan-ignore shopware.unserializeUsage */
         $result = \unserialize($serialized);
 
         Assert::assertSame($expected, $result, $message);

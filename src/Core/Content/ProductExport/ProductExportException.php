@@ -22,6 +22,10 @@ class ProductExportException extends HttpException
     public const SALES_CHANNEL_NOT_ALLOWED_EXCEPTION = 'PRODUCT_EXPORT_SALES_CHANNEL_NOT_ALLOWED_EXCEPTION';
 
     public const SALES_CHANNEL_DOMAIN_NOT_FOUND_EXCEPTION = 'PRODUCT_EXPORT__SALES_CHANNEL_DOMAIN_NOT_FOUND_EXCEPTION';
+    public const TEMPLATE_FILE_NOT_FOUND_EXCEPTION = 'PRODUCT_EXPORT__TEMPLATE_FILE_NOT_FOUND_EXCEPTION';
+    public const TEMPLATE_FILE_NOT_LOADABLE_EXCEPTION = 'PRODUCT_EXPORT__TEMPLATE_FILE_NOT_LOADABLE_EXCEPTION';
+    public const JSONL_MALFORMED_LINE_EXCEPTION = 'PRODUCT_EXPORT__JSONL_MALFORMED_LINE_EXCEPTION';
+    public const JSONL_LINE_NOT_OBJECT_EXCEPTION = 'PRODUCT_EXPORT__JSONL_LINE_NOT_OBJECT_EXCEPTION';
 
     public static function templateBodyNotSet(): ProductExportException
     {
@@ -77,6 +81,46 @@ class ProductExportException extends HttpException
             self::SALES_CHANNEL_DOMAIN_NOT_FOUND_EXCEPTION,
             'No sales channel domain found for product export with id {{ productExportId }}',
             ['productExportId' => $productExportId]
+        );
+    }
+
+    public static function templateFileNotFound(string $template): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::TEMPLATE_FILE_NOT_FOUND_EXCEPTION,
+            'Product export template "{{ template }}" could not be found.',
+            ['template' => $template]
+        );
+    }
+
+    public static function templateFileNotLoadable(string $template): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::TEMPLATE_FILE_NOT_LOADABLE_EXCEPTION,
+            'Product export template "{{ template }}" could not be loaded.',
+            ['template' => $template]
+        );
+    }
+
+    public static function malformedJsonlLine(string $message, int $line): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::JSONL_MALFORMED_LINE_EXCEPTION,
+            $message,
+            ['line' => $line]
+        );
+    }
+
+    public static function jsonlLineMustDecodeToObject(int $line): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::JSONL_LINE_NOT_OBJECT_EXCEPTION,
+            'Each JSONL line must decode to an object.',
+            ['line' => $line]
         );
     }
 

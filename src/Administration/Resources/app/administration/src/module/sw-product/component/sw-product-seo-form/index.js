@@ -7,6 +7,7 @@ import template from './sw-product-seo-form.html.twig';
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+const createId = Shopware.Utils.createId;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -36,12 +37,19 @@ export default {
             switchStateHasBeenSet: false,
             shouldKeepSelectValue: false,
             selectValue: null,
+            showOgMediaModal: false,
+            openGraphMediaItem: null,
+            openGraphMediaUploadTag: `sw-product-seo-form-og-image-${createId().substring(0, 8)}`,
         };
     },
 
     computed: {
         productRepository() {
             return this.repositoryFactory.create('product');
+        },
+
+        currentOpenGraphMediaId() {
+            return this.product?.openGraphMediaId ?? this.parentProduct?.openGraphMediaId ?? null;
         },
 
         hasParent() {
@@ -103,10 +111,16 @@ export default {
             return Shopware.Store.get('swProductDetail').isLoading;
         },
 
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
+        },
+
         ...mapPropertyErrors('product', [
             'keywords',
             'metaDescription',
             'metaTitle',
+            'ogTitle',
+            'ogDescription',
         ]),
     },
 
@@ -166,6 +180,31 @@ export default {
 
             this.selectValue = this.product.canonicalProductId;
         },
+
+        currentOpenGraphMediaId: {
+            async handler(mediaId) {
+                if (!mediaId) {
+                    this.openGraphMediaItem = null;
+                    return;
+                }
+
+                const media = this.getLoadedOpenGraphMedia(mediaId);
+
+                if (media) {
+                    this.openGraphMediaItem = media;
+                    return;
+                }
+
+                const fetchedMedia = await this.mediaRepository.get(mediaId);
+
+                if (this.currentOpenGraphMediaId !== mediaId) {
+                    return;
+                }
+
+                this.openGraphMediaItem = fetchedMedia;
+            },
+            immediate: true,
+        },
     },
 
     methods: {
@@ -195,6 +234,51 @@ export default {
                     this.$refs.canonicalProductSelect.resetActiveItem();
                 });
             });
+        },
+
+        getLoadedOpenGraphMedia(mediaId) {
+            if (!mediaId) {
+                return null;
+            }
+
+            if (this.product?.openGraphMedia?.id === mediaId) {
+                return this.product.openGraphMedia;
+            }
+
+            if (this.parentProduct?.openGraphMedia?.id === mediaId) {
+                return this.parentProduct.openGraphMedia;
+            }
+
+            return null;
+        },
+
+        onOpenOgMediaModal() {
+            this.showOgMediaModal = true;
+        },
+
+        onCloseOgMediaModal() {
+            this.showOgMediaModal = false;
+        },
+
+        onRemoveOgMedia(updateCurrentValue) {
+            this.openGraphMediaItem = null;
+            updateCurrentValue(null);
+        },
+
+        onOgMediaUploadFinish({ targetId }, updateCurrentValue) {
+            updateCurrentValue(targetId);
+        },
+
+        onOgMediaSelectionChange(selection, updateCurrentValue) {
+            if (selection.length !== 1) {
+                this.onRemoveOgMedia(updateCurrentValue);
+                return;
+            }
+
+            const [selected] = selection;
+            this.openGraphMediaItem = selected;
+            updateCurrentValue(selected.id);
+            this.showOgMediaModal = false;
         },
     },
 };

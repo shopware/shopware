@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Monolog\Level;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportProductCriteriaEvent;
@@ -156,23 +157,33 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             )
         );
 
-        while ($productResult = $iterator->fetch()) {
-            foreach ($productResult->getEntities() as $product) {
-                $data = $productContext->getContext();
-                $data['product'] = $product;
+        if ($productExport->getFileFormat() === ProductExportEntity::FILE_FORMAT_JSONL) {
+            $content .= $this->generateJsonlBody($iterator, $productExport, $context, $productContext->getContext(), $exportBehavior);
+        } else {
+            while ($productResult = $iterator->fetch()) {
+                foreach ($productResult->getEntities() as $product) {
+                    $data = $productContext->getContext();
+                    $data['product'] = $product;
 
-                if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
-                    continue; // Skip main product if variants are included
+                    if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
+                        continue; // Skip main product if variants are included
+                    }
+                    if (!$productExport->isIncludeVariants() && $product->getParentId()) {
+                        continue; // Skip variants unless they are included
+                    }
+
+                    $renderedBody = $this->renderProductBody($productExport, $context, $data);
+
+                    if ($renderedBody === null) {
+                        continue;
+                    }
+
+                    $content .= $renderedBody;
                 }
-                if (!$productExport->isIncludeVariants() && $product->getParentId()) {
-                    continue; // Skip variants unless they are included
+
+                if ($exportBehavior->batchMode()) {
+                    break;
                 }
-
-                $content .= $this->productExportRender->renderBody($productExport, $context, $data);
-            }
-
-            if ($exportBehavior->batchMode()) {
-                break;
             }
         }
 
@@ -192,7 +203,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         $this->connection->delete('sales_channel_api_context', ['token' => $contextToken]);
 
-        if ($content === '') {
+        if ($content === '' && !$exportBehavior->batchMode()) {
             return null;
         }
 
@@ -201,6 +212,90 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $this->productExportValidator->validate($productExport, $encodingEvent->getEncodedContent()),
             $iterator->getTotal()
         );
+    }
+
+    /**
+     * @param array<string, mixed> $baseContext
+     * @param SalesChannelRepositoryIterator<SalesChannelProductCollection> $iterator
+     */
+    private function generateJsonlBody(
+        SalesChannelRepositoryIterator $iterator,
+        ProductExportEntity $productExport,
+        SalesChannelContext $context,
+        array $baseContext,
+        ExportBehavior $exportBehavior
+    ): string {
+        $content = '';
+
+        while ($productResult = $iterator->fetch()) {
+            foreach ($productResult->getEntities() as $product) {
+                \assert($product instanceof SalesChannelProductEntity);
+
+                if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
+                    continue; // Skip main product if variants are included
+                }
+                if (!$productExport->isIncludeVariants() && $product->getParentId()) {
+                    continue; // Skip variants unless they are included
+                }
+
+                $data = $baseContext;
+                $data['product'] = $product;
+
+                $renderedBody = $this->renderProductBody($productExport, $context, $data);
+
+                if ($renderedBody === null) {
+                    continue;
+                }
+
+                $normalizedRow = $this->normalizeJsonlRow($productExport, $renderedBody);
+
+                if ($content !== '') {
+                    $content .= \PHP_EOL;
+                }
+
+                $content .= $normalizedRow;
+            }
+
+            if ($exportBehavior->batchMode()) {
+                break;
+            }
+        }
+
+        if ($content === '') {
+            return '';
+        }
+
+        return $content . \PHP_EOL;
+    }
+
+    private function normalizeJsonlRow(ProductExportEntity $productExport, string $renderedBody): string
+    {
+        try {
+            $decoded = json_decode($renderedBody, true, 512, \JSON_THROW_ON_ERROR);
+
+            return (string) json_encode($decoded, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES);
+        } catch (\JsonException $exception) {
+            throw ProductExportException::renderProductException(
+                'The JSONL row for product export "' . $productExport->getId() . '" could not be normalized: ' . $exception->getMessage()
+            );
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function renderProductBody(
+        ProductExportEntity $productExport,
+        SalesChannelContext $context,
+        array $data
+    ): ?string {
+        $renderedBody = $this->productExportRender->renderBody($productExport, $context, $data);
+
+        if (trim($renderedBody) === '') {
+            return null;
+        }
+
+        return $renderedBody;
     }
 
     /**

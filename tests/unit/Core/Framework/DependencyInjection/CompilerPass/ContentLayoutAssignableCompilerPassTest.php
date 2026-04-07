@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
-use Shopware\Core\Framework\ContentSystem\Schema\ContentLayoutAssignableEntityResolver;
+use Shopware\Core\Framework\ContentSystem\Schema\ContentLayoutAssignableEntitySchemaGenerator;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ContentLayoutAssignableCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -45,7 +45,7 @@ class ContentLayoutAssignableCompilerPassTest extends TestCase
         $pass = new ContentLayoutAssignableCompilerPass();
         $pass->process($container);
 
-        static::assertFalse($container->hasDefinition(ContentLayoutAssignableEntityResolver::class));
+        static::assertFalse($container->hasDefinition(ContentLayoutAssignableEntitySchemaGenerator::class));
     }
 
     #[TestDox('sets empty list when no sources are tagged')]
@@ -103,8 +103,8 @@ class ContentLayoutAssignableCompilerPassTest extends TestCase
     private function createContainerWithResolver(): array
     {
         $container = new ContainerBuilder();
-        $resolverDefinition = new Definition(ContentLayoutAssignableEntityResolver::class);
-        $container->setDefinition(ContentLayoutAssignableEntityResolver::class, $resolverDefinition);
+        $resolverDefinition = new Definition(ContentLayoutAssignableEntitySchemaGenerator::class);
+        $container->setDefinition(ContentLayoutAssignableEntitySchemaGenerator::class, $resolverDefinition);
 
         return [$container, $resolverDefinition];
     }

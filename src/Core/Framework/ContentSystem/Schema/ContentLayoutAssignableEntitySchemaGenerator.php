@@ -12,8 +12,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class ContentLayoutAssignableEntitySchemaGenerator
 {
+    /**
+     * @param list<string> $entityTypes
+     */
     public function __construct(
-        private readonly ContentLayoutAssignableEntityResolver $resolver,
+        private readonly array $entityTypes,
     ) {
     }
 
@@ -22,6 +25,6 @@ class ContentLayoutAssignableEntitySchemaGenerator
      */
     public function getSchema(): array
     {
-        return ['entityTypes' => $this->resolver->resolve()];
+        return ['entityTypes' => $this->entityTypes];
     }
 }

@@ -62,7 +62,8 @@ export default function reconstructInnerTemplate(tokens: TwigToken[]): string {
                 }
 
                 if (token.token?.blockName !== undefined) {
-                    return reconstructInnerTemplate(token.token.output ?? []);
+                    const innerContent = reconstructInnerTemplate(token.token.output ?? []);
+                    return `<sw-block name="${token.token.blockName}">${innerContent}</sw-block>`;
                 }
             }
 

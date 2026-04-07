@@ -76,17 +76,19 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
             expect(reconstructInnerTemplate(tokens)).toBe('<div class="before"><sw-block-parent /></div>');
         });
 
-        it('recursively reconstructs the content of a nested {% block %} token', () => {
+        it('wraps a nested {% block %} token in <sw-block> preserving the block name', () => {
             const tokens = [
                 blockToken('outer_block', [
                     blockToken('inner_block', [rawToken('<div class="inner"></div>')]),
                 ]),
             ];
 
-            expect(reconstructInnerTemplate(tokens)).toBe('<div class="inner"></div>');
+            expect(reconstructInnerTemplate(tokens)).toBe(
+                '<sw-block name="outer_block"><sw-block name="inner_block"><div class="inner"></div></sw-block></sw-block>',
+            );
         });
 
-        it('recursively handles a nested block that itself contains a parent token', () => {
+        it('wraps a nested block in <sw-block> when it contains a parent token', () => {
             const tokens = [
                 blockToken('nested_with_parent', [
                     parentToken(),
@@ -94,7 +96,9 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
                 ]),
             ];
 
-            expect(reconstructInnerTemplate(tokens)).toBe('<sw-block-parent /><div class="extra"></div>');
+            expect(reconstructInnerTemplate(tokens)).toBe(
+                '<sw-block name="nested_with_parent"><sw-block-parent /><div class="extra"></div></sw-block>',
+            );
         });
 
         it('collapses unknown Twig logic tokens (if, for, …) to an empty string', () => {
@@ -153,12 +157,14 @@ describe('integration: real TwigJS parser output', () => {
         expect(reconstructInnerTemplate(compiled.tokens as TwigToken[])).toBe('<div class="before"></div><sw-block-parent />');
     });
 
-    it('reconstructs a nested {% block %} containing {% parent %}', () => {
+    it('wraps a nested {% block %} in <sw-block> and replaces {% parent %}', () => {
         const compiled = Twig.twig({
             data: '{% block inner %}{% parent %}<div class="extra"></div>{% endblock %}',
             rethrow: true,
         });
 
-        expect(reconstructInnerTemplate(compiled.tokens as TwigToken[])).toBe('<sw-block-parent /><div class="extra"></div>');
+        expect(reconstructInnerTemplate(compiled.tokens as TwigToken[])).toBe(
+            '<sw-block name="inner"><sw-block-parent /><div class="extra"></div></sw-block>',
+        );
     });
 });

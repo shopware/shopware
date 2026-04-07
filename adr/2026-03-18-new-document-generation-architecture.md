@@ -60,6 +60,19 @@ erDiagram
 - This information can later be used in the admin UI or for the API user to determine which
   generation options are available
 
+#### Disclaimer
+
+Neither `document_type` nor `document_format` are entities in the database.
+They will only be stored as simple string values in the `document` and `document_file` entities.
+
+To find all available document types and formats, we will provide an API endpoint that iterates over all
+document providers and document renderers and returns the supported document types and their formats.
+
+It will also consider any additional document types and formats that are registered in an App manifest.
+
+The reasoning behind this is that storing them in the DB could lead to issues, like when an extension
+gets uninstalled, they have to clean up properly otherwise these types and formats might remain broken in the system.
+
 ### Generation dependencies
 
 We learned from the current implementation that there are often dependencies between document formats.

@@ -116,7 +116,9 @@ export default Shopware.Mixin.register(
         },
 
         beforeRouteLeave(to) {
-            if (typeof to.name === 'string' && to.name.startsWith('sw.bulk.edit.')) {
+            const targetRouteName = typeof to !== 'string' && 'name' in to ? to.name : undefined;
+
+            if (typeof targetRouteName === 'string' && targetRouteName.startsWith('sw.bulk.edit.')) {
                 return;
             }
 

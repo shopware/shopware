@@ -23,15 +23,23 @@ const fixture = [
 function getCollection() {
     return new EntityCollection('/test-entity', 'testEntity', null, new Criteria(1, 25), fixture, fixture.length, null);
 }
-async function createWrapper() {
+
+function getEmptyCollection() {
+    return new EntityCollection('/test-entity', 'testEntity', null, new Criteria(1, 25), [], 0, null);
+}
+
+async function createWrapper(propsOverride = {}) {
     return mount(await wrapTestComponent('sw-entity-multi-id-select', { sync: true }), {
         props: {
-            value: getCollection(),
+            value: getCollection().getIds(),
             repository: {
+                route: '/test-entity',
+                entityName: 'testEntity',
                 search: () => {
                     return Promise.resolve(getCollection());
                 },
             },
+            ...propsOverride,
         },
         global: {
             provide: {
@@ -79,14 +87,97 @@ describe('components/sw-entity-multi-id-select', () => {
         const wrapper = await createWrapper();
         wrapper.vm.updateIds = jest.fn();
         await wrapper.setProps({
-            value: [{ id: '123', name: 'random' }],
+            value: ['non-existing-id'],
             repository: {
+                route: '/test-entity',
+                entityName: 'testEntity',
                 search: () => {
-                    return Promise.resolve([]);
+                    return Promise.resolve(getEmptyCollection());
                 },
             },
         });
 
         expect(wrapper.vm.updateIds).toHaveBeenCalled();
+    });
+
+    it('should properly initialize with null value', async () => {
+        const wrapper = await createWrapper({ value: null });
+        await flushPromises();
+
+        expect(wrapper.vm.normalizedValue).toEqual([]);
+        expect(wrapper.vm.collection).toHaveLength(0);
+    });
+
+    it('should properly handle value changes from array to null', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.collection).toHaveLength(fixture.length);
+
+        await wrapper.setProps({ value: null });
+        await flushPromises();
+
+        expect(wrapper.vm.normalizedValue).toHaveLength(0);
+        expect(wrapper.vm.collection).toHaveLength(0);
+    });
+
+    it('should properly handle value changes from null to array', async () => {
+        const wrapper = await createWrapper({ value: null });
+        await flushPromises();
+
+        expect(wrapper.vm.collection).toHaveLength(0);
+
+        await wrapper.setProps({ value: getCollection().getIds() });
+        await flushPromises();
+
+        expect(wrapper.vm.normalizedValue).toHaveLength(fixture.length);
+        expect(wrapper.vm.collection).toHaveLength(fixture.length);
+    });
+
+    it('should call repository.search when value changes to a different set of ids', async () => {
+        const search = jest.fn(() => Promise.resolve(getCollection()));
+        const repository = {
+            route: '/test-entity',
+            entityName: 'testEntity',
+            search,
+        };
+
+        const wrapper = await createWrapper({ repository });
+        await flushPromises();
+
+        search.mockClear();
+
+        const otherId = utils.createId();
+        await wrapper.setProps({ value: [otherId] });
+        await flushPromises();
+
+        expect(search).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not call repository.search when value is a new array with the same ids (deep equality)', async () => {
+        const search = jest.fn(() => Promise.resolve(getCollection()));
+        const repository = {
+            route: '/test-entity',
+            entityName: 'testEntity',
+            search,
+        };
+
+        const initialIds = getCollection().getIds();
+        const wrapper = await createWrapper({
+            repository,
+            value: initialIds,
+        });
+        await flushPromises();
+
+        search.mockClear();
+
+        const sameIdsDifferentInstance = getCollection().getIds();
+        expect(sameIdsDifferentInstance).not.toBe(initialIds);
+        expect([...sameIdsDifferentInstance]).toEqual([...initialIds]);
+
+        await wrapper.setProps({ value: sameIdsDifferentInstance });
+        await flushPromises();
+
+        expect(search).not.toHaveBeenCalled();
     });
 });

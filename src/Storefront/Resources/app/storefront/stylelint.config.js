@@ -12,7 +12,7 @@ module.exports = {
             'severity': 'warning',
         }],
         'no-descending-specificity': null,
-        'scss/at-extend-no-missing-placeholder': null,
+        'scss/at-extend-no-missing-placeholder': true,
         'scss/no-global-function-names': null,
         'at-rule-disallowed-list': 'always',
         'selector-class-pattern': [

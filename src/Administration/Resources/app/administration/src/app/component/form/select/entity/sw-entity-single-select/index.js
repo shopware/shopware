@@ -34,8 +34,9 @@ export default {
     ],
 
     props: {
+        // null is a common value here, e.g. passed by the inheritance system.
         value: {
-            required: true,
+            required: false,
         },
         highlightSearchTerm: {
             type: Boolean,

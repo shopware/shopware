@@ -1088,6 +1088,104 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(wrapper.find('.sw-system-config__card--1 sw-ai-copilot-badge-stub').exists()).toBe(true);
     });
 
+    it('should set hideClearableButton for required single-select fields', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'single-select',
+            config: {
+                required: true,
+                options: [],
+            },
+        };
+
+        const bind = wrapper.vm.getMeteorElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBe(true);
+    });
+
+    it('should set hideClearableButton for required multi-select fields', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'multi-select',
+            config: {
+                required: true,
+                options: [],
+            },
+        };
+
+        const bind = wrapper.vm.getMeteorElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBe(true);
+    });
+
+    it('should not set hideClearableButton for non-required select fields', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'single-select',
+            config: {
+                options: [],
+            },
+        };
+
+        const bind = wrapper.vm.getMeteorElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBeUndefined();
+    });
+
+    it('should not mutate source config in meteor bind path', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'single-select',
+            config: {
+                required: true,
+                options: [],
+            },
+        };
+
+        expect(element.config.hideClearableButton).toBeUndefined();
+
+        const bind = wrapper.vm.getMeteorElementBind(element, {});
+
+        expect(bind.config.hideClearableButton).toBe(true);
+        expect(element.config.hideClearableButton).toBeUndefined();
+    });
+
+    it('should set hideClearableButton for required select fields in legacy bind path', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'single-select',
+            config: {
+                required: true,
+                options: [],
+            },
+        };
+
+        const bind = wrapper.vm.getElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBe(true);
+    });
+
+    it('should not set hideClearableButton for non-required select fields in legacy bind path', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'multi-select',
+            config: {
+                options: [],
+            },
+        };
+
+        const bind = wrapper.vm.getElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBeUndefined();
+    });
+
     it('should reinitialize on domain change', async () => {
         wrapper = await createWrapper();
         await flushPromises();

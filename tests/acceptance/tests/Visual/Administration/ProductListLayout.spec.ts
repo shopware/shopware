@@ -8,7 +8,7 @@ test('Visual: Shopping experiences pages', { tag: '@Visual' }, async ({
     AdminListingPageLayoutDetail,
     AdminApiContext,
 }) => {
-    test.setTimeout(90000);
+    test.slow();
     let createdLayoutId: string;
 
     await test.step('Creates a screenshot of the layout listing page.', async () => {

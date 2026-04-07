@@ -24,6 +24,17 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
             },
         ];
 
+        const mediaEntities = {
+            'parent-media-id': {
+                id: 'parent-media-id',
+                url: 'https://example.com/parent-image.jpg',
+            },
+            'child-media-id': {
+                id: 'child-media-id',
+                url: 'https://example.com/child-image.jpg',
+            },
+        };
+
         Shopware.Store.get('swProductDetail').product = productEntity;
         Shopware.Store.get('swProductDetail').parentProduct = parentProduct;
 
@@ -34,11 +45,21 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                 },
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
-                            search: () => {
-                                return Promise.resolve(productVariants);
-                            },
-                        }),
+                        create: (entityName) => {
+                            if (entityName === 'media') {
+                                return {
+                                    get: (id) => {
+                                        return Promise.resolve(mediaEntities[id] || null);
+                                    },
+                                };
+                            }
+
+                            return {
+                                search: () => {
+                                    return Promise.resolve(productVariants);
+                                },
+                            };
+                        },
                     },
                     validationService: {},
                 },
@@ -65,6 +86,20 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                     'sw-ai-copilot-badge': true,
                     'sw-highlight-text': true,
                     'sw-loader': true,
+                    'sw-media-modal-v2': true,
+                    'sw-upload-listener': true,
+                    'sw-media-upload-v2': {
+                        name: 'sw-media-upload-v2',
+                        template: '<div class="sw-media-upload-v2"></div>',
+                        props: [
+                            'source',
+                            'disabled',
+                            'uploadTag',
+                            'allowMultiSelect',
+                            'caption',
+                            'fileAccept',
+                        ],
+                    },
                 },
             },
         });
@@ -154,5 +189,33 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
         // check value of select field
         const textOfSelectField = singleSelectComponent.find('.sw-product-variant-info__product-name').text();
         expect(textOfSelectField).toBe('first');
+    });
+
+    it('should show the inherited OG image for variants', async () => {
+        const parentMedia = {
+            id: 'parent-media-id',
+            url: 'https://example.com/parent-image.jpg',
+        };
+
+        const productEntity = {
+            id: 'child-id',
+            childCount: 0,
+            metaTitle: 'title',
+            openGraphMediaId: null,
+            openGraphMedia: null,
+        };
+
+        const parentProduct = {
+            id: 'parent-id',
+            openGraphMediaId: parentMedia.id,
+            openGraphMedia: parentMedia,
+        };
+
+        wrapper = await createWrapper(productEntity, parentProduct);
+        await flushPromises();
+
+        const mediaUpload = wrapper.getComponent({ name: 'sw-media-upload-v2' });
+
+        expect(mediaUpload.props('source')).toEqual(parentMedia);
     });
 });

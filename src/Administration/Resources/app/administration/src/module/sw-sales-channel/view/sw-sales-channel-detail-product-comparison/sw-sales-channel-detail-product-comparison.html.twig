@@ -101,6 +101,20 @@
             </sw-button-process>
             {% endblock %}
 
+            {% block sw_sales_channel_detail_product_comparison_actions_reset_button %}
+            <mt-button
+                v-if="isAgenticCommerce"
+                size="small"
+                variant="secondary"
+                class="sw-sales-channel-detail-product-comparison__reset-action"
+                :is-loading="isLoadingReset"
+                :disabled="isLoadingReset || !acl.can('sales_channel.editor')"
+                @click="resetToDefault"
+            >
+                {{ $tc('sw-sales-channel.detail.agenticCommerce.buttonResetTemplate') }}
+            </mt-button>
+            {% endblock %}
+
             {% block sw_sales_channel_detail_product_comparison_actions_preview_component %}
             <sw-sales-channel-detail-product-comparison-preview
                 :content="previewContent"

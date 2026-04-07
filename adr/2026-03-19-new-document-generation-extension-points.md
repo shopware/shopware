@@ -60,12 +60,19 @@ One option to add more data to a document could be to add custom fields on the o
 (e.g. via the AdminSDK or App backend and webhooks),
 which we load by default and apps can just use in their Twig template customizations.
 
+Another option is to add an app script to enrich the order with extra associations and add extra render input data.
+The app script should allow the following:
+- enrich the order with extra associations, like the plugin system allows
+- query extra data with repositories
+- return arbitrary data (associative array), which will be passed to the renderers and Twig templates
+
 To still allow further customization, there will be additional webhooks.
 
 ### Adjusting the generated HTML / PDF / XML content and presentation
 
 1. (Optional) Add custom field data to an order entity
-2. Extend the Twig templates you are interested in. You have access to all data passed into the template,
+2. (Optional) Add an app script to enrich the order with extra associations and add extra data
+3. Extend the Twig templates you are interested in. You have access to all data passed into the template,
   including order custom fields, and you can extend / override Twig blocks
 
 ### Adding a new document type + format
@@ -78,3 +85,15 @@ To still allow further customization, there will be additional webhooks.
     similar to how merchants can bypass our generation and upload documents directly
   - you have some strict time constraints to perform all the above so your document artifacts can be used by Shopware,
     for example in Flow Builder and included in a customer mail
+
+## Twig templates
+
+Will have access to the following data:
+- the `RenderInput`, including:
+  - document type
+  - document number
+  - order entity including all loaded associations
+  - any extra data provided by the DataProviders
+- the usual Shopware Twig extensions, like
+  - `config` function to look up system config values
+  - `theme_config` function to look up theme config values

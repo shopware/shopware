@@ -6,6 +6,7 @@ on:
 
 permissions:
     issues: write
+    contents: read
 
 jobs:
     subissues-tests:
@@ -17,7 +18,7 @@ jobs:
         steps:
             - name: Create list of all markdown files from Design
               run: |
-                  FILES=$(gh api --jq '.[].name' /repos/$REPO/contents/.github/ISSUE_TEMPLATE/Epic/Design | grep '.md' | sed 's|^|Design/|' )
+                  FILES=$(gh api --jq '.[].name' /repos/$REPO/contents/.github/ISSUE_TEMPLATE/Epic/Design | grep '\.md$' | sed 's|^|Design/|' )
                   {
                     echo "FILELIST<<EOF"
                     echo "${FILES}"

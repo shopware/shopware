@@ -38,9 +38,13 @@ final readonly class WebhookClient
     /**
      * Send multiple webhook requests in parallel and collect the results.
      *
-     * @return array<array-key, WebhookResult>
+     * Keys are preserved end-to-end so callers can correlate results deterministically.
+     *
+     * @param array<string, WebhookRequest> $requests
+     *
+     * @return array<string, WebhookResult>
      */
-    public function sendBatch(WebhookRequest ...$requests): array
+    public function sendBatch(array $requests): array
     {
         if ($requests === []) {
             return [];
@@ -53,7 +57,7 @@ final readonly class WebhookClient
             $requests
         ), [
             'fulfilled' => function (ResponseInterface $response, string|int $key) use (&$results): void {
-                $results[$key] = $this->createSuccessResult(
+                $results[(string) $key] = $this->createSuccessResult(
                     $response->getStatusCode(),
                     $response->getReasonPhrase(),
                     $response->getHeaders(),
@@ -61,7 +65,7 @@ final readonly class WebhookClient
                 );
             },
             'rejected' => function (\Throwable $reason, string|int $key) use (&$results): void {
-                $results[$key] = $this->createFailureResult($reason);
+                $results[(string) $key] = $this->createFailureResult($reason);
             },
         ]);
         $pool->promise()->wait();
@@ -69,25 +73,13 @@ final readonly class WebhookClient
         return $results;
     }
 
-    private function decodeBody(string $body): mixed
-    {
-        return json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
-    }
-
     /**
      * @param array<string, string[]> $headers
      */
     private function createSuccessResult(int $statusCode, string $reasonPhrase, array $headers, string $body): WebhookResult
     {
-        try {
-            $decodedBody = $this->decodeBody($body);
-        } catch (\JsonException) {
-            // Non-JSON or empty body — store null, same as json_decode(..., true) without JSON_THROW_ON_ERROR
-            $decodedBody = null;
-        }
-
         return new WebhookResult(
-            $decodedBody,
+            json_decode($body, true),
             $statusCode,
             $reasonPhrase,
             $headers,
@@ -100,11 +92,9 @@ final readonly class WebhookClient
             $response = $e->getResponse();
             $rawBody = $response->getBody()->getContents();
 
-            try {
-                $body = $this->decodeBody($rawBody);
-            } catch (\JsonException) {
-                $body = $rawBody;
-            }
+            $body = json_validate($rawBody)
+                ? json_decode($rawBody, true, 512, \JSON_THROW_ON_ERROR)
+                : $rawBody;
 
             return new WebhookResult(
                 $body,

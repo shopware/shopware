@@ -20,7 +20,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
-use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -242,7 +241,6 @@ class AppPayloadServiceHelperTest extends TestCase
             ['X-Custom' => 'header-val'],
         );
 
-        // Payload should include timestamp
         $body = json_decode($result->body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('value', $body['data']);
         static::assertSame($clock->now()->getTimestamp(), $body['timestamp']);

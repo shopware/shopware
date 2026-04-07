@@ -187,7 +187,7 @@ class WebhookManager implements ResetInterface
             }
         }
 
-        $this->webhookClient->sendBatch(...array_values($requests));
+        $this->webhookClient->sendBatch($requests);
     }
 
     private function createWebhookMessage(

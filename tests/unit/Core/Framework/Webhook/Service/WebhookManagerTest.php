@@ -420,45 +420,8 @@ class WebhookManagerTest extends TestCase
     private function getWebhookManager(bool $isAdminWorkerEnabled): WebhookManager
     {
         $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
-        $appPayloadServiceHelper->expects($this->any())->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
-        $appPayloadServiceHelper->expects($this->any())->method('createWebhookRequest')->willReturnCallback(
-            function (
-                array $payload,
-                string $url,
-                string $shopwareVersion,
-                int $connectionTimeout,
-                int $requestTimeout,
-                ?string $secret = null,
-                ?string $languageId = null,
-                ?string $userLocale = null,
-                array $webhookHeaders = []
-            ): WebhookRequest {
-                $payload['timestamp'] = time();
-                $jsonPayload = json_encode($payload, \JSON_THROW_ON_ERROR);
-                $headers = array_merge(
-                    ['Content-Type' => 'application/json', 'sw-version' => $shopwareVersion],
-                    $webhookHeaders
-                );
-
-                if ($languageId !== null && $userLocale !== null) {
-                    $headers[AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE] = $languageId;
-                    $headers[AuthMiddleware::SHOPWARE_USER_LANGUAGE] = $userLocale;
-                }
-
-                $options = ['connect_timeout' => $connectionTimeout, 'timeout' => $requestTimeout];
-                if ($secret !== null) {
-                    $options[AuthMiddleware::APP_REQUEST_TYPE] = [AuthMiddleware::APP_SECRET => $secret];
-                }
-
-                return new WebhookRequest(
-                    new Request('POST', $url, $headers, $jsonPayload),
-                    $headers,
-                    $jsonPayload,
-                    time(),
-                    $options,
-                );
-            }
-        );
+        $appPayloadServiceHelper->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
+        $appPayloadServiceHelper->method('createWebhookRequest')->willReturnCallback($this->buildWebhookRequest(...));
 
         return new WebhookManager(
             $this->webhookLoader,
@@ -473,6 +436,42 @@ class WebhookManagerTest extends TestCase
             '0.0.0',
             $isAdminWorkerEnabled
         );
+    }
+
+    /**
+     * Minimal stand-in for AppPayloadServiceHelper::createWebhookRequest.
+     * The real method is unit-tested in AppPayloadServiceHelperTest; here we only
+     * need a valid WebhookRequest so the Guzzle MockHandler receives a sendable request.
+     *
+     * @param array<string, mixed> $payload
+     * @param array<string, string> $webhookHeaders
+     */
+    private function buildWebhookRequest(
+        array $payload,
+        string $url,
+        string $shopwareVersion,
+        int $connectionTimeout,
+        int $requestTimeout,
+        ?string $secret = null,
+        ?string $languageId = null,
+        ?string $userLocale = null,
+        array $webhookHeaders = [],
+    ): WebhookRequest {
+        $payload['timestamp'] = time();
+        $jsonPayload = json_encode($payload, \JSON_THROW_ON_ERROR);
+
+        $headers = ['Content-Type' => 'application/json', 'sw-version' => $shopwareVersion, ...$webhookHeaders];
+        if ($languageId !== null && $userLocale !== null) {
+            $headers[AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE] = $languageId;
+            $headers[AuthMiddleware::SHOPWARE_USER_LANGUAGE] = $userLocale;
+        }
+
+        $options = ['connect_timeout' => $connectionTimeout, 'timeout' => $requestTimeout];
+        if ($secret !== null) {
+            $options[AuthMiddleware::APP_REQUEST_TYPE] = [AuthMiddleware::APP_SECRET => $secret];
+        }
+
+        return new WebhookRequest(new Request('POST', $url, $headers, $jsonPayload), $headers, $jsonPayload, time(), $options);
     }
 
     private function getWebhook(string $eventName, bool $onlyLiveVersion = false): Webhook

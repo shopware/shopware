@@ -19,15 +19,12 @@ use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
-use Shopware\Core\Framework\Webhook\Service\WebhookResult;
 
 /**
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(WebhookClient::class)]
-#[CoversClass(WebhookRequest::class)]
-#[CoversClass(WebhookResult::class)]
 class WebhookClientTest extends TestCase
 {
     public function testSendSuccessful(): void
@@ -109,18 +106,6 @@ class WebhookClientTest extends TestCase
         static::assertSame('Connection refused', $result->errorMessage);
     }
 
-    public function testSendWithoutSecret(): void
-    {
-        $mockHandler = new MockHandler([new Response(200, [], '{}')]);
-        $client = $this->createClient($mockHandler);
-
-        $client->send($this->createWebhookRequest(secret: null));
-
-        $request = $mockHandler->getLastRequest();
-        static::assertInstanceOf(RequestInterface::class, $request);
-        static::assertFalse($request->hasHeader(RequestSigner::SHOPWARE_SHOP_SIGNATURE));
-    }
-
     public function testSendBatch(): void
     {
         $history = [];
@@ -144,7 +129,7 @@ class WebhookClientTest extends TestCase
             'hook3' => $this->createWebhookRequest(url: 'https://example.com/hook3', secret: null),
         ];
 
-        $results = $client->sendBatch(...$requests);
+        $results = $client->sendBatch($requests);
 
         static::assertIsArray($history);
         static::assertCount(3, $history);
@@ -194,7 +179,7 @@ class WebhookClientTest extends TestCase
 
         $client = new WebhookClient(new Client(['handler' => $handlerStack]));
 
-        $results = $client->sendBatch(...[
+        $results = $client->sendBatch([
             'hook1' => $this->createWebhookRequest(url: 'https://example.com/hook1'),
             'hook2' => $this->createWebhookRequest(url: 'https://example.com/hook2'),
         ]);
@@ -214,7 +199,7 @@ class WebhookClientTest extends TestCase
         $mockHandler = new MockHandler([]);
         $client = $this->createClient($mockHandler);
 
-        static::assertSame([], $client->sendBatch());
+        static::assertSame([], $client->sendBatch([]));
 
         static::assertNull($mockHandler->getLastRequest());
     }

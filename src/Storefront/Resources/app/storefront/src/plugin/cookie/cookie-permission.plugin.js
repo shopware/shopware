@@ -39,9 +39,55 @@ export default class CookiePermissionPlugin extends Plugin {
         if (!this._isPreferenceSet()) {
             this._setBodyPadding();
             this._registerEvents();
+            this._setFocusTrap();
         }
 
         this._registerShowAndHideCookieBarEvents();
+    }
+
+    /**
+     * Sets a focus trap for the cookie bar
+     * @private
+     * @returns {void}
+     */
+    _setFocusTrap() {
+        window.focusHandler.setFocus(this.el, { preventScroll: true });
+
+        this._onHandleTabKey = this._handleTabKey.bind(this);
+        this.el.addEventListener('keydown', this._onHandleTabKey);
+    }
+
+    /**
+     * Removes the focus trap for the cookie bar
+     * @private
+     * @returns {void}
+     */
+    _removeFocusTrap() {
+        if (!this._onHandleTabKey) {
+            return;
+        }
+
+        this.el.removeEventListener('keydown', this._onHandleTabKey);
+    }
+
+    /**
+     * Handles the tab key for the cookie bar
+     * @private
+     * @param {KeyboardEvent} event
+     * @returns {void}
+     */
+    _handleTabKey(event) {
+        const focusable = window.focusHandler.getFocusableElements(this.el);
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (event.key === 'Tab') {
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault(); last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault(); first.focus();
+            }
+        }
     }
 
     /**
@@ -117,6 +163,7 @@ export default class CookiePermissionPlugin extends Plugin {
     _handleShowCookieBarEvent() {
         this._setBodyPadding();
         this._showCookieBar();
+        this._setFocusTrap();
     }
 
     /**
@@ -127,6 +174,7 @@ export default class CookiePermissionPlugin extends Plugin {
     _handleHideCookieBarEvent() {
         this._removeBodyPadding();
         this._hideCookieBar();
+        this._removeFocusTrap();
     }
 
     /**
@@ -140,6 +188,7 @@ export default class CookiePermissionPlugin extends Plugin {
         const { cookieExpiration, cookieName } = this.options;
         this._hideCookieBar();
         this._removeBodyPadding();
+        this._removeFocusTrap();
         CookieStorage.setItem(cookieName, '1', cookieExpiration);
 
         this.$emitter.publish('onClickDenyButton');

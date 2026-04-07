@@ -30,7 +30,7 @@ class NoUnserializeUsageRuleTest extends RuleTestCase
         $class = 'Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\NoUnserializeUsageRule\HasUnserializeInTestClass';
 
         $this->analyse([__DIR__ . '/data/NoUnserializeUsageRule/HasUnserializeInTestClass.php'], [
-            [\sprintf(NoUnserializeUsageRule::ERROR_MESSAGE, $class), 10, NoUnserializeUsageRule::ERROR_TIP_TESTS],
+            [\sprintf(NoUnserializeUsageRule::ERROR_MESSAGE, $class), 11, NoUnserializeUsageRule::ERROR_TIP_TESTS],
         ]);
     }
 

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\RateLimiter;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\AuthorizationServer;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -121,6 +122,70 @@ class RateLimiterTest extends TestCase
         }
     }
 
+    public function testRateLimitLoginRouteByUserWithRotatingIps(): void
+    {
+        $email = Uuid::randomHex() . '@example.com';
+        $this->createCustomer($email);
+
+        for ($i = 0; $i <= 10; ++$i) {
+            $this->browser
+                ->request(
+                    'POST',
+                    '/store-api/account/login',
+                    [
+                        'email' => $email,
+                        'password' => 'wrongPassword',
+                    ],
+                    [],
+                    ['REMOTE_ADDR' => '10.0.0.' . $i]
+                );
+
+            $response = $this->browser->getResponse()->getContent();
+            $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
+
+            static::assertArrayHasKey('errors', $response);
+
+            if ($i >= 10) {
+                static::assertSame(429, (int) $response['errors'][0]['status']);
+                static::assertSame('CHECKOUT__CUSTOMER_AUTH_THROTTLED', $response['errors'][0]['code']);
+            } else {
+                static::assertSame(401, (int) $response['errors'][0]['status']);
+            }
+        }
+    }
+
+    public function testRateLimitLoginRouteByClientWithRotatingEmails(): void
+    {
+        for ($i = 0; $i <= 10; ++$i) {
+            $email = 'user' . $i . '@example.com';
+            $this->createCustomer($email);
+
+            $this->browser
+                ->request(
+                    'POST',
+                    '/store-api/account/login',
+                    [
+                        'email' => $email,
+                        'password' => 'wrongPassword',
+                    ],
+                    [],
+                    ['REMOTE_ADDR' => '10.0.0.1']
+                );
+
+            $response = $this->browser->getResponse()->getContent();
+            $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
+
+            static::assertArrayHasKey('errors', $response);
+
+            if ($i >= 10) {
+                static::assertSame(429, (int) $response['errors'][0]['status']);
+                static::assertSame('CHECKOUT__CUSTOMER_AUTH_THROTTLED', $response['errors'][0]['code']);
+            } else {
+                static::assertSame(401, (int) $response['errors'][0]['status']);
+            }
+        }
+    }
+
     public function testResetRateLimitLoginRoute(): void
     {
         $route = new LoginRoute(
@@ -157,6 +222,70 @@ class RateLimiterTest extends TestCase
                         'username' => 'admin',
                         'password' => 'bla',
                     ]
+                );
+
+            $response = $this->browser->getResponse()->getContent();
+            $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
+
+            static::assertArrayHasKey('errors', $response);
+
+            if ($i >= 10) {
+                static::assertSame(429, (int) $response['errors'][0]['status']);
+                static::assertSame('FRAMEWORK__NOTIFICATION_THROTTLED', $response['errors'][0]['code']);
+            } else {
+                static::assertSame(400, (int) $response['errors'][0]['status']);
+                static::assertSame('6', $response['errors'][0]['code']);
+            }
+        }
+    }
+
+    public function testRateLimitOauthByUserWithRotatingIps(): void
+    {
+        for ($i = 0; $i <= 10; ++$i) {
+            $this->browser
+                ->request(
+                    'POST',
+                    '/api/oauth/token',
+                    [
+                        'grant_type' => 'password',
+                        'client_id' => 'administration',
+                        'username' => 'admin',
+                        'password' => 'bla',
+                    ],
+                    [],
+                    ['REMOTE_ADDR' => '10.0.0.' . $i]
+                );
+
+            $response = $this->browser->getResponse()->getContent();
+            $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
+
+            static::assertArrayHasKey('errors', $response);
+
+            if ($i >= 10) {
+                static::assertSame(429, (int) $response['errors'][0]['status']);
+                static::assertSame('FRAMEWORK__NOTIFICATION_THROTTLED', $response['errors'][0]['code']);
+            } else {
+                static::assertSame(400, (int) $response['errors'][0]['status']);
+                static::assertSame('6', $response['errors'][0]['code']);
+            }
+        }
+    }
+
+    public function testRateLimitOauthByClientWithRotatingUsernames(): void
+    {
+        for ($i = 0; $i <= 10; ++$i) {
+            $this->browser
+                ->request(
+                    'POST',
+                    '/api/oauth/token',
+                    [
+                        'grant_type' => 'password',
+                        'client_id' => 'administration',
+                        'username' => 'user' . $i,
+                        'password' => 'bla',
+                    ],
+                    [],
+                    ['REMOTE_ADDR' => '10.0.0.1']
                 );
 
             $response = $this->browser->getResponse()->getContent();
@@ -278,6 +407,22 @@ class RateLimiterTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
         $rateLimiter->reset('test', 'test-key');
+    }
+
+    #[DoesNotPerformAssertions]
+    public function testEnsureAcceptedIfConfiguredSkipsWhenNotConfigured(): void
+    {
+        $rateLimiter = new RateLimiter();
+
+        $rateLimiter->ensureAcceptedIfConfigured('non_existent_limiter', 'some-key');
+    }
+
+    #[DoesNotPerformAssertions]
+    public function testResetIfConfiguredSkipsWhenNotConfigured(): void
+    {
+        $rateLimiter = new RateLimiter();
+
+        $rateLimiter->resetIfConfigured('non_existent_limiter', 'some-key');
     }
 
     public function testIgnoreLimitWhenDisabled(): void

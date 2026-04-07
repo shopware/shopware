@@ -42,10 +42,14 @@ class LoginRoute extends AbstractLoginRoute
         $email = (string) $data->get('email', $data->get('username'));
 
         if ($this->requestStack->getMainRequest() !== null) {
-            $cacheKey = strtolower($email) . '-' . $this->requestStack->getMainRequest()->getClientIp();
+            $clientIpKey = (string) $this->requestStack->getMainRequest()->getClientIp();
+            $emailKey = strtolower($email);
+            $combinedKey = $emailKey . '-' . $clientIpKey;
 
             try {
-                $this->rateLimiter->ensureAccepted(RateLimiter::LOGIN_ROUTE, $cacheKey);
+                $this->rateLimiter->ensureAccepted(RateLimiter::LOGIN_ROUTE, $combinedKey);
+                $this->rateLimiter->ensureAcceptedIfConfigured(RateLimiter::LOGIN_USER, $emailKey);
+                $this->rateLimiter->ensureAcceptedIfConfigured(RateLimiter::LOGIN_CLIENT, $clientIpKey);
             } catch (RateLimitExceededException $exception) {
                 throw CustomerException::customerAuthThrottledException($exception->getWaitTime(), $exception);
             }
@@ -57,8 +61,16 @@ class LoginRoute extends AbstractLoginRoute
             $context
         );
 
-        if (isset($cacheKey)) {
-            $this->rateLimiter->reset(RateLimiter::LOGIN_ROUTE, $cacheKey);
+        if (isset($combinedKey)) {
+            $this->rateLimiter->reset(RateLimiter::LOGIN_ROUTE, $combinedKey);
+        }
+
+        if (isset($clientIpKey)) {
+            $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_CLIENT, $clientIpKey);
+        }
+
+        if (isset($emailKey)) {
+            $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_USER, $emailKey);
         }
 
         return new ContextTokenResponse($token);

@@ -8,6 +8,11 @@
 
 ## Administration
 
+### Re-render iframe integrations when location changes
+
+Iframe-based Administration extensions now re-render correctly when their `locationId` changes.
+This fixes stale iframe content when switching locations in Meteor Admin SDK integrations and also prevents unnecessary full-page reloads.
+
 ## Storefront
 
 ### Order cancellation only shown for open orders
@@ -32,6 +37,20 @@ Simply upload a model with one or multiple animations baked into the file, bind 
 
 ## App System
 
+### App requirements validation
+
+Apps can now declare requirements in their manifest via a new `<requirements>` element. Requirements are validated during app installation and updates in production. If a requirement is not met, the process fails with `FRAMEWORK__APP_REQUIREMENTS_NOT_MET` and an actionable message.
+
+The first introduced requirement, `<public-access/>`, verifies that `APP_URL` uses HTTPS, does not point to an IP or reserved/local development host, and that `/api/_info/health-check` returns HTTP 200 when called from the Shopware server. This helps catch misconfigurations before apps that rely on webhooks or other external communication fail silently.
+
+```xml
+<requirements>
+    <public-access/>
+</requirements>
+```
+
+Unknown requirements are ignored and logged as warnings.
+
 ## Hosting & Configuration
 
 ### Possibility to disable product search keyword indexing
@@ -44,6 +63,10 @@ This is helpful for stores that do not require search keywords and want to avoid
 # 6.7.9.0
 
 ## Features
+
+### Product Open Graph fields for SEO and social sharing
+
+Merchants can now set custom Open Graph title, description, and image per product in the product SEO tab in the administration. These values are used for the storefront product detail page meta tags (`og:title`, `og:description`, `og:image`), improving how product links appear when shared on social media and in search results. The fields are stored in the database, exposed via the Admin and Store API on the product entity, and default to the product meta title, meta description, and cover image when not set.
 
 ### Default CMS page ID now persisted for categories
 
@@ -300,6 +323,17 @@ Both `AwsS3v3Factory` and `PresignedUploadUrlGenerator` are wired via DI to the 
 the `shopware.filesystem.s3.client` service to provide a custom Symfony HTTP client with
 custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
 
+### `#[Field]` attribute supports custom `maxLength` for string fields
+
+The `maxLength` parameter is now available on `#[Field]` for `FieldType::STRING` and `FieldType::EMAIL` fields. Previously the max length was always 255, matching `StringField`'s default, with no way to override it. Setting `maxLength` passes the value through to the underlying `StringField` constructor and the `StringFieldSerializer` validation.
+
+```php
+#[Field(type: FieldType::STRING, maxLength: 4096)]
+public ?string $url = null;
+```
+
+A value of `0` disables length validation entirely. This is pre-existing `StringFieldSerializer` behavior where any value below `1` is treated as unconstrained.
+
 ## Administration
 
 ### CMS data mapping source for media custom fields
@@ -399,6 +433,49 @@ The webpack dev server overlay for runtime errors has been disabled in hot-reloa
 ### `HEAD`-requests do not trigger the registration double-opt-in
 
 As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
+
+
+### Avoid excessive use of @extend in Storefront SCSS
+
+We have refactored the SCSS of the checkout related routes (cart, confirm, finish, register) to use `@include` mixins instead of `@extend` to apply the Bootstrap grid layout.
+Using `@extend` on generic tooling classes was causing very large combined selectors. We are now using the grid mixins that are documented by Bootstrap.
+
+#### Before
+```scss
+.checkout-main {
+    @extend .col-lg-8;
+}  
+```
+
+#### After
+```scss
+.checkout-main {
+    @include make-col-ready();
+    @include media-breakpoint-up(lg) {
+        @include make-col(8);
+    }
+}
+```
+
+In addition, we have refactored several places to use direct CSS or SCSS variables instead of `@extend`.
+
+#### Deprecate stylings that have no usage in the DOM or no visual effect
+
+* Deprecated `@extend .btn-lg` on `.btn-buy`. The current `.btn-buy` in combination with `.btn-lg` has the same dimensions as a normal button.
+    * If you need a larger buy button, you can use the Bootstrap CSS variables or the `button-size` mixin to increase the size.
+* Deprecated custom styling on class `.offcanvas-footer`. Class is not used in the DOM.
+
+#### New stylelint rule to avoid `@extend`
+
+Because of the side-effects with large combined selectors, we have added a new stylelint rule `scss/at-extend-no-missing-placeholder` that does not allow the use of `@extend` on generic selectors.
+The use of `@extend` is still allowed on SCSS placeholder selectors (`%my-selector`) that are not included in the compiled CSS.
+If you have good reasons to use `@extend` and can ensure that the combined selectors do not grow too large, the rule can still be ignored via inline comment.
+
+## App System
+
+## Hosting & Configuration
+
+## Critical Fixes
 
 # 6.7.8.1
 
@@ -894,6 +971,14 @@ The following deprecations apply to `sw-mail-template-index`:
 * The `listing` mixin will be removed in v6.8.0.0
 * `term` data property will be removed in v6.8.0.0
 * `onChangeLanguage` method: the if/else block will be replaced with just the if-branch logic in v6.8.0.0
+
+### Fixed `sw-entity-multi-id-select` crash when used in plugin system config with sales channel inheritance
+
+When `sw-entity-multi-id-select` was used via the `<component>` tag in a plugin's `config.xml`, switching to a non-default sales channel caused a TypeError because the inheritance system passed `null` as the value instead of an array. The component now handles `null` gracefully, aligning with the convention that components used via `<component>` in system config must accept `null` as their value.
+
+### Admin boot loading spinner shows error instead of infinite loading
+
+The loading spinner shown while the admin is booting up no longer spins indefinitely when an error occurs. The error is now displayed instead.
 
 ## Storefront
 

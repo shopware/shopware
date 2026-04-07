@@ -14,7 +14,12 @@ https://getbootstrap.com/docs/5.2/components/buttons
 
 // custom add to cart button, used e.g. in product-box and product detail buybox
 .btn-buy {
-    @extend .btn-lg;
+    // @deprecated tag:v6.8.0 - Class btn-buy will no longer extend class btn-lg.
+    // The current btn-buy wiht btn-lg has the same dimensions as a normal button.
+    @if not feature('V6_8_0_0') {
+        // stylelint-disable-next-line scss/at-extend-no-missing-placeholder
+        @extend .btn-lg;
+    }
     @include button-variant($buy-btn-bg, $buy-btn-bg, $buy-btn-color);
 
     --#{$prefix}btn-focus-box-shadow: #{$focus-ring-box-shadow};

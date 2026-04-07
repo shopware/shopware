@@ -4,30 +4,54 @@
         padding-top: 70px;
 
         .checkout-container {
-            @extend .row;
+            @include make-row();
         }
 
         .checkout-main {
-            @extend .offset-lg-2;
-            @extend .col-lg-8;
+            @include make-col-ready();
+
+            @include media-breakpoint-up(lg) {
+                @include make-col(8);
+                @include make-col-offset(2);
+            }
         }
 
         .checkout-additional {
-            @extend .col-sm-7;
-            @extend .col-md-6;
-            @extend .offset-lg-2;
-            @extend .col-lg-4;
+            @include make-col-ready();
             margin-top: $spacer;
             margin-bottom: $spacer;
+
+            @include media-breakpoint-up(sm) {
+                @include make-col(7);
+            }
+
+            @include media-breakpoint-up(md) {
+                @include make-col(6);
+            }
+
+            @include media-breakpoint-up(lg) {
+                @include make-col(4);
+                @include make-col-offset(2);
+            }
         }
 
         .checkout-aside {
-            @extend .col;
-            @extend .offset-sm-5;
-            @extend .col-sm-7;
-            @extend .offset-md-6;
-            @extend .col-md-6;
-            @extend .col-lg-4;
+            @include make-col-ready();
+            @include make-col();
+
+            @include media-breakpoint-up(sm) {
+                @include make-col(7);
+                @include make-col-offset(5);
+            }
+
+            @include media-breakpoint-up(md) {
+                @include make-col(6);
+                @include make-col-offset(6);
+            }
+
+            @include media-breakpoint-up(lg) {
+                @include make-col(4);
+            }
         }
 
         .checkout-aside-no-offset {

@@ -103,7 +103,15 @@
       "placeholderCanonicalProduct": "Select a variant...",
       "helpTextMetaTitle": "The meta title is the most important SEO element and should be unique for each page. You should limit yourself in length to a maximum of 56 characters. Your keyword should ideally be placed at the very front.",
       "helpTextMetaDescription": "With the meta description, you confirm to your customers that they are in the right place in your store. You create incentives, build trust and invite to an action. You should limit yourself to a maximum of 155 characters. Shopware allows a maximum length of 255 characters.",
-      "helpTextKeywords": "Here you can define optionally three to five keywords under which your product should be found."
+      "helpTextKeywords": "Here you can define optionally three to five keywords under which your product should be found.",
+      "titleOpenGraph": "Open Graph",
+      "labelOpenGraphTitle": "OG title",
+      "labelOpenGraphDescription": "OG description",
+      "labelOpenGraphImage": "OG image",
+      "placeholderOpenGraphTitle": "Enter Open Graph title...",
+      "placeholderOpenGraphDescription": "Enter Open Graph description...",
+      "helpTextOpenGraphTitle": "The Open Graph title is used when sharing the product on social media. If left empty, the meta title will be used as a fallback.",
+      "helpTextOpenGraphDescription": "The Open Graph description is used when sharing the product on social media. If left empty, the meta description will be used as a fallback."
     },
     "settingsForm": {
       "labelCreatedAt": "Creation date",

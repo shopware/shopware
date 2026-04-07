@@ -120,11 +120,29 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
 
             expect(mockInit).not.toHaveBeenCalled();
         });
+
+        it('does not initialize client with stale product analytics consent', async () => {
+            useConsentStore().consents.product_analytics = {
+                name: 'product_analytics',
+                status: 'accepted',
+                acceptedRevision: '2026-02-01',
+                latestRevision: '2026-02-02',
+            };
+
+            watchHandle = await initProductAnalytics();
+
+            expect(mockInit).not.toHaveBeenCalled();
+        });
     });
 
     describe('product analytics consent handling', () => {
         it('initializes the client when consent was given', async () => {
-            useConsentStore().consents.product_analytics.status = 'accepted';
+            useConsentStore().consents.product_analytics = {
+                name: 'product_analytics',
+                status: 'accepted',
+                acceptedRevision: '2026-02-02',
+                latestRevision: '2026-02-02',
+            };
             const { onSpy, offSpy } = getEventBusSpies();
 
             watchHandle = await initProductAnalytics();
@@ -141,7 +159,12 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
         });
 
         it('removes telemetry handler when consent gets revoked', async () => {
-            useConsentStore().consents.product_analytics.status = 'accepted';
+            useConsentStore().consents.product_analytics = {
+                name: 'product_analytics',
+                status: 'accepted',
+                acceptedRevision: '2026-02-02',
+                latestRevision: '2026-02-02',
+            };
             const { onSpy, offSpy } = getEventBusSpies();
 
             watchHandle = await initProductAnalytics();
@@ -160,7 +183,12 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
         });
 
         it('sends delete user request when consent is revoked', async () => {
-            useConsentStore().consents.product_analytics.status = 'accepted';
+            useConsentStore().consents.product_analytics = {
+                name: 'product_analytics',
+                status: 'accepted',
+                acceptedRevision: '2026-02-02',
+                latestRevision: '2026-02-02',
+            };
 
             watchHandle = await initProductAnalytics();
 
@@ -174,7 +202,12 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
         it('clears storage when consent is revoked', async () => {
             jest.useFakeTimers();
 
-            useConsentStore().consents.product_analytics.status = 'accepted';
+            useConsentStore().consents.product_analytics = {
+                name: 'product_analytics',
+                status: 'accepted',
+                acceptedRevision: '2026-02-02',
+                latestRevision: '2026-02-02',
+            };
 
             watchHandle = await initProductAnalytics();
 
@@ -188,14 +221,24 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
         });
 
         it('Does not initialize the client twice after consent was revoked and accepted again', async () => {
-            useConsentStore().consents.product_analytics.status = 'accepted';
+            useConsentStore().consents.product_analytics = {
+                name: 'product_analytics',
+                status: 'accepted',
+                acceptedRevision: '2026-02-02',
+                latestRevision: '2026-02-02',
+            };
 
             watchHandle = await initProductAnalytics();
 
             useConsentStore().consents.product_analytics.status = 'revoked';
             await flushPromises();
 
-            useConsentStore().consents.product_analytics.status = 'accepted';
+            useConsentStore().consents.product_analytics = {
+                name: 'product_analytics',
+                status: 'accepted',
+                acceptedRevision: '2026-02-02',
+                latestRevision: '2026-02-02',
+            };
             await flushPromises();
 
             expect(mockInit).toHaveBeenCalledTimes(1);

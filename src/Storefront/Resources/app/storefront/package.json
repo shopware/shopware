@@ -96,11 +96,16 @@
     "tmp": "0.2.5",
     "qs": "6.14.2",
     "minimatch": "10.2.4",
-    "serialize-javascript": "7.0.4",
+    "brace-expansion": "5.0.5",
+    "serialize-javascript": "7.0.5",
     "test-exclude": "8.0.0",
     "@babel/runtime": "7.28.6",
     "ajv@^8": "8.18.0",
     "follow-redirects": "1.15.11",
-    "flatted": "3.4.2"
+    "flatted": "3.4.2",
+    "lodash": "4.18.1",
+    "path-to-regexp": "0.1.13",
+    "picomatch@2": "2.3.2",
+    "picomatch@4": "4.0.4"
   }
 }

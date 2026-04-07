@@ -30,7 +30,7 @@
         >
             <sw-container
                 columns="2fr 1fr"
-                gap="0px 30px"
+                gap="0 var(--scale-size-30)"
                 align="start"
             >
                 {% block sw_prduct_cross_selling_form_title_field %}
@@ -60,7 +60,7 @@
 
             <sw-container
                 columns="2fr 1fr"
-                gap="0px 30px"
+                gap="0 var(--scale-size-30)"
             >
                 {% block sw_prduct_cross_selling_form_type %}
                 <mt-select
@@ -102,7 +102,7 @@
 
                 <sw-container
                     columns="1fr 1fr"
-                    gap="0px 30px"
+                    gap="0 var(--scale-size-30)"
                 >
                     {% block sw_prduct_cross_selling_form_sort_field %}
                     <mt-select
@@ -141,7 +141,7 @@
                         {{ $tc('sw-product.crossselling.linkOpenStreamPreview') }}
                         <mt-icon
                             name="regular-long-arrow-right"
-                            size="16px"
+                            size="var(--scale-size-16)"
                         />
                     </a>
                 </sw-container>

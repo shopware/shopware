@@ -280,3 +280,16 @@ and will throw an exception if there are circular dependencies.
 
 Extension points of this new architecture are described in a separate ADR:
 [2026-03-19-new-document-generation-extension-points.md](https://github.com/shopware/shopware/blob/trunk/adr/2026-03-19-new-document-generation-extension-points.md)
+
+### PHP interfaces vs. abstract classes
+
+We have chosen abstract classes for `AbstractDocumentDataProvider` and `AbstractDocumentRenderer`
+over normal PHP interfaces,
+with these reasons in mind:
+- Not all methods need to be implemented by all providers and renderers, e.g.
+  - `AbstractDocumentDataProvider::enrichOrderCriteria`
+  - `AbstractDocumentRenderer::getDependencies`
+- It will give us more flexibility in the future to add further methods to the abstract classes without
+  breaking existing implementations, like interfaces would.
+- There was also a decision in the past to not introduce further interfaces and use abstract classes instead:
+  [2020-11-25-decoration-pattern.md](https://github.com/shopware/shopware/blob/trunk/adr/2020-11-25-decoration-pattern.md)

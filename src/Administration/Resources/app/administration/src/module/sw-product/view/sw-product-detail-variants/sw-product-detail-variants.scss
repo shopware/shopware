@@ -14,8 +14,8 @@
 
     .sw-skeleton__detail:not(:last-child),
     .sw-skeleton {
-        margin-top: 56px;
-        margin-bottom: 26px;
+        margin-top: var(--scale-size-56);
+        margin-bottom: var(--scale-size-26);
         background-color: transparent;
     }
 }

@@ -1,8 +1,5 @@
 @import "~scss/variables";
 
-$sw-product-variants-configurator-selection-overlay: rgba(255, 255, 255, 80%);
-$sw-product-variants-configurator-selection-text-color: $color-darkgray-200;
-
 .sw-property-search__search-field.sw-product-variants-configurator-selection-search__search-field {
     .sw-simple-search-field {
         margin: 0;
@@ -21,7 +18,7 @@ $sw-product-variants-configurator-selection-text-color: $color-darkgray-200;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: $sw-product-variants-configurator-selection-overlay;
+    background-color: rgba(255, 255, 255, 80%);
     transform-origin: top right;
 
     .generate-variant-progress-bar {
@@ -29,8 +26,8 @@ $sw-product-variants-configurator-selection-text-color: $color-darkgray-200;
     }
 
     .generate-variant-progress-bar__description {
-        color: $sw-product-variants-configurator-selection-text-color;
-        margin-top: 20px;
+        color: var(--color-darkgray-200);
+        margin-top: var(--scale-size-20);
     }
 }
 

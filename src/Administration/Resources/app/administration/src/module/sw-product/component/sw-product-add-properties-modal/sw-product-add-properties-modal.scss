@@ -1,8 +1,5 @@
 @import "~scss/variables";
 
-$min-height-empty-state: 420px;
-$background-color: $color-gray-100;
-
 .sw-product-add-properties-modal {
     &.sw-modal.sw-modal--default {
         .sw-modal__dialog {
@@ -16,7 +13,7 @@ $background-color: $color-gray-100;
 
     &__content .sw-card-section {
         position: relative;
-        min-height: $min-height-empty-state;
+        min-height: 420px;
         padding: 0;
     }
 
@@ -30,8 +27,8 @@ $background-color: $color-gray-100;
 
     &__content .sw-grid .sw-grid__cell-content {
         min-height: 0;
-        line-height: $line-height-sm;
-        padding: 10px 30px;
+        line-height: var(--font-line-height-xs);
+        padding: var(--scale-size-10) var(--scale-size-30);
     }
 
     &__content .sw-grid.sw-grid--table .sw-grid-row.is--selected {
@@ -41,11 +38,11 @@ $background-color: $color-gray-100;
 
     &__property-name {
         cursor: pointer;
-        margin-left: 10px;
+        margin-left: var(--scale-size-10);
     }
 
     &__property-selected {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
     }
 
     &__property-values .sw-grid__cell .sw-grid__cell-content {
@@ -59,13 +56,13 @@ $background-color: $color-gray-100;
 
         .sw-property-search__tree-selection-container,
         .sw-property-search__search-selection {
-            min-height: $min-height-empty-state;
+            min-height: 420px;
         }
     }
 
     .sw-product-add-properties-modal__toolbar {
-        border-bottom: 1px solid #d8dde6;
-        background-color: $background-color;
+        border-bottom: 1px solid var(--color-border-primary-default);
+        background-color: var(--color-gray-100);
         grid-template-columns: 1fr auto;
     }
 
@@ -80,6 +77,6 @@ $background-color: $color-gray-100;
     }
 
     .sw-extension-teaser-popover {
-        margin-left: 14px;
+        margin-left: var(--scale-size-14);
     }
 }

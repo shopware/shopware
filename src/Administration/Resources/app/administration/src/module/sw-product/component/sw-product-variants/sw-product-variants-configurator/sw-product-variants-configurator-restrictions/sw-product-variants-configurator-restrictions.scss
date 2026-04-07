@@ -1,9 +1,5 @@
 @import "~scss/variables";
 
-$sw-product-variants-configurator-restrictions-active-color-background: $color-shopware-brand-50;
-$sw-product-variants-configurator-restrictions-search-background: #f8f9fa;
-$sw-product-variants-configurator-restrictions-search-border: $color-gray-300;
-
 .sw-product-variants-configurator-restrictions {
     display: flex;
     flex-direction: column;
@@ -12,10 +8,10 @@ $sw-product-variants-configurator-restrictions-search-border: $color-gray-300;
     .sw-product-variants-configurator-restrictions__search {
         display: grid;
         grid-template-columns: 1fr 200px;
-        grid-column-gap: 16px;
+        grid-column-gap: var(--scale-size-16);
         padding: 25px;
-        background-color: $sw-product-variants-configurator-restrictions-search-background;
-        border-bottom: 1px solid $sw-product-variants-configurator-restrictions-search-border;
+        background-color: var(--color-background-secondary-default);
+        border-bottom: 1px solid var(--color-gray-300);
     }
 
     .sw-product-variants-configurator-restrictions__modal.sw-modal .sw-modal__body {
@@ -29,7 +25,7 @@ $sw-product-variants-configurator-restrictions-search-border: $color-gray-300;
 
     .sw-product-variants-configurator-restrictions__group-name {
         margin-right: 5px;
-        margin-left: 10px;
+        margin-left: var(--scale-size-10);
     }
 }
 
@@ -40,19 +36,19 @@ $sw-product-variants-configurator-restrictions-search-border: $color-gray-300;
     }
 
     .sw-product-variants-configurator-restrictions__modal-main {
-        background-color: $sw-product-variants-configurator-restrictions-search-background;
-        padding: 40px 40px 80px;
+        background-color: var(--color-background-secondary-default);
+        padding: var(--scale-size-40) var(--scale-size-40) var(--scale-size-80);
         overflow: hidden;
     }
 
     .sw-product-variants-configurator-restrictions__seperator {
         text-transform: uppercase;
-        font-weight: bold;
-        margin-bottom: 10px;
+        font-weight: var(--font-weight-bold);
+        margin-bottom: var(--scale-size-10);
     }
 
     .sw-product-variants-configurator-restrictions__button-new-restriction {
         text-transform: uppercase;
-        margin-top: 10px;
+        margin-top: var(--scale-size-10);
     }
 }

@@ -10,7 +10,7 @@
             height: 520px;
 
             .sw-tabs .sw-tabs__custom-Content {
-                padding: 10px 0;
+                padding: var(--scale-size-10) 0;
             }
 
             .sw-product-modal-delivery__main {
@@ -18,14 +18,14 @@
             }
 
             .sw-product-modal-delivery__sidebar {
-                padding: 20px 30px;
+                padding: var(--scale-size-20) var(--scale-size-30);
                 flex-basis: 400px;
-                border-right: 1px solid $color-gray-300;
+                border-right: 1px solid var(--color-gray-300);
             }
         }
 
         .sw-modal__footer {
-            border-top: 1px solid $color-gray-300;
+            border-top: 1px solid var(--color-gray-300);
         }
     }
 }

@@ -4,9 +4,9 @@
 
 .sw-product-variant-modal {
     &__main-product-link {
-        color: $color-shopware-brand-500;
+        color: var(--color-shopware-brand-500);
         text-decoration: none;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         cursor: pointer;
 
         &:hover {
@@ -34,7 +34,7 @@
             }
 
             .sw-media-preview-v2 {
-                @include square(32px);
+                @include square(var(--scale-size-32));
             }
         }
     }
@@ -45,22 +45,22 @@
         border-top: 0;
         margin-right: 0;
         margin-bottom: 0;
-        padding: 24px 32px;
+        padding: var(--scale-size-24) var(--scale-size-32);
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
     }
 
     &__variants {
-        color: $color-gray-600;
+        color: var(--color-gray-600);
         margin-left: 5px;
     }
 
     &__price-inheritance-switch {
-        margin-right: 10px;
+        margin-right: var(--scale-size-10);
     }
 
     &__active-inheritance-switch {
-        margin-left: 10px;
+        margin-left: var(--scale-size-10);
     }
 
     footer.sw-modal__footer {
@@ -70,11 +70,11 @@
 
     .mt-icon {
         &.is--inactive {
-            color: $color-crimson-500;
+            color: var(--color-crimson-500);
         }
 
         &.is--active {
-            color: $color-emerald-500;
+            color: var(--color-emerald-500);
         }
     }
 
@@ -83,9 +83,9 @@
     }
 
     &__delete-modal-subline {
-        color: $color-gray-600;
-        margin-top: 8px;
-        font-size: $font-size-xs;
+        color: var(--color-gray-600);
+        margin-top: var(--scale-size-8);
+        font-size: var(--font-size-xs);
     }
 
     &__variant-name {
@@ -93,15 +93,15 @@
     }
 
     &__variant-options span {
-        color: $color-darkgray-200 !important;
+        color: var(--color-darkgray-200) !important;
     }
 
     &__variant-options:hover span {
-        color: $color-shopware-brand-500 !important;
+        color: var(--color-shopware-brand-500) !important;
     }
 
     &__media-inherited-icon {
-        margin-right: 8px;
+        margin-right: var(--scale-size-8);
     }
 
     .sw-product-variants-media-upload__preview-images img {
@@ -109,8 +109,8 @@
     }
 
     .sw-configuration-option-list__toolbar {
-        background-color: #f8f9fa;
-        border-bottom: 1px solid $color-gray-300;
+        background-color: var(--color-background-secondary-default);
+        border-bottom: 1px solid var(--color-gray-300);
         padding: 25px;
     }
 
@@ -119,7 +119,7 @@
 
         .sw-context-menu {
             position: absolute;
-            top: calc(100% + 10px);
+            top: calc(100% + var(--scale-size-10));
             right: 0;
             z-index: 10;
 
@@ -144,11 +144,11 @@
             }
 
             .sw-tree-item__element {
-                grid-template-columns: 30px 24px 1fr;
+                grid-template-columns: var(--scale-size-30) var(--scale-size-24) 1fr;
             }
 
             .sw-tree-item__icon {
-                margin-right: 8px;
+                margin-right: var(--scale-size-8);
             }
 
             .sw-tree-item__actions {
@@ -156,7 +156,7 @@
             }
 
             .sw-tree-item.is--no-children .sw-tree-item__element {
-                grid-template-columns: 0 24px 24px 1fr;
+                grid-template-columns: 0 var(--scale-size-24) var(--scale-size-24) 1fr;
             }
 
             .sw-tree-item__element .sw-tree-item__selection {
@@ -171,7 +171,7 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                height: 40px;
+                height: var(--scale-size-40);
             }
         }
     }
@@ -189,8 +189,8 @@
 
     &__bulk-edit-modal .sw-product-variant-modal__digital-indicator,
     .sw-product-variant-modal__digital-indicator {
-        height: 24px;
-        padding: 4px 8px;
+        height: var(--scale-size-24);
+        padding: var(--scale-size-4) var(--scale-size-8);
         margin: 0;
         min-width: auto;
         vertical-align: middle;

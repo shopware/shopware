@@ -194,7 +194,7 @@ The `TemplateFactory` (`template.factory.js`) drives the entire process:
 5. Vue compiles HTML          → reactive component rendered in browser
 ```
 
-Multiple overrides can target the same component; they are applied in registration order by index.
+Multiple overrides can target the same component. The factory stores each override with its numeric `overrideIndex` and applies them in ascending index order.
 
 ---
 

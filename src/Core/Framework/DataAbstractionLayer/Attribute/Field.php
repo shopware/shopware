@@ -23,6 +23,7 @@ class Field
         public bool $translated = false,
         public bool|array $api = false,
         public ?string $column = null,
+        public int $maxLength = 255,
     ) {
     }
 }

@@ -181,7 +181,7 @@
     "sw-field": {
       "notification": {
         "notificationCopySuccessMessage": "Der Text wurde in die Zwischenablage kopiert.",
-        "notificationCopyFailureMessage": "Der Text konnte nicht in die Zwischenablage kopiert werden."
+        "notificationCopyFailureMessage": "Der Text konnte nicht in die Zwischenablage kopiert werden. Stelle sicher, dass du über eine sichere Verbindung (HTTPS) auf die Administration zugreifst, und versuche es erneut."
       },
       "titleShowPassword": "Passwort anzeigen",
       "titleHidePassword": "Passwort verbergen",

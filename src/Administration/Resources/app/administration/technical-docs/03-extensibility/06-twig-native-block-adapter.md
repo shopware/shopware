@@ -44,8 +44,8 @@ Existing `Shopware.Component.override()` calls with Twig block templates continu
 **3. Factory-independent**
 The adapter hooks into `<sw-block>` itself, not the component factory. This means it works whether the parent component is registered through `Shopware.Component.register()` or is a pure Vue SFC — the `<sw-block>` tag is always present in the template and always mounts.
 
-**4. O(1) at render time**
-The block index is fully built at override registration time (during boot), before any Vue component mounts. At render time, `<sw-block>` does a single Map lookup.
+**4. Minimal overhead at render time**
+The block index is fully built at override registration time (during boot), before any Vue component mounts. At render time, `<sw-block>` does a single Map lookup by block name. The setup phase (which can also run post-boot, e.g. when a `v-if` condition turns true) iterates over the registered extend instances for that block name — in practice a very small set, bounded by the number of active plugin overrides for a single block.
 
 **5. No TwigJS rendering**
 TwigJS is used only as an AST parser to extract the block structure. The inner content is reconstructed verbatim from the token tree and compiled by Vue's own runtime template compiler — giving full Vue reactivity, including `v-if`, `v-for`, `{{ }}` interpolation, and event handlers.

@@ -265,6 +265,9 @@ Some further remarks on the renderers:
   - the order entity
   - any additional / prepared data that DataProviders returned as `RenderData` for this doc type, which could include
     configuration data (e.g., company data, file prefix / suffix, or other `extensions` data)
+- The `persistToFile` method is likely further refined during implementation, to simplify the renderers even further,
+  e.g., so they are only responsible for providing the file content + filename + extension + mime type instead of
+  handling the file persistence logic themselves.
 
 The `DocumentGenerator` makes sure to call the renderers in the right order, respecting any dependencies.
 Internally, it builds a dependency graph using [Kahn's algorithm](https://www.geeksforgeeks.org/dsa/topological-sorting-indegree-based-solution/)

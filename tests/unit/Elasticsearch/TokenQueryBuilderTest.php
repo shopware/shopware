@@ -491,7 +491,7 @@ class TokenQueryBuilderTest extends TestCase
             ]),
         ];
 
-        yield 'Test multiple custom fields with text term' => [
+        yield 'Test invalid boolean custom field token still matches text custom fields' => [
             'config' => [
                 self::config(field: 'customFields.evolvesBool', ranking: 600),
                 self::config(field: 'customFields.evolvesText', ranking: 500),
@@ -522,6 +522,28 @@ class TokenQueryBuilderTest extends TestCase
             'expected' => self::disMax([
                 self::term($prefixCfLang1 . 'evolvesBool', true, 600),
                 self::term($prefixCfLang2 . 'evolvesBool', true, 480),
+            ]),
+        ];
+
+        yield 'Test boolean custom field with numeric true term' => [
+            'config' => [
+                self::config(field: 'customFields.evolvesBool', ranking: 600),
+            ],
+            'term' => '1',
+            'expected' => self::disMax([
+                self::term($prefixCfLang1 . 'evolvesBool', true, 600),
+                self::term($prefixCfLang2 . 'evolvesBool', true, 480),
+            ]),
+        ];
+
+        yield 'Test boolean custom field with numeric false term' => [
+            'config' => [
+                self::config(field: 'customFields.evolvesBool', ranking: 600),
+            ],
+            'term' => '0',
+            'expected' => self::disMax([
+                self::term($prefixCfLang1 . 'evolvesBool', false, 600),
+                self::term($prefixCfLang2 . 'evolvesBool', false, 480),
             ]),
         ];
     }

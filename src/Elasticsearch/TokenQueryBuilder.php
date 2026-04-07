@@ -117,16 +117,23 @@ class TokenQueryBuilder
             return $this->buildTextMatchQuery($token, $config);
         }
 
+        $normalizedToken = $this->normalizeToken($token, $field);
+
+        if ($normalizedToken === null) {
+            return null;
+        }
+
+        return new TermQuery($config->getField(), $normalizedToken, ['boost' => $config->getRanking()]);
+    }
+
+    private function normalizeToken(string $token, Field $field): bool|int|float|string|null
+    {
         if ($field instanceof BoolField) {
-            $token = match ($token) {
+            return match ($token) {
                 '1', 'true' => true,
                 '0', 'false' => false,
                 default => null,
             };
-
-            if ($token === null) {
-                return null;
-            }
         }
 
         if ($field instanceof IntField || $field instanceof FloatField || $field instanceof PriceField) {
@@ -134,10 +141,10 @@ class TokenQueryBuilder
                 return null;
             }
 
-            $token = $field instanceof IntField ? (int) $token : (float) $token;
+            return $field instanceof IntField ? (int) $token : (float) $token;
         }
 
-        return new TermQuery($config->getField(), $token, ['boost' => $config->getRanking()]);
+        return $token;
     }
 
     private function isTextField(Field $field): bool

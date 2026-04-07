@@ -74,6 +74,7 @@ class SerializationTest extends TestCase
  */
 class UnserializableStub
 {
+    /** @param array<string, mixed> $data */
     public function __unserialize(array $data): void
     {
         throw new \RuntimeException('Deserialization not allowed');

@@ -39,7 +39,7 @@ declare module '*.html.twig' {
 
 ### Only `{% block %}` Is Supported — Not General Twig
 
-This is the most critical constraint: **Twig output expressions (`{{ }}`) are intentionally disabled.** The TwigJS engine is stripped of its output token types before use. Data binding, computed values, and expressions are all handled by Vue — Twig is used solely as an **inheritance/block merging tool**.
+This is the most critical constraint: **Twig output expressions (`{{ }}`) are intentionally disabled.** The TwigJS engine is configured to ignore its output token types before use. Data binding, computed values, and expressions are all handled by Vue. Twig is used solely as an **inheritance/block merging tool**.
 
 From `template.factory.js`:
 

@@ -37,7 +37,7 @@ class NoUnserializeUsageRuleTest extends RuleTestCase
     public function testAllowlistedClassIsNotReported(): void
     {
         $this->analyse([
-            __DIR__ . '/../../../../../../../../../../src/Core/Test/Assert/Serialization.php',
+            __DIR__ . '/../../../../../../../src/Core/Test/Assert/Serialization.php',
         ], []);
     }
 

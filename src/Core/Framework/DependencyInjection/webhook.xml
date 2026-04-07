@@ -32,7 +32,6 @@
             <argument type="service" id="Shopware\Core\Framework\App\AppLocaleProvider"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookClient"/>
-            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
             <argument type="service" id="Symfony\Component\Messenger\MessageBusInterface"/>
             <argument type="string">%env(APP_URL)%</argument>
             <argument>%kernel.shopware_version%</argument>

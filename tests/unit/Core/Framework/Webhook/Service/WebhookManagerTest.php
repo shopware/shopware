@@ -36,7 +36,6 @@ use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
-use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -60,15 +59,12 @@ class WebhookManagerTest extends TestCase
 
     private CollectingMessageBus $bus;
 
-    private MockClock $clock;
-
     protected function setUp(): void
     {
         $this->webhookLoader = $this->createMock(WebhookLoader::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->connection = $this->createMock(Connection::class);
-        $this->clientMock = new MockHandler([new Response(200)]);
-        $this->clock = new MockClock();
+        $this->clientMock = new MockHandler([new Response(200, [], '{}')]);
         $stack = HandlerStack::create($this->clientMock);
         $stack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
         $guzzle = new Client(['handler' => $stack]);
@@ -472,7 +468,6 @@ class WebhookManagerTest extends TestCase
             $this->createMock(AppLocaleProvider::class),
             $appPayloadServiceHelper,
             $this->webhookClient,
-            $this->clock,
             $this->bus,
             'https://example.com',
             '0.0.0',

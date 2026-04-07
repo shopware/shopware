@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Webhook\Handler;
 
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
@@ -346,6 +348,49 @@ class WebhookEventMessageHandlerTest extends TestCase
         ]);
     }
 
+    public function testNetworkErrorThrowsWebhookFailed(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+
+        $appRepository = static::getContainer()->get('app.repository');
+        $appRepository->create([[
+            'id' => $appId,
+            'name' => 'SwagApp',
+            'active' => true,
+            'path' => __DIR__ . '/Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'test',
+            'appSecret' => 's3cr3t',
+            'integration' => [
+                'label' => 'test',
+                'accessKey' => 'api access key',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'name' => 'SwagApp',
+            ],
+            'webhooks' => [
+                [
+                    'id' => $webhookId,
+                    'name' => 'hook1',
+                    'eventName' => 'order',
+                    'url' => 'https://test.com',
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
+
+        $this->appendNewResponse(new ConnectException('Connection refused', new Request('POST', 'https://test.com')));
+
+        $this->expectException(WebhookException::class);
+        $this->expectExceptionMessage('Connection refused');
+
+        ($this->webhookEventMessageHandler)($webhookEventMessage);
+    }
+
     /**
      * @param array<string, string> $webhookHeaders
      */
@@ -365,7 +410,6 @@ class WebhookEventMessageHandlerTest extends TestCase
             's3cr3t',
             Defaults::LANGUAGE_SYSTEM,
             'en-GB',
-            (new \DateTimeImmutable())->getTimestamp(),
             $webhookHeaders
         );
     }

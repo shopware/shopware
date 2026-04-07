@@ -274,7 +274,6 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             's3cr3t',
             Defaults::LANGUAGE_SYSTEM,
             'en-GB',
-            (new \DateTimeImmutable())->getTimestamp(),
         );
     }
 }

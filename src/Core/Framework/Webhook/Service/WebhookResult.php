@@ -11,11 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class WebhookResult
 {
     /**
-     * @param array<string, mixed> $body
      * @param array<string, string[]>|null $headers
      */
     public function __construct(
-        public array $body,
+        public mixed $body,
         public ?int $statusCode,
         public ?string $reasonPhrase,
         public ?array $headers,

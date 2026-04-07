@@ -60,7 +60,7 @@ final readonly class WebhookClient
                     $response->getBody()->getContents()
                 );
             },
-            'rejected' => function (TransferException $reason, string|int $key) use (&$results): void {
+            'rejected' => function (\Throwable $reason, string|int $key) use (&$results): void {
                 $results[$key] = $this->createFailureResult($reason);
             },
         ]);
@@ -69,10 +69,7 @@ final readonly class WebhookClient
         return $results;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function decodeBody(string $body): array
+    private function decodeBody(string $body): mixed
     {
         return json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
     }
@@ -82,23 +79,31 @@ final readonly class WebhookClient
      */
     private function createSuccessResult(int $statusCode, string $reasonPhrase, array $headers, string $body): WebhookResult
     {
+        try {
+            $decodedBody = $this->decodeBody($body);
+        } catch (\JsonException) {
+            // Non-JSON or empty body — store null, same as json_decode(..., true) without JSON_THROW_ON_ERROR
+            $decodedBody = null;
+        }
+
         return new WebhookResult(
-            $this->decodeBody($body),
+            $decodedBody,
             $statusCode,
             $reasonPhrase,
             $headers,
         );
     }
 
-    private function createFailureResult(TransferException $e): WebhookResult
+    private function createFailureResult(\Throwable $e): WebhookResult
     {
         if ($e instanceof RequestException && $e->getResponse() !== null) {
             $response = $e->getResponse();
+            $rawBody = $response->getBody()->getContents();
 
             try {
-                $body = $this->decodeBody($response->getBody()->getContents());
+                $body = $this->decodeBody($rawBody);
             } catch (\JsonException) {
-                $body = [];
+                $body = $rawBody;
             }
 
             return new WebhookResult(

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
-use Psr\Clock\ClockInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
@@ -54,7 +53,6 @@ class WebhookManager implements ResetInterface
         private readonly AppLocaleProvider $appLocaleProvider,
         private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
         private readonly WebhookClient $webhookClient,
-        private readonly ClockInterface $clock,
         private readonly MessageBusInterface $bus,
         private readonly string $shopUrl,
         private readonly string $shopwareVersion,
@@ -223,7 +221,6 @@ class WebhookManager implements ResetInterface
             $webhook->appSecret,
             $languageId,
             $userLocale,
-            $this->clock->now()->getTimestamp(),
             $webhookHeaders
         );
     }

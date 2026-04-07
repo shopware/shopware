@@ -58,7 +58,7 @@ class WebhookClientTest extends TestCase
 
     public function testSendWithCustomHeaders(): void
     {
-        $mockHandler = new MockHandler([new Response(200)]);
+        $mockHandler = new MockHandler([new Response(200, [], '{}')]);
         $client = $this->createClient($mockHandler);
 
         $webhookRequest = $this->createWebhookRequest(headers: ['X-Custom' => 'custom-value', 'X-Another' => 'another']);
@@ -111,7 +111,7 @@ class WebhookClientTest extends TestCase
 
     public function testSendWithoutSecret(): void
     {
-        $mockHandler = new MockHandler([new Response(200)]);
+        $mockHandler = new MockHandler([new Response(200, [], '{}')]);
         $client = $this->createClient($mockHandler);
 
         $client->send($this->createWebhookRequest(secret: null));
@@ -127,9 +127,9 @@ class WebhookClientTest extends TestCase
         $historyMiddleware = Middleware::history($history);
 
         $mockHandler = new MockHandler([
-            new Response(200),
-            new Response(201),
-            new Response(202),
+            new Response(200, [], '{}'),
+            new Response(201, [], '{}'),
+            new Response(202, [], '{}'),
         ]);
 
         $handlerStack = HandlerStack::create($mockHandler);
@@ -185,7 +185,7 @@ class WebhookClientTest extends TestCase
 
         $mockHandler = new MockHandler([
             new ConnectException('Connection refused', new Request('POST', 'https://example.com/hook1')),
-            new Response(200),
+            new Response(200, [], '{}'),
         ]);
 
         $handlerStack = HandlerStack::create($mockHandler);
@@ -217,6 +217,67 @@ class WebhookClientTest extends TestCase
         static::assertSame([], $client->sendBatch());
 
         static::assertNull($mockHandler->getLastRequest());
+    }
+
+    public function testSendWithScalarJsonBodyReturnsDecodedValue(): void
+    {
+        $mockHandler = new MockHandler([
+            new Response(200, [], 'true'),
+        ]);
+
+        $client = $this->createClient($mockHandler);
+        $result = $client->send($this->createWebhookRequest());
+
+        static::assertTrue($result->successful());
+        static::assertSame(200, $result->statusCode);
+        static::assertTrue($result->body);
+    }
+
+    public function testSendWithScalarJsonErrorBodyReturnsDecodedValue(): void
+    {
+        $mockHandler = new MockHandler([
+            new RequestException(
+                'Bad Request',
+                new Request('POST', 'https://example.com'),
+                new Response(400, [], '123')
+            ),
+        ]);
+
+        $client = $this->createClient($mockHandler);
+        $result = $client->send($this->createWebhookRequest());
+
+        static::assertFalse($result->successful());
+        static::assertTrue($result->hasResponse());
+        static::assertSame(400, $result->statusCode);
+        static::assertSame(123, $result->body);
+    }
+
+    public function testSendWithEmptyBodyReturnsNull(): void
+    {
+        $mockHandler = new MockHandler([
+            new Response(204, [], ''),
+        ]);
+
+        $client = $this->createClient($mockHandler);
+        $result = $client->send($this->createWebhookRequest());
+
+        static::assertTrue($result->successful());
+        static::assertSame(204, $result->statusCode);
+        static::assertNull($result->body);
+    }
+
+    public function testSendWithNonJsonTextBodyReturnsNull(): void
+    {
+        $mockHandler = new MockHandler([
+            new Response(200, [], '<html>OK</html>'),
+        ]);
+
+        $client = $this->createClient($mockHandler);
+        $result = $client->send($this->createWebhookRequest());
+
+        static::assertTrue($result->successful());
+        static::assertSame(200, $result->statusCode);
+        static::assertNull($result->body);
     }
 
     private function createClient(MockHandler $mockHandler): WebhookClient

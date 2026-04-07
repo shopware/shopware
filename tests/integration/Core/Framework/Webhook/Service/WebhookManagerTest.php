@@ -886,7 +886,7 @@ class WebhookManagerTest extends TestCase
 
                 return true;
             }))
-            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB', )));
+            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB')));
 
         $this->getManager($client, false)->dispatch($event);
     }
@@ -938,7 +938,7 @@ class WebhookManagerTest extends TestCase
 
                 return true;
             }))
-            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, null, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB', )));
+            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, null, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB')));
 
         $this->getManager($client, false)->dispatch($event);
     }
@@ -1057,7 +1057,6 @@ class WebhookManagerTest extends TestCase
         bool $adminWorkerEnabled = true
     ): WebhookManager {
         $guzzle = $client ?? static::getContainer()->get('shopware.webhook.guzzle');
-        $clock = static::getContainer()->get('Symfony\Component\Clock\ClockInterface');
 
         return new WebhookManager(
             static::getContainer()->get(WebhookLoader::class),
@@ -1067,7 +1066,6 @@ class WebhookManagerTest extends TestCase
             static::getContainer()->get(AppLocaleProvider::class),
             static::getContainer()->get(AppPayloadServiceHelper::class),
             new WebhookClient($guzzle),
-            $clock,
             $this->bus,
             $this->shopUrl,
             Kernel::SHOPWARE_FALLBACK_VERSION,

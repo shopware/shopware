@@ -427,6 +427,7 @@ describe('sw-block', () => {
 
             await wrapper.setData({ blockName: 'changed-block-name' });
 
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[sw-block]'));
             expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('"name" prop changed'));
             expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('original-block-name'));
             expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('changed-block-name'));
@@ -453,31 +454,6 @@ describe('sw-block', () => {
             );
 
             expect(consoleSpy).not.toHaveBeenCalled();
-        });
-
-        it('includes the [sw-block] prefix in the warning so developers can identify the source', async () => {
-            const wrapper = await mount(
-                {
-                    template: `
-                        <sw-block :name="blockName" :data="$dataScope()">
-                            <div class="content"></div>
-                        </sw-block>
-                    `,
-                    components: {
-                        'sw-block': await wrapTestComponent('sw-block', { sync: true }),
-                    },
-                    data() {
-                        return { blockName: 'block-before' };
-                    },
-                },
-                {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
-                },
-            );
-
-            await wrapper.setData({ blockName: 'block-after' });
-
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[sw-block]'));
         });
     });
 });

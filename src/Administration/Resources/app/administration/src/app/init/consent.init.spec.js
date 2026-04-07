@@ -14,7 +14,7 @@ describe('src/app/init/consent.init.js', () => {
                 scopeName: 'user_id',
                 status: 'unset',
                 actor: null,
-                updated_at: null,
+                updatedAt: null,
             };
 
             return {
@@ -35,7 +35,7 @@ describe('src/app/init/consent.init.js', () => {
                 scopeName: 'user_id',
                 status: 'unset',
                 actor: null,
-                updated_at: null,
+                updatedAt: null,
             },
         });
 

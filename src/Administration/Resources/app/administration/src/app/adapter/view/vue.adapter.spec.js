@@ -23,6 +23,8 @@ window.performance.measure = () => {};
 window.performance.clearMarks = () => {};
 window.performance.clearMeasures = () => {};
 
+window.removePageLoadingIndicator = jest.fn();
+
 jest.mock('src/app/adapter/view/sw-vue-devtools', () => {
     return jest.fn();
 });
@@ -91,6 +93,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
     afterEach(() => {
         AsyncComponentFactory.markComponentTemplatesAsNotResolved();
+        window.removePageLoadingIndicator.mockClear();
     });
 
     it('should be an class', async () => {
@@ -638,8 +641,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             await vueAdapter.initDependencies();
 
             // create div with id app
-            // loading indicator is always present next to the #app initially (and removal after mounting needs to be tested)
-            document.body.innerHTML = '<div id="page-loading-screen"></div><div id="app"></div>';
+            document.body.innerHTML = '<div id="app"></div>';
 
             rootComponent = vueAdapter.init('#app', router, {});
         });
@@ -759,9 +761,9 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         it('should remove the loading indicator after vue is mounted', async () => {
-            expect(document.getElementById('page-loading-screen')).not.toBeNull();
-            await flushPromises();
-            expect(document.getElementById('page-loading-screen')).toBeNull();
+            // it is difficult to actually test for removal because the js code is located at /app/administration/shared,
+            // which is not included in the test environment.
+            expect(window.removePageLoadingIndicator).toHaveBeenCalled();
         });
     });
 });

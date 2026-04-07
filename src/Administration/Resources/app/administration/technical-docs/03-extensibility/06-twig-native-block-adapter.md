@@ -345,14 +345,32 @@ Resolved by Vue's runtime compiler using the global component registry — works
 
 ### Async overrides and boot-order invariant
 
-For plugin overrides registered via an **async function config** (lazy-loaded), the block index
-is populated inside `configResolveMethod` when it is awaited by `initComponent()`. Shopware's
-boot sequence awaits all registered component configs before Vue mounts any component tree, so
-async overrides are always indexed before the first `<sw-block name="...">` executes.
+An **async function config** is when you pass a function to `Shopware.Component.override()`
+instead of a plain object:
 
-**Failure mode if this invariant is violated:** The async override's Twig blocks are never
-indexed, `hasBlockEntries()` returns `false`, no shim slots are created, and the default block
-content renders unchanged. There is no error or warning — the override is silently skipped.
+```js
+// Direct-object config (synchronous) — block index populated immediately at registration time
+Shopware.Component.override('sw-product-detail', {
+    template: `{% block sw_product_detail_content %}...{% endblock %}`,
+});
+
+// Async function config (lazy-loaded) — block index populated later when configResolveMethod is awaited
+Shopware.Component.override('sw-product-detail', async () => ({
+    template: `{% block sw_product_detail_content %}...{% endblock %}`,
+}));
+```
+
+For async function configs, the block index is populated inside `configResolveMethod` when it is
+awaited by `initComponent()`. Shopware's boot sequence awaits all registered component configs
+before Vue mounts any component tree, so async overrides are always indexed before the first
+`<sw-block name="...">` executes.
+
+**Failure mode if this invariant is violated:** If `app.mount()` runs before all async configs
+have been awaited (e.g. a plugin registers a lazy override outside the normal Shopware boot flow),
+any `<sw-block>` that mounts will query an empty registry. The async override's Twig blocks are
+never indexed, `hasBlockEntries()` returns `false`, no shim slots are created, and the default
+block content renders unchanged. There is no warning because `sw-block` has no concept of
+"expected overrides" — it only reads what is currently in the index.
 
 This boot-order dependency is enforced by convention, not by the code. If the application boot
 sequence is ever restructured, this must be re-validated.

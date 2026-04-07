@@ -4,27 +4,18 @@ namespace Shopware\Tests\Unit\Core\Test;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Test\StrictEmptyHelper;
+use Shopware\Core\Test\ShopwareTestCase;
 
 /**
  * @internal
  */
-#[CoversClass(StrictEmptyHelper::class)]
-class StrictEmptyHelperTest extends TestCase
+#[CoversClass(ShopwareTestCase::class)]
+class ShopwareTestCaseTest extends TestCase
 {
-    private StrictEmptyHelper $helper;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->helper = new StrictEmptyHelper();
-    }
-
     public function testArrayEmptyAndNotEmpty(): void
     {
-        $this->helper->assertStrictEmpty([]);
-        $this->helper->assertNotStrictEmpty([1]);
+        ShopwareTestCase::assertStrictEmpty([]);
+        ShopwareTestCase::assertNotStrictEmpty([1]);
     }
 
     public function testCountableEmpty(): void
@@ -36,7 +27,7 @@ class StrictEmptyHelperTest extends TestCase
             }
         };
 
-        $this->helper->assertStrictEmpty($c);
+        ShopwareTestCase::assertStrictEmpty($c);
     }
 
     public function testTraversableEmptyAndNotEmpty(): void
@@ -44,8 +35,8 @@ class StrictEmptyHelperTest extends TestCase
         $itEmpty = new \ArrayIterator([]);
         $itNotEmpty = new \ArrayIterator([1]);
 
-        $this->helper->assertStrictEmpty($itEmpty);
-        $this->helper->assertNotStrictEmpty($itNotEmpty);
+        ShopwareTestCase::assertStrictEmpty($itEmpty);
+        ShopwareTestCase::assertNotStrictEmpty($itNotEmpty);
     }
 
     public function testGeneratorConsumedAndEmpty(): void
@@ -59,17 +50,17 @@ class StrictEmptyHelperTest extends TestCase
             yield 1;
         })();
 
-        $this->helper->assertStrictEmpty($genEmpty);
-        $this->helper->assertNotStrictEmpty($genNotEmpty);
+        ShopwareTestCase::assertStrictEmpty($genEmpty);
+        ShopwareTestCase::assertNotStrictEmpty($genNotEmpty);
     }
 
     public function testPrimitivesAreNotConsideredEmpty(): void
     {
         // By strict definition used here, primitives are not treated as "empty":
         // empty string, numeric zero, false and null are NOT strictly empty.
-        $this->helper->assertNotStrictEmpty('');
-        $this->helper->assertNotStrictEmpty(0);
-        $this->helper->assertNotStrictEmpty(false);
-        $this->helper->assertNotStrictEmpty(null);
+        ShopwareTestCase::assertNotStrictEmpty('');
+        ShopwareTestCase::assertNotStrictEmpty(0);
+        ShopwareTestCase::assertNotStrictEmpty(false);
+        ShopwareTestCase::assertNotStrictEmpty(null);
     }
 }

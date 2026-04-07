@@ -11,7 +11,7 @@ use Shopware\Core\Test\Constraint\StrictIsEmpty;
  * @internal
  */
 #[Package('framework')]
-final class StrictEmptyHelper
+final class ShopwareTestCase
 {
     /**
      * Asserts that the given value is strictly empty according to the
@@ -20,7 +20,7 @@ final class StrictEmptyHelper
      * The strict emptiness rules are implemented by the `StrictIsEmpty`
      * constraint and may differ from PHP's loose "empty" semantics.
      */
-    public function assertStrictEmpty(mixed $actual, string $message = ''): void
+    public static function assertStrictEmpty(mixed $actual, string $message = ''): void
     {
         Assert::assertThat($actual, new StrictIsEmpty(), $message);
     }
@@ -33,7 +33,7 @@ final class StrictEmptyHelper
      * around the `StrictIsEmpty` constraint to verify the value is considered
      * non-empty by the strict rules.
      */
-    public function assertNotStrictEmpty(mixed $actual, string $message = ''): void
+    public static function assertNotStrictEmpty(mixed $actual, string $message = ''): void
     {
         Assert::assertThat($actual, new LogicalNot(new StrictIsEmpty()), $message);
     }

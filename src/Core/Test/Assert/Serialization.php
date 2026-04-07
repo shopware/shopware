@@ -52,6 +52,36 @@ final class Serialization
     }
 
     /**
+     * Unserializes a string, asserts the result is an array, and returns it —
+     * useful when the serialized blob comes from an external source and the
+     * caller needs to continue asserting individual keys or values.
+     *
+     * @return array<mixed>
+     */
+    public static function assertUnserializedIsArray(string $serialized): array
+    {
+        $result = \unserialize($serialized);
+
+        Assert::assertIsArray($result);
+
+        return $result;
+    }
+
+    /**
+     * Unserializes a string, asserts the result equals the expected value using
+     * loose equality, and returns it — useful when comparing objects where
+     * identity does not matter, only structural equality.
+     */
+    public static function assertUnserializedEquals(mixed $expected, string $serialized, string $message = ''): mixed
+    {
+        $result = \unserialize($serialized);
+
+        Assert::assertEquals($expected, $result, $message);
+
+        return $result;
+    }
+
+    /**
      * @param scalar|array<mixed>|null $expected
      *
      * @return scalar|array<mixed>|null

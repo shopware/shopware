@@ -68,6 +68,49 @@ class SerializationTest extends TestCase
         Serialization::assertUnserializedInstanceOf(\stdClass::class, 'not-a-valid-serialized-string');
     }
 
+    public function testAssertUnserializedEqualsPassesForEqualObject(): void
+    {
+        $original = new \ArrayObject(['a' => 1]);
+        $result = Serialization::assertUnserializedEquals($original, \serialize($original));
+
+        static::assertEquals($original, $result);
+    }
+
+    public function testAssertUnserializedEqualsFailsOnMismatch(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+
+        Serialization::assertUnserializedEquals(new \ArrayObject(['a' => 1]), \serialize(new \ArrayObject(['a' => 2])));
+    }
+
+    public function testAssertUnserializedEqualsFailsOnInvalidSerializedString(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+
+        Serialization::assertUnserializedEquals(new \stdClass(), 'not-a-valid-serialized-string');
+    }
+
+    public function testAssertUnserializedIsArrayReturnsArray(): void
+    {
+        $result = Serialization::assertUnserializedIsArray(\serialize(['key' => 'value']));
+
+        static::assertSame(['key' => 'value'], $result);
+    }
+
+    public function testAssertUnserializedIsArrayFailsWhenNotArray(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+
+        Serialization::assertUnserializedIsArray(\serialize(new \stdClass()));
+    }
+
+    public function testAssertUnserializedIsArrayFailsOnInvalidSerializedString(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+
+        Serialization::assertUnserializedIsArray('not-a-valid-serialized-string');
+    }
+
     public function testAssertUnserializedSamePassesForString(): void
     {
         Serialization::assertUnserializedSame('hello', \serialize('hello'));

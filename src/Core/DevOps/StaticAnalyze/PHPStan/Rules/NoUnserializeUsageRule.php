@@ -35,7 +35,7 @@ class NoUnserializeUsageRule implements Rule
 
     final public const ERROR_TIP = 'If you need to unserialize data, consider using a safe alternative such as json format or a dedicated serializer.';
 
-    final public const ERROR_TIP_TESTS = 'In test classes, use \Shopware\Core\Test\Assert\Serialization::assertRoundTrip(), ::assertUnserializedInstanceOf(), or ::assertUnserializedSame() instead.';
+    final public const ERROR_TIP_TESTS = 'In test classes, use \Shopware\Core\Test\Assert\Serialization::assertRoundTrip(), ::assertUnserializedInstanceOf(), ::assertUnserializedIsArray(), ::assertUnserializedEquals(), or ::assertUnserializedSame() instead.';
 
     /**
      * Classes that are explicitly allowed to call unserialize() because they

@@ -78,13 +78,16 @@ To still allow further customization, there will be additional webhooks.
 ### Adding a new document type + format
 
 1. Add your desired document type + format(s) to your App manifest, so it can be selected, for example, in the admin
-2. Subscribe to webhook `TBA`, you are responsible for:
+2. Subscribe to webhook (document gateway, similar to the
+  [checkout gateway](https://developer.shopware.com/docs/guides/plugins/apps/gateways/checkout/checkout-gateway.html))
+  `TBA`, you are responsible for:
   - generating the specified document type in all specified format(s) from scratch
   - uploading the document file(s) back to Shopware
   - it will be stored in Shopware as static documents,
     similar to how merchants can bypass our generation and upload documents directly
-  - you have some strict time constraints to perform all the above so your document artifacts can be used by Shopware,
-    for example in Flow Builder and included in a customer mail
+  - you have some strict time constraints to perform all the above, so your document artifacts can be used by Shopware,
+    for example, in Flow Builder and included in customer mail
+  - you have to return the `document` id you generated in the webhook / gateway HTTP response
 
 ## Twig templates
 

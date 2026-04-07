@@ -1,6 +1,6 @@
 .sw-manufacturer-detail {
     .sw-manufacturer-detail__container {
-        margin-bottom: 16px;
+        margin-bottom: var(--scale-size-16);
     }
 
     .sw-manufacturer-detail__logo-upload {
@@ -15,7 +15,7 @@
             }
 
             &__url-form {
-                padding-left: 24px;
+                padding-left: var(--scale-size-24);
             }
         }
     }

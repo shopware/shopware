@@ -2,7 +2,7 @@
 
 .sw-settings-search-live-search {
     &__description {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
     }
 
     &__show-example-link {
@@ -11,8 +11,8 @@
         grid-column-gap: 4px;
         align-items: center;
         margin: 18px 0 12px;
-        color: $color-shopware-brand-500;
-        font-size: $font-size-xs;
+        color: var(--color-text-brand-default);
+        font-size: var(--font-size-xs);
         text-decoration: underline;
         cursor: pointer;
     }
@@ -23,13 +23,13 @@
 
     &__search-results {
         position: relative;
-        padding: 10px 0;
+        padding: var(--scale-size-10) 0;
     }
 
     &__no-result {
         display: block;
         margin: 18px 0;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
     }
 
     &__grid-result {

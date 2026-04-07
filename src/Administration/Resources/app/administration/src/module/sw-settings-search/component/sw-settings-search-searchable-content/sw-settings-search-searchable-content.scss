@@ -7,13 +7,13 @@
 
     &__searchable-content-show-example-link,
     &__searchable-content-rebuild-link {
-        color: $color-shopware-brand-500;
+        color: var(--color-text-brand-default);
         font-size: $font-size-xs;
         cursor: pointer;
         text-decoration: underline;
 
         &:hover {
-            color: $color-shopware-brand-600;
+            color: var(--color-text-brand-hover);
         }
     }
 
@@ -68,11 +68,11 @@
         }
 
         .is--active {
-            color: $color-emerald-500;
+            color: var(--color-icon-positive-default);
         }
 
         .is--inactive {
-            color: $color-crimson-500;
+            color: var(--color-icon-critical-default);
         }
     }
 

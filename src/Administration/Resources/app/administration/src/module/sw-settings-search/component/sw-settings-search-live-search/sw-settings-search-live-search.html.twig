@@ -29,7 +29,7 @@
                 {{ $tc('sw-settings-search.generalTab.linkExample') }}
                 <mt-icon
                     name="regular-long-arrow-right"
-                    size="16px"
+                    size="var(--scale-size-16)"
                 />
             </a>
         </sw-container>
@@ -62,7 +62,7 @@
     <sw-container
         class="sw-settings-search-live-search__search-container"
         columns="1fr 250px"
-        gap="16px"
+        gap="var(--scale-size-16)"
     >
         <sw-simple-search-field
             v-model:value="liveSearchTerm"
@@ -79,7 +79,7 @@
                 <mt-icon
                     class="sw-settings-search-live-search__search-icon"
                     name="regular-search-s"
-                    size="16px"
+                    size="var(--scale-size-16)"
                     @click="searchOnStorefront"
                 />
                 {% endblock %}

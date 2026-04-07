@@ -15,7 +15,7 @@
         class="sw-field"
         columns="repeat(auto-fit, minmax(100px, 1fr))"
         align="center"
-        gap="0px 30px"
+        gap="0px var(--scale-size-30)"
     >
         <div class="sw-settings-search__searchable-content-button-group">
             {% block sw_settings_search_searchable_add_item %}
@@ -61,7 +61,7 @@
                 {{ $tc('sw-settings-search.generalTab.linkExample') }}
                 <mt-icon
                     name="regular-long-arrow-right"
-                    size="16px"
+                    size="var(--scale-size-16)"
                 />
             </a>
             {% endblock %}
@@ -73,7 +73,7 @@
                 {{ $tc('sw-settings-search.liveSearchTab.linkRebuildSearchIndex') }}
                 <mt-icon
                     name="regular-long-arrow-right"
-                    size="16px"
+                    size="var(--scale-size-16)"
                 />
             </router-link>
         </div>

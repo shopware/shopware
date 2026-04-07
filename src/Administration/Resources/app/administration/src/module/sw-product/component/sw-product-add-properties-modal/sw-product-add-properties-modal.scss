@@ -45,7 +45,7 @@ $background-color: $color-gray-100;
     }
 
     &__property-selected {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
     }
 
     &__property-values .sw-grid__cell .sw-grid__cell-content {

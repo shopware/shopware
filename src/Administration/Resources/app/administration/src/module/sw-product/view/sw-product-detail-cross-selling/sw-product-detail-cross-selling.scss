@@ -22,8 +22,8 @@
         justify-content: center;
         align-items: center;
         line-height: 16px;
-        font-size: $font-size-xs;
-        margin: 20px 0;
+        font-size: var(--font-size-xs);
+        margin: var(--scale-size-20) 0;
         color: $color-darkgray-200;
 
         &.is--inherited {
@@ -32,7 +32,7 @@
     }
 
     &__inherit-switch {
-        margin: 0 10px 0 0;
+        margin: 0 var(--scale-size-10) 0 0;
 
         .sw-field--switch__input {
             height: 16px;
@@ -41,7 +41,7 @@
     }
 
     &__inheritance-icon {
-        margin-right: 8px;
+        margin-right: var(--scale-size-8);
     }
 
     &__cross-selling-list + .sw-tooltip--wrapper {

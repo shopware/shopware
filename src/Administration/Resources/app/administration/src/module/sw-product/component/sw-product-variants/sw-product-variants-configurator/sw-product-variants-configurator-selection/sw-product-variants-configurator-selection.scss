@@ -30,7 +30,7 @@ $sw-product-variants-configurator-selection-text-color: $color-darkgray-200;
 
     .generate-variant-progress-bar__description {
         color: $sw-product-variants-configurator-selection-text-color;
-        margin-top: 20px;
+        margin-top: var(--scale-size-20);
     }
 }
 

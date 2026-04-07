@@ -6,14 +6,14 @@
     .sw-product-media-form__previews {
         border-radius: $border-radius-default;
         border: 1px solid $color-gray-300;
-        padding: 20px;
-        margin-top: 20px;
+        padding: var(--scale-size-20);
+        margin-top: var(--scale-size-20);
         height: auto;
         position: relative;
         overflow: hidden;
         display: grid;
         grid-template-columns: 175px 1fr;
-        grid-gap: 12px;
+        grid-gap: var(--scale-size-12);
 
         .preview-cover {
             width: 175px;
@@ -27,13 +27,13 @@
 
     .sw-product-media-form__upload-button {
         display: block;
-        margin: 0 auto 20px;
+        margin: 0 auto var(--scale-size-20);
     }
 
     .sw-product-media-form__grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-        grid-gap: 10px;
+        grid-gap: var(--scale-size-10);
         grid-auto-flow: dense;
     }
 
@@ -44,7 +44,7 @@
         max-width: 100%;
         color: $color-gray-300;
         overflow: hidden;
-        margin-bottom: 10px;
+        margin-bottom: var(--scale-size-10);
 
         &::after {
             content: "";

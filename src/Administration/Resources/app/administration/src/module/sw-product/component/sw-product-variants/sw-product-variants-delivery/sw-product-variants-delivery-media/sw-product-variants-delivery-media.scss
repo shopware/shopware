@@ -6,12 +6,12 @@
     padding: 0;
 
     .sw-product-variants-delivery-media__groups {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         flex-basis: 270px;
         height: 100%;
         overflow: auto;
         border-right: 1px solid $color-gray-300;
-        padding: 20px 0;
+        padding: var(--scale-size-20) 0;
 
         .mt-icon {
             margin-right: 8px;

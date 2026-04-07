@@ -52,7 +52,7 @@ $sw-product-variants-media-upload-preview-cover-border: #d8d8d8;
             flex-wrap: wrap;
             align-items: center;
             width: 85px;
-            margin-left: 8px;
+            margin-left: var(--scale-size-8);
 
             &.is--compact--button {
                 width: 216px;

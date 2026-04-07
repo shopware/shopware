@@ -8,7 +8,7 @@ $sw-product-price-suffix-font-size: 20px;
     }
 
     &__currency {
-        font-weight: $font-weight-regular;
+        font-weight: var(--font-weight-regular);
         font-size: $sw-product-price-suffix-font-size;
     }
 
@@ -20,7 +20,7 @@ $sw-product-price-suffix-font-size: 20px;
         a {
             transition: color 0.3s ease;
             cursor: pointer;
-            margin-top: 16px;
+            margin-top: var(--scale-size-16);
         }
     }
 

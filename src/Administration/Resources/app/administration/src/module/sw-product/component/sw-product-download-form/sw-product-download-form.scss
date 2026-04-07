@@ -8,12 +8,12 @@
         border-radius: $border-radius-default;
         border: 1px solid $color-gray-300;
         padding: 8px 12px 8px 16px;
-        margin-top: 16px;
+        margin-top: var(--scale-size-16);
         height: auto;
         position: relative;
         overflow: hidden;
         display: grid;
-        grid-column-gap: 12px;
+        grid-column-gap: var(--scale-size-12);
         grid-template-columns: auto 1fr min-content;
     }
 
@@ -29,8 +29,8 @@
         justify-self: end;
         align-items: center;
         color: $color-gray-500;
-        font-size: $font-size-xs;
-        font-weight: $font-weight-semi-bold;
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-semibold);
         white-space: nowrap;
 
         span:not(:last-of-type) {
@@ -58,7 +58,7 @@
 
     .sw-product-download-form__upload-button {
         display: block;
-        margin: 0 auto 20px;
+        margin: 0 auto var(--scale-size-20);
     }
 
     &.is--disabled::after {

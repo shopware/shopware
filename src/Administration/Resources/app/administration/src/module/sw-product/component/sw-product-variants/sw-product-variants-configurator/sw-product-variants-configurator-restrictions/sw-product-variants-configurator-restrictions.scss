@@ -12,7 +12,7 @@ $sw-product-variants-configurator-restrictions-search-border: $color-gray-300;
     .sw-product-variants-configurator-restrictions__search {
         display: grid;
         grid-template-columns: 1fr 200px;
-        grid-column-gap: 16px;
+        grid-column-gap: var(--scale-size-16);
         padding: 25px;
         background-color: $sw-product-variants-configurator-restrictions-search-background;
         border-bottom: 1px solid $sw-product-variants-configurator-restrictions-search-border;
@@ -29,7 +29,7 @@ $sw-product-variants-configurator-restrictions-search-border: $color-gray-300;
 
     .sw-product-variants-configurator-restrictions__group-name {
         margin-right: 5px;
-        margin-left: 10px;
+        margin-left: var(--scale-size-10);
     }
 }
 
@@ -48,11 +48,11 @@ $sw-product-variants-configurator-restrictions-search-border: $color-gray-300;
     .sw-product-variants-configurator-restrictions__seperator {
         text-transform: uppercase;
         font-weight: bold;
-        margin-bottom: 10px;
+        margin-bottom: var(--scale-size-10);
     }
 
     .sw-product-variants-configurator-restrictions__button-new-restriction {
         text-transform: uppercase;
-        margin-top: 10px;
+        margin-top: var(--scale-size-10);
     }
 }

@@ -37,7 +37,7 @@
     }
 
     .sw-list-price-field__vertical {
-        gap: 8px;
+        gap: var(--scale-size-8);
     }
 
     .sw-data-grid .sw-data-grid__body .sw-data-grid__cell-content {
@@ -115,12 +115,12 @@
         display: flex;
         align-items: center;
         line-height: 16px;
-        font-size: $font-size-xs;
-        margin-bottom: 20px;
+        font-size: var(--font-size-xs);
+        margin-bottom: var(--scale-size-20);
         color: $color-darkgray-200;
 
         .sw-product-detail-context-prices__inheritance-icon {
-            margin-right: 8px;
+            margin-right: var(--scale-size-8);
         }
 
         &.is--inherited {
@@ -128,7 +128,7 @@
         }
 
         .sw-product-detail-context-prices__inherit-switch {
-            margin: 0 10px 0 0;
+            margin: 0 var(--scale-size-10) 0 0;
 
             .sw-field--switch__input {
                 height: 16px;

@@ -42,7 +42,7 @@ class Migration1726049442UpdateVariantListingConfigInProductTable extends Migrat
         );
 
         $connection->executeStatement(
-            'UPDATE `product` SET `display_group` = MD5(HEX(`parent_id`)) WHERE `parent_id` IN (:ids)',
+            'UPDATE `product` SET `display_group` = SHA2(HEX(`parent_id`), 256) WHERE `parent_id` IN (:ids)',
             ['ids' => $productIds],
             ['ids' => ArrayParameterType::STRING]
         );

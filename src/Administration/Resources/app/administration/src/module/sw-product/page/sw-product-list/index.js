@@ -328,6 +328,7 @@ export default {
                 this.storeKey,
                 this.productCriteria,
             );
+            criteria.filters = this.normalizeCategoryFilters(criteria.filters);
 
             if (!criteria.filters.some((filter) => filter.field === 'type')) {
                 criteria.addPostFilter(Criteria.equalsAny('type', this.productTypes));
@@ -425,12 +426,26 @@ export default {
             this.getList();
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
-         */
         updateCriteria(criteria) {
-            // Delegate to listing mixin implementation
-            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, this.normalizeCategoryFilters(criteria));
+        },
+
+        normalizeCategoryFilters(filters) {
+            return filters.map((filter) => {
+                if (filter.field !== 'categories.id') {
+                    return filter;
+                }
+
+                const categoryIds = Array.isArray(filter.value) ? filter.value : filter.value.split('|');
+                if (categoryIds.length === 0) {
+                    return filter;
+                }
+
+                return Criteria.multi('OR', [
+                    filter,
+                    Criteria.equalsAny('product.streams.categories.id', categoryIds),
+                ]);
+            });
         },
 
         getCurrencyPriceByCurrencyId(currencyId, prices) {

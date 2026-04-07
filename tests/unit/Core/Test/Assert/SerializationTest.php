@@ -46,7 +46,7 @@ class SerializationTest extends TestCase
         $original = new \ArrayObject([1, 2, 3]);
         $serialized = \serialize($original);
 
-        $result = Serialization::assertDeserializes(\ArrayObject::class, $serialized);
+        $result = Serialization::assertUnserializedInstanceOf(\ArrayObject::class, $serialized);
 
         static::assertInstanceOf(\ArrayObject::class, $result);
         static::assertSame([1, 2, 3], $result->getArrayCopy());
@@ -58,14 +58,38 @@ class SerializationTest extends TestCase
 
         $this->expectException(AssertionFailedError::class);
 
-        Serialization::assertDeserializes(\stdClass::class, $serialized);
+        Serialization::assertUnserializedInstanceOf(\stdClass::class, $serialized);
     }
 
     public function testAssertDeserializesFailsOnInvalidSerializedString(): void
     {
         $this->expectException(AssertionFailedError::class);
 
-        Serialization::assertDeserializes(\stdClass::class, 'not-a-valid-serialized-string');
+        Serialization::assertUnserializedInstanceOf(\stdClass::class, 'not-a-valid-serialized-string');
+    }
+
+    public function testAssertUnserializedSamePassesForString(): void
+    {
+        Serialization::assertUnserializedSame('hello', \serialize('hello'));
+    }
+
+    public function testAssertUnserializedSamePassesForInt(): void
+    {
+        Serialization::assertUnserializedSame(42, \serialize(42));
+    }
+
+    public function testAssertUnserializedSameFailsOnMismatch(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+
+        Serialization::assertUnserializedSame('expected', \serialize('actual'));
+    }
+
+    public function testAssertUnserializedSameFailsOnInvalidSerializedString(): void
+    {
+        $this->expectException(AssertionFailedError::class);
+
+        Serialization::assertUnserializedSame('hello', 'not-a-valid-serialized-string');
     }
 }
 
@@ -74,7 +98,9 @@ class SerializationTest extends TestCase
  */
 class UnserializableStub
 {
-    /** @param array<string, mixed> $data */
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __unserialize(array $data): void
     {
         throw new \RuntimeException('Deserialization not allowed');

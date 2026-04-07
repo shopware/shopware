@@ -43,12 +43,27 @@ final class Serialization
      *
      * @return T
      */
-    public static function assertDeserializes(string $class, string $serialized): object
+    public static function assertUnserializedInstanceOf(string $class, string $serialized): object
     {
         /** @phpstan-ignore shopware.unserializeUsage */
         $result = \unserialize($serialized);
 
         Assert::assertInstanceOf($class, $result);
+
+        return $result;
+    }
+
+    /**
+     * @param scalar|array<mixed>|null $expected
+     *
+     * @return scalar|array<mixed>|null
+     */
+    public static function assertUnserializedSame(int|float|string|bool|array|null $expected, string $serialized, string $message = ''): int|float|string|bool|array|null
+    {
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $result = \unserialize($serialized);
+
+        Assert::assertSame($expected, $result, $message);
 
         return $result;
     }

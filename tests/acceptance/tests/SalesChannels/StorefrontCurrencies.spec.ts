@@ -38,7 +38,7 @@ test(
                 await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.name));
             }
             await ShopCustomer.expects(StorefrontHeader.currenciesDropdown).toContainText(currency.name);
-            await ShopCustomer.expects(productListing.productPrice).toContainText(currency.isoCode);
+            await ShopCustomer.expects(productListing.productPrice).toContainText(currency.symbol);
         });
     }
 );

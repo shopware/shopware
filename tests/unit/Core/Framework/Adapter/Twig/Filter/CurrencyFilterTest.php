@@ -65,6 +65,24 @@ class CurrencyFilterTest extends TestCase
         ];
     }
 
+    public function testCurrencyFilterWithPlainContextReturnsFormattedWithoutSymbolReplacement(): void
+    {
+        $context = $this->createContext();
+
+        $currencyFormatter = $this->createMock(CurrencyFormatter::class);
+        $currencyFormatter->method('formatCurrencyByLanguage')->willReturn('10,00 PLN');
+
+        $filter = new CurrencyFilter($currencyFormatter);
+
+        $result = $filter->formatCurrency(
+            ['context' => $context],
+            10.00,
+            'PLN',
+        );
+
+        static::assertSame('10,00 PLN', $result);
+    }
+
     private function createContext(): Context
     {
         return new Context(

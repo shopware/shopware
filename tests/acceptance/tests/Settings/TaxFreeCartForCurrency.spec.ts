@@ -38,13 +38,13 @@ test(
         await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.name));
     }
     
-    let productPrice = `${currency.isoCode} 24.00`;
-    let totalPrice = `${currency.isoCode} 20.16`;
+    let productPrice = `${currency.symbol} 24.00`;
+    let totalPrice = `${currency.symbol} 20.16`;
 
     // eslint-disable-next-line playwright/no-conditional-in-test
     if (satisfies(InstanceMeta.version, '<6.7') && !InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
-        productPrice = `${currency.isoCode} 24.00*`;
-        totalPrice = `${currency.isoCode} 20.16*`;
+        productPrice = `${currency.symbol} 24.00*`;
+        totalPrice = `${currency.symbol} 20.16*`;
     }
 
     await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toHaveText(productPrice);
@@ -59,11 +59,11 @@ test(
     await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 
     await ShopCustomer.expects(StorefrontCheckoutConfirm.taxPrice).not.toBeVisible();
-    await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toHaveText(currency.isoCode + ' 20.16');
+    await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toHaveText(currency.symbol + ' 20.16');
 
     await ShopCustomer.attemptsTo(SubmitOrder());
     await ShopCustomer.expects(StorefrontCheckoutFinish.taxPrice).not.toBeVisible();
-    await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toHaveText(currency.isoCode + ' 20.16');
+    await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toHaveText(currency.symbol + ' 20.16');
 
     const orderId = StorefrontCheckoutFinish.getOrderId();
 

@@ -56,6 +56,10 @@ where these additional requirements were patched in rather than being addressed 
 ## Decision
 
 We will refactor the document generation codebase to make it more maintainable and extensible.
+It will lead to better separation of concerns between document types and their formats,
+as well as providing a better API surface for extensions. So they do not rely on PHP class decoration
+and easily break with each Shopware major release and allow for future internal improvements.
+
 The new implementation will be opt-in during 6.7 and will become the default in 6.8, replacing
 the existing (old) implementation.
 

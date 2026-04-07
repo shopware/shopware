@@ -1,21 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Test;
+namespace Shopware\Tests\Unit\Core\Test\Assert;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Test\ShopwareTestCase;
+use Shopware\Core\Test\Assert\StrictEmpty;
 
 /**
  * @internal
  */
-#[CoversClass(ShopwareTestCase::class)]
-class ShopwareTestCaseTest extends TestCase
+#[CoversClass(StrictEmpty::class)]
+class StrictEmptyTest extends TestCase
 {
     public function testArrayEmptyAndNotEmpty(): void
     {
-        ShopwareTestCase::assertStrictEmpty([]);
-        ShopwareTestCase::assertNotStrictEmpty([1]);
+        StrictEmpty::assertEmpty([]);
+        StrictEmpty::assertNotEmpty([1]);
     }
 
     public function testCountableEmpty(): void
@@ -27,7 +27,7 @@ class ShopwareTestCaseTest extends TestCase
             }
         };
 
-        ShopwareTestCase::assertStrictEmpty($c);
+        StrictEmpty::assertEmpty($c);
     }
 
     public function testTraversableEmptyAndNotEmpty(): void
@@ -35,8 +35,8 @@ class ShopwareTestCaseTest extends TestCase
         $itEmpty = new \ArrayIterator([]);
         $itNotEmpty = new \ArrayIterator([1]);
 
-        ShopwareTestCase::assertStrictEmpty($itEmpty);
-        ShopwareTestCase::assertNotStrictEmpty($itNotEmpty);
+        StrictEmpty::assertEmpty($itEmpty);
+        StrictEmpty::assertNotEmpty($itNotEmpty);
     }
 
     public function testGeneratorConsumedAndEmpty(): void
@@ -50,17 +50,17 @@ class ShopwareTestCaseTest extends TestCase
             yield 1;
         })();
 
-        ShopwareTestCase::assertStrictEmpty($genEmpty);
-        ShopwareTestCase::assertNotStrictEmpty($genNotEmpty);
+        StrictEmpty::assertEmpty($genEmpty);
+        StrictEmpty::assertNotEmpty($genNotEmpty);
     }
 
     public function testPrimitivesAreNotConsideredEmpty(): void
     {
         // By strict definition used here, primitives are not treated as "empty":
         // empty string, numeric zero, false and null are NOT strictly empty.
-        ShopwareTestCase::assertNotStrictEmpty('');
-        ShopwareTestCase::assertNotStrictEmpty(0);
-        ShopwareTestCase::assertNotStrictEmpty(false);
-        ShopwareTestCase::assertNotStrictEmpty(null);
+        StrictEmpty::assertNotEmpty('');
+        StrictEmpty::assertNotEmpty(0);
+        StrictEmpty::assertNotEmpty(false);
+        StrictEmpty::assertNotEmpty(null);
     }
 }

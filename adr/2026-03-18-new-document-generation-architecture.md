@@ -131,8 +131,10 @@ The caller is responsible for:
   - passing in the LIVE_VERSION is not allowed and will throw an exception
 - passing in a single document type
   - it's passed a string by design (for extensibility), but you can use the `DocumentType` enum values
+  - the actual implementation will propably use a union type of `DocumentType|string` for all places
 - passing in a list of formats to generate the document for
   - again a string by design, but you can use the `DocumentFormat` enum values
+  - the actual implementation will propably use a union type of `DocumentFormat|string` for all places
 - passing in a Shopware context with the necessary permissions to generate the document
 - optionally passing in a document number to use for the document, otherwise a new one will be generated
 

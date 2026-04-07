@@ -307,9 +307,10 @@ export default Shopware.Component.wrapComponentConfig({
             ];
             const blocksNodes = blocksAndParent.map((block) => block?.(props.data));
 
-            // The last block is not parent of any other block, and it is the one that renders all the blocks
             const lastNode = blocksNodes.pop();
-            providedParents.value.push(...blocksNodes);
+            // Reset the list on every render so unconsumed entries from the previous cycle
+            // are released and each sw-block-parent pops the correct slot.
+            providedParents.value = blocksNodes;
             return lastNode;
         });
 
@@ -329,7 +330,7 @@ The key steps when rendering a **named block** (`name` prop):
 2. Build an array: `[defaultSlot, ...overrideSlots]`
 3. Call each slot function with the `data` prop (making scope available)
 4. **Pop the last element** — that is what actually gets rendered
-5. **Push all others** into the `providedParents` ref (exposed via `provide`)
+5. **Assign all others** to the `providedParents` ref (exposed via `provide`), replacing the previous list so stale entries are released
 
 This is why the last registered override wins when no `<sw-block-parent />` is used.
 

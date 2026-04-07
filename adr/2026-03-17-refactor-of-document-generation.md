@@ -77,5 +77,6 @@ The new extension points are described here:
 We expect:
 
 - Only minor changes to the merchant UX when generating documents, configuring them, or building flows for them.
+  But we are not limiting ourselves to this and might adjust things to provide a better UX overall.
 - That all existing (already generated) documents will be migrated and will still be accessible untouched in the new implementation UI.
 - All Extensions and Integrations that did anything document-related will have to be updated to use the new implementation.

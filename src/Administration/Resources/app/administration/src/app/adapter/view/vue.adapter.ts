@@ -53,7 +53,7 @@ import useSession from '../../composables/use-session';
 const { Component, State, Mixin } = Shopware;
 
 type RouteGuardName = 'beforeRouteEnter' | 'beforeRouteLeave' | 'beforeRouteUpdate';
-type RouteGuard = (to: RouteLocationRaw, from: RouteLocationRaw, next: NavigationGuardNext) => unknown;
+type RouteGuard = (this: unknown, to: RouteLocationRaw, from: RouteLocationRaw, next: NavigationGuardNext) => unknown;
 type RouteEnterCallback =
     Exclude<Parameters<NavigationGuardNext>[0], undefined> extends (vm: infer VM) => void ? (vm: VM) => void : never;
 type RouteGuardResult = false | RouteLocationRaw | Error | RouteEnterCallback | undefined;
@@ -814,7 +814,7 @@ export default class VueAdapter extends ViewAdapter {
     }
 
     private composeRouteGuards(guards: RouteGuard[], guardName: RouteGuardName): RouteGuard {
-        return async (to, from, next) => {
+        return async function composedRouteGuard(this: unknown, to, from, next) {
             const enterCallbacks: RouteEnterCallback[] = [];
 
             const runGuard = async (index: number): Promise<void> => {
@@ -882,7 +882,7 @@ export default class VueAdapter extends ViewAdapter {
                         };
 
                         try {
-                            const guardResult = guard(to, from, resolveOnce);
+                            const guardResult = guard.call(this, to, from, resolveOnce);
 
                             void Promise.resolve(guardResult).catch((error) => {
                                 if (isSettled) {
@@ -901,7 +901,7 @@ export default class VueAdapter extends ViewAdapter {
                     return;
                 }
 
-                await continueNavigation((await guard(to, from, next)) as RouteGuardResult);
+                await continueNavigation((await guard.call(this, to, from, next)) as RouteGuardResult);
             };
 
             try {

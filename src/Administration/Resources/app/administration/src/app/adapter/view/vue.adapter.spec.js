@@ -513,6 +513,10 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             update: [],
             leave: [],
         };
+        const guardContext = {
+            update: [],
+            leave: [],
+        };
         const enterCallbacks = [];
         const suffix = Shopware.Utils.createId();
         const firstMixinName = `route-guard-first-${suffix}`;
@@ -527,10 +531,12 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             },
             beforeRouteUpdate(to, from, next) {
                 guardOrder.update.push('first-mixin');
+                guardContext.update.push(this.id);
                 next();
             },
             beforeRouteLeave(to, from, next) {
                 guardOrder.leave.push('first-mixin');
+                guardContext.leave.push(this.id);
                 next();
             },
         });
@@ -542,10 +548,12 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             },
             beforeRouteUpdate(to, from, next) {
                 guardOrder.update.push('second-mixin');
+                guardContext.update.push(this.id);
                 next();
             },
             beforeRouteLeave(to, from, next) {
                 guardOrder.leave.push('second-mixin');
+                guardContext.leave.push(this.id);
                 next();
             },
         });
@@ -559,10 +567,12 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             },
             beforeRouteUpdate(to, from, next) {
                 guardOrder.update.push('base-component');
+                guardContext.update.push(this.id);
                 next();
             },
             beforeRouteLeave(to, from, next) {
                 guardOrder.leave.push('base-component');
+                guardContext.leave.push(this.id);
                 next();
             },
         });
@@ -580,10 +590,12 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             },
             beforeRouteUpdate(to, from, next) {
                 guardOrder.update.push('component');
+                guardContext.update.push(this.id);
                 next();
             },
             beforeRouteLeave(to, from, next) {
                 guardOrder.leave.push('component');
+                guardContext.leave.push(this.id);
                 next();
             },
         });
@@ -618,7 +630,9 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             'component:vm-instance',
         ]);
 
-        await routeComponent.beforeRouteUpdate({}, {}, jest.fn());
+        const routeGuardVm = { id: 'route-vm' };
+
+        await routeComponent.beforeRouteUpdate.call(routeGuardVm, {}, {}, jest.fn());
 
         expect(guardOrder.update).toEqual([
             'base-component',
@@ -626,14 +640,26 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             'second-mixin',
             'component',
         ]);
+        expect(guardContext.update).toEqual([
+            'route-vm',
+            'route-vm',
+            'route-vm',
+            'route-vm',
+        ]);
 
-        await routeComponent.beforeRouteLeave({}, {}, jest.fn());
+        await routeComponent.beforeRouteLeave.call(routeGuardVm, {}, {}, jest.fn());
 
         expect(guardOrder.leave).toEqual([
             'base-component',
             'first-mixin',
             'second-mixin',
             'component',
+        ]);
+        expect(guardContext.leave).toEqual([
+            'route-vm',
+            'route-vm',
+            'route-vm',
+            'route-vm',
         ]);
     });
 

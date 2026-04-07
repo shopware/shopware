@@ -61,7 +61,8 @@ as well as providing a better API surface for extensions. So they do not rely on
 and easily break with each Shopware major release and allow for future internal improvements.
 
 The new implementation will be opt-in during 6.7 and will become the default in 6.8, replacing
-the existing (old) implementation.
+the existing (old) implementation. More details on the concrete migration strategy will be described in a separate ADR,
+after the actual implementation is mostly done.
 
 With the new implementation we will also generate Zugferd XML data via Twig templates, which will provide better
 extendability, and we remove the `horstoeko/zugferd` dependency.

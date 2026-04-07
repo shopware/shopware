@@ -11,6 +11,7 @@ import {
 
 describe('core/factory/twig-block-index.ts', () => {
     afterEach(() => {
+        jest.restoreAllMocks();
         resetBlockIndex();
     });
 
@@ -72,13 +73,22 @@ describe('core/factory/twig-block-index.ts', () => {
             expect(entries[1].componentName).toBe('sw-plugin-b');
         });
 
-        it('silently ignores malformed Twig templates without throwing', () => {
+        it('warns and ignores malformed Twig templates without throwing', () => {
+            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
             expect(() => {
                 indexTwigBlocksFromTemplate('sw-product-detail', '{% block unclosed <div {{ ');
             }).not.toThrow();
+
+            expect(consoleWarn).toHaveBeenCalledWith(
+                '[sw-block] Failed to parse Twig template for "sw-product-detail":',
+                expect.anything(),
+            );
         });
 
         it('does not index any block entries from a malformed template', () => {
+            jest.spyOn(console, 'warn').mockImplementation(() => {});
+
             indexTwigBlocksFromTemplate('sw-product-detail', '{% block malformed_block <div {{ ');
 
             expect(hasBlockEntries('malformed_block')).toBe(false);

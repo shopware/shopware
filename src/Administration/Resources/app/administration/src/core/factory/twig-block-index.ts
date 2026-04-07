@@ -49,7 +49,7 @@ const blockIndex = new Map<string, BlockEntry[]>();
  * found. Called synchronously from `override()` before the template string is
  * handed to `TemplateFactory`.
  *
- * Silently ignores malformed templates — TwigJS will surface the error again
+ * Warns and skips malformed templates — TwigJS may surface the error again
  * later through the normal template pipeline if needed.
  *
  * @private
@@ -59,7 +59,8 @@ export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: 
 
     try {
         parsed = Twig.twig({ data: rawTemplate, rethrow: true });
-    } catch {
+    } catch (error) {
+        console.warn(`[sw-block] Failed to parse Twig template for "${componentName}":`, error);
         return;
     }
 

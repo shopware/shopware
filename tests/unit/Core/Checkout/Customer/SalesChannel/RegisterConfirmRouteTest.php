@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -30,12 +31,16 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[CoversClass(RegisterConfirmRoute::class)]
+#[Package('checkout')]
 class RegisterConfirmRouteTest extends TestCase
 {
     protected SalesChannelContext&MockObject $context;
 
     protected EventDispatcherInterface&MockObject $eventDispatcher;
 
+    /**
+     * @var EntityRepository<CustomerCollection>&MockObject
+     */
     protected EntityRepository&MockObject $customerRepository;
 
     protected DataValidator&MockObject $validator;

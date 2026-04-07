@@ -25,7 +25,9 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 #[CoversClass(SalesChannelUserConfigSubscriber::class)]
 class SalesChannelUserConfigSubscriberTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<UserConfigCollection> */
+    /**
+     * @var MockObject&EntityRepository<UserConfigCollection>
+     */
     private MockObject&EntityRepository $userConfigRepository;
 
     private SalesChannelUserConfigSubscriber $salesChannelUserConfigSubscriber;

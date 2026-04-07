@@ -20,7 +20,7 @@ class UpdatedByFieldSerializer extends FkFieldSerializer
 {
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
-        if (!($field instanceof UpdatedByField)) {
+        if (!$field instanceof UpdatedByField) {
             throw DataAbstractionLayerException::invalidSerializerField(UpdatedByField::class, $field);
         }
 

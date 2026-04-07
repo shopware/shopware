@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Store\Authentication;
 
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -12,8 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\InstanceService;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\User\UserEntity;
+use Shopware\Core\System\User\UserCollection;
 
 /**
  * @internal
@@ -27,6 +27,9 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
     final public const SHOPWARE_PLATFORM_TOKEN_HEADER = 'X-Shopware-Platform-Token';
     final public const SHOPWARE_SHOP_SECRET_HEADER = 'X-Shopware-Shop-Secret';
 
+    /**
+     * @param EntityRepository<UserCollection> $userRepository
+     */
     public function __construct(
         private readonly EntityRepository $userRepository,
         private readonly SystemConfigService $systemConfigService,
@@ -72,7 +75,7 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
         $contextSource = $this->ensureAdminApiSource($context);
         $userId = $contextSource->getUserId();
         if ($userId === null) {
-            throw new InvalidContextSourceUserException($contextSource::class);
+            throw StoreException::invalidContextSourceUser($contextSource::class);
         }
 
         return $this->fetchUserStoreToken(new Criteria([$userId]), $context);
@@ -81,8 +84,8 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
     private function getTokenFromSystem(Context $context): ?string
     {
         $contextSource = $context->getSource();
-        if (!($contextSource instanceof SystemSource)) {
-            throw new InvalidContextSourceException(SystemSource::class, $contextSource::class);
+        if (!$contextSource instanceof SystemSource) {
+            throw StoreException::invalidContextSource(SystemSource::class, $contextSource::class);
         }
 
         $criteria = new Criteria();
@@ -95,21 +98,11 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 
     private function fetchUserStoreToken(Criteria $criteria, Context $context): ?string
     {
-        /** @var UserEntity|null $user */
-        $user = $this->userRepository->search($criteria, $context)->first();
-
-        if ($user === null) {
-            return null;
-        }
-
-        return $user->getStoreToken();
+        return $this->userRepository->search($criteria, $context)->first()?->getStoreToken();
     }
 
     private function getLicenseDomain(): string
     {
-        /** @var string $domain */
-        $domain = $this->systemConfigService->get(self::CONFIG_KEY_STORE_LICENSE_DOMAIN) ?? '';
-
-        return $domain;
+        return $this->systemConfigService->getString(self::CONFIG_KEY_STORE_LICENSE_DOMAIN);
     }
 }

@@ -932,7 +932,7 @@ class ApiController extends AbstractController
                 throw ApiException::notExistingRelation($path);
             }
 
-            if (!($field instanceof AssociationField)) {
+            if (!$field instanceof AssociationField) {
                 throw ApiException::pathIsNoAssociationField($part['entity']);
             }
 

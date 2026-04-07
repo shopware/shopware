@@ -51,7 +51,7 @@ Based on custom offcanvas component.
     display: inline-flex;
 
     .loader {
-        @extend .icon-sm;
+        @include sw-icon-size($icon-base-size * 0.875);
     }
 }
 

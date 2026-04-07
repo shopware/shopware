@@ -101,7 +101,7 @@
 }
 
 .order-detail-table-footer {
-    @extend .bg-light;
+    background-color: $gray-100;
 }
 
 .order-price-unit {

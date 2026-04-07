@@ -5,9 +5,12 @@ Defines the loader icon
 */
 
 .loader {
+    // No drop-in replacement mixin available for spinner. Keep alias .loader
+    // stylelint-disable-next-line scss/at-extend-no-missing-placeholder
     @extend .spinner-border;
-    @extend .text-primary;
+    --#{$prefix}text-opacity: 1;
     --#{$prefix}spinner-border-width: 3px;
+    color: rgba(var(--bs-primary-rgb), var(--bs-text-opacity));
 }
 
 /*

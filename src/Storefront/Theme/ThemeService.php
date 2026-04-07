@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -198,7 +199,7 @@ class ThemeService implements ResetInterface
 
     public function assignTheme(string $themeId, string $salesChannelId, Context $context, bool $skipCompile = false): bool
     {
-        $this->connection->transactional(function () use ($themeId, $salesChannelId, $context, $skipCompile): void {
+        RetryableTransaction::transactional($this->connection, function () use ($themeId, $salesChannelId, $context, $skipCompile): void {
             if (!$skipCompile) {
                 $this->compileTheme($salesChannelId, $themeId, $context);
             }

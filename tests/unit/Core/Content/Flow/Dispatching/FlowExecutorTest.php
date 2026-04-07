@@ -87,6 +87,8 @@ class FlowExecutorTest extends TestCase
         $this->ruleLoaderMock = $this->createMock(AbstractRuleLoader::class);
         $this->scopeBuilderMock = $this->createMock(FlowRuleScopeBuilder::class);
         $this->connectionMock = $this->createMock(Connection::class);
+        $this->connectionMock->method('transactional')
+            ->willReturnCallback(static fn (\Closure $func) => $func());
         $this->loggerMock = $this->createMock(LoggerInterface::class);
         $this->addOrderTagActionMock = $this->createMock(AddOrderTagAction::class);
         $this->addCustomerTagActionMock = $this->createMock(AddCustomerTagAction::class);
@@ -548,10 +550,10 @@ class FlowExecutorTest extends TestCase
         $actionSequence->action = StubFlowAction::class;
 
         $this->connectionMock->expects($this->once())
-            ->method('beginTransaction');
-
-        $this->connectionMock->expects($this->once())
-            ->method('commit');
+            ->method('transactional')
+            ->willReturnCallback(static function (\Closure $func): void {
+                $func();
+            });
 
         $flow = new StorableFlow('some-flow', Context::createCLIContext());
         $flow->setFlowState(new FlowState());
@@ -573,20 +575,14 @@ class FlowExecutorTest extends TestCase
         $actionSequence->sequenceId = 'test-sequence';
         $actionSequence->action = $action::class;
 
-        $this->connectionMock->expects($this->once())
-            ->method('beginTransaction');
-
         $e = new TableNotFoundException(
             new DbalPdoException('Table not found', null, 1146),
             null
         );
 
         $this->connectionMock->expects($this->once())
-            ->method('commit')
+            ->method('transactional')
             ->willThrowException($e);
-
-        $this->connectionMock->expects($this->once())
-            ->method('rollBack');
 
         $flow = new StorableFlow('some-flow', Context::createCLIContext());
         $flow->setFlowState(new FlowState());
@@ -610,10 +606,8 @@ class FlowExecutorTest extends TestCase
         $actionSequence->action = $action::class;
 
         $this->connectionMock->expects($this->once())
-            ->method('beginTransaction');
-
-        $this->connectionMock->expects($this->once())
-            ->method('rollBack');
+            ->method('transactional')
+            ->willThrowException($exception);
 
         $flow = new StorableFlow('some-flow', Context::createCLIContext());
         $flow->setFlowState(new FlowState());
@@ -634,12 +628,6 @@ class FlowExecutorTest extends TestCase
         $actionSequence = new ActionSequence();
         $actionSequence->sequenceId = 'test-sequence';
         $actionSequence->action = $action::class;
-
-        $this->connectionMock->expects($this->once())
-            ->method('beginTransaction');
-
-        $this->connectionMock->expects($this->once())
-            ->method('rollBack');
 
         $flow = new StorableFlow('some-flow', Context::createCLIContext());
         $flow->setFlowState(new FlowState());

@@ -43,9 +43,12 @@ export default {
 
     props: {
         value: {
-            type: String,
+            type: [
+                String,
+                null,
+            ],
             required: false,
-            default: '',
+            default: null,
         },
 
         isInlineEdit: {
@@ -440,7 +443,7 @@ export default {
 
     methods: {
         createdComponent() {
-            this.content = this.value;
+            this.content = this.value ?? '';
 
             if (!this.$options.buttonConfig) {
                 this.buttonConfig.push({

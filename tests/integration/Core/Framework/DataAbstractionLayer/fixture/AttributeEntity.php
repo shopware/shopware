@@ -187,6 +187,9 @@ class AttributeEntity extends EntityStruct
     #[Field(type: FieldType::EMAIL)]
     public ?string $email = null;
 
+    #[Field(type: FieldType::STRING, maxLength: 4096)]
+    public ?string $longString = null;
+
     #[Password(for: 'customer')]
     public ?string $password = null;
 

@@ -6,6 +6,10 @@
 
 ## Core
 
+### Respect storefront preview configuration unless “find best variant” is enabled
+
+Users can now control which representative of variant products is shown in filtered listings via the Product settings "find best variant".
+
 ## Administration
 
 ## Storefront

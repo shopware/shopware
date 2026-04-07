@@ -87,8 +87,8 @@
     "fs-extra": "11.3.0",
     "html2canvas": "1.4.1",
     "inter-ui": "3.19.3",
-    "lodash": "4.17.23",
-    "lodash-es": "4.17.23",
+    "lodash": "4.18.1",
+    "lodash-es": "4.18.1",
     "md5-es": "1.8.2",
     "mime-types": "2.1.35",
     "mitt": "3.0.1",
@@ -107,7 +107,7 @@
     "uuid": "11.0.5",
     "uuidv7": "1.0.2",
     "v-click-outside": "3.2.0",
-    "vite": "6.4.1",
+    "vite": "6.4.2",
     "vite-plugin-dynamic-import": "1.6.0",
     "vite-plugin-html": "3.2.2",
     "vite-plugin-node-polyfills": "0.23.0",
@@ -224,6 +224,7 @@
     "vuex": "Vuex is deprecated and will be removed with Shopware 6.8.0"
   },
   "overrides": {
+    "@tootallnate/once": "^3.0.1",
     "ajv@^6": "6.14.0",
     "ajv@^8": "8.18.0",
     "bn.js@^4": "4.12.3",

@@ -613,19 +613,11 @@ function override(
     let config: ComponentConfig;
 
     /**
-     * Synchronous indexing for direct-object configs (the common case for plugins
-     * and the only case exercised in tests). This ensures the block index is
-     * populated before any `sw-block` with a matching name mounts, without
-     * needing to await the full async config resolution pipeline.
-     *
-     * INVARIANT (C-1): For async function configs the block index is populated
-     * inside `configResolveMethod` when it is awaited. Shopware's boot sequence
-     * calls `initComponent()` for all registered components before Vue mounts any
-     * component, so async overrides are always indexed before the first
-     * `<sw-block name="...">` setup() runs. If this boot order is ever changed,
-     * async Twig overrides will silently produce no output (default content renders
-     * unchanged). See `technical-docs/03-extensibility/06-twig-native-block-adapter.md`
-     * for a detailed explanation.
+     * For sync object configs the block index is populated here, before any
+     * `<sw-block>` mounts. For async function configs it is populated inside
+     * `configResolveMethod` when awaited — this relies on `initComponent()` being
+     * called for all components before Vue mounts anything. If that boot order
+     * changes, async Twig overrides will silently produce no output.
      */
     const isSyncWithTemplate =
         componentConfiguration !== null &&

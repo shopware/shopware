@@ -31,23 +31,21 @@ are implemented, as well as use the Twig template extension system.
 
 ### Adding a new document format
 
-1. Add a DB migration to add the new document format to the corresponding table and its association to document types,
-  so it can be selected, for example, in the admin
-2. (Optional) Add a DataProvider, which extends `AbstractDocumentDataProvider` and is tagged
+1. (Optional) Add a DataProvider, which extends `AbstractDocumentDataProvider` and is tagged
    with the `shopware.documentV2.provider` tag to the DI container
    It allows you to enrich the order with extra associations and add extra data to certain document types
-3. Add your Renderer, which extends `AbstractDocumentRenderer` and is tagged
+2. Add your Renderer, which extends `AbstractDocumentRenderer` and is tagged
   with the `shopware.documentV2.renderer` tag to the DI container
   - It can also make use of existing renderers' output by declaring dependencies on other formats
 
 ### Adding a new document type
 
-1. Add a DB migration to add the new document type to the corresponding table and its association to supported
-  document formats, so it can be selected, for example, in the admin
-2. (Optional) Add a DataProvider, which extends `AbstractDocumentDataProvider` and is tagged
+1. (Required) Add a DataProvider, which extends `AbstractDocumentDataProvider` and is tagged
    with the `shopware.documentV2.provider` tag to the DI container
-   It allows you to enrich the order with extra associations and add extra data for your document type
-3. Provide Twig templates for HTML and optionally XML to make use of our default `HtmlRenderer` and `ZugferdXmlRenderer`.
+   It allows you to enrich the order with extra associations and add extra data for your document type.
+   But more importantly, it allows you to register your new document type in the system, making it available for
+   selection, e.g., in the administration.
+2. Provide Twig templates for HTML and optionally XML to make use of our default `HtmlRenderer` and `ZugferdXmlRenderer`.
   You can take advantage of the `PdfRenderer` as well (which only needs HTML output), without writing any rendering code
   yourself besides the Twig templates
 

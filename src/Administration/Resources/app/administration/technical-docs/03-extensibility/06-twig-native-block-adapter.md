@@ -153,7 +153,7 @@ export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: 
             const output = token.token!.output ?? [];
             const innerTemplate = reconstructInnerTemplate(output);
 
-            const existing = blockIndex.get(blockName) ?? [];
+            const existing = getBlockEntries(blockName);
             existing.push({ componentName, innerTemplate });
             blockIndex.set(blockName, existing);
         });

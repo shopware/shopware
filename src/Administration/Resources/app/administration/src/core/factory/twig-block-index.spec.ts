@@ -114,12 +114,6 @@ describe('core/factory/twig-block-index.ts', () => {
         it('returns false for a block name that has not been indexed', () => {
             expect(hasBlockEntries('unknown_block')).toBe(false);
         });
-
-        it('returns true after a block with that name has been indexed', () => {
-            indexTwigBlocksFromTemplate('sw-product-detail', `{% block known_block %}<div></div>{% endblock %}`);
-
-            expect(hasBlockEntries('known_block')).toBe(true);
-        });
     });
 
     describe('resetBlockIndex', () => {

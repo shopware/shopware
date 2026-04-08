@@ -1177,7 +1177,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.level-1 .level-2 .level-3').exists()).toBeTruthy();
         });
 
-        it('renders {% parent %} in the outer block before a nested {% block %} as <sw-block-parent />', async () => {
+        it('renders outer-block {% parent %} before nested block content', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `
                     {% block shim_nested_with_parent %}

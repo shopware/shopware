@@ -650,6 +650,12 @@ class Configuration implements ConfigurationInterface
             ->arrayNode('allowed_types')
                 ->defaultValue([ProductDefinition::TYPE_PHYSICAL, ProductDefinition::TYPE_DIGITAL])
                 ->scalarPrototype()->end()
+            ->end()
+            ->arrayNode('search_keyword')
+                ->addDefaultsIfNotSet()
+                ->children()
+                    ->booleanNode('indexing')->defaultTrue()->end()
+                ->end()
             ->end();
 
         return $rootNode;

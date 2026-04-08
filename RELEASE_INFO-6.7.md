@@ -4,6 +4,10 @@
 
 ## API
 
+### Per-user and per-IP rate limiters for login and OAuth
+
+The login and OAuth token endpoints now support optional per user (`login_user`, `oauth_user`) and per IP (`login_client`, `oauth_client`) rate limiters, in addition to the existing combined user and IP limiter. These are optional and can be enabled via `shopware.api.rate_limiter` in `shopware.yaml`.
+
 ## Core
 
 ## Administration

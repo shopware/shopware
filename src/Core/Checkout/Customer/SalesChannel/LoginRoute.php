@@ -41,6 +41,10 @@ class LoginRoute extends AbstractLoginRoute
         EmailIdnConverter::encodeDataBag($data);
         $email = (string) $data->get('email', $data->get('username'));
 
+        $combinedKey = null;
+        $clientIpKey = null;
+        $emailKey = null;
+
         if ($this->requestStack->getMainRequest() !== null) {
             $clientIpKey = (string) $this->requestStack->getMainRequest()->getClientIp();
             $emailKey = strtolower($email);
@@ -61,15 +65,15 @@ class LoginRoute extends AbstractLoginRoute
             $context
         );
 
-        if (isset($combinedKey)) {
+        if ($combinedKey !== null) {
             $this->rateLimiter->reset(RateLimiter::LOGIN_ROUTE, $combinedKey);
         }
 
-        if (isset($clientIpKey)) {
+        if ($clientIpKey !== null) {
             $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_CLIENT, $clientIpKey);
         }
 
-        if (isset($emailKey)) {
+        if ($emailKey !== null) {
             $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_USER, $emailKey);
         }
 

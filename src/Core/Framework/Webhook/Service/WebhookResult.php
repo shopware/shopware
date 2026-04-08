@@ -30,6 +30,9 @@ final readonly class WebhookResult
         return $this->statusCode !== null;
     }
 
+    /**
+     * @phpstan-assert-if-true null $this->exception
+     */
     public function successful(): bool
     {
         return $this->exception === null;

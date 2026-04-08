@@ -115,8 +115,6 @@ final readonly class WebhookEventMessageHandler
         $this->updateLogIfItExists($payload, $context);
 
         $exception = $result->exception;
-        \assert($exception instanceof \Throwable);
-
         if ($exception instanceof BadResponseException && $message->getAppId()) {
             throw WebhookException::appWebhookFailedException($message->getWebhookId(), $message->getAppId(), $exception);
         }

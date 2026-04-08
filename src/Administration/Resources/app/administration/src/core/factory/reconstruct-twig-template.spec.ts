@@ -39,7 +39,7 @@ function unknownLogicToken(): TestToken {
 }
 
 describe('core/factory/reconstruct-twig-template.ts', () => {
-    describe('reconstructInnerTemplate', () => {
+    describe('unit: reconstructInnerTemplate with manual token shapes', () => {
         it('returns an empty string for an empty token array', () => {
             expect(reconstructInnerTemplate([])).toBe('');
         });
@@ -132,7 +132,7 @@ describe('core/factory/reconstruct-twig-template.ts', () => {
     });
 });
 
-describe('integration: real TwigJS parser output', () => {
+describe('integration: reconstructInnerTemplate with real TwigJS parser output', () => {
     it('returns an empty string for an empty twig template', () => {
         const compiled = Twig.twig({ data: '', rethrow: true });
 

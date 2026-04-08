@@ -1138,7 +1138,6 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
 
             expect(wrapper.find('.override-content').text()).toBe('abc');
         });
-
     });
 
     // ─── Nested {% block %} inside Twig override templates ───────────────────

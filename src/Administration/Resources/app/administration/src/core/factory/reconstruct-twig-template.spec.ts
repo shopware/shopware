@@ -148,13 +148,17 @@ describe('integration: reconstructInnerTemplate with real TwigJS parser output',
     it('replaces {% parent %} with <sw-block-parent /> before surrounding HTML', () => {
         const compiled = Twig.twig({ data: '{% parent %}<div class="after"></div>', rethrow: true });
 
-        expect(reconstructInnerTemplate(compiled.tokens as TwigToken[])).toBe('<sw-block-parent /><div class="after"></div>');
+        expect(reconstructInnerTemplate(compiled.tokens as TwigToken[])).toBe(
+            '<sw-block-parent /><div class="after"></div>',
+        );
     });
 
     it('replaces {% parent %} with <sw-block-parent /> after surrounding HTML', () => {
         const compiled = Twig.twig({ data: '<div class="before"></div>{% parent %}', rethrow: true });
 
-        expect(reconstructInnerTemplate(compiled.tokens as TwigToken[])).toBe('<div class="before"></div><sw-block-parent />');
+        expect(reconstructInnerTemplate(compiled.tokens as TwigToken[])).toBe(
+            '<div class="before"></div><sw-block-parent />',
+        );
     });
 
     it('wraps a nested {% block %} in <sw-block> and replaces {% parent %}', () => {

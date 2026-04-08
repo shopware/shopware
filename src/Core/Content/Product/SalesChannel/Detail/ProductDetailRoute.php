@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
+use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
@@ -55,6 +56,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         private readonly ProductConfiguratorLoader $configuratorLoader,
         private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder,
         private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
+        private readonly EntityCmsSlotConfigInheritanceBuilder $cmsSlotConfigInheritanceBuilder,
         private readonly SalesChannelProductDefinition $productDefinition,
         private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
         private readonly EventDispatcherInterface $dispatcher,
@@ -106,6 +108,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
             $criteria->setIds([$productId]);
             $criteria->setTitle('product-detail-route');
+            $criteria->addAssociation('translations');
 
             $loadCmsPage = !$request->query->getBoolean(self::SKIP_CMS_PAGE);
             $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
@@ -133,7 +136,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                     $request,
                     $this->createCriteria($pageId, $request),
                     $context,
-                    $product->getTranslation('slotConfig'),
+                    $this->buildMergedCmsSlotConfig($product, $context),
                     $resolverContext
                 );
 
@@ -162,6 +165,17 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $filter->addQuery(new EqualsFilter('product.parentId', null));
             $criteria->addFilter($filter);
         }
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>|null
+     */
+    private function buildMergedCmsSlotConfig(SalesChannelProductEntity $product, SalesChannelContext $context): ?array
+    {
+        return $this->cmsSlotConfigInheritanceBuilder->build(
+            $product->getTranslations(),
+            $context,
+        );
     }
 
     private function checkVariantListingConfig(string $productId, SalesChannelContext $context): ?string

@@ -4,7 +4,9 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -20,6 +22,11 @@ class ProductDetailRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
+
+    private const LANGUAGE_IDS = [
+        'en' => Defaults::LANGUAGE_SYSTEM,
+        'de' => '20354d7ae4fe47af8ff6187bc0dedede',
+    ];
 
     private KernelBrowser $browser;
 
@@ -343,6 +350,79 @@ class ProductDetailRouteTest extends TestCase
         $this->assertArray($expected, $response);
     }
 
+    public function testLoadProductCmsSlotConfigFromParentLanguageOverride(): void
+    {
+        $context = Context::createDefaultContext();
+        $this->createLanguages($context);
+
+        $slotId = $this->ids->create('translated-slot');
+        static::getContainer()->get('product.repository')->create([[
+            'id' => $this->ids->create('translated-product'),
+            'name' => 'Translated product',
+            'productNumber' => 'translated-product',
+            'stock' => 10,
+            'active' => true,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'tax' => ['name' => 'tax', 'taxRate' => 15],
+            'visibilities' => [
+                ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+            'cmsPage' => [
+                'id' => $this->ids->create('translated-product-cms-page'),
+                'type' => 'product_detail',
+                'sections' => [[
+                    'id' => $this->ids->create('translated-section'),
+                    'type' => 'default',
+                    'position' => 0,
+                    'blocks' => [[
+                        'id' => $this->ids->create('translated-block'),
+                        'type' => 'text',
+                        'position' => 0,
+                        'slots' => [[
+                            'id' => $slotId,
+                            'type' => 'text',
+                            'slot' => 'content',
+                            'config' => [
+                                'content' => [
+                                    'source' => 'static',
+                                    'value' => 'layout placeholder',
+                                ],
+                            ],
+                        ]],
+                    ]],
+                ]],
+            ],
+            'slotConfig' => [
+                $slotId => [
+                    'content' => [
+                        'source' => 'static',
+                        'value' => 'default language override',
+                    ],
+                ],
+            ],
+        ]], $context);
+
+        $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->get('sales-channel'),
+            'languageId' => self::LANGUAGE_IDS['de'],
+            'languages' => [
+                ['id' => self::LANGUAGE_IDS['en']],
+                ['id' => self::LANGUAGE_IDS['de']],
+            ],
+        ]);
+
+        $this->browser->request('POST', $this->getUrl($this->ids->get('translated-product')));
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(
+            'default language override',
+            $response['product']['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['config']['content']['value']
+        );
+    }
+
     /**
      * @param array<string, string> $expected
      * @param array<string, string> $actual
@@ -391,6 +471,23 @@ class ProductDetailRouteTest extends TestCase
 
         static::getContainer()->get('product.repository')
             ->create($products, Context::createDefaultContext());
+    }
+
+    private function createLanguages(Context $context): void
+    {
+        static::getContainer()->get('language.repository')->create([[
+            'id' => self::LANGUAGE_IDS['de'],
+            'name' => 'TestGerman',
+            'parentId' => self::LANGUAGE_IDS['en'],
+            'active' => true,
+            'locale' => [
+                'id' => $this->ids->create('locale-de'),
+                'name' => 'TestGerman',
+                'territory' => 'TestGermany',
+                'code' => 'de-DE-test',
+            ],
+            'translationCodeId' => $this->ids->get('locale-de'),
+        ]], $context);
     }
 
     /**

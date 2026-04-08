@@ -11,6 +11,7 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
+use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -91,6 +92,7 @@ class ProductDetailRouteTest extends TestCase
             $configuratorLoader,
             $breadcrumbBuilder,
             $this->cmsPageLoader,
+            $this->createMock(EntityCmsSlotConfigInheritanceBuilder::class),
             new SalesChannelProductDefinition(),
             $this->productCloseoutFilterFactory,
             $this->eventDispatcher,

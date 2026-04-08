@@ -6,6 +6,12 @@ type WithSlotConfig = {
     slotConfig?: {
         [slotId: string]: CmsSlotConfig;
     };
+    translations?: Array<{
+        languageId: string;
+        slotConfig?: {
+            [slotId: string]: CmsSlotConfig;
+        };
+    }>;
 };
 
 type ContentEntity<T extends keyof EntitySchema.Entities> = Entity<T> & WithSlotConfig;
@@ -89,6 +95,36 @@ export default Shopware.Mixin.register(
                 }
 
                 return null;
+            },
+
+            inheritedSlotConfig() {
+                const currentLanguageId = Shopware.Store.get('context').api.languageId;
+                const parentLanguageId = Shopware.Store.get('context').api.language?.parentId;
+
+                const currentSlotConfig = this.getSlotConfigForLanguage(currentLanguageId);
+                const parentSlotConfig = parentLanguageId ? this.getSlotConfigForLanguage(parentLanguageId) : null;
+
+                if (currentSlotConfig && parentSlotConfig) {
+                    return {
+                        ...parentSlotConfig,
+                        ...currentSlotConfig,
+                    };
+                }
+
+                return currentSlotConfig ?? parentSlotConfig ?? null;
+            },
+        },
+        methods: {
+            getSlotConfigForLanguage(languageId?: string | null) {
+                if (!languageId) {
+                    return null;
+                }
+
+                const translation = this.contentEntity?.translations?.find((entityTranslation) => {
+                    return entityTranslation.languageId === languageId;
+                });
+
+                return translation?.slotConfig ?? null;
             },
         },
     }),

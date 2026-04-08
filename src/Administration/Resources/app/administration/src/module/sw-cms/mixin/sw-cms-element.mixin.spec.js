@@ -175,4 +175,55 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
 
         expect(wrapper.vm.product).toMatchObject(mockProduct);
     });
+
+    it('should apply inherited slotConfig from the explicit parent language', async () => {
+        Shopware.Store.get('swProductDetail').product = {
+            translations: [
+                {
+                    languageId: 'parent-language-id',
+                    slotConfig: {
+                        [defaultElement.id]: {
+                            content: {
+                                source: 'static',
+                                value: 'inherited override',
+                            },
+                        },
+                    },
+                },
+            ],
+        };
+        Shopware.Store.get('context').api.languageId = 'child-language-id';
+        Shopware.Store.get('context').api.language = { parentId: 'parent-language-id' };
+
+        const wrapper = await createWrapper(defaultElement, 'sw.product.detail');
+
+        expect(wrapper.vm.element.config.content).toStrictEqual({
+            source: 'static',
+            value: 'inherited override',
+        });
+    });
+
+    it('should not apply system language slotConfig without explicit parent language', async () => {
+        Shopware.Store.get('swProductDetail').product = {
+            translations: [
+                {
+                    languageId: Shopware.Context.api.systemLanguageId,
+                    slotConfig: {
+                        [defaultElement.id]: {
+                            content: {
+                                source: 'static',
+                                value: 'system override',
+                            },
+                        },
+                    },
+                },
+            ],
+        };
+        Shopware.Store.get('context').api.languageId = 'child-language-id';
+        Shopware.Store.get('context').api.language = { parentId: null };
+
+        const wrapper = await createWrapper(defaultElement, 'sw.product.detail');
+
+        expect(wrapper.vm.element.config.content.value).not.toBe('system override');
+    });
 });

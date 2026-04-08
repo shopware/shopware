@@ -84,11 +84,11 @@ export default Mixin.register(
             },
 
             applyContentOverride() {
-                if (!this.contentEntity || !this.contentEntity.slotConfig || !this.element.id) {
+                if (!this.contentEntity || !this.inheritedSlotConfig || !this.element.id) {
                     return;
                 }
 
-                const overrideConfig = this.contentEntity.slotConfig[this.element.id];
+                const overrideConfig = this.inheritedSlotConfig[this.element.id];
 
                 if (!overrideConfig) {
                     return;

@@ -78,4 +78,51 @@ describe('module/sw-cms/mixin/sw-cms-state.mixin.js', () => {
 
         expect(wrapper.vm.contentEntity).toBeNull();
     });
+
+    it('should prefer parent translation slotConfig for inherited CMS overrides', async () => {
+        const wrapper = await createWrapper('sw.category.detail.cms');
+        const inheritedSlotConfig = {
+            'slot-id': {
+                content: {
+                    value: 'inherited',
+                },
+            },
+        };
+
+        Shopware.Store.get('swCategoryDetail').category = {
+            translations: [
+                {
+                    languageId: 'parent-language-id',
+                    slotConfig: inheritedSlotConfig,
+                },
+            ],
+        };
+        Shopware.Store.get('context').api.languageId = 'child-language-id';
+        Shopware.Store.get('context').api.language = { parentId: 'parent-language-id' };
+
+        expect(wrapper.vm.inheritedSlotConfig).toStrictEqual(inheritedSlotConfig);
+    });
+
+    it('should not fall back to system language slotConfig without explicit parent language', async () => {
+        const wrapper = await createWrapper('sw.category.detail.cms');
+
+        Shopware.Store.get('swCategoryDetail').category = {
+            translations: [
+                {
+                    languageId: Shopware.Context.api.systemLanguageId,
+                    slotConfig: {
+                        'slot-id': {
+                            content: {
+                                value: 'system',
+                            },
+                        },
+                    },
+                },
+            ],
+        };
+        Shopware.Store.get('context').api.languageId = 'child-language-id';
+        Shopware.Store.get('context').api.language = { parentId: null };
+
+        expect(wrapper.vm.inheritedSlotConfig).toBeNull();
+    });
 });

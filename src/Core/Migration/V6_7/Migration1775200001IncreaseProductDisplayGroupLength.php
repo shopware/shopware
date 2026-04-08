@@ -3,8 +3,10 @@
 namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -28,17 +30,12 @@ class Migration1775200001IncreaseProductDisplayGroupLength extends MigrationStep
 
     private function isDisplayGroupLength50(Connection $connection): bool
     {
-        $columnType = $connection->fetchOne(
-            <<<'SQL'
-            SELECT LOWER(COLUMN_TYPE)
-            FROM information_schema.columns
-            WHERE table_schema = :schema
-              AND table_name = 'product'
-              AND column_name = 'display_group';
-            SQL,
-            ['schema' => $connection->getDatabase()]
-        );
+        if (!TableHelper::columnExists($connection, ProductDefinition::ENTITY_NAME, 'display_group')) {
+            return false;
+        }
 
-        return \is_string($columnType) && $columnType === 'varchar(50)';
+        $column = TableHelper::getColumnOfTable($connection, ProductDefinition::ENTITY_NAME, 'display_group');
+
+        return $column->type === 'string' && $column->length === 50;
     }
 }

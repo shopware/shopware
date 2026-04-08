@@ -1039,6 +1039,39 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
 
             expect(wrapper.find('.default-content + .override-content').exists()).toBeTruthy();
         });
+
+        it('renders {% parent %} content correctly after many reactive updates and a host sw-block remount', async () => {
+            // Regression guard for the providedParents accumulation bug. The old
+            // push() implementation added one entry per computed re-run without a
+            // matching pop, growing the array unboundedly. After a host remount a
+            // fresh sw-block-parent instance would pop from that array; this test
+            // verifies the resulting DOM is still structurally correct.
+            Shopware.Component.override('sw-product-detail', {
+                template: `
+                    {% block shim_parent_after_reactive_remount %}
+                        {% parent %}
+                        <div class="override-content"></div>
+                    {% endblock %}
+                `,
+            });
+
+            const wrapper = await createWrapper({
+                blockName: 'shim_parent_after_reactive_remount',
+                defaultContent: '<div class="default-content">{{ label }}</div>',
+                extraData: { label: 'initial' },
+            });
+
+            await wrapper.setData({ label: 'a' });
+            await wrapper.setData({ label: 'ab' });
+            await wrapper.setData({ label: 'abc' });
+
+            await wrapper.setData({ renderHost: false });
+            await wrapper.setData({ renderHost: true });
+
+            expect(wrapper.findAll('.default-content')).toHaveLength(1);
+            expect(wrapper.findAll('.override-content')).toHaveLength(1);
+            expect(wrapper.find('.default-content + .override-content').exists()).toBeTruthy();
+        });
     });
 
     // ─── Component instance stability (focus preservation) ───────────────────
@@ -1099,38 +1132,6 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.override-content').text()).toBe('abc');
         });
 
-        it('renders {% parent %} content correctly after many reactive updates and a host sw-block remount', async () => {
-            // Regression guard for the providedParents accumulation bug. The old
-            // push() implementation added one entry per computed re-run without a
-            // matching pop, growing the array unboundedly. After a host remount a
-            // fresh sw-block-parent instance would pop from that array; this test
-            // verifies the resulting DOM is still structurally correct.
-            Shopware.Component.override('sw-product-detail', {
-                template: `
-                    {% block shim_parent_after_reactive_remount %}
-                        {% parent %}
-                        <div class="override-content"></div>
-                    {% endblock %}
-                `,
-            });
-
-            const wrapper = await createWrapper({
-                blockName: 'shim_parent_after_reactive_remount',
-                defaultContent: '<div class="default-content">{{ label }}</div>',
-                extraData: { label: 'initial' },
-            });
-
-            await wrapper.setData({ label: 'a' });
-            await wrapper.setData({ label: 'ab' });
-            await wrapper.setData({ label: 'abc' });
-
-            await wrapper.setData({ renderHost: false });
-            await wrapper.setData({ renderHost: true });
-
-            expect(wrapper.findAll('.default-content')).toHaveLength(1);
-            expect(wrapper.findAll('.override-content')).toHaveLength(1);
-            expect(wrapper.find('.default-content + .override-content').exists()).toBeTruthy();
-        });
     });
 
     // ─── Nested {% block %} inside Twig override templates ───────────────────

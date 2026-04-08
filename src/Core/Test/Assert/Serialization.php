@@ -23,7 +23,7 @@ final class Serialization
     {
         $serialized = \serialize($object);
 
-        $result = \unserialize($serialized, ['allowed_classes' => [$object::class]]);
+        $result = \unserialize($serialized);
 
         Assert::assertInstanceOf($object::class, $result);
 
@@ -44,7 +44,7 @@ final class Serialization
      */
     public static function assertUnserializedInstanceOf(string $class, string $serialized): object
     {
-        $result = \unserialize($serialized, ['allowed_classes' => [$class]]);
+        $result = \unserialize($serialized);
 
         Assert::assertInstanceOf($class, $result);
 
@@ -74,7 +74,7 @@ final class Serialization
      */
     public static function assertUnserializedEquals(mixed $expected, string $serialized, string $message = ''): mixed
     {
-        $result = \unserialize($serialized, ['allowed_classes' => \is_object($expected) ? [$expected::class] : false]);
+        $result = \unserialize($serialized);
 
         Assert::assertEquals($expected, $result, $message);
 

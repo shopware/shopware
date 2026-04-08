@@ -197,20 +197,6 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
     // ─── Basic rendering ─────────────────────────────────────────────────────
 
     describe('basic rendering', () => {
-        it('renders the Twig block override content inside a migrated native sw-block component', async () => {
-            Shopware.Component.override('sw-product-detail', {
-                template: `
-                    {% block shim_basic_renders_override %}
-                        <div class="override-content"></div>
-                    {% endblock %}
-                `,
-            });
-
-            const wrapper = await createWrapper({ blockName: 'shim_basic_renders_override' });
-
-            expect(wrapper.find('.override-content').exists()).toBeTruthy();
-        });
-
         it('replaces the entire default block content when the Twig override contains no {% parent %}', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `

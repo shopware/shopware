@@ -60,7 +60,7 @@ final class Serialization
      */
     public static function assertUnserializedIsArray(string $serialized): array
     {
-        $result = \unserialize($serialized, ['allowed_classes' => false]);
+        $result = \unserialize($serialized);
 
         Assert::assertIsArray($result);
 

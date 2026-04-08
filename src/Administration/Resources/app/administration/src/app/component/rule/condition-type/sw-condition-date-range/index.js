@@ -54,7 +54,12 @@ export default {
         fromDate: {
             get() {
                 this.ensureValueExist();
-                return this.condition.value.fromDate || null;
+
+                if (this.condition.value.fromDate) {
+                    return `${this.condition.value.fromDate}+00:00`
+                }
+
+                return null;
             },
             set(fromDate) {
                 this.ensureValueExist();
@@ -69,7 +74,11 @@ export default {
         toDate: {
             get() {
                 this.ensureValueExist();
-                return this.condition.value.toDate || null;
+                if (this.condition.value.toDate) {
+                    return `${this.condition.value.toDate}+00:00`
+                }
+
+                return null;
             },
             set(toDate) {
                 this.ensureValueExist();

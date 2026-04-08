@@ -2,7 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Test\Assert;
 
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Test\Assert\StrictEmpty;
 
@@ -62,5 +64,46 @@ class StrictEmptyTest extends TestCase
         StrictEmpty::assertNotEmpty(0);
         StrictEmpty::assertNotEmpty(false);
         StrictEmpty::assertNotEmpty(null);
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function provideAssertEmptyFailures(): iterable
+    {
+        yield 'non-empty array' => [['not empty']];
+        yield 'non-empty Countable' => [new class implements \Countable {
+            public function count(): int
+            {
+                return 1;
+            }
+        }];
+        yield 'non-empty Traversable' => [new \ArrayIterator([1])];
+        yield 'primitive' => [null];
+    }
+
+    #[DataProvider('provideAssertEmptyFailures')]
+    public function testAssertEmptyFails(mixed $value): void
+    {
+        $this->expectException(AssertionFailedError::class);
+
+        StrictEmpty::assertEmpty($value);
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function provideAssertNotEmptyFailures(): iterable
+    {
+        yield 'empty array' => [[]];
+        yield 'empty Traversable' => [new \ArrayIterator([])];
+    }
+
+    #[DataProvider('provideAssertNotEmptyFailures')]
+    public function testAssertNotEmptyFails(mixed $value): void
+    {
+        $this->expectException(AssertionFailedError::class);
+
+        StrictEmpty::assertNotEmpty($value);
     }
 }

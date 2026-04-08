@@ -19,6 +19,11 @@
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
         </service>
 
+        <service id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface" alias="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder">
+            <deprecated package="shopware/core" version="6.8.0">The %alias_id% service is deprecated and will be removed in 6.8.0. Use %Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder% instead</deprecated>
+        </service>
+        <service id="Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder" alias="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
+
         <service id="Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>

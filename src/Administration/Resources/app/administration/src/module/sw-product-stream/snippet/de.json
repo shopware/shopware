@@ -134,6 +134,8 @@
       "placeholderName": "Gib einen Namen ein ...",
       "labelDescription": "Beschreibung",
       "placeholderDescription": "Gib eine Beschreibung ein ...",
+      "labelDisplayAsGroup": "Als Gruppe anzeigen",
+      "helpTextDisplayAsGroup": "Wenn aktiv, bleiben passende Varianten gruppiert und die Vorschau-Umschreibung bleibt aktiv. Deaktiviere dies, um passende Varianten überall dort direkt anzuzeigen, wo diese Produktgruppe verwendet wird.",
       "textHeadline": "Neue Produktgruppe",
       "titleFilter": "Bedingungen",
       "titleResult": "Produkte",

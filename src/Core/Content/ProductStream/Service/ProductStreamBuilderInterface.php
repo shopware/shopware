@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed, use AbstractProductStreamBuilder instead
+ */
 #[Package('inventory')]
 interface ProductStreamBuilderInterface
 {

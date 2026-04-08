@@ -12,7 +12,7 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
@@ -34,7 +34,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
      * @param SalesChannelRepository<ProductCollection> $productRepository
      */
     public function __construct(
-        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly AbstractProductStreamBuilder $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {
@@ -100,19 +100,22 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         FieldConfig $config,
         FieldConfigCollection $elementConfig
     ): Criteria {
-        $filters = $this->productStreamBuilder->buildFilters(
-            $config->getStringValue(),
-            $resolverContext->getSalesChannelContext()->getContext()
-        );
-
         $limit = $elementConfig->get('productStreamLimit')?->getIntValue() ?? self::FALLBACK_LIMIT;
 
         $criteria = new Criteria();
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addFilter(...$filters);
+
+        $this->productStreamBuilder->enrichCriteria(
+            $criteria,
+            $config->getStringValue(),
+            $resolverContext->getSalesChannelContext()->getContext()
+        );
+
         $criteria->setLimit($limit);
 
-        $this->addGrouping($criteria);
+        if (!$this->isDisplayAsGroupDisabled($criteria)) {
+            $this->addGrouping($criteria);
+        }
         $sorting = $elementConfig->get('productStreamSorting')?->getStringValue() ?? 'name:' . FieldSorting::ASCENDING;
 
         if ($sorting === 'random') {
@@ -133,6 +136,10 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         SalesChannelContext $context,
         Criteria $originCriteria
     ): ProductCollection {
+        if ($this->isDisplayAsGroupDisabled($originCriteria)) {
+            return $streamResult;
+        }
+
         $finalProductIds = $this->collectFinalProductIds($streamResult);
         if ($finalProductIds === []) {
             return new ProductCollection();
@@ -195,5 +202,10 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         foreach ($fields as $field) {
             $criteria->addSorting(new FieldSorting($field, $direction));
         }
+    }
+
+    private function isDisplayAsGroupDisabled(Criteria $criteria): bool
+    {
+        return $criteria->hasState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
     }
 }

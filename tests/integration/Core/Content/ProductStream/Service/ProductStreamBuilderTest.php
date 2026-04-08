@@ -8,8 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -44,12 +43,12 @@ class ProductStreamBuilderTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
-    private ProductStreamBuilderInterface $service;
+    private AbstractProductStreamBuilder $service;
 
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
-        $this->service = static::getContainer()->get(ProductStreamBuilder::class);
+        $this->service = static::getContainer()->get(AbstractProductStreamBuilder::class);
         $this->productRepository = static::getContainer()->get('sales_channel.product.repository');
 
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
@@ -63,6 +62,50 @@ class ProductStreamBuilderTest extends TestCase
         $products = $this->getProducts('137b079935714281ba80b40f83f8d7eb');
 
         static::assertCount(2, $products);
+    }
+
+    public function testBuildAddsDirectVariantStateWhenDisplayAsGroupIsFalse(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('product_stream.repository')->create([[
+            'id' => $ids->get('stream'),
+            'name' => 'direct-variants',
+            'displayAsGroup' => false,
+            'filters' => [[
+                'type' => 'equals',
+                'field' => 'product.id',
+                'value' => Uuid::randomHex(),
+            ]],
+        ]], Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $this->service->enrichCriteria($criteria, $ids->get('stream'), Context::createDefaultContext());
+
+        static::assertTrue($criteria->hasState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED));
+        static::assertCount(1, $criteria->getFilters());
+    }
+
+    public function testBuildKeepsDisplayAsGroupEnabledWhenPersistedFlagIsTrue(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('product_stream.repository')->create([[
+            'id' => $ids->get('stream'),
+            'name' => 'grouped-variants',
+            'displayAsGroup' => true,
+            'filters' => [[
+                'type' => 'equals',
+                'field' => 'product.id',
+                'value' => Uuid::randomHex(),
+            ]],
+        ]], Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $this->service->enrichCriteria($criteria, $ids->get('stream'), Context::createDefaultContext());
+
+        static::assertFalse($criteria->hasState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED));
+        static::assertCount(1, $criteria->getFilters());
     }
 
     public function testNestedFilters(): void
@@ -111,7 +154,7 @@ class ProductStreamBuilderTest extends TestCase
         static::getContainer()->get('product_stream.repository')
             ->create([$stream], Context::createDefaultContext());
 
-        $filters = static::getContainer()->get(ProductStreamBuilder::class)
+        $filters = $this->service
             ->buildFilters($ids->get('stream'), Context::createDefaultContext());
 
         $expected = new MultiFilter(MultiFilter::CONNECTION_OR, [

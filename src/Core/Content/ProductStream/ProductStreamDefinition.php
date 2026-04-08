@@ -41,6 +41,7 @@ class ProductStreamDefinition extends EntityDefinition
     {
         return [
             'internal' => false,
+            'displayAsGroup' => true,
         ];
     }
 
@@ -75,6 +76,7 @@ class ProductStreamDefinition extends EntityDefinition
             (new TranslatedField('description'))->addFlags(new ApiAware()),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new BoolField('internal', 'internal'))->addFlags(new ApiAware())->setDescription('When the boolean value is `true` indicating that it is for internal use only and will not appear in product stream listings.'),
+            (new BoolField('display_as_group', 'displayAsGroup'))->addFlags(new ApiAware())->setDescription('When the boolean value is `true`, matched variants are displayed as a group using display-group grouping and preview remapping.'),
 
             (new TranslationsAssociationField(ProductStreamTranslationDefinition::class, 'product_stream_id'))->addFlags(new Required()),
             (new OneToManyAssociationField('filters', ProductStreamFilterDefinition::class, 'product_stream_id'))->addFlags(new CascadeDelete()),

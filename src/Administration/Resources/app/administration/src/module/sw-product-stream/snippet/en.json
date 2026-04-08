@@ -134,6 +134,8 @@
       "placeholderName": "Enter title...",
       "labelDescription": "Description",
       "placeholderDescription": "Enter description...",
+      "labelDisplayAsGroup": "Display as group",
+      "helpTextDisplayAsGroup": "When active, matched variants stay grouped and preview remapping remains enabled. Disable this to show matching variants directly everywhere this product stream is used.",
       "textHeadline": "New dynamic product group",
       "titleFilter": "Conditions",
       "titleResult": "Product group",

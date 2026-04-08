@@ -13,17 +13,14 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -392,159 +389,30 @@ class ProductListingLoaderTest extends TestCase
         static::assertTrue($firstVariant->hasExtension('search'));
     }
 
-    public function testExplicitProductIdKeepsSelectedVariantWhenMainVariantConfigured(): void
+    public function testDisplayAsGroupFalseReturnsAllMatchingVariantsFromSameDisplayGroup(): void
     {
         $this->createProduct([], true);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $this->variantIds['greenL']));
-        $listing = $this->fetchListing($criteria);
-
-        static::assertSame(1, $listing->getTotal());
-
-        $selectedVariant = $listing->getEntities()->first();
-        static::assertNotNull($selectedVariant);
-        static::assertSame($this->variantIds['greenL'], $selectedVariant->getId());
-        static::assertTrue($selectedVariant->hasExtension('search'));
-    }
-
-    public function testExplicitProductIdKeepsSelectedVariantWhenMainProductConfigured(): void
-    {
-        $this->createProduct(['color', 'size'], false);
-
-        $this->productRepository->update([[
-            'id' => $this->productId,
-            'variantListingConfig' => [
-                'displayParent' => true,
-                'mainVariantId' => $this->mainVariantId,
-                'configuratorGroupConfig' => $this->getListingConfiguration(['color', 'size']),
-            ],
-        ]], $this->salesChannelContext->getContext());
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.id', $this->variantIds['greenL']));
-        $listing = $this->fetchListing($criteria);
-
-        static::assertSame(1, $listing->getTotal());
-
-        $selectedVariant = $listing->getEntities()->first();
-        static::assertNotNull($selectedVariant);
-        static::assertSame($this->variantIds['greenL'], $selectedVariant->getId());
-        static::assertTrue($selectedVariant->hasExtension('search'));
-    }
-
-    public function testExplicitProductIdsReturnAllSelectedVariantsFromSameDisplayGroup(): void
-    {
-        $this->createProduct([], true);
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('id', [$this->variantIds['greenL'], $this->variantIds['greenXl']]));
-        $listing = $this->fetchListing($criteria);
-
-        static::assertSame(2, $listing->getTotal());
-        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], $listing->getIds());
-    }
-
-    public function testExplicitProductIdsRespectPaginationWhenMultipleVariantsFromSameDisplayGroupAreSelected(): void
-    {
-        $this->createProduct([], true);
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.parentId', $this->productId));
-        $criteria->addFilter(new EqualsAnyFilter('id', [$this->variantIds['greenL'], $this->variantIds['greenXl']]));
-        $criteria->setLimit(1);
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
-
-        $firstPage = $this->productListingLoader->load(clone $criteria, $this->salesChannelContext);
-
-        static::assertSame(2, $firstPage->getTotal());
-        static::assertCount(1, $firstPage->getIds());
-        static::assertContains(array_values($firstPage->getIds())[0] ?? null, [$this->variantIds['greenL'], $this->variantIds['greenXl']]);
-
-        $criteria->setOffset(1);
-        $secondPage = $this->productListingLoader->load($criteria, $this->salesChannelContext);
-
-        static::assertSame(2, $secondPage->getTotal());
-        static::assertCount(1, $secondPage->getIds());
-        static::assertEqualsCanonicalizing(
-            [$this->variantIds['greenL'], $this->variantIds['greenXl']],
-            [...$firstPage->getIds(), ...$secondPage->getIds()]
-        );
-    }
-
-    public function testExplicitProductIdsMixedWithOtherConditionsKeepPaginationStable(): void
-    {
-        $this->createProduct([], true);
-        $this->createAdditionalStockFilteredFamilies(50);
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new EqualsAnyFilter('id', [
-                $this->variantIds['greenXl'],
-                $this->variantIds['redL'],
-                $this->variantIds['greenL'],
-            ]),
-            new RangeFilter('stock', [RangeFilter::GT => 49]),
-        ]));
-        $criteria->addSorting(new FieldSorting('productNumber', FieldSorting::ASCENDING));
-        $criteria->setLimit(24);
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
-
-        $firstPage = $this->productListingLoader->load(clone $criteria, $this->salesChannelContext);
-
-        $criteria->setOffset(24);
-        $secondPage = $this->productListingLoader->load(clone $criteria, $this->salesChannelContext);
-
-        $criteria->setOffset(48);
-        $thirdPage = $this->productListingLoader->load($criteria, $this->salesChannelContext);
-
-        static::assertGreaterThan(48, $firstPage->getTotal());
-        static::assertSame($firstPage->getTotal(), $secondPage->getTotal());
-        static::assertSame($firstPage->getTotal(), $thirdPage->getTotal());
-        static::assertCount(24, $firstPage->getIds());
-        static::assertCount(24, $secondPage->getIds());
-        static::assertCount($firstPage->getTotal() - 48, $thirdPage->getIds());
-        static::assertSame([
-            $this->variantIds['greenXl'],
-            $this->variantIds['redL'],
-            $this->variantIds['greenL'],
-        ], \array_slice(array_values($firstPage->getIds()), 0, 3));
-        static::assertSame([], array_values(array_intersect($firstPage->getIds(), $secondPage->getIds())));
-        static::assertSame([], array_values(array_intersect($firstPage->getIds(), $thirdPage->getIds())));
-        static::assertSame([], array_values(array_intersect($secondPage->getIds(), $thirdPage->getIds())));
-        static::assertCount($firstPage->getTotal(), array_unique([
-            ...$firstPage->getIds(),
-            ...$secondPage->getIds(),
-            ...$thirdPage->getIds(),
-        ]));
-    }
-
-    public function testExplicitProductIdsWithAndFilterKeepMatchingSelection(): void
-    {
-        $this->createProduct(['color', 'size'], true);
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.parentId', $this->productId));
-        $criteria->addFilter(new EqualsAnyFilter('product.id', [$this->variantIds['greenL'], $this->variantIds['greenXl']]));
+        $criteria->addState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
         $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
-        $listing = $this->productListingLoader->load($criteria, $this->salesChannelContext);
+        $listing = $this->fetchListing($criteria);
 
         static::assertSame(2, $listing->getTotal());
         static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], $listing->getIds());
     }
 
-    public function testExplicitProductIdsWithAndFilterReturnIntersectionOnly(): void
+    public function testDisplayAsGroupFalseSkipsPreviewRemapping(): void
     {
-        $this->createProduct(['color', 'size'], true);
+        $this->createProduct([], true);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('product.parentId', $this->productId));
-        $criteria->addFilter(new EqualsAnyFilter('product.id', [$this->variantIds['greenL'], $this->variantIds['greenXl']]));
-        $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['xl']));
-        $listing = $this->productListingLoader->load($criteria, $this->salesChannelContext);
+        $criteria->addState(AbstractProductStreamBuilder::STATE_DISPLAY_AS_GROUP_DISABLED);
+        $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
+        $listing = $this->fetchListing($criteria);
 
-        static::assertSame(1, $listing->getTotal());
-        static::assertSame([$this->variantIds['greenXl']], array_values($listing->getIds()));
+        static::assertSame(2, $listing->getTotal());
+        static::assertEqualsCanonicalizing([$this->variantIds['greenL'], $this->variantIds['greenXl']], $listing->getIds());
     }
 
     public function testMainVariantAndVariantGroupsWithPostFilterOnOptions(): void
@@ -711,165 +579,6 @@ class ProductListingLoaderTest extends TestCase
         $criteria->setTerm($term);
 
         return $this->productListingLoader->load($criteria, $this->salesChannelContext);
-    }
-
-    private function createAdditionalStockFilteredFamilies(int $count): void
-    {
-        for ($i = 0; $i < $count; ++$i) {
-            $productId = Uuid::randomHex();
-
-            $optionIds = [
-                'red' => Uuid::randomHex(),
-                'green' => Uuid::randomHex(),
-                'xl' => Uuid::randomHex(),
-                'l' => Uuid::randomHex(),
-            ];
-
-            $variantIds = [
-                'redXl' => Uuid::randomHex(),
-                'greenXl' => Uuid::randomHex(),
-                'redL' => Uuid::randomHex(),
-                'greenL' => Uuid::randomHex(),
-            ];
-
-            $groupIds = [
-                'color' => Uuid::randomHex(),
-                'size' => Uuid::randomHex(),
-            ];
-
-            $mainVariantId = $variantIds['redL'];
-            $tax = ['id' => Uuid::randomHex(), 'name' => '19', 'taxRate' => 19];
-
-            $data = [
-                [
-                    'id' => $productId,
-                    'variantListingConfig' => [
-                        'displayParent' => null,
-                        'mainVariantId' => null,
-                        'configuratorGroupConfig' => [],
-                    ],
-                    'productNumber' => \sprintf('mixed-%03d-parent', $i),
-                    'manufacturer' => ['name' => \sprintf('mixed-%03d-manufacturer', $i)],
-                    'tax' => $tax,
-                    'stock' => 10,
-                    'name' => \sprintf('mixed family %03d', $i),
-                    'active' => true,
-                    'price' => [
-                        ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true],
-                    ],
-                    'configuratorSettings' => [
-                        [
-                            'option' => [
-                                'id' => $optionIds['red'],
-                                'name' => 'Red',
-                                'group' => [
-                                    'id' => $groupIds['color'],
-                                    'name' => 'Color',
-                                ],
-                            ],
-                        ],
-                        [
-                            'option' => [
-                                'id' => $optionIds['green'],
-                                'name' => 'Green',
-                                'group' => [
-                                    'id' => $groupIds['color'],
-                                    'name' => 'Color',
-                                ],
-                            ],
-                        ],
-                        [
-                            'option' => [
-                                'id' => $optionIds['xl'],
-                                'name' => 'XL',
-                                'group' => [
-                                    'id' => $groupIds['size'],
-                                    'name' => 'size',
-                                ],
-                            ],
-                        ],
-                        [
-                            'option' => [
-                                'id' => $optionIds['l'],
-                                'name' => 'L',
-                                'group' => [
-                                    'id' => $groupIds['size'],
-                                    'name' => 'size',
-                                ],
-                            ],
-                        ],
-                    ],
-                    'visibilities' => [
-                        [
-                            'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
-                            'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
-                        ],
-                    ],
-                ],
-                [
-                    'id' => $variantIds['redXl'],
-                    'productNumber' => \sprintf('mixed-%03d-red-xl', $i),
-                    'stock' => 60,
-                    'name' => \sprintf('mixed red xl %03d', $i),
-                    'active' => true,
-                    'parentId' => $productId,
-                    'options' => [
-                        ['id' => $optionIds['red']],
-                        ['id' => $optionIds['xl']],
-                    ],
-                ],
-                [
-                    'id' => $variantIds['greenXl'],
-                    'productNumber' => \sprintf('mixed-%03d-green-xl', $i),
-                    'stock' => 60,
-                    'name' => \sprintf('mixed green xl %03d', $i),
-                    'active' => true,
-                    'parentId' => $productId,
-                    'options' => [
-                        ['id' => $optionIds['green']],
-                        ['id' => $optionIds['xl']],
-                    ],
-                ],
-                [
-                    'id' => $variantIds['redL'],
-                    'productNumber' => \sprintf('mixed-%03d-red-l', $i),
-                    'stock' => 60,
-                    'name' => \sprintf('mixed red l %03d', $i),
-                    'active' => true,
-                    'parentId' => $productId,
-                    'options' => [
-                        ['id' => $optionIds['red']],
-                        ['id' => $optionIds['l']],
-                    ],
-                ],
-                [
-                    'id' => $variantIds['greenL'],
-                    'productNumber' => \sprintf('mixed-%03d-green-l', $i),
-                    'stock' => 60,
-                    'name' => \sprintf('mixed green l %03d', $i),
-                    'active' => true,
-                    'parentId' => $productId,
-                    'options' => [
-                        ['id' => $optionIds['green']],
-                        ['id' => $optionIds['l']],
-                    ],
-                ],
-            ];
-
-            $this->addTaxDataToSalesChannel($this->salesChannelContext, $tax);
-            $this->productRepository->create($data, $this->salesChannelContext->getContext());
-
-            $this->productRepository->update([
-                [
-                    'id' => $productId,
-                    'variantListingConfig' => [
-                        'displayParent' => null,
-                        'mainVariantId' => $mainVariantId,
-                        'configuratorGroupConfig' => [],
-                    ],
-                ],
-            ], $this->salesChannelContext->getContext());
-        }
     }
 
     /**

@@ -150,25 +150,15 @@ class ProductListingRouteTest extends TestCase
         static::assertSame($this->variantIds['greenL'], $response['elements'][0]['id']);
     }
 
-    public function testLoadProductsUsingDynamicGroupWithExplicitVariantKeepsSelection(): void
+    public function testLoadProductsUsingDynamicGroupWithDisplayAsGroupFalseReturnsUngroupedVariants(): void
     {
         $this->createData(
             'product_stream',
             $this->ids->create('productStream'),
             null,
-            'greenL'
+            null,
+            true
         );
-
-        $this->productRepository->upsert([
-            [
-                'id' => $this->productId,
-                'variantListingConfig' => [
-                    'displayParent' => true,
-                    'mainVariantId' => $this->variantIds['redL'],
-                    'configuratorGroupConfig' => [],
-                ],
-            ],
-        ], Context::createDefaultContext());
 
         $this->browser->request(
             'POST',
@@ -179,9 +169,31 @@ class ProductListingRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertSame('product_listing', $response['apiAlias']);
-        static::assertCount(1, $response['elements']);
-        static::assertSame('product', $response['elements'][0]['apiAlias']);
-        static::assertSame($this->variantIds['greenL'], $response['elements'][0]['id']);
+        static::assertCount(2, $response['elements']);
+        static::assertEqualsCanonicalizing([$this->variantIds['redL'], $this->variantIds['redXl']], array_column($response['elements'], 'id'));
+    }
+
+    public function testLoadProductsUsingDynamicGroupWithDisplayAsGroupFalseDoesNotRemapPreview(): void
+    {
+        $this->createData(
+            'product_stream',
+            $this->ids->create('productStream'),
+            'greenL',
+            null,
+            true
+        );
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category')
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame('product_listing', $response['apiAlias']);
+        static::assertCount(2, $response['elements']);
+        static::assertEqualsCanonicalizing([$this->variantIds['redL'], $this->variantIds['redXl']], array_column($response['elements'], 'id'));
     }
 
     public function testIncludes(): void
@@ -589,7 +601,8 @@ class ProductListingRouteTest extends TestCase
         string $productAssignmentType = 'product',
         ?string $productStreamId = null,
         ?string $mainVariant = null,
-        ?string $explicitVariant = null
+        ?string $explicitVariant = null,
+        bool $displayAsGroup = true
     ): void {
         $this->productId = Uuid::randomHex();
 
@@ -755,6 +768,7 @@ class ProductListingRouteTest extends TestCase
         static::getContainer()->get('product_stream.repository')->create([[
             'id' => $this->ids->create('productStream'),
             'name' => 'test',
+            'displayAsGroup' => $displayAsGroup,
             'filters' => $explicitVariant !== null
                 ? [[
                     'type' => 'equalsAny',

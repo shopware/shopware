@@ -177,6 +177,46 @@ async function createWrapper({
     );
 }
 
+type MultiBlockWrapperConfig = {
+    rootClass: string;
+    blockName: string;
+    defaultContent: string;
+};
+
+async function createMultiBlockWrapper(blocks: MultiBlockWrapperConfig[]) {
+    const swBlock = await wrapTestComponent('sw-block', { sync: true });
+
+    return mount(
+        {
+            template: `
+                <div>
+                    ${blocks
+                        .map(
+                            ({ rootClass, blockName, defaultContent }) => `
+                                <div class="${rootClass}">
+                                    <sw-block name="${blockName}" :data="$dataScope()">
+                                        ${defaultContent}
+                                    </sw-block>
+                                </div>
+                            `,
+                        )
+                        .join('')}
+                </div>
+            `,
+            components: {
+                'sw-block': swBlock,
+            },
+        },
+        {
+            global: {
+                mocks: {
+                    $dataScope: getBlockDataScope,
+                },
+            },
+        },
+    );
+}
+
 describe('Twig → Native Block Runtime Adapter (shim)', () => {
     let consoleSpy: jest.SpyInstance;
 
@@ -492,31 +532,18 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 `,
             });
 
-            const swBlock = await wrapTestComponent('sw-block', { sync: true });
-            const wrapper = mount(
+            const wrapper = await createMultiBlockWrapper([
                 {
-                    template: `
-                        <div>
-                            <div class="root-x">
-                                <sw-block name="shim_combo_shared_block_x" :data="$dataScope()">
-                                    <div class="default-x"></div>
-                                </sw-block>
-                            </div>
-                            <div class="root-y">
-                                <sw-block name="shim_combo_shared_block_y" :data="$dataScope()">
-                                    <div class="default-y"></div>
-                                </sw-block>
-                            </div>
-                        </div>
-                    `,
-                    components: {
-                        'sw-block': swBlock,
-                    },
+                    rootClass: 'root-x',
+                    blockName: 'shim_combo_shared_block_x',
+                    defaultContent: '<div class="default-x"></div>',
                 },
                 {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
+                    rootClass: 'root-y',
+                    blockName: 'shim_combo_shared_block_y',
+                    defaultContent: '<div class="default-y"></div>',
                 },
-            );
+            ]);
 
             // block-x: default → plugin-a-x → plugin-b-x
             expect(wrapper.find('.root-x .default-x + .plugin-a-x + .plugin-b-x').exists()).toBeTruthy();
@@ -550,31 +577,18 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 `,
             });
 
-            const swBlock = await wrapTestComponent('sw-block', { sync: true });
-            const wrapper = mount(
+            const wrapper = await createMultiBlockWrapper([
                 {
-                    template: `
-                        <div>
-                            <div class="root-x">
-                                <sw-block name="shim_combo_partial_block_x" :data="$dataScope()">
-                                    <div class="default-x"></div>
-                                </sw-block>
-                            </div>
-                            <div class="root-y">
-                                <sw-block name="shim_combo_partial_block_y" :data="$dataScope()">
-                                    <div class="default-y"></div>
-                                </sw-block>
-                            </div>
-                        </div>
-                    `,
-                    components: {
-                        'sw-block': swBlock,
-                    },
+                    rootClass: 'root-x',
+                    blockName: 'shim_combo_partial_block_x',
+                    defaultContent: '<div class="default-x"></div>',
                 },
                 {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
+                    rootClass: 'root-y',
+                    blockName: 'shim_combo_partial_block_y',
+                    defaultContent: '<div class="default-y"></div>',
                 },
-            );
+            ]);
 
             // block-x gets both plugins stacked
             expect(wrapper.find('.root-x .default-x + .plugin-a-x + .plugin-b-x').exists()).toBeTruthy();
@@ -595,31 +609,18 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 template: `{% block shim_combo_two_calls_block_y %}<div class="override-y"></div>{% endblock %}`,
             });
 
-            const swBlock = await wrapTestComponent('sw-block', { sync: true });
-            const wrapper = mount(
+            const wrapper = await createMultiBlockWrapper([
                 {
-                    template: `
-                        <div>
-                            <div class="root-x">
-                                <sw-block name="shim_combo_two_calls_block_x" :data="$dataScope()">
-                                    <div class="default-x"></div>
-                                </sw-block>
-                            </div>
-                            <div class="root-y">
-                                <sw-block name="shim_combo_two_calls_block_y" :data="$dataScope()">
-                                    <div class="default-y"></div>
-                                </sw-block>
-                            </div>
-                        </div>
-                    `,
-                    components: {
-                        'sw-block': swBlock,
-                    },
+                    rootClass: 'root-x',
+                    blockName: 'shim_combo_two_calls_block_x',
+                    defaultContent: '<div class="default-x"></div>',
                 },
                 {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
+                    rootClass: 'root-y',
+                    blockName: 'shim_combo_two_calls_block_y',
+                    defaultContent: '<div class="default-y"></div>',
                 },
-            );
+            ]);
 
             expect(wrapper.find('.root-x .override-x').exists()).toBeTruthy();
             expect(wrapper.find('.root-x .default-x').exists()).toBeFalsy();
@@ -644,36 +645,23 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 `,
             });
 
-            const swBlock = await wrapTestComponent('sw-block', { sync: true });
-            const wrapper = mount(
+            const wrapper = await createMultiBlockWrapper([
                 {
-                    template: `
-                        <div>
-                            <div class="root-a">
-                                <sw-block name="shim_combo_three_blocks_a" :data="$dataScope()">
-                                    <div class="default-a"></div>
-                                </sw-block>
-                            </div>
-                            <div class="root-b">
-                                <sw-block name="shim_combo_three_blocks_b" :data="$dataScope()">
-                                    <div class="default-b"></div>
-                                </sw-block>
-                            </div>
-                            <div class="root-c">
-                                <sw-block name="shim_combo_three_blocks_c" :data="$dataScope()">
-                                    <div class="default-c"></div>
-                                </sw-block>
-                            </div>
-                        </div>
-                    `,
-                    components: {
-                        'sw-block': swBlock,
-                    },
+                    rootClass: 'root-a',
+                    blockName: 'shim_combo_three_blocks_a',
+                    defaultContent: '<div class="default-a"></div>',
                 },
                 {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
+                    rootClass: 'root-b',
+                    blockName: 'shim_combo_three_blocks_b',
+                    defaultContent: '<div class="default-b"></div>',
                 },
-            );
+                {
+                    rootClass: 'root-c',
+                    blockName: 'shim_combo_three_blocks_c',
+                    defaultContent: '<div class="default-c"></div>',
+                },
+            ]);
 
             // block-a and block-b: parent kept, override appended
             expect(wrapper.find('.root-a .default-a + .override-a').exists()).toBeTruthy();

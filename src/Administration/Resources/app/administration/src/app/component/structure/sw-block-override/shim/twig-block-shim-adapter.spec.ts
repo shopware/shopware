@@ -80,7 +80,7 @@
  *
  * Additionally, use a UNIQUE block name per test (e.g. embed a test-local
  * identifier in the block name: "shim_test_basic_rendering_no_parent") so tests
- * cannot share index entries even if the reset helpers are accidentally skipped.
+ * cannot share index entries.
  *
  * Note: importing `resetBlockIndex` and `resetShimSlotState` is the only
  * permissible reference to shim-internal exports. They are test seams, not

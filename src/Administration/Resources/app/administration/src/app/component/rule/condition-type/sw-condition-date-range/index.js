@@ -56,7 +56,7 @@ export default {
                 this.ensureValueExist();
 
                 if (this.condition.value.fromDate) {
-                    return `${this.condition.value.fromDate}+00:00`
+                    return `${this.condition.value.fromDate}+00:00`;
                 }
 
                 return null;
@@ -75,7 +75,7 @@ export default {
             get() {
                 this.ensureValueExist();
                 if (this.condition.value.toDate) {
-                    return `${this.condition.value.toDate}+00:00`
+                    return `${this.condition.value.toDate}+00:00`;
                 }
 
                 return null;

@@ -792,7 +792,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.data-output').text()).toBe('Updated Name');
         });
 
-        it('evaluates a v-if directive inside the Twig override using the host component data scope', async () => {
+        it('evaluates a v-if directive inside the shimmed override using the host component data scope', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `
                     {% block shim_vif_initial_true %}

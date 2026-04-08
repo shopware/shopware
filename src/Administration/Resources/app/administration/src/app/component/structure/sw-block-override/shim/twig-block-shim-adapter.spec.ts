@@ -1545,7 +1545,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 template: `
                     {% block shim_multi_instance_parent_isolation %}
                         {% parent %}
-                        <div class="override-content"></div>
+                        <div class="override-parent-content"></div>
                     {% endblock %}
                 `,
             });
@@ -1578,12 +1578,12 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
 
             // Each instance: default → override, each exactly once
             expect(wrapper.findAll('.instance-a .default-content')).toHaveLength(1);
-            expect(wrapper.findAll('.instance-a .override-content')).toHaveLength(1);
-            expect(wrapper.find('.instance-a .default-content + .override-content').exists()).toBeTruthy();
+            expect(wrapper.findAll('.instance-a .override-parent-content')).toHaveLength(1);
+            expect(wrapper.find('.instance-a .default-content + .override-parent-content').exists()).toBeTruthy();
 
             expect(wrapper.findAll('.instance-b .default-content')).toHaveLength(1);
-            expect(wrapper.findAll('.instance-b .override-content')).toHaveLength(1);
-            expect(wrapper.find('.instance-b .default-content + .override-content').exists()).toBeTruthy();
+            expect(wrapper.findAll('.instance-b .override-parent-content')).toHaveLength(1);
+            expect(wrapper.find('.instance-b .default-content + .override-parent-content').exists()).toBeTruthy();
         });
     });
 });

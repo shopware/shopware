@@ -5,22 +5,29 @@ namespace Shopware\Core\Content\ImportExport\Event;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('fundamentals@after-sales')]
-class EnrichExportCriteriaEvent extends Event implements ShopwareEvent
+class EnrichExportCriteriaEvent extends Event
 {
     public function __construct(
         private Criteria $criteria,
         private ImportExportLogEntity $logEntity,
-        private readonly Context $context
+        private readonly ?Context $context = null
     ) {
+        if ($context === null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Not passing $context to ' . static::class . ' is deprecated and will be required in v6.8.0.');
+        }
     }
 
-    public function getContext(): Context
+    public function getContext(): ?Context
     {
+        if ($this->context === null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Not passing $context to ' . static::class . ' is deprecated and will be required in v6.8.0.');
+        }
+
         return $this->context;
     }
 

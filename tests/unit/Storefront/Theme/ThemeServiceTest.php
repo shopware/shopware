@@ -7,6 +7,7 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -49,7 +50,7 @@ class ThemeServiceTest extends TestCase
 {
     private Connection&MockObject $connectionMock;
 
-    private StorefrontPluginRegistry&MockObject $storefrontPluginRegistryMock;
+    private StorefrontPluginRegistry&Stub $storefrontPluginRegistryMock;
 
     /**
      * @var EntityRepository<ThemeCollection>&MockObject
@@ -75,12 +76,12 @@ class ThemeServiceTest extends TestCase
 
     private MessageBus&MockObject $messageBusMock;
 
-    private ScssPhpCompiler&MockObject $scssCompilerMock;
+    private ScssPhpCompiler&Stub $scssCompilerMock;
 
     protected function setUp(): void
     {
         $this->connectionMock = $this->createMock(Connection::class);
-        $this->storefrontPluginRegistryMock = $this->createMock(StorefrontPluginRegistry::class);
+        $this->storefrontPluginRegistryMock = static::createStub(StorefrontPluginRegistry::class);
         $this->themeRepositoryMock = $this->createMock(EntityRepository::class);
         $this->themeSalesChannelRepositoryMock = $this->createMock(EntityRepository::class);
         $this->themeCompilerMock = $this->createMock(ThemeCompiler::class);
@@ -90,7 +91,7 @@ class ThemeServiceTest extends TestCase
         $this->systemConfigMock = $this->createMock(SystemConfigService::class);
         $this->messageBusMock = $this->createMock(MessageBus::class);
         $this->mergedConfigBuilderMock = $this->createMock(ThemeMergedConfigBuilder::class);
-        $this->scssCompilerMock = $this->createMock(ScssPhpCompiler::class);
+        $this->scssCompilerMock = static::createStub(ScssPhpCompiler::class);
 
         $this->themeService = new ThemeService(
             $this->storefrontPluginRegistryMock,
@@ -303,27 +304,6 @@ class ThemeServiceTest extends TestCase
                 $dependentThemeId,
             ],
         ], $parameters);
-    }
-
-    public function testUpdateThemeNoTheme(): void
-    {
-        $themeId = Uuid::randomHex();
-
-        $this->themeRepositoryMock->method('search')->willReturn(
-            new EntitySearchResult(
-                'theme',
-                1,
-                new ThemeCollection([]),
-                null,
-                new Criteria(),
-                $this->context
-            )
-        );
-
-        $this->expectException(ThemeException::class);
-        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $themeId));
-
-        $this->themeService->updateTheme($themeId, null, null, $this->context);
     }
 
     public function testUpdateTheme(): void
@@ -549,6 +529,27 @@ class ThemeServiceTest extends TestCase
             ]);
 
         $this->themeCompilerMock->expects($this->never())->method('compileTheme');
+
+        $this->themeService->updateTheme($themeId, null, null, $this->context);
+    }
+
+    public function testUpdateThemeNoTheme(): void
+    {
+        $themeId = Uuid::randomHex();
+
+        $this->themeRepositoryMock->method('search')->willReturn(
+            new EntitySearchResult(
+                'theme',
+                1,
+                new ThemeCollection([]),
+                null,
+                new Criteria(),
+                $this->context
+            )
+        );
+
+        $this->expectException(ThemeException::class);
+        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $themeId));
 
         $this->themeService->updateTheme($themeId, null, null, $this->context);
     }
@@ -859,7 +860,6 @@ class ThemeServiceTest extends TestCase
         $expectedConfig = ['key' => 'value'];
 
         $this->mergedConfigBuilderMock
-            ->expects($this->once())
             ->method('getPlainThemeConfiguration')
             ->with($themeId, $this->context)
             ->willReturn($expectedConfig);
@@ -879,7 +879,6 @@ class ThemeServiceTest extends TestCase
         $expectedConfig = ['key' => 'value'];
 
         $this->mergedConfigBuilderMock
-            ->expects($this->once())
             ->method('getPlainThemeConfiguration')
             ->with($themeId, $this->context, true)
             ->willReturn($expectedConfig);
@@ -895,7 +894,6 @@ class ThemeServiceTest extends TestCase
         $expectedConfig = ['structuredKey' => 'structuredValue'];
 
         $this->mergedConfigBuilderMock
-            ->expects($this->once())
             ->method('getThemeConfigurationFieldStructure')
             ->with($themeId, $this->context)
             ->willReturn($expectedConfig);
@@ -915,7 +913,6 @@ class ThemeServiceTest extends TestCase
         $expectedConfig = ['structuredKey' => 'structuredValue'];
 
         $this->mergedConfigBuilderMock
-            ->expects($this->once())
             ->method('getThemeConfigurationFieldStructure')
             ->with($themeId, $this->context, true)
             ->willReturn($expectedConfig);

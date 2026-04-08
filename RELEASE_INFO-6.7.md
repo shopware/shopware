@@ -257,9 +257,9 @@ Both `AwsS3v3Factory` and `PresignedUploadUrlGenerator` are wired via DI to the 
 the `shopware.filesystem.s3.client` service to provide a custom Symfony HTTP client with
 custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
 
-### Events now implement `ShopwareEvent` and provide `getContext()`
+### Events gain optional `Context` parameter (deprecated without)
 
-Subscribers to the events below couldn't access the framework context — ruling out DAL repository calls or anything requiring a `Context`. The events now implement `ShopwareEvent` and receive `Context` via their constructor.
+The events below now accept an optional `Context` as the last constructor argument. Shopware's own dispatch sites already pass the context. Third-party code that instantiates these events without `$context` will see a deprecation notice; in 6.8, the parameter becomes required and the events will implement `ShopwareEvent`.
 
 - `Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent`
 - `Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent`

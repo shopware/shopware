@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
-use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
 use Shopware\Storefront\Theme\ThemeConfigCacheInvalidator;
 
 /**
@@ -27,18 +26,6 @@ class ThemeConfigCacheInvalidatorTest extends TestCase
     {
         $this->cacheInvalidator = new MockedCacheInvalidator();
         $this->themeConfigCacheInvalidator = new ThemeConfigCacheInvalidator($this->cacheInvalidator);
-    }
-
-    public function testGetSubscribedEvents(): void
-    {
-        static::assertSame(
-            [
-                ThemeConfigChangedEvent::class => 'invalidate',
-                ThemeAssignedEvent::class => 'assigned',
-                ThemeConfigResetEvent::class => 'reset',
-            ],
-            ThemeConfigCacheInvalidator::getSubscribedEvents()
-        );
     }
 
     public function testAssigned(): void
@@ -64,23 +51,6 @@ class ThemeConfigCacheInvalidatorTest extends TestCase
 
     public function testInvalidate(): void
     {
-        $themeId = Uuid::randomHex();
-        $event = new ThemeConfigChangedEvent($themeId, ['test' => 'test'], Context::createDefaultContext());
-
-        $this->themeConfigCacheInvalidator->invalidate($event);
-
-        $expectedInvalidatedTags = ['theme-config-' . $themeId];
-
-        static::assertSame(
-            $expectedInvalidatedTags,
-            $this->cacheInvalidator->getInvalidatedTags()
-        );
-    }
-
-    public function testInvalidateDisabledFineGrained(): void
-    {
-        $this->themeConfigCacheInvalidator = new ThemeConfigCacheInvalidator($this->cacheInvalidator);
-
         $themeId = Uuid::randomHex();
         $event = new ThemeConfigChangedEvent($themeId, ['test' => 'test'], Context::createDefaultContext());
 

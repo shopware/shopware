@@ -561,9 +561,9 @@ shopware:
           type: 'mysql'
 ```
 
-## Events now require `Context` constructor parameter
+## Events require `Context` constructor parameter
 
-The events below received `Context` as a new required constructor parameter and now implement `ShopwareEvent`. If you instantiate any of these events directly, add `Context` as the last argument:
+The following events now require `Context` as the last constructor parameter. In 6.7, omitting `$context` triggers a deprecation notice. In 6.8, the parameter becomes required, the events will implement `ShopwareEvent`, and `getContext()` will return `Context` (non-nullable).
 
 **Before:**
 ```php

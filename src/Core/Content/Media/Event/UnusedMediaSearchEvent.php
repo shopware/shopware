@@ -3,24 +3,31 @@
 namespace Shopware\Core\Content\Media\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('discovery')]
-class UnusedMediaSearchEvent extends Event implements ShopwareEvent
+class UnusedMediaSearchEvent extends Event
 {
     /**
      * @param list<string> $ids
      */
     public function __construct(
         private array $ids,
-        private readonly Context $context
+        private readonly ?Context $context = null
     ) {
+        if ($context === null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Not passing $context to ' . static::class . ' is deprecated and will be required in v6.8.0.');
+        }
     }
 
-    public function getContext(): Context
+    public function getContext(): ?Context
     {
+        if ($this->context === null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Not passing $context to ' . static::class . ' is deprecated and will be required in v6.8.0.');
+        }
+
         return $this->context;
     }
 

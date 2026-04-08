@@ -4,12 +4,12 @@ namespace Shopware\Core\Content\ImportExport\Event;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('fundamentals@after-sales')]
-class ImportExportBeforeExportRecordEvent extends Event implements ShopwareEvent
+class ImportExportBeforeExportRecordEvent extends Event
 {
     /**
      * @param array<string, mixed> $record
@@ -19,12 +19,19 @@ class ImportExportBeforeExportRecordEvent extends Event implements ShopwareEvent
         private readonly Config $config,
         private array $record,
         private readonly array $originalRecord,
-        private readonly Context $context,
+        private readonly ?Context $context = null,
     ) {
+        if ($context === null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Not passing $context to ' . static::class . ' is deprecated and will be required in v6.8.0.');
+        }
     }
 
-    public function getContext(): Context
+    public function getContext(): ?Context
     {
+        if ($this->context === null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Not passing $context to ' . static::class . ' is deprecated and will be required in v6.8.0.');
+        }
+
         return $this->context;
     }
 

@@ -3,24 +3,31 @@
 namespace Shopware\Core\Content\Media\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('discovery')]
-class MediaFileExtensionWhitelistEvent extends Event implements ShopwareEvent
+class MediaFileExtensionWhitelistEvent extends Event
 {
     /**
      * @param array<string> $whitelist
      */
     public function __construct(
         private array $whitelist,
-        private readonly Context $context
+        private readonly ?Context $context = null
     ) {
+        if ($context === null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Not passing $context to ' . static::class . ' is deprecated and will be required in v6.8.0.');
+        }
     }
 
-    public function getContext(): Context
+    public function getContext(): ?Context
     {
+        if ($this->context === null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Not passing $context to ' . static::class . ' is deprecated and will be required in v6.8.0.');
+        }
+
         return $this->context;
     }
 

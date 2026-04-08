@@ -112,12 +112,14 @@ class RevocationRequestRouteTest extends TestCase
 
         $slotId = Uuid::randomHex();
 
+        $config = $this->createSlotConfig($slotId, $successMessage);
+
         $formData = $this->createValidFormData($slotId);
         $dataBag = new RequestDataBag($formData);
 
         $cmsSlot = new CmsSlotEntity();
         $cmsSlot->setId($slotId);
-        $cmsSlot->setTranslated(['config' => []]);
+        $cmsSlot->setTranslated(['config' => $config[$slotId]]);
 
         $revocationRequestRoute = $this->createRevocationRequestRoute([$cmsSlot]);
 
@@ -130,7 +132,7 @@ class RevocationRequestRouteTest extends TestCase
     {
         $validatorMock = $this->createMock(DataValidator::class);
 
-        $validatorMock->method('getViolations')->willReturnCallback(function (array $formData): ConstraintViolationList {
+        $validatorMock->method('getViolations')->willReturnCallback(static function (array $formData): ConstraintViolationList {
             $violationList = new ConstraintViolationList();
             if (!\array_key_exists('firstName', $formData) || empty($formData['firstName'])) {
                 $violationList->add(new ConstraintViolation('Invalid firstName', null, [], 'firstName', null, null, null, 'firstName'));

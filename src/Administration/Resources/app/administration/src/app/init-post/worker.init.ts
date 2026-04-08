@@ -1,12 +1,9 @@
 // The eslint import resolver vite does not support shared worker imports
-/* eslint-disable import/no-unresolved */
 import SharedAdminWorker from 'src/core/worker/admin-worker.shared-worker?sharedworker';
 import AdminWorker from 'src/core/worker/admin-worker.worker?worker';
-/* eslint-enable import/no-unresolved */
 
 import WorkerNotificationListener from 'src/core/worker/worker-notification-listener';
 import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';
-import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
 import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { App } from 'vue';
 import type { LoginService } from '../../core/service/login.service';
@@ -77,7 +74,7 @@ function enableAdminWorker(
     context: ApiContext,
     config: ContextStore['app']['config']['adminWorker'],
 ) {
-    // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const transports = (JSON.parse(JSON.stringify(config))?.transports || []) as string[];
 
     const getMessage = () => {
@@ -155,11 +152,9 @@ function getWorker(): SharedWorker {
             return;
         }
 
-        const tokenHandler = getRefreshTokenHelper();
+        const loginService = Shopware.Service('loginService');
 
-        if (!tokenHandler.isRefreshing) {
-            void tokenHandler.fireRefreshTokenRequest();
-        }
+        void loginService.refreshToken();
     };
 
     return worker;

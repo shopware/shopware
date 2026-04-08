@@ -73,6 +73,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\WasModifiedByUserField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
@@ -129,6 +130,7 @@ class SchemaBuilder
 
         BoolField::class => Types::BOOLEAN,
         LockedField::class => Types::BOOLEAN,
+        WasModifiedByUserField::class => Types::BOOLEAN,
 
         PasswordField::class => Types::STRING,
         StringField::class => Types::STRING,
@@ -268,7 +270,7 @@ class SchemaBuilder
     private function addForeignKeys(Table $table, EntityDefinition $definition): void
     {
         $fields = $definition->getFields()->filter(
-            function (Field $field) {
+            static function (Field $field) {
                 if ($field instanceof ManyToOneAssociationField
                     || ($field instanceof OneToOneAssociationField && $field->getStorageName() !== 'id')) {
                     return true;
@@ -287,7 +289,7 @@ class SchemaBuilder
 
             $reference = $field->getReferenceDefinition();
 
-            $hasOneToMany = $definition->getFields()->filter(function (Field $field) use ($reference) {
+            $hasOneToMany = $definition->getFields()->filter(static function (Field $field) use ($reference) {
                 if (!$field instanceof OneToManyAssociationField) {
                     return false;
                 }

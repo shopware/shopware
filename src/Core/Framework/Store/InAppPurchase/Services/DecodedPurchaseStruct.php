@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\Store\InAppPurchase\Services;
 
-use Shopware\Core\Framework\HttpException;
-use Shopware\Core\Framework\JWT\JWTException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
@@ -33,10 +31,5 @@ final readonly class DecodedPurchaseStruct
         $this->nextBookingDate = $data['nextBookingDate'];
         $this->quantity = $data['quantity'];
         $this->sub = $data['sub'];
-    }
-
-    protected function throwException(string $message): HttpException
-    {
-        return JWTException::invalidJwt($message);
     }
 }

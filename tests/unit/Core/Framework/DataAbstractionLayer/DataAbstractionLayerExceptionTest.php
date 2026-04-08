@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -89,7 +88,6 @@ class DataAbstractionLayerExceptionTest extends TestCase
     {
         $e = DataAbstractionLayerException::invalidSortQuery('foo', 'baz');
 
-        static::assertInstanceOf(InvalidSortQueryException::class, $e);
         static::assertSame('foo', $e->getMessage());
         static::assertSame('baz', $e->getParameters()['path']);
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());

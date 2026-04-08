@@ -157,7 +157,6 @@ export default {
         },
 
         onSave() {
-            // eslint-disable-next-line max-len
             this.userSearchPreferences =
                 this.userSearchPreferences ?? this.searchPreferencesService.createUserSearchPreferences();
             this.userSearchPreferences.value = this.searchPreferences.map(({ entityName, _searchable, fields }) => {

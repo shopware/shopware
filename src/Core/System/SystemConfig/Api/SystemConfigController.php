@@ -107,7 +107,8 @@ class SystemConfigController extends AbstractController
         }
 
         $kvs = $request->request->all();
-        $this->systemConfig->setMultiple($kvs, $salesChannelId);
+        $silent = $request->query->getBoolean('silent');
+        $this->systemConfig->setMultiple($kvs, $salesChannelId, $silent);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -122,6 +123,8 @@ class SystemConfigController extends AbstractController
     {
         $this->systemConfigValidator->validate($request->request->all(), $context);
 
+        $silent = $request->query->getBoolean('silent');
+
         /**
          * @var string $salesChannelId
          * @var array<string, mixed> $kvs
@@ -131,7 +134,7 @@ class SystemConfigController extends AbstractController
                 $salesChannelId = null;
             }
 
-            $this->systemConfig->setMultiple($kvs, $salesChannelId);
+            $this->systemConfig->setMultiple($kvs, $salesChannelId, $silent);
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);

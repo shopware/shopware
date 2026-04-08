@@ -83,7 +83,7 @@ class MailServiceTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             MailBeforeValidateEvent::class,
-            function (MailBeforeValidateEvent $event): void {
+            static function (MailBeforeValidateEvent $event): void {
                 $event->setTemplateData(
                     [...$event->getTemplateData(), ...['plugin-value' => true]]
                 );

@@ -22,7 +22,7 @@ trait QueueTestBehaviour
     {
         static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM messenger_messages');
         $bus = static::getContainer()->get('messenger.bus.test_shopware');
-        static::assertInstanceOf(TraceableMessageBus::class, $bus);
+        \assert($bus instanceof TraceableMessageBus);
         $bus->reset();
     }
 
@@ -33,12 +33,12 @@ trait QueueTestBehaviour
         $eventDispatcher->addSubscriber(static::getContainer()->get(MessageQueueStatsSubscriber::class));
 
         $locator = static::getContainer()->get('messenger.test_receiver_locator');
-        static::assertInstanceOf(ServiceLocator::class, $locator);
+        \assert($locator instanceof ServiceLocator);
 
         $receiver = $locator->get('async');
 
         $bus = static::getContainer()->get('messenger.bus.test_shopware');
-        static::assertInstanceOf(MessageBusInterface::class, $bus);
+        \assert($bus instanceof MessageBusInterface);
 
         $worker = new Worker([$receiver], $bus, $eventDispatcher);
 
@@ -53,7 +53,7 @@ trait QueueTestBehaviour
     protected function getDispatchedMessageCount(string $messageClass): int
     {
         $bus = static::getContainer()->get('messenger.bus.test_shopware');
-        static::assertInstanceOf(TraceableMessageBus::class, $bus);
+        \assert($bus instanceof TraceableMessageBus);
 
         $count = 0;
         foreach ($bus->getDispatchedMessages() as $message) {

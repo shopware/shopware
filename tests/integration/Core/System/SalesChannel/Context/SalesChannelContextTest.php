@@ -507,14 +507,12 @@ class SalesChannelContextTest extends TestCase
             false,
             false,
             false,
-            true,
         ];
 
         yield 'Logged in as guest, but guest not allowed' => [
             true,
             true,
             false,
-            true,
         ];
     }
 

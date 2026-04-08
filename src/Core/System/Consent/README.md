@@ -11,7 +11,9 @@
  - Consent Definition: A consent is a class-based definition representing something which requires consent. It is an implementation of the `ConsentDefinition` interface and consists of a unique name, a scope, and an available since date.
  - Permissions: A Consent Definition can be associated with permissions, which are required to accept or revoke the consent. If the current user does not have the required permissions, they cannot perform consent actions.
  - Scope: The scope of a consent describes who or what can perform consent actions, eg. accepting or revoking.
- - State: Each consent has a `status` of `unset`, `accepted`, or `revoked` for a given `identifier` within its scope. When there is no state for a consent/scope id combination in the storage, the status is interpreted as `unset`.
+ - State: Each consent has a `status` of `unset`, `accepted`, `declined` or `revoked` for a given `identifier` within its scope. When there is no state for a consent/scope id combination in the storage, the status is interpreted as `unset`.
+ - Both `declined` and `revoked` indicate that a user was prompted to consent but declined. The difference is that `declined` is used when the user initially declines consent, while `revoked` is used when a user who previously accepted consent decides to revoke it later.
+ So the difference between this two is, that you know that a declined consent was never accepted, while a revoked consent was accepted until it's current `updated_at` date.
  - Actor: The username of the Admin user who made the last change to a consent decision.
 
  Examples

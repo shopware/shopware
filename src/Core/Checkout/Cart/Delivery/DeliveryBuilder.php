@@ -62,7 +62,7 @@ class DeliveryBuilder
 
         $this->buildPositions($collection, $positions, $deliveryTime);
 
-        if (!($positions->first() instanceof DeliveryPosition)) {
+        if (!$positions->first() instanceof DeliveryPosition) {
             return null;
         }
 

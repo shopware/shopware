@@ -87,7 +87,7 @@ class CustomFieldService implements EventSubscriberInterface, ResetInterface
             return;
         }
 
-        $customFieldCommands = array_filter($commands, function ($command) {
+        $customFieldCommands = array_filter($commands, static function ($command) {
             return $command->getEntityName() === CustomFieldSetDefinition::ENTITY_NAME
                 || $command->getEntityName() === CustomFieldDefinition::ENTITY_NAME;
         });

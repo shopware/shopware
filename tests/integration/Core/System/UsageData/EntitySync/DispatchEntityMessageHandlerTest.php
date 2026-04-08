@@ -43,7 +43,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
     protected function setUp(): void
     {
         $client = $this->getMockHttpClient();
-        $client->setResponseFactory(function (string $method, string $url): ResponseInterface {
+        $client->setResponseFactory(static function (string $method, string $url): ResponseInterface {
             if (\str_ends_with($url, '/killswitch')) {
                 $body = json_encode(['killswitch' => false]);
                 static::assertIsString($body);
@@ -65,7 +65,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $ids = new IdsCollection();
 
         $client = $this->getMockHttpClient();
-        $client->setResponseFactory(function ($method, $url, $options) use ($ids) {
+        $client->setResponseFactory(static function ($method, $url, $options) use ($ids) {
             if (\str_ends_with($url, '/killswitch')) {
                 $body = json_encode(['killswitch' => false]);
                 static::assertIsString($body);
@@ -163,7 +163,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $ids = new IdsCollection();
 
         $client = $this->getMockHttpClient();
-        $client->setResponseFactory(function ($method, $url, $options) use ($ids) {
+        $client->setResponseFactory(static function ($method, $url, $options) use ($ids) {
             if (\str_ends_with($url, '/killswitch')) {
                 $body = json_encode(['killswitch' => false]);
                 static::assertIsString($body);
@@ -245,7 +245,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $ids = new IdsCollection();
 
         $client = $this->getMockHttpClient();
-        $client->setResponseFactory(function ($method, $url, $options) {
+        $client->setResponseFactory(static function ($method, $url, $options) {
             $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
             $body = gzdecode($options['body']);
             static::assertIsString($body);
@@ -304,7 +304,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $secondEntity = $this->insertEntityDeletionEntry($this->idsCollection->get('product-entity-deletion-2'));
 
         $client = $this->getMockHttpClient();
-        $client->setResponseFactory(function ($method, $url, $options) use ($firstEntity, $secondEntity) {
+        $client->setResponseFactory(static function ($method, $url, $options) use ($firstEntity, $secondEntity) {
             $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
             $body = gzdecode($options['body']);
             static::assertIsString($body);

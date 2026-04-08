@@ -59,7 +59,7 @@ class CartRestorerTest extends TestCase
         $eventIsThrown = false;
         $this->eventDispatcher->addListener(
             SalesChannelContextRestoredEvent::class,
-            function () use (&$eventIsThrown): void {
+            static function () use (&$eventIsThrown): void {
                 $eventIsThrown = true;
             }
         );
@@ -96,7 +96,7 @@ class CartRestorerTest extends TestCase
         $eventIsThrown = false;
         $this->eventDispatcher->addListener(
             SalesChannelContextRestoredEvent::class,
-            function () use (&$eventIsThrown): void {
+            static function () use (&$eventIsThrown): void {
                 $eventIsThrown = true;
             }
         );
@@ -133,7 +133,7 @@ class CartRestorerTest extends TestCase
         $eventIsThrown = false;
         $this->eventDispatcher->addListener(
             SalesChannelContextRestoredEvent::class,
-            function () use (&$eventIsThrown): void {
+            static function () use (&$eventIsThrown): void {
                 $eventIsThrown = true;
             }
         );

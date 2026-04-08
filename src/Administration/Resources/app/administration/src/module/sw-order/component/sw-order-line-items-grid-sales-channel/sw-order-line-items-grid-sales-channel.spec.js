@@ -174,7 +174,6 @@ async function createWrapper() {
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'mt-number-field': {
-                        // eslint-disable-next-line max-len
                         template:
                             '<input class="mt-number-field" type="number" :value="value" @input="$emit(\'change\', Number($event.target.value))" />',
                         props: {

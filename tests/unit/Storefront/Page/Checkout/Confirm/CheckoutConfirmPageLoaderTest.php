@@ -322,7 +322,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $addressValidation->method('create')->willReturn(new DataValidationDefinition('address.create'));
 
         $dispatcher = $this->createMock(EventDispatcher::class);
-        $dispatcher->method('dispatch')->willReturnCallback(function ($validationEvent) use ($countryId) {
+        $dispatcher->method('dispatch')->willReturnCallback(static function ($validationEvent) use ($countryId) {
             if (!$validationEvent instanceof BuildValidationEvent) {
                 return $validationEvent;
             }

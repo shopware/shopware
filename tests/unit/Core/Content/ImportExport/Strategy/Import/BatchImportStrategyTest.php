@@ -88,7 +88,7 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
         $writeResult = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
 
         $this->repository->expects($this->exactly(3))->method('create')->willReturnCallback(
-            function () use ($writeResult) {
+            static function () use ($writeResult) {
                 static $counter = 0;
                 if ($counter++ < 2) {
                     throw new \Exception('Error');

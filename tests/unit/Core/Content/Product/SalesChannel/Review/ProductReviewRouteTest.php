@@ -26,7 +26,9 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ProductReviewRoute::class)]
 class ProductReviewRouteTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<ProductReviewCollection> */
+    /**
+     * @var MockObject&EntityRepository<ProductReviewCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private StaticSystemConfigService $config;

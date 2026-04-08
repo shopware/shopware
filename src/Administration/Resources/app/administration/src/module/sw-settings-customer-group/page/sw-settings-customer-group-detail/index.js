@@ -317,7 +317,7 @@ export default {
                 await this.customerGroupRepository.save(this.customerGroup);
 
                 this.isSaveSuccessful = true;
-            } catch (err) {
+            } catch (_err) {
                 this.createNotificationError({
                     message: this.$tc('sw-settings-customer-group.detail.notificationErrorMessage'),
                 });

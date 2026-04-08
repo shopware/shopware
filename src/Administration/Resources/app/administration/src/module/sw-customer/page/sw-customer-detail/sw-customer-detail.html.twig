@@ -103,7 +103,6 @@
                         <mt-button
                             variant="critical"
                             size="small"
-                            :disabled="!customer.active"
                             @click="declineCustomerGroupRegistration"
                         >
                             {{ $tc('sw-customer.customerGroupRegistration.decline') }}
@@ -112,7 +111,6 @@
                         <mt-button
                             variant="primary"
                             size="small"
-                            :disabled="!customer.active"
                             @click="acceptCustomerGroupRegistration"
                         >
                             {{ $tc('sw-customer.customerGroupRegistration.accept') }}

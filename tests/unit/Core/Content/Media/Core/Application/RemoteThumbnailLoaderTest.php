@@ -239,7 +239,7 @@ class RemoteThumbnailLoaderTest extends TestCase
 
         $dispatcher->addListener(
             ResolveRemoteThumbnailUrlExtension::NAME . '.pre',
-            function (ResolveRemoteThumbnailUrlExtension $event): void {
+            static function (ResolveRemoteThumbnailUrlExtension $event): void {
                 if ($event->width === '400') {
                     $event->result = null;
                     $event->stopPropagation();

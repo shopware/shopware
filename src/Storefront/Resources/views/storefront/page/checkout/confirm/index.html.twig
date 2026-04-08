@@ -182,38 +182,6 @@
             } %}
         {% endblock %}
     {% endblock %}
-
-    {% if feature('v6.8.0.0') and page.showRevocation() %}
-        <div class="confirm-tos-bottom">
-        {% block page_checkout_confirm_revocation_section %}
-        {% block page_checkout_confirm_revocation_section_header %}
-            <div class="card-title">
-                {{ 'checkout.confirmDigitalContentHeader'|trans|sw_sanitize }}
-            </div>
-        {% endblock %}
-
-        {% block page_checkout_confirm_revocation_section_control %}
-        <div class="form-check mt-2 mb-4">
-            {% block page_checkout_confirm_revocation_section_control_bottom %}
-                <input type="checkbox"
-                       class="checkout-confirm-revocation-checkbox form-check-input{% if formViolations.getViolations('/revocation') is not empty %} is-invalid{% endif %}"
-                       required="required"
-                       id="revocation"
-                       form="confirmOrderForm"
-                       name="revocation">
-            {% endblock %}
-
-            {% block page_checkout_confirm_revocation_section_control_label_bottom %}
-                <label for="revocation"
-                       class="checkout-confirm-revocation-label custom-control-label">
-                    {{ 'checkout.confirmRevocationTerms'|trans() }}
-                </label>
-            {% endblock %}
-        </div>
-        {% endblock %}
-        {% endblock %}
-        </div>
-    {% endif %}
 {% endblock %}
 
 {% block page_checkout_additional %}
@@ -322,6 +290,29 @@
                         })|raw }}
                     </div>
                 {% endblock %}
+            {% endif %}
+
+            {% if page.showRevocation() %}
+                {% block page_checkout_confirm_revocation_section_control %}
+                    <div class="form-check mt-2 mb-4">
+                        {% block page_checkout_confirm_revocation_section_control_bottom %}
+                            <input type="checkbox"
+                                   class="checkout-confirm-revocation-checkbox form-check-input{% if formViolations.getViolations('/revocation') is not empty %} is-invalid{% endif %}"
+                                   required="required"
+                                   id="revocation"
+                                   form="confirmOrderForm"
+                                   name="revocation">
+                        {% endblock %}
+
+                        {% block page_checkout_confirm_revocation_section_control_label_bottom %}
+                            <label for="revocation"
+                                   class="checkout-confirm-revocation-label custom-control-label">
+                                {{ 'checkout.confirmRevocationTerms'|trans() }}
+                            </label>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
             {% endif %}
         {% endif %}
     {% endblock %}

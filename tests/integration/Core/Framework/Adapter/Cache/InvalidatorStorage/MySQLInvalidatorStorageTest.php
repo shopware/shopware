@@ -106,7 +106,7 @@ class MySQLInvalidatorStorageTest extends TestCase
         $storage = new MySQLInvalidatorStorage(
             $this->connection,
             $this->logger,
-            fn (MySQLInvalidatorStorage $storage, array $tags) => $storage->store(['tag4', 'tag5', 'tag6']),
+            static fn (MySQLInvalidatorStorage $storage, array $tags) => $storage->store(['tag4', 'tag5', 'tag6']),
         );
 
         // store these first
@@ -190,7 +190,7 @@ class MySQLInvalidatorStorageTest extends TestCase
 
         $connection->expects($this->once())
             ->method('transactional')
-            ->willReturnCallback(fn (callable $cb) => $cb());
+            ->willReturnCallback(static fn (callable $cb) => $cb());
 
         $storage = new MySQLInvalidatorStorage($connection, $this->logger);
         $storage->loadAndDelete();

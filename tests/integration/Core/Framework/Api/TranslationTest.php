@@ -593,7 +593,7 @@ class TranslationTest extends TestCase
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(\count($errors), $responseData['errors']);
 
-        $actualErrors = array_map(function ($error) {
+        $actualErrors = array_map(static function ($error) {
             $e = [
                 'code' => $error['code'],
                 'status' => $error['status'],

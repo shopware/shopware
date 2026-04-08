@@ -114,7 +114,7 @@ class IndexCreatorTest extends TestCase
         });
 
         $calledConfigEvent = false;
-        $eventDispatcher->addListener(ElasticsearchIndexConfigEvent::class, function (ElasticsearchIndexConfigEvent $event) use (&$calledConfigEvent): void {
+        $eventDispatcher->addListener(ElasticsearchIndexConfigEvent::class, static function (ElasticsearchIndexConfigEvent $event) use (&$calledConfigEvent): void {
             $calledConfigEvent = true;
 
             $event->setConfig($event->getConfig() + ['event' => true]);
@@ -257,7 +257,7 @@ class IndexCreatorTest extends TestCase
 
         $helper->expects($this->once())
             ->method('logAndThrowException')
-            ->with(static::callback(function (ElasticsearchException $exception): bool {
+            ->with(static::callback(static function (ElasticsearchException $exception): bool {
                 static::assertSame(ElasticsearchException::INDEX_CREATION_ERROR, $exception->getErrorCode());
                 static::assertSame('foo', $exception->getParameters()['index'] ?? null);
 

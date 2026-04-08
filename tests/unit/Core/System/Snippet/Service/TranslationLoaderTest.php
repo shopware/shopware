@@ -129,7 +129,7 @@ class TranslationLoaderTest extends TestCase
         $requestException = new RequestException('Not Found', $request, $response404);
 
         $this->client = $this->createMock(ClientInterface::class);
-        $this->client->method('request')->willReturnCallback(function ($method, $url) use ($requestException) {
+        $this->client->method('request')->willReturnCallback(static function ($method, $url) use ($requestException) {
             if (str_contains($url, 'administration.json')) {
                 throw $requestException;
             }
@@ -143,8 +143,8 @@ class TranslationLoaderTest extends TestCase
         $loader->load('es-ES', $this->context);
 
         $writtenFiles = $this->flysystem->listContents(TranslationLoader::TRANSLATION_DIR, true)
-            ->filter(fn ($item) => $item->isFile())
-            ->map(fn ($item) => $item->path())
+            ->filter(static fn ($item) => $item->isFile())
+            ->map(static fn ($item) => $item->path())
             ->toArray();
 
         static::assertCount(3, $writtenFiles);
@@ -159,8 +159,8 @@ class TranslationLoaderTest extends TestCase
         $loader->load('es-ES', $this->context);
 
         $writtenFiles = $this->flysystem->listContents(TranslationLoader::TRANSLATION_DIR, true)
-            ->filter(fn ($item) => $item->isFile())
-            ->map(fn ($item) => $item->path())
+            ->filter(static fn ($item) => $item->isFile())
+            ->map(static fn ($item) => $item->path())
             ->toArray();
 
         static::assertCount(5, $writtenFiles);

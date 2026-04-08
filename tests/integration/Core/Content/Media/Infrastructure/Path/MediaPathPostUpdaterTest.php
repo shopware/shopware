@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
 use Shopware\Core\Content\Media\Core\Application\MediaPathStorage;
@@ -23,7 +22,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[CoversClass(MediaPathPostUpdater::class)]
 class MediaPathPostUpdaterTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -74,7 +72,7 @@ class MediaPathPostUpdaterTest extends TestCase
         $indexerRegistry = $this->createMock(EntityIndexerRegistry::class);
         $indexerRegistry->expects($this->once())
             ->method('__invoke')
-            ->with(static::callback(function (MediaIndexingMessage $message) use ($ids) {
+            ->with(static::callback(static function (MediaIndexingMessage $message) use ($ids) {
                 // It is expected that indexer is triggered, even if the path was already generated
                 static::assertSame([$ids->get('media-1'), $ids->get('media-2'), $ids->get('media-3')], $message->getData());
                 static::assertSame('media.indexer', $message->getIndexer());

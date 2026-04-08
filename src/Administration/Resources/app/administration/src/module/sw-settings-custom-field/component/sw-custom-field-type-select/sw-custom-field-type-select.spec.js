@@ -105,10 +105,8 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-sel
         expect(labelInputs[1].element.value).toBe('');
         expect(labelInputs[2].element.value).toBe('');
 
-        // eslint-disable-next-line no-restricted-syntax
         for (const labelInput of labelInputs) {
             const index = labelInputs.indexOf(labelInput);
-            // eslint-disable-next-line no-await-in-loop
             await labelInput.setValue(`label-${index}`);
         }
 

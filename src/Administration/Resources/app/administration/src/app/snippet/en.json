@@ -181,7 +181,7 @@
     "sw-field": {
       "notification": {
         "notificationCopySuccessMessage": "Text has been copied to clipboard.",
-        "notificationCopyFailureMessage": "Text could not be copied to clipboard."
+        "notificationCopyFailureMessage": "Text could not be copied to clipboard. Make sure you're accessing the administration via a secure connection (HTTPS) and try again."
       },
       "titleShowPassword": "Show password",
       "titleHidePassword": "Hide password",
@@ -201,6 +201,9 @@
       "notification": {
         "invalidFileType": {
           "message": "The selected file \"{name}\" has an unsupported format. Please use one of the following types: {supportedTypes}."
+        },
+        "invalidFileExtension": {
+          "message": "The selected file \"{name}\" has an unsupported file extension. Please use one of the following file extensions: {supportedExtensions}."
         },
         "invalidFileSize": {
           "message": "The selected file \"{name}\" is too big to upload. File size must not exceed {limit}."
@@ -1605,7 +1608,6 @@
   },
   "sw-wizard": {
     "backButton": "Back",
-    "closeButton": "Close",
     "finishButton": "Finish",
     "nextButton": "Next"
   },
@@ -1723,6 +1725,10 @@
   "sw-context-button": {
     "ariaLabel": "Open context menu"
   },
+  "sw-vector-field": {
+    "lock-uniform-scale": "Lock uniform scale",
+    "unlock-uniform-scale": "Unlock uniform scale"
+  },
   "sw-model-editor": {
     "titleModal": "Model Editor",
     "open-model-editor-tooltip": "Open Model Editor",
@@ -1731,8 +1737,6 @@
       "rotate-tooltip": "Rotate object",
       "scale-tooltip": "Scale object"
     },
-    "save": "Save",
-    "cancel": "Cancel",
     "properties": {
       "transformation": {
         "label":"Transformation",

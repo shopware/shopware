@@ -3,7 +3,6 @@
  */
 
 import { mount } from '@vue/test-utils';
-// eslint-disable-next-line import/no-named-as-default,import/no-named-as-default-member
 import getTreeItems from './fixtures/treeItems';
 
 async function createWrapper(

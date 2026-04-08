@@ -161,12 +161,12 @@ class TaxProviderProcessorTest extends TestCase
         $taxProviderRegistry = $this->createMock(TaxProviderRegistry::class);
         $taxProviderRegistry
             ->method('has')
-            ->willReturnCallback(fn (string $identifier) => $identifier === TestEmptyTaxProvider::class);
+            ->willReturnCallback(static fn (string $identifier) => $identifier === TestEmptyTaxProvider::class);
 
         $taxProviderRegistry
             ->method('get')
             ->withAnyParameters()
-            ->willReturnCallback(function (string $identifier) use ($testProvider) {
+            ->willReturnCallback(static function (string $identifier) use ($testProvider) {
                 if ($identifier === TestEmptyTaxProvider::class) {
                     return $testProvider;
                 }
@@ -270,12 +270,12 @@ class TaxProviderProcessorTest extends TestCase
         $taxProviderRegistry = $this->createMock(TaxProviderRegistry::class);
         $taxProviderRegistry
             ->method('has')
-            ->willReturnCallback(fn (string $identifier) => $identifier === TestEmptyTaxProvider::class);
+            ->willReturnCallback(static fn (string $identifier) => $identifier === TestEmptyTaxProvider::class);
 
         $taxProviderRegistry
             ->method('get')
             ->withAnyParameters()
-            ->willReturnCallback(function (string $identifier) {
+            ->willReturnCallback(static function (string $identifier) {
                 if ($identifier === TestEmptyTaxProvider::class) {
                     return new TestEmptyTaxProvider();
                 }
@@ -364,7 +364,7 @@ class TaxProviderProcessorTest extends TestCase
         $registry
             ->method('get')
             ->withAnyParameters()
-            ->willReturnCallback(function (string $identifier) {
+            ->willReturnCallback(static function (string $identifier) {
                 if ($identifier === TestGenericExceptionTaxProvider::class) {
                     return new TestGenericExceptionTaxProvider();
                 }

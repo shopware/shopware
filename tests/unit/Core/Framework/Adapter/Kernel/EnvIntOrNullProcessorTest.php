@@ -18,7 +18,7 @@ class EnvIntOrNullProcessorTest extends TestCase
     {
         $processor = new EnvIntOrNullProcessor();
 
-        $result = $processor->getEnv('int-or-null', 'FOO', fn () => null);
+        $result = $processor->getEnv('int-or-null', 'FOO', static fn () => null);
 
         static::assertNull($result);
     }
@@ -27,7 +27,7 @@ class EnvIntOrNullProcessorTest extends TestCase
     {
         $processor = new EnvIntOrNullProcessor();
 
-        $result = $processor->getEnv('int-or-null', 'FOO', fn () => '');
+        $result = $processor->getEnv('int-or-null', 'FOO', static fn () => '');
 
         static::assertNull($result);
     }
@@ -36,7 +36,7 @@ class EnvIntOrNullProcessorTest extends TestCase
     {
         $processor = new EnvIntOrNullProcessor();
 
-        $result = $processor->getEnv('int-or-null', 'FOO', fn () => '42');
+        $result = $processor->getEnv('int-or-null', 'FOO', static fn () => '42');
 
         static::assertSame(42, $result);
     }
@@ -45,7 +45,7 @@ class EnvIntOrNullProcessorTest extends TestCase
     {
         $processor = new EnvIntOrNullProcessor();
 
-        $result = $processor->getEnv('int-or-null', 'FOO', fn () => '0');
+        $result = $processor->getEnv('int-or-null', 'FOO', static fn () => '0');
 
         static::assertSame(0, $result);
     }

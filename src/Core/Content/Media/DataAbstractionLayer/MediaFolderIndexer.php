@@ -97,7 +97,7 @@ class MediaFolderIndexer extends EntityIndexer
             return;
         }
 
-        $ids = array_filter(array_unique($ids));
+        $ids = array_values(array_filter(array_unique($ids)));
         if ($ids === []) {
             return;
         }
@@ -148,7 +148,7 @@ class MediaFolderIndexer extends EntityIndexer
             );
         }
 
-        $this->eventDispatcher->dispatch(new MediaFolderIndexerEvent($ids, $message->getContext(), $message->getSkip()));
+        $this->eventDispatcher->dispatch(new MediaFolderIndexerEvent($ids, $message->getContext(), array_values($message->getSkip())));
     }
 
     public function getOptions(): array

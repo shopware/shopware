@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -46,7 +45,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[CoversClass(EntityWriter::class)]
 class EntityWriterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -667,7 +665,7 @@ class EntityWriterTest extends TestCase
 
         static::assertCount(2, $productTranslations, print_r($productTranslations, true));
 
-        $productTranslations = array_map(function ($a) {
+        $productTranslations = array_map(static function ($a) {
             $a['language_id'] = Uuid::fromBytesToHex($a['language_id']);
 
             return $a;

@@ -2,12 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem\Adapter;
 
+use AsyncAws\Core\AbstractApi;
 use AsyncAws\S3\S3Client;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\S3ClientFactory;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * @internal
@@ -109,5 +111,21 @@ class S3ClientFactoryTest extends TestCase
                 // missing secret
             ],
         ]);
+    }
+
+    public function testCreateWithCustomHttpClient(): void
+    {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+
+        $result = S3ClientFactory::create([
+            'bucket' => 'test-bucket',
+            'region' => 'eu-west-1',
+        ], $httpClient);
+
+        static::assertInstanceOf(S3Client::class, $result['client']);
+
+        // Verify the custom HTTP client was injected via reflection
+        $property = new \ReflectionProperty(AbstractApi::class, 'httpClient');
+        static::assertSame($httpClient, $property->getValue($result['client']));
     }
 }

@@ -90,7 +90,6 @@ class AccountService
     }
 
     /**
-     * @throws CustomerNotFoundException
      * @throws BadCredentialsException
      * @throws CustomerOptinNotCompletedException
      */
@@ -109,7 +108,6 @@ class AccountService
     }
 
     /**
-     * @throws CustomerNotFoundException
      * @throws BadCredentialsException
      * @throws CustomerOptinNotCompletedException
      */
@@ -119,7 +117,11 @@ class AccountService
             throw CustomerException::badCredentials();
         }
 
-        $customer = $this->getCustomerByEmail($email, $context);
+        try {
+            $customer = $this->getCustomerByEmail($email, $context);
+        } catch (CustomerNotFoundException) {
+            throw CustomerException::badCredentials();
+        }
 
         if ($customer->hasLegacyPassword()) {
             if (!$this->legacyPasswordVerifier->verify($password, $customer)) {
@@ -195,7 +197,7 @@ class AccountService
         $criteria->setTitle('account-service::fetchCustomer');
 
         $result = $this->customerRepository->search($criteria, $context->getContext())->getEntities();
-        $result = $result->filter(function (CustomerEntity $customer) use ($includeGuest, $context): bool {
+        $result = $result->filter(static function (CustomerEntity $customer) use ($includeGuest, $context): bool {
             // Skip not active users
             if (!$customer->getActive()) {
                 return false;
@@ -223,7 +225,7 @@ class AccountService
         // for guest accounts, real customer accounts should only occur once, otherwise the
         // wrong password will be validated
         if ($result->count() > 1) {
-            $result->sort(fn (CustomerEntity $a, CustomerEntity $b) => ($a->getCreatedAt() <=> $b->getCreatedAt()) * -1);
+            $result->sort(static fn (CustomerEntity $a, CustomerEntity $b) => ($a->getCreatedAt() <=> $b->getCreatedAt()) * -1);
         }
 
         return $result->first();

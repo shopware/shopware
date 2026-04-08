@@ -142,7 +142,7 @@ class ThemeRuntimeConfigStorage
                 <<<'SQL'
                     SELECT LOWER(HEX(id)) as id FROM theme WHERE parent_theme_id IN (:parentIds)
                 SQL,
-                ['parentIds' => array_map(fn ($id) => Uuid::fromHexToBytes($id), $pendingParentIds)],
+                ['parentIds' => array_map(static fn ($id) => Uuid::fromHexToBytes($id), $pendingParentIds)],
                 [
                     'parentIds' => ArrayParameterType::STRING,
                 ]

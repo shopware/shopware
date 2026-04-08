@@ -82,7 +82,7 @@ class ShopConfigurationController extends InstallerController
 
             // Use all available languages from TranslationConfigLoader
             $availableLanguages = $this->getAllAvailableLanguages();
-            $selectedLanguages = array_map(function (string $iso) use ($availableLanguages) {
+            $selectedLanguages = array_map(static function (string $iso) use ($availableLanguages) {
                 // already a full locale like xx-XX?
                 if (preg_match('/^[a-z]{2}-[A-Z]{2}$/', $iso)) {
                     return $iso;
@@ -189,7 +189,7 @@ class ShopConfigurationController extends InstallerController
          *
          * @param array<string, string> $first
          * @param array<string, string> $second
-         */ $countryIsos, fn (array $first, array $second) => strcmp($first['translated'], $second['translated']));
+         */ $countryIsos, static fn (array $first, array $second) => strcmp($first['translated'], $second['translated']));
 
         return $countryIsos;
     }

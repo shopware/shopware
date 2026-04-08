@@ -50,8 +50,13 @@ class DownloadServiceTest extends TestCase
     }
 
     #[DataProvider('dataProviderCreateFileResponse')]
-    public function testCreateFileResponse(ImportExportFileEntity $fileEntity, string $accessToken, string $fileId, string $expectOutputFilename): void
-    {
+    public function testCreateFileResponse(
+        ImportExportFileEntity $fileEntity,
+        string $accessToken,
+        string $fileId,
+        string $expectOutputFilename,
+        string $expectedContentType
+    ): void {
         /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
@@ -66,6 +71,7 @@ class DownloadServiceTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertIsString($header = $response->headers->get('Content-Disposition'));
         static::assertStringContainsString($expectOutputFilename, $header);
+        static::assertSame($expectedContentType, $response->headers->get('Content-Type'));
     }
 
     /**
@@ -133,7 +139,13 @@ class DownloadServiceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{fileEntity: ImportExportFileEntity, accessToken: string, fileId: string, expectOutputFilename: string}>
+     * @return iterable<string, array{
+     *     fileEntity: ImportExportFileEntity,
+     *     accessToken: string,
+     *     fileId: string,
+     *     expectOutputFilename: string,
+     *     expectedContentType: string
+     * }>
      */
     public static function dataProviderCreateFileResponse(): iterable
     {
@@ -150,6 +162,7 @@ class DownloadServiceTest extends TestCase
             'accessToken' => 'validAccessToken',
             'fileId' => $fileId,
             'expectOutputFilename' => 'Name with',
+            'expectedContentType' => 'application/octet-stream',
         ];
 
         yield 'Name with ascii chars' => [
@@ -163,6 +176,7 @@ class DownloadServiceTest extends TestCase
             'accessToken' => 'validAccessToken',
             'fileId' => $fileId,
             'expectOutputFilename' => 'Name with',
+            'expectedContentType' => 'application/octet-stream',
         ];
 
         yield 'Name with slashes chars' => [
@@ -176,6 +190,35 @@ class DownloadServiceTest extends TestCase
             'accessToken' => 'validAccessToken',
             'fileId' => $fileId,
             'expectOutputFilename' => 'Name with  slashes',
+            'expectedContentType' => 'application/octet-stream',
+        ];
+
+        yield 'CSV file name' => [
+            'fileEntity' => (new ImportExportFileEntity())->assign([
+                'id' => $fileId,
+                'originalName' => 'products.csv',
+                'accessToken' => 'validAccessToken',
+                'path' => 'path',
+                'updatedAt' => new \DateTimeImmutable(),
+            ]),
+            'accessToken' => 'validAccessToken',
+            'fileId' => $fileId,
+            'expectOutputFilename' => 'products.csv',
+            'expectedContentType' => 'text/csv',
+        ];
+
+        yield 'CSV file name with uppercase extension' => [
+            'fileEntity' => (new ImportExportFileEntity())->assign([
+                'id' => $fileId,
+                'originalName' => 'products.CSV',
+                'accessToken' => 'validAccessToken',
+                'path' => 'path',
+                'updatedAt' => new \DateTimeImmutable(),
+            ]),
+            'accessToken' => 'validAccessToken',
+            'fileId' => $fileId,
+            'expectOutputFilename' => 'products.CSV',
+            'expectedContentType' => 'text/csv',
         ];
     }
 }

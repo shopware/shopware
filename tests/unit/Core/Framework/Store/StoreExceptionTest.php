@@ -7,7 +7,10 @@ use GuzzleHttp\Psr7\Request;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Store\Exception\ShopSecretInvalidException;
+use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\StoreException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -201,5 +204,54 @@ class StoreExceptionTest extends TestCase
         static::assertSame('FRAMEWORK__PLUGIN_NOT_A_ZIP_FILE', $exception->getErrorCode());
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame(['mimeType' => $mimeType], $exception->getParameters());
+    }
+
+    public function testInvalidCredentials(): void
+    {
+        $exception = StoreException::invalidCredentials();
+
+        static::assertSame('Invalid credentials', $exception->getMessage());
+        static::assertSame('FRAMEWORK__STORE_INVALID_CREDENTIALS', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+    }
+
+    public function testShopSecretInvalid(): void
+    {
+        $exception = StoreException::shopSecretInvalid();
+
+        static::assertSame('Store shop secret is invalid', $exception->getMessage());
+        static::assertSame('FRAMEWORK__STORE_SHOP_SECRET_INVALID', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testInvalidCredentialsDeprecated(): void
+    {
+        $exception = StoreException::invalidCredentials();
+
+        static::assertSame('Invalid credentials', $exception->getMessage());
+        static::assertSame('FRAMEWORK__STORE_INVALID_CREDENTIALS', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertInstanceOf(StoreInvalidCredentialsException::class, $exception);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testShopSecretInvalidDeprecated(): void
+    {
+        $exception = StoreException::shopSecretInvalid();
+
+        static::assertSame('Store shop secret is invalid', $exception->getMessage());
+        static::assertSame('FRAMEWORK__STORE_SHOP_SECRET_INVALID', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
+        static::assertInstanceOf(ShopSecretInvalidException::class, $exception);
+    }
+
+    public function testStoreTokenMissing(): void
+    {
+        $exception = StoreException::storeTokenMissing();
+
+        static::assertSame('Store token is missing', $exception->getMessage());
+        static::assertSame('FRAMEWORK__STORE_TOKEN_IS_MISSING', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
     }
 }

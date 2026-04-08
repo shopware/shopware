@@ -144,7 +144,7 @@ class CustomerRepositoryTest extends TestCase
 
         $definition = static::getContainer()->get(CustomerDefinition::class);
         $builder = static::getContainer()->get(EntityScoreQueryBuilder::class);
-        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret($matchTerm, $context);
+        $pattern = static::getContainer()->get(SearchTermInterpreter::class)->interpret($matchTerm);
         $queries = $builder->buildScoreQueries($pattern, $definition, $definition->getEntityName(), $context);
         $criteria->addQuery(...$queries);
 

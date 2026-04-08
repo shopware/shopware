@@ -28,27 +28,6 @@ $sw-button-transition: all 0.15s ease-out;
     flex: 0 0 400px;
     border-left: 1px solid var(--color-border-primary-default);
 
-    .sw-vector-field__input__x {
-        .mt-field__addition.is--prefix {
-            color: #c20017;
-            background: #fff2f0;
-        }
-    }
-
-    .sw-vector-field__input__y {
-        .mt-field__addition.is--prefix {
-            color: #00ab26;
-            background: #e1ffe0;
-        }
-    }
-
-    .sw-vector-field__input__z {
-        .mt-field__addition.is--prefix {
-            color: #0081d4;
-            background: #eef6ff;
-        }
-    }
-
     .sw-model-editor-sidebar-content-item {
         border-bottom: 1px solid #d1d9e0;
 

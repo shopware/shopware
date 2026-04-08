@@ -336,7 +336,7 @@ class CategoryUrlProviderTest extends TestCase
             $categoryIds,
             $context
         );
-        \array_map(fn (string $categoryId) => $categoryIdsFetchedEvent->filterId($categoryId), $filterIds);
+        \array_map(static fn (string $categoryId) => $categoryIdsFetchedEvent->filterId($categoryId), $filterIds);
 
         return $categoryIdsFetchedEvent;
     }

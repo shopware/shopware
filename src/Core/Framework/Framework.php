@@ -86,6 +86,7 @@ class Framework extends Bundle
         $loader->load('script.xml');
         $loader->load('language.xml');
         $loader->load('update.xml');
+        $loader->load('validation.xml');
         $loader->load('seo.xml');
         $loader->load('webhook.xml');
         $loader->load('rate-limiter.xml');

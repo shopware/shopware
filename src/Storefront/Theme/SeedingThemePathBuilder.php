@@ -32,7 +32,7 @@ class SeedingThemePathBuilder extends AbstractThemePathBuilder
 
     public function saveSeed(string $salesChannelId, string $themeId, string $seed): void
     {
-        $this->systemConfigService->set(self::SYSTEM_CONFIG_KEY, $seed, $salesChannelId);
+        $this->systemConfigService->set(self::SYSTEM_CONFIG_KEY, $seed, $salesChannelId, false);
     }
 
     public function getDecorated(): AbstractThemePathBuilder

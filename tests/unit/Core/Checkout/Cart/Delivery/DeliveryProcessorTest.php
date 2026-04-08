@@ -79,7 +79,7 @@ class DeliveryProcessorTest extends TestCase
         $delivery
             ->expects($this->atLeastOnce())
             ->method('setShippingCosts')
-            ->willReturnCallback(function ($costsParameter) use (&$newCosts): void {
+            ->willReturnCallback(static function ($costsParameter) use (&$newCosts): void {
                 $newCosts = $costsParameter;
             });
 

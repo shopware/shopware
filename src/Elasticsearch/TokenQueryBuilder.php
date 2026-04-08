@@ -112,86 +112,8 @@ class TokenQueryBuilder
 
     private function matchQuery(Field $field, string $token, SearchFieldConfig $config): ?BuilderInterface
     {
-        if ($field instanceof StringField || $field instanceof LongTextField || $field instanceof ListField) {
-            $queries = [];
-
-            $searchField = $config->getField() . '.search';
-            $operator = $config->isAndLogic() ? 'and' : 'or';
-
-            $tokens = preg_split('/\s+/u', $token, -1, \PREG_SPLIT_NO_EMPTY) ?: [$token];
-            $tokenCount = \count($tokens);
-
-            if ($tokenCount > 1) {
-                $token = implode(' ', $tokens);
-            }
-
-            // apply exact match
-            $queries[] = $tokenCount === 1
-                ? new TermQuery($config->getField(), $token, ['boost' => 1])
-                : new TermsQuery($config->getField(), $tokens, ['boost' => 1]);
-
-            $lastWord = array_last($tokens);
-            $maxExpansions = $this->getMaxExpansions($lastWord);
-
-            // apply fuzzy search
-            $matchQueryParams = [
-                'boost' => 0.8,
-                'fuzziness' => $config->getFuzziness($token),
-                'operator' => $operator,
-                'fuzzy_transpositions' => true, // treats "ab" and "ba" as a single edit
-                'max_expansions' => $maxExpansions, // limit the number of variations
-                'prefix_length' => 1, // reduce noise
-            ];
-
-            if (!$this->useLanguageAnalyzer) {
-                $matchQueryParams['analyzer'] = 'sw_whitespace_analyzer';
-            }
-
-            $queries[] = new MatchQuery($searchField, $token, $matchQueryParams);
-
-            // apply match phrase prefix for compound tokens
-            if ($config->usePrefixMatch()) {
-                // apply prefix search on a single token or match phrase prefix on multiple tokens
-                if ($tokenCount > 1) {
-                    $matchPhrasePrefixParams = [
-                        'boost' => 0.6,
-                        'slop' => 3,
-                        'max_expansions' => $maxExpansions,
-                    ];
-
-                    if (!$this->useLanguageAnalyzer) {
-                        $matchPhrasePrefixParams['analyzer'] = 'sw_whitespace_analyzer';
-                    }
-
-                    $queries[] = new MatchPhrasePrefixQuery($searchField, $token, $matchPhrasePrefixParams);
-                } else {
-                    // Use .search field for prefix matching when using language analyzer
-                    // This ensures stop words are filtered (they don't exist in .search index)
-                    // and avoids stemming issues since PrefixQuery doesn't analyze the search term
-                    $prefixField = $this->useLanguageAnalyzer ? $searchField : $config->getField();
-                    $queries[] = new PrefixQuery($prefixField, $token, [
-                        'boost' => 0.4,
-                    ]);
-                }
-            }
-
-            $tokenLength = mb_strlen($token);
-
-            if ($config->tokenize() && $tokenCount === 1 && $tokenLength >= $this->minGram) {
-                $queries[] = new MatchQuery($config->getField() . '.ngram', $token, [
-                    'boost' => 0.4,
-                ]);
-            }
-
-            $dismax = new DisMaxQuery();
-
-            foreach ($queries as $query) {
-                $dismax->addQuery($query);
-            }
-
-            $dismax->addParameter('boost', $config->getRanking());
-
-            return $dismax;
+        if ($this->isTextField($field)) {
+            return $this->buildTextMatchQuery($token, $config);
         }
 
         if ($field instanceof IntField || $field instanceof FloatField || $field instanceof PriceField) {
@@ -203,6 +125,132 @@ class TokenQueryBuilder
         }
 
         return new TermQuery($config->getField(), $token, ['boost' => $config->getRanking()]);
+    }
+
+    private function isTextField(Field $field): bool
+    {
+        return $field instanceof StringField || $field instanceof LongTextField || $field instanceof ListField;
+    }
+
+    private function buildTextMatchQuery(string $token, SearchFieldConfig $config): BuilderInterface
+    {
+        $searchField = $config->getField() . '.search';
+        $tokens = preg_split('/\s+/u', $token, -1, \PREG_SPLIT_NO_EMPTY) ?: [$token];
+        $tokenCount = \count($tokens);
+        $normalizedToken = $tokenCount > 1 ? implode(' ', $tokens) : $token;
+
+        $lastWord = array_last($tokens);
+        $maxExpansions = $this->getMaxExpansions($lastWord);
+
+        $queries = array_values(array_filter([
+            $this->buildExactMatchQuery($config, $tokens, $normalizedToken, $tokenCount),
+            $this->buildFuzzyMatchQuery($searchField, $normalizedToken, $config, $maxExpansions),
+            $this->buildPrefixMatchQuery($searchField, $normalizedToken, $config, $tokenCount, $maxExpansions),
+            $this->buildNgramQuery($normalizedToken, $config, $tokenCount),
+        ]));
+
+        return $this->buildDisMaxQuery($queries, $config->getRanking());
+    }
+
+    /**
+     * @param list<string> $tokens
+     */
+    private function buildExactMatchQuery(SearchFieldConfig $config, array $tokens, string $token, int $tokenCount): BuilderInterface
+    {
+        if ($tokenCount === 1) {
+            return new TermQuery($config->getField(), $token, ['boost' => 1]);
+        }
+
+        if ($config->isAndLogic()) {
+            $exactMatchQuery = new BoolQuery();
+
+            foreach ($tokens as $tokenPart) {
+                $exactMatchQuery->add(new TermQuery($config->getField(), $tokenPart), BoolQuery::MUST);
+            }
+
+            $exactMatchQuery->addParameter('boost', 1);
+
+            return $exactMatchQuery;
+        }
+
+        return new TermsQuery($config->getField(), $tokens, ['boost' => 1]);
+    }
+
+    private function buildFuzzyMatchQuery(string $searchField, string $token, SearchFieldConfig $config, int $maxExpansions): MatchQuery
+    {
+        $matchQueryParams = [
+            'boost' => 0.8,
+            'fuzziness' => $config->getFuzziness($token),
+            'operator' => $config->isAndLogic() ? 'and' : 'or',
+            'fuzzy_transpositions' => true, // treats "ab" and "ba" as a single edit
+            'max_expansions' => $maxExpansions, // limit the number of variations
+            'prefix_length' => 1, // reduce noise
+        ];
+
+        if (!$this->useLanguageAnalyzer) {
+            $matchQueryParams['analyzer'] = 'sw_whitespace_analyzer';
+        }
+
+        return new MatchQuery($searchField, $token, $matchQueryParams);
+    }
+
+    private function buildPrefixMatchQuery(
+        string $searchField,
+        string $token,
+        SearchFieldConfig $config,
+        int $tokenCount,
+        int $maxExpansions
+    ): ?BuilderInterface {
+        if (!$config->usePrefixMatch()) {
+            return null;
+        }
+
+        // apply prefix search on a single token or match phrase prefix on multiple tokens
+        if ($tokenCount > 1) {
+            $matchPhrasePrefixParams = [
+                'boost' => 0.6,
+                'slop' => 3,
+                'max_expansions' => $maxExpansions,
+            ];
+
+            if (!$this->useLanguageAnalyzer) {
+                $matchPhrasePrefixParams['analyzer'] = 'sw_whitespace_analyzer';
+            }
+
+            return new MatchPhrasePrefixQuery($searchField, $token, $matchPhrasePrefixParams);
+        }
+
+        // Use .search field for prefix matching when using language analyzer
+        // This ensures stop words are filtered (they don't exist in .search index)
+        // and avoids stemming issues since PrefixQuery doesn't analyze the search term
+        $prefixField = $this->useLanguageAnalyzer ? $searchField : $config->getField();
+
+        return new PrefixQuery($prefixField, $token, ['boost' => 0.4]);
+    }
+
+    private function buildNgramQuery(string $token, SearchFieldConfig $config, int $tokenCount): ?MatchQuery
+    {
+        if (!$config->tokenize() || $tokenCount !== 1 || mb_strlen($token) < $this->minGram) {
+            return null;
+        }
+
+        return new MatchQuery($config->getField() . '.ngram', $token, ['boost' => 0.4]);
+    }
+
+    /**
+     * @param list<BuilderInterface> $queries
+     */
+    private function buildDisMaxQuery(array $queries, float|int $boost): DisMaxQuery
+    {
+        $dismax = new DisMaxQuery();
+
+        foreach ($queries as $query) {
+            $dismax->addQuery($query);
+        }
+
+        $dismax->addParameter('boost', $boost);
+
+        return $dismax;
     }
 
     /**

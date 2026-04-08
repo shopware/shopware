@@ -10,9 +10,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider as FrameworkShopIdProvider
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\UsageData\Api\ConsentController;
 use Shopware\Core\System\UsageData\Client\GatewayClient;
-use Shopware\Core\System\UsageData\Consent\BannerService;
 use Shopware\Core\System\UsageData\Consent\ConsentReporter;
 use Shopware\Core\System\UsageData\EntitySync\CollectEntityDataMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessageHandler;
@@ -24,7 +22,6 @@ use Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTaskHandler;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\EntityDispatchService;
 use Shopware\Core\System\UsageData\Services\GatewayStatusService;
-use Shopware\Core\System\UsageData\Services\LastCollectionAllowedDateResolver;
 use Shopware\Core\System\UsageData\Services\ManyToManyAssociationService;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
@@ -36,21 +33,8 @@ use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-return function (ContainerConfigurator $container): void {
+return static function (ContainerConfigurator $container): void {
     $services = $container->services();
-
-    $services->set(ConsentController::class)
-        ->public()
-        ->args([
-            new Reference(ConsentService::class),
-            new Reference(BannerService::class),
-        ])
-        ->call('setContainer', [new Reference('service_container')]);
-
-    $services->set(BannerService::class)
-        ->args([
-            new Reference('user_config.repository'),
-        ]);
 
     $services->set(EntityDeleteSubscriber::class)
         ->args([
@@ -66,7 +50,7 @@ return function (ContainerConfigurator $container): void {
         ->args([
             new Reference('messenger.default_bus'),
             new Reference(IterateEntitiesQueryBuilder::class),
-            new Reference(LastCollectionAllowedDateResolver::class),
+            new Reference(ConsentService::class),
             new Reference(EntityDefinitionService::class),
             new Reference('logger'),
         ])
@@ -79,7 +63,7 @@ return function (ContainerConfigurator $container): void {
             new Reference(UsageDataAllowListService::class),
             new Reference(Connection::class),
             new Reference(EntityDispatcher::class),
-            new Reference(LastCollectionAllowedDateResolver::class),
+            new Reference(ConsentService::class),
             new Reference(ShopIdProvider::class),
         ])
         ->tag('messenger.message_handler');
@@ -114,17 +98,11 @@ return function (ContainerConfigurator $container): void {
             new Reference(EntityDefinitionService::class),
             new Reference(AbstractKeyValueStorage::class),
             new Reference('messenger.default_bus'),
-            new Reference(LastCollectionAllowedDateResolver::class),
             new Reference(GatewayStatusService::class),
             new Reference(ShopIdProvider::class),
             new Reference(SystemConfigService::class),
             new Reference(ConsentService::class),
             '%shopware.usage_data.collection_enabled%',
-        ]);
-
-    $services->set(LastCollectionAllowedDateResolver::class)
-        ->args([
-            new Reference(ConsentService::class),
         ]);
 
     $services->set(ManyToManyAssociationService::class)

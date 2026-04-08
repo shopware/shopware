@@ -15,14 +15,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Reference;
 
-return function (ContainerConfigurator $container): void {
+return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
     $services->set(ConsentController::class)
         ->public()
         ->args([
             new Reference(ConsentService::class),
-        ]);
+        ])
+        ->tag('controller.service_arguments');
 
     $services->set(ConsentRepository::class)
         ->args([

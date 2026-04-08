@@ -80,7 +80,7 @@ class OrderGenerator implements DemodataGeneratorInterface
             $productIds
         );
         $promotionLineItems = array_map(
-            function ($promotionCode) {
+            static function ($promotionCode) {
                 $uniqueKey = 'promotion-' . $promotionCode;
 
                 return (new LineItem(Uuid::fromStringToHex($uniqueKey), LineItem::PROMOTION_LINE_ITEM_TYPE))

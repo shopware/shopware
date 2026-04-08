@@ -17,12 +17,12 @@ class LanguageCollection extends EntityCollection
      */
     public function getParentIds(): array
     {
-        return $this->fmap(fn (LanguageEntity $language) => $language->getParentId());
+        return $this->fmap(static fn (LanguageEntity $language) => $language->getParentId());
     }
 
     public function filterByParentId(string $id): LanguageCollection
     {
-        return $this->filter(fn (LanguageEntity $language) => $language->getParentId() === $id);
+        return $this->filter(static fn (LanguageEntity $language) => $language->getParentId() === $id);
     }
 
     /**
@@ -30,18 +30,18 @@ class LanguageCollection extends EntityCollection
      */
     public function getLocaleIds(): array
     {
-        return $this->fmap(fn (LanguageEntity $language) => $language->getLocaleId());
+        return $this->fmap(static fn (LanguageEntity $language) => $language->getLocaleId());
     }
 
     public function filterByLocaleId(string $id): LanguageCollection
     {
-        return $this->filter(fn (LanguageEntity $language) => $language->getLocaleId() === $id);
+        return $this->filter(static fn (LanguageEntity $language) => $language->getLocaleId() === $id);
     }
 
     public function getLocales(): LocaleCollection
     {
         return new LocaleCollection(
-            $this->fmap(fn (LanguageEntity $language) => $language->getLocale())
+            $this->fmap(static fn (LanguageEntity $language) => $language->getLocale())
         );
     }
 

@@ -108,7 +108,7 @@ class Migration1677470540AddProvincesForCanada extends MigrationStep
         $queue = new MultiInsertQueryQueue($connection, \count(self::CANADA_STATES), false, true);
         $countryStateTranslations = [];
 
-        $shortCodes = array_map(fn ($state) => $state['shortCode'], self::CANADA_STATES);
+        $shortCodes = array_map(static fn ($state) => $state['shortCode'], self::CANADA_STATES);
 
         $existStates = $connection->fetchFirstColumn(
             'SELECT short_code FROM country_state WHERE short_code IN (:shortCodes)',

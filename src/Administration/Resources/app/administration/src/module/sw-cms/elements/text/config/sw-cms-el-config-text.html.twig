@@ -57,6 +57,7 @@
 
                         <mt-text-editor
                             v-else
+                            ref="swCmsTextEditor"
                             :key="isInherited + '-meteor'"
                             :disabled="isInherited"
                             :model-value="element.config.content.value"

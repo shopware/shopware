@@ -193,7 +193,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $this->cartService
             ->expects($this->once())
             ->method('setCart')
-            ->with(static::callback(function (Cart $cart) use ($orderContext) {
+            ->with(static::callback(static function (Cart $cart) use ($orderContext) {
                 return $cart->getToken() === $orderContext->getToken();
             }));
 

@@ -39,7 +39,6 @@ use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\EntityDispatcher;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
-use Shopware\Core\System\UsageData\Services\LastCollectionAllowedDateResolver;
 use Shopware\Core\System\UsageData\Services\ManyToManyAssociationService;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
@@ -81,7 +80,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             new UsageDataAllowListService(),
             $connection,
             $entityDispatcher,
-            new LastCollectionAllowedDateResolver($consentService),
+            $consentService,
             $shopIdProvider
         );
 
@@ -119,7 +118,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return new FieldCollection($definition->getFields());
             });
 
@@ -135,12 +134,12 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $usageDataAllowListService,
             $connection,
             $entityDispatcher,
-            new LastCollectionAllowedDateResolver($consentService),
+            $consentService,
             $shopIdProvider
         );
 
         static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage(\sprintf('No collection allowed date found. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
+        static::expectExceptionMessage(\sprintf('The consent was never accepted. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
         $handler(new DispatchEntityMessage(
             SyncEntityDefinition::ENTITY_NAME,
             Operation::CREATE,
@@ -174,7 +173,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return new FieldCollection($definition->getFields());
             });
 
@@ -190,7 +189,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $usageDataAllowListService,
             $connection,
             $entityDispatcher,
-            new LastCollectionAllowedDateResolver($consentService),
+            $consentService,
             $shopIdProvider
         );
 
@@ -260,7 +259,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return new FieldCollection($definition->getFields());
             });
 
@@ -276,7 +275,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $usageDataAllowListService,
             $connectionMock,
             $entityDispatcher,
-            new LastCollectionAllowedDateResolver($consentService),
+            $consentService,
             $shopIdProvider
         );
 
@@ -366,12 +365,12 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 $fields = $definition->getFields()->getElements();
 
                 // filter out all VersionFields
-                $fields = array_filter($fields, function (Field $field) {
-                    return !($field instanceof VersionField);
+                $fields = array_filter($fields, static function (Field $field) {
+                    return !$field instanceof VersionField;
                 });
 
                 return new FieldCollection($fields);
@@ -389,7 +388,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $usageDataAllowListService,
             $connectionMock,
             $entityDispatcher,
-            new LastCollectionAllowedDateResolver($consentService),
+            $consentService,
             $shopIdProvider
         );
 
@@ -430,7 +429,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $connection->method('createExpressionBuilder')
             ->willReturn($expressionBuilder);
         $connection->method('executeQuery')
-            ->with(static::callback(function (string $query) use ($idFieldStorageName) {
+            ->with(static::callback(static function (string $query) use ($idFieldStorageName) {
                 return str_contains($query, EntityDefinitionQueryHelper::escape($idFieldStorageName));
             }));
 
@@ -443,7 +442,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return new FieldCollection($definition->getFields());
             });
 
@@ -456,7 +455,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $usageDataAllowListService,
             $connection,
             $this->createMock(EntityDispatcher::class),
-            new LastCollectionAllowedDateResolver($consentService),
+            $consentService,
             $shopIdProvider
         );
 
@@ -503,7 +502,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             new UsageDataAllowListService(),
             $this->createMock(Connection::class),
             $this->createMock(EntityDispatcher::class),
-            new LastCollectionAllowedDateResolver($consentService),
+            $consentService,
             $shopIdProvider,
         );
 
@@ -542,7 +541,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $manyToManyAssociationService = $this->createMock(ManyToManyAssociationService::class);
         $manyToManyAssociationService->expects($this->once())
             ->method('getMappingIdsForAssociationFields')
-            ->with(static::callback(function (array $associationFields) {
+            ->with(static::callback(static function (array $associationFields) {
                 return $associationFields[0] === 'missing';
             }))
             ->willReturn(['associationName' => ['primaryKeyValue' => 'associationValue']]);
@@ -597,7 +596,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 return new FieldCollection($definition->getFields());
             });
 
@@ -610,7 +609,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $usageDataAllowListService,
             $connection,
             $entityDispatcher,
-            new LastCollectionAllowedDateResolver($consentService),
+            $consentService,
             $shopIdProvider
         );
 
@@ -710,12 +709,12 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $usageDataAllowListService->method('isEntityAllowed')
             ->willReturn(true);
         $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
-            ->willReturnCallback(function (EntityDefinition $definition) {
+            ->willReturnCallback(static function (EntityDefinition $definition) {
                 $fields = $definition->getFields()->getElements();
 
                 // filter out all VersionFields
-                $fields = array_filter($fields, function (Field $field) {
-                    return !($field instanceof VersionField);
+                $fields = array_filter($fields, static function (Field $field) {
+                    return !$field instanceof VersionField;
                 });
 
                 return new FieldCollection($fields);
@@ -733,7 +732,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $usageDataAllowListService,
             $connectionMock,
             $entityDispatcher,
-            new LastCollectionAllowedDateResolver($consentService),
+            $consentService,
             $shopIdProvider
         );
 

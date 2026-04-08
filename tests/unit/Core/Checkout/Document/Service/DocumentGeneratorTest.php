@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
@@ -15,8 +16,11 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Service\AbstractDocumentTypeRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
@@ -193,7 +197,7 @@ class DocumentGeneratorTest extends TestCase
             ->with(
                 ['orderId' => $operation],
                 $context,
-                static::callback(fn (DocumentRendererConfig $config): bool => $config->deepLinkCode === 'deepLinkCode')
+                static::callback(static fn (DocumentRendererConfig $config): bool => $config->deepLinkCode === 'deepLinkCode')
             )
             ->willReturn($result);
 
@@ -223,6 +227,47 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($document->getContentType(), 'text/html');
     }
 
+    #[TestWith([InvoiceRenderer::TYPE])]
+    #[TestWith([ZugferdRenderer::TYPE])]
+    #[TestWith([ZugferdEmbeddedRenderer::TYPE])]
+    public function testPreviewSetsReferencedDocumentIdFromInvoiceNumber(string $invoiceType): void
+    {
+        $orderId = Uuid::randomHex();
+
+        $renderedDocument = new RenderedDocument(name: 'credit_note', fileExtension: 'html', contentType: 'text/html');
+        $renderedDocument->setContent('html');
+        $rendererResult = new RendererResult();
+        $rendererResult->addSuccess($orderId, $renderedDocument);
+
+        $mockRenderer = $this->createMock(AbstractDocumentRenderer::class);
+        $mockRenderer->method('supports')->willReturn('credit_note');
+        $mockRenderer->method('render')->willReturn($rendererResult);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchOne')
+            ->willReturnCallback(static function (string $sql, array $params) use ($invoiceType): string {
+                static::assertContains($invoiceType, $params['technicalNames'] ?? []);
+
+                return Uuid::randomHex();
+            });
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([]);
+
+        $generator = new DocumentGenerator(
+            new DocumentRendererRegistry([$mockRenderer]),
+            $this->createMock(DocumentFileRendererRegistry::class),
+            $this->createMock(MediaService::class),
+            $documentRepository,
+            $connection,
+        );
+
+        $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, ['custom' => ['invoiceNumber' => 'INV-100']]);
+
+        $generator->preview('credit_note', $operation, 'deepLinkCode', Context::createDefaultContext());
+    }
+
     public function testPreviewErrorThrowsDocumentException(): void
     {
         $operation = new DocumentGenerateOperation(
@@ -246,7 +291,7 @@ class DocumentGeneratorTest extends TestCase
             ->with(
                 ['orderId' => $operation],
                 $context,
-                static::callback(fn (DocumentRendererConfig $config): bool => $config->deepLinkCode === 'deepLinkCode')
+                static::callback(static fn (DocumentRendererConfig $config): bool => $config->deepLinkCode === 'deepLinkCode')
             )
             ->willReturn($result);
 
@@ -270,7 +315,7 @@ class DocumentGeneratorTest extends TestCase
     }
 
     /**
-     * @param array<string, string|null> $mediaIds
+     * @param list<string|null> $mediaIds
      * @param array<string, DocumentGenerateOperation> $operations
      */
     #[DataProvider('generateDataProvider')]
@@ -341,7 +386,7 @@ class DocumentGeneratorTest extends TestCase
                 contentType: HtmlRenderer::FILE_CONTENT_TYPE,
             ),
 
-            function (RenderedDocument|DocumentException $renderedDocument): void {
+            static function (RenderedDocument|DocumentException $renderedDocument): void {
                 static::assertInstanceOf(RenderedDocument::class, $renderedDocument);
 
                 static::assertSame($renderedDocument->getFileExtension(), HtmlRenderer::FILE_EXTENSION);
@@ -358,7 +403,7 @@ class DocumentGeneratorTest extends TestCase
                 contentType: PdfRenderer::FILE_CONTENT_TYPE,
             ),
 
-            function (RenderedDocument|DocumentException $renderedDocument): void {
+            static function (RenderedDocument|DocumentException $renderedDocument): void {
                 static::assertInstanceOf(RenderedDocument::class, $renderedDocument);
 
                 static::assertSame($renderedDocument->getFileExtension(), PdfRenderer::FILE_EXTENSION);
@@ -375,7 +420,7 @@ class DocumentGeneratorTest extends TestCase
                 contentType: 'application/xml',
             ),
 
-            function (RenderedDocument|DocumentException $renderedDocument): void {
+            static function (RenderedDocument|DocumentException $renderedDocument): void {
                 static::assertInstanceOf(DocumentException::class, $renderedDocument);
 
                 static::assertSame($renderedDocument->getErrorCode(), DocumentException::DOCUMENT_INVALID_RENDERER_TYPE);
@@ -409,7 +454,7 @@ class DocumentGeneratorTest extends TestCase
                 ),
             ],
 
-            function (DocumentGenerationResult|DocumentException $result) use ($mediaId, $mediaA11yId): void {
+            static function (DocumentGenerationResult|DocumentException $result) use ($mediaId, $mediaA11yId): void {
                 static::assertInstanceOf(DocumentGenerationResult::class, $result);
 
                 static::assertNotNull($struct = $result->getSuccess()->first());
@@ -435,7 +480,7 @@ class DocumentGeneratorTest extends TestCase
                 ),
             ],
 
-            function (DocumentGenerationResult|DocumentException $result) use ($mediaId): void {
+            static function (DocumentGenerationResult|DocumentException $result) use ($mediaId): void {
                 static::assertInstanceOf(DocumentGenerationResult::class, $result);
 
                 static::assertNotNull($struct = $result->getSuccess()->first());
@@ -459,7 +504,7 @@ class DocumentGeneratorTest extends TestCase
                 ),
             ],
 
-            function (DocumentGenerationResult|DocumentException $result): void {
+            static function (DocumentGenerationResult|DocumentException $result): void {
                 static::assertInstanceOf(DocumentException::class, $result);
             },
         ];

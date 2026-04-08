@@ -49,7 +49,7 @@ class AppJWTGenerateRoute
         $expiration = new \DateTimeImmutable('+10 minutes');
 
         /** @var non-empty-string $shopId */
-        $shopId = $this->shopIdProvider->getShopId();
+        $shopId = $this->shopIdProvider->getShopId()->id;
         $builder = $configuration
             ->builder()
             ->issuedBy($shopId)

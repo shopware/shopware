@@ -20,7 +20,7 @@ test.describe('Wishlist Guest Functionalities', () => {
         };
 
         const updateResponse = await TestDataService.AdminApiClient.post('_action/system-config/batch', {
-            data: updatedConfig
+            data: updatedConfig,
         });
         if (!updateResponse.ok()) {
             throw new Error(`Failed to update system config: ${updateResponse.status()} ${updateResponse.statusText()}`);
@@ -32,7 +32,7 @@ test.describe('Wishlist Guest Functionalities', () => {
     test.afterEach(async ({ TestDataService }) => {
         if (Object.keys(originalConfig).length > 0) {
             await TestDataService.AdminApiClient.post('_action/system-config/batch', {
-                data: { null: originalConfig }
+                data: { null: originalConfig },
             });
 
             await TestDataService.clearCaches();

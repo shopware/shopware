@@ -50,6 +50,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -148,7 +149,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
         // Early resolve terms to extract score queries
         if ($clone->getTerm()) {
-            $pattern = $this->interpreter->interpret((string) $criteria->getTerm(), $context);
+            $pattern = $this->interpreter->interpret((string) $criteria->getTerm());
             $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition->getEntityName(), $context);
             $clone->addQuery(...$queries);
             $clone->setTerm(null);
@@ -182,7 +183,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
             $scoreQuery = $this->criteriaQueryBuilder->build($scoreQuery, $definition, $scoreCriteria, $context, $paths);
             // @phpstan-ignore argument.type (Phpstan can't correctly infer the type in the map function, as the StorageAware is an interface not directly implemented by the Field class)
-            $pks = $definition->getFields()->filterByFlag(PrimaryKey::class)->filterInstance(StorageAware::class)->map(fn (StorageAware $f) => $f->getStorageName());
+            $pks = $definition->getFields()->filterByFlag(PrimaryKey::class)->filterInstance(StorageAware::class)->map(static fn (StorageAware $f) => $f->getStorageName());
 
             $join = '';
             foreach ($pks as $pk) {
@@ -236,7 +237,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $found = false;
 
         foreach ($fields as $field) {
-            if (!($field instanceof AssociationField)) {
+            if (!$field instanceof AssociationField) {
                 break;
             }
 
@@ -301,7 +302,8 @@ class EntityAggregator implements EntityAggregatorInterface
     ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        if ($this->timeZoneSupportEnabled && $aggregation->getTimeZone()) {
+        // @deprecated tag:v6.8.0 - time zone support always enabled, remove if, but keep content
+        if (($this->timeZoneSupportEnabled || Feature::isActive('v6.8.0.0')) && $aggregation->getTimeZone()) {
             $accessor = 'CONVERT_TZ(' . $accessor . ', "UTC", "' . $aggregation->getTimeZone() . '")';
         }
 

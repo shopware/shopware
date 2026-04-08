@@ -43,7 +43,7 @@ class EntityDeleteSubscriberTest extends TestCase
 
         /** @var MockHttpClient $client */
         $client = static::getContainer()->get('shopware.usage_data.gateway.client');
-        $client->setResponseFactory(function (string $method, string $url): ResponseInterface {
+        $client->setResponseFactory(static function (string $method, string $url): ResponseInterface {
             if (\str_ends_with($url, '/killswitch')) {
                 $body = json_encode(['killswitch' => false]);
                 static::assertIsString($body);

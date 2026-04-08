@@ -41,6 +41,7 @@ class CopyBatch
             return null;
         }
 
+        // Do not declare closure as static
         $func = \Closure::bind(fn () => $filesystem->adapter, $filesystem, $filesystem::class);
 
         return $func();

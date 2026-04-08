@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Defaults;
@@ -178,8 +177,7 @@ class AccountServiceTest extends TestCase
         ]);
         $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, false);
 
-        $this->expectException(CustomerNotFoundException::class);
-        $this->expectExceptionMessage('No matching customer for the email "johndoe@example.com" was found.');
+        $this->expectException(BadCredentialsException::class);
         $this->accountService->getCustomerByLogin($email, 'shopware', $context);
     }
 

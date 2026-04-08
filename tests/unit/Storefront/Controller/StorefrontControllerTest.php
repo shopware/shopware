@@ -324,7 +324,7 @@ class StorefrontControllerTest extends TestCase
         $controllerResolver = $this->createMock(ControllerResolverInterface::class);
         $controllerResolver
             ->method('getController')
-            ->willReturn(fn () => new Response('<html lang="en">test</html>', Response::HTTP_PERMANENTLY_REDIRECT, ['Content-Type' => 'text/html']));
+            ->willReturn(static fn () => new Response('<html lang="en">test</html>', Response::HTTP_PERMANENTLY_REDIRECT, ['Content-Type' => 'text/html']));
 
         $kernel = new HttpKernel(
             $this->createMock(EventDispatcherInterface::class),
@@ -370,7 +370,7 @@ class StorefrontControllerTest extends TestCase
         $controllerResolver = $this->createMock(ControllerResolverInterface::class);
         $controllerResolver
             ->method('getController')
-            ->willReturn(fn () => new Response('<html lang="en">test</html>', Response::HTTP_PERMANENTLY_REDIRECT, ['Content-Type' => 'text/html']));
+            ->willReturn(static fn () => new Response('<html lang="en">test</html>', Response::HTTP_PERMANENTLY_REDIRECT, ['Content-Type' => 'text/html']));
 
         $kernel = new HttpKernel(
             $this->createMock(EventDispatcherInterface::class),

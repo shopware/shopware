@@ -175,7 +175,7 @@ class CategoryBreadcrumbBuilder
             ->search($criteria, $salesChannelContext)
             ->first();
 
-        if (!($product instanceof SalesChannelProductEntity)) {
+        if (!$product instanceof SalesChannelProductEntity) {
             throw BreadcrumbException::productNotFound($productId);
         }
 

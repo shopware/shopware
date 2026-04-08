@@ -130,7 +130,7 @@ class LayoutBuilder
                         'config' => [
                             'sliderItems' => [
                                 'source' => 'static',
-                                'value' => array_map(fn (string $id) => ['mediaId' => $id], array_values($this->ids->getList($keys))),
+                                'value' => array_map(static fn (string $id) => ['mediaId' => $id], array_values($this->ids->getList($keys))),
                             ],
                             'speed' => ['source' => 'static', 'value' => 300],
                             'autoSlide' => ['source' => 'static', 'value' => false],
@@ -170,7 +170,7 @@ class LayoutBuilder
                         'config' => [
                             'sliderItems' => [
                                 'source' => 'static',
-                                'value' => array_map(fn (string $id) => ['mediaId' => $id], array_values($this->ids->getList($keys))),
+                                'value' => array_map(static fn (string $id) => ['mediaId' => $id], array_values($this->ids->getList($keys))),
                             ],
                             'speed' => ['source' => 'static', 'value' => 300],
                             'autoSlide' => ['source' => 'static', 'value' => false],

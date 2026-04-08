@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Plugin;
@@ -80,7 +81,7 @@ class InfoControllerTest extends TestCase
 
         $expected = [
             'version' => '6.7.9999999.9999999-dev',
-            'shopId' => $shopId,
+            'shopId' => $shopId->id,
             'appUrl' => 'https://test-app.url',
             'versionRevision' => str_repeat('0', 32),
             'adminWorker' => [
@@ -336,6 +337,8 @@ class InfoControllerTest extends TestCase
                     lcfirst((new \ReflectionClass(MailAware::class))->getShortName()),
                     CustomerAware::class,
                     lcfirst((new \ReflectionClass(CustomerAware::class))->getShortName()),
+                    LogAware::class,
+                    lcfirst((new \ReflectionClass(LogAware::class))->getShortName()),
                 ],
             ],
             [

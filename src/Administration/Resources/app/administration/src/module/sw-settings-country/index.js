@@ -6,7 +6,7 @@ import './acl';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-country-list', () => import('./page/sw-settings-country-list'));
 Shopware.Component.register('sw-settings-country-detail', () => import('./page/sw-settings-country-detail'));
 Shopware.Component.extend(
@@ -38,7 +38,7 @@ Shopware.Component.register(
     () => import('./component/sw-settings-country-address-handling'),
 );
 Shopware.Component.register('sw-multi-snippet-drag-and-drop', () => import('./component/sw-multi-snippet-drag-and-drop'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-country', {

@@ -2,8 +2,8 @@ const { RuleTester } = require('eslint');
 const rule = require('./no-empty-listeners');
 
 const ruleTester = new RuleTester({
-    parser: require.resolve('@typescript-eslint/parser'),
-    parserOptions: {
+    languageOptions: {
+        parser: require('@typescript-eslint/parser'),
         ecmaVersion: 2020,
         sourceType: 'module',
     },

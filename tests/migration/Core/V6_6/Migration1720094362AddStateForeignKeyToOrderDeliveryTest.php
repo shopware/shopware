@@ -42,7 +42,7 @@ class Migration1720094362AddStateForeignKeyToOrderDeliveryTest extends TestCase
             $initialState = static::getContainer()->get(InitialStateIdLoader::class)->get('order_delivery.state');
             $otherState = static::getContainer()->get(StateMachineRegistry::class)
                 ->getStateMachine(OrderDeliveryStates::STATE_MACHINE, Context::createDefaultContext())
-                ->getStates()?->filter(function (StateMachineStateEntity $state) use ($initialState) {
+                ->getStates()?->filter(static function (StateMachineStateEntity $state) use ($initialState) {
                     return $state->getId() !== $initialState;
                 })->first()?->getId() ?? Uuid::randomHex();
             $invalidState = Uuid::randomHex();

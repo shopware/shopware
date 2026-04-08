@@ -140,6 +140,6 @@ class PromotionGenerator implements DemodataGeneratorInterface
     {
         $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM `sales_channel` LIMIT 100');
 
-        return array_map(fn ($id) => ['salesChannelId' => $id['id'], 'priority' => 1], $ids);
+        return array_map(static fn ($id) => ['salesChannelId' => $id['id'], 'priority' => 1], $ids);
     }
 }

@@ -165,14 +165,13 @@ class SystemConfigControllerTest extends TestCase
         static::assertSame('{"foo":"bar"}', $data->getContent());
     }
 
-    public function testSaveConfig(): void
+    #[DataProvider('saveConfigurationProvider')]
+    public function testSaveConfiguration(Request $request, ?string $expectedSalesChannelId, bool $expectedSilent): void
     {
         $systemConfig = $this->createMock(SystemConfigService::class);
-        $systemConfig
+        $systemConfig->expects($this->once())
             ->method('setMultiple')
-            ->with([
-                'foo' => '1',
-            ]);
+            ->with(['foo' => '1'], $expectedSalesChannelId, $expectedSilent);
 
         $controller = new SystemConfigController(
             $this->createMock(ConfigurationService::class),
@@ -180,19 +179,41 @@ class SystemConfigControllerTest extends TestCase
             $this->createMock(SystemConfigValidator::class)
         );
 
-        $request = new Request();
-        $request->request->set('foo', '1');
-
         $data = $controller->saveConfiguration($request);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $data->getStatusCode());
     }
 
-    public function testBatchSaveConfigurationSuccess(): void
+    public static function saveConfigurationProvider(): \Generator
+    {
+        yield 'without silent' => [
+            new Request([], ['foo' => '1']),
+            null,
+            false,
+        ];
+
+        yield 'with silent' => [
+            new Request(['silent' => '1'], ['foo' => '1']),
+            null,
+            true,
+        ];
+
+        yield 'with sales channel' => [
+            new Request(['salesChannelId' => 'sc-id'], ['foo' => '1']),
+            'sc-id',
+            false,
+        ];
+    }
+
+    #[DataProvider('batchSaveConfigurationProvider')]
+    public function testBatchSaveConfiguration(Request $request, ?string $expectedSalesChannelId, bool $expectedSilent): void
     {
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
 
         $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
+        $systemConfigServiceMock->expects($this->once())
+            ->method('setMultiple')
+            ->with([], $expectedSalesChannelId, $expectedSilent);
 
         $systemConfigValidatorMock = $this->createMock(SystemConfigValidator::class);
         $systemConfigValidatorMock->method('validate');
@@ -203,40 +224,44 @@ class SystemConfigControllerTest extends TestCase
             $systemConfigValidatorMock
         );
 
-        $request = new Request();
-        $request->request->set('null', []);
-
-        $context = Context::createDefaultContext();
-
-        $result = $systemConfigController->batchSaveConfiguration($request, $context);
+        $result = $systemConfigController->batchSaveConfiguration($request, Context::createDefaultContext());
 
         static::assertSame('{}', $result->getContent());
     }
 
+    public static function batchSaveConfigurationProvider(): \Generator
+    {
+        yield 'without silent' => [
+            new Request([], ['null' => []]),
+            null,
+            false,
+        ];
+
+        yield 'with silent' => [
+            new Request(['silent' => '1'], ['null' => []]),
+            null,
+            true,
+        ];
+    }
+
     public function testBatchSaveConfigurationFailure(): void
     {
-        $configurationServiceMock = $this->createMock(ConfigurationService::class);
-
-        $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
-
         $systemConfigValidatorMock = $this->createMock(SystemConfigValidator::class);
         $systemConfigValidatorMock->method('validate')
             ->willThrowException($this->createMock(ConstraintViolationException::class));
 
-        $systemConfigController = new SystemConfigController(
-            $configurationServiceMock,
-            $systemConfigServiceMock,
+        $controller = new SystemConfigController(
+            $this->createMock(ConfigurationService::class),
+            $this->createMock(SystemConfigService::class),
             $systemConfigValidatorMock
         );
 
         $request = new Request();
         $request->request->set('null', []);
 
-        $context = Context::createDefaultContext();
-
         $this->expectException(ConstraintViolationException::class);
 
-        $systemConfigController->batchSaveConfiguration($request, $context);
+        $controller->batchSaveConfiguration($request, Context::createDefaultContext());
     }
 
     #[DataProvider('inheritRequestDataProvider')]

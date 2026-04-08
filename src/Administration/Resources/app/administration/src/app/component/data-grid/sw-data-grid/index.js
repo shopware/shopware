@@ -66,21 +66,18 @@ export default {
 
         showSelection: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
 
         showActions: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
 
         showHeader: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -142,7 +139,6 @@ export default {
         compactMode: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -155,7 +151,6 @@ export default {
         showPreviews: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -236,9 +231,7 @@ export default {
             currentInlineEditId: '',
             hasPreviewSlots: false,
             hasResizeColumns: false,
-            // eslint-disable-next-line vue/no-reserved-keys
             _hasColumnsResize: false,
-            // eslint-disable-next-line vue/no-reserved-keys
             _isResizing: false,
         };
     },

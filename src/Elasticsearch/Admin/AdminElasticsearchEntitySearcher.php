@@ -68,7 +68,7 @@ class AdminElasticsearchEntitySearcher implements EntitySearcherInterface
             return false;
         }
 
-        if (!empty($criteria->getIds())) {
+        if ($criteria->getIds() !== []) {
             return false;
         }
 
@@ -93,10 +93,10 @@ class AdminElasticsearchEntitySearcher implements EntitySearcherInterface
         }
 
         // if criteria contains unsupported fields, we cannot use es
-        if (\count(array_diff(
+        if (array_diff(
             $criteria->getAllFields(),
             $indexer->getSupportedSearchFields()
-        )) > 0) {
+        ) !== []) {
             return false;
         }
 

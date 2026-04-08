@@ -106,7 +106,7 @@ class WebhookManager implements ResetInterface
         $languageId = $context->getLanguageId();
         $userLocale = $this->appLocaleProvider->getLocaleFromContext($context);
 
-        $affectedRoleIds = array_values(array_filter(array_map(fn (Webhook $webhook) => $webhook->appAclRoleId, $webhooksForEvent)));
+        $affectedRoleIds = array_values(array_filter(array_map(static fn (Webhook $webhook) => $webhook->appAclRoleId, $webhooksForEvent)));
         $this->loadPrivileges($event->getName(), $affectedRoleIds);
 
         // If the admin worker is enabled we send all events synchronously, as we can't guarantee timely delivery otherwise.
@@ -300,7 +300,7 @@ class WebhookManager implements ResetInterface
             return $payload;
         }
 
-        return array_filter($payload, function ($writeResult) {
+        return array_filter($payload, static function ($writeResult) {
             return isset($writeResult['versionId']) && $writeResult['versionId'] === Defaults::LIVE_VERSION;
         });
     }

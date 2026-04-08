@@ -69,7 +69,7 @@ class PaymentTokenGeneratorTest extends TestCase
         $this->dataValidator
             ->expects($this->once())
             ->method('validate')
-            ->with(static::isArray(), static::callback(function (DataValidationDefinition $constraints): bool {
+            ->with(static::isArray(), static::callback(static function (DataValidationDefinition $constraints): bool {
                 $property = $constraints->getProperty('jti');
                 static::assertEquals([new Type('string'), new NotBlank(), new NotNull(), new PaymentTokenRegistered()], $property);
 

@@ -51,7 +51,7 @@ class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
 
         $sequences = $value['sequences'];
 
-        $value['sequences'] = array_map(fn ($item) => array_merge([
+        $value['sequences'] = array_map(static fn ($item) => array_merge([
             'parentId' => null,
             'ruleId' => null,
             'position' => 1,

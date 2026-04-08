@@ -45,7 +45,7 @@ class SystemConfigValidator
 
             $allKeys = array_keys($inputValues);
 
-            $domains = array_map(fn (string $key) => implode('.', explode('.', $key, -1)), $allKeys);
+            $domains = array_map(static fn (string $key) => implode('.', explode('.', $key, -1)), $allKeys);
             $domains = array_unique($domains);
 
             $subDefinition = new DataValidationDefinition('systemConfig.update.' . $saleChannelId);
@@ -105,12 +105,12 @@ class SystemConfigValidator
     {
         /** @var array<string, callable(mixed): Constraint> $constraints */
         $constraints = [
-            'minLength' => fn (mixed $ruleValue) => new Assert\Length(min: $ruleValue === null ? null : max(0, (int) $ruleValue)),
-            'maxLength' => fn (mixed $ruleValue) => new Assert\Length(max: $ruleValue === null ? null : max(1, (int) $ruleValue)),
-            'min' => fn (mixed $ruleValue) => new Assert\Range(min: $ruleValue),
-            'max' => fn (mixed $ruleValue) => new Assert\Range(max: $ruleValue),
-            'dataType' => fn (mixed $ruleValue) => new Assert\Type($ruleValue),
-            'required' => fn (mixed $ruleValue) => new Assert\NotBlank(null, null, $allowNulls),
+            'minLength' => static fn (mixed $ruleValue) => new Assert\Length(min: $ruleValue === null ? null : max(0, (int) $ruleValue)),
+            'maxLength' => static fn (mixed $ruleValue) => new Assert\Length(max: $ruleValue === null ? null : max(1, (int) $ruleValue)),
+            'min' => static fn (mixed $ruleValue) => new Assert\Range(min: $ruleValue),
+            'max' => static fn (mixed $ruleValue) => new Assert\Range(max: $ruleValue),
+            'dataType' => static fn (mixed $ruleValue) => new Assert\Type($ruleValue),
+            'required' => static fn (mixed $ruleValue) => new Assert\NotBlank(null, null, $allowNulls),
         ];
 
         $constraintsResult = [];

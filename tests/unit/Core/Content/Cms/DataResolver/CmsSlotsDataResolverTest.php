@@ -140,7 +140,7 @@ class CmsSlotsDataResolverTest extends TestCase
             // 3 extensions, each dispatched as pre- and post-event
             ->expects($this->exactly(6))
             ->method('dispatch')
-            ->willReturnCallback(function (Extension $extension) use ($slots, $resolverContext, $criteriaCollection) {
+            ->willReturnCallback(static function (Extension $extension) use ($slots, $resolverContext, $criteriaCollection) {
                 switch (true) {
                     case $extension instanceof CmsSlotsDataResolveExtension:
                         static::assertSame($slots, $extension->slots);

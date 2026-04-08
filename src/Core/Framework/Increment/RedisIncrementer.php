@@ -130,7 +130,7 @@ class RedisIncrementer extends AbstractIncrementer
         $prefix = $this->redis->getOption(\Redis::OPT_PREFIX);
         if (\is_string($prefix)) {
             $prefixLength = \strlen($prefix);
-            $keys = \array_map(fn ($key) => \str_starts_with($key, $prefix) ? \substr($key, $prefixLength) : $key, $keys);
+            $keys = \array_map(static fn ($key) => \str_starts_with($key, $prefix) ? \substr($key, $prefixLength) : $key, $keys);
         }
 
         return $keys;

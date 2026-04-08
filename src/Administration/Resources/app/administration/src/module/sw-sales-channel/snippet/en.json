@@ -234,6 +234,51 @@
         },
         "cliCommand": "CLI Command to generate the product export"
       },
+      "agenticCommerce": {
+        "tabIntegration": "Integration",
+        "openAiSettingsTitle": "OpenAI settings",
+        "buttonResetTemplate": "Reset to default",
+        "resetTemplateSuccess": "Template has been reset to default. Please save to keep the changes.",
+        "errorLoadingTemplate": "Could not load default template.",
+        "templates": {
+          "template-label": {
+            "open-ai": "OpenAI (JSONL)"
+          }
+        },
+        "integration": {
+          "stepByStepTitle": "Step by step",
+          "feedUrlLabel": "Export URL",
+          "providers": {
+            "open-ai": {
+              "cardTitle": "OpenAI connection",
+              "introduction": {
+                "title": "How to: Setup and connection",
+                "description": "This Sales Channel generates a JSONL product feed so your products can appear in ChatGPT search results. To do this, you have to apply as a merchant and share the feed URL with OpenAI. Everything else is explained in the step by step guide below."
+              },
+              "stepByStep": "<li>Apply as a merchant at <a href=\"https://chatgpt.com/merchants/\" target=\"_blank\" rel=\"noopener noreferrer\">chatgpt.com/merchants</a></li><li>Copy the export URL (below) and share it with OpenAI according to the <a href=\"https://developers.openai.com/commerce/product-feeds\" target=\"_blank\" rel=\"noopener noreferrer\">Product feeds docs</a></li><li>Make sure the export URL is publicly accessible</li>"
+            }
+          }
+        }
+      },
+      "productExport": {
+        "tabInsights": "Insights",
+        "insights": {
+          "orderCardHeadline": "Referred orders",
+          "customerCardHeadline": "Referred customers",
+          "turnoverCardHeadline": "Referred turnover",
+          "numbers": "Count",
+          "totalTurnover": "Turnover",
+          "summary": "Summary",
+          "dateRanges": {
+            "180Days": "Last 180 days",
+            "30Days": "Last 30 days",
+            "14Days": "Last 14 days",
+            "7Days": "Last 7 days",
+            "24Hours": "Last 24 hours",
+            "yesterday": "Yesterday"
+          }
+        }
+      },
       "hreflang": {
         "title": "Hreflang",
         "titleCard": "Hreflang integration",
@@ -311,6 +356,14 @@
     },
     "sw-sales-channel-defaults-select": {
       "messageError": "The value is in use by this domain: \"{url}\"."
+    },
+    "agenticCommerceTracking": {
+      "cardTitle": "Tracking codes",
+      "description": "Configure the affiliate and campaign codes that will be embedded in product URLs of this channel's feeds. These codes identify orders and customers referred from this Agentic Commerce channel.",
+      "affiliateCodeLabel": "Affiliate code",
+      "affiliateCodePlaceholder": "Enter affiliate code…",
+      "campaignCodeLabel": "Campaign code",
+      "campaignCodePlaceholder": "Enter campaign code…"
     }
   },
   "sw-privileges": {

@@ -58,7 +58,7 @@ class ManyToManyIdFieldUpdater
         $fields = $definition->getFields()->filterInstance(ManyToManyIdField::class);
 
         if ($propertyName) {
-            $fields = $fields->filter(fn (Field $field) => $field->getPropertyName() === $propertyName);
+            $fields = $fields->filter(static fn (Field $field) => $field->getPropertyName() === $propertyName);
         }
 
         if ($fields->count() <= 0) {
@@ -77,7 +77,7 @@ WHERE #table#.id IN (:ids)
 #table_version_aware#
 SQL;
 
-        $bytes = array_map(fn ($id) => Uuid::fromHexToBytes($id), $ids);
+        $bytes = array_map(static fn ($id) => Uuid::fromHexToBytes($id), $ids);
 
         /** @var ManyToManyIdField $field */
         foreach ($fields as $field) {

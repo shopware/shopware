@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Validation\Constraint;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
@@ -25,7 +24,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[CoversClass(CustomerVatIdentificationValidator::class)]
 #[Package('checkout')]
 class CustomerVatIdentificationValidatorTest extends TestCase
 {
@@ -358,7 +356,7 @@ class CustomerVatIdentificationValidatorTest extends TestCase
         /** @var EntityRepository<CountryCollection> $repo */
         $repo = static::getContainer()->get('country.repository');
 
-        $countries = $repo->search($criteria, $context)->fmap(function (CountryEntity $country) {
+        $countries = $repo->search($criteria, $context)->fmap(static function (CountryEntity $country) {
             return $country->getIso();
         });
 

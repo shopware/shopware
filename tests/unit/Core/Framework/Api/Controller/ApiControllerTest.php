@@ -127,7 +127,7 @@ class ApiControllerTest extends TestCase
         $container->set('parent_entity.repository', $this->createMock(EntityRepository::class));
 
         $childRepo = $this->createMock(EntityRepository::class);
-        $childRepo->method('search')->willReturnCallback(function (Criteria $criteria, Context $context) use ($expectedFilterField, $parentId): EntitySearchResult {
+        $childRepo->method('search')->willReturnCallback(static function (Criteria $criteria, Context $context) use ($expectedFilterField, $parentId): EntitySearchResult {
             $filter = $criteria->getFilters()[0];
             static::assertInstanceOf(EqualsFilter::class, $filter);
             static::assertSame($expectedFilterField, $filter->getField());

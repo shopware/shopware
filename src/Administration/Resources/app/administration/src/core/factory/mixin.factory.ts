@@ -31,7 +31,6 @@ function getMixinRegistry(): Map<string, unknown> {
 /**
  * Register a new mixin
  */
-// eslint-disable-next-line max-len
 function register<T, MixinName extends keyof MixinContainer>(mixinName: MixinName, mixin: T): T {
     if (mixinRegistry.has(mixinName)) {
         warn(
@@ -51,12 +50,10 @@ function register<T, MixinName extends keyof MixinContainer>(mixinName: MixinNam
 /**
  * Get a mixin by its name
  */
-// eslint-disable-next-line max-len
 function getByName<MN extends keyof MixinContainer>(mixinName: MN): MixinContainer[MN] {
     if (!mixinRegistry.has(mixinName) || mixinRegistry.get(mixinName) === undefined) {
         throw new Error(`The mixin "${mixinName}" is not registered.`);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return mixinRegistry.get(mixinName) as MixinContainer[MN];
 }

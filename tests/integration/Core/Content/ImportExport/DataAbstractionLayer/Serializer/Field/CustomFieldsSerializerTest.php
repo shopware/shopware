@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\CustomFieldsSerializer;
@@ -21,7 +20,6 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetColl
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[CoversClass(CustomFieldsSerializer::class)]
 class CustomFieldsSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;

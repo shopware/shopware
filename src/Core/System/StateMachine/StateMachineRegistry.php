@@ -307,7 +307,7 @@ class StateMachineRegistry implements ResetInterface
         }
 
         $transitions = $this->getAvailableTransitionsById($stateMachineName, $fromStateId, $context);
-        $transitionNames = array_map(fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
+        $transitionNames = array_map(static fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
 
         throw StateMachineException::illegalStateTransition(
             $fromStateId,

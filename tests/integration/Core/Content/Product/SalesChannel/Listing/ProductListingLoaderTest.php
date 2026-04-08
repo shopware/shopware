@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Listing;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -36,7 +35,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[CoversClass(ProductListingLoader::class)]
 #[Group('slow')]
 class ProductListingLoaderTest extends TestCase
 {
@@ -275,7 +273,7 @@ class ProductListingLoaderTest extends TestCase
             'isCloseout' => true,
         ]], $this->salesChannelContext->getContext());
 
-        $variants = array_values(\array_map(fn ($item) => ['id' => $item, 'stock' => 0], $this->variantIds));
+        $variants = array_values(\array_map(static fn ($item) => ['id' => $item, 'stock' => 0], $this->variantIds));
 
         $this->productRepository->update($variants, $this->salesChannelContext->getContext());
 
@@ -294,7 +292,7 @@ class ProductListingLoaderTest extends TestCase
             'configuratorGroupConfig' => [],
         ]], $this->salesChannelContext->getContext());
 
-        $variants = array_values(\array_map(fn ($item) => ['id' => $item, 'active' => false], $this->variantIds));
+        $variants = array_values(\array_map(static fn ($item) => ['id' => $item, 'active' => false], $this->variantIds));
 
         $this->productRepository->update($variants, $this->salesChannelContext->getContext());
 

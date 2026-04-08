@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Extension\PdfRendererExtension;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -18,9 +19,9 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 #[Package('after-sales')]
 class PdfRenderer extends AbstractDocumentTypeRenderer
 {
-    public const FILE_EXTENSION = 'pdf';
+    public const FILE_EXTENSION = FileTypes::PDF;
 
-    public const FILE_CONTENT_TYPE = 'application/pdf';
+    public const FILE_CONTENT_TYPE = FileTypes::PDF_CONTENT_TYPE;
 
     /**
      * @internal
@@ -82,7 +83,7 @@ class PdfRenderer extends AbstractDocumentTypeRenderer
             gc_enable();
         }
 
-        return (string) $dompdf->output();
+        return $dompdf->output();
     }
 
     private function getHtml(RenderedDocument $document): string

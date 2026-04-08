@@ -21,7 +21,7 @@ class SystemConfigValidatorTest extends TestCase
 {
     /**
      * @param array<string, mixed> $inputValues
-     * @param array<string, mixed> $formConfigs
+     * @param list<array<string, mixed>> $formConfigs
      */
     #[DataProvider('dataProviderTestValidateSuccess')]
     public function testValidateSuccess(array $inputValues, array $formConfigs): void
@@ -49,7 +49,7 @@ class SystemConfigValidatorTest extends TestCase
 
     /**
      * @param array<string, mixed> $inputValues
-     * @param array<string, mixed> $formConfigs
+     * @param list<array<string, mixed>> $formConfigs
      */
     #[DataProvider('dataProviderTestValidateFailure')]
     public function testValidateFailure(array $inputValues, array $formConfigs): void
@@ -75,7 +75,7 @@ class SystemConfigValidatorTest extends TestCase
 
     /**
      * @param array<string, mixed> $inputValues
-     * @param array<string, mixed> $formConfigs
+     * @param list<array<string, mixed>> $formConfigs
      */
     #[DataProvider('dataProviderTestValidateSuccess')]
     public function testValidateWithEmptyConfig(array $inputValues, array $formConfigs): void

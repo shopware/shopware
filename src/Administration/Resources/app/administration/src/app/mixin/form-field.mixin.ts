@@ -49,7 +49,6 @@ export default Shopware.Mixin.register(
                 }
 
                 if (this.name) {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                     return this.name;
                 }
 
@@ -72,7 +71,6 @@ export default Shopware.Mixin.register(
                     // set event listener and attributes for inheritance
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                     Object.keys(mapInheritance).forEach((prop) => {
-                        // eslint-disable-next-line max-len
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                         const propValue = mapInheritance[prop];
 
@@ -92,9 +90,7 @@ export default Shopware.Mixin.register(
 
         methods: {
             handleRestoreInheritance() {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 if (!this.mapInheritance?.restoreInheritance) {
                     return;
                 }
@@ -104,9 +100,7 @@ export default Shopware.Mixin.register(
             },
 
             handleRemoveInheritance() {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 if (!this.mapInheritance?.removeInheritance) {
                     return;
                 }
@@ -115,9 +109,7 @@ export default Shopware.Mixin.register(
                 this.mapInheritance.removeInheritance();
             },
 
-            beforeDestroyComponent() {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            },
+            beforeDestroyComponent() {},
 
             setAttributesForProps(prop: string, propValue: boolean) {
                 switch (prop) {

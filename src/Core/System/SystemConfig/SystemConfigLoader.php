@@ -116,7 +116,7 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
      */
     private function filterNotActivatedPlugins(array $configValues): array
     {
-        $notActivatedPlugins = $this->kernel->getPluginLoader()->getPluginInstances()->filter(fn (Plugin $plugin) => !$plugin->isActive())->all();
+        $notActivatedPlugins = $this->kernel->getPluginLoader()->getPluginInstances()->filter(static fn (Plugin $plugin) => !$plugin->isActive())->all();
 
         foreach ($notActivatedPlugins as $plugin) {
             if (isset($configValues[$plugin->getName()])) {

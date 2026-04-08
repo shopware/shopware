@@ -89,7 +89,7 @@ class InstallTranslationCommandTest extends TestCase
 
         $this->translationLoader->expects($this->exactly(2))
             ->method('load')
-            ->willReturnCallback(function (string $locale, Context $context, bool $activate): void {
+            ->willReturnCallback(static function (string $locale, Context $context, bool $activate): void {
                 $expectedLocales = ['en-GB', 'es-ES'];
 
                 static::assertTrue(\in_array($locale, $expectedLocales, true));
@@ -129,7 +129,7 @@ class InstallTranslationCommandTest extends TestCase
 
         $this->translationLoader->expects($this->exactly(1))
             ->method('load')
-            ->willReturnCallback(function (string $locale): void {
+            ->willReturnCallback(static function (string $locale): void {
                 $expectedLocales = ['es-ES'];
 
                 static::assertTrue(\in_array($locale, $expectedLocales, true));
@@ -211,7 +211,7 @@ class InstallTranslationCommandTest extends TestCase
         $this->translationLoader
             ->expects($this->once())
             ->method('load')
-            ->willReturnCallback(function (string $locale, Context $context, bool $activate): void {
+            ->willReturnCallback(static function (string $locale, Context $context, bool $activate): void {
                 static::assertSame('en-GB', $locale);
                 static::assertFalse($activate, 'Should pass activate=false when --skip-activation is used');
             });

@@ -133,17 +133,15 @@ class LineItemPropertyValueRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{bool, list<string>, list<string>, string}>
+     * @return \Generator<string, array{bool, list<string>, list<string>, string}>
      */
-    public static function getMatchValues(): iterable
+    public static function getMatchValues(): \Generator
     {
         $id = Uuid::randomHex();
 
-        return [
-            yield 'should match when property id is included' => [true, [$id], [$id, Uuid::randomHex()], Rule::OPERATOR_EQ],
-            yield 'should not match when property id is not included' => [false, [$id], [Uuid::randomHex()], Rule::OPERATOR_EQ],
-            yield 'should match when property id is not included' => [true, [$id, Uuid::randomHex()], [Uuid::randomHex()], Rule::OPERATOR_NEQ],
-            yield 'should not match when property id is included' => [false, [$id, Uuid::randomHex()], [$id], Rule::OPERATOR_NEQ],
-        ];
+        yield 'should match when property id is included' => [true, [$id], [$id, Uuid::randomHex()], Rule::OPERATOR_EQ];
+        yield 'should not match when property id is not included' => [false, [$id], [Uuid::randomHex()], Rule::OPERATOR_EQ];
+        yield 'should match when property id is not included' => [true, [$id, Uuid::randomHex()], [Uuid::randomHex()], Rule::OPERATOR_NEQ];
+        yield 'should not match when property id is included' => [false, [$id, Uuid::randomHex()], [$id], Rule::OPERATOR_NEQ];
     }
 }

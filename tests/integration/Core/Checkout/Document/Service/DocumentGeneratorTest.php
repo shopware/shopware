@@ -615,7 +615,7 @@ class DocumentGeneratorTest extends TestCase
 
         static::assertCount(2, $documents);
 
-        $invoiceDoc = $documents->filter(function (DocumentEntity $doc) {
+        $invoiceDoc = $documents->filter(static function (DocumentEntity $doc) {
             $type = $doc->getDocumentType();
             static::assertNotNull($type);
 
@@ -627,7 +627,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($invoiceDoc->getDocumentMediaFile());
         static::assertSame(PdfRenderer::FILE_EXTENSION, $invoiceDoc->getDocumentMediaFile()->getFileExtension());
 
-        $deliveryDoc = $documents->filter(function (DocumentEntity $doc) {
+        $deliveryDoc = $documents->filter(static function (DocumentEntity $doc) {
             $type = $doc->getDocumentType();
             static::assertNotNull($type);
 
@@ -734,7 +734,7 @@ class DocumentGeneratorTest extends TestCase
         $mediaId = $document?->getDocumentMediaFileId();
         static::assertNotNull($mediaId);
 
-        $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => static::getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
+        $media = $this->context->scope(Context::SYSTEM_SCOPE, static fn (Context $context) => static::getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
         static::assertInstanceOf(StreamInterface::class, $media);
     }
@@ -780,7 +780,7 @@ class DocumentGeneratorTest extends TestCase
         $mediaId = $document?->getDocumentMediaFileId();
         static::assertNotNull($mediaId);
 
-        $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => static::getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
+        $media = $this->context->scope(Context::SYSTEM_SCOPE, static fn (Context $context) => static::getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
         static::assertNotNull($media);
     }
@@ -899,7 +899,7 @@ class DocumentGeneratorTest extends TestCase
 
         static::assertNotNull($mediaId);
 
-        $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => static::getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
+        $media = $this->context->scope(Context::SYSTEM_SCOPE, static fn (Context $context) => static::getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
         static::assertNotNull($media);
     }

@@ -112,7 +112,7 @@ const router = createRouter({
     history: createWebHashHistory(),
 });
 
-async function createWrapper() {
+async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()) } = {}) {
     // delete global $router and $routes mocks
     delete config.global.mocks.$router;
     delete config.global.mocks.$route;
@@ -136,7 +136,7 @@ async function createWrapper() {
             },
             provide: {
                 shopIdChangeService: {
-                    checkShopId: jest.fn(() => Promise.resolve()),
+                    checkShopId,
                 },
                 userActivityApiService: {
                     increment: jest.fn(() => Promise.resolve()),
@@ -158,6 +158,12 @@ describe('src/app/component/structure/sw-desktop', () => {
         Shopware.Store.get('session').setCurrentUser({
             id: 'id',
         });
+
+        Shopware.Store.get('context').app.config.settings = {
+            appsRequireAppUrl: true,
+            appUrlReachable: true,
+            enableStagingMode: false,
+        };
     });
 
     it('should be update userConfig when at index route', async () => {
@@ -229,6 +235,38 @@ describe('src/app/component/structure/sw-desktop', () => {
         await flushPromises();
 
         expect(checkShopIdSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not render consent modal provider while shop ID check is pending', async () => {
+        const checkShopId = jest.fn(() => new Promise(() => {}));
+
+        const wrapper = await createWrapper({ checkShopId });
+
+        expect(checkShopId).toHaveBeenCalledTimes(1);
+        expect(wrapper.find('sw-settings-usage-data-consent-modal-data-provider-stub').exists()).toBe(false);
+    });
+
+    it('should render consent modal provider after shop ID check resolves without changes', async () => {
+        const wrapper = await createWrapper({
+            checkShopId: jest.fn(() => Promise.resolve(null)),
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.isShopIdCheckPending).toBe(false);
+        expect(wrapper.vm.shopIdCheck).toBeNull();
+        expect(wrapper.vm.showUsageDataConsentModalDataProvider).toBe(true);
+    });
+
+    it('should not render consent modal provider while shop ID change modal is shown', async () => {
+        const wrapper = await createWrapper({
+            checkShopId: jest.fn(() => Promise.resolve({ apps: [], fingerprints: {} })),
+        });
+
+        await flushPromises();
+
+        expect(wrapper.find('sw-app-shop-id-change-modal-stub').exists()).toBe(true);
+        expect(wrapper.find('sw-settings-usage-data-consent-modal-data-provider-stub').exists()).toBe(false);
     });
 
     it('should show the staging bar, when enabled', async () => {

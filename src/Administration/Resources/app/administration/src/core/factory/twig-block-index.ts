@@ -25,20 +25,24 @@ export interface BlockEntry {
     innerTemplate: string;
 }
 
-/**
- * A TwigJS token that represents a `{% block name %}` definition.
- * This shape mirrors TwigJS internals and should be re-validated whenever
- * the `twig` package is upgraded.
- * @private
- */
-type BlockToken = TwigToken & {
-    token: {
-        blockName: string;
-        output: TwigToken[];
+type ParsedTwigToken = {
+    type: string;
+    value?: string;
+    token?: {
+        type?: string;
+        blockName?: string;
+        output?: unknown[];
     };
 };
 
-function isBlockToken(token: TwigToken): token is BlockToken {
+type ParsedBlockToken = ParsedTwigToken & {
+    token: {
+        blockName: string;
+        output?: unknown[];
+    };
+};
+
+function isBlockToken(token: ParsedTwigToken): token is ParsedBlockToken {
     return token.type === 'logic' && typeof token.token?.blockName === 'string';
 }
 
@@ -64,9 +68,11 @@ export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: 
         return;
     }
 
-    parsed.tokens.filter(isBlockToken).forEach((token) => {
+    const parsedTokens = parsed.tokens as ParsedTwigToken[];
+
+    parsedTokens.filter(isBlockToken).forEach((token) => {
         const blockName = token.token.blockName;
-        const output = token.token.output ?? [];
+        const output = (token.token.output ?? []) as TwigToken[];
 
         const innerTemplate = reconstructInnerTemplate(output);
 

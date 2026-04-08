@@ -120,7 +120,7 @@
 
 import { mount } from '@vue/test-utils';
 import { resetBlockIndex } from 'src/core/factory/twig-block-index';
-import blockOverrideStore from '../../../../store/block-override.store';
+import '../../../../store/block-override.store';
 import getBlockDataScope from '../sw-block/get-block-data-scope';
 import { resetShimSlotState } from './create-shim-slot';
 
@@ -143,6 +143,9 @@ async function createWrapper({
     extraOptions = {},
     renderHost = true,
 } = {}) {
+    const swBlock = await wrapTestComponent('sw-block', { sync: true });
+    const swBlockParent = await wrapTestComponent('sw-block-parent', { sync: true });
+
     return mount(
         {
             template: `
@@ -155,10 +158,6 @@ async function createWrapper({
                     ${nativeExtensions}
                 </div>
             `,
-            components: {
-                'sw-block': await wrapTestComponent('sw-block', { sync: true }),
-                'sw-block-parent': await wrapTestComponent('sw-block-parent', { sync: true }),
-            },
             data() {
                 return {
                     renderHost,
@@ -171,6 +170,10 @@ async function createWrapper({
             global: {
                 mocks: {
                     $dataScope: getBlockDataScope,
+                },
+                components: {
+                    'sw-block': swBlock,
+                    'sw-block-parent': swBlockParent,
                 },
             },
         },
@@ -185,6 +188,7 @@ type MultiBlockWrapperConfig = {
 
 async function createMultiBlockWrapper(blocks: MultiBlockWrapperConfig[]) {
     const swBlock = await wrapTestComponent('sw-block', { sync: true });
+    const swBlockParent = await wrapTestComponent('sw-block-parent', { sync: true });
 
     return mount(
         {
@@ -203,14 +207,15 @@ async function createMultiBlockWrapper(blocks: MultiBlockWrapperConfig[]) {
                         .join('')}
                 </div>
             `,
-            components: {
-                'sw-block': swBlock,
-            },
         },
         {
             global: {
                 mocks: {
                     $dataScope: getBlockDataScope,
+                },
+                components: {
+                    'sw-block': swBlock,
+                    'sw-block-parent': swBlockParent,
                 },
             },
         },
@@ -219,10 +224,6 @@ async function createMultiBlockWrapper(blocks: MultiBlockWrapperConfig[]) {
 
 describe('Twig → Native Block Runtime Adapter (shim)', () => {
     let consoleSpy: jest.SpyInstance;
-
-    beforeAll(() => {
-        Shopware.Store.register('blockOverride', blockOverrideStore);
-    });
 
     beforeEach(() => {
         consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
@@ -411,6 +412,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             });
 
             const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const swBlockParent = await wrapTestComponent('sw-block-parent', { sync: true });
             const wrapper = mount(
                 {
                     template: `
@@ -427,12 +429,15 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                             </div>
                         </div>
                     `,
-                    components: {
-                        'sw-block': swBlock,
-                    },
                 },
                 {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
+                    global: {
+                        mocks: { $dataScope: getBlockDataScope },
+                        components: {
+                            'sw-block': swBlock,
+                            'sw-block-parent': swBlockParent,
+                        },
+                    },
                 },
             );
 
@@ -866,7 +871,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 blockName: 'shim_reactive_methods',
                 extraOptions: {
                     methods: {
-                        greet(name) {
+                        greet(name: string) {
                             return `Hello ${name}`;
                         },
                     },
@@ -936,6 +941,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             });
 
             const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const swBlockParent = await wrapTestComponent('sw-block-parent', { sync: true });
             mount(
                 {
                     template: `
@@ -944,12 +950,15 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                             <sw-block name="shim_warn_separate_b" :data="$dataScope()"></sw-block>
                         </div>
                     `,
-                    components: {
-                        'sw-block': swBlock,
-                    },
                 },
                 {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
+                    global: {
+                        mocks: { $dataScope: getBlockDataScope },
+                        components: {
+                            'sw-block': swBlock,
+                            'sw-block-parent': swBlockParent,
+                        },
+                    },
                 },
             );
 
@@ -1327,6 +1336,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             });
 
             const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const swBlockParent = await wrapTestComponent('sw-block-parent', { sync: true });
             const wrapper = mount(
                 {
                     template: `
@@ -1334,14 +1344,15 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                             <sw-block name="shim_global_component_ref" :data="$dataScope()"></sw-block>
                         </div>
                     `,
-                    components: {
-                        'sw-block': swBlock,
-                    },
                 },
                 {
                     global: {
                         mocks: { $dataScope: getBlockDataScope },
-                        components: { 'global-test-component': GlobalTestComponent },
+                        components: {
+                            'sw-block': swBlock,
+                            'sw-block-parent': swBlockParent,
+                            'global-test-component': GlobalTestComponent,
+                        },
                     },
                 },
             );
@@ -1454,6 +1465,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             });
 
             const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const swBlockParent = await wrapTestComponent('sw-block-parent', { sync: true });
             const wrapper = mount(
                 {
                     template: `
@@ -1470,12 +1482,15 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                             </div>
                         </div>
                     `,
-                    components: {
-                        'sw-block': swBlock,
-                    },
                 },
                 {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
+                    global: {
+                        mocks: { $dataScope: getBlockDataScope },
+                        components: {
+                            'sw-block': swBlock,
+                            'sw-block-parent': swBlockParent,
+                        },
+                    },
                 },
             );
 
@@ -1505,6 +1520,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             });
 
             const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const swBlockParent = await wrapTestComponent('sw-block-parent', { sync: true });
             const wrapper = mount(
                 {
                     template: `
@@ -1521,12 +1537,15 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                             </div>
                         </div>
                     `,
-                    components: {
-                        'sw-block': swBlock,
-                    },
                 },
                 {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
+                    global: {
+                        mocks: { $dataScope: getBlockDataScope },
+                        components: {
+                            'sw-block': swBlock,
+                            'sw-block-parent': swBlockParent,
+                        },
+                    },
                 },
             );
 
@@ -1549,6 +1568,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             });
 
             const swBlock = await wrapTestComponent('sw-block', { sync: true });
+            const swBlockParent = await wrapTestComponent('sw-block-parent', { sync: true });
             const wrapper = mount(
                 {
                     template: `
@@ -1565,12 +1585,15 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                             </div>
                         </div>
                     `,
-                    components: {
-                        'sw-block': swBlock,
-                    },
                 },
                 {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
+                    global: {
+                        mocks: { $dataScope: getBlockDataScope },
+                        components: {
+                            'sw-block': swBlock,
+                            'sw-block-parent': swBlockParent,
+                        },
+                    },
                 },
             );
 

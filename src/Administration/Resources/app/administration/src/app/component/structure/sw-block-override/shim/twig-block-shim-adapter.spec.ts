@@ -318,8 +318,6 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
         });
     });
 
-    // ─── Multiple overrides for the same block ───────────────────────────────
-
     describe('multiple Twig overrides for the same block', () => {
         it('stacks multiple Twig overrides in registration order when each uses {% parent %}', async () => {
             Shopware.Component.override('sw-product-detail', {

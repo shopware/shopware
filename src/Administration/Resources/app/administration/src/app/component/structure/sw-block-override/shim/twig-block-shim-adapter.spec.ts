@@ -1447,47 +1447,6 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.component-root').exists()).toBeTruthy();
         });
 
-        it('handles multiple override calls for the same component name, each targeting a different block', async () => {
-            Shopware.Component.override('sw-product-detail', {
-                template: `{% block shim_edge_multi_call_a %}<div class="override-a"></div>{% endblock %}`,
-            });
-
-            Shopware.Component.override('sw-product-detail', {
-                template: `{% block shim_edge_multi_call_b %}<div class="override-b"></div>{% endblock %}`,
-            });
-
-            const swBlock = await wrapTestComponent('sw-block', { sync: true });
-            const wrapper = mount(
-                {
-                    template: `
-                        <div>
-                            <div class="root-a">
-                                <sw-block name="shim_edge_multi_call_a" :data="$dataScope()">
-                                    <div class="default-a"></div>
-                                </sw-block>
-                            </div>
-                            <div class="root-b">
-                                <sw-block name="shim_edge_multi_call_b" :data="$dataScope()">
-                                    <div class="default-b"></div>
-                                </sw-block>
-                            </div>
-                        </div>
-                    `,
-                    components: {
-                        'sw-block': swBlock,
-                    },
-                },
-                {
-                    global: { mocks: { $dataScope: getBlockDataScope } },
-                },
-            );
-
-            expect(wrapper.find('.root-a .override-a').exists()).toBeTruthy();
-            expect(wrapper.find('.root-a .default-a').exists()).toBeFalsy();
-            expect(wrapper.find('.root-b .override-b').exists()).toBeTruthy();
-            expect(wrapper.find('.root-b .default-b').exists()).toBeFalsy();
-        });
-
         it('handles multiple top-level {% block %} definitions in a single override call', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `

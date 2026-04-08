@@ -31,6 +31,8 @@ class NoUnserializeUsageRuleTest extends RuleTestCase
 
         $this->analyse([__DIR__ . '/data/NoUnserializeUsageRule/HasUnserializeInTestClass.php'], [
             [\sprintf(NoUnserializeUsageRule::ERROR_MESSAGE, $class), 11, NoUnserializeUsageRule::ERROR_TIP_TESTS],
+            ['No error with identifier shopware.unserializeUsage is reported on line 19.', 19],
+            [\sprintf(NoUnserializeUsageRule::ERROR_MESSAGE, $class), 19, NoUnserializeUsageRule::ERROR_TIP_TESTS],
         ]);
     }
 

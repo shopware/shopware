@@ -59,7 +59,7 @@ export default {
                 } else {
                     this.notificationSuccess();
                 }
-            } catch (err) {
+            } catch (_err) {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),

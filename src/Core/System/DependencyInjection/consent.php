@@ -22,7 +22,8 @@ return static function (ContainerConfigurator $container): void {
         ->public()
         ->args([
             new Reference(ConsentService::class),
-        ]);
+        ])
+        ->tag('controller.service_arguments');
 
     $services->set(ConsentRepository::class)
         ->args([

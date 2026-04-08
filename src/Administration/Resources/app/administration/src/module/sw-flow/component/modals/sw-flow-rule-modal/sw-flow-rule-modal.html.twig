@@ -111,6 +111,14 @@
 
                 {% block sw_flow_rule_modal_tab_rule_content %}
                 <div v-show="active === 'rule'">
+                    <mt-banner
+                        v-if="showProductStateConditionWarning"
+                        class="sw-flow-rule-modal__product-type-warning"
+                        variant="attention"
+                    >
+                        {{ $t('sw-flow.modals.rule.productStatesConditionWarning') }}
+                    </mt-banner>
+
                     {% block sw_flow_rule_modal_conditions_card %}
                     <sw-condition-tree
                         v-if="conditionRepository"

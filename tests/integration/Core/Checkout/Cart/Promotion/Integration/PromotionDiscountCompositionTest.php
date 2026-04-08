@@ -164,6 +164,8 @@ class PromotionDiscountCompositionTest extends TestCase
                 TestDefaults::SALES_CHANNEL,
                 [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer()]
             );
+        $customerId1 = $context->getCustomerId();
+        static::assertNotNull($customerId1);
 
         $productId1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();
@@ -190,7 +192,7 @@ class PromotionDiscountCompositionTest extends TestCase
         static::assertSame(1, $promotion->getOrderCount());
         static::assertNotNull($context->getCustomer());
         static::assertSame(
-            [$context->getCustomerId() => 1],
+            [$customerId1 => 1],
             $promotion->getOrdersPerCustomerCount()
         );
 
@@ -205,22 +207,20 @@ class PromotionDiscountCompositionTest extends TestCase
         // verify that the promotion has a total order count of 1 and the current customer is although tracked
         static::assertSame(2, $promotion->getOrderCount());
         static::assertSame(
-            [$context->getCustomerId() => 2],
+            [$customerId1 => 2],
             $promotion->getOrdersPerCustomerCount()
         );
 
-        $customerId1 = $context->getCustomerId();
-
-        $context = static::getContainer()->get(SalesChannelContextFactory::class)
+        $context2 = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(
                 Uuid::randomHex(),
                 TestDefaults::SALES_CHANNEL,
                 [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer()]
             );
 
-        static::assertNotNull($context->getCustomer());
+        static::assertNotNull($context2->getCustomer());
         // order promotion with two products and another customer
-        $this->orderWithPromotion($code, [$productId1, $productId2], $context);
+        $this->orderWithPromotion($code, [$productId1, $productId2], $context2);
 
         $promotion = $this->promotionRepository
             ->search(new Criteria([$promotionId]), Context::createDefaultContext())
@@ -229,7 +229,7 @@ class PromotionDiscountCompositionTest extends TestCase
 
         static::assertSame(3, $promotion->getOrderCount());
         $expected = [
-            $context->getCustomerId() => 1,
+            $context2->getCustomer()->getId() => 1,
             $customerId1 => 2,
         ];
 

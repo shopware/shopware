@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Flow\Dispatching;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception as DBALException;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -18,6 +17,7 @@ use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
@@ -189,7 +189,15 @@ class FlowExecutor
     private function callHandle(ActionSequence $sequence, StorableFlow $event): void
     {
         if ($sequence->appFlowActionId) {
-            $this->callApp($sequence, $event);
+            $eventData = $this->appFlowActionProvider->getWebhookPayloadAndHeaders($event, $sequence->appFlowActionId);
+
+            $globalEvent = new AppFlowActionEvent(
+                $sequence->action,
+                $eventData['headers'],
+                $eventData['payload'],
+            );
+
+            $this->dispatcher->dispatch($globalEvent, $sequence->action);
 
             return;
         }
@@ -206,40 +214,13 @@ class FlowExecutor
             return;
         }
 
-        $this->connection->beginTransaction();
-
         try {
-            $action->handleFlow($event);
+            RetryableTransaction::transactional($this->connection, static function () use ($action, $event): void {
+                $action->handleFlow($event);
+            });
         } catch (\Throwable $e) {
-            $this->connection->rollBack();
-
             throw FlowException::transactionFailed($e);
         }
-
-        try {
-            $this->connection->commit();
-        } catch (DBALException $e) {
-            $this->connection->rollBack();
-
-            throw FlowException::transactionFailed($e);
-        }
-    }
-
-    private function callApp(ActionSequence $sequence, StorableFlow $event): void
-    {
-        if (!$sequence->appFlowActionId) {
-            return;
-        }
-
-        $eventData = $this->appFlowActionProvider->getWebhookPayloadAndHeaders($event, $sequence->appFlowActionId);
-
-        $globalEvent = new AppFlowActionEvent(
-            $sequence->action,
-            $eventData['headers'],
-            $eventData['payload'],
-        );
-
-        $this->dispatcher->dispatch($globalEvent, $sequence->action);
     }
 
     private function sequenceRuleMatches(StorableFlow $event, string $ruleId): bool

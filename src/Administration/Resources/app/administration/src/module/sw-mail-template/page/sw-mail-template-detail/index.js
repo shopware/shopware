@@ -162,6 +162,10 @@ export default {
             };
         },
 
+        previewAllowed() {
+            return !this.isLoading && !this.showPreview && this.hasTemplateData && this.acl.can('mail_templates.editor');
+        },
+
         showPreview() {
             if (
                 this.mailTemplate.contentHtml === undefined ||

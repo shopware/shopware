@@ -72,7 +72,7 @@ class Migration1773048327UpdateZugferdInvoiceTranslationsTest extends TestCase
                 'ZUGFeRD Invoice',
                 'ZUGFeRD Invoice (embedded)',
                 'ZUGFeRD Rechnung',
-                'ZUGFeRD Rechnung (embedded)',
+                'ZUGFeRD Rechnung (eingebettet)',
             ],
             $translations,
         );

@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\ProductStream;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductStreamMapping\ProductStreamMappingDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductExport\ProductExportDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition;
@@ -18,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -78,6 +81,8 @@ class ProductStreamDefinition extends EntityDefinition
             new OneToManyAssociationField('productCrossSellings', ProductCrossSellingDefinition::class, 'product_stream_id'),
             (new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'product_stream_id', 'id'))->addFlags(new RestrictDelete()),
             new OneToManyAssociationField('categories', CategoryDefinition::class, 'product_stream_id'),
+
+            (new ManyToManyAssociationField('products', ProductDefinition::class, ProductStreamMappingDefinition::class, 'product_stream_id', 'product_id'))->addFlags(new CascadeDelete())->setDescription('Products this product stream includes'),
         ]);
     }
 }

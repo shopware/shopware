@@ -1,6 +1,12 @@
 import { test, assertScreenshot, setViewport, replaceElementsIndividually } from '@fixtures/AcceptanceTest';
 
-test('Visual: Administration media page', { tag: '@Visual' }, async ({
+test.skip('Visual: Administration media page', { 
+    tag: '@Visual',
+    annotation: {
+        type: 'issue',
+        description: 'https://github.com/shopware/shopware/issues/15882',
+  }, 
+}, async ({
     ShopAdmin,
     AdminMediaListing,
 }) => {

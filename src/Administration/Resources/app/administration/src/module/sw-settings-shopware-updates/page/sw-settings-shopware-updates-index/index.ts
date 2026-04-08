@@ -82,7 +82,7 @@ export default Component.wrapComponentConfig({
             this.isLoading = true;
 
             // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.$refs.systemConfig
                 .saveAll()
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

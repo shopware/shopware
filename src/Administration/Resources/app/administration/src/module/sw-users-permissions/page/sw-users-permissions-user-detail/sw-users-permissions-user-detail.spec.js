@@ -192,11 +192,13 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         Shopware.Service().register('timezoneService', () => {
             return new TimezoneService();
         });
-
-        jest.spyOn(Shopware.ExtensionAPI, 'publishData').mockImplementation(() => {});
     });
 
     beforeEach(async () => {
+        // Setup spy before each test since restoreMocks: true in jest.config.js
+        // automatically restores mocks after each test
+        jest.spyOn(Shopware.ExtensionAPI, 'publishData').mockImplementation(() => {});
+
         Shopware.Store.get('session').languageId = '123456789';
         wrapper = await createWrapper();
     });

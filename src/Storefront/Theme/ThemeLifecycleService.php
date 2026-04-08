@@ -108,13 +108,13 @@ class ThemeLifecycleService
 
         $writtenEvent = $this->themeRepository->upsert([$themeData], $context);
 
-        if (empty($themeData['id'])) {
+        if (!isset($themeData['id'])) {
             $themeData['id'] = current($writtenEvent->getPrimaryKeys(ThemeDefinition::ENTITY_NAME));
         }
 
         $this->themeRepository->upsert([$themeData], $context);
 
-        if (!empty($themeData['toDeleteMedia'])) {
+        if (($themeData['toDeleteMedia'] ?? []) !== []) {
             $this->themeMediaRepository->delete($themeData['toDeleteMedia'], $context);
         }
 

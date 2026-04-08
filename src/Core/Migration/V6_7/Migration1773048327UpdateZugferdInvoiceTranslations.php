@@ -31,7 +31,7 @@ class Migration1773048327UpdateZugferdInvoiceTranslations extends MigrationStep
                 'en' => ['name' => 'ZUGFeRD Invoice'],
             ],
             ZugferdEmbeddedRenderer::TYPE => [
-                'de' => ['name' => 'ZUGFeRD Rechnung (embedded)'],
+                'de' => ['name' => 'ZUGFeRD Rechnung (eingebettet)'],
                 'en' => ['name' => 'ZUGFeRD Invoice (embedded)'],
             ],
         ];

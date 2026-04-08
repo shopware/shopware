@@ -25,7 +25,6 @@ export default {
         /**
          * The apiFilter of a loaded product stream
          */
-        // eslint-disable-next-line vue/require-prop-types
         filters: {
             required: true,
         },
@@ -188,11 +187,8 @@ export default {
         },
 
         loadProducts() {
-            // eslint-disable-next-line vue/no-mutating-props
             this.criteria.term = this.searchTerm || null;
-            // eslint-disable-next-line vue/no-mutating-props
             this.criteria.filters = [...this.filters];
-            // eslint-disable-next-line vue/no-mutating-props
             this.criteria.limit = this.limit;
             this.criteria.setPage(this.page);
             this.criteria.addAssociation('manufacturer');

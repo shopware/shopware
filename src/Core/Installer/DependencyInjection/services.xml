@@ -117,6 +117,8 @@
             <parameter key="de">https://api.shopware.com/gtc/de_DE.html</parameter>
             <parameter key="en">https://api.shopware.com/gtc/en_GB.html</parameter>
         </parameter>
+
+        <parameter key="env(SHOPWARE_ADMINISTRATION_PATH_NAME)">admin</parameter>
     </parameters>
     <services>
         <service id="shopware.asset.asset" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">
@@ -243,7 +245,8 @@
         <service id="Shopware\Core\Installer\Controller\FinishController" public="true">
             <argument type="service" id="Shopware\Core\Installer\Finish\SystemLocker"/>
             <argument type="service" id="GuzzleHttp\Client"/>
-            <argument>%env(string:APP_URL)%</argument>
+            <argument type="string">%env(string:APP_URL)%</argument>
+            <argument type="string">%env(string:SHOPWARE_ADMINISTRATION_PATH_NAME)%</argument>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

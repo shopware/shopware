@@ -76,7 +76,7 @@ class StoreHandshake implements AppHandshakeInterface
             return $this->storeClient->signPayloadWithAppSecret($payload, $this->appName);
         } catch (\Exception $e) {
             if ($e instanceof ClientException) {
-                $response = \json_decode($e->getResponse()->getBody()->getContents(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+                $response = \json_decode($e->getResponse()->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
 
                 if ($response['code'] === self::SBP_EXCEPTION_UNAUTHORIZED || $response['code'] === self::SBP_EXCEPTION_NO_LICENSE) {
                     throw AppException::licenseCouldNotBeVerified($this->appName, $e);

@@ -17,8 +17,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 class MessageHandlerCompilerPassTest extends TestCase
 {
     /**
-     * @param array<string, string> $existingTagAttributes
-     * @param array<string, string> $expectedTagAttributes
+     * @param array<string, string|int> $existingTagAttributes
+     * @param array<string, string|int> $expectedTagAttributes
      */
     #[DataProvider('tagProvider')]
     public function testAddsTagsAttributesFromAttribute(array $existingTagAttributes, array $expectedTagAttributes): void

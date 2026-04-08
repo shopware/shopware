@@ -69,7 +69,6 @@ export default Component.wrapComponentConfig({
                 })
                 .catch((error: unknown) => {
                     // @ts-expect-error
-                    // eslint-disable-next-line max-len
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
                     this.displayRecoveryInfo(error.response.data);
                 });
@@ -88,7 +87,6 @@ export default Component.wrapComponentConfig({
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 if (parseInt(error?.status, 10) === 429) {
                     // @ts-expect-error
-                    // eslint-disable-next-line max-len
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
                     seconds = error?.meta?.parameters?.seconds;
                 }

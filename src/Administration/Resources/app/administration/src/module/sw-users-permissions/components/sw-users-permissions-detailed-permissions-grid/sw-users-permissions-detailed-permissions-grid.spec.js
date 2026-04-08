@@ -1,9 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
-// eslint-disable-next-line
 import fs from 'fs';
-// eslint-disable-next-line
 import path from 'path';
 import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
@@ -56,7 +54,6 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
     it('should contain the header titles', async () => {
         const wrapper = await createWrapper();
 
-        // eslint-disable-next-line max-len
         const headerEntries = wrapper.findAll(
             '.sw-users-permissions-detailed-permissions-grid__entry-header .sw-users-permissions-detailed-permissions-grid__checkbox-wrapper',
         );

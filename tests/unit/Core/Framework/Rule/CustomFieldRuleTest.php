@@ -46,14 +46,14 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @param array<string, array<string>|string|bool|float> $customFields
-     * @param array<string>|bool|string|int|null $renderedFieldValue
-     * @param array<string, string> $config
+     * @param array<string, string|float|bool|list<string>|null> $customFields
+     * @param string|float|bool|list<string>|null $renderedFieldValue
+     * @param array{componentName: string}|array{} $config
      */
     #[DataProvider('customFieldRuleMatchDataProvider')]
     public function testCustomFieldRuleMatchesValues(
         array $customFields,
-        array|bool|string|int|null $renderedFieldValue,
+        array|bool|string|float|null $renderedFieldValue,
         string $type,
         string $operator,
         bool $isMatching,
@@ -69,9 +69,9 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<array<string|int, array<string>|string|bool|float|null>|bool|string|int|null>>
+     * @return \Generator<string, array{array<string, string|float|bool|list<string>|null>, string|float|bool|list<string>|null, string, string, bool, 5?: array{componentName: string}}>
      */
-    public static function customFieldRuleMatchDataProvider(): iterable
+    public static function customFieldRuleMatchDataProvider(): \Generator
     {
         // All boolean custom field types should behave the same
         yield from self::boolTypeDataProvider(CustomFieldTypes::BOOL);
@@ -164,9 +164,9 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<array<string, bool>|bool|string|null>>
+     * @return \Generator<string, array{array<string, bool>, bool|string|null, string, string, bool}>
      */
-    private static function boolTypeDataProvider(string $boolCustomFieldType): iterable
+    private static function boolTypeDataProvider(string $boolCustomFieldType): \Generator
     {
         yield $boolCustomFieldType . ': does not match missing value equals bool true' => [
             [],
@@ -354,9 +354,9 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<array<string, null>|bool|string>>
+     * @return \Generator<string, array{array<string, null>, string, string, string, bool}>
      */
-    private static function textTypeDataProvider(): iterable
+    private static function textTypeDataProvider(): \Generator
     {
         yield 'does match null not equals "testValue"' => [
             [self::CUSTOM_FIELD_NAME => null],
@@ -376,9 +376,9 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<array<string, string>|bool|string>>
+     * @return \Generator<string, array{array<string, string>, string, string, string, bool}>
      */
-    private static function stringTypeDataProvider(): iterable
+    private static function stringTypeDataProvider(): \Generator
     {
         yield 'does match same strings on equals' => [
             [self::CUSTOM_FIELD_NAME => 'my_test_value'],
@@ -398,13 +398,13 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<array<string, float>|bool|string|int>>
+     * @return \Generator<string, array{array<string, float>, float, string, string, bool}>
      */
-    private static function floatTypeDataProvider(): iterable
+    private static function floatTypeDataProvider(): \Generator
     {
         yield 'does match same float on equals' => [
             [self::CUSTOM_FIELD_NAME => 123.0],
-            123,
+            123.0,
             'float',
             Rule::OPERATOR_EQ,
             true,
@@ -412,9 +412,9 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<array<string|int, array<string>|string>|bool|string|null>>
+     * @return \Generator<string, array{array<string, list<string>>, list<string>|null, string, string, bool, 5?: array{componentName: string}}>
      */
-    private static function selectTypeDataProvider(): iterable
+    private static function selectTypeDataProvider(): \Generator
     {
         yield 'does not match selected options equals null' => [
             [self::CUSTOM_FIELD_NAME => ['option_1', 'option_2']],
@@ -525,9 +525,9 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<array<string,string>|bool|string>>
+     * @return \Generator<string, array{array<string, string>, string, string, string, bool}>
      */
-    private static function datetimeTypeDataProvider(): iterable
+    private static function datetimeTypeDataProvider(): \Generator
     {
         yield 'does not match missing value equals datetime' => [
             [],
@@ -651,9 +651,9 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<array<string, string>|bool|string>>
+     * @return \Generator<string, array{array<string, string>, string, string, string, bool}>
      */
-    private static function dateTypeDataProvider(): iterable
+    private static function dateTypeDataProvider(): \Generator
     {
         yield 'does not match missing value equals date' => [
             [],

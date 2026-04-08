@@ -84,4 +84,34 @@ class ProductExportExceptionTest extends TestCase
         static::assertSame(ProductExportException::SALES_CHANNEL_NOT_ALLOWED_EXCEPTION, $exception->getErrorCode());
         static::assertSame('Only sales channels from type "Storefront" can be used for exports.', $exception->getMessage());
     }
+
+    public function testSalesChannelDomainNotFound(): void
+    {
+        $exception = ProductExportException::salesChannelDomainNotFound('export-id');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(ProductExportException::SALES_CHANNEL_DOMAIN_NOT_FOUND_EXCEPTION, $exception->getErrorCode());
+        static::assertSame('No sales channel domain found for product export with id export-id', $exception->getMessage());
+        static::assertSame('export-id', $exception->getParameter('productExportId'));
+    }
+
+    public function testMalformedJsonlLine(): void
+    {
+        $exception = ProductExportException::malformedJsonlLine('Syntax error', 3);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(ProductExportException::JSONL_MALFORMED_LINE_EXCEPTION, $exception->getErrorCode());
+        static::assertSame('Syntax error', $exception->getMessage());
+        static::assertSame(['line' => 3], $exception->getParameters());
+    }
+
+    public function testJsonlLineMustDecodeToObject(): void
+    {
+        $exception = ProductExportException::jsonlLineMustDecodeToObject(7);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(ProductExportException::JSONL_LINE_NOT_OBJECT_EXCEPTION, $exception->getErrorCode());
+        static::assertSame('Each JSONL line must decode to an object.', $exception->getMessage());
+        static::assertSame(['line' => 7], $exception->getParameters());
+    }
 }

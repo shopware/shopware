@@ -235,7 +235,7 @@ class SnippetServiceTest extends TestCase
     }
 
     /**
-     * @param array<int, array<int, MessageCatalogue|array<int|string, string>>> $expectedResult
+     * @param array<string, string> $expectedResult
      */
     #[DataProvider('dataProviderForTestGetStorefrontSnippets')]
     public function testGetStorefrontSnippets(MessageCatalogueInterface $catalog, array $expectedResult): void
@@ -335,14 +335,23 @@ class SnippetServiceTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, MessageCatalogue|array<int|string, string>>>
+     * @return list<array{MessageCatalogue, array<string, string>}>
      */
     public static function dataProviderForTestGetStorefrontSnippets(): array
     {
         return [
-            [new MessageCatalogue('en', []), []],
-            [new MessageCatalogue('en', ['messages' => ['a' => 'a']]), ['a' => 'a']],
-            [new MessageCatalogue('en', ['messages' => ['a' => 'a', 'b' => 'b']]), ['a' => 'a', 'b' => 'b']],
+            [
+                new MessageCatalogue('en', []),
+                [],
+            ],
+            [
+                new MessageCatalogue('en', ['messages' => ['a' => 'a']]),
+                ['a' => 'a'],
+            ],
+            [
+                new MessageCatalogue('en', ['messages' => ['a' => 'a', 'b' => 'b']]),
+                ['a' => 'a', 'b' => 'b'],
+            ],
         ];
     }
 

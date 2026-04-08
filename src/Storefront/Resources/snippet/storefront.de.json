@@ -472,6 +472,7 @@
     "summaryNetPrice": "Gesamtnettosumme",
     "summaryTax": "zzgl. %rate% % MwSt.",
     "summaryTaxLabeled": "zzgl. %rate% % %label%",
+    "summaryTaxInclude": "inkl. %rate% % MwSt.",
     "summaryOffCanvasLabel": "Warenkorb-Zusammenfassung",
     "proceedLink": "Zur Kasse",
     "addressEqualText": "Entspricht der Lieferadresse",
@@ -736,6 +737,10 @@
           "solution": "Bitte versuche es erneut oder wende Dich an unseren Support."
         }
       }
+    },
+    "animation": {
+      "toggle": "Animation ein/aus",
+      "select": "Animation auswählen"
     }
   },
   "wishlist": {
@@ -839,7 +844,7 @@
           "false": "Nein"
         }
       },
-      "quantitySelect": {
+        "quantitySelect": {
         "legend": "Produkt Anzahl: Gib den gewünschten Wert ein oder benutze die Schaltflächen um die Anzahl zu erhöhen oder zu reduzieren.",
         "areaLiveText": "Anzahl für %product% ist %quantity%.",
         "label": "Anzahl",
@@ -847,7 +852,9 @@
         "increase": "Anzahl erhöhen",
         "increaseOfProduct": "Erhöhe die Anzahl von %product%",
         "decrease": "Anzahl verringern",
-        "decreaseOfProduct": "Verringere die Anzahl %product%"
+        "decreaseOfProduct": "Verringere die Anzahl %product%",
+        "stockAdjusted": "Ihre Menge wurde auf %quantity% aktualisiert.",
+        "outOfStock": "Das Produkt ist nicht mehr verfügbar."
       },
       "configurator": {
         "legend": "%group_name%<span class=\"%hidden_cls%\">&nbsp;auswählen</span>"

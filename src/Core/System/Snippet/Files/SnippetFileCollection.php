@@ -134,11 +134,19 @@ class SnippetFileCollection extends Collection
         if ($this->mapping === null) {
             $this->mapping = [];
             foreach ($this->elements as $element) {
-                $this->mapping[(string) realpath($element->getPath())] = true;
+                $realPath = realpath($element->getPath());
+                if ($realPath !== false) {
+                    $this->mapping[$realPath] = true;
+                }
             }
         }
 
-        return isset($this->mapping[realpath($filePath)]);
+        $realFilePath = realpath($filePath);
+        if ($realFilePath === false) {
+            return false;
+        }
+
+        return isset($this->mapping[$realFilePath]);
     }
 
     protected function getExpectedClass(): ?string

@@ -2,14 +2,12 @@
 
 namespace Shopware\Tests\DevOps\Core\DevOps;
 
-use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
  */
-#[CoversNothing]
 class ADRValidationTest extends TestCase
 {
     public function testADRValidation(): void

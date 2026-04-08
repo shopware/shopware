@@ -78,8 +78,11 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     #[Route(
         path: '/store-api/product/{productId}',
         name: 'store-api.product.detail',
-        methods: [Request::METHOD_POST, Request::METHOD_GET],
-        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ProductDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
+        defaults: [
+            PlatformRequest::ATTRIBUTE_ENTITY => ProductDefinition::ENTITY_NAME,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_POST, Request::METHOD_GET]
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
     {
@@ -107,6 +110,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $criteria->setIds([$productId]);
             $criteria->setTitle('product-detail-route');
 
+            $loadCmsPage = !$request->query->getBoolean(self::SKIP_CMS_PAGE);
             $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
             if (!$product instanceof SalesChannelProductEntity) {
                 throw ProductException::productNotFound($productId);
@@ -123,7 +127,6 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $loadConfigurator = !$request->query->getBoolean(self::SKIP_CONFIGURATOR);
             $configurator = $loadConfigurator ? $this->configuratorLoader->load($product, $context) : null;
 
-            $loadCmsPage = !$request->query->getBoolean(self::SKIP_CMS_PAGE);
             $pageId = $product->getCmsPageId();
             if ($loadCmsPage && $pageId) {
                 // clone product to prevent recursion encoding (see NEXT-17603)

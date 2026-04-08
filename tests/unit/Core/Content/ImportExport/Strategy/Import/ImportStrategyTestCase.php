@@ -18,7 +18,9 @@ abstract class ImportStrategyTestCase extends TestCase
 {
     protected EventDispatcherInterface&MockObject $eventDispatcher;
 
-    /** @var EntityRepository<MediaCollection>&MockObject */
+    /**
+     * @var EntityRepository<MediaCollection>&MockObject
+     */
     protected EntityRepository&MockObject $repository;
 
     protected function setUp(): void
@@ -27,6 +29,9 @@ abstract class ImportStrategyTestCase extends TestCase
         $this->repository = $this->createMock(EntityRepository::class);
     }
 
+    /**
+     * @return \Generator<string, array{config: Config, method: 'create'|'update'|'upsert'}>
+     */
     public static function importProvider(): \Generator
     {
         yield 'createEntities' => [

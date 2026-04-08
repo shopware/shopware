@@ -116,6 +116,14 @@ describe('form-validation', () => {
         expect(emailField.classList).not.toContain(formValidation.config.invalidClass);
         expect(emailFeedback.innerHTML).toBe('');
 
+        // Valid ASCII email field with special characters
+        emailField.value = 'test!#$%&\'*+-/=?^_`{|}~@test.com';
+
+        invalidFields = formValidation.validateForm(form);
+        expect(invalidFields.length).toBe(2);
+        expect(emailField.classList).not.toContain(formValidation.config.invalidClass);
+        expect(emailFeedback.innerHTML).toBe('');
+
         // Valid ASCII email field
         emailField.value = 'test@test.com';
 

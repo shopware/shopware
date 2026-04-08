@@ -66,7 +66,7 @@ readonly class Metric
 
         return array_filter(
             $metric->labels,
-            fn (mixed $value, string $name) => isset($allowedLabels[$name]) && \in_array($value, $allowedLabels[$name]['allowed_values'] ?? [], true),
+            static fn (mixed $value, string $name) => isset($allowedLabels[$name]) && \in_array($value, $allowedLabels[$name]['allowed_values'] ?? [], true),
             \ARRAY_FILTER_USE_BOTH
         );
     }

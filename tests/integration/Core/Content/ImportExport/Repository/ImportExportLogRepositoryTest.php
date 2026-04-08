@@ -174,7 +174,7 @@ class ImportExportLogRepositoryTest extends TestCase
                 }
             }
 
-            $missingPropertyPaths = array_map(fn ($property) => '/' . $property, $requiredProperties);
+            $missingPropertyPaths = array_map(static fn ($property) => '/' . $property, $requiredProperties);
 
             static::assertSame($missingPropertyPaths, $foundViolations);
         }
@@ -280,13 +280,12 @@ class ImportExportLogRepositoryTest extends TestCase
 
             // Remove property before write
             $property = array_pop($properties);
-            if ($property === 'id') {
+            if ($property === 'id' || $property === null) {
                 continue;
             }
             unset($upsertData[$id][$property]);
         }
 
-        static::assertNotEmpty($upsertData);
         $this->logRepository->upsert(array_values($upsertData), $this->context);
 
         $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
@@ -380,7 +379,7 @@ class ImportExportLogRepositoryTest extends TestCase
     /**
      * Prepare a defined number of test data.
      *
-     * @return array<string, array<string, mixed>>
+     * @return non-empty-array<string, array<string, mixed>>
      */
     protected function prepareImportExportLogTestData(int $num = 1, string $add = ''): array
     {
@@ -421,6 +420,7 @@ class ImportExportLogRepositoryTest extends TestCase
                 'config' => ['profile' => $profile],
             ];
         }
+        static::assertNotSame([], $data);
 
         return $data;
     }

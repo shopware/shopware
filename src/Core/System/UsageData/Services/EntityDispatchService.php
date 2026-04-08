@@ -100,7 +100,7 @@ class EntityDispatchService
             );
         }
 
-        $this->systemConfigService->set(self::SYSTEM_CONFIG_KEY_LAST_ENTITY_SYNC_RUN, $runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        $this->systemConfigService->set(self::SYSTEM_CONFIG_KEY_LAST_ENTITY_SYNC_RUN, $runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), null, true);
     }
 
     public function resetLastRunDateForAllEntities(): void

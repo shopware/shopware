@@ -73,7 +73,7 @@ class OrderService
         $isDownloadLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_DIGITAL);
 
         if (!Feature::isActive('v6.8.0.0')) {
-            Feature::callSilentIfInactive('v6.8.0.0', function () use ($cart, &$isDownloadLineItem): void {
+            Feature::callSilentIfInactive('v6.8.0.0', static function () use ($cart, &$isDownloadLineItem): void {
                 $isDownloadLineItem = $isDownloadLineItem || $cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD);
             });
         }

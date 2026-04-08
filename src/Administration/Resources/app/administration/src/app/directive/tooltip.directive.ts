@@ -15,8 +15,7 @@ const availableTooltipPlacements: Placements[] = [
 /**
  * @private
  */
-// eslint-disable-next-line max-len
-// eslint-disable-next-line no-use-before-define,import/prefer-default-export,sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const tooltipRegistry = new Map<string, Tooltip>();
 
 /**
@@ -558,7 +557,6 @@ Shopware.Directive.register('tooltip', {
     },
 
     updated: (el: HTMLElement, binding) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         createOrUpdateTooltip(el, binding);
     },
 
@@ -568,7 +566,6 @@ Shopware.Directive.register('tooltip', {
     mounted: (el: HTMLElement) => {
         if (el.hasAttribute('tooltip-id')) {
             const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id')!);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             tooltip!.init();
         }
     },

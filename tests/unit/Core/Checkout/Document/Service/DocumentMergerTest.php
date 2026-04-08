@@ -108,7 +108,7 @@ class DocumentMergerTest extends TestCase
         $mediaService = $this->createMock(MediaService::class);
         $mediaService->expects($this->exactly(2))
             ->method('loadFileStream')
-            ->willReturnCallback(function () {
+            ->willReturnCallback(static function () {
                 return Utils::streamFor();
             });
 
@@ -167,7 +167,7 @@ class DocumentMergerTest extends TestCase
         $documentGenerator = $this->createMock(DocumentGenerator::class);
         $documentGenerator->expects($this->exactly(1))
             ->method('generate')
-            ->willReturnCallback(function (string $documentType, array $operations) {
+            ->willReturnCallback(static function (string $documentType, array $operations) {
                 $ids = array_keys($operations);
                 $result = new DocumentGenerationResult();
 
@@ -220,7 +220,7 @@ class DocumentMergerTest extends TestCase
         $mediaService = $this->createMock(MediaService::class);
         $mediaService->expects($this->once())
             ->method('loadFileStream')
-            ->willReturnCallback(function () {
+            ->willReturnCallback(static function () {
                 return Utils::streamFor();
             });
 
@@ -417,7 +417,7 @@ class DocumentMergerTest extends TestCase
         $matcher = $this->exactly(2);
         $mockFpdi->expects($matcher)
             ->method('AddPage')
-            ->willReturnCallback(function ($orientation, $size) use ($matcher): void {
+            ->willReturnCallback(static function ($orientation, $size) use ($matcher): void {
                 $invocation = $matcher->numberOfInvocations();
                 if ($invocation === 1) {
                     static::assertSame('L', $orientation, 'First call: orientation should be L');

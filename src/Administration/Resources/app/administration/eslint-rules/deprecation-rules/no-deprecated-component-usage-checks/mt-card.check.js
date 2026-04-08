@@ -250,23 +250,6 @@ const mtCardInvalidTests = [
         ]
     },
     {
-        name: '"mt-card" wrong "content-padding" attribute usage [with bind]',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-card :content-padding="1 == 1">Hello World</mt-card>
-            </template>`,
-        output: `
-            <template>
-                <mt-card >Hello World</mt-card>
-            </template>`,
-        errors: [
-            {
-                message: '[mt-card] The "content-padding" prop was removed.',
-            }
-        ]
-    },
-    {
         name: '"mt-card" wrong "content-padding" attribute usage [with bind, disable fix]',
         filename: 'test.html.twig',
         options: ['disableFix'],

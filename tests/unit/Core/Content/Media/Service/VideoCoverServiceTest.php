@@ -70,7 +70,7 @@ class VideoCoverServiceTest extends TestCase
             ->expects($this->once())
             ->method('update')
             ->with(
-                static::callback(function (array $updates) use ($videoId, $coverId) {
+                static::callback(static function (array $updates) use ($videoId, $coverId) {
                     static::assertCount(1, $updates);
                     static::assertSame($videoId, $updates[0]['id']);
                     static::assertSame(['video' => ['coverMediaId' => $coverId]], $updates[0]['metaData']);
@@ -104,7 +104,7 @@ class VideoCoverServiceTest extends TestCase
             ->expects($this->once())
             ->method('update')
             ->with(
-                static::callback(function (array $updates) use ($videoId) {
+                static::callback(static function (array $updates) use ($videoId) {
                     static::assertCount(1, $updates);
                     static::assertSame($videoId, $updates[0]['id']);
                     static::assertNull($updates[0]['metaData']);
@@ -236,7 +236,7 @@ class VideoCoverServiceTest extends TestCase
             ->expects($this->once())
             ->method('update')
             ->with(
-                static::callback(function (array $updates) use ($videoId, $coverId) {
+                static::callback(static function (array $updates) use ($videoId, $coverId) {
                     static::assertCount(1, $updates);
                     static::assertSame($videoId, $updates[0]['id']);
                     static::assertSame(

@@ -90,7 +90,7 @@ class StorefrontSubscriberTest extends TestCase
         $eventIsThrown = false;
         $eventDispatcher->addListener(
             MaintenanceRedirectEvent::class,
-            function () use (&$eventIsThrown): void {
+            static function () use (&$eventIsThrown): void {
                 $eventIsThrown = true;
             }
         );
@@ -144,7 +144,7 @@ class StorefrontSubscriberTest extends TestCase
         $eventIsThrown = false;
         $eventDispatcher->addListener(
             MaintenanceRedirectEvent::class,
-            function (MaintenanceRedirectEvent $event) use (&$eventIsThrown): void {
+            static function (MaintenanceRedirectEvent $event) use (&$eventIsThrown): void {
                 $parameters = $event->getParameters();
                 static::assertEquals('product_page', $parameters['redirectTo']);
                 static::assertEquals('{"bar":"foo","foo":"bar","productId":123}', $parameters['redirectParameters']);
@@ -273,7 +273,7 @@ class StorefrontSubscriberTest extends TestCase
     {
         $event = new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
-            function (): void {},
+            static function (): void {},
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );

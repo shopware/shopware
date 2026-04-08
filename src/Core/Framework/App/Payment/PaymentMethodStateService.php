@@ -40,7 +40,7 @@ class PaymentMethodStateService
 
         $templates = $this->paymentMethodRepository->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => $newActiveState], $templates);
+        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => $newActiveState], $templates);
 
         $this->paymentMethodRepository->update($updateSet, $context);
     }

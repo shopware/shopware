@@ -65,7 +65,7 @@ class StagingExtensionHandlerTest extends TestCase
         $dataProvider
             ->expects($this->once())
             ->method('getInstalledExtensions')
-            ->willReturnCallback(function (Context $passedContext, bool $loadCloudExtensions, $criteria) use ($extensions) {
+            ->willReturnCallback(static function (Context $passedContext, bool $loadCloudExtensions, $criteria) use ($extensions) {
                 // The handler passes a Criteria filtered by names; we just return our collection
                 return $extensions;
             });

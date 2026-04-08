@@ -78,7 +78,7 @@ class WebhookLoader
         $webhooks = $this->connection->fetchAllAssociative($sql);
 
         return array_map(
-            fn (array $webhook) => new Webhook(
+            static fn (array $webhook) => new Webhook(
                 $webhook['webhookId'],
                 $webhook['webhookName'],
                 $webhook['eventName'],

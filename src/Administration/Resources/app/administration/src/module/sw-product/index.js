@@ -7,7 +7,7 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-product-basic-form', () => import('./component/sw-product-basic-form'));
 Shopware.Component.register('sw-product-deliverability-form', () => import('./component/sw-product-deliverability-form'));
 Shopware.Component.register(
@@ -111,7 +111,7 @@ Shopware.Component.register('sw-product-detail-cross-selling', () => import('./v
 Shopware.Component.register('sw-product-detail-reviews', () => import('./view/sw-product-detail-reviews'));
 Shopware.Component.register('sw-product-list', () => import('./page/sw-product-list'));
 Shopware.Component.register('sw-product-detail', () => import('./page/sw-product-detail'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-product', {

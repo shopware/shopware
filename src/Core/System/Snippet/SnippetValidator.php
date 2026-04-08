@@ -117,7 +117,7 @@ readonly class SnippetValidator implements SnippetValidatorInterface
 
     protected function getAllFiles(): SnippetFileCollection
     {
-        $snippetFiles = $this->loadedSnippetFiles->filter(function (AbstractSnippetFile $snippetFile) {
+        $snippetFiles = $this->loadedSnippetFiles->filter(static function (AbstractSnippetFile $snippetFile) {
             return $snippetFile instanceof GenericSnippetFile;
         });
 

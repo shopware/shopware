@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Content\Media\Thumbnail\ExternalThumbnailCollection;
+use Shopware\Core\Content\Media\Thumbnail\ExternalThumbnailData;
 use Shopware\Core\Content\Media\Upload\MediaUploadParameters;
 use Shopware\Core\Framework\Log\Package;
 
@@ -190,5 +192,28 @@ class MediaUploadParametersTest extends TestCase
         $result = $parameters->getFileNameExtension();
 
         static::assertSame('htaccess', $result);
+    }
+
+    public function testGetThumbnailsReturnsEmptyCollectionByDefault(): void
+    {
+        $parameters = new MediaUploadParameters();
+
+        static::assertCount(0, $parameters->getThumbnails());
+    }
+
+    public function testGetThumbnailsReturnsProvidedThumbnails(): void
+    {
+        $thumbnail = new ExternalThumbnailData(
+            url: 'https://localhost:8000/thumb.jpg',
+            width: 200,
+            height: 200
+        );
+        $collection = new ExternalThumbnailCollection([$thumbnail]);
+        $parameters = new MediaUploadParameters(thumbnails: $collection);
+
+        $result = $parameters->getThumbnails();
+
+        static::assertCount(1, $result);
+        static::assertSame($thumbnail, $result->first());
     }
 }

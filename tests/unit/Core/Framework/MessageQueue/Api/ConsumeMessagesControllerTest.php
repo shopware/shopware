@@ -52,7 +52,7 @@ class ConsumeMessagesControllerTest extends TestCase
             ->willReturn($lock);
 
         $controller = new ConsumeMessagesController(
-            new ServiceLocator(['async' => function (): \ArrayObject {
+            new ServiceLocator(['async' => static function (): \ArrayObject {
                 return new \ArrayObject();
             }]),
             $this->createMock(MessageBusInterface::class),

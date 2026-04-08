@@ -285,7 +285,6 @@ export default {
                 const behavior = {
                     cloneChildren: true,
                     overwrites: {
-                        // eslint-disable-next-line max-len
                         name: `${this.productStream.name || this.productStream.translated.name} ${this.$tc('global.default.copy')}`,
                     },
                 };

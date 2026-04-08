@@ -36,7 +36,7 @@ class ConfigurationRequirementsValidatorTest extends TestCase
     public function testValidateRequirements(array $iniValues, array $expectedChecks): void
     {
         $this->configReader->method('get')->willReturnCallback(
-            fn ($arg) => $iniValues[$arg] ?? ''
+            static fn ($arg) => $iniValues[$arg] ?? ''
         );
 
         $checks = $this->validator->validateRequirements(new RequirementsCheckCollection());

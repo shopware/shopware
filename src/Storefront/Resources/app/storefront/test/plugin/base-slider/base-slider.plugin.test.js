@@ -152,9 +152,9 @@ describe('BaseSliderPlugin tests', () => {
         focusEvent.key = 'Tab';
         focusElement.dispatchEvent(focusEvent);
 
-        expect(spyGetInfo).toBeCalled();
-        expect(spyPause).toBeCalled();
-        expect(spyGoTo).toBeCalled();
+        expect(spyGetInfo).toHaveBeenCalled();
+        expect(spyPause).toHaveBeenCalled();
+        expect(spyGoTo).toHaveBeenCalled();
 
         const scrollEvent = new Event('scroll');
         const scrollEventSpy = jest.spyOn(scrollEvent, 'preventDefault');
@@ -162,6 +162,6 @@ describe('BaseSliderPlugin tests', () => {
         sliderElement.dispatchEvent(scrollEvent);
 
         expect(sliderElement.scrollLeft).toBe(0);
-        expect(scrollEventSpy).toBeCalled();
+        expect(scrollEventSpy).toHaveBeenCalled();
     });
 });

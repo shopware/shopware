@@ -36,14 +36,41 @@ class VideoCmsElementResolver extends AbstractCmsElementResolver
 
         if (
             $mediaConfig === null
-            || $mediaConfig->isMapped()
             || $mediaConfig->isDefault()
             || $mediaConfig->getValue() === null
         ) {
             return null;
         }
 
-        $criteria = new Criteria([$mediaConfig->getStringValue()]);
+        $mediaId = null;
+
+        if ($mediaConfig->isMapped()) {
+            if (!$resolverContext instanceof EntityResolverContext) {
+                return null;
+            }
+
+            $mappedMedia = $this->resolveEntityValue($resolverContext->getEntity(), $mediaConfig->getStringValue());
+
+            if ($mappedMedia instanceof MediaEntity) {
+                return null;
+            }
+
+            if (!\is_string($mappedMedia) || $mappedMedia === '') {
+                return null;
+            }
+
+            $mediaId = $mappedMedia;
+        }
+
+        if ($mediaConfig->isStatic()) {
+            $mediaId = $mediaConfig->getStringValue();
+        }
+
+        if ($mediaId === null) {
+            return null;
+        }
+
+        $criteria = new Criteria([$mediaId]);
 
         $criteriaCollection = new CriteriaCollection();
         $criteriaCollection->add('media_' . $slot->getUniqueIdentifier(), MediaDefinition::class, $criteria);
@@ -91,6 +118,24 @@ class VideoCmsElementResolver extends AbstractCmsElementResolver
             if ($media instanceof MediaEntity) {
                 $video->setMediaId($media->getUniqueIdentifier());
                 $video->setMedia($media);
+
+                return;
+            }
+
+            if (\is_string($media) && $media !== '') {
+                $video->setMediaId($media);
+
+                $searchResult = $result->get('media_' . $slot->getUniqueIdentifier());
+                if (!$searchResult) {
+                    return;
+                }
+
+                $mappedMedia = $searchResult->get($media);
+                if (!$mappedMedia instanceof MediaEntity) {
+                    return;
+                }
+
+                $video->setMedia($mappedMedia);
             }
 
             return;

@@ -1,14 +1,22 @@
 import { test } from '@fixtures/AcceptanceTest';
 import { FlowConfig } from '@shopware-ag/acceptance-test-suite';
 
-test('As an admin user, I want to create a new flow', { tag: '@Flow' }, async ({
+test('As an admin user, I want to create a new flow', { 
+    tag: '@Flow',
+    annotation: {
+        type: 'issue',
+        description: 'https://github.com/shopware/shopware/issues/15749' },
+}, async ({
     ShopAdmin,
     AdminFlowBuilderListing,
     AdminFlowBuilderDetail,
     IdProvider,
     TestDataService,
     CreateFlow,
+    InstanceMeta,
 }) => {
+
+    test.skip(InstanceMeta.isSaaS, 'Test is skipped in SaaS due to flakiness');
 
     const uniqueId = IdProvider.getIdPair().uuid;
     const tagName = (`Test tag - ${uniqueId}`);

@@ -15,7 +15,7 @@ final class DocumentRendererRegistry
      *
      * @param AbstractDocumentRenderer[] $documentRenderers
      */
-    public function __construct(protected iterable $documentRenderers)
+    public function __construct(private iterable $documentRenderers)
     {
     }
 

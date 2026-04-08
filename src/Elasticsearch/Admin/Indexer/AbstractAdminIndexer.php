@@ -65,7 +65,18 @@ abstract class AbstractAdminIndexer
      */
     abstract public function globalData(array $result, Context $context): array;
 
+    /**
+     * @description use for \Shopware\Elasticsearch\Admin\AdminSearcher::search for the global api/es-search endpoint
+     */
     public function globalCriteria(string $term, Search $criteria): Search
+    {
+        return $criteria;
+    }
+
+    /**
+     * @description use for \Shopware\Elasticsearch\Admin\AdminSearcher::searchIds for api/{entity}/search-ids endpoint
+     */
+    public function moduleCriteria(string $term, Search $criteria): Search
     {
         return $criteria;
     }

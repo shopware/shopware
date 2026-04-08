@@ -65,8 +65,8 @@ class Migration1716196653AddTechnicalNameToImportExportProfileTest extends TestC
     }
 
     /**
-     * @param array<int, string> $names
-     * @param array<int, string> $expectedTechnicalNames
+     * @param list<string|null> $names
+     * @param list<string> $expectedTechnicalNames
      */
     #[DataProvider('nameProvider')]
     public function testGeneratedTechnicalName(array $names, array $expectedTechnicalNames): void

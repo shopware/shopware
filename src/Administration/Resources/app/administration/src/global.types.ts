@@ -3,9 +3,7 @@
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable import/no-named-default */
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import type { default as Bottle, Decorator } from 'bottlejs';
 import type { NavigationGuardNext, RouteLocationNormalizedLoaded, RouteLocationRaw, Router } from 'vue-router';
 // Import explicitly global types from meteor-admin-sdk
@@ -68,7 +66,6 @@ import type RuleConditionService from './app/service/rule-condition.service';
 import type SystemConfigApiService from './core/service/api/system-config.api.service';
 import type UpdateApiService from './core/service/api/update.api.service';
 import type UserRecoveryApiService from './core/service/api/user-recovery.api.service';
-import type { UsageDataApiService } from './core/service/api/usage-data.api.service';
 import type ConfigApiService from './core/service/api/config.api.service';
 import type ImportExportService from './module/sw-import-export/service/importExport.service';
 import type WorkerNotificationFactory from './core/factory/worker-notification.factory';
@@ -122,7 +119,6 @@ import type { SidebarStore } from './app/store/sidebar.store';
 import type { MenuItemStore } from './app/store/menu-item.store';
 import type { NotificationStore } from './app/store/notification.store';
 import type { TabsStore } from './app/store/tabs.store';
-import type { UsageData } from './app/store/usage-data.store';
 import type { SessionStore } from './app/store/session.store';
 import type { SwCategoryDetailStore } from './module/sw-category/page/sw-category-detail/store';
 import type { SwSeoUrlStore } from './module/sw-settings-seo/component/sw-seo-url/store';
@@ -136,7 +132,6 @@ import type { SwProfileStore } from './module/sw-profile/store/sw-profile.store'
 import type { SwPromotionDetailStore } from './module/sw-promotion-v2/page/sw-promotion-v2-detail/store';
 import type { SwFlowStore } from './module/sw-flow/store/flow.store';
 import type { SwBulkStore } from './app/store/sw-bulk-edit.store';
-// eslint-disable-next-line max-len
 import type createTextEditorDataMappingButton from './app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
 import type SsoSettingsService from './core/service/api/sso-settings.service';
 import type SsoInvitationService from './core/service/api/sso-invitation.service';
@@ -145,6 +140,7 @@ import type CUSTOMERConstant from './module/sw-customer/constant/sw-customer.con
 import type FLOWConstant from './module/sw-flow/constant/flow.constant';
 import type SnippetApiService from './core/service/api/snippet.api.service';
 import type ConsentApiService from './core/consent/consent.api.service';
+import type ValidationApiService from './core/service/api/validation.api.service';
 // trick to make it an "external module" to support global type extension
 
 // base methods for subContainer
@@ -224,7 +220,7 @@ declare global {
         _sw_extension_component_collection: DevtoolComponent[];
         _swLoginOverrides?: Array<() => void>;
         startApplication: () => void;
-        _pageLoadTime_: number;
+        removePageLoadingIndicator: () => void;
     }
 
     const _features_: {
@@ -236,7 +232,6 @@ declare global {
     /**
      * Define global container for the bottle.js containers
      */
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface ServiceContainer extends SubContainer<'service'> {
         acl: AclService;
         appAclService: $TSFixMe;
@@ -290,7 +285,6 @@ declare global {
         systemConfigApiService: SystemConfigApiService;
         timezoneService: $TSFixMe;
         updateService: UpdateApiService;
-        usageDataService: UsageDataApiService;
         userActivityService: UserActivityService;
         userRecoveryService: UserRecoveryApiService;
         userService: UserApiService;
@@ -301,6 +295,7 @@ declare global {
         shopIdChangeService: ShopIdChangeService;
         productTypeService: ProductTypeApiService;
         consentApiService: ConsentApiService;
+        validationApiService: ValidationApiService;
     }
 
     interface MixinContainer {
@@ -323,19 +318,16 @@ declare global {
         'discard-detail-page-changes': typeof DiscardDetailPageChangesMixin;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface InitContainer extends SubContainer<'init'> {
         state: $TSFixMe; // has to be removed once we moved to vite
         router: $TSFixMe;
         httpClient: AxiosInstance;
     }
-    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     interface InitPostContainer extends SubContainer<'init-post'> {}
     interface InitPreContainer extends SubContainer<'init-pre'> {
         state: $TSFixMe;
         apiServices: Promise<typeof ApiServiceFactory>;
     }
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface FactoryContainer extends SubContainer<'factory'> {
         component: typeof AsyncComponentFactory;
         template: $TSFixMe;
@@ -388,7 +380,6 @@ declare global {
      * Define global state for the Vuex store
      * @deprecated tag:v6.8.0 - Will be removed use PiniaRootState instead
      */
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface VuexRootState {
         swCategoryDetail: $TSFixMe;
     }
@@ -421,7 +412,6 @@ declare global {
         menuItem: MenuItemStore;
         notification: NotificationStore;
         tabs: TabsStore;
-        usageData: UsageData;
         session: SessionStore;
         swCategoryDetail: SwCategoryDetailStore;
         swSeoUrl: SwSeoUrlStore;
@@ -533,10 +523,8 @@ interface CustomProperties extends ServiceContainer {
 }
 
 declare module '@vue/runtime-core' {
-    // eslint-disable-next-line @typescript-eslint/no-shadow,@typescript-eslint/no-empty-interface
     interface App extends CustomProperties {}
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface ComponentCustomProperties extends CustomProperties {}
 
     interface ComponentCustomOptions {

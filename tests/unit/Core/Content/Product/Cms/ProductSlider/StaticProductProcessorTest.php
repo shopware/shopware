@@ -93,7 +93,7 @@ class StaticProductProcessorTest extends TestCase
 
         $this->eventDispatcher->expects($this->once())
             ->method('dispatch')
-            ->willReturnCallback(function (ProductSliderStaticCriteriaEvent $event): ProductSliderStaticCriteriaEvent {
+            ->willReturnCallback(static function (ProductSliderStaticCriteriaEvent $event): ProductSliderStaticCriteriaEvent {
                 $event->criteria->addAssociation('manufacturer');
 
                 return $event;

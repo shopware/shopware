@@ -741,7 +741,7 @@ class VersioningTest extends TestCase
         $products = $this->connection->fetchAllAssociative('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
         static::assertCount(2, $products);
 
-        $versions = array_map(fn ($item) => Uuid::fromBytesToHex($item['version_id']), $products);
+        $versions = array_map(static fn ($item) => Uuid::fromBytesToHex($item['version_id']), $products);
 
         static::assertContains(Defaults::LIVE_VERSION, $versions);
         static::assertContains($versionId, $versions);
@@ -749,7 +749,7 @@ class VersioningTest extends TestCase
         $prices = $this->connection->fetchAllAssociative('SELECT * FROM product_price WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
         static::assertCount(4, $prices);
 
-        $versionPrices = array_filter($prices, function (array $price) use ($versionId) {
+        $versionPrices = array_filter($prices, static function (array $price) use ($versionId) {
             $version = Uuid::fromBytesToHex($price['version_id']);
 
             return $version === $versionId;
@@ -795,7 +795,7 @@ class VersioningTest extends TestCase
         );
         static::assertCount(2, $products);
 
-        $versions = array_map(fn ($item) => Uuid::fromBytesToHex($item['version_id']), $products);
+        $versions = array_map(static fn ($item) => Uuid::fromBytesToHex($item['version_id']), $products);
 
         static::assertContains(Defaults::LIVE_VERSION, $versions);
         static::assertContains($versionId, $versions);
@@ -2064,7 +2064,7 @@ class VersioningTest extends TestCase
             ]
         );
 
-        return array_map(function (array $row) {
+        return array_map(static function (array $row) {
             $row['entity_id'] = json_decode((string) $row['entity_id'], true, 512, \JSON_THROW_ON_ERROR);
             $row['payload'] = json_decode((string) $row['payload'], true, 512, \JSON_THROW_ON_ERROR);
 
@@ -2093,7 +2093,7 @@ class VersioningTest extends TestCase
             ]
         );
 
-        return array_map(function (array $row) {
+        return array_map(static function (array $row) {
             $row['entity_id'] = json_decode((string) $row['entity_id'], true, 512, \JSON_THROW_ON_ERROR);
             $row['payload'] = json_decode((string) $row['payload'], true, 512, \JSON_THROW_ON_ERROR);
 
@@ -2122,7 +2122,7 @@ class VersioningTest extends TestCase
             ]
         );
 
-        return array_map(function (array $row) {
+        return array_map(static function (array $row) {
             $row['entity_id'] = json_decode((string) $row['entity_id'], true, 512, \JSON_THROW_ON_ERROR);
             $row['payload'] = json_decode((string) $row['payload'], true, 512, \JSON_THROW_ON_ERROR);
 

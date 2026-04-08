@@ -6,7 +6,6 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -28,7 +27,6 @@ use Symfony\Contracts\Cache\CacheInterface;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(StoreClient::class)]
 class StoreClientTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -142,7 +140,7 @@ class StoreClientTest extends TestCase
 
         static::assertSame([], $updateList);
 
-        $cachedList = $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, fn () => null);
+        $cachedList = $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, static fn () => null);
 
         static::assertIsArray($cachedList);
         static::assertSame([], $cachedList);
@@ -192,7 +190,7 @@ class StoreClientTest extends TestCase
         static::assertSame('1.1.0', $updateList[0]->getVersion());
         static::assertSame('feature1,feature2', $updateList[0]->getInAppFeatures());
 
-        $cachedList = $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, fn () => null);
+        $cachedList = $this->cache->get(StoreClient::EXTENSION_LIST_CACHE, static fn () => null);
 
         static::assertIsArray($cachedList);
         static::assertCount(1, $cachedList);

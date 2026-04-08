@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 import initializeLocaleService from 'src/app/init/locale.init';
-import initializeApiServices from 'src/app/init-pre/api-services.init';
 
 describe('src/app/init/locale.init.ts', () => {
     beforeAll(() => {
@@ -17,24 +16,12 @@ describe('src/app/init/locale.init.ts', () => {
             },
         });
 
-        // Mock login service
-        Shopware.Service().register('loginService', () => {
+        Shopware.Service().register('snippetService', () => {
             return {
-                getToken: () => 'valid-token',
+                getLocales: jest.fn().mockResolvedValue([]),
+                getSnippets: jest.fn().mockResolvedValue({}),
             };
         });
-
-        // Mock httpClient in init
-        Shopware.Application.addInitializer('httpClient', () => {
-            return {
-                get: jest.fn().mockResolvedValue({ data: {} }),
-                post: jest.fn().mockResolvedValue({ data: {} }),
-                put: jest.fn().mockResolvedValue({ data: {} }),
-                delete: jest.fn().mockResolvedValue({ data: {} }),
-            };
-        });
-
-        initializeApiServices();
     });
 
     it('should register the locale factory with correct snippet languages', async () => {

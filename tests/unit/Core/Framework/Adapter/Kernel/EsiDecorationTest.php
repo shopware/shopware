@@ -39,7 +39,7 @@ class EsiDecorationTest extends TestCase
     {
         $this->kernel
             ->method('handle')
-            ->willReturnCallback(function (Request $request) {
+            ->willReturnCallback(static function (Request $request) {
                 static::assertTrue($request->attributes->getBoolean('_sw_esi'));
 
                 return new Response('foo');
@@ -87,7 +87,7 @@ class EsiDecorationTest extends TestCase
     {
         $this->kernel
             ->method('handle')
-            ->willReturnCallback(function (Request $request) {
+            ->willReturnCallback(static function (Request $request) {
                 if ($request->getPathInfo() === '/foo') {
                     return new Response('foo', Response::HTTP_INTERNAL_SERVER_ERROR);
                 }

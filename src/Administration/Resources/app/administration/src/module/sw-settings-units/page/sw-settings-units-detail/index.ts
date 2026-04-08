@@ -102,7 +102,6 @@ export default Component.wrapComponentConfig({
                 this.isLoading = false;
             })
             .catch(() => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationError({
                     message: this.$tc('sw-settings-units.notification.errorMessage'),
                 });
@@ -123,7 +122,6 @@ export default Component.wrapComponentConfig({
                     this.isLoading = false;
                 })
                 .catch((error: { message: string }) => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     this.createNotificationError({
                         message: this.$tc(error.message),
                     });
@@ -149,7 +147,6 @@ export default Component.wrapComponentConfig({
                     this.isLoading = false;
                 })
                 .catch(() => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     this.createNotificationError({
                         message: this.$tc('sw-settings-units.notification.errorMessage'),
                     });

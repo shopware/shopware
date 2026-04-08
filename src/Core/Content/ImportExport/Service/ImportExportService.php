@@ -221,7 +221,7 @@ class ImportExportService
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($logEntity): void {
-            $logData = array_filter($logEntity->jsonSerialize(), fn ($value) => $value !== null);
+            $logData = array_filter($logEntity->jsonSerialize(), static fn ($value) => $value !== null);
             $this->logRepository->create([$logData], $context);
         });
 

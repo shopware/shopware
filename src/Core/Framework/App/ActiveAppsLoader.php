@@ -60,7 +60,7 @@ class ActiveAppsLoader implements ResetInterface
                 WHERE `active` = 1
             ');
 
-            return array_map(fn (array $app) => [
+            return array_map(static fn (array $app) => [
                 'name' => $app['name'],
                 'path' => $app['path'],
                 'author' => $app['author'],

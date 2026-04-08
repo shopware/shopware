@@ -5,7 +5,6 @@
  */
 import Axios from 'axios';
 import AxiosV1 from 'axios-v1';
-import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
 import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
 import { createAxiosV0Adapter, createAxiosV1Adapter } from 'src/core/factory/http-client-adapter';
 
@@ -378,7 +377,7 @@ function handleErrorStates({ status, errors, error = null, data }) {
  * @returns {AxiosInstance}
  */
 function refreshTokenInterceptor(client) {
-    const tokenHandler = getRefreshTokenHelper();
+    const skipList = ['/oauth/token'];
 
     client.interceptors.response.use(
         (response) => {
@@ -390,24 +389,37 @@ function refreshTokenInterceptor(client) {
             const originalRequest = config;
             const resource = originalRequest.url?.replace(originalRequest.baseURL, '');
 
-            // eslint-disable-next-line inclusive-language/use-inclusive-words
-            if (tokenHandler.whitelist.includes(resource)) {
+            if (skipList.includes(resource)) {
+                // For /oauth/token endpoint, reject immediately to avoid infinite loops
+                // This endpoint returns 400 when token is revoked (invalid_grant error)
                 return Promise.reject(error);
             }
 
             if (status === 401) {
-                if (!tokenHandler.isRefreshing) {
-                    tokenHandler.fireRefreshTokenRequest().catch(() => {
-                        return Promise.reject(error);
-                    });
+                const errorCode = error.response?.data?.errors?.[0]?.code;
+
+                // Do not retry on SSO_LOGIN__TOKEN_NOT_FOUND 401 error that is not related to an expired admin token
+                if (errorCode === 'SSO_LOGIN__TOKEN_NOT_FOUND') {
+                    return Promise.reject(error);
                 }
 
+                // Prevent infinite retry loops - only allow one token refresh retry per request
+                if (originalRequest._tokenRefreshRetry) {
+                    return Promise.reject(error);
+                }
+
+                const loginService = Shopware.Service('loginService');
+
+                // Intentionally ignore refresh token errors here; they are handled via subscribeToTokenRefresh.
+                loginService.refreshToken().catch(() => undefined);
+
                 return new Promise((resolve, reject) => {
-                    tokenHandler.subscribe(
+                    loginService.subscribeToTokenRefresh(
                         (newToken) => {
                             // replace the expired token and retry
                             originalRequest.headers.Authorization = `Bearer ${newToken}`;
                             originalRequest.url = originalRequest.url.replace(originalRequest.baseURL, '');
+                            originalRequest._tokenRefreshRetry = true;
                             resolve(client.request(originalRequest));
                         },
                         (err) => {

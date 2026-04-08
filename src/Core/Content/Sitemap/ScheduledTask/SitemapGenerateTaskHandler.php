@@ -72,7 +72,7 @@ final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
                 continue;
             }
 
-            $languageIds = $salesChannel->getDomains()->map(fn (SalesChannelDomainEntity $salesChannelDomain) => $salesChannelDomain->getLanguageId());
+            $languageIds = $salesChannel->getDomains()->map(static fn (SalesChannelDomainEntity $salesChannelDomain) => $salesChannelDomain->getLanguageId());
 
             $languageIds = array_unique($languageIds);
 

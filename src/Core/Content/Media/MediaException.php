@@ -23,6 +23,12 @@ class MediaException extends HttpException
     public const MEDIA_EMPTY_FILE = 'CONTENT__MEDIA_EMPTY_FILE';
     public const MEDIA_INVALID_FILE = 'CONTENT__MEDIA_INVALID_FILE';
     public const MEDIA_EMPTY_FILE_NAME = 'CONTENT__MEDIA_EMPTY_FILE_NAME';
+    public const MEDIA_EMPTY_PATH = 'CONTENT__MEDIA_EMPTY_PATH';
+    public const MEDIA_INVALID_THUMBNAIL_ID = 'CONTENT__MEDIA_INVALID_THUMBNAIL_ID';
+    public const MEDIA_INVALID_THUMBNAIL_DATA = 'CONTENT__MEDIA_INVALID_THUMBNAIL_DATA';
+    public const MEDIA_INVALID_DIMENSION = 'CONTENT__MEDIA_INVALID_DIMENSION';
+    public const MEDIA_EXTERNAL_MEDIA_REQUIRED = 'CONTENT__MEDIA_EXTERNAL_MEDIA_REQUIRED';
+
     public const MEDIA_FOLDER_NOT_FOUND = 'CONTENT__MEDIA_FOLDER_NOT_FOUND';
     public const MEDIA_FOLDER_NAME_NOT_FOUND = 'CONTENT__MEDIA_FOLDER_NAME_NOT_FOUND';
     public const MEDIA_DEFAULT_FOLDER_ENTITY_NOT_FOUND = 'CONTENT__MEDIA_DEFAULT_FOLDER_ENTITY_NOT_FOUND';
@@ -192,6 +198,16 @@ class MediaException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MEDIA_EMPTY_FILE_NAME,
             'A valid filename must be provided.'
+        );
+    }
+
+    public static function emptyMediaPath(string $mediaId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::MEDIA_EMPTY_PATH,
+            self::$couldNotFindMessage,
+            ['entity' => 'path', 'field' => 'entity', 'value' => $mediaId]
         );
     }
 
@@ -479,6 +495,46 @@ class MediaException extends HttpException
             self::MEDIA_INVALID_REQUEST_PARAMETER,
             'The parameter "{{ parameter }}" is invalid.',
             ['parameter' => $name]
+        );
+    }
+
+    public static function invalidDimension(string $dimension, int $value): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_INVALID_DIMENSION,
+            'The {{ dimension }} "{{ value }}" is invalid. It must be a positive integer.',
+            ['dimension' => $dimension, 'value' => $value]
+        );
+    }
+
+    public static function externalMediaRequired(string $id): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_EXTERNAL_MEDIA_REQUIRED,
+            'Media with id "{{ id }}" is not external media. Only external media can have external thumbnails.',
+            ['id' => $id]
+        );
+    }
+
+    public static function invalidThumbnailId(string $id): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::MEDIA_INVALID_THUMBNAIL_ID,
+            'Thumbnail with id "{{ id }}" not found or does not belong to this media.',
+            ['id' => $id]
+        );
+    }
+
+    public static function invalidThumbnailData(string $message): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_INVALID_THUMBNAIL_DATA,
+            'Invalid thumbnail data: {{ message }}',
+            ['message' => $message]
         );
     }
 

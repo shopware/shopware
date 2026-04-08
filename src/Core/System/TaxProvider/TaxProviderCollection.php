@@ -18,7 +18,7 @@ class TaxProviderCollection extends EntityCollection
 
     public function sortByPriority(): void
     {
-        $this->sort(fn (TaxProviderEntity $a, TaxProviderEntity $b) => $b->getPriority() <=> $a->getPriority());
+        $this->sort(static fn (TaxProviderEntity $a, TaxProviderEntity $b) => $b->getPriority() <=> $a->getPriority());
     }
 
     protected function getExpectedClass(): string

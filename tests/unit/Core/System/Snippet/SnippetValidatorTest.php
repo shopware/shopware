@@ -30,7 +30,7 @@ class SnippetValidatorTest extends TestCase
             ->willReturn([$secondPath]);
 
         $snippetFileHandler->method('openJsonFile')
-            ->willReturnCallback(function ($path) use ($firstPath) {
+            ->willReturnCallback(static function ($path) use ($firstPath) {
                 if ($path === $firstPath) {
                     return ['german' => 'exampleGerman'];
                 }
@@ -69,7 +69,7 @@ class SnippetValidatorTest extends TestCase
             ->willReturn([$secondPath]);
 
         $snippetFileHandler->method('openJsonFile')
-            ->willReturnCallback(fn () => ['foo' => 'bar']);
+            ->willReturnCallback(static fn () => ['foo' => 'bar']);
 
         $snippetValidator = new SnippetValidator(new SnippetFileCollection(), $snippetFileHandler, '');
         $invalidData = $snippetValidator->getValidation();
@@ -103,7 +103,7 @@ class SnippetValidatorTest extends TestCase
         ];
 
         $snippetFileHandler->method('openJsonFile')
-            ->willReturnCallback(fn () => $actualSnippets);
+            ->willReturnCallback(static fn () => $actualSnippets);
 
         $snippetValidator = new SnippetValidator(new SnippetFileCollection(), $snippetFileHandler, '');
         $invalidData = $snippetValidator->getValidation();

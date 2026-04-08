@@ -55,6 +55,43 @@ class MakerCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $res);
     }
 
+    public function testInteractRejectsBlankPluginName(): void
+    {
+        $generator = new DummyScaffoldingGenerator();
+        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $this->createMock(ScaffoldingWriter::class), $this->createMock(PluginService::class));
+        $command->setName('make:foo');
+
+        $tester = new CommandTester($command);
+        // First input is blank (rejected by NotBlank validator), second is valid
+        $tester->setInputs(['', 'ExamplePlugin']);
+
+        $tester->execute([], ['interactive' => true]);
+
+        static::assertStringContainsString('This value should not be blank', $tester->getDisplay());
+    }
+
+    public function testInteractSetsValidPluginNameOnArgument(): void
+    {
+        $scaffoldingWriter = $this->createMock(ScaffoldingWriter::class);
+
+        $pluginService = $this->createMock(PluginService::class);
+        $pluginService->expects($this->once())
+            ->method('getPluginByName')
+            ->with('MyPlugin')
+            ->willReturn($this->getPluginEntity());
+
+        $generator = new DummyScaffoldingGenerator();
+        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService);
+        $command->setName('make:foo');
+
+        $tester = new CommandTester($command);
+        $tester->setInputs(['MyPlugin']);
+
+        $res = $tester->execute([]);
+
+        static::assertSame(Command::SUCCESS, $res);
+    }
+
     public function testExecuteWithNoNameErrors(): void
     {
         $scaffoldingWriter = $this->createMock(ScaffoldingWriter::class);

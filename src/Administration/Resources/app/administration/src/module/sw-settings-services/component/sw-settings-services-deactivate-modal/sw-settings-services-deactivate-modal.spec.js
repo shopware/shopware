@@ -17,23 +17,10 @@ const createWrapper = async () => {
 };
 
 describe('src/module/sw-settings-services/component/sw-settings-services-deactivate-modal', () => {
-    const location = window.location;
-
     beforeAll(() => {
         Shopware.Service().register('shopwareServicesService', () => ({
             disableAllServices: jest.fn(),
         }));
-    });
-
-    beforeEach(() => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: jest.fn() },
-        });
-    });
-
-    afterEach(() => {
-        Object.defineProperty(window, 'location', { configurable: true, value: location });
     });
 
     it('can be opened and closed', async () => {
@@ -69,13 +56,15 @@ describe('src/module/sw-settings-services/component/sw-settings-services-deactiv
         const deactivateModal = await createWrapper();
         await flushPromises();
 
+        jest.spyOn(deactivateModal.vm, '_reloadPage').mockImplementation(() => {});
+
         await deactivateModal.get('button').trigger('click');
         const modal = deactivateModal.getComponent(MtModal);
         await modal.getComponent(MtModalAction).trigger('click');
         await flushPromises();
 
         expect(notificationSpy).not.toHaveBeenCalled();
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(deactivateModal.vm._reloadPage).toHaveBeenCalled();
     });
 
     it('shows notification if request fails', async () => {

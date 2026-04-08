@@ -1,6 +1,10 @@
 {% sw_extends '@Storefront/storefront/base.html.twig' %}
 
 {# @var page \Shopware\Storefront\Page\LandingPage\LandingPage|\Shopware\Storefront\Page\CategoryPage\CategoryPage #}
+{% block base_head %}
+    {% sw_include '@Storefront/storefront/page/content/meta.html.twig' %}
+{% endblock %}
+
 {% block base_main_inner %}
     <div class="container-main">
         {% block page_content %}

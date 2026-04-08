@@ -89,7 +89,7 @@ class CanonicalRedirectServiceTest extends TestCase
 
         $dispatcher->addListener(
             ExtensionDispatcher::pre(CanonicalRedirectExtension::NAME),
-            function (CanonicalRedirectExtension $extension): void {
+            static function (CanonicalRedirectExtension $extension): void {
                 $extension->stopPropagation();
 
                 $extension->result = new RedirectResponse('/overridden/url');

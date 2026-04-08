@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -43,7 +44,7 @@ class QuerySignerTest extends TestCase
         $shopIdProvider
             ->expects($this->once())
             ->method('getShopId')
-            ->willReturn('shopId');
+            ->willReturn(ShopId::v2('shopId'));
 
         $app = new AppEntity();
         $app->setName('extension-1');
@@ -92,7 +93,7 @@ class QuerySignerTest extends TestCase
         $shopIdProvider
             ->expects($this->once())
             ->method('getShopId')
-            ->willReturn('shopId');
+            ->willReturn(ShopId::v2('shopId'));
 
         $app = new AppEntity();
         $app->setName('extension-1');

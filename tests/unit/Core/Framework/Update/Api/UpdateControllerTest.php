@@ -193,7 +193,7 @@ class UpdateControllerTest extends TestCase
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
             ->method('dispatch')
-            ->willReturnCallback(function ($event) use (&$events): object {
+            ->willReturnCallback(static function ($event) use (&$events): object {
                 $events[] = $event;
 
                 return $event;
@@ -234,7 +234,7 @@ class UpdateControllerTest extends TestCase
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
             ->method('dispatch')
-            ->willReturnCallback(function ($event) use (&$events): object {
+            ->willReturnCallback(static function ($event) use (&$events): object {
                 $events[] = $event;
 
                 return $event;

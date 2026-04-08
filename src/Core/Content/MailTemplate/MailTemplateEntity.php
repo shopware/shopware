@@ -22,6 +22,8 @@ class MailTemplateEntity extends Entity
 
     protected bool $systemDefault;
 
+    protected bool $wasModifiedByUser = false;
+
     protected ?string $senderName = null;
 
     protected ?string $description = null;
@@ -54,6 +56,16 @@ class MailTemplateEntity extends Entity
     public function setSystemDefault(bool $systemDefault): void
     {
         $this->systemDefault = $systemDefault;
+    }
+
+    public function wasModifiedByUser(): bool
+    {
+        return $this->wasModifiedByUser;
+    }
+
+    public function setWasModifiedByUser(bool $wasModifiedByUser): void
+    {
+        $this->wasModifiedByUser = $wasModifiedByUser;
     }
 
     public function getSenderName(): ?string

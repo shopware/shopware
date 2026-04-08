@@ -65,7 +65,7 @@ class TemplateDataExtensionTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->exactly(2))
             ->method('fetchOne')
-            ->willReturnCallback(function (string $query) use ($expectedMinSearchLength, $navigationId) {
+            ->willReturnCallback(static function (string $query) use ($expectedMinSearchLength, $navigationId) {
                 if ($query === 'SELECT path FROM category WHERE id = :id') {
                     return $navigationId . '|019503b99fb57238a79d33ec1461e512|019503c1e1397116a3a7c754858927ef|';
                 }
@@ -131,7 +131,7 @@ class TemplateDataExtensionTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->exactly(3))
             ->method('fetchOne')
-            ->willReturnCallback(function (string $query) use ($linkedCategoryId, $rootCategoryId) {
+            ->willReturnCallback(static function (string $query) use ($linkedCategoryId, $rootCategoryId) {
                 if (str_contains($query, 'category_translation')) {
                     return $linkedCategoryId;
                 }
@@ -172,7 +172,7 @@ class TemplateDataExtensionTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->exactly(3))
             ->method('fetchOne')
-            ->willReturnCallback(function (string $query) {
+            ->willReturnCallback(static function (string $query) {
                 if (str_contains($query, 'category_translation')) {
                     return false;
                 }

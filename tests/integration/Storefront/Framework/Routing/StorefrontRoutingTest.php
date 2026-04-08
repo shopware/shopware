@@ -127,7 +127,7 @@ class StorefrontRoutingTest extends TestCase
         ];
         $cases = self::generateCases(array_keys($config), $config);
 
-        return array_map(fn ($params) => [self::createCase($params['https'], $params['host'], $params['subDir'], $params['salesChannel'])], $cases);
+        return array_map(static fn ($params) => [self::createCase($params['https'], $params['host'], $params['subDir'], $params['salesChannel'])], $cases);
     }
 
     private function getContext(Request $request): RequestContext

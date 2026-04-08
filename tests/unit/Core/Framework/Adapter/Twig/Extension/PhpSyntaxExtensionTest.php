@@ -60,7 +60,7 @@ class PhpSyntaxExtensionTest extends TestCase
             'objectValue' => new ArrayStruct(),
             'intValue' => 1,
             'floatValue' => 1.1,
-            'callableValue' => function (): void {
+            'callableValue' => static function (): void {
             },
             'arrayValue' => [],
             'jsonEncode' => [

@@ -31,7 +31,9 @@ class MailAttachmentsBuilderTest extends TestCase
 {
     private MockObject&MediaService $mediaService;
 
-    /** @var MockObject&EntityRepository<MediaCollection> */
+    /**
+     * @var MockObject&EntityRepository<MediaCollection>
+     */
     private MockObject&EntityRepository $mediaRepository;
 
     private MockObject&DocumentGenerator $documentGenerator;

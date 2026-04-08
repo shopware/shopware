@@ -4,10 +4,14 @@ import ContextGatewayClient from '../../src/service/context-gateway-client.servi
  * @package framework
  */
 describe('Context gateway client service', () => {
-    beforeEach(() => {
-        delete window.location;
+    let navigateToSpy;
+    let reloadPageSpy;
+    let getLocationHrefSpy;
 
-        window.location = { href: '', reload: jest.fn() };
+    beforeEach(() => {
+        navigateToSpy = jest.spyOn(ContextGatewayClient.prototype, '_navigateTo').mockImplementation(() => {});
+        reloadPageSpy = jest.spyOn(ContextGatewayClient.prototype, '_reloadPage').mockImplementation(() => {});
+        getLocationHrefSpy = jest.spyOn(ContextGatewayClient.prototype, '_getLocationHref').mockReturnValue('http://localhost/');
         window['router']['frontend.gateway.context'] = 'https://example.com/gateway/context';
     });
 
@@ -24,7 +28,7 @@ describe('Context gateway client service', () => {
                     token: '12345678',
                     redirectUrl: 'https://example.com/redirect',
                 }),
-            })
+            }),
         );
 
         const contextGatewayClient = new ContextGatewayClient('test');
@@ -44,8 +48,8 @@ describe('Context gateway client service', () => {
             body: JSON.stringify({ appName: 'test' }),
         });
 
-        expect(window.location.href).toBe('');
-        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(navigateToSpy).not.toHaveBeenCalled();
+        expect(reloadPageSpy).not.toHaveBeenCalled();
     });
 
     it('should handle bad requests', async () => {
@@ -55,7 +59,7 @@ describe('Context gateway client service', () => {
                 status: 400,
                 statusText: 'Bad Request',
                 text: () => Promise.resolve('Error'),
-            })
+            }),
         );
 
         const contextGatewayClient = new ContextGatewayClient('test');
@@ -193,7 +197,7 @@ describe('Context gateway client service', () => {
             shouldReload: false,
         },
     ])('$name', async ({ current, redirect, customTarget, expectedHref, shouldReload }) => {
-        window.location.href = current;
+        getLocationHrefSpy.mockReturnValue(current);
 
         global.fetch = jest.fn(() =>
             Promise.resolve({
@@ -203,17 +207,19 @@ describe('Context gateway client service', () => {
                     token: '12345678',
                     redirectUrl: redirect,
                 }),
-            })
+            }),
         );
 
         const client = new ContextGatewayClient('test');
         const tokenResponse = await client.call();
         client.navigate(tokenResponse, customTarget);
 
-        expect(window.location.href).toBe(expectedHref);
-
-        shouldReload
-            ? expect(window.location.reload).toHaveBeenCalled()
-            : expect(window.location.reload).not.toHaveBeenCalled();
+        if (shouldReload) {
+            expect(reloadPageSpy).toHaveBeenCalledTimes(1);
+            expect(navigateToSpy).not.toHaveBeenCalled();
+        } else {
+            expect(navigateToSpy).toHaveBeenCalledWith(expectedHref);
+            expect(reloadPageSpy).not.toHaveBeenCalled();
+        }
     });
 });

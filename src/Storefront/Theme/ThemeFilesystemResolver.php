@@ -30,7 +30,7 @@ class ThemeFilesystemResolver
         // but getPluginInstances does not include local bundles (eg Storefront)
         $this->bundleNames = array_values(array_unique(array_merge(
             array_keys($this->kernel->getBundles()),
-            array_map(fn (Plugin $plugin): string => $plugin->getName(), $this->kernel->getPluginLoader()->getPluginInstances()->all())
+            array_map(static fn (Plugin $plugin): string => $plugin->getName(), $this->kernel->getPluginLoader()->getPluginInstances()->all())
         )));
     }
 
@@ -46,7 +46,7 @@ class ThemeFilesystemResolver
         } catch (\InvalidArgumentException) {
             $bundles = $this->kernel->getPluginLoader()
                 ->getPluginInstances()
-                ->filter(fn (Plugin $plugin) => $plugin->getName() === $configuration->getTechnicalName())
+                ->filter(static fn (Plugin $plugin) => $plugin->getName() === $configuration->getTechnicalName())
                 ->all();
 
             $bundle = array_values($bundles)[0];

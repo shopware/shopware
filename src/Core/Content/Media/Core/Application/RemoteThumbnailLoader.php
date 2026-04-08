@@ -197,7 +197,7 @@ class RemoteThumbnailLoader implements ResetInterface
                 $mediaEntity->get('updatedAt') ?? $mediaEntity->get('createdAt'),
                 $mediaEntity,
             ),
-            function: function (
+            function: static function (
                 string $mediaUrl,
                 string $mediaPath,
                 string $width,

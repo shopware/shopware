@@ -23,7 +23,7 @@ class FileNameValidatorTest extends TestCase
     public static function restrictedCharacters(): array
     {
         return array_map(
-            fn ($value) => [$value],
+            static fn ($value) => [$value],
             [
                 '\\',
                 '/',

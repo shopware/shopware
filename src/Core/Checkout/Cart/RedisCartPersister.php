@@ -21,6 +21,9 @@ class RedisCartPersister extends AbstractCartPersister
 {
     final public const PREFIX = 'cart-persister-';
 
+    private const SET_ONLY_IF_EXISTS = 'XX';
+    private const EXPIRES_IN_SECONDS = 'EX';
+
     /**
      * @param RedisTypeHint $redis
      *
@@ -81,6 +84,7 @@ class RedisCartPersister extends AbstractCartPersister
 
         $cart->setToken($token);
         $cart->setRuleIds($content['rule_ids']);
+        $cart->setPersisted(true);
 
         $this->eventDispatcher->dispatch(new CartLoadedEvent($cart, $context));
 
@@ -101,9 +105,17 @@ class RedisCartPersister extends AbstractCartPersister
         }
 
         $content = $this->serializeCart($cart, $context);
+        $options = [self::EXPIRES_IN_SECONDS => $this->expireDays * 86400];
 
-        $this->redis->set(self::PREFIX . $cart->getToken(), $content, ['EX' => $this->expireDays * 86400]);
+        if ($cart->isPersisted()) {
+            $options[] = self::SET_ONLY_IF_EXISTS;
+        }
 
+        if ($this->redis->set(self::PREFIX . $cart->getToken(), $content, $options) === false) {
+            return;
+        }
+
+        $cart->setPersisted(true);
         $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
     }
 
@@ -124,8 +136,10 @@ class RedisCartPersister extends AbstractCartPersister
         $copyContext->setRuleIds($cart->getRuleIds());
 
         $cart->setToken($newToken);
+        $cart->setPersisted(false);
         $this->save($cart, $copyContext);
         $cart->setToken($oldToken);
+        $cart->setPersisted(true);
 
         $this->delete($oldToken, $context);
     }

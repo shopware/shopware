@@ -144,7 +144,7 @@ class ScriptRule extends Rule
         }
 
         $match = false;
-        $this->traces->trace($hook, $script, function (Debug $debug) use ($twig, $name, $context, &$match): void {
+        $this->traces->trace($hook, $script, static function (Debug $debug) use ($twig, $name, $context, &$match): void {
             $twig->addGlobal('debug', $debug);
 
             $rendered = $twig->render($name, $context);

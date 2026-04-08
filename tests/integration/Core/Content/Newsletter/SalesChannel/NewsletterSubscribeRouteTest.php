@@ -3,14 +3,12 @@
 namespace Shopware\Tests\Integration\Core\Content\Newsletter\SalesChannel;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
-use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -28,7 +26,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(NewsletterSubscribeRoute::class)]
 #[Group('store-api')]
 class NewsletterSubscribeRouteTest extends TestCase
 {
@@ -520,7 +517,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         yield 'invalid with first name' => [
             'Y http:/shopware.test',
             'Tran',
-            function (array $response): void {
+            static function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
                 static::assertCount(1, $response['errors']);
 
@@ -533,7 +530,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         yield 'invalid with last name' => [
             'Y',
             'Tran https:/shopware.test',
-            function (array $response): void {
+            static function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
                 static::assertCount(1, $response['errors']);
 
@@ -546,7 +543,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         yield 'invalid with domain name *://' => [
             'Y http://shopware.test',
             'Tran https://shopware.test',
-            function (array $response): void {
+            static function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
                 static::assertCount(2, $response['errors']);
 
@@ -560,7 +557,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         yield 'invalid with domain name *:/' => [
             'Y http:/shopware.test',
             'Tran https:/shopware.test',
-            function (array $response): void {
+            static function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
                 static::assertCount(2, $response['errors']);
 

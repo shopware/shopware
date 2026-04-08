@@ -107,7 +107,7 @@ class MailSenderTest extends TestCase
         $fileSystem
             ->expects($this->once())
             ->method('write')
-            ->willReturnCallback(function ($path, $content) use ($mail, $testStruct): void {
+            ->willReturnCallback(static function ($path, $content) use ($mail, $testStruct): void {
                 static::assertStringStartsWith('mail-data/', $path);
                 static::assertSame(serialize($mail), $content);
                 $testStruct->set('mailDataPath', $path);
@@ -116,7 +116,7 @@ class MailSenderTest extends TestCase
         $messageBus
             ->expects($this->once())
             ->method('dispatch')
-            ->willReturnCallback(function ($message) use ($testStruct): Envelope {
+            ->willReturnCallback(static function ($message) use ($testStruct): Envelope {
                 static::assertInstanceOf(SendMailMessage::class, $message);
                 static::assertSame($testStruct->get('mailDataPath'), $message->mailDataPath);
 

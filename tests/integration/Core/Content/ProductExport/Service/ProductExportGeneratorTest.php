@@ -92,7 +92,7 @@ class ProductExportGeneratorTest extends TestCase
         $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         $productExportProductCriteriaEventDispatched = false;
-        $productExportProductCriteriaCallback = function () use (
+        $productExportProductCriteriaCallback = static function () use (
             &$productExportProductCriteriaEventDispatched
         ): void {
             $productExportProductCriteriaEventDispatched = true;
@@ -103,7 +103,7 @@ class ProductExportGeneratorTest extends TestCase
         );
 
         $productExportRenderBodyContextEventDispatched = false;
-        $productExportRenderBodyContextCallback = function () use (
+        $productExportRenderBodyContextCallback = static function () use (
             &$productExportRenderBodyContextEventDispatched
         ): void {
             $productExportRenderBodyContextEventDispatched = true;
@@ -114,7 +114,7 @@ class ProductExportGeneratorTest extends TestCase
         );
 
         $productExportChangeEncodingEventDispatched = false;
-        $productExportChangeEncodingCallback = function () use (
+        $productExportChangeEncodingCallback = static function () use (
             &$productExportChangeEncodingEventDispatched
         ): void {
             $productExportChangeEncodingEventDispatched = true;
@@ -167,7 +167,7 @@ class ProductExportGeneratorTest extends TestCase
         $eventDispatcher = static::getContainer()->get('event_dispatcher');
 
         $productExportProductCriteriaEventDispatched = false;
-        $productExportProductCriteriaCallback = function (ProductExportProductCriteriaEvent $event) use (
+        $productExportProductCriteriaCallback = static function (ProductExportProductCriteriaEvent $event) use (
             &$productExportProductCriteriaEventDispatched
         ): void {
             $productExportProductCriteriaEventDispatched = true;
@@ -181,7 +181,7 @@ class ProductExportGeneratorTest extends TestCase
         );
 
         $productExportLoggingEventDispatched = false;
-        $productExportLoggingCallback = function () use (
+        $productExportLoggingCallback = static function () use (
             &$productExportLoggingEventDispatched
         ): void {
             $productExportLoggingEventDispatched = true;

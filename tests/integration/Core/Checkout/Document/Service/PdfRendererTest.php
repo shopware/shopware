@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -96,7 +95,6 @@ class PdfRendererTest extends TestCase
         );
 
         static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
-        static::assertInstanceOf(RenderedDocument::class, $processedTemplate->getSuccess()[$orderId]);
 
         $rendered = $processedTemplate->getSuccess()[$orderId];
 

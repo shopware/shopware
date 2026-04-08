@@ -112,7 +112,7 @@ class SitemapExporterTest extends TestCase
             return true;
         });
 
-        $cache->method('deleteItem')->willReturnCallback(function (string $k) use (&$cacheItem): bool {
+        $cache->method('deleteItem')->willReturnCallback(static function (string $k) use (&$cacheItem): bool {
             static::assertNotNull($cacheItem, 'Was not locked');
             static::assertSame($cacheItem->getKey(), $k);
             static::assertTrue($cacheItem->isHit(), 'Was not locked');
@@ -161,7 +161,7 @@ class SitemapExporterTest extends TestCase
 
         $domains = $salesChannel->getDomains();
         static::assertNotNull($domains);
-        $languageIds = $domains->map(fn (SalesChannelDomainEntity $salesChannelDomain) => $salesChannelDomain->getLanguageId());
+        $languageIds = $domains->map(static fn (SalesChannelDomainEntity $salesChannelDomain) => $salesChannelDomain->getLanguageId());
 
         $languageIds = array_unique($languageIds);
 
@@ -197,7 +197,7 @@ class SitemapExporterTest extends TestCase
 
         $factory = $this->createMock(SitemapHandleFactoryInterface::class);
         $sitemapHandleMock = $this->createMock(SitemapHandleInterface::class);
-        $sitemapHandleMock->expects($this->once())->method('write')->willReturnCallback(function (array $urls): void {
+        $sitemapHandleMock->expects($this->once())->method('write')->willReturnCallback(static function (array $urls): void {
             static::assertCount(2, $urls);
             static::assertInstanceOf(Url::class, $urls[0]);
             static::assertInstanceOf(Url::class, $urls[1]);

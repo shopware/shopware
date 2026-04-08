@@ -201,7 +201,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
                         'Which plugin do you want to %s?',
                         $lifecycleMethod
                     ),
-                    $pluginCollection->map(fn (PluginEntity $plugin) => $plugin->getName())
+                    $pluginCollection->map(static fn (PluginEntity $plugin) => $plugin->getName())
                 )
             );
 

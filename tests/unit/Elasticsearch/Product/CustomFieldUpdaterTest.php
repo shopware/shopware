@@ -150,7 +150,7 @@ class CustomFieldUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['test']) && $fields['test']['type'] === 'keyword';
             }));
 
@@ -239,7 +239,7 @@ class CustomFieldUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['field2']) && $fields['field2']['type'] === 'keyword';
             }));
 
@@ -305,7 +305,7 @@ class CustomFieldUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 // Only field2 should be indexed (product-related, includeInSearch)
                 return isset($fields['field2'])
                     && !isset($fields['field1'])
@@ -416,7 +416,7 @@ class CustomFieldUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['searchableField']) && $fields['searchableField']['type'] === 'keyword';
             }));
 
@@ -510,7 +510,7 @@ class CustomFieldUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['searchableField']) && $fields['searchableField']['type'] === 'keyword';
             }));
 
@@ -566,7 +566,7 @@ class CustomFieldUpdaterTest extends TestCase
         $mappingHelper
             ->expects($this->once())
             ->method('createFieldsInIndices')
-            ->with(static::callback(function (array $fields) {
+            ->with(static::callback(static function (array $fields) {
                 return isset($fields['appField']) && $fields['appField']['type'] === 'keyword';
             }));
 
@@ -901,7 +901,7 @@ class CustomFieldUpdaterTest extends TestCase
         // Different ID in propertyChange
         $containerEvent = $this->createMock(EntityWrittenContainerEvent::class);
         $containerEvent->method('getEventByEntityName')
-            ->willReturnCallback(function (string $entityName) use ($event) {
+            ->willReturnCallback(static function (string $entityName) use ($event) {
                 if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
                     return $event;
                 }
@@ -960,7 +960,7 @@ class CustomFieldUpdaterTest extends TestCase
 
         $containerEvent = $this->createMock(EntityWrittenContainerEvent::class);
         $containerEvent->method('getEventByEntityName')
-            ->willReturnCallback(function (string $entityName) use ($event) {
+            ->willReturnCallback(static function (string $entityName) use ($event) {
                 if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
                     return $event;
                 }
@@ -1009,7 +1009,7 @@ class CustomFieldUpdaterTest extends TestCase
 
         $containerEvent = $this->createMock(EntityWrittenContainerEvent::class);
         $containerEvent->method('getEventByEntityName')
-            ->willReturnCallback(function (string $entityName) use ($event) {
+            ->willReturnCallback(static function (string $entityName) use ($event) {
                 if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
                     return $event;
                 }
@@ -1070,7 +1070,7 @@ class CustomFieldUpdaterTest extends TestCase
 
         $containerEvent = $this->createMock(EntityWrittenContainerEvent::class);
         $containerEvent->method('getEventByEntityName')
-            ->willReturnCallback(function (string $entityName) use ($event) {
+            ->willReturnCallback(static function (string $entityName) use ($event) {
                 if ($entityName === CustomFieldDefinition::ENTITY_NAME) {
                     return $event;
                 }

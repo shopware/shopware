@@ -212,7 +212,7 @@ export default class FormPreserverPlugin extends Plugin {
         }
 
         const values = Array.from(selectedOptions).map(
-            selectedOption => selectedOption.value
+            selectedOption => selectedOption.value,
         );
         this.storage.setItem(key, values);
     }

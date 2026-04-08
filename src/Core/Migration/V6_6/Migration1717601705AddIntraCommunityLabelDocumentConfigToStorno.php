@@ -19,7 +19,7 @@ class Migration1717601705AddIntraCommunityLabelDocumentConfigToStorno extends Mi
 
     public function update(Connection $connection): void
     {
-        $connection->transactional(function (Connection $transaction): void {
+        $connection->transactional(static function (Connection $transaction): void {
             $stornoConfig = $transaction->executeQuery(
                 <<<'SQL'
                     SELECT `document_base_config`.`id`, `document_base_config`.`config` FROM `document_base_config`

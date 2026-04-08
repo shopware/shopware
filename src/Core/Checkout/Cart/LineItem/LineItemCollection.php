@@ -99,7 +99,7 @@ class LineItemCollection extends Collection
     public function filterType(string $type): LineItemCollection
     {
         return $this->filter(
-            fn (LineItem $lineItem) => $lineItem->getType() === $type
+            static fn (LineItem $lineItem) => $lineItem->getType() === $type
         );
     }
 
@@ -138,7 +138,7 @@ class LineItemCollection extends Collection
      */
     public function getPayload(): array
     {
-        return $this->map(fn (LineItem $lineItem) => $lineItem->getPayload());
+        return $this->map(static fn (LineItem $lineItem) => $lineItem->getPayload());
     }
 
     public function getPrices(): PriceCollection
@@ -186,7 +186,7 @@ class LineItemCollection extends Collection
     public function filterGoods(): self
     {
         return $this->filter(
-            fn (LineItem $lineItem) => $lineItem->isGood()
+            static fn (LineItem $lineItem) => $lineItem->isGood()
         );
     }
 
@@ -213,7 +213,7 @@ class LineItemCollection extends Collection
     public function getTypes(): array
     {
         return $this->fmap(
-            fn (LineItem $lineItem) => $lineItem->getType()
+            static fn (LineItem $lineItem) => $lineItem->getType()
         );
     }
 
@@ -223,7 +223,7 @@ class LineItemCollection extends Collection
     public function getReferenceIds(): array
     {
         return $this->fmap(
-            fn (LineItem $lineItem) => $lineItem->getReferencedId()
+            static fn (LineItem $lineItem) => $lineItem->getReferencedId()
         );
     }
 
@@ -234,7 +234,7 @@ class LineItemCollection extends Collection
 
     public function getTotalQuantity(): int
     {
-        return $this->reduce(fn (int $result, LineItem $item) => $result + $item->getQuantity(), 0);
+        return $this->reduce(static fn (int $result, LineItem $item) => $result + $item->getQuantity(), 0);
     }
 
     protected function getKey(LineItem $element): string

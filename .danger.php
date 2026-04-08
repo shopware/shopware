@@ -42,7 +42,7 @@ return (new Config())
         $files = $context->platform->pullRequest->getFiles();
 
         if ($files->matches('changelog/_unreleased/*.md')->count() > 0) {
-            $context->failure('The Pull Request makes use of the old changelog format. Please document your changes in the `RELEASE_INFO-6.7.md` and `UPGRADE-6.8.md` file respectively. For detailed infos please refer to the [release documentation guide](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md).');;
+            $context->failure('The Pull Request makes use of the old changelog format. Please document your changes in the `RELEASE_INFO-6.7.md` and `UPGRADE-6.8.md` file respectively. For detailed infos please refer to the [release documentation guide](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md).');
         }
     })
 
@@ -63,7 +63,7 @@ return (new Config())
         [
             function (Context $context): void {
                 $filesWithIgnoredErrors = [];
-                $phpstanBaseline = $context->platform->pullRequest->getFile('phpstan-baseline.neon')->getContent();
+                $phpstanBaseline = $context->platform->pullRequest->getFile('phpstan-baseline.php')->getContent();
                 foreach ($context->platform->pullRequest->getFiles()->map(fn (File $f) => $f->name) as $fileName) {
                     if (str_contains($phpstanBaseline, 'path: ' . $fileName)) {
                         $filesWithIgnoredErrors[] = $fileName;
@@ -78,7 +78,7 @@ return (new Config())
                 }
             },
             function (Context $context): void {
-                $phpstanBaseline = $context->platform->pullRequest->getFiles()->get('phpstan-baseline.neon');
+                $phpstanBaseline = $context->platform->pullRequest->getFiles()->get('phpstan-baseline.php');
                 if (!$phpstanBaseline instanceof File) {
                     return;
                 }
@@ -286,7 +286,6 @@ return (new Config())
         $domLoad = $phpUnitConfigFromPullRequest
             ? $dom->loadXML($phpUnitConfigFromPullRequest->getContent())
             : $dom->load($phpUnitConfig);
-
 
         if ($domLoad) {
             $xpath = new DOMXPath($dom);
@@ -523,6 +522,17 @@ return (new Config())
                 'Please add the integration test(s) within one of the core-batch testsuite of phpunit.xml.dist: <br/><br/>'
                 . implode('<br/>', array_unique($missing))
             );
+        }
+    })
+    ->useRule(function (Context $context): void {
+        $routesSnapshot = $context->platform->pullRequest->getFiles()->get('tests/integration/Core/Framework/_snapshots/routes_without_schema/snapshot.json');
+        if (!$routesSnapshot instanceof File) {
+            return;
+        }
+
+        $additions = $routesSnapshot->additions ?? 0;
+        if ($additions !== 0) {
+            $context->failure('Do not extend the `snapshot.json` file. Please create an open API schema for the new endpoint instead.');
         }
     })
 ;

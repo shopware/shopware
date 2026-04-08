@@ -149,7 +149,7 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
         $eventsThrown = 0;
         $this->eventDispatcher->addListener(
             CategoryLevelLoaderCacheKeyEvent::class,
-            function (CategoryLevelLoaderCacheKeyEvent $event) use ($cacheKeyParts, &$eventsThrown): void {
+            static function (CategoryLevelLoaderCacheKeyEvent $event) use ($cacheKeyParts, &$eventsThrown): void {
                 static::assertSame($cacheKeyParts, $event->getParts());
 
                 ++$eventsThrown;
@@ -224,7 +224,7 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
         $eventsThrown = 0;
         $this->eventDispatcher->addListener(
             CategoryLevelLoaderCacheKeyEvent::class,
-            function (CategoryLevelLoaderCacheKeyEvent $event) use ($cacheKeyParts, &$eventsThrown): void {
+            static function (CategoryLevelLoaderCacheKeyEvent $event) use ($cacheKeyParts, &$eventsThrown): void {
                 static::assertSame($cacheKeyParts, $event->getParts());
 
                 $event->disableCaching();
@@ -289,7 +289,7 @@ class CachedDefaultCategoryLevelLoaderTest extends TestCase
         $eventsThrown = 0;
         $this->eventDispatcher->addListener(
             CategoryLevelLoaderCacheKeyEvent::class,
-            function (CategoryLevelLoaderCacheKeyEvent $event) use ($cacheKeyParts, &$eventsThrown): void {
+            static function (CategoryLevelLoaderCacheKeyEvent $event) use ($cacheKeyParts, &$eventsThrown): void {
                 static::assertSame($cacheKeyParts, $event->getParts());
 
                 $event->addPart('test', 'test');

@@ -117,7 +117,7 @@ class LifecycleManager
      */
     public function enable(): void
     {
-        $this->systemConfigService->delete(self::CONFIG_KEY_SERVICES_DISABLED);
+        $this->systemConfigService->delete(self::CONFIG_KEY_SERVICES_DISABLED, null, true);
 
         $this->serviceInstaller->scheduleInstall();
     }
@@ -132,7 +132,7 @@ class LifecycleManager
         }
 
         $this->permissionsService->revoke($context);
-        $this->systemConfigService->set(self::CONFIG_KEY_SERVICES_DISABLED, true);
+        $this->systemConfigService->set(self::CONFIG_KEY_SERVICES_DISABLED, true, null, true);
     }
 
     public function enabled(): bool

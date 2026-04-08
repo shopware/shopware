@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\System\SystemConfig\Service;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
@@ -20,7 +19,6 @@ use Shopware\Tests\Integration\Core\System\SystemConfig\Service\_fixtures\ValidC
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ConfigurationService::class)]
 class ConfigurationServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

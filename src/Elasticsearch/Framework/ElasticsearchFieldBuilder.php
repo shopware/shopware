@@ -31,23 +31,17 @@ class ElasticsearchFieldBuilder
      */
     public function translated(array $fieldConfig): array
     {
-        $languages = $this->languageLoader->loadLanguages();
+        return $this->buildTranslated($fieldConfig);
+    }
 
-        $languageFields = [];
-
-        foreach ($languages as $languageId => $language) {
-            $code = $language['code'] ?? $language['parentCode'];
-            $parts = explode('-', $code);
-            $locale = $parts[0];
-
-            $languageFields[$languageId] = $fieldConfig;
-
-            if (\array_key_exists($locale, $this->languageAnalyzerMapping) && isset($languageFields[$languageId]['fields']['search']['analyzer'])) {
-                $languageFields[$languageId]['fields']['search']['analyzer'] = $this->languageAnalyzerMapping[$locale];
-            }
-        }
-
-        return ['properties' => $languageFields];
+    /**
+     * @param array<string, mixed> $fieldConfig
+     *
+     * @return array{properties: array<string, mixed>}
+     */
+    public function translatedTechnicalTerms(array $fieldConfig): array
+    {
+        return $this->buildTranslated($fieldConfig, true);
     }
 
     /**
@@ -103,6 +97,62 @@ class ElasticsearchFieldBuilder
     }
 
     /**
+     * @param array<string, mixed> $fieldConfig
+     *
+     * @return array{properties: array<string, mixed>}
+     */
+    private function buildTranslated(array $fieldConfig, bool $technicalTerms = false): array
+    {
+        $languages = $this->languageLoader->loadLanguages();
+
+        $languageFields = [];
+
+        foreach ($languages as $languageId => $language) {
+            $code = $language['code'] ?? $language['parentCode'];
+            $parts = explode('-', $code);
+            $locale = $parts[0];
+
+            $languageFields[$languageId] = $fieldConfig;
+
+            if (!isset($languageFields[$languageId]['fields']['search']['analyzer'])) {
+                continue;
+            }
+
+            if (!\array_key_exists($locale, $this->languageAnalyzerMapping)) {
+                continue;
+            }
+
+            $analyzer = $this->languageAnalyzerMapping[$locale];
+
+            if (!$technicalTerms) {
+                $languageFields[$languageId]['fields']['search']['analyzer'] = $analyzer;
+
+                continue;
+            }
+
+            $indexAnalyzer = $this->getTechnicalTermAnalyzer($analyzer, false);
+
+            if ($indexAnalyzer !== null) {
+                $languageFields[$languageId]['fields']['search']['analyzer'] = $indexAnalyzer;
+            }
+
+            if (!isset($languageFields[$languageId]['fields']['search']['search_analyzer'])) {
+                continue;
+            }
+
+            $searchAnalyzer = $this->getTechnicalTermAnalyzer($analyzer, true);
+
+            if ($searchAnalyzer === null) {
+                continue;
+            }
+
+            $languageFields[$languageId]['fields']['search']['search_analyzer'] = $searchAnalyzer;
+        }
+
+        return ['properties' => $languageFields];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function getCustomFieldsMapping(string $entity, Context $context): array
@@ -126,5 +176,14 @@ class ElasticsearchFieldBuilder
         }
 
         return $mapping;
+    }
+
+    private function getTechnicalTermAnalyzer(string $analyzer, bool $searchAnalyzer): ?string
+    {
+        return match ($analyzer) {
+            'sw_english_analyzer' => $searchAnalyzer ? 'sw_english_word_delimiter_search_analyzer' : 'sw_english_word_delimiter_index_analyzer',
+            'sw_german_analyzer' => $searchAnalyzer ? 'sw_german_word_delimiter_search_analyzer' : 'sw_german_word_delimiter_index_analyzer',
+            default => null,
+        };
     }
 }

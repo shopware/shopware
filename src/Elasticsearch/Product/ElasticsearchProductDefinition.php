@@ -54,8 +54,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     public function getMapping(Context $context): array
     {
         $languageFields = $this->fieldBuilder->translated(self::getTextFieldConfig());
-        $languageFieldsWithExact = $this->fieldBuilder->translated(self::getTextFieldConfig(withExact: true));
         $languageFieldsWithLengthNorm = $this->fieldBuilder->translated(self::getTextFieldWithLengthNormConfig());
+        $technicalLanguageFieldsWithExact = $this->fieldBuilder->translatedTechnicalTerms(self::getTextFieldConfig(withExact: true, technicalTerms: true));
         $salesChannelByLanguage = $this->salesChannelLanguageLoader->loadLanguages();
         $allSalesChannels = array_values(array_unique(array_merge(...array_values($salesChannelByLanguage))));
 
@@ -71,11 +71,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
         $properties = [
             'id' => self::KEYWORD_FIELD,
-            'name' => $languageFieldsWithExact,
+            'name' => $technicalLanguageFieldsWithExact,
             'description' => $languageFieldsWithLengthNorm,
             'metaTitle' => $languageFields,
             'metaDescription' => $languageFieldsWithLengthNorm,
-            'customSearchKeywords' => $languageFieldsWithExact,
+            'customSearchKeywords' => $technicalLanguageFieldsWithExact,
             'categories' => ElasticsearchFieldBuilder::nested([
                 'name' => $languageFields,
             ]),
@@ -111,11 +111,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'manufacturerNumber' => self::getTextFieldConfig(),
             'deliveryTimeId' => self::KEYWORD_FIELD,
             'displayGroup' => self::KEYWORD_FIELD,
-            'ean' => self::getTextFieldConfig(),
+            'ean' => self::getTextFieldConfig(technicalTerms: true),
             'height' => self::FLOAT_FIELD,
             'length' => self::FLOAT_FIELD,
             'markAsTopseller' => self::BOOLEAN_FIELD,
-            'productNumber' => self::getTextFieldConfig(),
+            'productNumber' => self::getTextFieldConfig(technicalTerms: true),
             'ratingAverage' => self::FLOAT_FIELD,
             'releaseDate' => ElasticsearchFieldBuilder::datetime(),
             'createdAt' => ElasticsearchFieldBuilder::datetime(),

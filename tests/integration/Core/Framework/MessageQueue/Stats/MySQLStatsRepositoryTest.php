@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\Stats;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\MySQLStatsRepository;
@@ -13,7 +12,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(MySQLStatsRepository::class)]
 class MySQLStatsRepositoryTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -170,7 +170,7 @@ export default {
                 },
             );
 
-            this.variableStores.id = storeOptions;
+            this.variableStores[id] = storeOptions;
         },
         getVariableOptions(id) {
             if (this.variableStores.hasOwnProperty(id)) {

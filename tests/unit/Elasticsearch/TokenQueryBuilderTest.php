@@ -284,7 +284,34 @@ class TokenQueryBuilderTest extends TestCase
             ], 1000),
         ];
 
-        yield 'Test multiple fields' => [
+        yield 'Test multiple fields OR search' => [
+            'config' => [
+                self::config(field: 'name', ranking: 1000, and: false),
+                self::config(field: 'ean', ranking: 2000, and: false),
+                self::config(field: 'restockTime', ranking: 1500, and: false),
+                self::config(field: 'tags.name', ranking: 500, and: false),
+            ],
+            'term' => 'foo 2023',
+            'expected' => self::bool([
+                self::disMax([
+                    self::terms('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 1),
+                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.8, 0, 'or', 10),
+                    self::matchPhrasePrefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.6, 3, 10),
+                ], 1000),
+                self::disMax([
+                    self::terms('ean', ['foo', '2023'], 1),
+                    self::match('ean.search', 'foo 2023', 0.8, 0, 'or', 10),
+                    self::matchPhrasePrefix('ean.search', 'foo 2023', 0.6, 3, 10),
+                ], 2000),
+                self::nested('tags', self::disMax([
+                    self::terms('tags.name', ['foo', '2023'], 1),
+                    self::match('tags.name.search', 'foo 2023', 0.8, 0, 'or', 10),
+                    self::matchPhrasePrefix('tags.name.search', 'foo 2023', 0.6, 3, 10),
+                ], 500)),
+            ]),
+        ];
+
+        yield 'Test multiple fields AND search' => [
             'config' => [
                 self::config(field: 'name', ranking: 1000),
                 self::config(field: 'ean', ranking: 2000),
@@ -294,17 +321,17 @@ class TokenQueryBuilderTest extends TestCase
             'term' => 'foo 2023',
             'expected' => self::bool([
                 self::disMax([
-                    self::terms('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 1),
+                    self::must('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 1),
                     self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.8, 0, 'and', 10),
                     self::matchPhrasePrefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.6, 3, 10),
                 ], 1000),
                 self::disMax([
-                    self::terms('ean', ['foo', '2023'], 1),
+                    self::must('ean', ['foo', '2023'], 1),
                     self::match('ean.search', 'foo 2023', 0.8, 0, 'and', 10),
                     self::matchPhrasePrefix('ean.search', 'foo 2023', 0.6, 3, 10),
                 ], 2000),
                 self::nested('tags', self::disMax([
-                    self::terms('tags.name', ['foo', '2023'], 1),
+                    self::must('tags.name', ['foo', '2023'], 1),
                     self::match('tags.name.search', 'foo 2023', 0.8, 0, 'and', 10),
                     self::matchPhrasePrefix('tags.name.search', 'foo 2023', 0.6, 3, 10),
                 ], 500)),
@@ -373,7 +400,34 @@ class TokenQueryBuilderTest extends TestCase
             ]),
         ];
 
-        yield 'Test multiple fields with terms' => [
+        yield 'Test multiple fields with terms OR search' => [
+            'config' => [
+                self::config(field: 'name', ranking: 1000, and: false),
+                self::config(field: 'ean', ranking: 2000, and: false),
+                self::config(field: 'restockTime', ranking: 1500, and: false),
+                self::config(field: 'tags.name', ranking: 500, and: false),
+            ],
+            'term' => 'foo 2023',
+            'expected' => self::bool([
+                self::disMax([
+                    self::terms('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 1),
+                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.8, 0, 'or', 10),
+                    self::matchPhrasePrefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.6, 3, 10),
+                ], 1000),
+                self::disMax([
+                    self::terms('ean', ['foo', '2023'], 1),
+                    self::match('ean.search', 'foo 2023', 0.8, 0, 'or', 10),
+                    self::matchPhrasePrefix('ean.search', 'foo 2023', 0.6, 3, 10),
+                ], 2000),
+                self::nested('tags', self::disMax([
+                    self::terms('tags.name', ['foo', '2023'], 1),
+                    self::match('tags.name.search', 'foo 2023', 0.8, 0, 'or', 10),
+                    self::matchPhrasePrefix('tags.name.search', 'foo 2023', 0.6, 3, 10),
+                ], 500)),
+            ]),
+        ];
+
+        yield 'Test multiple fields with terms AND search' => [
             'config' => [
                 self::config(field: 'name', ranking: 1000),
                 self::config(field: 'ean', ranking: 2000),
@@ -383,17 +437,17 @@ class TokenQueryBuilderTest extends TestCase
             'term' => 'foo 2023',
             'expected' => self::bool([
                 self::disMax([
-                    self::terms('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 1),
+                    self::must('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 1),
                     self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.8, 0, 'and', 10),
                     self::matchPhrasePrefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.6, 3, 10),
                 ], 1000),
                 self::disMax([
-                    self::terms('ean', ['foo', '2023'], 1),
+                    self::must('ean', ['foo', '2023'], 1),
                     self::match('ean.search', 'foo 2023', 0.8, 0, 'and', 10),
                     self::matchPhrasePrefix('ean.search', 'foo 2023', 0.6, 3, 10),
                 ], 2000),
                 self::nested('tags', self::disMax([
-                    self::terms('tags.name', ['foo', '2023'], 1),
+                    self::must('tags.name', ['foo', '2023'], 1),
                     self::match('tags.name.search', 'foo 2023', 0.8, 0, 'and', 10),
                     self::matchPhrasePrefix('tags.name.search', 'foo 2023', 0.6, 3, 10),
                 ], 500)),
@@ -655,6 +709,23 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
+     * @param array<string> $tokens
+     *
+     * @return array{bool: array{must: array<array{term: array<string, string>}>, boost: float|int}}
+     */
+    private static function must(string $field, array $tokens, int|float $boost = 1): array
+    {
+        $queries = array_map(static fn (string $token) => ['term' => [$field => $token]], $tokens);
+
+        return [
+            'bool' => [
+                BoolQuery::MUST => $queries,
+                'boost' => $boost,
+            ],
+        ];
+    }
+
+    /**
      * @return array{match_phrase_prefix: array<string, array{query: string|int|float, boost: float, slop: int}>}
      */
     private static function matchPhrasePrefix(string $field, string|int|float $query, float $boost, int $slop = 3, int $maxExpansion = 10, ?string $analyzer = null): array
@@ -679,7 +750,7 @@ class TokenQueryBuilderTest extends TestCase
      *
      * @return array{terms: non-empty-array<string, array<string>|float|int>}
      */
-    private static function terms(string $field, array $tokens, int|float $boost): array
+    private static function terms(string $field, array $tokens, int|float $boost = 1): array
     {
         return [
             'terms' => [
@@ -692,7 +763,7 @@ class TokenQueryBuilderTest extends TestCase
     /**
      * @return array{prefix: array<string, array{value: string|int|float, boost: float}>}
      */
-    private static function prefix(string $field, string|int|float $query, float $boost): array
+    private static function prefix(string $field, string|int|float $query, float $boost = 1): array
     {
         return [
             'prefix' => [

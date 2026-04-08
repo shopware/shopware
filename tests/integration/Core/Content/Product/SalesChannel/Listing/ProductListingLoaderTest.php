@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Listing;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -36,7 +35,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[CoversClass(ProductListingLoader::class)]
 #[Group('slow')]
 class ProductListingLoaderTest extends TestCase
 {

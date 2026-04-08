@@ -76,7 +76,7 @@ class Migration1774366000MigrateLineItemStockRuleConditionTest extends TestCase
         static::assertArrayHasKey('rule.indexer', $indexers);
     }
 
-    public function createTestRulesAndConditions(): void
+    private function createTestRulesAndConditions(): void
     {
         $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 

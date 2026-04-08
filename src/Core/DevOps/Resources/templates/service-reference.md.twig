@@ -24,6 +24,9 @@ nav:
 {{ service.description|raw }}
 
 {% for method in service.methods %}
+{% if not loop.first %}
+
+{% endif %}
 ### {{ method.title }}
 
 {% if method.deprecated %}
@@ -31,9 +34,12 @@ nav:
 
 {% endif %}
 * {{ method.summary|raw }}
+{% if method.description|trim is not empty %}
 
     {{ method.description|replace({"\n": "\n\t"})|raw }}
+{% endif %}
 {% if method.return is not empty %}
+
 * **Returns** {{ method.return.type }}
 
     {{ method.return.description }}
@@ -51,7 +57,9 @@ nav:
 {% if method.examples is not empty %}
 * **Examples:**
 {% for example in method.examples %}
-    * {{ example.description|raw }}
+{% if loop.first %}
+
+    *{% else %}    *{% endif %} {{ example.description|raw }}
 
         ```{{ example.extension }}
 {# somehow the rendering breaks if we use two tabs in the replace #}

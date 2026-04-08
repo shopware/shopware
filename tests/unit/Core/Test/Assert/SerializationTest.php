@@ -76,6 +76,13 @@ class SerializationTest extends TestCase
         static::assertEquals($original, $result);
     }
 
+    public function testAssertUnserializedEqualsPassesForNonObject(): void
+    {
+        $result = Serialization::assertUnserializedEquals(['a' => 1], \serialize(['a' => 1]));
+
+        static::assertSame(['a' => 1], $result);
+    }
+
     public function testAssertUnserializedEqualsFailsOnMismatch(): void
     {
         $this->expectException(AssertionFailedError::class);

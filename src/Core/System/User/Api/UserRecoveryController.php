@@ -73,8 +73,9 @@ class UserRecoveryController extends AbstractController
             return $this->getErrorResponse();
         }
 
-        $this->rateLimiter->reset(RateLimiter::OAUTH, strtolower($user->getUsername()) . '-' . $request->getClientIp());
-        $this->rateLimiter->resetIfConfigured(RateLimiter::OAUTH_USER, $user->getUsername());
+        $usernameKey = strtolower($user->getUsername());
+        $this->rateLimiter->reset(RateLimiter::OAUTH, $usernameKey . '-' . $request->getClientIp());
+        $this->rateLimiter->resetIfConfigured(RateLimiter::OAUTH_USER, $usernameKey);
         $this->rateLimiter->resetIfConfigured(RateLimiter::OAUTH_CLIENT, (string) $request->getClientIp());
         $this->rateLimiter->reset(RateLimiter::USER_RECOVERY, strtolower($user->getEmail()) . '-' . $request->getClientIp());
 

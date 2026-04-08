@@ -31,7 +31,7 @@ final class StrictIsEmpty extends Constraint
     {
         // Arrays
         if (\is_array($other)) {
-            return \count($other) === 0;
+            return $other === [];
         }
 
         // Countable objects

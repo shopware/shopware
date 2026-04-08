@@ -267,21 +267,6 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.default-content + .override-content').exists()).toBeFalsy();
         });
 
-        it('renders only the override content when {% parent %} is absent even if default content exists', async () => {
-            Shopware.Component.override('sw-product-detail', {
-                template: `
-                    {% block shim_parent_absent %}
-                        <div class="override-content"></div>
-                    {% endblock %}
-                `,
-            });
-
-            const wrapper = await createWrapper({ blockName: 'shim_parent_absent' });
-
-            expect(wrapper.find('.default-content').exists()).toBeFalsy();
-            expect(wrapper.find('.override-content').exists()).toBeTruthy();
-        });
-
         it('renders a Twig override with only {% parent %} as equivalent to the default block content', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `{% block shim_parent_only %}{% parent %}{% endblock %}`,

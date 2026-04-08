@@ -21,11 +21,11 @@ export default {
         selectValues() {
             return [
                 {
-                    label: this.$tc('global.sw-condition.condition.withTime'),
+                    label: this.$t('global.sw-condition.condition.withTime'),
                     value: true,
                 },
                 {
-                    label: this.$tc('global.sw-condition.condition.withoutTime'),
+                    label: this.$t('global.sw-condition.condition.withoutTime'),
                     value: false,
                 },
             ];

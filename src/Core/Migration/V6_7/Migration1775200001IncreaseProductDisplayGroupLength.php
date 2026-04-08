@@ -21,21 +21,16 @@ class Migration1775200001IncreaseProductDisplayGroupLength extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!$this->isDisplayGroupLength50($connection)) {
-            return;
-        }
-
-        $connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(64) NULL');
-    }
-
-    private function isDisplayGroupLength50(Connection $connection): bool
-    {
         if (!TableHelper::columnExists($connection, ProductDefinition::ENTITY_NAME, 'display_group')) {
-            return false;
+            return;
         }
 
         $column = TableHelper::getColumnOfTable($connection, ProductDefinition::ENTITY_NAME, 'display_group');
 
-        return $column->type === 'string' && $column->length === 50;
+        if ($column->type !== 'string' || $column->length !== 50) {
+            return;
+        }
+
+        $connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(64) NULL');
     }
 }

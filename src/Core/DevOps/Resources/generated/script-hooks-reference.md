@@ -672,3 +672,4 @@ All available hooks that can be used to manipulate products.
 | **Available Services** | [repository](./data-loading-script-services-reference#RepositoryFacade)<br>[price](./cart-manipulation-script-services-reference#PriceFactory)<br>[config](./miscellaneous-script-services-reference#SystemConfigFacade)<br>[store](./data-loading-script-services-reference#SalesChannelRepositoryFacade)<br>[acl](./miscellaneous-script-services-reference#AclFacade)<br> |
 | **Stoppable**          | `false`                  |
 
+

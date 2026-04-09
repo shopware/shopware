@@ -1,23 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
+namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * Lives in the unit testsuite so CI uploads Cobertura for {@see VariantListingUpdater} under the `phpunit-unit` flag
+ * (integration shards do not upload PHP coverage to Codecov).
+ *
  * @internal
  */
+#[CoversClass(VariantListingUpdater::class)]
 class VariantListingUpdaterTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     private Connection $connection;
 
     private VariantListingUpdater $updater;
@@ -26,8 +29,8 @@ class VariantListingUpdaterTest extends TestCase
     {
         parent::setUp();
 
-        $this->connection = static::getContainer()->get(Connection::class);
-        $this->updater = static::getContainer()->get(VariantListingUpdater::class);
+        $this->connection = KernelLifecycleManager::getConnection();
+        $this->updater = new VariantListingUpdater($this->connection);
     }
 
     public function testUpdateAppliesSha256DisplayGroupForListingGroupConfiguration(): void

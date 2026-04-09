@@ -18,5 +18,6 @@ import { runNpmAudit } from '../../../.github/bin/js/run-npm-audit.ts';
  */
 runNpmAudit({
     ignoredGHSAs: [
+        'https://github.com/advisories/GHSA-chqc-8p9q-pq6q', // basic-ftp basic-ftp has FTP Command Injection via CRLF, high severity
     ],
 });

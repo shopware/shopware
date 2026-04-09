@@ -1,46 +1,13 @@
-import { isSaaSInstance, test } from '@fixtures/AcceptanceTest';
-import { expect } from '@playwright/test';
-import type { Route, Request } from '@playwright/test';
+import { isSaaSInstance, test, expect } from '@fixtures/AcceptanceTest';
+import { parseCapturedEvents,
+    setupProductAnalyticsInterceptor, waitForCapturedRequests,
+} from '@helpers/productanalytics-helpers';
 
-interface CapturedRequest {
-    postData: string;
-}
 
-interface ProductAnalyticsContext {
-    sw_version: string;
-    sw_app_url: string;
-    sw_browser_url: string;
-    sw_user_agent: string;
-    sw_default_language: string;
-    sw_default_currency: string;
-    sw_screen_width: number;
-    sw_screen_height: number;
-    sw_screen_orientation: string;
-}
+const PRODUCT_ANALYTICS_ENDPOINT = 'event';
 
-interface ProductAnalyticsUser {
-    shop_id: string;
-    id: string;
-}
-
-export interface ProductAnalyticsEvent {
-    name: string;
-    properties: Record<string, string | number | null>;
-    timestamp: number;
-    insert_id: string;
-    device_id: string;
-    session_id: number;
-}
-
-export interface ProductAnalyticsRequestPayload {
-    context: ProductAnalyticsContext;
-    events: ProductAnalyticsEvent[];
-    user: ProductAnalyticsUser;
-}
-
-const PRODUCT_ANALYTICS_ENDPOINT = 'httpapi';
-
-// Annotate entire file as serial.
+// Settings for running tests in serial mode to avoid interference
+// Test modifies user consent and captures network requests, where other tests if run in parallel
 test.describe.configure({ mode: 'serial' });
 
 test('As a merchant, I want to make sure admin events are sent correctly.', { tag: '@ProductAnalytics' }, async ({
@@ -49,30 +16,10 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
     AdminOrderListing,
     AdminOrderDetail,
     TestDataService,
+    AdminYourProfile,
 }) => {
 
-    const captured: CapturedRequest[] = [];
-    const requestHandler = async (route: Route) => {
-        const req: Request = route.request();
-        captured.push({
-            postData: req.postData(),
-        });
-        await route.fulfill(
-            {
-                status: 200,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Credentials': 'true',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    'code': 200,
-                }),
-            }
-        )
-    };
-
-    test.skip(true, 'Temporarily skipped after removing the PRODUCT_ANALYTICS feature flag.');
+    const { capturedRequests, handler } = setupProductAnalyticsInterceptor();
 
     const product = await TestDataService.createBasicProduct();
     const customer = await TestDataService.createCustomer();
@@ -80,52 +27,55 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
 
     await test.step('Intercept all the API calls to product analytics', async () => {
 
-        await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, requestHandler);
+        await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}**`, handler);
     });
 
-    await test.step('Set consent for product analytics', async () => {
-        // TO-DO: implement via UI once available and Feature flag is disabled by default
+    await test.step('Set consent for product analytics to track events', async () => {
+        // There are 2 options. Once via UI and once via API.
+        /** Option 1: via API, issue is the AdminAPICLient is not USer specific, so that the consent can not set. Refactoring is necessary
+         * const request = await TestDataService.AdminApiClient.post('consents/accept?_response=detail', {
+         *             data: {
+         *                 consent: 'product_analytics',
+         *             },
+         *         });
+         *         const errors = await request.json();
+         *         console.log(errors)
+         *         await AdminApiContext.create();
+         */
+        await ShopAdmin.goesTo(AdminYourProfile.url('privacy-preferences'));
+        await AdminYourProfile.dataSharingUsageDataCheckbox.click();
+        await waitForCapturedRequests(capturedRequests, 1);
     });
 
     await test.step('Navigate via link to order page from dashboard', async () => {
 
-        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
         await AdminDashboard.adminMenuOrder.click();
         await AdminDashboard.adminMenuOrderOverview.click();
-        const request = await requestPromise;
-        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
-
+        await waitForCapturedRequests(capturedRequests, 2);
         await ShopAdmin.expects(AdminOrderListing.addOrderButton).toBeVisible();
     });
 
     await test.step('Navigate via link to detail order page', async () => {
 
-        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
         const orderRow = await AdminOrderListing.getLineItemByOrderNumber(order.orderNumber);
         await ShopAdmin.expects(orderRow.orderNumberText).toBeVisible()
         await orderRow.orderNumberText.click();
-        const request = await requestPromise;
-        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
+        await waitForCapturedRequests(capturedRequests, 3);
     });
 
     await test.step('Navigate via button to save order', async () => {
 
-        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
         await ShopAdmin.expects(AdminOrderDetail.saveButton).toBeVisible();
         await ShopAdmin.expects(AdminOrderDetail.contextMenuButton).toBeVisible()
         await AdminOrderDetail.saveButton.click();
-        const request = await requestPromise;
-        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
-
+        await waitForCapturedRequests(capturedRequests, 4);
         await ShopAdmin.expects(AdminOrderDetail.contextMenuButton).toBeVisible()
     });
 
     await test.step('Navigate via page view to dashboard page', async () => {
 
-        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
         await ShopAdmin.goesTo(AdminDashboard.url());
-        const request = await requestPromise;
-        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
+        await waitForCapturedRequests(capturedRequests, 5);
 
         await ShopAdmin.expects(AdminDashboard.adminMenuOrder).toBeVisible();
         // eslint-disable-next-line playwright/no-conditional-in-test
@@ -135,70 +85,71 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
     });
 
     await test.step('Validate captured requests for product analytics', async () => {
-        const requests = parseCapturedRequests(captured);
-        expect(requests).toHaveLength(6);
 
-        const events = requests.flatMap((request) => request.events);
-        expect(events).toHaveLength(6);
+        // We expect 7 events in total, but they can be in multiple requests
+        // 1 anonymous event for consent status change, which is fired when merchant gives consent for product analytics
+        // 6 events for user interactions
+        const events = parseCapturedEvents(capturedRequests);
+        expect(events).toHaveLength(7);
 
-        const eventNames = events.map(e => e.name);
-        expect(eventNames).toEqual([
-            'link_visited',
-            'page_viewed',
-            'link_visited',
-            'page_viewed',
-            'button_click',
-            'page_viewed',
+        const eventIds = events.map(e => e.event_id);
+        expect(eventIds).toEqual([undefined, 0, 1, 2, 3, 4, 5]);
+
+        const eventTypes = events.map(e => e.event_type);
+        expect(eventTypes).toEqual([
+            'consent_status_change', // anonymous event undefined event_id
+            'link_visited',   // event_id 0
+            'page_viewed',    // event_id 1
+            'link_visited',   // event_id 2
+            'page_viewed',    // event_id 3
+            'button_click',   // event_id 4
+            'page_viewed',    // event_id 5
         ]);
 
-        requests.forEach((request) => {
-            expect(request.user.shop_id).toBeTruthy();
-            expect(request.user.id).toBeTruthy();
-            expect(request.context.sw_version).toBeTruthy();
-            expect(request.context.sw_app_url).toBeTruthy();
-            expect(request.context.sw_browser_url).toBeTruthy();
-            expect(request.context.sw_user_agent).toBeTruthy();
-            expect(request.context.sw_default_language).toBeTruthy();
-            expect(request.context.sw_default_currency).toBeTruthy();
-            expect(request.context.sw_screen_width).toBeGreaterThan(0);
-            expect(request.context.sw_screen_height).toBeGreaterThan(0);
-            expect(request.context.sw_screen_orientation).toBeTruthy();
-
-            request.events.forEach((event) => {
-                expect(event.timestamp).toBeGreaterThan(0);
-                expect(event.insert_id).toBeTruthy();
-                expect(event.device_id).toBeTruthy();
-                expect(event.session_id).toBeGreaterThan(0);
-            });
-        });
-
         const [
-            firstLinkVisited,
-            pageViewed,
-            linkVisited,
-            pageViewedDetail,
-            buttonClicked,
-            pageViewedBackToDash,
+            consentStatusChange, // anonymous event with undefined event_id
+            firstLinkVisited,    // event_id 0
+            pageViewed,          // event_id 1
+            linkVisited,         // event_id 2
+            pageViewedDetail,    // event_id 3
+            buttonClicked,       // event_id 4
+            pageViewedBackToDash,// event_id 5
         ] = events;
 
-        const firstLinkVisitedProps = firstLinkVisited.properties;
+        // ----------------------
+        // event_id = undefined: anonymous event
+        // ----------------------
+        const consentStatusChangeProps = consentStatusChange.event_properties;
+        expect(consentStatusChangeProps.consent).toBe('product_analytics');
+        expect(consentStatusChangeProps.status).toBe('accepted');
+
+        // ----------------------
+        // event_id = 0: first Link Visited (dashboard -> order listing)
+        // ----------------------
+        const firstLinkVisitedProps = firstLinkVisited.event_properties;
 
         expect(firstLinkVisitedProps.sw_link_href).toBe('#/sw/order/index');
         expect(firstLinkVisitedProps.sw_link_type).toBe('internal');
-        expect(firstLinkVisitedProps.sw_page_path).toBe('/sw/dashboard/index');
-        expect(firstLinkVisitedProps.sw_page_name).toBe('sw.dashboard.index');
+        expect(firstLinkVisitedProps.sw_page_path).toBe('/sw/profile/index/privacy-preferences');
+        expect(firstLinkVisitedProps.sw_page_name).toBe('sw.profile.index.privacyPreferences');
 
-        const pageViewEventProps = pageViewed.properties;
+        // ----------------------
+        // event_id = 1: first Page Viewed (dashboard -> order listing)
+        // ----------------------
+        const pageViewEventProps = pageViewed.event_properties;
 
-        expect(pageViewEventProps.sw_route_from_name).toBe('sw.dashboard.index');
-        expect(pageViewEventProps.sw_route_from_href).toBe('/sw/dashboard/index');
+        expect(pageViewEventProps.sw_route_from_name).toBe('sw.profile.index.privacyPreferences');
+        expect(pageViewEventProps.sw_route_from_href).toBe('/sw/profile/index/privacy-preferences');
         expect(pageViewEventProps.sw_route_to_name).toBe('sw.order.index');
         expect(pageViewEventProps.sw_route_to_href).toBe('/sw/order/index');
         expect(pageViewEventProps.sw_page_name).toBe('sw.order.index');
         expect(pageViewEventProps.sw_page_path).toBe('/sw/order/index');
         expect(pageViewEventProps.sw_page_full_path).toContain('/sw/order/index?limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false');
 
-        const linkVisitedProps = linkVisited.properties;
+        // ----------------------
+        // event_id = 2: Link Visited (clicking into order detail from listing)
+        // ----------------------
+        const linkVisitedProps = linkVisited.event_properties;
 
         expect(linkVisitedProps.sw_link_href).toContain(`#/sw/order/detail/${order.id}`);
         expect(linkVisitedProps.sw_page_full_path).toContain('/sw/order/index?limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false&grid.filter.order=null')
@@ -206,7 +157,10 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(linkVisitedProps.sw_page_path).toBe('/sw/order/index');
         expect(linkVisitedProps.sw_page_name).toBe('sw.order.index');
 
-        const pageViewedDetailProps = pageViewedDetail.properties;
+        // ----------------------
+        // event_id = 3: Page Viewed (order detail.general)
+        // ----------------------
+        const pageViewedDetailProps = pageViewedDetail.event_properties;
 
         expect(pageViewedDetailProps.sw_route_from_name).toBe('sw.order.index');
         expect(pageViewedDetailProps.sw_route_from_href).toBe('/sw/order/index');
@@ -216,14 +170,20 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(pageViewedDetailProps.sw_page_path).toContain('/sw/order/detail/');
         expect(pageViewedDetailProps.sw_page_full_path).toBe(`/sw/order/detail/${order.id}/general`);
 
-        const buttonEventProps = buttonClicked.properties;
+        // ----------------------
+        // event_id = 4: Button Click
+        // ----------------------
+        const buttonEventProps = buttonClicked.event_properties;
 
         expect(buttonEventProps.sw_element_id).toBe('sw-order-detail.save-edits');
         expect(buttonEventProps.sw_page_full_path).toBe(`/sw/order/detail/${order.id}/general`);
         expect(buttonEventProps.sw_page_path).toBe(`/sw/order/detail/${order.id}/general`);
         expect(buttonEventProps.sw_page_name).toBe('sw.order.detail.general');
 
-        const pageViewedBackToDashProps = pageViewedBackToDash.properties;
+        // ----------------------
+        // event_id = 5: final Page Viewed (back to dashboard)
+        // ----------------------
+        const pageViewedBackToDashProps = pageViewedBackToDash.event_properties;
 
         expect(pageViewedBackToDashProps.sw_route_from_name).toBe('sw.order.detail.general');
         expect(pageViewedBackToDashProps.sw_route_from_href).toBe(`/sw/order/detail/${order.id}/general`);
@@ -233,75 +193,3 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(pageViewedBackToDashProps.sw_page_path).toBe('/sw/dashboard/index');
     });
 });
-
-test('As a merchant, I want to make sure no admin events are sent when I do not consent.', { tag: '@ProductAnalytics' }, async ({
-    ShopAdmin,
-    AdminDashboard,
-    AdminOrderListing,
-}) => {
-    test.skip(true, 'Temporarily skipped after removing the PRODUCT_ANALYTICS feature flag.');
-
-    const captured: CapturedRequest[] = [];
-    const requestHandler = async (route: Route) => {
-        const req: Request = route.request();
-        captured.push({
-            postData: req.postData(),
-        });
-        await route.fulfill(
-            {
-                status: 200,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Credentials': 'true',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    'code': 200,
-                }),
-            }
-        )
-    };
-
-    await test.step('Do not set consent for product analytics', async () => {
-        // TO-DO: implement via UI once available and Feature flag is disabled by default
-    });
-
-   await test.step('Intercept all the API calls to product analytics', async () => {
-
-        await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, requestHandler);
-    });
-
-    await test.step('Navigate via link to order page from dashboard', async () => {
-
-        await AdminDashboard.adminMenuOrder.click();
-        await AdminDashboard.adminMenuOrderOverview.click();
-        await ShopAdmin.expects(AdminOrderListing.addOrderButton).toBeVisible();
-    });
-
-    await test.step('Validate no captured requests for product analytics', async () => {
-
-        // we want to check that something does NOT happen, so we need a hard waitForTimeout, as there is nothing we can actually wait for.
-        // so we wait for 3s to ensure that product analytics events would have been captured
-        // eslint-disable-next-line playwright/no-wait-for-timeout
-        await AdminDashboard.page.waitForTimeout(3000);
-        expect(captured.length).toBe(0);
-    });
-});
-
-function parseCapturedRequests(captured: CapturedRequest[]): ProductAnalyticsRequestPayload[] {
-    const requests: ProductAnalyticsRequestPayload[] = [];
-
-    for (const c of captured) {
-        if (!c.postData) continue;
-        try {
-            const parsed: ProductAnalyticsRequestPayload = JSON.parse(c.postData);
-            if (parsed && typeof parsed.context === 'object' && Array.isArray(parsed.events)) {
-                requests.push(parsed);
-            }
-        } catch {
-            // If not JSON, ignore for now
-        }
-    }
-
-    return requests;
-}

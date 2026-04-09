@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
-use Composer\InstalledVersions;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Adapter\Composer\ComposerInfoProvider;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -104,18 +104,14 @@ class AppLoader
     {
         $manifests = [];
 
-        foreach (InstalledVersions::getInstalledPackagesByType(self::COMPOSER_TYPE) as $packageName) {
-            $path = InstalledVersions::getInstallPath($packageName);
+        foreach (ComposerInfoProvider::getComposerPackages(self::COMPOSER_TYPE) as $package) {
+            try {
+                $manifest = Manifest::createFromXmlFile($package->path . '/manifest.xml');
+                $manifest->setManagedByComposer(true);
 
-            if ($path !== null) {
-                try {
-                    $manifest = Manifest::createFromXmlFile($path . '/manifest.xml');
-                    $manifest->setManagedByComposer(true);
-
-                    $manifests[$manifest->getMetadata()->getName()] = $manifest;
-                } catch (AppXmlParsingException $exception) {
-                    $this->logger->error('Manifest XML parsing error. Reason: ' . $exception->getMessage(), ['trace' => $exception->getTrace()]);
-                }
+                $manifests[$manifest->getMetadata()->getName()] = $manifest;
+            } catch (AppXmlParsingException $exception) {
+                $this->logger->error('Manifest XML parsing error. Reason: ' . $exception->getMessage(), ['trace' => $exception->getTrace()]);
             }
         }
 

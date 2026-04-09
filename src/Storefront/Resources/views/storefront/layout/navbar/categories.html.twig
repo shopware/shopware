@@ -5,7 +5,7 @@
         {% set level = 0 %}
     {% endif %}
 
-    <div class="{% if level == 0 %}row {% endif %}navigation-flyout-categories is-level-{{ level }}">
+    <div class="{% if level == 0 %}row {% endif %}navigation-flyout-categories is-level-{{ level|raw }}">
         {% for treeItem in navigationTree %}
             {% set category = treeItem.category %}
             {% set id = category.id %}
@@ -13,22 +13,29 @@
             {% set link = category.seoUrl %}
 
             {% block layout_navbar_categories_item %}
-                <div class="{% if level == 0 %}{% if navigationMedia %}col-4 {% else %}col-3 {% endif %}{% endif %}{% if ((loop.index % 4 != 0) and (loop.index != 1)) %}navigation-flyout-col{% endif %}">
+                {# navigationMedia is passed from layout/navbar/content.html.twig (category.media) #}
+                {# Bootstrap 12-col grid: with media 3 columns (col-4 = 4 of 12), without media 4 columns (col-3 = 3 of 12) #}
+                {% set columnCount = navigationMedia ? 3 : 4 %}
+                <div class="{% if level == 0 %}col-{{ (12 / columnCount)|raw }} {% endif %}{% if loop.index0 % columnCount != 0 %}navigation-flyout-col{% endif %}">
                     {% block layout_navbar_categories_item_link %}
                         {% if category.type == 'folder' %}
-                            <div class="nav-item nav-item-{{ id }} nav-link nav-item-{{ id }}-link navigation-flyout-link is-level-{{ level }}"
+                            <div class="nav-item nav-item-{{ id|raw }} nav-link nav-item-{{ id|raw }}-link navigation-flyout-link is-level-{{ level|raw }}"
                                  title="{{ name }}">
-                                <span itemprop="name">{{ name }}</span>
+                                {# @deprecated tag:v6.8.0 - SiteNavigationElement name microdata removed. Not supported as a rich result. #}
+                                <span {% if not feature('JSON_LD_DATA') %}itemprop="name"{% endif %}>{{ name }}</span>
                             </div>
                         {% else %}
-                            <a class="nav-item nav-item-{{ id }} nav-link nav-item-{{ id }}-link navigation-flyout-link is-level-{{ level }}"
+                            {# @deprecated tag:v6.8.0 - SiteNavigationElement url/name microdata removed. Not supported as a rich result. #}
+                            <a class="nav-item nav-item-{{ id|raw }} nav-link nav-item-{{ id|raw }}-link navigation-flyout-link is-level-{{ level|raw }}"
                                href="{{ link }}"
+                               {% if not feature('JSON_LD_DATA') %}
                                itemprop="url"
+                               {% endif %}
                                {% if category.shouldOpenInNewTab %}target="_blank"
                                {% if category.linkType == 'external' %}rel="noopener noreferrer"{% endif %}
                                 {% endif %}
                                title="{{ name }}">
-                                <span itemprop="name">{{ name }}</span>
+                                <span {% if not feature('JSON_LD_DATA') %}itemprop="name"{% endif %}>{{ name }}</span>
                             </a>
                         {% endif %}
                     {% endblock %}

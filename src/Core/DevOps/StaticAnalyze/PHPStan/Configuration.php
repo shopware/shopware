@@ -8,20 +8,28 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final class Configuration
+final readonly class Configuration
 {
     /**
-     * @param array<string, mixed> $parameters
+     * @param array<string, list<string>> $parameters
      */
     public function __construct(private array $parameters)
     {
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     public function getAllowedNonDomainExceptions(): array
     {
         return $this->parameters['allowedNonDomainExceptions'] ?? [];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getAllowedStorefrontRouteNamespaces(): array
+    {
+        return $this->parameters['allowedStorefrontRouteNamespaces'] ?? [];
     }
 }

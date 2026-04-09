@@ -31,7 +31,9 @@ class ThemeMergedConfigBuilderTest extends TestCase
 {
     private StorefrontPluginRegistry&MockObject $storefrontPluginRegistryMock;
 
-    /** @var EntityRepository<ThemeCollection>&MockObject */
+    /**
+     * @var EntityRepository<ThemeCollection>&MockObject
+     */
     private EntityRepository&MockObject $themeRepositoryMock;
 
     private ThemeMergedConfigBuilder $mergedConfigBuilder;

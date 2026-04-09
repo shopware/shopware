@@ -55,7 +55,6 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         invalidPromotionCodes(): PromotionCodeTag[] {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             return Store.get('swOrder').invalidPromotionCodes;
         },
 
@@ -163,7 +162,6 @@ export default Shopware.Component.wrapComponentConfig({
 
                 await this.fetchPaymentMethodName();
 
-                this.isSaveSuccessful = true;
                 this.showRemindPaymentModal = true;
             } catch (error) {
                 this.showError(error);

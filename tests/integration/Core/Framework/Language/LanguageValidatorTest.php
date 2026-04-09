@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageValidator;
 
 /**
@@ -21,6 +22,9 @@ class LanguageValidatorTest extends TestCase
 
     private Context $defaultContext;
 
+    /**
+     * @var EntityRepository<LanguageCollection>
+     */
     private EntityRepository $languageRepository;
 
     protected function setUp(): void
@@ -892,7 +896,6 @@ class LanguageValidatorTest extends TestCase
      */
     protected function assertWriteStackViolations(callable $function, array $expectedCodePathPairs): void
     {
-        /** @var WriteException|null $stack */
         $stack = null;
 
         try {
@@ -900,7 +903,7 @@ class LanguageValidatorTest extends TestCase
         } catch (WriteException $exception) {
             $stack = $exception;
         }
-        if (!empty($expectedCodePathPairs)) {
+        if ($expectedCodePathPairs !== []) {
             static::assertInstanceOf(WriteException::class, $stack);
         }
 

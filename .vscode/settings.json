@@ -12,6 +12,9 @@
       "PHP2408"
     ]
   },
+  "intelephense.environment.phpVersion": "8.4.18",
+  "intelephense.runtime": "docker",
+  "intelephense.docker.containerName": "platform-web-1",
   "remote.autoForwardPortsSource": "process",
   "search.exclude": {
     "**/node_modules": true,

@@ -36,6 +36,11 @@ class RedisContainerWiringTest extends TestCase
 
     public static function tearDownAfterClass(): void
     {
+        $redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
+        if ($redisUrl === '') {
+            return;
+        }
+
         self::unloadKernel();
     }
 

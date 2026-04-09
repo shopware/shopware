@@ -121,7 +121,7 @@ export default class AddressManagerPlugin extends Plugin {
         const modal = pseudoModal.getModal();
         modal.children[0].classList.add(
             this.options.addressModalDialogScrollableClass,
-            this.options.addressModalDialogSelectorClass
+            this.options.addressModalDialogSelectorClass,
         );
 
         if (this.options.initialTab === BILLING) {
@@ -240,7 +240,10 @@ export default class AddressManagerPlugin extends Plugin {
 
         fetch(`${this.options.addressManagerUrl}${id ? `/${id}` : ''}?type=${type}`, {
             method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
         })
             .then(response => response.text())
             .then(data => this._replaceModalContent(data));

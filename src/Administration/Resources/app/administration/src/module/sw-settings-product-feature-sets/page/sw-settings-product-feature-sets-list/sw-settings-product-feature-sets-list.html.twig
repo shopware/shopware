@@ -59,7 +59,7 @@
                 v-if="isLoading || productFeatureSets"
                 ref="swSettingsProductFeatureSetsGrid"
                 class="sw-settings-product-feature-sets-list-grid"
-                :items="productFeatureSets"
+                :data-source="productFeatureSets"
                 :columns="getProductFeatureSetsColumns()"
                 :repository="productFeatureSetsRepository"
                 detail-route="sw.settings.product.feature.sets.detail"

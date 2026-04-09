@@ -112,7 +112,7 @@ class SitemapExporterTest extends TestCase
             return true;
         });
 
-        $cache->method('deleteItem')->willReturnCallback(function (string $k) use (&$cacheItem): bool {
+        $cache->method('deleteItem')->willReturnCallback(static function (string $k) use (&$cacheItem): bool {
             static::assertNotNull($cacheItem, 'Was not locked');
             static::assertSame($cacheItem->getKey(), $k);
             static::assertTrue($cacheItem->isHit(), 'Was not locked');
@@ -161,7 +161,7 @@ class SitemapExporterTest extends TestCase
 
         $domains = $salesChannel->getDomains();
         static::assertNotNull($domains);
-        $languageIds = $domains->map(fn (SalesChannelDomainEntity $salesChannelDomain) => $salesChannelDomain->getLanguageId());
+        $languageIds = $domains->map(static fn (SalesChannelDomainEntity $salesChannelDomain) => $salesChannelDomain->getLanguageId());
 
         $languageIds = array_unique($languageIds);
 
@@ -197,7 +197,7 @@ class SitemapExporterTest extends TestCase
 
         $factory = $this->createMock(SitemapHandleFactoryInterface::class);
         $sitemapHandleMock = $this->createMock(SitemapHandleInterface::class);
-        $sitemapHandleMock->expects($this->once())->method('write')->willReturnCallback(function (array $urls): void {
+        $sitemapHandleMock->expects($this->once())->method('write')->willReturnCallback(static function (array $urls): void {
             static::assertCount(2, $urls);
             static::assertInstanceOf(Url::class, $urls[0]);
             static::assertInstanceOf(Url::class, $urls[1]);
@@ -222,20 +222,13 @@ class SitemapExporterTest extends TestCase
 
     private function createCacheItem(string $key, ?bool $value, ?bool $isHit): CacheItemInterface
     {
-        $class = new \ReflectionClass(CacheItem::class);
-        $keyProp = $class->getProperty('key');
-        $keyProp->setAccessible(true);
-
-        $valueProp = $class->getProperty('value');
-        $valueProp->setAccessible(true);
-
-        $isHitProp = $class->getProperty('isHit');
-        $isHitProp->setAccessible(true);
-
         $item = new CacheItem();
-        $keyProp->setValue($item, $key);
-        $valueProp->setValue($item, $value);
-        $isHitProp->setValue($item, $isHit);
+
+        $class = new \ReflectionClass(CacheItem::class);
+
+        $class->getProperty('key')->setValue($item, $key);
+        $class->getProperty('value')->setValue($item, $value);
+        $class->getProperty('isHit')->setValue($item, $isHit);
 
         return $item;
     }

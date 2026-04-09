@@ -48,7 +48,7 @@ class BillingCityRuleTest extends TestCase
         static::assertArrayHasKey('cityName', $constraints, 'Constraint cityName not found in Rule');
         static::assertArrayHasKey('operator', $constraints, 'Constraint operator not found in Rule');
 
-        static::assertEquals([new NotBlank(), new Choice([
+        static::assertEquals([new NotBlank(), new Choice(choices: [
             Rule::OPERATOR_EQ,
             Rule::OPERATOR_NEQ,
             Rule::OPERATOR_EMPTY,

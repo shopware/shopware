@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Shipping\SalesChannel;
 
 use Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -48,11 +49,15 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
         return 'shipping-method-route-' . $salesChannelId;
     }
 
+    /**
+     * Though this is a GET route, caching was not added as the output may be altered depending on dynamic rules,
+     * which is not taken into account during the cache hash calculation.
+     */
     #[Route(
         path: '/store-api/shipping-method',
         name: 'store-api.shipping.method',
-        defaults: ['_entity' => 'shipping_method'],
-        methods: ['GET', 'POST']
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ShippingMethodDefinition::ENTITY_NAME],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
     {
@@ -62,7 +67,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
             ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('media');
 
-        if (empty($criteria->getSorting())) {
+        if ($criteria->getSorting() === []) {
             $criteria->addSorting(new FieldSorting('position'), new FieldSorting('name', FieldSorting::ASCENDING));
         }
 

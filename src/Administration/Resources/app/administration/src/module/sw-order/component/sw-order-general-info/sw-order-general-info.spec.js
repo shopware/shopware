@@ -168,6 +168,7 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
     let wrapper;
 
     beforeAll(() => {
+        global.activeAclRoles = ['order.editor'];
         setActivePinia(createPinia());
     });
 
@@ -248,5 +249,25 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
 
         expect(wrapper.vm.lastChangedUser).toBe('bar');
         expect(wrapper.vm.lastChangedDateTime).toBe('2020-01-01T00:00:00.000Z');
+    });
+
+    it('should disable state selects on loading', async () => {
+        const stateSelects = wrapper.findAll('.sw-order-general-info__order-state');
+        expect(stateSelects).toHaveLength(3);
+
+        wrapper.vm.onLeaveModalConfirm([], false);
+
+        expect(Shopware.Store.get('swOrderDetail').isLoading).toBeTruthy();
+
+        Shopware.Store.get('swOrderDetail').savedSuccessful = true;
+        wrapper.vm.$options.watch.savedSuccessful.call(wrapper.vm, false, true);
+
+        expect(Shopware.Store.get('swOrderDetail').isLoading).toBeFalsy();
+
+        stateSelects.forEach((select) => {
+            // get first child first
+            const selectStub = select.find('sw-order-state-select-v2-stub');
+            expect(selectStub.attributes('disabled')).toBe('false');
+        });
     });
 });

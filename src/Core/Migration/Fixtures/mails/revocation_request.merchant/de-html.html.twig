@@ -1,0 +1,24 @@
+<div style="font-family: arial; font-size: 12px;">
+    <p>
+        Neuer Widerrufsantrag für den Vertrag mit der Nummer {{ revocationRequestFormData.contractNumber }}.
+    </p>
+    <p>
+        Weitere Informationen:
+        <br/>
+        Vorname: {{ revocationRequestFormData.firstName }}
+        <br/>
+        Nachname: {{ revocationRequestFormData.lastName }}
+        <br/>
+        E-Mail-Adresse: {{ revocationRequestFormData.email }}
+        <br/>
+        Vertragsnummer (Bestellnummer, Abonnementnummer, ...): {{ revocationRequestFormData.contractNumber }}
+        {% if revocationRequestFormData.comment %}
+            <br/>
+            Kommentar:<br/>
+            {{ revocationRequestFormData.comment }}
+        {% endif %}
+    </p>
+    <p>
+        Das Formular wurde am {{ revocationRequestFormData.submitTime|format_datetime('medium', 'short', locale='de-DE') }} eingereicht.
+    </p>
+</div>

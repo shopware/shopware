@@ -22,7 +22,6 @@ export default {
     ],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
             required: true,
         },
@@ -271,6 +270,24 @@ export default {
             this.currentDomain = domain;
         },
 
+        setInitialMeasurementUnits(domain) {
+            if (
+                !this.salesChannel.measurementUnits ||
+                !this.salesChannel.measurementUnits.system ||
+                !this.salesChannel.measurementUnits.units
+            ) {
+                return;
+            }
+
+            domain.measurementUnits = {
+                system: this.salesChannel.measurementUnits.system,
+                units: {
+                    length: this.salesChannel.measurementUnits.units.length,
+                    weight: this.salesChannel.measurementUnits.units.weight,
+                },
+            };
+        },
+
         onClickOpenCreateDomainModal() {
             const domain = this.domainRepository.create(Context.api);
 
@@ -284,8 +301,9 @@ export default {
                 this.setInitialLanguage(domain);
             }
 
+            this.setInitialMeasurementUnits(domain);
+
             domain.hreflangUseOnlyLocale = false;
-            domain.measurementUnits = this.salesChannel.measurementUnits;
 
             this.currentDomain = domain;
             this.isEditingDomain = false;

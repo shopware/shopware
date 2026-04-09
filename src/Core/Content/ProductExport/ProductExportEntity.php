@@ -19,6 +19,7 @@ class ProductExportEntity extends Entity
 
     final public const FILE_FORMAT_CSV = 'csv';
     final public const FILE_FORMAT_XML = 'xml';
+    final public const FILE_FORMAT_JSONL = 'jsonl';
 
     protected string $productStreamId;
 
@@ -37,6 +38,11 @@ class ProductExportEntity extends Entity
     protected string $encoding;
 
     protected string $fileFormat;
+
+    /**
+     * @experimental stableVersion:v6.8.0 feature:AGENTIC_AI_SALES_CHANNEL
+     */
+    protected ?string $provider = null;
 
     protected ?ProductStreamEntity $productStream = null;
 
@@ -154,6 +160,16 @@ class ProductExportEntity extends Entity
     public function setFileFormat(string $fileFormat): void
     {
         $this->fileFormat = $fileFormat;
+    }
+
+    public function getProvider(): ?string
+    {
+        return $this->provider;
+    }
+
+    public function setProvider(?string $provider): void
+    {
+        $this->provider = $provider;
     }
 
     public function getProductStream(): ?ProductStreamEntity

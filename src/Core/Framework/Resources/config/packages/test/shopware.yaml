@@ -1,3 +1,6 @@
+parameters:
+    env(PRODUCT_ANALYTICS_GATEWAY_URL): ''
+
 shopware:
     filesystem:
         private:
@@ -10,6 +13,11 @@ shopware:
             visibility: "public"
             config:
                 root: ~
+
+    cache:
+        invalidation:
+            delay_enabled: false
+            tag_invalidation_log_enabled: false
 
     increment:
         user_activity:

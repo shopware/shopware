@@ -1,5 +1,4 @@
 import template from './sw-cms-sidebar.html.twig';
-import CMS from '../../constant/sw-cms.constant';
 import './sw-cms-sidebar.scss';
 import { type PageType } from '../../service/cms-page-type.service';
 import type MediaUploadResult from '../../shared/MediaUploadResult';
@@ -9,6 +8,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 const types = Shopware.Utils.types;
+const { CMS } = Shopware.Constants;
 
 type DraggableBlock = Entity<'cms_block'> & {
     isDragging?: boolean;
@@ -570,6 +570,8 @@ export default Shopware.Component.wrapComponentConfig({
             if (!dragSectionHasBlock && !dropSectionHasBlock) {
                 this.page.sections![dragSectionIndex].blocks!.add(dragData.block);
             }
+
+            this.$emit('page-save');
         },
 
         onBlockStageDrop(dragData: DragData, dropData: DropData) {

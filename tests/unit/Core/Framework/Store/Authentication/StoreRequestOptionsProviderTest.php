@@ -231,6 +231,9 @@ class StoreRequestOptionsProviderTest extends TestCase
         static::assertSame('locale-from-provider', $queries['language']);
     }
 
+    /**
+     * @return EntityRepository<UserCollection>&MockObject
+     */
     private function configureUserRepositorySearchMock(
         UserCollection $collection,
         InvokedCount $invokedCount

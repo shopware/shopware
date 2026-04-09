@@ -42,6 +42,7 @@ class ImportExportException extends HttpException
 
     final public const INVALID_INSTANCE_TYPE = 'CONTENT__IMPORT_EXPORT__INVALID_INSTANCE_TYPE';
     final public const SERIALIZER_NOT_FOUND = 'CONTENT__IMPORT_EXPORT__SERIALIZER_NOT_FOUND';
+    final public const UPDATE_ENTITY_NOT_FOUND = 'CONTENT__IMPORT_EXPORT__UPDATE_ENTITY_NOT_FOUND';
 
     public static function invalidFileAccessToken(): ShopwareHttpException
     {
@@ -313,6 +314,16 @@ class ImportExportException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MEDIA_FOLDER_NOT_FOUND,
             'Failed to find default media folder for import_export_profile'
+        );
+    }
+
+    public static function updateEntityNotFound(string $entityName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::UPDATE_ENTITY_NOT_FOUND,
+            'The {{ entity }} record was not found. This import profile only allows updates to existing records.',
+            ['entity' => $entityName]
         );
     }
 }

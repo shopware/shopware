@@ -5,11 +5,10 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1649315608AllowDisable extends MigrationStep
@@ -21,17 +20,10 @@ class Migration1649315608AllowDisable extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $columns = array_column($connection->fetchAllAssociative('SHOW COLUMNS FROM `app`'), 'Field');
-
-        if (\in_array('allow_disable', $columns, true)) {
+        if (TableHelper::columnExists($connection, 'app', 'allow_disable')) {
             return;
         }
 
         $connection->executeStatement('ALTER TABLE `app` ADD `allow_disable` TINYINT(1) NOT NULL DEFAULT 1 AFTER `active`;');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

@@ -65,23 +65,23 @@ class AppSnippetFileLoaderTest extends TestCase
 
         static::assertCount(2, $collection);
 
-        $snippetFile = $collection->getSnippetFilesByIso('de-DE')[0];
-        static::assertSame('storefront.de-DE', $snippetFile->getName());
+        $snippetFile = $collection->getSnippetFilesByIso('de')[0];
+        static::assertSame('storefront.de', $snippetFile->getName());
         static::assertSame(
-            __DIR__ . '/_fixtures/Apps/AppWithSnippets/Resources/snippet/storefront.de-DE.json',
+            __DIR__ . '/_fixtures/Apps/AppWithSnippets/Resources/snippet/storefront.de.json',
             $snippetFile->getPath()
         );
-        static::assertSame('de-DE', $snippetFile->getIso());
+        static::assertSame('de', $snippetFile->getIso());
         static::assertSame('shopware AG', $snippetFile->getAuthor());
         static::assertFalse($snippetFile->isBase());
 
-        $snippetFile = $collection->getSnippetFilesByIso('en-GB')[0];
-        static::assertSame('storefront.en-GB', $snippetFile->getName());
+        $snippetFile = $collection->getSnippetFilesByIso('en')[0];
+        static::assertSame('storefront.en', $snippetFile->getName());
         static::assertSame(
-            __DIR__ . '/_fixtures/Apps/AppWithSnippets/Resources/snippet/storefront.en-GB.json',
+            __DIR__ . '/_fixtures/Apps/AppWithSnippets/Resources/snippet/storefront.en.json',
             $snippetFile->getPath()
         );
-        static::assertSame('en-GB', $snippetFile->getIso());
+        static::assertSame('en', $snippetFile->getIso());
         static::assertSame('shopware AG', $snippetFile->getAuthor());
         static::assertFalse($snippetFile->isBase());
     }
@@ -107,23 +107,23 @@ class AppSnippetFileLoaderTest extends TestCase
 
         static::assertCount(2, $collection);
 
-        $snippetFile = $collection->getSnippetFilesByIso('de-DE')[0];
-        static::assertSame('storefront.de-DE', $snippetFile->getName());
+        $snippetFile = $collection->getSnippetFilesByIso('de')[0];
+        static::assertSame('storefront.de', $snippetFile->getName());
         static::assertSame(
-            __DIR__ . '/_fixtures/Apps/AppWithBaseSnippets/Resources/snippet/storefront.de-DE.base.json',
+            __DIR__ . '/_fixtures/Apps/AppWithBaseSnippets/Resources/snippet/storefront.de.base.json',
             $snippetFile->getPath()
         );
-        static::assertSame('de-DE', $snippetFile->getIso());
+        static::assertSame('de', $snippetFile->getIso());
         static::assertSame('shopware AG', $snippetFile->getAuthor());
         static::assertTrue($snippetFile->isBase());
 
-        $snippetFile = $collection->getSnippetFilesByIso('en-GB')[0];
-        static::assertSame('storefront.en-GB', $snippetFile->getName());
+        $snippetFile = $collection->getSnippetFilesByIso('en')[0];
+        static::assertSame('storefront.en', $snippetFile->getName());
         static::assertSame(
-            __DIR__ . '/_fixtures/Apps/AppWithBaseSnippets/Resources/snippet/storefront.en-GB.base.json',
+            __DIR__ . '/_fixtures/Apps/AppWithBaseSnippets/Resources/snippet/storefront.en.base.json',
             $snippetFile->getPath()
         );
-        static::assertSame('en-GB', $snippetFile->getIso());
+        static::assertSame('en', $snippetFile->getIso());
         static::assertSame('shopware AG', $snippetFile->getAuthor());
         static::assertTrue($snippetFile->isBase());
     }

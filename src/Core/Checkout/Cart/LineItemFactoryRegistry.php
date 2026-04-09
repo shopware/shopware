@@ -39,7 +39,7 @@ class LineItemFactoryRegistry
     }
 
     /**
-     * @param array<string|int, mixed> $data
+     * @param array<string, mixed> $data
      */
     public function create(array $data, SalesChannelContext $context): LineItem
     {
@@ -58,7 +58,7 @@ class LineItemFactoryRegistry
     }
 
     /**
-     * @param array<string|int, mixed> $data
+     * @param array<string, mixed> $data
      */
     public function update(Cart $cart, array $data, SalesChannelContext $context): void
     {
@@ -72,7 +72,7 @@ class LineItemFactoryRegistry
     }
 
     /**
-     * @param array<string|int, mixed> $data
+     * @param array<string, mixed> $data
      */
     public function updateLineItem(Cart $cart, array $data, LineItem $lineItem, SalesChannelContext $context): void
     {
@@ -111,7 +111,7 @@ class LineItemFactoryRegistry
     }
 
     /**
-     * @param array<string|int, mixed> $data
+     * @param array<string, mixed> $data
      */
     private function validate(array $data): void
     {
@@ -129,7 +129,7 @@ class LineItemFactoryRegistry
             ->add('removable', new Type('bool'))
             ->add('label', new Type('string'))
             ->add('referencedId', new Type('string'))
-            ->add('coverId', new Type('string'), new EntityExists(['entity' => MediaDefinition::ENTITY_NAME, 'context' => Context::createDefaultContext()]))
+            ->add('coverId', new Type('string'), new EntityExists(entity: MediaDefinition::ENTITY_NAME, context: Context::createDefaultContext()))
             ->addSub(
                 'priceDefinition',
                 (new DataValidationDefinition())

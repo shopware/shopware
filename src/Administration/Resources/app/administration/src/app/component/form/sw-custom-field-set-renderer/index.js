@@ -185,7 +185,6 @@ export default {
 
         customFields: {
             handler(customFields) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.entity.customFields = customFields;
             },
             deep: true,
@@ -289,22 +288,24 @@ export default {
         supportsMapInheritance(customField) {
             const componentName = customField.config.componentName;
 
-            if (customField.config.customFieldType === 'date') {
-                return false;
-            }
-
             return this.componentsWithMapInheritanceSupport.includes(componentName);
+        },
+
+        isMeteorComponent(customField) {
+            return [
+                'bool',
+                'text',
+                'number',
+                'float',
+                'int',
+                'datetime',
+            ].includes(customField.type);
         },
 
         getBind(customField, props) {
             const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
 
-            const isMeteorComponent = [
-                // Disabled for now, enable once Inheritance is aligned on all meteor components
-                // 'bool',
-                // 'switch',
-                // 'text',
-            ].includes(customField.type);
+            const isMeteorComponent = this.isMeteorComponent(customField);
 
             if (customFieldClone.type === 'bool') {
                 customFieldClone.config.bordered = true;
@@ -337,6 +338,18 @@ export default {
             delete customFieldClone.config.helpText;
 
             return customFieldClone;
+        },
+
+        getElementEventListeners(customField, props) {
+            const isMeteorComponent = this.isMeteorComponent(customField);
+            const eventHandler = {};
+
+            if (isMeteorComponent) {
+                eventHandler['inheritance-remove'] = props.removeInheritance;
+                eventHandler['inheritance-restore'] = props.restoreInheritance;
+            }
+
+            return eventHandler;
         },
 
         getInheritWrapperBind(customField) {
@@ -382,7 +395,6 @@ export default {
                     // replace the fully fetched set
                     this.sets.forEach((originalSet, index) => {
                         if (originalSet.id === newSet.id) {
-                            // eslint-disable-next-line vue/no-mutating-props
                             this.sets[index] = newSet;
                         }
                     });
@@ -411,7 +423,6 @@ export default {
             if (this.$refs.tabComponent || this.tabWaitsAttempts > this.tabWaitMaxAttempts) {
                 return this.resetTabs();
             }
-            // eslint-disable-next-line vue/valid-next-tick
             return this.$nextTick(() => {
                 this.tabWaitsAttempts += 1;
                 this.waitForTabComponent();
@@ -446,7 +457,6 @@ export default {
                     this.initializeCustomFields();
                     return;
                 }
-                // eslint-disable-next-line vue/no-mutating-props
                 this.entity.customFieldSets = this.entity.customFieldSets.filter(() => {
                     return false;
                 });

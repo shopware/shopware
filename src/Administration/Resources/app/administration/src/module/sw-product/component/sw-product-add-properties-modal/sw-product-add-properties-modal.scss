@@ -52,15 +52,6 @@ $background-color: $color-gray-100;
         padding-left: 5px;
     }
 
-    .sw-empty-state {
-        min-height: $min-height-empty-state;
-    }
-
-    .sw-empty-state .sw-empty-state__title {
-        margin-bottom: 0;
-        font-size: $font-size-s;
-    }
-
     .sw-property-search {
         .sw-property-search__toolbar {
             margin-bottom: 0;

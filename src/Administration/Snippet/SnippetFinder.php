@@ -4,13 +4,14 @@ namespace Shopware\Administration\Snippet;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Snippet\DataTransfer\SnippetPath\SnippetPath;
 use Shopware\Core\System\Snippet\DataTransfer\SnippetPath\SnippetPathCollection;
-use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
+use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 use Symfony\Component\Filesystem\Path;
@@ -36,7 +37,8 @@ class SnippetFinder implements SnippetFinderInterface
         private readonly Connection $connection,
         private readonly Filesystem $translationReader,
         private readonly TranslationConfig $translationConfig,
-        private readonly TranslationLoader $translationLoader,
+        private readonly AbstractTranslationLoader $translationLoader,
+        private readonly HtmlSanitizer $htmlSanitizer,
     ) {
     }
 
@@ -45,29 +47,34 @@ class SnippetFinder implements SnippetFinderInterface
      */
     public function findSnippets(string $locale): array
     {
-        $snippetFiles = $this->findSnippetFiles($locale);
-        $snippets = $this->parseFiles($snippetFiles);
+        $countryAgnosticSnippetFiles = $this->findSnippetFiles($locale, true);
+        $countrySpecificSnippetFiles = $this->findSnippetFiles($locale);
 
-        return [...$snippets, ...$this->getAppAdministrationSnippets($locale)];
+        $countryAgnosticSnippets = $this->parseFiles($countryAgnosticSnippetFiles);
+        $countrySpecificSnippets = $this->parseFiles($countrySpecificSnippetFiles);
+
+        return array_replace_recursive(
+            $countryAgnosticSnippets,
+            $countrySpecificSnippets,
+            $this->getAppAdministrationSnippets($locale),
+        );
     }
 
-    private function findSnippetFiles(string $locale): SnippetPathCollection
+    private function findSnippetFiles(string $locale, bool $isBaseLanguage = false): SnippetPathCollection
     {
+        if ($isBaseLanguage) {
+            $locale = explode('-', $locale)[0];
+        }
+
         $paths = new SnippetPathCollection();
         $this->addInstalledPlatformPaths($paths, $locale);
 
         if ($paths->isEmpty()) {
-            // @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
-            if (!Feature::isActive('v6.8.0.0')) {
-                $this->addShopwareLegacyPaths($paths);
-            }
+            $this->addShopwareCorePaths($paths);
         }
 
         $snippetNames = ['administration.json'];
-        if (!Feature::isActive('v6.8.0.0')) {
-            // @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
-            $snippetNames[] = \sprintf('%s.json', $locale);
-        }
+        $snippetNames[] = \sprintf('%s.json', $locale);
 
         $this->addPluginPaths($paths, $locale);
         $this->addMeteorBundlePaths($paths);
@@ -85,11 +92,11 @@ class SnippetFinder implements SnippetFinderInterface
 
         $snippetFiles = new SnippetPathCollection();
         array_map(
-            fn (string $path) => $snippetFiles->add(new SnippetPath($path, true)),
+            static fn (string $path) => $snippetFiles->add(new SnippetPath($path, true)),
             $this->findLocalSnippetFiles($snippetNames, $localPaths),
         );
         array_map(
-            fn (string $path) => $snippetFiles->add(new SnippetPath($path)),
+            static fn (string $path) => $snippetFiles->add(new SnippetPath($path)),
             $this->findRemoteSnippetFiles($snippetNames, $remotePaths),
         );
 
@@ -98,9 +105,9 @@ class SnippetFinder implements SnippetFinderInterface
 
     private function addInstalledPlatformPaths(SnippetPathCollection $paths, string $locale): void
     {
-        $path = Path::join($this->translationLoader->getLocalePath($locale), 'Platform');
+        $path = $this->getValidatedLocalePath($locale);
 
-        if (!$this->translationReader->directoryExists($path)) {
+        if ($path === null) {
             return;
         }
 
@@ -112,11 +119,9 @@ class SnippetFinder implements SnippetFinderInterface
         $activePlugins = $this->kernel->getPluginLoader()->getPluginInstances()->getActives();
 
         foreach ($activePlugins as $plugin) {
-            $name = $this->translationConfig->getMappedPluginName($plugin);
-            $path = Path::join($this->translationLoader->getLocalePath($locale), 'Plugins', $name);
+            $path = $this->getValidatedLocalePath($locale, $plugin);
 
-            // add the path of the installed plugin translation if it exists
-            if ($this->translationReader->directoryExists($path)) {
+            if ($path !== null) {
                 $paths->add(new SnippetPath($path));
 
                 continue;
@@ -134,6 +139,32 @@ class SnippetFinder implements SnippetFinderInterface
                 $paths->add(new SnippetPath($meteorPluginPath, true));
             }
         }
+    }
+
+    private function getValidatedLocalePath(string $locale, ?Plugin $plugin = null): ?string
+    {
+        if (\in_array($locale, $this->translationConfig->excludedLocales, true)) {
+            return null;
+        }
+
+        $path = $this->buildLocalePath($locale, $plugin);
+
+        if (!$this->translationReader->directoryExists($path)) {
+            return null;
+        }
+
+        return $path;
+    }
+
+    private function buildLocalePath(string $locale, ?Plugin $plugin = null): string
+    {
+        if ($plugin === null) {
+            return Path::join($this->translationLoader->getLocalePath($locale), SnippetFileLoader::SCOPE_PLATFORM);
+        }
+
+        $name = $this->translationConfig->getMappedPluginName($plugin);
+
+        return Path::join($this->translationLoader->getLocalePath($locale), SnippetFileLoader::SCOPE_PLUGINS, $name);
     }
 
     private function addMeteorBundlePaths(SnippetPathCollection $paths): void
@@ -157,11 +188,7 @@ class SnippetFinder implements SnippetFinderInterface
         }
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed and replaced with the new translation system.
-     * The method `getInstalledSnippetPaths` will be used to fetch the paths.
-     */
-    private function addShopwareLegacyPaths(SnippetPathCollection $paths): void
+    private function addShopwareCorePaths(SnippetPathCollection $paths): void
     {
         $plugins = $this->kernel->getPluginLoader()->getPluginInstances()->all();
         $bundles = $this->kernel->getBundles();
@@ -215,7 +242,7 @@ class SnippetFinder implements SnippetFinderInterface
             } else {
                 $content = $this->translationReader->read($file->location);
             }
-            if (!empty($content)) {
+            if ($content !== '') {
                 $snippets[] = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR) ?? [];
             }
         }
@@ -241,7 +268,7 @@ class SnippetFinder implements SnippetFinderInterface
         );
 
         $decodedSnippets = \array_map(
-            fn ($data) => \json_decode((string) $data['value'], true, 512, \JSON_THROW_ON_ERROR),
+            static fn ($data) => \json_decode((string) $data['value'], true, 512, \JSON_THROW_ON_ERROR),
             $result
         );
 
@@ -257,12 +284,10 @@ class SnippetFinder implements SnippetFinderInterface
      */
     private function sanitizeAppSnippets(array $snippets): array
     {
-        $sanitizer = new HtmlSanitizer();
-
         $sanitizedSnippets = [];
         foreach ($snippets as $key => $value) {
             if (\is_string($value)) {
-                $sanitizedSnippets[$key] = $sanitizer->sanitize($value);
+                $sanitizedSnippets[$key] = $this->htmlSanitizer->sanitize($value);
 
                 continue;
             }
@@ -312,7 +337,7 @@ class SnippetFinder implements SnippetFinderInterface
         $files = [];
         foreach ($paths as $path) {
             $snippetPaths = \array_map(
-                fn (string $name) => Path::join($path->location, $name),
+                static fn (string $name) => Path::join($path->location, $name),
                 $snippetNames
             );
             $existingSnippetNames = \array_filter(

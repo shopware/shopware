@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,19 +19,19 @@ class RouteScopeListener implements EventSubscriberInterface
     /**
      * @var RouteScopeWhitelistInterface[]
      */
-    private readonly array $whitelists;
+    private readonly array $allowLists;
 
     /**
      * @internal
      *
-     * @param iterable<RouteScopeWhitelistInterface> $whitelists
+     * @param iterable<RouteScopeWhitelistInterface> $allowLists
      */
     public function __construct(
         private readonly RouteScopeRegistry $routeScopeRegistry,
         private readonly RequestStack $requestStack,
-        iterable $whitelists
+        iterable $allowLists
     ) {
-        $this->whitelists = \is_array($whitelists) ? $whitelists : iterator_to_array($whitelists);
+        $this->allowLists = \is_array($allowLists) ? $allowLists : iterator_to_array($allowLists);
     }
 
     public static function getSubscribedEvents(): array
@@ -54,20 +53,20 @@ class RouteScopeListener implements EventSubscriberInterface
         }
 
         $scopes = $this->extractCurrentScopeAnnotation($event);
-        $masterRequest = $this->getMainRequest();
+        $mainRequest = $this->getMainRequest();
 
         foreach ($scopes as $routeScopeName) {
             $routeScope = $this->routeScopeRegistry->getRouteScope($routeScopeName);
 
-            $pathAllowed = $routeScope->isAllowedPath($masterRequest->getPathInfo());
-            $requestAllowed = $routeScope->isAllowed($masterRequest);
+            $pathAllowed = $routeScope->isAllowedPath($mainRequest->getPathInfo());
+            $requestAllowed = $routeScope->isAllowed($mainRequest);
 
             if ($pathAllowed && $requestAllowed) {
                 return;
             }
         }
 
-        throw new InvalidRouteScopeException($masterRequest->attributes->get('_route'));
+        throw RoutingException::invalidRouteScope($mainRequest->attributes->get('_route'));
     }
 
     private function extractControllerClass(ControllerEvent $event): ?string
@@ -92,7 +91,7 @@ class RouteScopeListener implements EventSubscriberInterface
             return false;
         }
 
-        foreach ($this->whitelists as $whitelist) {
+        foreach ($this->allowLists as $whitelist) {
             if ($whitelist->applies($controllerClass)) {
                 return true;
             }
@@ -109,23 +108,23 @@ class RouteScopeListener implements EventSubscriberInterface
         $currentRequest = $event->getRequest();
 
         /** @var list<string> $scopes */
-        $scopes = $currentRequest->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
+        $scopes = $currentRequest->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
         if ($scopes !== []) {
             return $scopes;
         }
 
-        throw new InvalidRouteScopeException($currentRequest->attributes->get('_route'));
+        throw RoutingException::invalidRouteScope($currentRequest->attributes->get('_route'));
     }
 
     private function getMainRequest(): Request
     {
-        $masterRequest = $this->requestStack->getMainRequest();
+        $mainRequest = $this->requestStack->getMainRequest();
 
-        if (!$masterRequest) {
-            throw new \InvalidArgumentException('Unable to check the request scope without master request');
+        if (!$mainRequest) {
+            throw RoutingException::missingMainRequest();
         }
 
-        return $masterRequest;
+        return $mainRequest;
     }
 }

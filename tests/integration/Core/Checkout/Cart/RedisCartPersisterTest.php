@@ -47,7 +47,10 @@ class RedisCartPersisterTest extends TestCase
     protected function tearDown(): void
     {
         parent::tearDown();
-        $this->redis->flushAll();
+        // Clear the Redis storage only if it was set up and not skipped
+        if (isset($this->redis)) {
+            $this->redis->flushAll();
+        }
     }
 
     public function testPersisting(): void
@@ -91,6 +94,21 @@ class RedisCartPersisterTest extends TestCase
         $this->persister->load($token, $context);
     }
 
+    public function testSavingExistingCartDoesNotRecreateDeletedCart(): void
+    {
+        $token = Uuid::randomHex();
+        $cart = new Cart($token);
+        $cart->add(new LineItem('test', 'test'));
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $this->persister->save($cart, $context);
+        $this->persister->delete($token, $context);
+        $this->persister->save($cart, $context);
+
+        static::assertSame(0, $this->redis->exists(RedisCartPersister::PREFIX . $token));
+    }
+
     public function testLoadGzipCompressedCart(): void
     {
         $token = Uuid::randomHex();
@@ -101,6 +119,8 @@ class RedisCartPersisterTest extends TestCase
         $this->redis->set(RedisCartPersister::PREFIX . $token, serialize($compressed));
 
         $loaded = $this->persister->load($token, $this->createMock(SalesChannelContext::class));
+
+        $cart->setPersisted(true);
 
         static::assertEquals($cart, $loaded);
     }
@@ -120,6 +140,8 @@ class RedisCartPersisterTest extends TestCase
 
         $loaded = $this->persister->load($token, $this->createMock(SalesChannelContext::class));
 
-        static::assertSame($cart, $loaded);
+        $cart->setPersisted(true);
+
+        static::assertEquals($cart, $loaded);
     }
 }

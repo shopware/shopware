@@ -1,6 +1,5 @@
 import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-shipping-detail.html.twig';
-import './sw-settings-shipping-detail.scss';
 import './store';
 
 const { Mixin, Context } = Shopware;
@@ -181,7 +180,7 @@ export default {
                 const shippingMethod = this.shippingMethodRepository.create();
                 const shippingMethodPrice = this.shippingMethodPricesRepository.create();
                 shippingMethodPrice.calculation = 1;
-                shippingMethodPrice.quantityStart = 1;
+                shippingMethodPrice.quantityStart = 0;
                 shippingMethodPrice.shippingMethodId = shippingMethod.id;
                 shippingMethodPrice.ruleId = null;
                 shippingMethod.prices.add(shippingMethodPrice);
@@ -281,13 +280,12 @@ export default {
 
             try {
                 errorDetails = error.response.data.errors[0].detail;
-            } catch (e) {
+            } catch (_e) {
                 errorDetails = '';
             }
 
             this.createNotificationError({
                 title: this.$tc('global.default.error'),
-                // eslint-disable-next-line max-len
                 message: `${this.$tc('sw-settings-shipping.detail.messageSaveError', { name: this.shippingMethod.name }, 0)} ${errorDetails}`,
             });
         },

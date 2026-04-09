@@ -4,7 +4,6 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DALFieldsMustBeRegisteredWithSchemaBuilder;
 
@@ -13,7 +12,6 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DALFieldsMustBeRegisteredWi
  *
  * @extends  RuleTestCase<DALFieldsMustBeRegisteredWithSchemaBuilder>
  */
-#[CoversClass(DALFieldsMustBeRegisteredWithSchemaBuilder::class)]
 class DALFieldsMustBeRegisteredWithSchemaBuilderTest extends RuleTestCase
 {
     #[RunInSeparateProcess]

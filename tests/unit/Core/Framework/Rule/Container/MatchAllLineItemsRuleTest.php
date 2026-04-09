@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Symfony\Component\Validator\Constraints\Type;
@@ -242,7 +243,16 @@ class MatchAllLineItemsRuleTest extends TestCase
         static::assertFalse($match);
     }
 
-    public function testShouldReturnFalseIfNoLineItemsOfTypeArePresent(): void
+    public function testShouldReturnFalseWhenScopeIsNotCartOrLineItemScope(): void
+    {
+        $rule = new MatchAllLineItemsRule();
+
+        $match = $rule->match($this->createMock(RuleScope::class));
+
+        static::assertFalse($match);
+    }
+
+    public function testShouldReturnTrueWhenNoLineItemsOfFilteredTypeExist(): void
     {
         $rule = new MatchAllLineItemsRule([], null, ['product']);
 
@@ -253,7 +263,7 @@ class MatchAllLineItemsRuleTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         ));
 
-        static::assertFalse($match);
+        static::assertTrue($match);
     }
 
     public function testShouldEvaluateGivenItemsIfTypesAreNotSet(): void

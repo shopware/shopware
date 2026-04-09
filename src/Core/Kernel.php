@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\Framework\Util\IOStreamHelper;
 use Shopware\Core\Framework\Util\VersionParser;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
@@ -29,6 +30,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
+use Symfony\UX\TwigComponent\TwigComponentBundle;
 
 #[Package('framework')]
 class Kernel extends HttpKernel
@@ -113,6 +115,11 @@ class Kernel extends HttpKernel
             }
         }
 
+        if ((!Feature::has('v6.8.0.0') || !Feature::isActive('v6.8.0.0')) && !isset($bundles[TwigComponentBundle::class])) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', \sprintf('The %s bundle should be added to config/bundles.php', TwigComponentBundle::class));
+            yield new TwigComponentBundle();
+        }
+
         yield from $this->pluginLoader->getBundles($kernelParameters, $instantiatedBundleNames);
     }
 
@@ -141,9 +148,7 @@ class Kernel extends HttpKernel
                 // initialize plugins before booting
                 $this->pluginLoader->initializePlugins($this->getProjectDir());
             } catch (DBALException $e) {
-                if (\defined('\STDERR')) {
-                    fwrite(\STDERR, 'Warning: Failed to load plugins. Message: ' . $e->getMessage() . \PHP_EOL);
-                }
+                IOStreamHelper::writeError('Warning: Failed to load plugins', $e);
             }
         }
 

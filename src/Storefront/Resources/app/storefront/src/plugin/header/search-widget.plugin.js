@@ -2,7 +2,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 import Debouncer from 'src/helper/debouncer.helper';
 /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
-import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading-indicator.util';
+import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
 
 export default class SearchWidgetPlugin extends Plugin {
 
@@ -12,6 +12,8 @@ export default class SearchWidgetPlugin extends Plugin {
         searchWidgetResultItemSelector: '.js-result',
         searchWidgetInputFieldSelector: 'input[type=search]',
         searchWidgetButtonFieldSelector: 'button[type=submit]',
+        searchWidgetResultListboxSelector: '#search-suggest-listbox',
+        searchWidgetResultInfoSelector: '#search-suggest-result-info',
         searchWidgetUrlDataAttribute: 'data-url',
         searchWidgetCollapseButtonSelector: '.js-search-toggle-btn',
         searchWidgetCollapseClass: 'collapsed',
@@ -100,12 +102,12 @@ export default class SearchWidgetPlugin extends Plugin {
     /**
      * Handles the keydown event on the input field,
      * to focus into the search suggestions list.
-     * 
+     *
      * @param {Event} event
      * @private
      */
     _handleKeyEvent(event) {
-        if (event.key !== 'ArrowDown' || 
+        if (event.key !== 'ArrowDown' ||
             this._inputField.value.trim() === '') {
             return;
         }
@@ -122,17 +124,17 @@ export default class SearchWidgetPlugin extends Plugin {
     /**
      * Handles the keydown event on the search suggestions list,
      * to move the focus up or down the list.
-     * 
+     *
      * @param {number} index
      * @param {Event} event
      * @private
      */
     _handleSearchItemKeyEvent(index, event) {
-        if (event.key !== 'ArrowDown' && 
+        if (event.key !== 'ArrowDown' &&
             event.key !== 'ArrowUp') {
             return;
         }
- 
+
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
@@ -148,7 +150,7 @@ export default class SearchWidgetPlugin extends Plugin {
 
     /**
      * Moves the focus up the search results list.
-     * 
+     *
      * @param {number} currentIndex
      * @private
      */
@@ -164,7 +166,7 @@ export default class SearchWidgetPlugin extends Plugin {
 
     /**
      * Moves the focus down the search results list.
-     * 
+     *
      * @param {number} currentIndex
      * @private
      */
@@ -184,7 +186,7 @@ export default class SearchWidgetPlugin extends Plugin {
         const url = this._url + encodeURIComponent(value);
 
         // init loading indicator
-        const indicator = new ButtonLoadingIndicator(this._submitButton);
+        const indicator = new LoadingIndicatorUtil(this._submitButton);
         indicator.create();
 
         this.$emitter.publish('beforeSearch');
@@ -204,6 +206,7 @@ export default class SearchWidgetPlugin extends Plugin {
                 const searchWidgetButtonField = this.el.querySelector(this.options.searchWidgetButtonFieldSelector);
                 searchWidgetButtonField.insertAdjacentHTML('afterend', content);
 
+                this._setAccessibilityAttributes();
                 this._inputField.setAttribute('aria-expanded', 'true');
 
                 const searchSuggest = document.querySelector(this.options.searchWidgetResultSelector);
@@ -219,7 +222,7 @@ export default class SearchWidgetPlugin extends Plugin {
             .catch(() => {
                 // remove indicator
                 indicator.remove();
-                
+
                 // clear any existing results
                 this._clearSuggestResults();
             });
@@ -234,9 +237,27 @@ export default class SearchWidgetPlugin extends Plugin {
         const results = document.querySelectorAll(this.options.searchWidgetResultSelector);
         results.forEach(result => result.remove());
 
+        this._removeAccessibilityAttributes();
         this._inputField.setAttribute('aria-expanded', 'false');
 
         this.$emitter.publish('clearSuggestResults');
+    }
+
+    _setAccessibilityAttributes() {
+        const listbox = document.querySelector(this.options.searchWidgetResultListboxSelector);
+        if (listbox) {
+            this._inputField.setAttribute('aria-controls', listbox.id);
+        }
+
+        const resultInfo = document.querySelector(this.options.searchWidgetResultInfoSelector);
+        if (resultInfo) {
+            this._inputField.setAttribute('aria-describedby', resultInfo.id);
+        }
+    }
+
+    _removeAccessibilityAttributes() {
+        this._inputField.removeAttribute('aria-controls');
+        this._inputField.removeAttribute('aria-describedby');
     }
 
     /**

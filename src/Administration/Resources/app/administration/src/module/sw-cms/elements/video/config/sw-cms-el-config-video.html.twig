@@ -1,0 +1,259 @@
+{% block sw_cms_element_video_config %}
+<div class="sw-cms-el-config-video">
+    <sw-cms-inherit-wrapper
+        field="media"
+        :element="element"
+        :label="$t('sw-cms.elements.video.label')"
+    >
+        <template #default="{ isInherited }">
+            {% block sw_cms_element_video_config_media_upload %}
+            <sw-cms-mapping-field
+                v-model:config="element.config.media"
+                value-types="entity"
+                entity="media"
+                :disabled="isInherited"
+            >
+                <sw-media-upload-v2
+                    variant="regular"
+                    :upload-tag="uploadTag"
+                    :source="previewSource"
+                    :allow-multi-select="false"
+                    :default-folder="cmsPageState.pageEntityName"
+                    :caption="$t('sw-cms.elements.general.config.caption.mediaUpload')"
+                    :disabled="isInherited"
+                    file-accept="video/*"
+                    @media-upload-sidebar-open="onOpenMediaModal"
+                    @media-upload-remove-image="onVideoRemove"
+                />
+
+                <template #preview="{ demoValue }">
+                    <div class="sw-cms-el-config-video__mapping-preview">
+                        <video
+                            v-if="demoValue.url"
+                            class="sw-cms-el-config-video__mapping-preview-video"
+                            :src="demoValue.url"
+                            alt=""
+                            controls
+                        ></video>
+                        <mt-banner
+                            v-else
+                            class="sw-cms-el-config-video__mapping-preview-info"
+                            variant="info"
+                        >
+                            {{ $t('sw-cms.detail.label.mappingEmptyPreview') }}
+                        </mt-banner>
+                    </div>
+                </template>
+            </sw-cms-mapping-field>
+
+            <sw-upload-listener
+                :upload-tag="uploadTag"
+                auto-upload
+                @media-upload-finish="onVideoUpload"
+            />
+            {% endblock %}
+
+            {% block sw_cms_element_video_config_media_modal %}
+            <sw-media-modal-v2
+                v-if="showMediaModal"
+                variant="full"
+                :caption="$t('sw-cms.elements.general.config.caption.mediaUpload')"
+                :entity-context="cmsPageState.entityName"
+                :allow-multi-select="false"
+                :initial-folder-id="cmsPageState.defaultMediaFolderId"
+                file-accept="video/*"
+                @media-upload-remove-video="onVideoRemove"
+                @media-modal-selection-change="onSelectionChanges"
+                @modal-close="onCloseModal"
+            />
+            {% endblock %}
+        </template>
+    </sw-cms-inherit-wrapper>
+
+    <div class="sw-cms-el-config-video__checkboxes">
+        <sw-cms-inherit-wrapper
+            field="autoPlay"
+            :element="element"
+        >
+            <template #default="{ isInherited }">
+                <mt-switch
+                    v-model="element.config.autoPlay.value"
+                    class="sw-cms-el-config-video__checkboxes-auto-play"
+                    :disabled="isInherited"
+                    :label="$t('sw-cms.elements.video.config.label.autoPlay')"
+                    :help-text="$t('sw-cms.elements.video.config.helpText.autoPlay')"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+
+        <sw-cms-inherit-wrapper
+            field="muted"
+            :element="element"
+        >
+            <template #default="{ isInherited }">
+                <mt-switch
+                    v-model="element.config.muted.value"
+                    class="sw-cms-el-config-video__checkboxes-muted"
+                    :label="$t('sw-cms.elements.video.config.label.muted')"
+                    :disabled="isInherited || element.config.autoPlay.value === true"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+
+        <sw-cms-inherit-wrapper
+            field="loop"
+            :element="element"
+        >
+            <template #default="{ isInherited }">
+                <mt-switch
+                    v-model="element.config.loop.value"
+                    class="sw-cms-el-config-video__checkboxes-loop"
+                    :label="$t('sw-cms.elements.video.config.label.loop')"
+                    :disabled="isInherited"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+
+        <sw-cms-inherit-wrapper
+            field="showControls"
+            :element="element"
+        >
+            <template #default="{ isInherited }">
+                <mt-switch
+                    v-model="element.config.showControls.value"
+                    class="sw-cms-el-config-video__checkboxes-show-controls"
+                    :label="$t('sw-cms.elements.video.config.label.showControls')"
+                    :disabled="isInherited"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+
+        <sw-cms-inherit-wrapper
+            field="playsInline"
+            :element="element"
+        >
+            <template #default="{ isInherited }">
+                <mt-switch
+                    v-model="element.config.playsInline.value"
+                    class="sw-cms-el-config-video__checkboxes-plays-inline"
+                    :label="$t('sw-cms.elements.video.config.label.playsInline')"
+                    :help-text="$t('sw-cms.elements.video.config.helpText.playsInline')"
+                    :disabled="isInherited"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+
+        <sw-cms-inherit-wrapper
+            field="showCover"
+            :element="element"
+        >
+            <template #default="{ isInherited }">
+                <mt-switch
+                    v-model="element.config.showCover.value"
+                    class="sw-cms-el-config-video__checkboxes-show-cover"
+                    :label="$t('sw-cms.elements.video.config.label.showCover')"
+                    :help-text="$t('sw-cms.elements.video.config.helpText.showCover')"
+                    :disabled="isInherited || element.config.autoPlay.value === true"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+    </div>
+
+    {% block sw_cms_element_video_config_aria_label %}
+    <div class="sw-cms-el-config-video__aria-label">
+        <sw-cms-inherit-wrapper
+            field="ariaLabel"
+            :element="element"
+            :label="$t('sw-cms.elements.video.config.label.ariaLabel')"
+        >
+            <template #default="{ isInherited }">
+                <mt-text-field
+                    v-model="element.config.ariaLabel.value"
+                    class="sw-cms-el-config-video__aria-label"
+                    :help-text="$tc('sw-cms.elements.video.config.helpText.ariaLabel')"
+                    :placeholder="$t('sw-cms.elements.video.config.placeholder.ariaLabel')"
+                    :disabled="isInherited"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+    </div>
+    {% endblock %}
+
+    {% block sw_cms_element_video_config_display_mode %}
+    <sw-cms-inherit-wrapper
+        field="displayMode"
+        :element="element"
+        :label="$t('sw-cms.elements.general.config.label.displayMode')"
+    >
+        <template #default="{ isInherited }">
+            <mt-select
+                v-model:model-value="element.config.displayMode.value"
+                class="sw-cms-el-config-video__display-mode"
+                :help-text="$t('sw-cms.elements.general.config.helpText.displayMode')"
+                :options="displayModeOptions"
+                :disabled="isInherited"
+                @update:model-value="emitUpdate"
+            />
+        </template>
+    </sw-cms-inherit-wrapper>
+    {% endblock %}
+
+    <template v-if="element.config.displayMode.value === 'cover'">
+        {% block sw_cms_element_video_config_min_height %}
+        <sw-cms-inherit-wrapper
+            field="minHeight"
+            :element="element"
+            :label="$t('sw-cms.elements.video.config.label.minHeight')"
+            @update:value="onChangeMinHeight"
+        >
+            <template #default="{ isInherited }">
+                <mt-text-field
+                    v-model:model-value="element.config.minHeight.value"
+                    :placeholder="$t('sw-cms.elements.video.config.placeholder.minHeight')"
+                    :disabled="isInherited"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+        {% endblock %}
+    </template>
+
+    <sw-container
+        columns="1fr 1fr"
+        gap="0px 30px"
+    >
+        {% block sw_cms_element_video_config_vertical_align %}
+        <sw-cms-inherit-wrapper
+            field="verticalAlign"
+            :element="element"
+            :label="$t('sw-cms.elements.general.config.label.verticalAlign')"
+        >
+            <template #default="{ isInherited }">
+                <mt-select
+                    v-model:model-value="element.config.verticalAlign.value"
+                    :placeholder="$t('sw-cms.elements.general.config.label.verticalAlign')"
+                    :disabled="isInherited || element.config.displayMode.value === 'cover'"
+                    :options="verticalAlignOptions"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_cms_element_video_config_horizontal_align %}
+        <sw-cms-inherit-wrapper
+            field="horizontalAlign"
+            :element="element"
+            :label="$t('sw-cms.elements.general.config.label.horizontalAlign')"
+        >
+            <template #default="{ isInherited }">
+                <mt-select
+                    v-model:model-value="element.config.horizontalAlign.value"
+                    :placeholder="$t('sw-cms.elements.general.config.label.horizontalAlign')"
+                    :disabled="isInherited || element.config.displayMode.value === 'cover'"
+                    :options="horizontalAlignOptions"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+        {% endblock %}
+    </sw-container>
+</div>
+{% endblock %}

@@ -160,7 +160,7 @@ describe('arrow-navigation.helper', () => {
         input.dispatchEvent(event);
 
         expect(navigationHelper._iterator).toBe(-1);
-        expect(linkCallback).not.toBeCalled();
+        expect(linkCallback).not.toHaveBeenCalled();
     });
 
     test('it does nothing if no items exists', () => {

@@ -35,16 +35,26 @@ class MaintenanceController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/maintenance', name: 'frontend.maintenance.page', defaults: ['allow_maintenance' => true, '_httpCache' => true], methods: ['GET'])]
+    #[Route(
+        path: '/maintenance',
+        name: 'frontend.maintenance.page',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function renderMaintenancePage(Request $request, SalesChannelContext $context): ?Response
     {
-        $salesChannel = $context->getSalesChannel();
-
         if ($this->maintenanceModeResolver->shouldRedirectToShop($request)) {
+            if ($request->query->getString('redirectTo') !== '') {
+                return $this->createActionResponse($request);
+            }
+
             return $this->redirectToRoute('frontend.home.page');
         }
 
-        $salesChannelId = $salesChannel->getId();
+        $salesChannelId = $context->getSalesChannelId();
         $maintenanceLayoutId = $this->systemConfigService->getString('core.basicInformation.maintenancePage', $salesChannelId);
 
         if ($maintenanceLayoutId === '') {
@@ -78,9 +88,17 @@ class MaintenanceController extends StorefrontController
     }
 
     /**
-     * Route for stand alone cms pages during maintenance
+     * Route for standalone cms pages during maintenance
      */
-    #[Route(path: '/maintenance/singlepage/{id}', name: 'frontend.maintenance.singlepage', defaults: ['allow_maintenance' => true, '_httpCache' => true], methods: ['GET'])]
+    #[Route(
+        path: '/maintenance/singlepage/{id}',
+        name: 'frontend.maintenance.singlepage',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function renderSinglePage(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$id) {

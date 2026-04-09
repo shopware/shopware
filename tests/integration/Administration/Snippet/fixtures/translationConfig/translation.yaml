@@ -1,11 +1,15 @@
 repository-url: 'http://localhost:8000'
+metadata-url: https://raw.githubusercontent.com/shopware/translations/main/crowdin-metadata.json
+
 locales:
     - en-GB
     - de-DE
     - es-ES
+
 plugins:
     - activePlugin
     - testPlugin
+
 languages:
     - locale: en-GB
       name: English (UK)
@@ -13,6 +17,7 @@ languages:
       name: Deutsch
     - locale: es-ES
       name: Español
+
 plugin-mapping:
     - plugin: TestPlugin
       name: activePlugin

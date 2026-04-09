@@ -91,7 +91,8 @@ class CountryStateControllerTest extends TestCase
         static::getContainer()->get('app.repository')->create([[
             'id' => $appId,
             'name' => 'Test',
-            'path' => __DIR__ . '/../Manifest/_fixtures/test',
+            'path' => __DIR__ . '/fixtures/Apps/storefront-endpoint-cases',
+            'active' => true,
             'version' => '0.0.1',
             'label' => 'test',
             'accessToken' => 'test',

@@ -1,6 +1,8 @@
 import template from './sw-condition-operator-select.html.twig';
 import './sw-condition-operator-select.scss';
 
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+
 /**
  * @private
  * @sw-package fundamentals@after-sales
@@ -46,12 +48,20 @@ export default {
             },
             set(operator) {
                 if (!this.condition.value) {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.condition.value = {};
                 }
-                // eslint-disable-next-line vue/no-mutating-props
                 this.condition.value = { ...this.condition.value, operator };
             },
+        },
+
+        operatorClasses() {
+            return {
+                'has--error': this.hasError,
+            };
+        },
+
+        hasError() {
+            return !!this.conditionValueOperatorError;
         },
 
         translatedOperators() {
@@ -62,6 +72,8 @@ export default {
                 };
             });
         },
+
+        ...mapPropertyErrors('condition', ['value.operator']),
     },
 
     methods: {

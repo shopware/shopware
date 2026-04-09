@@ -214,7 +214,7 @@ class LineItemStockRuleTest extends TestCase
 
         static::assertEquals([
             'operator' => [new NotBlank(),
-                new Choice([
+                new Choice(choices: [
                     Rule::OPERATOR_EQ,
                     Rule::OPERATOR_LTE,
                     Rule::OPERATOR_GTE,

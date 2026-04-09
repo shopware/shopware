@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Api;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\Subscriber\CountHandledMessagesListener;
@@ -49,7 +50,7 @@ class ConsumeMessagesController extends AbstractController
     #[Route(path: '/api/_action/message-queue/consume', name: 'api.action.message-queue.consume', methods: ['POST'])]
     public function consumeMessages(Request $request): JsonResponse
     {
-        $receiverName = $request->get('receiver');
+        $receiverName = RequestParamHelper::get($request, 'receiver');
 
         if (!$receiverName || !$this->receiverLocator->has($receiverName)) {
             throw MessageQueueException::validReceiverNameNotProvided();

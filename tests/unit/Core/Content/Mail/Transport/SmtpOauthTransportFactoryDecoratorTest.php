@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Transport\SmtpOauthAuthenticator;
 use Shopware\Core\Content\Mail\Transport\SmtpOauthTransportFactoryDecorator;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Symfony\Component\Mailer\Transport\Dsn;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
@@ -31,7 +30,7 @@ class SmtpOauthTransportFactoryDecoratorTest extends TestCase
 
         static::assertInstanceOf(EsmtpTransport::class, $result);
 
-        $authenticators = ReflectionHelper::getPropertyValue($result, 'authenticators');
+        $authenticators = (new \ReflectionProperty(EsmtpTransport::class, 'authenticators'))->getValue($result);
 
         static::assertNotContains($authenticator, $authenticators);
     }
@@ -52,7 +51,7 @@ class SmtpOauthTransportFactoryDecoratorTest extends TestCase
 
         static::assertInstanceOf(EsmtpTransport::class, $result);
 
-        $authenticators = ReflectionHelper::getPropertyValue($result, 'authenticators');
+        $authenticators = (new \ReflectionProperty(EsmtpTransport::class, 'authenticators'))->getValue($result);
 
         static::assertContains($authenticator, $authenticators);
     }

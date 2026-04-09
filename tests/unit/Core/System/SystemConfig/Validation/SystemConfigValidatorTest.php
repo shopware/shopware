@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
@@ -22,7 +21,7 @@ class SystemConfigValidatorTest extends TestCase
 {
     /**
      * @param array<string, mixed> $inputValues
-     * @param array<string, mixed> $formConfigs
+     * @param list<array<string, mixed>> $formConfigs
      */
     #[DataProvider('dataProviderTestValidateSuccess')]
     public function testValidateSuccess(array $inputValues, array $formConfigs): void
@@ -50,7 +49,7 @@ class SystemConfigValidatorTest extends TestCase
 
     /**
      * @param array<string, mixed> $inputValues
-     * @param array<string, mixed> $formConfigs
+     * @param list<array<string, mixed>> $formConfigs
      */
     #[DataProvider('dataProviderTestValidateFailure')]
     public function testValidateFailure(array $inputValues, array $formConfigs): void
@@ -76,7 +75,7 @@ class SystemConfigValidatorTest extends TestCase
 
     /**
      * @param array<string, mixed> $inputValues
-     * @param array<string, mixed> $formConfigs
+     * @param list<array<string, mixed>> $formConfigs
      */
     #[DataProvider('dataProviderTestValidateSuccess')]
     public function testValidateWithEmptyConfig(array $inputValues, array $formConfigs): void
@@ -111,7 +110,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $contextMock = Context::createDefaultContext();
 
-        $refMethod = ReflectionHelper::getMethod(SystemConfigValidator::class, 'getSystemConfigByDomain');
+        $refMethod = new \ReflectionMethod(SystemConfigValidator::class, 'getSystemConfigByDomain');
 
         $result = $refMethod->invoke($systemConfigValidation, 'dummy domain', $contextMock);
 
@@ -130,7 +129,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $contextMock = Context::createDefaultContext();
 
-        $refMethod = ReflectionHelper::getMethod(SystemConfigValidator::class, 'getSystemConfigByDomain');
+        $refMethod = new \ReflectionMethod(SystemConfigValidator::class, 'getSystemConfigByDomain');
 
         $result = $refMethod->invoke($systemConfigValidation, 'dummy domain', $contextMock);
 
@@ -149,7 +148,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
 
-        $refMethod = ReflectionHelper::getMethod(SystemConfigValidator::class, 'buildConstraintsWithConfigs');
+        $refMethod = new \ReflectionMethod(SystemConfigValidator::class, 'buildConstraintsWithConfigs');
 
         $result = $refMethod->invoke($systemConfigValidation, $elementConfig, $allowNulls);
 
@@ -172,8 +171,8 @@ class SystemConfigValidatorTest extends TestCase
                 'maxLength' => 255,
             ],
             'expected' => [
-                new Assert\Length(['min' => 1]),
-                new Assert\Length(['max' => 255]),
+                new Assert\Length(min: 1),
+                new Assert\Length(max: 255),
                 new Assert\Type('string'),
                 new Assert\NotBlank(),
             ],
@@ -188,8 +187,8 @@ class SystemConfigValidatorTest extends TestCase
                 'max' => 100,
             ],
             'expected' => [
-                new Assert\Range(['min' => 1]),
-                new Assert\Range(['max' => 100]),
+                new Assert\Range(min: 1),
+                new Assert\Range(max: 100),
                 new Assert\Type('int'),
                 new Assert\NotBlank(),
             ],
@@ -204,12 +203,28 @@ class SystemConfigValidatorTest extends TestCase
                 'maxLength' => 255,
             ],
             'expected' => [
-                new Assert\Length(['min' => 1]),
-                new Assert\Length(['max' => 255]),
+                new Assert\Length(min: 1),
+                new Assert\Length(max: 255),
                 new Assert\Type('string'),
                 new Assert\NotBlank(null, null, true),
             ],
             'allowNulls' => true,
+        ];
+
+        yield 'element config with string values for minLength and maxLength' => [
+            'elementConfig' => [
+                'required' => false,
+                'dataType' => 'string',
+                'minLength' => '5',
+                'maxLength' => '100',
+            ],
+            'expected' => [
+                new Assert\Length(min: 5),
+                new Assert\Length(max: 100),
+                new Assert\Type('string'),
+                new Assert\NotBlank(),
+            ],
+            'allowNulls' => false,
         ];
     }
 

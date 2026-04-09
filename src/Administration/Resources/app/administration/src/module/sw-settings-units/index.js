@@ -3,10 +3,10 @@
  */
 import './acl';
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-units-list', () => import('./page/sw-settings-units-list'));
 Shopware.Component.register('sw-settings-units-detail', () => import('./page/sw-settings-units-detail'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 
@@ -17,7 +17,7 @@ Module.register('sw-settings-units', {
     title: 'sw-settings-units.general.mainMenuItemGeneral',
     description: 'Units section in the settings module',
     color: '#9AA8B5',
-    icon: 'regular-cog',
+    icon: 'solid-cog',
     favicon: 'icon-module-settings.png',
     entity: 'units',
 

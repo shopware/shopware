@@ -15,25 +15,25 @@ export default {
             },
             types: [
                 {
-                    option: 'datetime',
+                    value: 'datetime',
                     label: this.$tc('sw-settings-custom-field.customField.detail.labelDatetime'),
                 },
                 {
-                    option: 'date',
+                    value: 'date',
                     label: this.$tc('sw-settings-custom-field.customField.detail.labelDate'),
                 },
                 {
-                    option: 'time',
+                    value: 'time',
                     label: this.$tc('sw-settings-custom-field.customField.detail.labelTime'),
                 },
             ],
             timeForms: [
                 {
-                    option: 'true',
+                    value: 'true',
                     label: this.$tc('global.default.yes'),
                 },
                 {
-                    option: 'false',
+                    value: 'false',
                     label: this.$tc('global.default.no'),
                 },
             ],

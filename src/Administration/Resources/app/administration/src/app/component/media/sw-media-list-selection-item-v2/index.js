@@ -16,7 +16,6 @@ export default {
     ],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         item: {
             required: true,
         },
@@ -28,6 +27,12 @@ export default {
         },
 
         hideTooltip: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        disabled: {
             type: Boolean,
             required: false,
             default: false,

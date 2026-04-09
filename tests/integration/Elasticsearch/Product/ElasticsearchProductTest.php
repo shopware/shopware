@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -70,7 +71,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -85,6 +85,7 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAgg
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
+use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Shopware\Tests\Integration\Elasticsearch\Product\Fixture\ProductsFixture;
@@ -146,6 +147,8 @@ class ElasticsearchProductTest extends TestCase
         $this->client = static::getContainer()->get(Client::class);
         $this->productDefinition = static::getContainer()->get(ProductDefinition::class);
         $this->languageRepository = static::getContainer()->get('language.repository');
+
+        static::getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchOptimizeSwitch::FLAG, true);
 
         static::getContainer()->get(SalesChannelLanguageLoader::class)->reset();
         $this->connection = static::getContainer()->get(Connection::class);
@@ -277,6 +280,7 @@ class ElasticsearchProductTest extends TestCase
             $this->productRepository->upsert([
                 (new ProductBuilder($this->ids, 'u7', 300))
                     ->price(100)
+                    ->visibility()
                     ->build(),
             ], $context);
 
@@ -475,7 +479,7 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
 
             static::assertCount(\count($expectedProducts), $products->getIds());
-            static::assertSame(\array_map(fn ($item) => $data->get($item), $expectedProducts), $products->getIds());
+            static::assertSame(\array_map(static fn ($item) => $data->get($item), $expectedProducts), $products->getIds());
         } catch (\Exception $e) {
             $this->tearDown();
 
@@ -1350,11 +1354,12 @@ class ElasticsearchProductTest extends TestCase
     public function testTermAlgorithm(IdsCollection $data): void
     {
         try {
-            $terms = ['Spachtelmasse', 'Spachtel', 'Masse', 'Achtel', 'Some', 'some spachtel', 'Some Achtel', 'Sachtel'];
+            $terms = ['Spachtelmasse', 'Spachtel', 'Masse', 'Some', 'some spachtel', 'Some Achtel', 'Sachtelmasse'];
 
             $searcher = $this->createEntitySearcher();
 
             foreach ($terms as $term) {
+                $term = strtolower($term);
                 $criteria = new Criteria();
                 $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
                 $criteria->setTerm($term);
@@ -2024,7 +2029,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<string, array{from: int, to: int, expected: string[], rules?: string[]}>
+     * @return iterable<string, array{from: int, to: int, expected: list<string>, rules?: list<string>}>
      */
     public function providerCheapestPriceFilter(): iterable
     {
@@ -2094,7 +2099,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{ids: string[], rules: string[]}>
+     * @return iterable<string, array{ids: list<string>, rules: list<string>}>
      */
     public function cheapestPriceSortingProvider(): iterable
     {
@@ -2165,7 +2170,7 @@ class ElasticsearchProductTest extends TestCase
 
                 if ($case['operator']) {
                     $operator = (string) $case['operator'];
-                    $percentage = (int) $case['percentage'];
+                    $percentage = (float) $case['percentage'];
 
                     $criteria->addFilter(
                         new RangeFilter('product.cheapestPrice.percentage', [
@@ -2180,7 +2185,7 @@ class ElasticsearchProductTest extends TestCase
                 $result = $searcher->search($this->productDefinition, $criteria, $context->getContext());
 
                 static::assertCount(is_countable($case['ids']) ? \count($case['ids']) : 0, $result->getIds(), \sprintf('Case `%s` failed', $message));
-                static::assertSame(array_map(fn (string $id) => $ids->get($id), $case['ids']), $result->getIds(), \sprintf('Case `%s` failed', $message));
+                static::assertSame(array_map(static fn (string $id) => $ids->get($id), $case['ids']), $result->getIds(), \sprintf('Case `%s` failed', $message));
             }
         } catch (\Exception $e) {
             $this->tearDown();
@@ -2190,47 +2195,47 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return \Generator<array{ids: array<string>, operator: RangeFilter::*|null, percentage: int|null, direction: FieldSorting::*}>
+     * @return \Generator<array{ids: array<string>, operator: RangeFilter::*|null, percentage: float|null, direction: FieldSorting::*}>
      */
     public function providerCheapestPricePercentageFilterAndSorting(): \Generator
     {
-        yield 'Test filter with greater than 50 percent price to list ratio sorted descending' => [
-            'ids' => ['product-1', 'product-4'],
-            'operator' => RangeFilter::GT,
-            'percentage' => 50,
-            'direction' => FieldSorting::DESCENDING,
-        ];
-
-        yield 'Test filter with greater than 50 percent price to list ratio sorted ascending' => [
-            'ids' => ['product-4', 'product-1'],
-            'operator' => RangeFilter::GT,
-            'percentage' => 50,
-            'direction' => FieldSorting::ASCENDING,
-        ];
-
-        yield 'Test filter with less than 50 percent price to list ratio sorted descending' => [
-            'ids' => ['product-2', 'product-5', 'product-3'],
-            'operator' => RangeFilter::LT,
-            'percentage' => 50,
-            'direction' => FieldSorting::DESCENDING,
-        ];
-
-        yield 'Test filter with less than 50 percent price to list ratio sorted ascending' => [
+        yield 'Test filter with greater than 50 percent ratio sorted descending' => [
             'ids' => ['product-3', 'product-5', 'product-2'],
+            'operator' => RangeFilter::GT,
+            'percentage' => 50,
+            'direction' => FieldSorting::DESCENDING,
+        ];
+
+        yield 'Test filter with greater than 50 percent ratio sorted ascending' => [
+            'ids' => ['product-2', 'product-5', 'product-3'],
+            'operator' => RangeFilter::GT,
+            'percentage' => 50,
+            'direction' => FieldSorting::ASCENDING,
+        ];
+
+        yield 'Test filter with less than 50 percent ratio sorted descending' => [
+            'ids' => ['product-4', 'product-1'],
+            'operator' => RangeFilter::LT,
+            'percentage' => 50,
+            'direction' => FieldSorting::DESCENDING,
+        ];
+
+        yield 'Test filter with less than 50 percent ratio sorted ascending' => [
+            'ids' => ['product-1', 'product-4'],
             'operator' => RangeFilter::LT,
             'percentage' => 50,
             'direction' => FieldSorting::ASCENDING,
         ];
 
-        yield 'Test percent price to list ratio sorted descending' => [
-            'ids' => ['product-1', 'product-4', 'product-2', 'product-5', 'product-7', 'product-6', 'product-3'],
+        yield 'Test percent ratio sorted descending' => [
+            'ids' => ['product-3', 'product-5', 'product-2', 'product-4', 'product-1', 'product-7', 'product-6'],
             'operator' => null,
             'percentage' => null,
             'direction' => FieldSorting::DESCENDING,
         ];
 
-        yield 'Test percent price to list ratio sorted ascending' => [
-            'ids' => ['product-3', 'product-6', 'product-7', 'product-5', 'product-2', 'product-4', 'product-1'],
+        yield 'Test percent ratio sorted ascending' => [
+            'ids' => ['product-6', 'product-7', 'product-1', 'product-4', 'product-2', 'product-5', 'product-3'],
             'operator' => null,
             'percentage' => null,
             'direction' => FieldSorting::ASCENDING,
@@ -2280,7 +2285,7 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertInstanceOf(StatsResult::class, $aggregation);
             static::assertSame(0.0, $aggregation->getMin());
-            static::assertSame(66.67, $aggregation->getMax());
+            static::assertSame(100.0, $aggregation->getMax());
         } catch (\Exception $e) {
             $this->tearDown();
 
@@ -2912,7 +2917,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<string, array{min: float, max: float, rules: string[]}>
+     * @return iterable<string, array{min: float, max: float, rules: list<string>}>
      */
     private function providerCheapestPriceAggregation(): iterable
     {
@@ -2959,7 +2964,7 @@ class ElasticsearchProductTest extends TestCase
 
         $customMapping = \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'));
 
-        ReflectionHelper::getProperty(ElasticsearchIndexingUtils::class, 'customFieldsTypes')->setValue(
+        (new \ReflectionProperty(ElasticsearchIndexingUtils::class, 'customFieldsTypes'))->setValue(
             $this->utils,
             ['product' => $customMapping],
         );

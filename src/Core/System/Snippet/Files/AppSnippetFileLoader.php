@@ -79,7 +79,7 @@ class AppSnippetFileLoader
             $nameParts[1],
             $author,
             false,
-            ''
+            '',
         );
     }
 
@@ -94,7 +94,7 @@ class AppSnippetFileLoader
             $nameParts[1],
             $author,
             $nameParts[2] === 'base',
-            ''
+            '',
         );
     }
 

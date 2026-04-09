@@ -56,6 +56,13 @@
     />
     {% endblock %}
 
+    <sw-custom-field-set-renderer
+        v-if="showCustomFields"
+        :entity="currentOption"
+        :sets="customFieldSets"
+        :disabled="!allowEdit"
+    />
+
     {% block sw_property_option_detail_footer %}
     <template #modal-footer>
         {% block sw_property_option_detail_footer_cancel %}

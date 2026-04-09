@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Routing;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -36,7 +37,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($this->getBrowser(), 'test');
 
-        $browser->request('GET', '/api/product');
+        $browser->jsonRequest('GET', '/api/product');
         $response = $browser->getResponse();
 
         static::assertIsString($response->getContent());
@@ -50,7 +51,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'test');
 
-        $browser->request('GET', '/api/media');
+        $browser->jsonRequest('GET', '/api/media');
 
         static::assertSame(403, $browser->getResponse()->getStatusCode());
     }
@@ -62,7 +63,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'minimal');
 
-        $browser->request('GET', '/api/product');
+        $browser->jsonRequest('GET', '/api/product');
 
         static::assertSame(403, $browser->getResponse()->getStatusCode());
     }
@@ -77,13 +78,10 @@ class ApiRequestContextResolverAppTest extends TestCase
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'minimal');
 
-        $browser->request(
+        $browser->jsonRequest(
             'POST',
             '/api/product',
-            [],
-            [],
-            [],
-            json_encode($this->getProductData($productId, $context), \JSON_THROW_ON_ERROR)
+            $this->getProductData($productId, $context)
         );
         $response = $browser->getResponse();
 
@@ -95,7 +93,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     public function testCanWriteWithPermissionsSet(): void
     {
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
         $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
@@ -105,13 +103,10 @@ class ApiRequestContextResolverAppTest extends TestCase
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'test');
 
-        $browser->request(
+        $browser->jsonRequest(
             'POST',
             '/api/product',
-            [],
-            [],
-            [],
-            json_encode($this->getProductData($productId, $context), \JSON_THROW_ON_ERROR)
+            $this->getProductData($productId, $context)
         );
 
         static::assertSame(204, $browser->getResponse()->getStatusCode());
@@ -123,7 +118,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     public function testItCanUpdateAnExistingProduct(): void
     {
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
         $productId = Uuid::randomHex();
         $newName = 'i got a new name';
@@ -136,20 +131,16 @@ class ApiRequestContextResolverAppTest extends TestCase
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'test');
 
-        $browser->request(
+        $browser->jsonRequest(
             'PATCH',
             '/api/product/' . $productId,
-            [],
-            [],
-            [],
-            json_encode([
+            [
                 'name' => $newName,
-            ], \JSON_THROW_ON_ERROR)
+            ]
         );
 
         static::assertSame(204, $browser->getResponse()->getStatusCode());
 
-        /** @var ProductEntity $product */
         $product = $productRepository->search(new Criteria(), $context)->getEntities()->get($productId);
 
         static::assertNotNull($product);
@@ -174,7 +165,7 @@ class ApiRequestContextResolverAppTest extends TestCase
             'client_secret' => $secret,
         ];
 
-        $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
+        $browser->jsonRequest('POST', '/api/oauth/token', $authPayload, $authPayload);
 
         static::assertIsString($browser->getResponse()->getContent());
         $data = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -231,7 +222,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void
     {
-        /** @var EntityRepository $integrationRepository */
+        /** @var EntityRepository<IntegrationCollection> $integrationRepository */
         $integrationRepository = static::getContainer()->get('integration.repository');
 
         $integrationRepository->update([

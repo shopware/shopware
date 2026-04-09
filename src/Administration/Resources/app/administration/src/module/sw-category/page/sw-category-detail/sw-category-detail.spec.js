@@ -231,4 +231,54 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         const lastCallParameters = saveMock.mock.lastCall;
         expect(lastCallParameters[0].cmsPageId).toBeUndefined();
     });
+
+    it('should save changed slot config fields only', async () => {
+        const wrapper = await createWrapper();
+
+        const origin = {
+            sections: [
+                {
+                    id: 'section1',
+                    blocks: [
+                        {
+                            id: 'block1',
+                            slots: [
+                                {
+                                    id: 'slot1',
+                                    translated: { config: { key1: { value: 'value1' }, key2: { value: 'value2' } } },
+                                },
+                                { id: 'slot2', translated: { config: { key1: { value: 'value1' } } } },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        };
+
+        const changes = {
+            sections: [
+                {
+                    id: 'section1',
+                    blocks: [
+                        {
+                            id: 'block1',
+                            slots: [
+                                { id: 'slot1', config: { key1: { value: 'newValue1' }, key2: { value: 'value2' } } },
+                                { id: 'slot2', config: { key1: { value: 'newValue1' } } },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        };
+
+        const expectedSlotOverrides = {
+            slot1: { key1: { value: 'newValue1' } },
+            slot2: { key1: { value: 'newValue1' } },
+        };
+
+        const result = wrapper.vm.extractSlotOverrides(origin, changes);
+
+        expect(result).toEqual(expectedSlotOverrides);
+    });
 });

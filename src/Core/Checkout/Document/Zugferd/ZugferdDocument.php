@@ -54,6 +54,8 @@ class ZugferdDocument
 
     protected float $paidAmount = 0.0;
 
+    protected bool $allowNegativeProductLineItems = false;
+
     /**
      * @var array{chargeAmount: CalculatedPrice[], lineTotalAmount: CalculatedPrice[], allowanceAmount: CalculatedPrice[]}
      */
@@ -135,6 +137,17 @@ class ZugferdDocument
         return $this;
     }
 
+    public function withInvoiceReference(string $reference, ?\DateTimeInterface $issueDate = null): self
+    {
+        $this->zugferdBuilder->addDocumentInvoiceReferencedDocument(
+            $reference,
+            null,
+            $issueDate
+        );
+
+        return $this;
+    }
+
     public function withSellerInformation(DocumentConfiguration $documentConfig): self
     {
         $sellerAddress = [
@@ -168,19 +181,30 @@ class ZugferdDocument
         $tax = $price?->getCalculatedTaxes()?->first();
         $product = $lineItem->getProduct();
 
-        if ($price === null || $tax === null || ($totalNet = $this->getPrice($tax)) < 0) {
-            throw DocumentException::generationError('Price can\'t be negative or null: ' . $lineItem->getLabel());
+        if ($price === null) {
+            throw DocumentException::generationError('Price can\'t be null: ' . $lineItem->getLabel());
+        }
+
+        $totalNet = $this->getPriceWithFallback($tax, $price);
+
+        if (!$this->allowNegativeProductLineItems && $totalNet < 0) {
+            throw DocumentException::generationError('Price can\'t be negative: ' . $lineItem->getLabel());
         }
 
         $this->addMappedPrice(self::LINE_TOTAL_AMOUNT, $price);
         if (!Feature::isActive('v6.8.0.0')) {
             $this->addLineTotalAmount($totalNet);
         }
+
         $this->zugferdBuilder
             ->addNewPosition($parentPosition . $lineItem->getPosition())
-            ->setDocumentPositionNetPrice(\round($totalNet / $lineItem->getQuantity(), 2), $lineItem->getQuantity(), ZugferdUnitCodes::REC20_PIECE)
+            ->setDocumentPositionNetPrice(
+                \round($totalNet / $lineItem->getQuantity(), 2),
+                $lineItem->getProduct()?->getPurchaseUnit() ?? 1,
+                ZugferdUnitCodes::REC20_PIECE
+            )
             ->setDocumentPositionQuantity($lineItem->getQuantity(), ZugferdUnitCodes::REC20_PIECE)
-            ->addDocumentPositionTax($this->getTaxCode($tax), 'VAT', $tax->getTaxRate() ?? 0.0)
+            ->addDocumentPositionTax($this->getTaxCode($tax), 'VAT', $tax?->getTaxRate() ?? 0.0)
             ->setDocumentPositionLineSummation($totalNet)
             ->setDocumentPositionProductDetails(
                 $lineItem->getLabel(),
@@ -209,7 +233,7 @@ class ZugferdDocument
         $this->addMappedPrice($type, $lineItem->getPrice());
 
         foreach ($lineItem->getPrice()->getCalculatedTaxes() as $calculatedTax) {
-            $actualAmount = $this->getPrice($calculatedTax);
+            $actualAmount = $this->getPriceWithFallback($calculatedTax, $lineItem->getPrice());
 
             if (!Feature::isActive('v6.8.0.0')) {
                 if ($isCharge) {
@@ -236,8 +260,35 @@ class ZugferdDocument
         return $this;
     }
 
-    public function withGeneralOrderData(?\DateTime $deliveryDate, string $documentDate, string $documentNumber, string $isoCode): self
+    public function withDocumentInformation(
+        string $documentDate,
+        string $documentNumber,
+        string $isoCode,
+        string $documentType
+    ): self {
+        $this->zugferdBuilder->setDocumentInformation(
+            $documentNumber,
+            $documentType,
+            new \DateTime($documentDate),
+            $isoCode,
+        );
+
+        return $this;
+    }
+
+    public function withDocumentSupplyChainEvent(\DateTime $deliveryDate): self
     {
+        $this->zugferdBuilder->setDocumentSupplyChainEvent($deliveryDate);
+
+        return $this;
+    }
+
+    public function withGeneralOrderData(
+        ?\DateTime $deliveryDate,
+        string $documentDate,
+        string $documentNumber,
+        string $isoCode,
+    ): self {
         $this->zugferdBuilder
             ->setDocumentInformation($documentNumber, ZugferdInvoiceType::INVOICE, new \DateTime($documentDate), $isoCode)
             ->setDocumentSupplyChainEvent($deliveryDate);
@@ -251,7 +302,7 @@ class ZugferdDocument
             $this->addMappedPrice(self::CHARGE_AMOUNT, $delivery->getShippingCosts());
 
             foreach ($delivery->getShippingCosts()->getCalculatedTaxes() as $calculatedTax) {
-                $actualAmount = $this->getPrice($calculatedTax);
+                $actualAmount = $this->getPriceWithFallback($calculatedTax, $delivery->getShippingCosts());
 
                 if (!Feature::isActive('v6.8.0.0')) {
                     $this->addChargeAmount($actualAmount);
@@ -280,7 +331,13 @@ class ZugferdDocument
         }
 
         foreach ($price->getCalculatedTaxes() as $tax) {
-            $this->zugferdBuilder->addDocumentTax($this->getTaxCode($tax), 'VAT', $this->getPrice($tax), $tax->getTax(), $tax->getTaxRate());
+            $this->zugferdBuilder->addDocumentTax(
+                $this->getTaxCode($tax),
+                'VAT',
+                $this->getPriceWithFallback($tax),
+                $tax->getTax(),
+                $tax->getTaxRate()
+            );
         }
 
         return $this;
@@ -294,6 +351,13 @@ class ZugferdDocument
     public function getBuilder(): ZugferdDocumentBuilder
     {
         return $this->zugferdBuilder;
+    }
+
+    public function allowNegativeProductLineItems(): self
+    {
+        $this->allowNegativeProductLineItems = true;
+
+        return $this;
     }
 
     /**
@@ -326,8 +390,33 @@ class ZugferdDocument
         $this->allowanceAmount += $allowanceAmount;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Use getPriceWithFallback instead
+     */
     protected function getPrice(CalculatedTax $tax): float
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getPriceWithFallback')
+        );
+
+        $price = $tax->getPrice();
+
+        if ($this->isGross) {
+            $price -= $tax->getTax();
+        }
+
+        return $price;
+    }
+
+    protected function getPriceWithFallback(?CalculatedTax $tax, ?CalculatedPrice $fallbackPrice = null): float
+    {
+        $tax = $tax ?? $fallbackPrice?->getCalculatedTaxes()?->first();
+
+        if ($tax === null) {
+            return $fallbackPrice?->getTotalPrice() ?? 0.0;
+        }
+
         $price = $tax->getPrice();
         if ($this->isGross) {
             $price -= $tax->getTax();
@@ -355,13 +444,19 @@ class ZugferdDocument
 
     private function summary(OrderEntity $order, AmountCalculator $calculator): void
     {
-        if ($this->paidAmount > $order->getAmountTotal()) {
+        if ($this->paidAmount > $order->getAmountTotal() && !$this->allowNegativeProductLineItems) {
             throw DocumentException::generationError('Paid amount is greater than order total amount.');
         }
 
-        $lineTotal = abs($this->calculateTaxes(self::LINE_TOTAL_AMOUNT, $order, $calculator));
-        $chargeAmount = abs($this->calculateTaxes(self::CHARGE_AMOUNT, $order, $calculator));
-        $allowanceAmount = abs($this->calculateTaxes(self::ALLOWANCE_AMOUNT, $order, $calculator));
+        $lineTotal = $this->calculateTaxes(self::LINE_TOTAL_AMOUNT, $order, $calculator);
+        $chargeAmount = $this->calculateTaxes(self::CHARGE_AMOUNT, $order, $calculator);
+        $allowanceAmount = $this->calculateTaxes(self::ALLOWANCE_AMOUNT, $order, $calculator);
+
+        if ($order->getAmountTotal() >= 0.0) {
+            $lineTotal = abs($lineTotal);
+            $chargeAmount = abs($chargeAmount);
+            $allowanceAmount = abs($allowanceAmount);
+        }
 
         $this->zugferdBuilder
             ->setDocumentSummation(
@@ -392,7 +487,13 @@ class ZugferdDocument
 
         $netTotal = 0.0;
         foreach ($calculatedTaxes as $tax) {
-            $netTotal += $this->getPrice($tax);
+            $netTotal += $this->getPriceWithFallback($tax);
+        }
+
+        if ($calculatedTaxes->count() === 0) {
+            foreach ($this->mappedPrices[$type] as $price) {
+                $netTotal += $this->getPriceWithFallback(null, $price);
+            }
         }
 
         return $netTotal;

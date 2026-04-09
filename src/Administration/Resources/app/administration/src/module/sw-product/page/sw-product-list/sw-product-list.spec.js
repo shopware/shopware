@@ -12,6 +12,8 @@ const CURRENCY_ID = {
     POUND: 'fce3465831e8639bb2ea165d0fcf1e8b',
 };
 
+let lastProductSearchCriteria = null;
+
 function mockContext() {
     return {
         apiPath: 'http://shopware.local/api',
@@ -232,6 +234,7 @@ async function createWrapper() {
                 meta: {
                     $module: {
                         entity: 'product',
+                        icon: 'solid-content',
                     },
                 },
             },
@@ -254,6 +257,7 @@ async function createWrapper() {
                             if (name === 'product') {
                                 return {
                                     search: (criteria) => {
+                                        lastProductSearchCriteria = criteria;
                                         const productData = getProductData(criteria);
 
                                         return Promise.resolve(productData);
@@ -304,9 +308,6 @@ async function createWrapper() {
                     },
                     'sw-data-grid-settings': {
                         template: '<div></div>',
-                    },
-                    'sw-empty-state': {
-                        template: '<div class="sw-empty-state"></div>',
                     },
                     'sw-pagination': {
                         template: '<div></div>',
@@ -374,6 +375,7 @@ describe('module/sw-product/page/sw-product-list', () => {
     let wrapper;
 
     beforeEach(async () => {
+        lastProductSearchCriteria = null;
         const data = await createWrapper();
         wrapper = data.wrapper;
     });
@@ -654,11 +656,9 @@ describe('module/sw-product/page/sw-product-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('.sw-empty-state');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 
@@ -669,7 +669,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         wrapper.vm.$router.push = jest.fn();
         await wrapper.setData({
             selection: {
-                foo: { states: ['is-download'] },
+                foo: { type: 'digital' },
             },
         });
 
@@ -718,5 +718,66 @@ describe('module/sw-product/page/sw-product-list', () => {
 
         expect(products).toHaveLength(1);
         expect(products[0].productNumber).toBe('SW10001');
+    });
+
+    it('should consider criteria filters via updateCriteria', async () => {
+        await wrapper.vm.getList();
+        await flushPromises();
+
+        const filter = Criteria.equals('foo', 'bar');
+        wrapper.vm.updateCriteria([filter]);
+        await flushPromises();
+
+        expect(wrapper.vm.filterCriteria).toContainEqual(filter);
+    });
+
+    it('should extend category equals filters via updateCriteria', async () => {
+        await wrapper.vm.getList();
+        await flushPromises();
+
+        const filter = Criteria.equals('categories.id', 'category-1');
+        wrapper.vm.updateCriteria([filter]);
+        await flushPromises();
+
+        expect(wrapper.vm.filterCriteria).toStrictEqual([
+            Criteria.multi('OR', [
+                filter,
+                Criteria.equalsAny('product.streams.categories.id', [
+                    'category-1',
+                ]),
+            ]),
+        ]);
+    });
+
+    it('should normalize merged category filters before searching products', async () => {
+        const filterService = Shopware.Service('filterService');
+        filterService.mergeWithStoredFilters = jest.fn(() => {
+            const mergedCriteria = new Criteria(1, 25);
+            mergedCriteria.addFilter(
+                Criteria.equalsAny('categories.id', [
+                    'category-1',
+                    'category-2',
+                ]),
+            );
+
+            return mergedCriteria;
+        });
+
+        await wrapper.vm.getList();
+        await flushPromises();
+
+        expect(lastProductSearchCriteria.parse().filter).toEqual([
+            Criteria.multi('OR', [
+                Criteria.equalsAny('categories.id', [
+                    'category-1',
+                    'category-2',
+                ]),
+                Criteria.equalsAny('product.streams.categories.id', [
+                    'category-1',
+                    'category-2',
+                ]),
+            ]),
+            Criteria.equals('product.parentId', null),
+        ]);
     });
 });

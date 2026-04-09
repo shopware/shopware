@@ -327,7 +327,7 @@ class ProductControllerTest extends TestCase
         static::assertArrayHasKey('product-page-loaded', $traces);
     }
 
-    public function testMProductQuickViewWidgetLoadedHookScriptsAreExecuted(): void
+    public function testProductQuickViewWidgetLoadedHookScriptsAreExecuted(): void
     {
         $productId = $this->createProduct();
 
@@ -362,7 +362,14 @@ class ProductControllerTest extends TestCase
 
         $content = $response->getContent();
         static::assertIsString($content);
-        static::assertStringContainsString('<p class="product-detail-review-item-content" itemprop="description" lang="en-GB">', $content);
+
+        if (Feature::isActive('JSON_LD_DATA')) {
+            static::assertStringContainsString('class="product-detail-review-item-content"', $content);
+        } else {
+            static::assertStringContainsString('class="product-detail-review-item-content"', $content);
+            static::assertStringContainsString('itemprop="description"', $content);
+        }
+
         static::assertStringContainsString(self::TEST_CONTENT, $content);
     }
 

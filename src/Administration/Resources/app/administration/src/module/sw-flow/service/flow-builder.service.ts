@@ -1,16 +1,8 @@
 import type { I18n } from 'vue-i18n';
-import {
-    ACTION,
-    ACTION_GROUP,
-    ACTION_TYPE,
-    CUSTOMER_GROUP,
-    GENERAL_GROUP,
-    ORDER_GROUP,
-    TAG_GROUP,
-} from '../constant/flow.constant';
 
 const { Utils, EntityDefinition } = Shopware;
 const { capitalizeString, camelCase, snakeCase } = Shopware.Utils.string;
+const { ACTION, ACTION_GROUP, ACTION_TYPE, CUSTOMER_GROUP, GENERAL_GROUP, ORDER_GROUP, TAG_GROUP } = Shopware.Constants.FLOW;
 
 type Node = {
     id: string;
@@ -373,7 +365,6 @@ export default class FlowBuilderService {
                     descriptions = `${descriptions}${this.convertLabelPreview(context, fieldName)}:<br/> ${html}`;
                 } else {
                     const valPreview = this.formatValuePreview(context, fieldName, fieldValue);
-                    // eslint-disable-next-line max-len
                     descriptions = `${descriptions}${this.convertLabelPreview(context, fieldName)}: ${valPreview.toString()}<br/>`;
                 }
             },

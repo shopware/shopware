@@ -39,8 +39,8 @@ class ArrayIncrementer extends AbstractIncrementer
         }
 
         if ($key === null) {
-            foreach ($this->logs[$cluster] as $key => $count) {
-                $this->logs[$cluster][$key] = 0;
+            foreach ($this->logs[$cluster] as $clusterKey => $count) {
+                $this->logs[$cluster][$clusterKey] = 0;
             }
 
             return;
@@ -81,7 +81,7 @@ class ArrayIncrementer extends AbstractIncrementer
             return;
         }
 
-        if (empty($keys)) {
+        if ($keys === []) {
             unset($this->logs[$cluster]);
 
             return;

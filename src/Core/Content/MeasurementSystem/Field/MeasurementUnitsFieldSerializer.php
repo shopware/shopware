@@ -69,24 +69,24 @@ class MeasurementUnitsFieldSerializer extends JsonFieldSerializer
         return [
             new Type('array'),
             new NotNull(),
-            new Collection([
-                'allowExtraFields' => true,
-                'allowMissingFields' => false,
-                'fields' => [
+            new Collection(
+                fields: [
                     'system' => [new NotBlank(), new Type('string')],
                     'units' => [
                         new Type('array'),
-                        new Collection([
-                            'allowExtraFields' => true,
-                            'allowMissingFields' => false,
-                            'fields' => [
+                        new Collection(
+                            fields: [
                                 MeasurementUnitTypeEnum::LENGTH->value => [new Type('string'), new NotNull()],
                                 MeasurementUnitTypeEnum::WEIGHT->value => [new Type('string'), new NotNull()],
                             ],
-                        ]),
+                            allowExtraFields: true,
+                            allowMissingFields: false
+                        ),
                     ],
                 ],
-            ]),
+                allowExtraFields: true,
+                allowMissingFields: false
+            ),
         ];
     }
 }

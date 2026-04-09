@@ -33,7 +33,7 @@ class CampaignCodeOfOrderRuleTest extends TestCase
         static::assertArrayHasKey('campaignCode', $constraints, 'Constraint campaign not found in Rule');
         static::assertEquals($constraints['campaignCode'], [
             new NotBlank(),
-            new Type(['type' => 'string']),
+            new Type(type: 'string'),
         ]);
     }
 

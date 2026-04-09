@@ -77,7 +77,7 @@ class ElasticsearchIndexerTest extends TestCase
         static::assertNull($indexer->iterate(), 'Iterate should return null if es is disabled');
     }
 
-    public function testIterateNullCreatesIndices(): void
+    public function testIterateTillLastMsgCreatesIndices(): void
     {
         $indexer = $this->getIndexer();
 
@@ -90,7 +90,7 @@ class ElasticsearchIndexerTest extends TestCase
         static::assertNull($msg);
     }
 
-    public function testIterateNullCreatesIndicesAndIndexTaskInDB(): void
+    public function testIterateTillLastMsgCreatesIndicesAndIndexTaskInDB(): void
     {
         $indexer = $this->getIndexer();
         $this->connection
@@ -124,7 +124,7 @@ class ElasticsearchIndexerTest extends TestCase
             ->method('createIterator')
             ->willReturn($query);
 
-        $eventDispatcher->addListener(ElasticsearchIndexIteratorEvent::class, function (ElasticsearchIndexIteratorEvent $event) use (&$eventDispatched, $query): void {
+        $eventDispatcher->addListener(ElasticsearchIndexIteratorEvent::class, static function (ElasticsearchIndexIteratorEvent $event) use (&$eventDispatched, $query): void {
             $eventDispatched = true;
             static::assertSame($query, $event->iterator);
         });
@@ -344,7 +344,7 @@ class ElasticsearchIndexerTest extends TestCase
     {
         $eventDispatched = false;
         $eventDispatcher = new EventDispatcher();
-        $eventDispatcher->addListener(ElasticsearchIndexIteratorEvent::class, function () use (&$eventDispatched): void {
+        $eventDispatcher->addListener(ElasticsearchIndexIteratorEvent::class, static function () use (&$eventDispatched): void {
             $eventDispatched = true;
         });
 

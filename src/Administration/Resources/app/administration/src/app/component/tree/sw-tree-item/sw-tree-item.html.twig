@@ -11,14 +11,12 @@
     :aria-owns="item.id"
     :aria-selected="checked"
 >
-
     {% block sw_tree_item_element %}
     <div
         v-droppable="{ dragGroup: 'sw-tree-item', data: item }"
         v-draggable="dragConf"
         class="sw-tree-item__element"
     >
-
         {% block sw_tree_item_element_leaf_icon %}
         <div
             v-if="item.childCount <= 0"
@@ -37,7 +35,6 @@
             @click="openTreeItem(); getTreeItemChildren(item)"
             @keydown.enter="openTreeItem(); getTreeItemChildren(item)"
         >
-
             {% block sw_tree_item_element_toggle_icon %}
             <mt-icon
                 size="24px"
@@ -71,17 +68,22 @@
                     name="regular-folder-open"
                     size="16px"
                 />
+
                 <mt-icon
                     v-else
                     name="regular-folder"
                     size="16px"
                 />
             </div>
+
             <div
                 v-else
                 class="sw-tree-item__icon"
             >
-                <mt-icon name="regular-circle-xxs" />
+                <mt-icon
+                    name="regular-circle-xxs"
+                    size="8px"
+                />
             </div>
         </slot>
         {% endblock %}
@@ -121,12 +123,17 @@
                         :href="showItemUrl(item)"
                         @click.prevent="onChangeRoute(item)"
                     >
-                        <span class="sw-tree-item__label">{{ getName(item) }}</span>
+                        <span class="sw-tree-item__label">
+                            {{ getName(item) }}
+                        </span>
                     </a>
+
                     <span
                         v-else
                         class="sw-tree-item__label"
-                    >{{ getName(item) }}</span>
+                    >
+                        {{ getName(item) }}
+                    </span>
                 </template>
                 {% endblock %}
             </slot>
@@ -135,7 +142,6 @@
 
         {% block sw_tree_item_element_actions %}
         <div class="sw-tree-item__actions">
-
             {% block sw_tree_items_active_state %}
             <mt-icon
                 v-if="shouldShowActiveState"
@@ -162,7 +168,6 @@
                     class="sw-tree-item__context_button"
                     :disabled="isDisabled || undefined"
                 >
-
                     {% block sw_tree_items_actions_without_position %}
                     <sw-context-menu-item
                         v-if="allowCreateWithoutPosition"
@@ -218,7 +223,6 @@
 
                     {% block sw_tree_items_actions_group %}
                     <div class="sw-context-menu__group">
-
                         {% block sw_tree_items_actions_edit %}
                         <sw-context-menu-item @click="onChangeRoute(item)">
                             {{ $tc('global.default.edit') }}
@@ -275,7 +279,6 @@
                 :get-is-highlighted="getIsHighlighted"
                 @check-item="emitCheckedItem"
             >
-
                 {% block sw_tree_item_children_items_slots %}
                 <template #content="{ item, openTreeItem, getName: innerGetName }">
                     {% block sw_tree_item_children_items_slot_content %}
@@ -286,7 +289,6 @@
 
                     {% block sw_tree_item_children_items_slot_content_default_block %}
                     <template v-else>
-
                         {% block sw_tree_item_children_items_slot_content_edit %}
                         <template v-if="currentEditElement === item.data.id">
                             <sw-confirm-field
@@ -309,12 +311,17 @@
                                 :href="showItemUrl(item)"
                                 @click.prevent="onChangeRoute(item)"
                             >
-                                <span class="sw-tree-item__label">{{ getName(item) }}</span>
+                                <span class="sw-tree-item__label">
+                                    {{ getName(item) }}
+                                </span>
                             </a>
+
                             <span
                                 v-else
                                 class="sw-tree-item__label"
-                            >{{ getName(item) }}</span>
+                            >
+                                {{ getName(item) }}
+                            </span>
                         </template>
                         {% endblock %}
                     </template>
@@ -343,7 +350,6 @@
                             v-tooltip="toolTip"
                             :disabled="isDisabled"
                         >
-
                             {% block sw_tree_items_transition_actions_without_position %}
                             <sw-context-menu-item
                                 v-if="allowCreateWithoutPosition"
@@ -399,7 +405,6 @@
 
                             {% block sw_tree_items_transition_actions_group %}
                             <div class="sw-context-menu__group">
-
                                 {% block sw_tree_items_transition_actions_edit %}
                                 <sw-context-menu-item @click="onChangeRoute(item)">
                                     {{ $tc('global.default.edit') }}

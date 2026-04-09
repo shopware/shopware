@@ -94,8 +94,8 @@
             bordered
         >
             <template #label>
-                {{ $tc('sw-flow.modals.setEntityCustomField.prefixFieldName') }}
-                {{ getInlineSnippet(customField.config.label) || customField.name }}
+                <span>{{ $tc('sw-flow.modals.setEntityCustomField.prefixFieldName') }}</span>
+                <span>{{ getInlineSnippet(customField.config.label) || customField.name }}</span>
             </template>
         </sw-form-field-renderer>
         {% endblock %}

@@ -69,13 +69,14 @@ async function createWrapper(privileges = []) {
                     'sw-entity-listing': {
                         props: [
                             'items',
+                            'dataSource',
                             'allowEdit',
                             'allowDelete',
                             'detailRoute',
                         ],
                         template: `
                     <div>
-                        <template v-for="item in items">
+                        <template v-for="item in (dataSource || items)">
                             <slot name="actions" v-bind="{ item }">
                                 <slot name="detail-action" v-bind="{ item }">
                                     <sw-context-menu-item-stub class="sw-entity-listing__context-menu-edit-action"

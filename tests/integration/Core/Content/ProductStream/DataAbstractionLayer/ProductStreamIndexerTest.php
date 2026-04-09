@@ -4,7 +4,9 @@ namespace Shopware\Tests\Integration\Core\Content\ProductStream\DataAbstractionL
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
+use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Defaults;
@@ -32,12 +34,18 @@ class ProductStreamIndexerTest extends TestCase
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductStreamCollection>
+     */
     private EntityRepository $productStreamRepository;
 
     private ProductStreamIndexer $indexer;
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepo;
 
     private Context $context;

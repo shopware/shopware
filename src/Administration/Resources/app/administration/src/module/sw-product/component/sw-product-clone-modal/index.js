@@ -72,6 +72,7 @@ export default {
                     name: `${this.product.name} ${this.$tc('global.default.copy')}`,
                     active: false,
                     mainVariantId: null,
+                    canonicalProductId: null,
                     variantListingConfig: variantListingConfigOverwrite,
                     childCount: this.product.childCount,
                 },

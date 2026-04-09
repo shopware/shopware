@@ -89,6 +89,6 @@ class MySQLStatsRepository extends AbstractStatsRepository
         $this->connection->createQueryBuilder()->delete('messenger_stats')
             ->where('created_at < :olderThan')
             ->setParameter('olderThan', $olderThan->format(Defaults::STORAGE_DATE_TIME_FORMAT))
-            ->executeQuery();
+            ->executeStatement();
     }
 }

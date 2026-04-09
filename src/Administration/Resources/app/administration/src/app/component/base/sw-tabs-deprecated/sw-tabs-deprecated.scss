@@ -19,8 +19,8 @@
             position: absolute;
             bottom: 0;
             width: 100%;
-            height: 2px;
-            background-color: $color-gray-300;
+            height: 1px;
+            background-color: var(--color-border-primary-default);
             pointer-events: none;
         }
 
@@ -35,14 +35,14 @@
         position: absolute;
         bottom: 0;
         height: 2px;
-        background-color: $color-shopware-brand-500;
+        background-color: var(--color-border-brand-selected);
 
         &.has--error {
-            background-color: $color-crimson-500;
+            background-color: var(--color-border-critical-default);
         }
 
         &.has--warning {
-            background-color: $color-pumpkin-spice-500;
+            background-color: var(--color-background-attention-default);
         }
     }
 
@@ -94,7 +94,7 @@
             cursor: pointer;
 
             .mt-icon {
-                color: $color-shopware-brand-500;
+                color: var(--color-icon-brand-default);
             }
         }
     }

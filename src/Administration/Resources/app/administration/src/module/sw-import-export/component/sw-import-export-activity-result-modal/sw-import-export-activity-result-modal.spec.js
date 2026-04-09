@@ -10,7 +10,7 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
             activity: 'import',
             records: 1,
             username: 'admin',
-            profileName: 'Default product',
+            profileName: 'default_product',
             config: {},
             result: {
                 product: {
@@ -27,7 +27,7 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
                 username: 'admin',
             },
             profile: {
-                label: 'Default product',
+                technicalName: 'default_product',
                 sourceEntity: 'product',
             },
             file: {
@@ -67,7 +67,7 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
     it.each([
         [
             'Profile name',
-            'Default product',
+            'default_product',
             'profile',
         ],
         [

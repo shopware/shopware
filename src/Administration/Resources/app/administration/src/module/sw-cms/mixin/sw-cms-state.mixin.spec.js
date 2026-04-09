@@ -4,13 +4,24 @@
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
-function createWrapper() {
-    return mount({
-        template: '<div></div>',
-        mixins: [
-            Shopware.Mixin.getByName('cms-state'),
-        ],
-    });
+function createWrapper(routeName = '') {
+    return mount(
+        {
+            template: '<div></div>',
+            mixins: [
+                Shopware.Mixin.getByName('cms-state'),
+            ],
+        },
+        {
+            global: {
+                mocks: {
+                    $route: {
+                        name: routeName,
+                    },
+                },
+            },
+        },
+    );
 }
 
 const deviceViews = {
@@ -48,5 +59,23 @@ describe('module/sw-cms/mixin/sw-cms-state.mixin.js', () => {
         expect(wrapper.vm.isSystemDefaultLanguage).toBe(true);
         store.setIsSystemDefaultLanguage(false);
         expect(wrapper.vm.isSystemDefaultLanguage).toBe(false);
+    });
+
+    it('should return correct moduleEntity based on route meta', async () => {
+        const wrapper = await createWrapper('sw.category.detail.cms');
+        const mockCategory = {
+            id: 'category-1',
+            name: 'Test Category',
+            translations: [],
+        };
+
+        Shopware.Store.get('swCategoryDetail').category = mockCategory;
+        expect(wrapper.vm.contentEntity).toMatchObject(mockCategory);
+    });
+
+    it('should return null when no content entity is defined', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.contentEntity).toBeNull();
     });
 });

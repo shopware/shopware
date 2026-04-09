@@ -64,7 +64,7 @@ class DocumentConfigurationFactory
                 $property = new \ReflectionProperty($baseConfig, $key);
                 $propertyType = $property->getType();
 
-                if (!($propertyType instanceof \ReflectionNamedType)) {
+                if (!$propertyType instanceof \ReflectionNamedType) {
                     $baseConfig->__set($key, $value);
                     continue;
                 }
@@ -79,12 +79,12 @@ class DocumentConfigurationFactory
                  */
                 if (method_exists($baseConfig, $setterMethod)) {
                     if (is_subclass_of($typeName, Struct::class) && \is_array($value)) {
-                        // @phpstan-ignore symplify.noDynamicName
+                        // @phpstan-ignore method.dynamicName
                         $baseConfig->$setterMethod((new $typeName())->assign($value));
                         continue;
                     }
 
-                    // @phpstan-ignore symplify.noDynamicName
+                    // @phpstan-ignore method.dynamicName
                     $baseConfig->$setterMethod($value);
                     continue;
                 }
@@ -94,7 +94,7 @@ class DocumentConfigurationFactory
                     continue;
                 }
 
-                // @phpstan-ignore symplify.noDynamicName
+                // @phpstan-ignore property.dynamicName
                 $baseConfig->{$key} = (new $typeName())->assign($value);
             }
         }

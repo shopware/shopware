@@ -203,10 +203,10 @@
     {% endblock %}
 
     {% block sw_custom_field_list_empty_state %}
-    <sw-empty-state
+    <mt-empty-state
         v-else-if="!set.isLoading"
-        :absolute="false"
-        :title="$tc('sw-settings-custom-field.set.detail.messageCustomFieldsEmpty')"
+        :icon="$route.meta.$module.icon"
+        :headline="$tc('sw-settings-custom-field.set.detail.messageCustomFieldsEmpty')"
     />
     {% endblock %}
 

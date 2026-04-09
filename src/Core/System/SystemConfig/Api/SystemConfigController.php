@@ -5,9 +5,9 @@ namespace Shopware\Core\System\SystemConfig\Api;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,7 +30,12 @@ class SystemConfigController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/system-config/check', name: 'api.action.core.system-config.check', defaults: ['_acl' => ['system_config:read']], methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/system-config/check',
+        name: 'api.action.core.system-config.check',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:read']],
+        methods: [Request::METHOD_GET]
+    )]
     public function checkConfiguration(Request $request, Context $context): JsonResponse
     {
         $domain = (string) $request->query->get('domain');
@@ -42,24 +47,33 @@ class SystemConfigController extends AbstractController
         return new JsonResponse($this->configurationService->checkConfiguration($domain, $context));
     }
 
-    #[Route(path: '/api/_action/system-config/schema', name: 'api.action.core.system-config', methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/system-config/schema',
+        name: 'api.action.core.system-config',
+        methods: [Request::METHOD_GET]
+    )]
     public function getConfiguration(Request $request, Context $context): JsonResponse
     {
         $domain = (string) $request->query->get('domain');
 
         if ($domain === '') {
-            throw RoutingException::missingRequestParameter('domain');
+            throw SystemConfigException::missingRequestParameter('domain');
         }
 
         return new JsonResponse($this->configurationService->getConfiguration($domain, $context));
     }
 
-    #[Route(path: '/api/_action/system-config', name: 'api.action.core.system-config.value', defaults: ['_acl' => ['system_config:read']], methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/system-config',
+        name: 'api.action.core.system-config.value',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:read']],
+        methods: [Request::METHOD_GET]
+    )]
     public function getConfigurationValues(Request $request): JsonResponse
     {
         $domain = (string) $request->query->get('domain');
         if ($domain === '') {
-            throw RoutingException::missingRequestParameter('domain');
+            throw SystemConfigException::missingRequestParameter('domain');
         }
 
         $salesChannelId = $request->query->get('salesChannelId');
@@ -70,7 +84,7 @@ class SystemConfigController extends AbstractController
         $inherit = $request->query->getBoolean('inherit');
 
         $values = $this->systemConfig->getDomain($domain, $salesChannelId, $inherit);
-        if (empty($values)) {
+        if ($values === []) {
             $json = '{}';
         } else {
             $json = json_encode($values, \JSON_PRESERVE_ZERO_FRACTION);
@@ -79,7 +93,12 @@ class SystemConfigController extends AbstractController
         return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 
-    #[Route(path: '/api/_action/system-config', name: 'api.action.core.save.system-config', defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']], methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/system-config',
+        name: 'api.action.core.save.system-config',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:update', 'system_config:create', 'system_config:delete']],
+        methods: [Request::METHOD_POST]
+    )]
     public function saveConfiguration(Request $request): JsonResponse
     {
         $salesChannelId = $request->query->get('salesChannelId');
@@ -88,15 +107,23 @@ class SystemConfigController extends AbstractController
         }
 
         $kvs = $request->request->all();
-        $this->systemConfig->setMultiple($kvs, $salesChannelId);
+        $silent = $request->query->getBoolean('silent');
+        $this->systemConfig->setMultiple($kvs, $salesChannelId, $silent);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/system-config/batch', name: 'api.action.core.save.system-config.batch', defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']], methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/system-config/batch',
+        name: 'api.action.core.save.system-config.batch',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:update', 'system_config:create', 'system_config:delete']],
+        methods: [Request::METHOD_POST]
+    )]
     public function batchSaveConfiguration(Request $request, Context $context): JsonResponse
     {
         $this->systemConfigValidator->validate($request->request->all(), $context);
+
+        $silent = $request->query->getBoolean('silent');
 
         /**
          * @var string $salesChannelId
@@ -107,7 +134,7 @@ class SystemConfigController extends AbstractController
                 $salesChannelId = null;
             }
 
-            $this->systemConfig->setMultiple($kvs, $salesChannelId);
+            $this->systemConfig->setMultiple($kvs, $salesChannelId, $silent);
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);

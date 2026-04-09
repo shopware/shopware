@@ -24,8 +24,8 @@ async function createWrapper() {
                             'disabled',
                         ],
                     },
-                    'sw-promotion-v2-rule-select': {
-                        template: '<div class="sw-promotion-v2-rule-select"></div>',
+                    'sw-select-rule-create': {
+                        template: '<div class="sw-select-rule-create"></div>',
                     },
                     'sw-loader': {
                         template: '<div class="sw-loader"></div>',

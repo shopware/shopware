@@ -1,0 +1,904 @@
+{
+  "sw-cms": {
+    "general": {
+      "placeholderSearchBar": "Layouts durchsuchen ...",
+      "mainMenuItemGeneral": "Erlebniswelten",
+      "moduleTitle": "Erlebniswelten",
+      "greeting": "Layouts",
+      "createNewLayout": "Neues Layout anlegen",
+      "deleteDisabledToolTip": "Das Layout ist noch mindestens einer Kategorie zugewiesen.",
+      "deleteDisabledProductToolTip": "Das Layout ist noch mindestens einem Produkt zugewiesen.",
+      "deleteDisabledLandingPageToolTip": "Das Layout ist noch mindestens einer Landingpage zugewiesen.",
+      "disabledAddingBlocksToolTip": "Blöcke können nur in der System-Standardsprache hinzugefügt werden.",
+      "privacyNotice": "Ich habe die <a href=\"%privacyUrl%\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a href=\"%tosUrl%\">AGB</a> gelesen und bin mit ihnen einverstanden."
+    },
+    "inherit": {
+      "tooltip": "Dieses Feld existiert nicht im Basis-Layout und kann nicht vererbt werden.",
+      "formBanner": "Dieses Layout erbt Felder. Das bedeutet, dass Inhalt geerbt wird, solange der Status aktiv ist. Die Vererbung dieser Felder kann durch Klicken auf das Verknüpfungssymbol aufgehoben, bzw. wiederhergestellt werden.",
+      "unlinkNotice": "Die Vererbung mancher Felder wurde aufgehoben.",
+      "unlinkAllButton": "Alle Felder zurücksetzen.",
+      "unlinkAllConfirmText": "Möchtest Du wirklich alle Felder zurücksetzen? Dadurch werden alle überschriebenen Inhalte dauerhaft gelöscht.",
+      "unlinkFieldConfirmText": "Möchtest Du wirklich dieses Feld zurücksetzen? Dadurch werden überschriebene Inhalte dauerhaft gelöscht.",
+      "unlinkAllTitle": "Alle Felder zurücksetzen",
+      "unlinkFieldTitle": "Feld zurücksetzen"
+    },
+    "sorting": {
+      "labelSort": "Sortieren nach:",
+      "labelSortByNameAsc": "Name, aufsteigend",
+      "labelSortByNameDesc": "Name, absteigend",
+      "labelSortByCreatedAsc": "Erstelldatum, aufsteigend",
+      "labelSortByCreatedDsc": "Erstelldatum, absteigend",
+      "labelSortByUpdatedAsc": "Bearbeitungsdatum, aufsteigend",
+      "labelSortByUpdatedDsc": "Bearbeitungsdatum, absteigend",
+      "labelSortByAllPages": "Alle Typen"
+    },
+    "list": {
+      "gridHeaderName": "Name",
+      "gridHeaderType": "Typ",
+      "gridHeaderAssignment": "Zugewiesene Kategorien",
+      "gridHeaderAssignments": "Zugeordnet",
+      "gridHeaderAssignedPages": "Zugewiesene Seiten",
+      "gridHeaderCreated": "Erstellt",
+      "gridHeaderUpdated": "Bearbeitungsdatum"
+    },
+    "section": {
+      "fallBackSectionName": "Sektion",
+      "positionLeft": "Inhalt, links",
+      "positionRight": "Inhalt, rechts",
+      "fullWidth": "Volle Breite",
+      "sidebar": "Sidebar",
+      "isSidebar": "Layout-Sektion - Sidebar",
+      "isDefault": "Layout-Sektion - Standard",
+      "layoutSection": "Layout-Sektion",
+      "sectionEmptyState": "Diese Sektion ist leer. Füge Blöcke und Elemente hinzu."
+    },
+    "sidebar": {
+      "contentMenu": {
+        "moveUp": "Nach oben verschieben",
+        "moveDown": "Nach unten verschieben",
+        "generalSettings": "Allgemein",
+        "settings": "Einstellungen",
+        "layoutSettings": "Layout",
+        "visibilitySettings": "Sichtbarkeit",
+        "visibilityMobile": "Mobil",
+        "visibilityTablet": "Tablet",
+        "visibilityDesktop": "Desktop",
+        "visibilityBlockTextButton": "Block einklappen | Block ausklappen",
+        "visibilitySectionTextButton": "Sektion einklappen | Sektion ausklappen",
+        "visibilityLabelCheckboxGroup": "Anzeigegeräte"
+      },
+      "layoutAssignment": {
+        "headline": "Verwalte wo dieses Layout zu sehen ist",
+        "infoText": "Du kannst Layouts für unterschiedliche Kategorien in Deinem Shop verwenden. Hier kannst Du einsehen, in welchen Kategorien dieses Layout bereits eingesetzt wird, oder es anderen Kategorien zuweisen.",
+        "actionAssignLayout": "Layout zuweisen"
+      },
+      "layoutSetAsDefault": {
+        "headline": "Standardlayouts",
+        "actionSetAsDefaultLayout": "Als Standardlayout verwenden"
+      }
+    },
+    "create": {
+      "notification":{
+        "assignToEntityError": "Layout-Zuweisung fehlgeschlagen"
+      }
+    },
+    "createWizard": {
+      "choosePageTypeTitle": "Was für eine Seite möchtest Du gestalten?",
+      "choosePageTypeHelpText": "Die verschiedenen Layout-Typen helfen Dir, Dein Layout in der Administration schneller wiederzufinden. Du kannst den Layout-Typ jederzeit in den Layout-Einstellungen ändern, falls Du Dich umentscheidest.",
+      "chooseSectionTitle": "Mit welcher Sektion möchtest Du starten?",
+      "chooseSectionHelpText": "Sektionen teilen Deine Arbeitsbühne in Bereiche, in denen Du kreativ sein kannst. Du kannst Sektionen miteinander kombinieren und jederzeit wieder entfernen oder verschieben.",
+      "chooseNameTitle": "Wie soll Dein Layout heißen?",
+      "createLayout": "Layout erstellen",
+      "stepBack": "Zurück"
+    },
+    "detail": {
+      "alert": {
+        "titleTranslations": "Übersetzungen zurzeit nicht verfügbar!",
+        "contentTranslations": "Ein Layout kann aktuell nur in der Systemstandardsprache bearbeitet werden."
+      },
+      "helpText": {
+        "cssClassField": "Du kannst eine oder mehrere, mit Leerzeichen getrennte, CSS-Klassen hinzufügen"
+      },
+      "label": {
+        "buttonSave": "Speichern",
+        "pageName": "Layout-Name",
+        "pageNamePlaceholder": "Layout-Namen eingeben ...",
+        "pageEntity": "Individuelle Entität",
+        "pageEntityPlaceholder": "Individuelle Entität auswählen ...",
+        "pageCssClass": "CSS-Klassen",
+        "pageTypeSelection": "Layout-Typ",
+        "pageType": {
+          "landingpage": "Landingpage",
+          "page": "Shopseite",
+          "productList": "Kategorieseite",
+          "productDetail": "Produktseite",
+          "customEntityDetail": "Content-Detailseite",
+          "customEntityList": "Content-Liste"
+        },
+        "demoEntity": "Vorschau-Datensatz",
+        "blockCategorySelection": "Block-Kategorie",
+        "blockCategoryFavorite": "Favoriten",
+        "blockCategoryText": "Text",
+        "blockCategoryTextImage": "Text & Bild",
+        "blockCategorySidebar": "Sidebar",
+        "blockCategoryImage": "Bilder",
+        "blockCategoryCommerce": "Commerce",
+        "blockCategoryVideo": "Video",
+        "blockCategoryForm": "Formular",
+        "blockCategoryApp": "Apps",
+        "blockCategoryHtml": "HTML",
+        "buttonElementSettingsConfirm": "Fertig",
+        "blockNameField": "Block-Name",
+        "blockNameFieldPlaceholder": "Gib einen Namen ein ...",
+        "blockSizingField": "Größenmodus",
+        "blockSizingOptionBoxed": "Zentrierter Inhalt",
+        "blockSizingOptionFull": "Volle Breite",
+        "backgroundColorField": "Farbe",
+        "backgroundColorLabel": "Hintergrundfarbe",
+        "backgroundMediaField": "Bild",
+        "backgroundMediaLabel": "Hintergrundbild",
+        "backgroundMediaMode": "Bildmodus",
+        "backgroundMediaModeContain": "Beinhalten",
+        "backgroundMediaModeCover": "Füllen",
+        "backgroundMediaModeAuto": "Auto",
+        "sizingField": "Größenmodus",
+        "cssClassField": "CSS-Klassen",
+        "sectionNameField": "Sektionsname",
+        "blockTopMarginField": "Oberer Abstand",
+        "blockRightMarginField": "Rechter Abstand",
+        "blockBottomMarginField": "Unterer Abstand",
+        "blockLeftMarginField": "Linker Abstand",
+        "sizingOptionBoxed": "Zentrierter Inhalt",
+        "sizingOptionFull": "Volle Breite",
+        "buttonMappingAction": "Datenzuordnung",
+        "buttonMappingRemoveAction": "Datenzuordnung entfernen",
+        "mappingPreview": "Datenzuordnung:",
+        "mappingEmptyPreview": "Für diese Datenzuordnung liegen leider keine Vorschaudaten vor.",
+        "addBlocks": "Füge Blöcke per Drag & Drop hinzu",
+        "labelNavigation": "Navigation",
+        "lockedNotification": "Dieses Layout ist gesperrt und kann nicht angepasst werden. Solltest Du dieses Standard-Template, an Deine eigenen Bedürfnisse anpassen möchtest, kannst du es einfach duplizieren und dann das Duplikat anpassen.",
+        "headlineEmptyState": "Raum für Kreativität",
+        "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag-&-Drop-Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit Deinem individuellen Inhalt.",
+        "defaultLayout": "Standardlayout",
+        "blockFavoriteEmptyState": "Klicke auf das Herz in einem Block, um ihn als Favorit zu markieren und finde ihn hier wieder.",
+        "visibilityParagraph": "Auf ausgewählten Geräten unsichtbar"
+      },
+      "notification": {
+        "pageInvalid": "Einige Fehler sind aufgetreten. Bitte überprüfe die Liste im Editor.",
+        "errorCollectionText": "Aufgrund folgender Fehler konnte nicht gespeichert werden:",
+        "warningCollectionText": "In diesem Layout fehlen folgende, empfohlene Elemente:",
+        "messageMissingFields": "Einige erforderliche Felder wurden nicht ausgefüllt.",
+        "messageMissingBlockFields": "Einige Blöcke wurden nicht ausreichend konfiguriert.",
+        "messageMissingProductListing": "Diese Kategorieseite enthält keinen Produktlisting-Block.",
+        "messageMissingSections": "Dieses Layout enthält keine Sektionen.",
+        "messageRedundantElements": "Es exitieren Blöcke, die nur einmal vorhanden sein dürfen. ({names})",
+        "messageMissingBlocks": "Du kannst keine leere Seite speichern. Bitte füge zuerst einen Block hinzu.",
+        "messageMissingElements": "Konfiguration erforderlich. Bitte konfiguriere alle Elemente Deines Layouts."
+      },
+      "placeholder": {
+        "demoEntity": "Wähle einen Datensatz zur Vorschau ..."
+      },
+      "sidebar": {
+        "titlePageSettings": "Einstellungen",
+        "headerPageSettings": "Basis-Informationen",
+        "titleBlockOverview": "Blöcke",
+        "titleBlockSettings": "Block-Einstellungen",
+        "headerBlockSettings": "Block:",
+        "titleNavigator": "Navigator",
+        "titleSectionSettings": "Sektion-Einstellungen",
+        "titleLayoutAssignment": "Layout-Zuweisung",
+        "confirmTextNavigator": "Beim Betreten des Block-Navigators wird die aktuelle Seite gespeichert werden. Möchtest Du wirklich fortfahren?",
+        "confirmReminderNavigator": "Nicht noch einmal fragen",
+        "mobile": "Mobiles Sidebar-Verhalten",
+        "mobileOptionHidden": "Nicht angezeigt",
+        "mobileOptionWrap": "Umbrechen"
+      },
+      "title": {
+        "elementSettingsModal": "Element-Einstellungen",
+        "elementChangeModal": "Element austauschen",
+        "blockFavoriteEmptyState": "Noch keine Favoriten"
+      },
+      "tooltip": {
+        "blockNameField": "Benenne jeden Block individuell und eindeutig, um einen guten Überblick über Deine Arbeit zu behalten.",
+        "sectionNameField": "Benenne jede Sektion individuell und eindeutig, um einen guten Überblick über Deine Arbeit zu erhalten.",
+        "cannotSelectProductPageLayout": "Du kannst den Layout-Typ einer Produktseite nicht ändern."
+      }
+    },
+    "elements": {
+      "general": {
+        "config": {
+          "label": {
+            "verticalAlign": "Vertikale Ausrichtung",
+            "alignment": "Ausrichtung",
+            "verticalAlignTop": "Oben",
+            "verticalAlignCenter": "Mitte",
+            "verticalAlignBottom": "Unten",
+            "displayMode": "Anzeigemodus",
+            "displayModeStandard": "Original",
+            "displayModeCover": "Zugeschnitten",
+            "displayModeStretch": "Skaliert",
+            "displayModeContain": "Feste Höhe",
+            "autoSlide": "Automatischer Wechsel",
+            "autoplayTimeout": "Verzögerung",
+            "speed": "Animationsdauer",
+            "horizontalAlign": "Horizontale Ausrichtung",
+            "horizontalAlignLeft": "Links",
+            "horizontalAlignCenter": "Mitte",
+            "horizontalAlignRight": "Rechts"
+          },
+          "helpText": {
+            "autoplayTimeout": "Die Anzeigezeit eines einzelnen Bildes in Millisekunden.",
+            "speed": "Die Dauer der Wechselanimation in Millisekunden.",
+            "displayMode": "<ul><li><strong>Original:</strong> Der Inhalt wird in seiner ursprünglichen Auflösung erhalten oder auf die aktuelle Breite der CMS-Seite verkleinert.</li><li><strong>Skaliert:</strong> Der Inhalt wird ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert.</li><li><strong>Zugeschnitten:</strong> Der Inhalt wird auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte maximale Höhe zugeschnitten.</li></ul>"
+          },
+          "caption": {
+            "mediaUpload": "Lade ein Bild hoch"
+          },
+          "tab": {
+            "content": "Inhalt",
+            "settings": "Einstellungen",
+            "options": "Optionen"
+          },
+          "infoText": {
+            "autoSlideTitle": "Bedenken hinsichtlich der Barrierefreiheit",
+            "autoSlide": "Das Aktivieren dieser Funktion kann dazu führen, dass Teile Deiner Storefront für Menschen mit Einschränkungen nicht zugänglich sind. Dies kann eine Nichteinhaltung der in Deiner Gerichtsbarkeit geltenden Barrierefreiheitsgesetze darstellen (z.B. des Europäischen Rechtsakts zur Barrierefreiheit). Mit dem Fortfahren erkennst Du dieses Risiko an und übernimmst die volle Verantwortung.",
+            "listingElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau."
+          }
+        },
+        "switch": {
+          "groups": {
+            "all": "Alle Elemente",
+            "favorites": "Favorisierte Elemente"
+          }
+        }
+      },
+      "image": {
+        "label": "Bild",
+        "config": {
+          "label": {
+            "ariaLabel": "Link-Beschreibung",
+            "minHeight": "Mindesthöhe",
+            "isDecorative": "Als ausschließlich dekorativ markieren",
+            "useFetchPriorityOnFirstItem": "Erstes Bild priorisiert laden",
+            "linkNewTab": "Link in neuem Tab öffnen",
+            "linkTo": "Linkziel",
+            "fetchPriorityHigh": "Hohe Ladepriorität"
+          },
+          "helpText": {
+            "ariaLabel": "Dieser Text wird beim Auslesen des Links von Screenreadern vorgelesen.",
+            "minHeight": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
+            "fetchPriorityHigh": "Setze diese Option, wenn das Bild das erste Bild auf der Seite ist. Diesem Bild wird dann das Attribut 'fetchpriority=\"high\"' hinzugefügt, was dem Browser mitteilt, dass das Bild mit höherer Priorität geladen werden soll, was den Largest Contentful Paint (LCP) verbessern kann.",
+            "useFetchPriorityOnFirstItem": "Wenn diese Option eingeschaltet wird, wird das erste Bild mit einer höheren Priorität geladen. Dies kann die Geschwindigkeit des Aufbaus der Seite im Browser verbessern.",
+            "isDecorative": "Wenn diese Option eingeschaltet ist, werden die Bildinformationen nicht von Screenreadern vorgelesen, das heißt der \"alt\"-Tag und \"title\"-Tag bleiben leer."
+          },
+          "placeholder": {
+            "enterMinHeight": "Mindesthöhe eingeben ...",
+            "enterUrl": "URL eingeben ..."
+          }
+        }
+      },
+      "imageGallery": {
+        "label": "Galerie",
+        "config": {
+          "label": {
+            "navigationPreview": "Vorschau Navigation",
+            "navigationPreviewPositionLeft": "Links",
+            "navigationPreviewPositionUnderneath": "Darunter",
+            "zoom": "Zoom",
+            "fullscreen": "Vollbild-Galerie",
+            "keepAspectRatioOnZoom": "Seitenverhältnis beim Zoomen beibehalten",
+            "magnifierOverGallery": "Lupe über Galerie anzeigen",
+            "magnifierOverGalleryHelpText": "Zeige die Lupe über der Galerie, anstatt daneben an."
+          },
+          "helpText": {
+            "displayMode": "<ul><li><strong>Original:</strong> Der Inhalt wird in der ursprünglichen Auflösung erhalten oder auf die Höhe des Sliders verkleinert.</li><li><strong>Feste Höhe:</strong> Der Inhalt wird in der ursprünglichen Auflösung erhalten oder auf die konfigurierte Höhe verkleinert.</li><li><strong>Zugeschnitten:</strong> Der Inhalt wird auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten.</li></ul>"
+          }
+        }
+      },
+      "imageSlider": {
+        "label": "Bild-Slider",
+        "config": {
+          "label": {
+            "sliderItems": "Bilder",
+            "navigationArrows": "Pfeil-Navigation",
+            "navigationPositionNone": "Keine",
+            "navigationPositionInside": "Innen",
+            "navigationPositionOutside": "Außen",
+            "navigationDots": "Punkt-Navigation"
+          },
+          "helpText": {
+            "displayMode": "<ul><li><strong>Original:</strong> Der Inhalt wird ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider passt seine Höhe dynamisch an.</li><li><strong>Feste Höhe:</strong> Der Inhalt wird ohne Höhenbeschränkungen auf die Breite der CMS-Seite skaliert. Der Slider behält die Höhe des höchsten Elements bei.</li><li><strong>Zugeschnitten:</strong> Der Inhalt wird auf die aktuelle Breite der CMS-Seite skaliert. Jeglicher vertikaler Überlauf wird auf die konfigurierte Höhe zugeschnitten.</li></ul>"
+          }
+        }
+      },
+      "productBox": {
+        "label": "Produkt-Box",
+        "component": {
+          "label": {
+            "actionBuy": "In den Warenkorb",
+            "badgeTopseller": "Topseller",
+            "badgeNew": "Neu",
+            "priceUnitContent": "Inhalt:"
+          }
+        },
+        "config": {
+          "label": {
+            "selection": "Produkt",
+            "layoutType": "Layout-Typ",
+            "layoutTypeStandard": "Standard",
+            "layoutTypeImage": "Großes Bild",
+            "layoutTypeMinimal": "Minimaler Inhalt",
+            "headlineLevel": "Überschrift-Ebene für Produkt-Boxen",
+            "headlineLevelHelp": "Wähle eine Überschrift-Ebene für die Produkt-Box Titel in diesem Produkt-Listing. Wenn \"Keine Überschrift\" ausgewählt wird, wird keine Überschrift-Ebene angewendet.",
+            "headlineLevelOption": "Überschrift {level}",
+            "headlineLevelDefaultOption": "Überschrift 2 (empfohlener Standard)",
+            "headlineLevelEmptyOption": "Keine Überschrift (nicht empfohlen)"
+          },
+          "placeholder": {
+            "selection": "Wähle ein Produkt ..."
+          }
+        }
+      },
+      "productListing": {
+        "label": "Produkt-Listing",
+        "config": {
+          "tab": {
+            "sorting": "Sortierungen",
+            "filter": "Filter"
+          },
+          "sorting": {
+            "labelShowSorting": "Produkt-Sortierung anzeigen",
+            "labelUseCustomSortings": "Eigene Sortierungen verwenden",
+            "labelDefaultSorting": "Standard-Sortierung",
+            "labelProductSortings": "Produkt-Sortierungen",
+            "placeholderDefaultProductSorting": "Wähle eine Standard-Sortierung ...",
+            "placeHolderProductSortings": "Produkt-Sortierungen hinzufügen oder entfernen",
+            "helpTextUseCustomSortings": "Sortier-Optionen kannst Du für dieses Produkt-Listing definieren. Aktiviere diese Option um die Sortier-Option für dieses Listing individuell anzupassen.",
+            "helpTextDefaultSorting": "Die Standard Sortierung für das Listing, wenn keine andere Sortierung angegeben ist.",
+            "gridHeaderName": "Name",
+            "gridHeaderFields": "Kriterien",
+            "gridHeaderPriority": "Priorität",
+            "deleteModal": {
+              "heading": "\"{productSortingName}\" entfernen.",
+              "body": "Willst du wirklich die Sortier-Option \"{productSortingName}\" entfernen?"
+            },
+            "defaultSortingInUse": "Diese Produkt-Sortierung ist bereits als Standardsortierung ausgewählt.",
+            "defaultSortingCantBeDisabled": "Diese Product-Sortierung ist die Standardsortierung. Sie muss aktiviert bleiben, um keine Probleme mit Deinen Produkt-Listings zu verursachen."
+          },
+          "filter": {
+            "infoText": "Stelle sicher, dass ein Filter Block zu Deinem Layout hinzugefügt ist, um diese Einstellung in Aktion zu sehen.",
+            "labelFilterByManufacturer": "Nach Hersteller filtern",
+            "labelFilterByRating": "Nach Bewertung filtern",
+            "labelFilterByPrice": "Nach Preis filtern",
+            "labelFilterForFreeShipping": "Nach kostenlosem Versand filtern",
+            "labelUseFilterByProperties": "Filterbare Produkteigenschaften konfigurieren",
+            "helpTextUseFilterByProperties": "Wenn deaktiviert, werden in diesem Layout Filter für alle vorhandenen Eigenschaften angezeigt.",
+            "descriptionTextUseFilterByProperties": "Eigenschaften, die auf nicht filterbar eingestellt sind, werden hier nicht angezeigt. Du kannst dies im <a href=\"#/sw/property/index\" target=\"_blank\">Eigenschaftsmodul</a> ändern.",
+            "gridHeaderStatus": "Status",
+            "gridHeaderName": "Name",
+            "gridEmptyStateLabel": "Keine Eigenschaften gefunden.",
+            "gridEmptyStateHint": "Versuche es mit einem anderen Suchbegriff"
+          }
+        }
+      },
+      "productHeading": {
+        "logo": {
+          "label": "Hersteller-Logo"
+        },
+        "name": {
+          "label": "Produktname"
+        }
+      },
+      "productSlider": {
+        "label": "Produkt-Slider",
+        "config": {
+          "label": {
+            "title": "Slider-Titel",
+            "selection": "Produkte",
+            "navigation": "Navigation",
+            "border": "Rahmen",
+            "minWidth": "Minimale Breite",
+            "navigationArrows": "Pfeil-Navigation",
+            "navigationPositionNone": "Keine",
+            "navigationPositionInside": "Innen",
+            "navigationPositionOutside": "Außen",
+            "productAssignmentType": "Produkt-Zuweisung",
+            "productStreamSorting": "Sortierung",
+            "productStreamLimit": "Maximale Produktanzahl",
+            "productStreamChoice": "Dynamische Produktgruppe"
+          },
+          "placeholder": {
+            "title": "Slider-Titel",
+            "selection": "Produkte auswählen",
+            "minWidth": "Minimale Breite",
+            "productStreamChoice": "Wähle eine dynamische Produktgruppe ...",
+            "productStreamSorting": "Wähle eine Sortierung ..."
+          },
+          "helpText": {
+            "minWidth": "Gib die minimale Breite in der gewünschten Einheit an. Zum Beispiel: 200px",
+            "displayMode": "<ul><li><strong>Original:</strong> Der Inhalt wird auf Höhe oder Breite der Produktbox skaliert, so dass der Inhalt immer komplett in den für ihn vorgesehenen Bereich passt. Der Inhalt wird nie hochskaliert.</li><li><strong>Feste Höhe:</strong> Der Inhalt wird auf Höhe oder Breite der Produktbox skaliert, so dass der Inhalt immer komplett in den für ihn vorgesehenen Bereich passt. Der Inhalt kann hochskaliert werden.</li><li><strong>Zugeschnitten:</strong> Der Inhalt wird auf die Höhe oder Breite der Produktbox skaliert. Jeglicher Überlauf wird entsprechend zugeschnitten.</li></ul>"
+          },
+          "productAssignmentTypeOptions": {
+            "manual": "Manuelle Zuweisung",
+            "productStream": "Dynamische Produktgruppe"
+          },
+          "productStreamSortingOptions": {
+            "nameAsc": "Name aufsteigend",
+            "nameDesc": "Name absteigend",
+            "priceAsc": "Preis aufsteigend",
+            "priceDesc": "Preis absteigend",
+            "creationDateAsc": "Erstellungsdatum aufsteigend",
+            "creationDateDesc": "Erstellungsdatum absteigend",
+            "releaseDateAsc": "Erscheinungsdatum aufsteigend",
+            "releaseDateDesc": "Erscheinungsdatum absteigend",
+            "random": "Zufällig"
+          },
+          "textProductStreamPreviewLink": "Vorschau dynamische Produktgruppe",
+          "textProductStreamPerformanceHint": "Bitte beachten: Dynamische Produktgruppen können einen spürbaren Einfluss auf die Performance haben, abhängig von der Komplexität der Produktgruppen-Filter und der Anzahl der Slider-Elemente auf der Seite."
+        }
+      },
+      "sidebarCategoryNavigation": {
+        "label": "Kategorie-Navigation",
+        "infoText": {
+          "navigationElement": "Die Produktdaten für dieses Element werden automatisch über die Kategoriezuweisungen befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau."
+        },
+        "component": {
+          "label": {
+            "navigation": "Navigation"
+          }
+        },
+        "preview": {
+          "label": {
+            "navigation": "Navigation"
+          }
+        }
+      },
+      "sidebarFilter": {
+        "label": "Produkt-Filter",
+        "infoText": {
+          "filterElement": "Die angezeigten Filter können über das Listingelement konfiguriert werden."
+        }
+      },
+      "text": {
+        "label": "Text",
+        "config": {
+          "label": {
+            "content": "Text"
+          }
+        }
+      },
+      "video": {
+        "label": "Video",
+        "config": {
+          "label": {
+            "ariaLabel": "Titel für Screenreader",
+            "minHeight": "Mindesthöhe",
+            "autoPlay": "Automatisch abspielen",
+            "loop": "In einer Schleife abspielen",
+            "muted": "Stumm abspielen",
+            "showControls": "Steuerelemente anzeigen",
+            "showCover": "Erst nach Bestätigung laden",
+            "playsInline": "Inline auf iOS-Geräten abspielen"
+          },
+          "helpText": {
+            "ariaLabel": "Wird von Screenreadern vorgelesen und sollte den Inhalt oder Zweck des Videos kurz beschreiben. Wenn leer, wird stattdessen entweder der im Media-Modul konfigurierte Titel oder der Alt-Text verwendet.",
+            "minHeight": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
+            "autoPlay": "Autoplay wird von vielen Browsern nur erlaubt, wenn das Video stumm ist.<br>Ein Cover ist bei Autoplay nicht sinnvoll, weil die Wiedergabe sofort startet und keine Bestätigung nötig ist.",
+            "showCover": "Das in der Medienauswahl konfigurierte Cover wird angezeigt, bis der Nutzer per Klick das Video lädt.",
+            "playsInline": "Ohne diese Option öffnet iOS Videos oft im Vollbild. Aktiviere diese Option, um die Wiedergabe inline zu halten."
+          },
+          "placeholder": {
+            "ariaLabel": "Titel für Screenreader eingeben ...",
+            "minHeight": "Mindesthöhe eingeben ..."
+          }
+        }
+      },
+      "vimeoVideo": {
+        "label": "Vimeo-Video",
+        "config": {
+          "label": {
+            "videoId": "Video-Link",
+            "autoPlay": "Automatisch abspielen",
+            "loop": "In einer Schleife abspielen",
+            "showControls": "Steuerelemente anzeigen",
+            "controlsColor": "Farbe der Steuerelemente ändern",
+            "byLine": "Namen des Video-Erstellers anzeigen",
+            "showPortrait": "Profilbild des Video-Erstellers anzeigen",
+            "showTitle": "Titel des Videos anzeigen",
+            "advancedPrivacy": "Erweiterter Datenschutzmodus",
+            "start": "Video starten ab",
+            "end": "Video abspielen bis",
+            "needsConfirmation": "Erst nach Bestätigung laden",
+            "previewImage": "Vorschau-Bild",
+            "videoTitle" : "Videotitel"
+          },
+          "placeholder": {
+            "videoId": "Video-Link eingeben ...",
+            "videoTitle": "Einen beschreibenden Titel eingeben ..."
+          },
+          "helpText": {
+            "autoPlay": "Achtung, einige Browser verhindern das automatische Abspielen von Videos.",
+            "advancedPrivacy": "Wenn Du den erweiterten Datenschutzmodus aktivierst, werden von der Video-Plattform keine Informationen über die Besucher Deiner Website gespeichert, bis sie sich das Video ansehen."
+          }
+        }
+      },
+      "youtubeVideo": {
+        "label": "YouTube-Video"
+      },
+      "form": {
+        "label": "Formular",
+        "config": {
+          "label": {
+            "receiverEmail": "Empfänger-Adressen",
+            "title": "Titel",
+            "type": "Formulartyp",
+            "typeContact": "Kontakt",
+            "typeNewsletter": "Newsletter",
+            "typeRevocationRequest": "Widerruf",
+            "confirmationText": "Bestätigungstext"
+          },
+          "placeholder": {
+            "type": "Wähle einen Formulartypen ..."
+          }
+        },
+        "element": {
+          "label": {
+            "action": "Aktion*",
+            "email": "E-Mail-Adresse*",
+            "firstName": "Vorname*",
+            "lastName": "Nachname*",
+            "message": "Ihre Nachricht*",
+            "newsletterSubmit": "Weiter",
+            "phone": "Telefonnummer*",
+            "privacy": "Datenschutz*",
+            "salutation": "Anrede*",
+            "salutationUndisclosed": "Keine Angabe",
+            "subject": "Betreff*",
+            "subscribeToNewsletter": "Newsletter abonnieren",
+            "contractNumber": "Vertragsnummer (Bestellnummer, Abonnementnummer, ...)*",
+            "comment": "Kommentar"
+          },
+          "placeholder": {
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "john{'@'}doe.com",
+            "phone": "+4920 3920173",
+            "subject": "Lorem ipsum dolor sit amet.",
+            "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.",
+            "contractNumber": "SW123456789",
+            "comment": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
+          },
+          "helpText": {
+            "requiredFields": "Die mit einem Stern (*) markierten Felder sind Pflichtfelder."
+          },
+          "newsletter": {
+            "label": {
+              "firstName": "Vorname",
+              "lastName": "Nachname",
+              "salutation": "Anrede"
+            }
+          }
+        },
+        "preview": {
+          "label": {
+            "form": "Formular",
+            "send": "Senden"
+          }
+        }
+      },
+      "buyBox": {
+        "label": "Buybox",
+        "infoText": {
+          "tooltipSettingDisabled" : "Die Produktdaten dieses Elements werden automatisch aus dem mit dem Layout verbundenen Produkt geladen. Der angezeigte Inhalt ist nur eine Beispielvorschau."
+        },
+        "config": {
+          "label": {
+            "selection": "Produkt"
+          },
+          "placeholder": {
+            "selection": "Wähle ein Produkt ..."
+          }
+        },
+        "component": {
+          "label": {
+            "actionBuy": "In den Warenkorb",
+            "taxInfo": "Preise inkl. MwSt. zzgl. Versandkosten",
+            "deliveryShippingFree": "Versandkostenfrei",
+            "deliveryTime": "Sofort verfügbar, Lieferzeit {name}",
+            "variants": "Variants",
+            "productNumber": "Produktnummer:"
+          }
+        }
+      },
+      "productDescriptionReviews": {
+        "label": "Produktbeschreibung und -bewertungen",
+        "infoText": {
+          "descriptionAndReviewsElement": "Die Produktdaten dieses Elements werden automatisch aus dem mit dem Layout verbundenen Produkt geladen. Der angezeigte Inhalt ist nur eine Beispielvorschau."
+        },
+        "component": {
+          "label": {
+            "descriptionAndReviews": "Produktbeschreibung und -bewertungen"
+          }
+        },
+        "preview": {
+          "label": {
+            "descriptionAndReviews": "Produktbeschreibung und -bewertungen",
+            "description": "Beschreibung",
+            "reviews": "Bewertungen"
+          }
+        }
+      },
+      "crossSelling": {
+        "label": "Cross Selling",
+        "preview": {
+          "label": {
+            "crossSellingTitle": "Cross-Selling-Titel"
+          }
+        },
+        "config": {
+          "label": {
+            "selection": "Produkt",
+            "minWidth": "Mindestbreite"
+          },
+          "placeholder": {
+            "selection": "Produkt auswählen ...",
+            "minWidth": "Mindestbreite eingeben ..."
+          },
+          "infoText": {
+            "productDetailElement": "Die Produktdaten dieses Elements werden automatisch aus dem mit dem Layout verbundenen Produkt geladen. Der angezeigte Inhalt ist nur eine Beispielvorschau."
+          }
+        }
+      },
+      "productName": {
+        "label": "Produktname"
+      },
+      "html": {
+        "label": "HTML",
+        "labelContent": "Inhalt",
+        "config": {
+          "warning": "Ungefilterter HTML-Code kann zu Sicherheitsrisiken führen. Bitte füge nur HTML-Code von vertrauenswürdigen Quellen ein und teste deine Änderung vor der Veröffentlichung."
+        }
+      }
+    },
+    "blocks": {
+      "commerce": {
+        "productHeading": {
+          "label": "Produktname & Hersteller-Logo"
+        },
+        "productListing": {
+          "label": "Produkt-Listing"
+        },
+        "productSlider": {
+          "label": "Produkt-Slider"
+        },
+        "productThreeColumn": {
+          "label": "Drei Spalten, Produkt-Boxen"
+        },
+        "productDescriptionReviews": {
+          "label": "Produktbeschreibung und -bewertungen",
+          "preview": {
+            "label": {
+              "description": "Beschreibung",
+              "reviews": "Bewertungen"
+            }
+          }
+        },
+        "galleryBuyBox": {
+          "label": "Galerie und Buybox"
+        },
+        "crossSelling": {
+          "label": "Cross Selling"
+        }
+      },
+      "image": {
+        "image": {
+          "label": "Bild, zentriert"
+        },
+        "imageBubbleRow": {
+          "label": "Drei Spalten, abgerundet"
+        },
+        "imageCover": {
+          "label": "Bild, gestreckt"
+        },
+        "imageFourColumn": {
+          "label": "Vier Spalten, zentriert"
+        },
+        "imageGallery": {
+          "label": "Galerie"
+        },
+        "imageHighlightRow": {
+          "label": "Drei Spalten, Hintergrund"
+        },
+        "imageSimpleGrid": {
+          "label": "Bild-Raster"
+        },
+        "imageSlider": {
+          "label": "Bild-Slider"
+        },
+        "imageThreeColumn": {
+          "label": "Drei Spalten, zentriert"
+        },
+        "imageThreeCover": {
+          "label": "Drei Spalten, gestreckt"
+        },
+        "imageTwoColumn": {
+          "label": "Zwei Spalten, zentriert"
+        }
+      },
+      "sidebar": {
+        "categoryNavigation": {
+          "label": "Kategorie-Navigation",
+          "preview": {
+            "label": {
+              "navigation": "Navigation"
+            }
+          }
+        },
+        "sidebarFilter": {
+          "label": "Produkt-Filter"
+        }
+      },
+      "text": {
+        "text": {
+          "label": "Text"
+        },
+        "textHero": {
+          "label": "Text-Banner"
+        },
+        "textTeaser": {
+          "label": "Teaser-Text"
+        },
+        "textTeaserSection": {
+          "label": "Zwei Spalten, Teaser-Text"
+        },
+        "textThreeColumn": {
+          "label": "Drei Spalten, Text"
+        },
+        "textTwoColumn": {
+          "label": "Zwei Spalten, Text"
+        }
+      },
+      "textImage": {
+        "centerText": {
+          "label": "Drei Spalten, Bild & Text"
+        },
+        "imageText": {
+          "label": "Zwei Spalten, zentriertes Bild & Text"
+        },
+        "imageTextBubble": {
+          "label": "Drei Spalten, abgerundete Bilder mit Unterschrift"
+        },
+        "imageTextCover": {
+          "label": "Zwei Spalten, gestrecktes Bild & Text"
+        },
+        "imageTextGallery": {
+          "label": "Drei Spalten, Bild/Text-Karten"
+        },
+        "imageTextRow": {
+          "label": "Drei Spalten, Bilder mit Unterschrift"
+        },
+        "textOnImage": {
+          "label": "Banner"
+        }
+      },
+      "video": {
+        "video": {
+          "label": "Video"
+        },
+        "vimeoVideo": {
+          "label": "Vimeo-Video"
+        },
+        "youtubeVideo": {
+          "label": "YouTube-Video"
+        }
+      },
+      "form": {
+        "form": {
+          "label": "Formular"
+        }
+      },
+      "html": {
+        "html": {
+          "label": "HTML"
+        }
+      },
+      "blockDisableState": "Dieser Block ist auf keinem Gerät sichtbar. Sie können den Block bearbeiten, aber die Änderungen werden in Ihrem Shop nicht sichtbar sein. Bearbeiten Sie dieses Layout im Modul Einkaufserlebnisse, um die Sichtbarkeit des Blocks zu ändern."
+    },
+    "components": {
+      "setDefaultLayoutModal": {
+        "title": "Standardlayout zuweisen",
+        "infoText": "Bitte beachte, dass alle Produkte, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Produkte diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden? | Bitte beachte, dass alle Kategorien, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Kategorien diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden?"
+      },
+      "cmsLayoutModal": {
+        "actionConfirm": "Layout übernehmen",
+        "modalTitle": "Layout auswählen",
+        "headline": "Landingpage / Produktlisting"
+      },
+      "cmsLayoutAssignmentModal": {
+        "infoText": "Das Layout ist erst in Deinem Shop zu sehen, wenn Du es einer aktiven Kategorie zugewiesen hast.",
+        "infoTextShopPages": "Du kannst dieses Layout sowohl für Kategorien verwenden als auch für Shopseiten wie AGB, Impressum, Fehlerseiten etc.",
+        "infoTextProductDetailPages": "Das Layout ist erst in Deinem Shop zu sehen, wenn du es einem aktiven Produkt zuweist.",
+        "labelCategories": "Kategorien",
+        "placeholderCategories": "Wähle Kategorien aus ...",
+        "placeholderLandingPages": "Wähle Landingpages aus ...",
+        "labelSalesChannel": "Verkaufskanal",
+        "placeholderSalesChannel": "Wähle einen Verkaufskanal ...",
+        "resetOptionSalesChannel": "Alle Verkaufskanäle",
+        "helpTextSalesChannel": "Layouts, die spezifischen Verkaufskanälen zugewiesen sind, überschreiben Layout-Zuweisungen in \"Alle Verkaufskanäle\".",
+        "labelShopPages": "Shopseiten",
+        "confirmChangesTextCategories": "Du hast Layout-Zuweisungen von Kategorie entfernt. Wenn Du diese Änderungen bestätigst, ist für diese Kategorien kein Layout mehr zugewiesen.",
+        "confirmChangesTextCategoriesAssignedLayouts": "Einigen der ausgewählten Kategorien ist bereits ein Layout zugewiesen. Wenn Du fortfährst, werden die bestehenden Zuweisungen durch das aktuelle Layout ersetzt.",
+        "confirmChangesTextProducts": "Sie haben Layoutzuweisungen aus Produkten entfernt. Wenn Sie diese Änderungen bestätigen, ist diesen Produkten kein Layout mehr zugewiesen.",
+        "confirmChangesTextProductsAssignedLayouts": "Einige der ausgewählten Produkte haben bereits ein Layout zugewiesen. Wenn Sie fortfahren, werden die vorherigen Zuweisungen durch das aktuelle Layout ersetzt.",
+        "confirmChangesTextShopPages": "Du hast Layout-Zuweisungen von Shopseiten entfernt. Wenn Du diese Änderungen bestätigst, ist für diese Shopseiten kein Layout mehr zugewiesen.",
+        "confirmChangesTextLandingPages": "Du hast Layout-Zuweisungen von Landingpages entfernt. Wenn Du diese Änderungen bestätigst, ist für diese Landingpages kein Layout mehr zugewiesen.",
+        "confirmChangesTextLandingPagesAssignedLayouts": "Einigen der ausgewählten Landingpages ist bereits ein Layout zugewiesen. Wenn Du fortfährst, werden die bestehenden Zuweisungen durch das aktuelle Layout ersetzt.",
+        "confirmChangesText": "Möchtest Du Deine Änderungen übernehmen?",
+        "confirmChangesTitle": "Layout-Zuweisung bestätigen",
+        "shopPagesLoadError": "Shopseiten konnten nicht geladen werden",
+        "shopPagesSaveError": "Shopseiten konnten nicht gespeichert werden",
+        "tabCategories": "Kategorien",
+        "tabShopPages": "Shopseiten",
+        "tabLandingPages": "Landingpages",
+        "shopPages": {
+          "tosPage": "AGB-Seiten",
+          "revocationPage": "Widerrufsbelehrungen",
+          "shippingPaymentInfoPage": "Versand- und Zahlungsarten",
+          "privacyPage": "Datenschutz-Seiten",
+          "imprintPage": "Impressum",
+          "404Page": "404-Seiten",
+          "maintenancePage": "Wartungsseiten",
+          "contactPage": "Kontaktformulare",
+          "revocationRequestPage": "Widerrufsformular",
+          "newsletterPage": "Newsletterseiten"
+        },
+        "products": {
+          "productAssignmentHeadline": "Produkt-Zuweisung",
+          "productAssignmentPlaceholder": "Produkte durchsuchen und zuweisen ...",
+          "productAssignmentLabel": "Produkte",
+          "productAssignmentEmptyStateDescription": "Keine Produkte zugewiesen",
+          "productStreamAssignmentEmptyStateDescription": "Keine dynamische Produktgruppe zugewiesen",
+          "columnNameLabel": "Name",
+          "columnManufacturerLabel": "Hersteller"
+        }
+      },
+      "cmsMissingElementModal": {
+        "headline": "Fehlende Elemente",
+        "title": "Das Element <span>{element}</span> fehlt in dieser Produkt-Detailseite. | Die Elemente <span>{element}</span> fehlen in dieser Produkt-Detailseite.",
+        "subtitle": "Kunden, die diese Seite besuchen, erhalten möglicherweise nicht alle wichtigen Produkt-Informationen.",
+        "paragraph": "Möchtest Du das Layout trotzdem speichern?",
+        "buttonSave": "Layout speichern"
+      },
+      "cmsListItem": {
+        "emptyText": "Kein Layout zugewiesen",
+        "edit": "Bearbeiten",
+        "rename": "Umbenennen",
+        "delete": "Löschen",
+        "duplicate": "Duplizieren",
+        "view": "Vorschau",
+        "addPreviewImage": "Vorschau hinzufügen",
+        "setAsDefaultProductList": "Als Standard für Kategorieseiten festlegen",
+        "setAsDefaultProductDetail": "Als Standard für Produkseiten festlegen",
+        "defaultLayout": "Standardlayout",
+        "defaultLayoutProductList": "Standardlayout - Kategorieseite",
+        "defaultLayoutProductDetail": "Standardlayout - Produktseite",
+        "removePreviewImage": "Vorschau entfernen",
+        "notificationDeleteErrorMessage": "Das Layout ist noch mindestens einer Kategorie zugewiesen.",
+        "modal": {
+          "renameModalTitle": "Layout umbenennen",
+          "textRenameConfirm": "Wähle einen neuen Namen für \"{pageName}\":",
+          "textDeleteConfirm": "Möchtest Du das Layout \"{pageName}\" wirklich löschen?",
+          "buttonRename": "Umbenennen",
+          "buttonDelete": "Löschen"
+        }
+      }
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "cms": {
+        "label": "Erlebniswelten"
+      }
+    }
+  }
+}

@@ -54,7 +54,7 @@ class InstallAppCommand extends Command
         $manifests = $this->getMatchingManifests($names);
         $success = self::SUCCESS;
 
-        if (\count($manifests) === 0) {
+        if ($manifests === []) {
             $io->info('Could not find any app with this name');
 
             return self::SUCCESS;
@@ -100,7 +100,7 @@ class InstallAppCommand extends Command
             $io->success(\sprintf('App %s has been successfully installed.', $name));
         }
 
-        return (int) $success;
+        return $success;
     }
 
     protected function configure(): void

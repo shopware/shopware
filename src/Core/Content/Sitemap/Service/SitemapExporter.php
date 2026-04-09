@@ -10,7 +10,6 @@ use Shopware\Core\Content\Sitemap\Event\SitemapGenerationStartEvent;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Content\Sitemap\SitemapException;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
-use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
@@ -107,7 +106,7 @@ class SitemapExporter implements SitemapExporterInterface
      */
     private function refreshContextRules(SalesChannelContext $salesChannelContext): SalesChannelContext
     {
-        if (\count($salesChannelContext->getRuleIds()) > 0) {
+        if ($salesChannelContext->getRuleIds() !== []) {
             return $salesChannelContext;
         }
 
@@ -156,7 +155,7 @@ class SitemapExporter implements SitemapExporterInterface
             $sitemapHandles[$sitemapDomain['url']] = $this->sitemapHandleFactory->create($this->filesystem, $context, $sitemapDomain['url'], $sitemapDomain['domainId']);
         }
 
-        if (empty($sitemapHandles)) {
+        if ($sitemapHandles === []) {
             throw SitemapException::invalidDomain();
         }
 
@@ -167,7 +166,6 @@ class SitemapExporter implements SitemapExporterInterface
     {
         /** @var SitemapHandle $sitemapHandle */
         foreach ($this->sitemapHandles as $host => $sitemapHandle) {
-            /** @var Url[] $urls */
             $urls = [];
 
             foreach ($result->getUrls() as $url) {

@@ -42,4 +42,36 @@
             }
         }
     }
+
+    .sw-settings-language-list__default-label {
+        display: inline-flex;
+        align-items: center;
+        vertical-align: middle;
+        margin-left: 8px;
+    }
+
+    .sw-settings-language-list__snippet-link-wrapper {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 8px;
+        max-width: $content-width;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .sw-settings-language-list__card-title-wrapper {
+        margin-bottom: 8px;
+    }
+
+    .sw-settings-language-list__card-title {
+        font-size: var(--font-size-m);
+        font-weight: var(--font-weight-semibold);
+        margin-bottom: 4px;
+    }
+
+    .sw-settings-language-list__card-subtitle {
+        font-size: $font-size-xs;
+        color: var(--color-gray-800);
+        margin-bottom: 8px;
+    }
 }

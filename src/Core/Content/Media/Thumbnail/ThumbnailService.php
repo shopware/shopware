@@ -19,12 +19,13 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
+use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -69,7 +70,11 @@ class ThumbnailService
                 throw MediaException::thumbnailAssociationNotLoaded();
             }
 
-            if (!$this->mediaCanHaveThumbnails($media, $context)) {
+            if (MediaUploadService::isExternalUrl($media->getPath())) {
+                continue;
+            }
+
+            if (!$this->canAutoGenerateThumbnails($media, $context)) {
                 $delete = [...$delete, ...$media->getThumbnails()->getIds()];
 
                 continue;
@@ -93,10 +98,10 @@ class ThumbnailService
         // disable media indexing to trigger it once after processing all thumbnails
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
-        if (!empty($delete)) {
+        if ($delete !== []) {
             $context->addState(MediaDeletionSubscriber::SYNCHRONE_FILE_DELETE);
 
-            $delete = \array_values(\array_map(fn (string $id) => ['id' => $id], $delete));
+            $delete = \array_values(\array_map(static fn (string $id) => ['id' => $id], $delete));
 
             $this->thumbnailRepository->delete($delete, $context);
         }
@@ -130,7 +135,11 @@ class ThumbnailService
             throw MediaException::thumbnailGenerationDisabled();
         }
 
-        if (!$this->mediaCanHaveThumbnails($media, $context)) {
+        if (MediaUploadService::isExternalUrl($media->getPath())) {
+            return 0;
+        }
+
+        if (!$this->canAutoGenerateThumbnails($media, $context)) {
             $this->deleteAssociatedThumbnails($media, $context);
 
             return 0;
@@ -158,14 +167,8 @@ class ThumbnailService
 
         foreach ($toBeCreatedSizes as $thumbnailSize) {
             foreach ($toBeDeletedThumbnails as $thumbnail) {
-                if (Feature::isActive('v6.8.0.0')) {
-                    if ($thumbnailSize->getId() !== $thumbnail->getMediaThumbnailSizeId()) {
-                        continue;
-                    }
-                } else {
-                    if ($thumbnail->getMediaThumbnailSizeId() && $thumbnailSize->getId() !== $thumbnail->getMediaThumbnailSizeId()) {
-                        continue;
-                    }
+                if ($thumbnailSize->getId() !== $thumbnail->getMediaThumbnailSizeId()) {
+                    continue;
                 }
 
                 if ($strict === true && !$this->getFileSystem($media)->fileExists($thumbnail->getPath())) {
@@ -181,7 +184,7 @@ class ThumbnailService
 
         $delete = \array_values(\array_map(static fn (string $id) => ['id' => $id], $toBeDeletedThumbnails->getIds()));
 
-        $update = $this->connection->transactional(function () use ($delete, $media, $config, $context, $toBeCreatedSizes): array {
+        $update = RetryableTransaction::transactional($this->connection, function () use ($delete, $media, $config, $context, $toBeCreatedSizes): array {
             return $context->state(function () use ($delete, $media, $config, $context, $toBeCreatedSizes): array {
                 $this->thumbnailRepository->delete($delete, $context);
 
@@ -277,18 +280,15 @@ class ThumbnailService
                     $fileSystem->write($path, $fileSystem->read($media->getPath()));
                 }
 
-                imagedestroy($thumbnail);
-
-                $event->thumbnail(
+                $event->thumbnailWithMimeType(
                     mediaId: $media->getId(),
                     thumbnailId: $id,
                     path: $path,
+                    mimeType: $media->getMimeType()
                 );
             }
 
             $this->dispatcher->dispatch($event);
-
-            imagedestroy($image);
         } finally {
             return $records;
         }
@@ -473,9 +473,13 @@ class ThumbnailService
         }
     }
 
-    private function mediaCanHaveThumbnails(MediaEntity $media, Context $context): bool
+    private function canAutoGenerateThumbnails(MediaEntity $media, Context $context): bool
     {
         if (!$media->hasFile()) {
+            return false;
+        }
+
+        if (MediaUploadService::isExternalUrl($media->getPath())) {
             return false;
         }
 

@@ -80,14 +80,12 @@ export default {
         disabled: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
 
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -160,6 +158,11 @@ export default {
             default: false,
         },
         label: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
+        autocomplete: {
             type: String,
             required: false,
             default: undefined,

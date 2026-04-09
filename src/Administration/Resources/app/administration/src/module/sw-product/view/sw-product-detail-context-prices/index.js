@@ -31,7 +31,6 @@ export default {
         canSetLoadingRules: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -463,6 +462,10 @@ export default {
         },
 
         onQuantityEndChange(price, priceGroup) {
+            if (price.quantityEnd !== null && price.quantityEnd < price.quantityStart) {
+                price.quantityEnd = null;
+                return;
+            }
             // when not last price
             if (priceGroup.prices.indexOf(price) + 1 !== priceGroup.prices.length) {
                 return;

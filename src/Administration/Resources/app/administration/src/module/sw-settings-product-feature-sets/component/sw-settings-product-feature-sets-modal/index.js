@@ -88,6 +88,12 @@ export default {
                     label: this.$tc('sw-settings-product-feature-sets.modal.label.weight'),
                     name: 'weight',
                 },
+                {
+                    id: 'd6eb6d4fbd754b0e9958ecc77abee3de',
+                    type: 'product',
+                    label: this.$tc('sw-settings-product-feature-sets.modal.label.packUnit'),
+                    name: 'packUnit',
+                },
             ],
             isApplyingSelections: false,
         };

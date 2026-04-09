@@ -81,7 +81,8 @@
                                     {% block element_product_listing_col_empty_alert %}
                                         {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                             type: 'info',
-                                            content: 'listing.emptyResultMessage'|trans|sw_sanitize
+                                            content: 'listing.emptyResultMessage'|trans|sw_sanitize,
+                                            announceOnLoad: true,
                                         } %}
                                     {% endblock %}
                                 </div>

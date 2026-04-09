@@ -114,23 +114,18 @@ export default {
     methods: {
         createdComponent() {
             if (this.condition.type === 'scriptRule' && !this.condition.scriptId) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.condition.type = null;
             }
         },
 
         changeItem(item) {
             const { type, scriptId, appScriptCondition } = item ?? {};
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.type = type;
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.scriptId = scriptId;
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.appScriptCondition = appScriptCondition;
         },
 
         changeType(type) {
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.value = null;
 
             if (this.condition[this.childAssociationField] && this.condition[this.childAssociationField].length > 0) {
@@ -139,7 +134,6 @@ export default {
                 });
             }
 
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.type = type;
         },
 

@@ -22,12 +22,18 @@ export type ServiceDescription = {
     version: string;
     requested_privileges: string[];
     privileges: string[];
+    domains: string[];
 };
 
 type ServiceConfigurationConfigValues = {
     'core.services.disabled'?: boolean;
     'core.services.permissionsConsent'?: string;
 };
+
+/**
+ * @private
+ */
+export type CategorizedPermissions = { [key: string]: Array<{ entity: string; operation: string }> };
 
 /**
  * API service for service handling
@@ -118,5 +124,15 @@ export default class ShopwareServicesService extends ApiService {
                 headers: this.getBasicHeaders(),
             },
         );
+    }
+
+    getCategorizedPermissions(serviceName: string): Promise<{ permissions: CategorizedPermissions }> {
+        return this.httpClient
+            .get(`services/categorized-permissions/${serviceName}`, {
+                headers: this.getBasicHeaders(),
+            })
+            .then((response) => {
+                return (response.data as { permissions: CategorizedPermissions }) ?? {};
+            });
     }
 }

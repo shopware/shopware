@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Event\Subscriber;
 
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -30,6 +31,8 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CategoryCollection> $categoryRepository
      */
     public function __construct(
         private readonly EntityRepository $categoryRepository,
@@ -67,7 +70,7 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
 
             $categoryId = null;
             foreach ($categories as $currentIndex => $categoryName) {
-                if (empty($categoryName)) {
+                if ($categoryName === '') {
                     continue;
                 }
 
@@ -111,7 +114,7 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
             }
         }
 
-        if (!empty($newCategoriesPayload)) {
+        if ($newCategoriesPayload !== []) {
             $this->createNewCategories($newCategoriesPayload, $context);
         }
 

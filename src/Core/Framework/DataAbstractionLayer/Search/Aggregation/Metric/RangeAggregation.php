@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 final class RangeAggregation extends Aggregation
 {
     /**
-     * @var array<int, array<string, float|string|null>>
+     * @var list<array<string, float|string|null>>
      */
     protected array $ranges;
 
@@ -39,7 +39,7 @@ final class RangeAggregation extends Aggregation
     }
 
     /**
-     * @return array<int, array<string, float|string|null>>
+     * @return list<array<string, float|string|null>>
      */
     public function getRanges(): array
     {

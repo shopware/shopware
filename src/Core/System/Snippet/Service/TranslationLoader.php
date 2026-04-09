@@ -8,9 +8,11 @@ use League\Flysystem\Filesystem;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
@@ -25,11 +27,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[Package('discovery')]
-class TranslationLoader
+class TranslationLoader extends AbstractTranslationLoader
 {
-    public const TRANSLATION_DIR = '/translation';
-    public const TRANSLATION_LOCALE_SUB_DIR = 'locale';
-
     private const PLATFORM_BUNDLES = [
         'Administration' => 'administration.json',
         'Core' => 'messages.json',
@@ -57,7 +56,12 @@ class TranslationLoader
     ) {
     }
 
-    public function load(string $locale, Context $context): void
+    public function getDecorated(): AbstractTranslationLoader
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
+    public function load(string $locale, Context $context, bool $activate = true): void
     {
         $language = $this->config->languages->get($locale);
 
@@ -68,7 +72,7 @@ class TranslationLoader
         $this->fetchPlatformSnippets($locale);
         $this->fetchPluginSnippets($locale);
 
-        $this->createLanguage($language, $context);
+        $this->createLanguage($language, $context, $activate);
         $this->createSnippetSet($language, $context);
     }
 
@@ -92,7 +96,7 @@ class TranslationLoader
 
     public function getLocalesBasePath(): string
     {
-        return Path::join(self::TRANSLATION_DIR, self::TRANSLATION_LOCALE_SUB_DIR);
+        return Path::join(static::TRANSLATION_DIR, static::TRANSLATION_LOCALE_SUB_DIR);
     }
 
     public function getLocalePath(string $locale): string
@@ -104,7 +108,7 @@ class TranslationLoader
             return '';
         }
 
-        return Path::join(self::TRANSLATION_DIR, self::TRANSLATION_LOCALE_SUB_DIR, $locale);
+        return Path::join(static::TRANSLATION_DIR, static::TRANSLATION_LOCALE_SUB_DIR, $locale);
     }
 
     private function fetchPluginSnippets(string $locale): void
@@ -172,7 +176,7 @@ class TranslationLoader
         }
     }
 
-    private function createLanguage(Language $language, Context $context): void
+    private function createLanguage(Language $language, Context $context, bool $activate = true): void
     {
         $criteria = new Criteria();
         $criteria
@@ -198,13 +202,21 @@ class TranslationLoader
             'name' => $language->name,
             'localeId' => $localeId,
             'translationCodeId' => $localeId,
+            'active' => $activate,
         ]], $context);
     }
 
     private function createSnippetSet(Language $language, Context $context): void
     {
+        $snippetSetName = "BASE {$language->locale}";
+
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('iso', $language->locale));
+        $criteria->addFilter(
+            new AndFilter([
+                new EqualsFilter('iso', $language->locale),
+                new EqualsFilter('name', $snippetSetName),
+            ])
+        );
 
         $snippetId = $this->snippetSetRepository->searchIds($criteria, $context)->firstId();
 
@@ -214,7 +226,7 @@ class TranslationLoader
 
         $snippetSets = [
             [
-                'name' => 'BASE ' . $language->locale,
+                'name' => $snippetSetName,
                 'iso' => $language->locale,
                 'baseFile' => 'messages.' . $language->locale,
             ],

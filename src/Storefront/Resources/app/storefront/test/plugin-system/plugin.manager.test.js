@@ -581,4 +581,322 @@ describe('Plugin manager', () => {
         expect(consoleSpy).toHaveBeenCalledWith('Passed element in getPluginInstancesFromElement() is not an Html element!');
         jest.resetAllMocks();
     });
+
+    describe('initializePluginsInParentElement', () => {
+        it('should initialize plugins only within parent element', async () => {
+            document.body.innerHTML = `
+                <div class="parent">
+                    <div class="test-plugin-inside"></div>
+                </div>
+                <div class="test-plugin-outside"></div>
+            `;
+
+            const parentElement = document.querySelector('.parent');
+
+            PluginManager.register('ScopedPlugin', FooPluginClass, '.test-plugin-inside');
+            PluginManager.register('OutsidePlugin', FooPluginClass, '.test-plugin-outside');
+
+            await PluginManager.initializePluginsInParentElement(parentElement);
+
+            // Plugin inside parent should be initialized
+            expect(PluginManager.getPluginInstances('ScopedPlugin').length).toBe(1);
+            expect(PluginManager.getPluginInstances('ScopedPlugin')[0]._initialized).toBe(true);
+
+            // Plugin outside parent should not be initialized
+            expect(PluginManager.getPluginInstances('OutsidePlugin').length).toBe(0);
+
+            PluginManager.deregister('ScopedPlugin', '.test-plugin-inside');
+            PluginManager.deregister('OutsidePlugin', '.test-plugin-outside');
+        });
+
+        it('should not initialize plugins with selectors not in parent element', async () => {
+            document.body.innerHTML = `
+                <div class="parent">
+                    <div class="inside"></div>
+                </div>
+                <div class="outside"></div>
+            `;
+
+            const parentElement = document.querySelector('.parent');
+
+            PluginManager.register('OutsideOnly', FooPluginClass, '.outside');
+
+            await PluginManager.initializePluginsInParentElement(parentElement);
+
+            expect(PluginManager.getPluginInstances('OutsideOnly').length).toBe(0);
+
+            PluginManager.deregister('OutsideOnly', '.outside');
+        });
+
+        it('should initialize plugins with various selector types within parent', async () => {
+            document.body.innerHTML = `
+                <div class="parent">
+                    <div class="test-class"></div>
+                    <div id="test-id-scoped"></div>
+                    <div data-scoped-plugin="true"></div>
+                </div>
+            `;
+
+            const parentElement = document.querySelector('.parent');
+
+            PluginManager.register('ClassPlugin', FooPluginClass, '.test-class');
+            PluginManager.register('IdPlugin', FooPluginClass, '#test-id-scoped');
+            PluginManager.register('DataPlugin', FooPluginClass, '[data-scoped-plugin]');
+
+            await PluginManager.initializePluginsInParentElement(parentElement);
+
+            expect(PluginManager.getPluginInstances('ClassPlugin').length).toBe(1);
+            expect(PluginManager.getPluginInstances('IdPlugin').length).toBe(1);
+            expect(PluginManager.getPluginInstances('DataPlugin').length).toBe(1);
+
+            PluginManager.deregister('ClassPlugin', '.test-class');
+            PluginManager.deregister('IdPlugin', '#test-id-scoped');
+            PluginManager.deregister('DataPlugin', '[data-scoped-plugin]');
+        });
+
+        it('should initialize plugin registered with Node selector within parent', async () => {
+            document.body.innerHTML = `
+                <div class="parent">
+                    <div class="node-element"></div>
+                </div>
+            `;
+
+            const parentElement = document.querySelector('.parent');
+            const nodeElement = document.querySelector('.node-element');
+
+            PluginManager.register('NodePlugin', FooPluginClass, nodeElement);
+
+            await PluginManager.initializePluginsInParentElement(parentElement);
+
+            expect(PluginManager.getPluginInstances('NodePlugin').length).toBe(1);
+            expect(PluginManager.getPluginInstances('NodePlugin')[0]._initialized).toBe(true);
+
+            PluginManager.deregister('NodePlugin', nodeElement);
+        });
+
+        it('should not initialize plugin registered with Node selector outside parent', async () => {
+            document.body.innerHTML = `
+                <div class="parent">
+                    <div class="inside"></div>
+                </div>
+                <div class="outside-node"></div>
+            `;
+
+            const parentElement = document.querySelector('.parent');
+            const outsideNode = document.querySelector('.outside-node');
+
+            PluginManager.register('OutsideNodePlugin', FooPluginClass, outsideNode);
+
+            await PluginManager.initializePluginsInParentElement(parentElement);
+
+            expect(PluginManager.getPluginInstances('OutsideNodePlugin').length).toBe(0);
+
+            PluginManager.deregister('OutsideNodePlugin', outsideNode);
+        });
+
+        it('should initialize async plugins only within parent element', async () => {
+            document.body.innerHTML = `
+                <div class="parent">
+                    <div class="async-inside"></div>
+                </div>
+                <div class="async-outside"></div>
+            `;
+
+            const parentElement = document.querySelector('.parent');
+
+            const asyncImport = new Promise((resolve) => {
+                resolve({ default: AsyncPluginClass });
+            });
+
+            PluginManager.register('AsyncInsidePlugin', () => asyncImport, '.async-inside');
+            PluginManager.register('AsyncOutsidePlugin', () => asyncImport, '.async-outside');
+
+            await PluginManager.initializePluginsInParentElement(parentElement);
+
+            expect(PluginManager.getPluginInstances('AsyncInsidePlugin').length).toBe(1);
+            expect(PluginManager.getPluginInstances('AsyncInsidePlugin')[0]._initialized).toBe(true);
+
+            expect(PluginManager.getPluginInstances('AsyncOutsidePlugin').length).toBe(0);
+
+            PluginManager.deregister('AsyncInsidePlugin', '.async-inside');
+            PluginManager.deregister('AsyncOutsidePlugin', '.async-outside');
+        });
+
+        it('should call update on existing plugin instances within parent', async () => {
+            document.body.innerHTML = `
+                <div class="parent">
+                    <div class="update-test"></div>
+                </div>
+            `;
+
+            const parentElement = document.querySelector('.parent');
+
+            PluginManager.register('UpdateTestPlugin', FooPluginClass, '.update-test');
+
+            // First initialization
+            await PluginManager.initializePlugins();
+
+            expect(PluginManager.getPluginInstances('UpdateTestPlugin').length).toBe(1);
+
+            const instance = PluginManager.getPluginInstances('UpdateTestPlugin')[0];
+            const updateSpy = jest.spyOn(instance, '_update');
+
+            // Second initialization scoped to parent
+            await PluginManager.initializePluginsInParentElement(parentElement);
+
+            // Should call update on existing instance
+            expect(updateSpy).toHaveBeenCalledTimes(1);
+            expect(PluginManager.getPluginInstances('UpdateTestPlugin').length).toBe(1);
+
+            PluginManager.deregister('UpdateTestPlugin', '.update-test');
+        });
+
+        it('should not call update on existing plugin instances outside parent', async () => {
+            document.body.innerHTML = `
+                <div class="parent">
+                    <div class="inside"></div>
+                </div>
+                <div class="update-outside"></div>
+            `;
+
+            const parentElement = document.querySelector('.parent');
+
+            PluginManager.register('OutsideUpdatePlugin', FooPluginClass, '.update-outside');
+
+            // First initialization
+            await PluginManager.initializePlugins();
+
+            expect(PluginManager.getPluginInstances('OutsideUpdatePlugin').length).toBe(1);
+
+            const instance = PluginManager.getPluginInstances('OutsideUpdatePlugin')[0];
+            const updateSpy = jest.spyOn(instance, '_update');
+
+            // Second initialization scoped to parent
+            await PluginManager.initializePluginsInParentElement(parentElement);
+
+            // Should NOT call update on instance outside parent
+            expect(updateSpy).not.toHaveBeenCalled();
+
+            PluginManager.deregister('OutsideUpdatePlugin', '.update-outside');
+        });
+
+        it('should initialize multiple instances within parent when selector matches multiple elements', async () => {
+            document.body.innerHTML = `
+                <div class="parent">
+                    <div class="multi-plugin"></div>
+                    <div class="multi-plugin"></div>
+                    <div class="multi-plugin"></div>
+                </div>
+                <div class="multi-plugin"></div>
+            `;
+
+            const parentElement = document.querySelector('.parent');
+
+            PluginManager.register('MultiPlugin', FooPluginClass, '.multi-plugin');
+
+            await PluginManager.initializePluginsInParentElement(parentElement);
+
+            // Should initialize 3 instances (inside parent), not 4 (total in DOM)
+            expect(PluginManager.getPluginInstances('MultiPlugin').length).toBe(3);
+
+            PluginManager.deregister('MultiPlugin', '.multi-plugin');
+        });
+
+        it('should handle nested parent elements correctly', async () => {
+            document.body.innerHTML = `
+                <div class="outer-parent">
+                    <div class="inner-parent">
+                        <div class="nested-plugin"></div>
+                    </div>
+                    <div class="nested-plugin"></div>
+                </div>
+                <div class="nested-plugin"></div>
+            `;
+
+            const innerParent = document.querySelector('.inner-parent');
+
+            PluginManager.register('NestedPlugin', FooPluginClass, '.nested-plugin');
+
+            await PluginManager.initializePluginsInParentElement(innerParent);
+
+            // Should initialize only 1 instance (inside inner-parent), not 3 (total in DOM)
+            expect(PluginManager.getPluginInstances('NestedPlugin').length).toBe(1);
+
+            PluginManager.deregister('NestedPlugin', '.nested-plugin');
+        });
+
+        it('should work with complex selectors', async () => {
+            document.body.innerHTML = `
+                <div class="parent">
+                    <div class="complex test-class" data-plugin="true"></div>
+                </div>
+                <div class="complex test-class" data-plugin="true"></div>
+            `;
+
+            const parentElement = document.querySelector('.parent');
+
+            PluginManager.register('ComplexPlugin', FooPluginClass, '.complex.test-class[data-plugin="true"]');
+
+            await PluginManager.initializePluginsInParentElement(parentElement);
+
+            expect(PluginManager.getPluginInstances('ComplexPlugin').length).toBe(1);
+
+            PluginManager.deregister('ComplexPlugin', '.complex.test-class[data-plugin="true"]');
+        });
+
+        it('should filter NodeList registrations to only initialize elements within parent', async () => {
+            document.body.innerHTML = `
+                <div class="parent">
+                    <div class="nodelist-plugin"></div>
+                    <div class="nodelist-plugin"></div>
+                </div>
+                <div class="nodelist-plugin"></div>
+                <div class="nodelist-plugin"></div>
+            `;
+
+            const parentElement = document.querySelector('.parent');
+            const allElements = document.querySelectorAll('.nodelist-plugin');
+
+            // Register with NodeList directly (not a string selector)
+            PluginManager.register('NodeListPlugin', FooPluginClass, allElements);
+
+            await PluginManager.initializePluginsInParentElement(parentElement);
+
+            // Should only initialize 2 instances (inside parent), not 4 (total in NodeList)
+            expect(PluginManager.getPluginInstances('NodeListPlugin').length).toBe(2);
+
+            PluginManager.deregister('NodeListPlugin', allElements);
+        });
+
+        it('should not call update on NodeList registrations outside parent', async () => {
+            document.body.innerHTML = `
+                <div class="parent">
+                    <div class="nodelist-update"></div>
+                </div>
+                <div class="nodelist-update"></div>
+            `;
+
+            const parentElement = document.querySelector('.parent');
+            const allElements = document.querySelectorAll('.nodelist-update');
+
+            PluginManager.register('NodeListUpdatePlugin', FooPluginClass, allElements);
+
+            // First initialization
+            await PluginManager.initializePlugins();
+
+            expect(PluginManager.getPluginInstances('NodeListUpdatePlugin').length).toBe(2);
+
+            const instances = PluginManager.getPluginInstances('NodeListUpdatePlugin');
+            const updateSpies = instances.map(instance => jest.spyOn(instance, '_update'));
+
+            // Second initialization scoped to parent
+            await PluginManager.initializePluginsInParentElement(parentElement);
+
+            // Only the instance inside parent should have _update called
+            expect(updateSpies[0]).toHaveBeenCalledTimes(1);
+            expect(updateSpies[1]).not.toHaveBeenCalled();
+
+            PluginManager.deregister('NodeListUpdatePlugin', allElements);
+        });
+    });
 });

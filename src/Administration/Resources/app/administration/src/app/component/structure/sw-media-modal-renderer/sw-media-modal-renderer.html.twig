@@ -9,4 +9,13 @@
     @media-modal-selection-change="onSelectionChange"
     @modal-close="closeModal"
 />
+
+<sw-media-save-modal
+    v-if="saveMediaModal"
+    :initial-folder-id="saveMediaModal.initialFolderId"
+    :initial-file-name="saveMediaModal.initialFileName"
+    :file-type="saveMediaModal.fileType"
+    @save-media="onSaveMedia"
+    @modal-close="closeSaveModal"
+/>
 {% endblock %}

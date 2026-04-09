@@ -5,17 +5,16 @@ namespace Shopware\Tests\Unit\Core\Framework\Notification\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\Api\NotificationController;
+use Shopware\Core\Framework\Notification\NotificationException;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -40,7 +39,7 @@ class NotificationControllerTest extends TestCase
 
     public function testSaveNotificationThrowsRoutingExceptionWhenBadRequest(): void
     {
-        $this->expectExceptionObject(RoutingException::invalidRequestParameter('requiredPrivileges'));
+        $this->expectExceptionObject(NotificationException::invalidRequestParameter('requiredPrivileges'));
 
         $controller = new NotificationController($this->rateLimiter, $this->notificationService);
         $controller->saveNotification(new Request([], ['requiredPrivileges' => true]), $this->context);
@@ -58,7 +57,7 @@ class NotificationControllerTest extends TestCase
 
     public function testSaveNotificationThrowsRoutingExceptionWhenMissingRequestStatus(): void
     {
-        $this->expectExceptionObject(RoutingException::missingRequestParameter('status'));
+        $this->expectExceptionObject(NotificationException::invalidRequestParameter('status'));
 
         $controller = new NotificationController($this->rateLimiter, $this->notificationService);
         $controller->saveNotification(new Request(), $this->context);
@@ -66,7 +65,7 @@ class NotificationControllerTest extends TestCase
 
     public function testSaveNotificationThrowsRoutingExceptionWhenMissingRequestMessage(): void
     {
-        $this->expectExceptionObject(RoutingException::missingRequestParameter('message'));
+        $this->expectExceptionObject(NotificationException::invalidRequestParameter('message'));
 
         $controller = new NotificationController($this->rateLimiter, $this->notificationService);
         $controller->saveNotification(new Request([], ['status' => 'ok']), $this->context);
@@ -75,7 +74,7 @@ class NotificationControllerTest extends TestCase
     public function testSaveNotificationThrowsApiExceptionWhenLimitIsReachedAndUserIdExists(): void
     {
         $exception = new RateLimitExceededException(42);
-        $this->expectExceptionObject(ApiException::notificationThrottled($exception->getWaitTime(), $exception));
+        $this->expectExceptionObject(NotificationException::notificationThrottled($exception->getWaitTime(), $exception));
 
         $this->rateLimiter->expects($this->once())->method('ensureAccepted')
             ->with('notification', '123')
@@ -89,7 +88,7 @@ class NotificationControllerTest extends TestCase
     {
         $this->context = Context::createDefaultContext(new AdminApiSource(null, '345'));
         $exception = new RateLimitExceededException(12);
-        $this->expectExceptionObject(ApiException::notificationThrottled($exception->getWaitTime(), $exception));
+        $this->expectExceptionObject(NotificationException::notificationThrottled($exception->getWaitTime(), $exception));
 
         $this->rateLimiter->expects($this->once())->method('ensureAccepted')
             ->with('notification', '345-')

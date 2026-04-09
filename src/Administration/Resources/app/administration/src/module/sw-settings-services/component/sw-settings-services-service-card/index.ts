@@ -2,8 +2,7 @@
  * @sw-package framework
  */
 import type { PropType } from 'vue';
-import { MtPopoverItem, MtModalRoot, MtModal, MtModalAction } from '@shopware-ag/meteor-component-library';
-import type { ServiceDescription } from '../../service/shopware-services.service';
+import type { CategorizedPermissions, ServiceDescription } from '../../service/shopware-services.service';
 import template from './sw-settings-services-service-card.html.twig';
 import './sw-settings-services-service-card.scss';
 import extractErrorMessage from '../../composables/extract-error';
@@ -16,13 +15,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     template,
 
-    components: {
-        MtPopoverItem,
-        MtModalAction,
-        MtModalRoot,
-        MtModal,
-    },
-
     props: {
         service: {
             required: true,
@@ -30,9 +22,16 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    data() {
+    data(): {
+        showDeactivateModal: boolean;
+        showPermissionsModal: boolean;
+        categorizedPermissions: CategorizedPermissions | null;
+        isLoading: boolean;
+    } {
         return {
             showDeactivateModal: false,
+            showPermissionsModal: false,
+            categorizedPermissions: null,
             isLoading: false,
         };
     },
@@ -89,6 +88,11 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
         openDeactivateModal(toggleFloatingUi: () => void) {
             this.showDeactivateModal = true;
             toggleFloatingUi();
@@ -106,7 +110,7 @@ export default Shopware.Component.wrapComponentConfig({
                     await extensionService.deactivateExtension(this.service.name, 'app');
                 }
 
-                window.location.reload();
+                this._reloadPage();
             } catch (exception) {
                 Shopware.Store.get('notification').createNotification({
                     variant: 'critical',
@@ -117,6 +121,26 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             if (toggleFloatingUi) {
+                toggleFloatingUi();
+            }
+        },
+
+        async openPermissionsModal(toggleFloatingUi: () => void) {
+            try {
+                if (this.categorizedPermissions === null) {
+                    const servicesService = Shopware.Service('shopwareServicesService');
+
+                    const { permissions } = await servicesService.getCategorizedPermissions(this.service.name);
+                    this.categorizedPermissions = permissions;
+                }
+
+                this.showPermissionsModal = true;
+            } catch (exception) {
+                Shopware.Store.get('notification').createNotification({
+                    variant: 'critical',
+                    message: extractErrorMessage(exception),
+                });
+            } finally {
                 toggleFloatingUi();
             }
         },

@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_7;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -19,7 +20,7 @@ class Migration1752499887UpdateAppRequestedPrivileges extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if ($this->columnExists($connection, 'app', 'requested_privileges')) {
+        if (TableHelper::columnExists($connection, 'app', 'requested_privileges')) {
             // prevent new NULL entries
             $connection->executeStatement('
                 ALTER TABLE `app`

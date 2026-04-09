@@ -128,6 +128,7 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-field-error': true,
+                'router-link': true,
             },
         },
     };

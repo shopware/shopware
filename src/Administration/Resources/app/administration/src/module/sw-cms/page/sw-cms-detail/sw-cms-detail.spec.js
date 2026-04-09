@@ -3,11 +3,12 @@
  */
 import { mount } from '@vue/test-utils';
 
-import CMS from 'src/module/sw-cms/constant/sw-cms.constant';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import CmsPageTypeService from '../../../sw-cms/service/cms-page-type.service';
+
+const { CMS } = Shopware.Constants;
 
 const categoryID = 'TEST-CATEGORY-ID';
 const productID = 'TEST-PRODUCT-ID';
@@ -206,10 +207,12 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                         isBlockAllowedInPageType: () => {
                             return true;
                         },
+                        getCmsBlockConfigByName(name) {
+                            return this.getCmsBlockRegistry()[name] ?? null;
+                        },
                     },
                     appCmsService: {},
                     cmsDataResolverService: {
-                        // eslint-disable-next-line prefer-promise-reject-errors
                         resolve: () => Promise.reject('foo'),
                     },
                     systemConfigApiService: {

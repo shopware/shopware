@@ -24,7 +24,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID], '_acl' => ['system.plugin_maintain']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID], PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain']])]
 #[Package('checkout')]
 class ExtensionStoreActionsController extends AbstractController
 {
@@ -38,7 +38,11 @@ class ExtensionStoreActionsController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/extension/refresh', name: 'api.extension.refresh', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/extension/refresh',
+        name: 'api.extension.refresh',
+        methods: [Request::METHOD_POST]
+    )]
     public function refreshExtensions(Context $context): Response
     {
         if (!$this->runtimeExtensionManagementAllowed) {
@@ -50,7 +54,12 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/upload', name: 'api.extension.upload', defaults: ['_acl' => ['system.plugin_upload']], methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/extension/upload',
+        name: 'api.extension.upload',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_upload']],
+        methods: [Request::METHOD_POST]
+    )]
     public function uploadExtensions(Request $request, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
@@ -95,7 +104,11 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/download/{technicalName}', name: 'api.extension.download', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/extension/download/{technicalName}',
+        name: 'api.extension.download',
+        methods: [Request::METHOD_POST]
+    )]
     public function downloadExtension(string $technicalName, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
@@ -105,7 +118,11 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/install/{type}/{technicalName}', name: 'api.extension.install', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/extension/install/{type}/{technicalName}',
+        name: 'api.extension.install',
+        methods: [Request::METHOD_POST]
+    )]
     public function installExtension(string $type, string $technicalName, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
@@ -115,7 +132,11 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/uninstall/{type}/{technicalName}', name: 'api.extension.uninstall', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/extension/uninstall/{type}/{technicalName}',
+        name: 'api.extension.uninstall',
+        methods: [Request::METHOD_POST]
+    )]
     public function uninstallExtension(string $type, string $technicalName, Request $request, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
@@ -130,7 +151,11 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/remove/{type}/{technicalName}', name: 'api.extension.remove', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/extension/remove/{type}/{technicalName}',
+        name: 'api.extension.remove',
+        methods: [Request::METHOD_POST]
+    )]
     public function removeExtension(string $type, string $technicalName, Request $request, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
@@ -145,7 +170,11 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/activate/{type}/{technicalName}', name: 'api.extension.activate', methods: ['PUT'])]
+    #[Route(
+        path: '/api/_action/extension/activate/{type}/{technicalName}',
+        name: 'api.extension.activate',
+        methods: [Request::METHOD_PUT]
+    )]
     public function activateExtension(string $type, string $technicalName, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
@@ -155,7 +184,11 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/deactivate/{type}/{technicalName}', name: 'api.extension.deactivate', methods: ['PUT'])]
+    #[Route(
+        path: '/api/_action/extension/deactivate/{type}/{technicalName}',
+        name: 'api.extension.deactivate',
+        methods: [Request::METHOD_PUT]
+    )]
     public function deactivateExtension(string $type, string $technicalName, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
@@ -165,7 +198,11 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/update/{type}/{technicalName}', name: 'api.extension.update', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/extension/update/{type}/{technicalName}',
+        name: 'api.extension.update',
+        methods: [Request::METHOD_POST]
+    )]
     public function updateExtension(Request $request, string $type, string $technicalName, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();

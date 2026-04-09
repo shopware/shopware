@@ -96,6 +96,7 @@
             class="sw-order-create-initial-modal__button-cancel"
             size="small"
             variant="secondary"
+            data-analytics-id="sw-order-create-initial-modal.cancel"
             @click="onCloseModal"
         >
             {{ $tc('global.default.cancel') }}
@@ -109,6 +110,7 @@
             variant="primary"
             :disabled="!customer || undefined"
             :is-loading="isLoading"
+            data-analytics-id="sw-order-create-initial-modal.preview-order"
             @click="onPreviewOrder"
         >
             {{ $tc('sw-order.initialModal.buttonPreviewOrder') }}

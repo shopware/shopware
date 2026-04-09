@@ -1,11 +1,12 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import { ACTION } from 'src/module/sw-flow/constant/flow.constant';
 import { createPinia, setActivePinia } from 'pinia';
 
 /**
  * @sw-package after-sales
  */
+
+const { ACTION } = Shopware.Constants.FLOW;
 
 function getSequencesCollection(collection = []) {
     return new EntityCollection(

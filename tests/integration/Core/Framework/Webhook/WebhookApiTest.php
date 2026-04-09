@@ -16,7 +16,7 @@ class WebhookApiTest extends TestCase
 
     public function testWriteWebhookViaApi(): void
     {
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/webhook/',
             [

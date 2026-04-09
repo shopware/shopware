@@ -14,12 +14,16 @@ import { AddPromotionCodeToCart } from './ShopCustomer/Cart/AddPromotionCodeToCa
  * Checkout
  */
 import { ConfirmImmediateAccessToDigitalProduct } from './ShopCustomer/Checkout/ConfirmImmediateAccessToDigitalProduct';
-
+import { CheckVisibilityInHome } from './ShopCustomer/Listing/CheckVisibilityInHome';
 /**
  * PageSpeed & Accessibility
  */
 import { ValidateLighthouseScore } from './ShopCustomer/Pagespeed/ValidateLighthouseScore';
-import { CheckVisibilityInHome } from './ShopCustomer/Listing/CheckVisibilityInHome';
+
+/**
+ * Settings
+ */
+import { AcceptTechnicalRequiredCookies } from './ShopCustomer/Settings/AcceptTechnicalRequiredCookies';
 
 export const test = mergeTests(
     DownloadDigitalProductFromOrderAndExpectContentToBe,
@@ -27,5 +31,6 @@ export const test = mergeTests(
     ConfirmImmediateAccessToDigitalProduct,
     ValidateLighthouseScore,
     CheckVisibilityInHome,
+    AcceptTechnicalRequiredCookies,
 );
 

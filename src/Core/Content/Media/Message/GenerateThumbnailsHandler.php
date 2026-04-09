@@ -19,6 +19,8 @@ final readonly class GenerateThumbnailsHandler
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(
         private ThumbnailService $thumbnailService,
@@ -39,7 +41,6 @@ final readonly class GenerateThumbnailsHandler
         $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
         $criteria->addFilter(new EqualsAnyFilter('media.id', $msg->getMediaIds()));
 
-        /** @var MediaCollection $entities */
         $entities = $this->mediaRepository->search($criteria, $context)->getEntities();
 
         if ($msg instanceof UpdateThumbnailsMessage) {

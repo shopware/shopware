@@ -28,12 +28,16 @@ class SystemSetupStagingCommand extends Command
 {
     /**
      * @param list<DomainRewriteRule> $domainMappings
+     * @param list<string> $extensionsToDisable
+     * @param array<string, array<string, mixed>> $systemConfigOverrides
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfigService,
         public readonly bool $disableMailDelivery,
         public readonly array $domainMappings,
+        private readonly array $extensionsToDisable,
+        private readonly array $systemConfigOverrides = [],
     ) {
         parent::__construct();
     }
@@ -55,11 +59,13 @@ class SystemSetupStagingCommand extends Command
             Context::createCLIContext(),
             $io,
             $this->disableMailDelivery,
-            $this->domainMappings
+            $this->domainMappings,
+            $this->extensionsToDisable,
+            $this->systemConfigOverrides,
         );
         $this->eventDispatcher->dispatch($event);
 
-        $this->systemConfigService->set(SetupStagingEvent::CONFIG_FLAG, true);
+        $this->systemConfigService->set(SetupStagingEvent::CONFIG_FLAG, true, null, false);
 
         return $event->canceled ? self::FAILURE : self::SUCCESS;
     }

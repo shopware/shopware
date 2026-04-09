@@ -14,6 +14,7 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -24,7 +25,6 @@ use Shopware\Core\System\SalesChannel\Event\SalesChannelContextCreatedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -78,6 +78,8 @@ class SalesChannelContextServiceTest extends TestCase
         $expiredToken = Uuid::randomHex();
 
         $context = Generator::generateSalesChannelContext();
+        $context->setRuleIds(['rule-1', 'rule-2']);
+        $context->setAreaRuleIds([RuleAreas::PRODUCT_AREA => ['rule-1'], RuleAreas::PROMOTION_AREA => ['rule-2']]);
 
         $this->factory->expects($this->once())
             ->method('create')
@@ -106,9 +108,14 @@ class SalesChannelContextServiceTest extends TestCase
             ->method('setCart')
             ->with($result->getCart());
 
-        $this->setupSessionAndRequest();
+        $request = $this->setupSessionAndRequest();
 
         $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $expiredToken, Defaults::LANGUAGE_SYSTEM));
+
+        $session = $request->getSession();
+
+        static::assertSame($context->getRuleIds(), $session->get(SalesChannelContextService::RULE_IDS));
+        static::assertSame($context->getAreaRuleIds(), $session->get(SalesChannelContextService::AREA_RULE_IDS));
     }
 
     public function testTokenNotExpired(): void
@@ -218,16 +225,23 @@ class SalesChannelContextServiceTest extends TestCase
                 ->method('setCart');
         }
 
-        $request->setSession(new Session(new MockArraySessionStorage()));
+        $session = new Session(new MockArraySessionStorage());
+        $session->set(SalesChannelContextService::RULE_IDS, ['rule-1', 'rule-2']);
+        $session->set(SalesChannelContextService::AREA_RULE_IDS, [RuleAreas::PRODUCT_AREA => ['rule-1'], RuleAreas::PROMOTION_AREA => ['rule-2']]);
+
+        $request->setSession($session);
         $this->requestStack->push($request);
 
-        $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, Defaults::LANGUAGE_SYSTEM));
+        $context = $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, Defaults::LANGUAGE_SYSTEM));
+
+        static::assertSame($session->get(SalesChannelContextService::RULE_IDS), $context->getRuleIds());
+        static::assertSame($session->get(SalesChannelContextService::AREA_RULE_IDS), $context->getAreaRuleIds());
     }
 
     public static function skipCartCalculationIfAlreadyDoneAndESISubrequestProvider(): \Generator
     {
-        yield 'esi request with cart => false' => [new Request(attributes: ['_sw_esi' => true]), true, false];
-        yield 'esi request without cart => true' => [new Request(attributes: ['_sw_esi' => true]), false, true];
+        yield 'esi request with cart => false' => [new Request(attributes: ['_esi' => true]), true, false];
+        yield 'esi request without cart => true' => [new Request(attributes: ['_esi' => true]), false, true];
         yield 'no esi request but cart => true' => [new Request(), true, true];
         yield 'no esi request and no cart => true' => [new Request(), false, true];
     }
@@ -236,12 +250,12 @@ class SalesChannelContextServiceTest extends TestCase
     {
         $token = 'test-token';
         $originalContext = new Context(new SystemSource());
-        $originalContext->addState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
+        $originalContext->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('withPermissions')->willReturn($this->createMock(RuleLoaderResult::class));
         $context->expects($this->once())
             ->method('addState')
-            ->with(ElasticsearchEntitySearcher::EXPLAIN_MODE);
+            ->with(Context::ELASTICSEARCH_EXPLAIN_MODE);
         $session = [
             'foo' => 'bar',
             'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -317,7 +331,7 @@ class SalesChannelContextServiceTest extends TestCase
         $this->setupSessionAndRequest([
             'sw-rule-ids' => $ruleIds,
         ], [
-            '_sw_esi' => true,
+            '_esi' => true,
         ]);
 
         $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, Defaults::LANGUAGE_SYSTEM));

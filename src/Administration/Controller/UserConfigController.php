@@ -53,12 +53,12 @@ class UserConfigController extends AbstractController
         return new JsonResponse(['data' => $data]);
     }
 
-    #[Route(path: '/api/_info/config-me', name: 'api.config_me.update', defaults: ['auth_required' => true], methods: ['POST'])]
+    #[Route(path: '/api/_info/config-me', name: 'api.config_me.update', defaults: ['auth_required' => true], methods: ['POST', 'PATCH'])]
     public function updateConfigMe(Context $context, Request $request): Response
     {
         $postUpdateConfigs = $request->request->all();
 
-        if (empty($postUpdateConfigs)) {
+        if ($postUpdateConfigs === []) {
             return new JsonResponse(null, Response::HTTP_NO_CONTENT);
         }
 
@@ -76,7 +76,7 @@ class UserConfigController extends AbstractController
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('userId', $userId));
-        if (!empty($keys)) {
+        if ($keys !== []) {
             $criteria->addFilter(new EqualsAnyFilter('key', $keys));
         }
 

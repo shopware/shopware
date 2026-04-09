@@ -22,13 +22,11 @@ export default {
         collapsible: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         overlay: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         options: {
@@ -73,7 +71,7 @@ export default {
 
         propertyGroupCriteria() {
             const criteria = new Criteria(this.groupPage, 10);
-            criteria.addSorting(Criteria.sort('name', 'ASC', true));
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
             criteria.setTotalCountMode(1);
 
             return criteria;

@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints\Type;
 class RuleConstraints
 {
     /**
-     * @return array<int, Constraint>
+     * @return list<Constraint>
      */
     public static function float(): array
     {
@@ -23,7 +23,7 @@ class RuleConstraints
     }
 
     /**
-     * @return array<int, Constraint>
+     * @return list<Constraint>
      */
     public static function int(): array
     {
@@ -31,7 +31,7 @@ class RuleConstraints
     }
 
     /**
-     * @return array<int, Constraint>
+     * @return list<Constraint>
      */
     public static function string(): array
     {
@@ -39,7 +39,7 @@ class RuleConstraints
     }
 
     /**
-     * @return array<int, Constraint>
+     * @return list<Constraint>
      */
     public static function stringArray(): array
     {
@@ -47,7 +47,7 @@ class RuleConstraints
     }
 
     /**
-     * @return array<int, Constraint>
+     * @return list<Constraint>
      */
     public static function bool(bool $notNull = false): array
     {
@@ -63,7 +63,7 @@ class RuleConstraints
     }
 
     /**
-     * @return array<int, Constraint>
+     * @return list<Constraint>
      */
     public static function uuids(): array
     {
@@ -71,7 +71,7 @@ class RuleConstraints
     }
 
     /**
-     * @return array<int, Constraint>
+     * @return list<Constraint>
      */
     public static function date(): array
     {
@@ -79,7 +79,7 @@ class RuleConstraints
     }
 
     /**
-     * @return array<int, Constraint>
+     * @return list<Constraint>
      */
     public static function datetime(): array
     {
@@ -89,15 +89,15 @@ class RuleConstraints
     /**
      * @param array<int, string> $choices
      *
-     * @return array<int, Constraint>
+     * @return list<Constraint>
      */
     public static function choice(array $choices): array
     {
-        return [new NotBlank(), new Choice($choices)];
+        return [new NotBlank(), new Choice(choices: $choices)];
     }
 
     /**
-     * @return array<int, Constraint>
+     * @return list<Constraint>
      */
     public static function numericOperators(bool $emptyAllowed = true): array
     {
@@ -116,12 +116,12 @@ class RuleConstraints
 
         return [
             new NotBlank(),
-            new Choice($operators),
+            new Choice(choices: $operators),
         ];
     }
 
     /**
-     * @return array<int, Constraint>
+     * @return list<Constraint>
      */
     public static function stringOperators(bool $emptyAllowed = true): array
     {
@@ -136,12 +136,12 @@ class RuleConstraints
 
         return [
             new NotBlank(),
-            new Choice($operators),
+            new Choice(choices: $operators),
         ];
     }
 
     /**
-     * @return array<int, Constraint>
+     * @return list<Constraint>
      */
     public static function uuidOperators(bool $emptyAllowed = true): array
     {
@@ -156,12 +156,12 @@ class RuleConstraints
 
         return [
             new NotBlank(),
-            new Choice($operators),
+            new Choice(choices: $operators),
         ];
     }
 
     /**
-     * @return array<int, Constraint>
+     * @return list<Constraint>
      */
     public static function dateOperators(bool $emptyAllowed = true): array
     {
@@ -180,12 +180,12 @@ class RuleConstraints
 
         return [
             new NotBlank(),
-            new Choice($operators),
+            new Choice(choices: $operators),
         ];
     }
 
     /**
-     * @return array<int, Constraint>
+     * @return list<Constraint>
      */
     public static function datetimeOperators(bool $emptyAllowed = true): array
     {

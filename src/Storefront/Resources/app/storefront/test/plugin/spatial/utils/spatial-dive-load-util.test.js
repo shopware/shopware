@@ -1,8 +1,10 @@
 import { loadDIVE } from 'src/plugin/spatial/utils/spatial-dive-load-util';
 
 jest.mock('@shopware-ag/dive', () => ({ DIVE: {} }));
-jest.mock('@shopware-ag/dive/state', () => ({ State: {} }));
 jest.mock('@shopware-ag/dive/ar', () => ({ ARSystem: {} }));
+jest.mock('@shopware-ag/dive/quickview', () => ({ QuickView: {} }));
+jest.mock('@shopware-ag/dive/animation', () => ({ AnimationSystem: {} }));
+
 
 /**
  * @package innovation
@@ -12,6 +14,8 @@ describe('loadDIVE', () => {
         jest.clearAllMocks();
         window.DIVEClass = undefined;
         window.DIVEARPlugin = undefined;
+        window.DIVEQuickViewPlugin = undefined;
+        window.DIVEAnimationPlugin = undefined;
         window.loadDiveUtil = undefined;
     });
 
@@ -22,12 +26,15 @@ describe('loadDIVE', () => {
     test('should load dive', async () => {
         expect(window.DIVEClass).toBeUndefined();
         expect(window.DIVEARPlugin).toBeUndefined();
+        expect(window.DIVEQuickViewPlugin).toBeUndefined();
         expect(window.loadDiveUtil).toBeUndefined();
 
         await loadDIVE();
 
         expect(typeof window.DIVEClass).toBe('object');
         expect(typeof window.DIVEARPlugin).toBe('object');
+        expect(typeof window.DIVEQuickViewPlugin).toBe('object');
+        expect(typeof window.DIVEAnimationPlugin).toBe('object');
         expect(typeof window.loadDiveUtil.promise).toBe('object');
     });
 
@@ -45,6 +52,22 @@ describe('loadDIVE', () => {
         await loadDIVE();
 
         expect(window.DIVEARPlugin).toBe('arPlugin');
+    });
+
+    test('should not load dive if QuickViewPlugin is already loaded', async () => {
+        window.DIVEQuickViewPlugin = 'quickViewPlugin';
+
+        await loadDIVE();
+
+        expect(window.DIVEQuickViewPlugin).toBe('quickViewPlugin');
+    });
+
+    test('should not load dive if AnimationPlugin is already loaded', async () => {
+        window.DIVEAnimationPlugin = 'animationPlugin';
+
+        await loadDIVE();
+
+        expect(window.DIVEAnimationPlugin).toBe('animationPlugin');
     });
 
     test('should not run import when dive is already loading', async () => {

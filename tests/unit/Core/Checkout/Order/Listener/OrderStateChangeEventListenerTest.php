@@ -113,7 +113,7 @@ class OrderStateChangeEventListenerTest extends TestCase
         $dispatcher
             ->expects($this->exactly(2))
             ->method('dispatch')
-            ->with(static::callback(function ($event) use ($expectedEvent): bool {
+            ->with(static::callback(static function ($event) use ($expectedEvent): bool {
                 if ($event instanceof OrderStateMachineStateChangeEvent) {
                     static::assertSame($expectedEvent->getOrder(), $event->getOrder());
                 }
@@ -283,7 +283,7 @@ class OrderStateChangeEventListenerTest extends TestCase
         $dispatcher
             ->expects($this->exactly(2))
             ->method('dispatch')
-            ->with(static::callback(function ($event) use ($expectedEvent): bool {
+            ->with(static::callback(static function ($event) use ($expectedEvent): bool {
                 if ($event instanceof OrderStateMachineStateChangeEvent) {
                     static::assertSame($expectedEvent->getOrder(), $event->getOrder());
                 }
@@ -489,7 +489,7 @@ class OrderStateChangeEventListenerTest extends TestCase
         $dispatcher
             ->expects($this->exactly(2))
             ->method('dispatch')
-            ->with(static::callback(function ($event) use ($expectedEvent): bool {
+            ->with(static::callback(static function ($event) use ($expectedEvent): bool {
                 if ($event instanceof OrderStateMachineStateChangeEvent) {
                     static::assertSame($expectedEvent->getOrder(), $event->getOrder());
                 }
@@ -561,18 +561,12 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->with(static::equalTo($expectedCriteria), $context)
             ->willReturn($states);
 
-        $definition = new BusinessEventDefinition(
-            'enter.order.paid',
-            OrderStateMachineStateChangeEvent::class,
-            []
-        );
-
         $collector = $this->createMock(BusinessEventCollector::class);
         $collector
             ->expects($this->exactly(2))
             ->method('define')
             ->with(OrderStateMachineStateChangeEvent::class, static::logicalOr(static::equalTo('state_enter.order.paid'), static::equalTo('state_leave.order.paid')))
-            ->willReturnCallback(function (string $class, string $name): BusinessEventDefinition {
+            ->willReturnCallback(static function (string $class, string $name): BusinessEventDefinition {
                 return new BusinessEventDefinition($name, $class, []);
             });
 

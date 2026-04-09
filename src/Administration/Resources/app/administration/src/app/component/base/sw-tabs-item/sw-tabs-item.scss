@@ -1,72 +1,70 @@
-@import "~scss/variables";
-
 $sw-side-navigation-item-link-distance: 10px;
 
 .sw-tabs-item {
-    transition: 0.3s all ease-in-out;
+    transition: 0.3s color ease-in-out;
     padding: $sw-side-navigation-item-link-distance ($sw-side-navigation-item-link-distance * 1.75);
-    border-bottom: 2px solid $color-gray-300;
+    border-bottom: 1px solid var(--color-border-brand-default);
     text-decoration: none;
     white-space: nowrap;
-    color: $color-darkgray-200;
+    color: var(--color-text-primary-default);
     cursor: pointer;
     user-select: none;
 
     .sw-tabs-item__error-badge {
-        color: $color-crimson-500;
+        color: var(--color-icon-critical-default);
         transform: translateY(-9%);
         margin-left: 4px;
     }
 
     .sw-tabs-item__warning-badge {
-        color: $color-pumpkin-spice-300;
+        color: var(--color-icon-attention-default);
         transform: translateY(-9%);
-        margin-left: 4px;
+        margin-left: var(--scale-size-);
     }
 
     &.sw-tabs-item--active {
-        color: $color-darkgray-800;
+        color: var(--color-icon-primary-default);
 
         .sw-tabs-item__error-badge {
-            color: $color-crimson-400;
+            color: var(--color-icon-critical-default);
         }
 
-        &:focus {
+        &:focus-visible {
             border-bottom: none;
         }
     }
 
     &.sw-tabs-item--has-error {
-        color: $color-crimson-500;
+        color: var(--color-text-critical-default);
 
         &.sw-tabs-item--active {
-            color: $color-crimson-500;
+            color: var(--color-text-critical-default);
         }
     }
 
     &.sw-tabs-item--is-disabled {
-        color: $color-gray-600;
+        color: var(--color-text-primary-disabled);
         pointer-events: none;
     }
 
     &:disabled {
-        color: $color-gray-600;
+        color: var(--color-text-primary-disabled);
         cursor: not-allowed;
     }
 
-    &:focus {
-        box-shadow: inset 0 0 0 2px $color-shopware-brand-500;
-        outline: none;
+    &:focus-visible {
+        outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+        outline-offset: -2px;
     }
 }
 
 .sw-tabs--vertical .sw-tabs-item {
     padding: $sw-side-navigation-item-link-distance;
-    border-bottom: 0 solid $color-gray-300;
-    border-left: 2px solid $color-gray-300;
+    border-bottom: 0 none;
+    border-left: 1px solid var(--color-border-primary-default);
 }
 
 .sw-tabs--vertical.sw-tabs--align-right .sw-tabs-item {
-    border-left: 0;
-    border-right: 2px solid $color-gray-300;
+    border-left: 0 none;
+    border-right: 1px solid var(--color-border-brand-default);
 }

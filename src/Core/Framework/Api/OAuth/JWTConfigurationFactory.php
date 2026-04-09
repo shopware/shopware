@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\OAuth;
 
-use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha256 as Hmac256;
 use Lcobucci\JWT\Signer\Key\InMemory;
@@ -10,6 +9,7 @@ use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -28,7 +28,7 @@ class JWTConfigurationFactory
             $key
         );
 
-        $clock = new SystemClock(new \DateTimeZone(\date_default_timezone_get()));
+        $clock = new NativeClock(new \DateTimeZone(\date_default_timezone_get()));
 
         return $configuration->withValidationConstraints(
             new SignedWith(new Hmac256(), $key),

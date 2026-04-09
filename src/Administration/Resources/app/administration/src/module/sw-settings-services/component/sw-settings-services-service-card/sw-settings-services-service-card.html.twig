@@ -45,6 +45,11 @@
                         :disabled="isLoading"
                         :on-label-click="() => openDeactivateModal(toggleFloatingUi)"
                     />
+
+                    <mt-popover-item
+                        :label="$t('sw-settings-services.service-card.permissions')"
+                        :on-label-click="() => openPermissionsModal(toggleFloatingUi)"
+                    />
                 </template>
             </mt-popover>
         </div>
@@ -93,4 +98,12 @@
             </template>
         </mt-modal>
     </mt-modal-root>
+
+    <sw-extension-permissions-modal
+        v-if="showPermissionsModal"
+        :extension-label="service.label"
+        :permissions="categorizedPermissions"
+        :domains="service.domains"
+        @modal-close="showPermissionsModal = false"
+    />
 </li>

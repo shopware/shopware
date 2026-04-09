@@ -16,7 +16,7 @@ use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -29,7 +29,6 @@ use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollect
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Storefront;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
@@ -39,7 +38,6 @@ use Symfony\Component\Validator\Validation;
  * @internal
  */
 #[CoversClass(SnippetFinder::class)]
-#[DisabledFeatures(['v6.8.0.0'])]
 class SnippetFinderTest extends TestCase
 {
     use SnippetFileTrait;
@@ -87,6 +85,7 @@ class SnippetFinderTest extends TestCase
 
         $expectedSnippets = $this->getSnippetFixtures();
         $key = array_key_first($expectedSnippets);
+        static::assertNotNull($key);
         static::assertSame($expectedSnippets[$key], $snippets[$key]);
     }
 
@@ -150,41 +149,54 @@ class SnippetFinderTest extends TestCase
 
     public function testDuplicateAppSnippets(): void
     {
+        $testSnippet = ['testSnippetKey' => 'testSnippet'];
         $appSnippets = [
-            'sw-category' => [],
-            'sw-cms' => [],
-            'sw-wizard' => [],
+            'sw-category' => $testSnippet,
+            'sw-cms' => $testSnippet,
+            'sw-wizard' => $testSnippet,
         ];
 
-        $snippetFinder = $this->getSnippetFinder(
+        $snippetFinderWithoutAppSnippets = $this->getSnippetFinder(
+            connection: $this->getConnectionMock('en-GB', [])
+        );
+        $snippetsWithoutAppSnippets = $snippetFinderWithoutAppSnippets->findSnippets('en-GB');
+
+        $snippetFinderWithAppSnippets = $this->getSnippetFinder(
             connection: $this->getConnectionMock('en-GB', $appSnippets)
         );
+        $snippetsWithAppSnippets = $snippetFinderWithAppSnippets->findSnippets('en-GB');
 
-        $snippets = $snippetFinder->findSnippets('en-GB');
-        static::assertContains($appSnippets['sw-category'], $snippets);
-        static::assertContains($appSnippets['sw-cms'], $snippets);
-        static::assertContains($appSnippets['sw-wizard'], $snippets);
+        foreach (array_keys($appSnippets) as $key) {
+            static::assertArrayHasKey($key, $snippetsWithoutAppSnippets);
+            static::assertArrayNotHasKey('testSnippetKey', $snippetsWithoutAppSnippets[$key]);
+            static::assertNotContains('testSnippet', $snippetsWithoutAppSnippets[$key]);
+
+            static::assertArrayHasKey($key, $snippetsWithAppSnippets);
+            static::assertArrayHasKey('testSnippetKey', $snippetsWithAppSnippets[$key]);
+            static::assertEquals('testSnippet', $snippetsWithAppSnippets[$key]['testSnippetKey']);
+        }
     }
 
-    /**
-     * @param array<string, mixed> $before
-     * @param array<string, mixed> $after
-     */
-    #[DataProvider('sanitizeAppSnippetDataProvider')]
-    public function testSanitizeAppSnippets(array $before, array $after): void
+    public function testSanitizeAppSnippets(): void
     {
         $snippetFinder = $this->getSnippetFinder(
-            connection: $this->getConnectionMock('en-GB', $before),
+            connection: $this->getConnectionMock('en-GB', [
+                'theme' => [
+                    'config' => [
+                        'helpText' => '<h1>Summary: </h1> <br> This is a <b>Theme</b>.',
+                    ],
+                ],
+            ]),
         );
 
         $result = $snippetFinder->findSnippets('en-GB');
-        $result = array_intersect_key($result, $before); // filter out all others snippets
+        $value = $result['theme']['config']['helpText'];
 
-        static::assertSame($after, $result);
+        static::assertSame('<h1>Summary: </h1> <br> This is a <b>Theme</b>.', $value);
     }
 
     /**
-     * @return array<string, array{appSnippets: array<string, mixed>}>
+     * @return iterable<string, array{appSnippets: array<string, mixed>}>
      */
     public static function validAppSnippetsDataProvider(): iterable
     {
@@ -213,29 +225,6 @@ class SnippetFinderTest extends TestCase
     }
 
     /**
-     * @return array<string, array{before: array<string, mixed>, after: array<string, mixed>}>
-     */
-    public static function sanitizeAppSnippetDataProvider(): iterable
-    {
-        yield 'Test it sanitises app snippets' => [
-            'before' => [
-                'foo' => [
-                    'bar' => [
-                        'bar' => '<h1>value</h1>',
-                    ],
-                ],
-            ],
-            'after' => [
-                'foo' => [
-                    'bar' => [
-                        'bar' => 'value',
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /**
      * @param list<string> $pluginPaths
      * @param list<string> $activePluginPaths
      * @param list<string> $bundlePaths
@@ -245,7 +234,7 @@ class SnippetFinderTest extends TestCase
         array $activePluginPaths = [],
         array $bundlePaths = []
     ): Kernel&MockObject {
-        $getBundleMockByPath = function (string $path): Plugin {
+        $getBundleMockByPath = static function (string $path): Plugin {
             $path = __DIR__ . '/fixtures/' . $path;
 
             $plugin = new TestPlugin(true, $path);
@@ -260,19 +249,25 @@ class SnippetFinderTest extends TestCase
 
         $adminBundle = $this->createMock(Administration::class);
 
+        $adminBundleFileName = (new \ReflectionClass(Administration::class))->getFileName();
+        static::assertNotFalse($adminBundleFileName);
+
         $adminBundle
             ->method('getPath')
-            ->willReturn(\dirname((string) ReflectionHelper::getFileName(Administration::class)));
+            ->willReturn(\dirname($adminBundleFileName));
 
-        $property = ReflectionHelper::getProperty(Administration::class, 'name');
+        $property = new \ReflectionProperty(Administration::class, 'name');
         $property->setValue($adminBundle, 'Administration');
 
         $storefrontBundle = $this->createMock(Storefront::class);
+        $storefrontBundleFileName = (new \ReflectionClass(Storefront::class))->getFileName();
+        static::assertNotFalse($storefrontBundleFileName);
+
         $storefrontBundle
             ->method('getPath')
-            ->willReturn(\dirname((string) ReflectionHelper::getFileName(Storefront::class)));
+            ->willReturn(\dirname($storefrontBundleFileName));
 
-        $property = ReflectionHelper::getProperty(Storefront::class, 'name');
+        $property = new \ReflectionProperty(Storefront::class, 'name');
         $property->setValue($storefrontBundle, 'Storefront');
 
         $bundles = [
@@ -314,6 +309,8 @@ class SnippetFinderTest extends TestCase
             [],
             new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
             new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['de-DE'],
         );
         $loader = $this->getTranslationLoader($config);
 
@@ -337,6 +334,8 @@ class SnippetFinderTest extends TestCase
             ['activePlugin'],
             new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
             new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['de-DE'],
         );
         $loader = $this->getTranslationLoader($config);
         $this->createSnippetFixtures($this->filesystem, $loader);
@@ -354,6 +353,31 @@ class SnippetFinderTest extends TestCase
             'plugin_administration' => 'Plugin admin',
             'shop_administration' => 'Platform admin',
         ], $snippets);
+    }
+
+    public function testFinderSkipsExcludedLocales(): void
+    {
+        $config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['es-ES'],
+            ['activePlugin'],
+            new LanguageDtoCollection([new LanguageDto('es-ES', 'Español')]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['es-ES'],
+        );
+        $loader = $this->getTranslationLoader($config);
+        $this->createSnippetFixtures($this->filesystem, $loader);
+
+        $pluginPath = __DIR__ . '/_fixtures/activePlugin';
+        $snippetFinder = $this->getSnippetFinder(
+            kernel: $this->getKernelMock(pluginPaths: [$pluginPath], activePluginPaths: ['activePlugin']),
+            connection: $this->getConnectionMock('es-ES', []),
+            translationConfig: $config,
+        );
+
+        $snippets = $snippetFinder->findSnippets('es-ES');
+        static::assertEmpty($snippets);
     }
 
     /**
@@ -408,11 +432,17 @@ class SnippetFinderTest extends TestCase
             [],
             new LanguageDtoCollection([new LanguageDto('en-GB', 'English (UK')]),
             new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['de-DE'],
         );
 
         $kernelMock = $kernel ?? $this->getKernelMock();
         $connectionMock = $connection ?? $this->getConnectionMock('en-GB', []);
         $translationLoader = $this->getTranslationLoader($config);
+        $sanitizer = $this->createMock(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturnCallback(static function (string $value) {
+            return $value;
+        });
 
         return new SnippetFinder(
             $kernelMock,
@@ -420,6 +450,7 @@ class SnippetFinderTest extends TestCase
             $this->filesystem,
             $config,
             $translationLoader,
+            $sanitizer,
         );
     }
 

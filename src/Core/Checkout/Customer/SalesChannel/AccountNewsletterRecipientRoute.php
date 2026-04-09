@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -33,7 +34,15 @@ class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipient
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/newsletter-recipient', name: 'store-api.newsletter.recipient', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_entity' => 'newsletter_recipient'])]
+    #[Route(
+        path: '/store-api/account/newsletter-recipient',
+        name: 'store-api.newsletter.recipient',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_ENTITY => NewsletterRecipientDefinition::ENTITY_NAME,
+        ],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
+    )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): AccountNewsletterRecipientRouteResponse
     {
         $criteria->addFilter(new EqualsFilter('email', $customer->getEmail()));

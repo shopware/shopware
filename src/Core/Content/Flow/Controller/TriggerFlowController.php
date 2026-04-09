@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Flow\Controller;
 
 use Shopware\Core\Content\Flow\FlowException;
+use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventCollection;
 use Shopware\Core\Framework\App\Event\CustomAppEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -24,6 +25,8 @@ class TriggerFlowController extends AbstractController
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<AppFlowEventCollection> $appFlowEventRepository
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,

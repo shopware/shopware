@@ -35,7 +35,6 @@ export default {
             type: String,
             default: 'left',
         },
-        // eslint-disable-next-line vue/require-prop-types
         flex: {
             required: false,
             default: 1,
@@ -100,7 +99,7 @@ export default {
                 return column.label === this.label;
             });
 
-            if (!hasColumn && this.label) {
+            if (!hasColumn) {
                 parentGridColumns.push({
                     label: this.label,
                     iconLabel: this.iconLabel,

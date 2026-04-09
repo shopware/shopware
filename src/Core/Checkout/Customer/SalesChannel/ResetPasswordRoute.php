@@ -112,7 +112,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
         $definition = new DataValidationDefinition('customer.password.update');
 
         $passwordDefinition = $this->passwordValidationFactory->update($context);
-        $definition->add('newPassword', new EqualTo(['propertyPath' => 'newPasswordConfirm']), ...$passwordDefinition->getProperty('password'));
+        $definition->add('newPassword', new EqualTo(propertyPath: 'newPasswordConfirm'), ...$passwordDefinition->getProperty('password'));
 
         $this->dispatchValidationEvent($definition, $data, $context->getContext());
 
@@ -142,7 +142,6 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 
         $fieldValidations = $validations[$field];
 
-        /** @var EqualTo|null $equalityValidation */
         $equalityValidation = null;
 
         foreach ($fieldValidations as $emailValidation) {
@@ -157,7 +156,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             return;
         }
 
-        $compareValue = $data[$equalityValidation->propertyPath] ?? null;
+        $compareValue = $data[$equalityValidation->propertyPath ?? ''] ?? null;
         if ($data[$field] === $compareValue) {
             return;
         }

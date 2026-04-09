@@ -19,12 +19,18 @@ class MailTemplateTypeEntity extends Entity
 
     protected string $technicalName;
 
+    /**
+     * @var array<string, mixed>|null
+     */
     protected ?array $availableEntities = null;
 
     protected ?MailTemplateTypeTranslationCollection $translations = null;
 
     protected ?MailTemplateCollection $mailTemplates = null;
 
+    /**
+     * @var array<string, mixed>|null
+     */
     protected ?array $templateData = null;
 
     public function getName(): string
@@ -52,11 +58,17 @@ class MailTemplateTypeEntity extends Entity
         return $this->translations;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getAvailableEntities(): ?array
     {
         return $this->availableEntities;
     }
 
+    /**
+     * @param array<string, mixed>|null $availableEntities
+     */
     public function setAvailableEntities(?array $availableEntities): void
     {
         $this->availableEntities = $availableEntities;
@@ -77,11 +89,17 @@ class MailTemplateTypeEntity extends Entity
         $this->mailTemplates = $mailTemplates;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getTemplateData(): ?array
     {
         return $this->templateData;
     }
 
+    /**
+     * @param array<string, mixed>|null $templateData
+     */
     public function setTemplateData(?array $templateData): void
     {
         $this->templateData = $templateData;

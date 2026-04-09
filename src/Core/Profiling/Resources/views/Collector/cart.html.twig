@@ -88,7 +88,7 @@
                                 <span class="expandable-block-title" data-toggle="code-{{ loop.index }}">
                                     {{ lineItem.label }}
                                     <span class="sf-toggle-icon">
-                                        <svg class="icon icon-expand" width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+                                        <svg class="icon icon-expand" width="12" height="12" viewbox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
                                             <path fill="#AAA" d="M10.28 6.28L3.989 11.5 2.979 10.28l4.251-3.99-4.414-4.014 1.022-1.202 6.388 5.157.054.066z"/>
                                         </svg>
                                     </span>
@@ -139,6 +139,171 @@
             </div>
         {% endif %}
     {% endif %}
+
+    {# Display Cart Collectors and Processors #}
+    <h2>Cart Services</h2>
+    <div class="sf-tabs">
+        <div class="tab">
+            <h3 class="tab-title">Collectors
+                <span class="badge">{{ collector.collectors|length }}</span>
+            </h3>
+            <div class="tab-content">
+                {% if collector.collectors is empty %}
+                    <div class="empty">
+                        <p>No collectors found.</p>
+                    </div>
+                {% else %}
+                    <table class="collectors-table profiler-table">
+                        <thead>
+                            <tr>
+                                <th class="col-service-id">Service ID</th>
+                                <th class="col-priority text-right">Priority</th>
+                                <th class="col-decoration">Decoration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for col in collector.collectors %}
+                                <tr>
+                                    <td class="font-normal service-id">{{ col.serviceId }}</td>
+                                    <td class="font-normal text-right priority-cell">{{ col.priority }}</td>
+                                    <td class="font-normal decoration-cell">
+                                        {% if col.decoratedBy|length > 0 %}
+                                            <div class="decorator-chips">
+                                                {% for decorator in col.decoratedBy %}
+                                                    <span class="chip" title="priority: {{ decorator.priority }}">{{ decorator.serviceId }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            <span class="muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="tab">
+            <h3 class="tab-title">Processors
+                <span class="badge">{{ collector.processors|length }}</span>
+            </h3>
+            <div class="tab-content">
+                {% if collector.processors is empty %}
+                    <div class="empty">
+                        <p>No processors found.</p>
+                    </div>
+                {% else %}
+                    <table class="processors-table profiler-table">
+                        <thead>
+                            <tr>
+                                <th class="col-service-id">Service ID</th>
+                                <th class="col-priority text-right">Priority</th>
+                                <th class="col-decoration">Decoration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for proc in collector.processors %}
+                                <tr>
+                                    <td class="font-normal service-id">{{ proc.serviceId }}</td>
+                                    <td class="font-normal text-right priority-cell">{{ proc.priority }}</td>
+                                    <td class="font-normal decoration-cell">
+                                        {% if proc.decoratedBy|length > 0 %}
+                                            <div class="decorator-chips">
+                                                {% for decorator in proc.decoratedBy %}
+                                                    <span class="chip" title="priority: {{ decorator.priority }}">{{ decorator.serviceId }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            <span class="muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .profiler-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .profiler-table thead th {
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--table-border-color, #ddd);
+            padding: 8px 10px;
+            font-weight: 600;
+        }
+        .profiler-table tbody td {
+            padding: 8px 10px;
+            border-top: 1px solid var(--table-border-color, #eee);
+            vertical-align: top;
+        }
+        .profiler-table tbody tr:nth-child(odd) {
+            background-color: #fbfbfc;
+        }
+        .profiler-table tbody tr:hover {
+            background-color: #f3f6f9;
+        }
+
+        .col-service-id {
+            width: 70%;
+        }
+        .col-priority {
+            width: 10%;
+        }
+        .col-decoration {
+            width: 20%;
+        }
+
+        .service-id {
+            word-break: break-word;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+        }
+        .class-name {
+            white-space: nowrap;
+        }
+        .priority-cell {
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .decoration-cell {
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        .decorator-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .chip {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: #eef2f7;
+            border: 1px solid #dbe3ee;
+            font-size: 11px;
+            color: #334155;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .muted {
+            color: #98a2b3;
+        }
+    </style>
 
     {% if collector.cart is not null and collector.cart.lineItems is defined and collector.cart.lineItems|length > 0 %}
         <script type="text/javascript">

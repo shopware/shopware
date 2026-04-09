@@ -37,17 +37,17 @@ class ThemeInheritanceBuilderTest extends TestCase
     public function testBuildPreservesThePluginOrder(): void
     {
         $result = $this->builder->build([
-            'ExtensionPlugin' => [],
-            'BasePlugin' => [],
-            'Storefront' => [],
+            'ExtensionPlugin' => 0,
+            'BasePlugin' => 0,
+            'Storefront' => 0,
         ], [
-            'Storefront' => [],
+            'Storefront' => true,
         ]);
 
         static::assertSame([
-            'ExtensionPlugin' => [],
-            'BasePlugin' => [],
-            'Storefront' => [],
+            'ExtensionPlugin' => 0,
+            'BasePlugin' => 0,
+            'Storefront' => 0,
         ], $result);
     }
 

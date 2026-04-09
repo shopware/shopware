@@ -55,8 +55,11 @@ class UnusedMediaSubscriberTest extends TestCase
 
         /** @var StaticEntityRepository<ThemeCollection> $themeRepository */
         $themeRepository = new StaticEntityRepository([
-            function (Criteria $criteria, Context $context) use ($themeId1, $themeId2) {
-                return new IdSearchResult(2, [['primaryKey' => $themeId1, 'data' => []], ['primaryKey' => $themeId2, 'data' => []]], $criteria, $context);
+            static function (Criteria $criteria, Context $context) use ($themeId1, $themeId2) {
+                return new IdSearchResult(2, [
+                    $themeId1 => ['primaryKey' => $themeId1, 'data' => []],
+                    $themeId2 => ['primaryKey' => $themeId2, 'data' => []],
+                ], $criteria, $context);
             },
         ]);
 
@@ -68,7 +71,7 @@ class UnusedMediaSubscriberTest extends TestCase
         $themeService = $this->createMock(ThemeService::class);
         $themeService->expects($this->exactly(2))
             ->method('getPlainThemeConfiguration')
-            ->willReturnCallback(function (string $themeId, ...$params) use ($themeConfigMap) {
+            ->willReturnCallback(static function (string $themeId, ...$params) use ($themeConfigMap) {
                 return $themeConfigMap[$themeId];
             });
 

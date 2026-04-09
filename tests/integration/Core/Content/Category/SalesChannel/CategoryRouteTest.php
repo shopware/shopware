@@ -2,13 +2,11 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Category\SalesChannel;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -16,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Content\Category\SalesChannel\fixtures\CategoryRouteInheritanceFixtures;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -35,7 +34,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  */
 #[Group('store-api')]
 #[Package('discovery')]
-#[CoversClass(CategoryRoute::class)]
 class CategoryRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -149,7 +147,7 @@ class CategoryRouteTest extends TestCase
     {
         $this->createListingData();
 
-        /** @var EntityRepository $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $salesChannelRepository->upsert([[
             'id' => $this->ids->get('sales-channel'),

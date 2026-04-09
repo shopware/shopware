@@ -12,23 +12,16 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
-
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
     ],
 
     computed: {
-        /**
-         * Fetch custom fields that are related to the previously selected custom field set
-         * @returns {Object.Criteria}
-         */
         customFieldCriteria() {
-            const criteria = new Criteria(1, 25);
-            criteria.addAssociation('customFieldSet');
-            criteria.addFilter(Criteria.equals('customFieldSet.relations.entityName', 'product'));
-            criteria.addSorting(Criteria.sort('customFieldSet.name', 'ASC'));
-            return criteria;
+            return new Criteria(1, 25)
+                .addAssociation('customFieldSet')
+                .addFilter(Criteria.equals('customFieldSet.relations.entityName', 'product'))
+                .addSorting(Criteria.sort('customFieldSet.name', 'ASC'));
         },
 
         operator: {
@@ -105,14 +98,6 @@ export default {
             return this.conditionDataProviderService.getOperatorSetByComponent(this.renderedField);
         },
 
-        ...mapPropertyErrors('condition', [
-            'value.renderedField',
-            'value.selectedField',
-            'value.selectedFieldSet',
-            'value.operator',
-            'value.renderedFieldValue',
-        ]),
-
         currentError() {
             return (
                 this.conditionValueRenderedFieldError ||
@@ -126,18 +111,30 @@ export default {
         truncateFilter() {
             return Filter.getByName('truncate');
         },
+
+        ...mapPropertyErrors('condition', [
+            'value.renderedField',
+            'value.selectedField',
+            'value.selectedFieldSet',
+            'value.operator',
+            'value.renderedFieldValue',
+        ]),
     },
 
     methods: {
         getTooltipConfig(item) {
             if (item.allowCartExpose) {
-                return { message: '', disabled: true };
+                return {
+                    message: '',
+                    disabled: true,
+                };
             }
 
             const route = {
                 name: 'sw.settings.custom.field.detail',
                 params: { id: item.customFieldSetId },
             };
+
             const routeData = this.$router.resolve(route);
 
             return {
@@ -153,20 +150,19 @@ export default {
             return this.getInlineSnippet(item.customFieldSet.config.label) || item.customFieldSet.name;
         },
 
-        /**
-         * Clear any further field's values if no custom field has been selected
-         * @param id
-         */
         onFieldChange(id) {
-            if (this.$refs.selectedField.resultCollection.has(id)) {
-                this.renderedField = this.$refs.selectedField.resultCollection.get(id);
-                this.selectedFieldSet = this.renderedField.customFieldSetId;
-            } else {
+            if (!this.$refs.selectedField.resultCollection?.has(id)) {
+                this.operator = null;
+                this.renderedFieldValue = null;
                 this.renderedField = null;
+                this.selectedFieldSet = null;
+                return;
             }
 
             this.operator = null;
             this.renderedFieldValue = null;
+            this.renderedField = this.$refs.selectedField.resultCollection.get(id);
+            this.selectedFieldSet = this.renderedField.customFieldSetId;
         },
     },
 };

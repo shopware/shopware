@@ -26,7 +26,7 @@ class AclCriteriaValidator
     /**
      * @throws AccessDeniedHttpException
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function validate(string $entity, Criteria $criteria, Context $context): array
     {
@@ -76,6 +76,6 @@ class AclCriteriaValidator
             }
         }
 
-        return array_unique(array_filter($missing));
+        return array_values(array_unique(array_filter($missing)));
     }
 }

@@ -13,6 +13,7 @@ abstract class AbstractValueGenerator
      * don't even know the whole pattern
      *
      * @param array{id: string, pattern: string, start: ?int} $config
+     * @param ?array<int, string> $args
      */
     abstract public function generate(array $config, ?array $args = null, ?bool $preview = false): string;
 

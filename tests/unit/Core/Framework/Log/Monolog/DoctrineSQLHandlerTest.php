@@ -47,7 +47,7 @@ class DoctrineSQLHandlerTest extends TestCase
         $insertData = null;
 
         $this->connection->expects($this->exactly(2))->method('insert')
-            ->willReturnCallback(function (string $table, array $data = []) use (&$exceptionThrown, &$insertData): int {
+            ->willReturnCallback(static function (string $table, array $data = []) use (&$exceptionThrown, &$insertData): int {
                 static::assertSame('log_entry', $table);
                 static::assertNotEmpty($data['id']);
                 static::assertNotEmpty($data['created_at']);

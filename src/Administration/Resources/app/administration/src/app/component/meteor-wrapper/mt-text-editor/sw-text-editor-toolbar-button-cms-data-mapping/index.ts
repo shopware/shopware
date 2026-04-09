@@ -1,5 +1,4 @@
-// eslint-disable-next-line max-len
-import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/components/form/mt-text-editor/_internal/mt-text-editor-toolbar';
+import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbar';
 
 /**
  * @sw-package framework

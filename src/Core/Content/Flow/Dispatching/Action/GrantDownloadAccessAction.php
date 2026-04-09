@@ -2,14 +2,17 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -18,6 +21,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 class GrantDownloadAccessAction extends FlowAction implements DelayableAction
 {
+    /**
+     * @param EntityRepository<OrderLineItemDownloadCollection> $orderLineItemDownloadRepository
+     */
     public function __construct(private readonly EntityRepository $orderLineItemDownloadRepository)
     {
     }
@@ -28,7 +34,7 @@ class GrantDownloadAccessAction extends FlowAction implements DelayableAction
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function requirements(): array
     {
@@ -65,25 +71,27 @@ class GrantDownloadAccessAction extends FlowAction implements DelayableAction
         $downloadIds = [];
 
         foreach ($lineItems->filterGoodsFlat() as $lineItem) {
-            $states = $lineItem->getStates();
+            $isDigital = Feature::isActive('v6.8.0.0')
+                ? $lineItem->getPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE) === ProductDefinition::TYPE_DIGITAL
+                : (\in_array(State::IS_DOWNLOAD, $lineItem->getStates(), true)
+                    || $lineItem->getPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE) === ProductDefinition::TYPE_DIGITAL);
 
-            if (!$lineItem->getDownloads() || !\in_array(State::IS_DOWNLOAD, $states, true)) {
+            if (!$lineItem->getDownloads() || !$isDigital) {
                 continue;
             }
 
-            /** @var OrderLineItemDownloadEntity $download */
             foreach ($lineItem->getDownloads() as $download) {
                 $downloadIds[] = $download->getId();
                 $download->setAccessGranted((bool) $config['value']);
             }
         }
 
-        if (empty($downloadIds)) {
+        if ($downloadIds === []) {
             return;
         }
 
         $this->orderLineItemDownloadRepository->update(
-            array_map(fn (string $id): array => ['id' => $id, 'accessGranted' => $config['value']], array_unique($downloadIds)),
+            array_map(static fn (string $id): array => ['id' => $id, 'accessGranted' => $config['value']], array_unique($downloadIds)),
             $context
         );
     }

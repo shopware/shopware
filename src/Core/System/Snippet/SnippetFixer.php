@@ -100,7 +100,7 @@ class SnippetFixer
         $keyParts = explode('.', $key);
 
         $currentJson = &$json;
-        $lastKey = end($keyParts);
+        $lastKey = array_last($keyParts);
         reset($keyParts);
         foreach ($keyParts as $keyPart) {
             if ($keyPart === $lastKey) {
@@ -125,7 +125,7 @@ class SnippetFixer
         $keyParts = explode('.', $key);
 
         $currentJson = &$json;
-        $lastKey = end($keyParts);
+        $lastKey = array_last($keyParts);
         reset($keyParts);
         foreach ($keyParts as $keyPart) {
             if ($keyPart === $lastKey) {

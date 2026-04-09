@@ -11,6 +11,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
+use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Storefront\Framework\Routing\Exception\ErrorRedirectRequestEvent;
 use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -132,8 +133,7 @@ class NotFoundSubscriberTest extends TestCase
 
         static::assertArrayHasKey(0, $writtenCaches);
 
-        $cacheItem = unserialize($writtenCaches[0]);
-        static::assertInstanceOf(Response::class, $cacheItem);
+        $cacheItem = Serialization::assertUnserializedInstanceOf(Response::class, $writtenCaches[0]);
 
         $cookies = $cacheItem->headers->getCookies();
         static::assertCount(1, $cookies);
@@ -183,7 +183,7 @@ class NotFoundSubscriberTest extends TestCase
         $httpKernel
             ->expects($this->once())
             ->method('handle')
-            ->with(static::callback(function (Request $request) {
+            ->with(static::callback(static function (Request $request) {
                 return $request->attributes->get(PlatformRequest::ATTRIBUTE_CAPTCHA) === false;
             }))
             ->willReturn(new Response());

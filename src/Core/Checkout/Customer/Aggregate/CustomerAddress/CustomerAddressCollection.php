@@ -19,12 +19,12 @@ class CustomerAddressCollection extends EntityCollection
      */
     public function getCustomerIds(): array
     {
-        return $this->fmap(fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCustomerId());
+        return $this->fmap(static fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCustomerId());
     }
 
     public function filterByCustomerId(string $id): self
     {
-        return $this->filter(fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCustomerId() === $id);
+        return $this->filter(static fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCustomerId() === $id);
     }
 
     /**
@@ -32,12 +32,12 @@ class CustomerAddressCollection extends EntityCollection
      */
     public function getCountryIds(): array
     {
-        return $this->fmap(fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountryId());
+        return $this->fmap(static fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountryId());
     }
 
     public function filterByCountryId(string $id): self
     {
-        return $this->filter(fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountryId() === $id);
+        return $this->filter(static fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountryId() === $id);
     }
 
     /**
@@ -45,31 +45,31 @@ class CustomerAddressCollection extends EntityCollection
      */
     public function getCountryStateIds(): array
     {
-        return $this->fmap(fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountryStateId());
+        return $this->fmap(static fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountryStateId());
     }
 
     public function filterByCountryStateId(string $id): self
     {
-        return $this->filter(fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountryStateId() === $id);
+        return $this->filter(static fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountryStateId() === $id);
     }
 
     public function getCountries(): CountryCollection
     {
         return new CountryCollection(
-            $this->fmap(fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountry())
+            $this->fmap(static fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountry())
         );
     }
 
     public function getCountryStates(): CountryStateCollection
     {
         return new CountryStateCollection(
-            $this->fmap(fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountryState())
+            $this->fmap(static fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountryState())
         );
     }
 
     public function sortByDefaultAddress(CustomerEntity $customer): CustomerAddressCollection
     {
-        $this->sort(function (CustomerAddressEntity $a, CustomerAddressEntity $b) use ($customer) {
+        $this->sort(static function (CustomerAddressEntity $a, CustomerAddressEntity $b) use ($customer) {
             if ($a->getId() === $customer->getDefaultBillingAddressId() || $a->getId() === $customer->getDefaultShippingAddressId()) {
                 return -1;
             }

@@ -202,6 +202,37 @@ class ElasticsearchFieldBuilderTest extends TestCase
         ], $result);
     }
 
+    public function testCustomFieldsPropertiesAreOmittedWhenNoMappingsExist(): void
+    {
+        $languageId = Uuid::randomHex();
+
+        $languageLoader = new StaticLanguageLoader([
+            $languageId => [
+                'id' => $languageId,
+                'parentId' => null,
+                'code' => 'en-GB',
+            ],
+        ]);
+
+        $dispatcher = new EventDispatcher();
+        $parameterBag = new ParameterBag();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('fetchAllKeyValue')->willReturn([]);
+
+        $utils = new ElasticsearchIndexingUtils(
+            $connection,
+            $dispatcher,
+            $parameterBag,
+        );
+
+        $builder = new ElasticsearchFieldBuilder($languageLoader, $utils, []);
+
+        $result = $builder->customFields('product', Context::createDefaultContext());
+
+        static::assertSame(['properties' => [$languageId => ['type' => 'object', 'dynamic' => true]]], $result);
+    }
+
     public function testBuildDatetimeField(): void
     {
         $dateTimeField = ElasticsearchFieldBuilder::datetime(['properties' => [

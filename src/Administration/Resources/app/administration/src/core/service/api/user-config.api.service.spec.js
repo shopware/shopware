@@ -54,13 +54,13 @@ describe('userConfigService', () => {
         const mockAdapter = new MockAdapter(client);
         const userConfigService = newUserConfigService(client);
 
-        mockAdapter.onPost('/api/_info/config-me').replyOnce(204);
+        mockAdapter.onPatch('/api/_info/config-me').replyOnce(204);
 
         await userConfigService.upsert({
             'core.userConfig': ['new-value'],
         });
 
-        expect(mockAdapter.history.post).toHaveLength(1);
-        expect(mockAdapter.history.post[0].data).toEqual(JSON.stringify({ 'core.userConfig': ['new-value'] }));
+        expect(mockAdapter.history.patch).toHaveLength(1);
+        expect(mockAdapter.history.patch[0].data).toEqual(JSON.stringify({ 'core.userConfig': ['new-value'] }));
     });
 });

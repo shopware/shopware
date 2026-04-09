@@ -1,68 +1,97 @@
 {% block sw_cms_element_product_box_config %}
 <div class="sw-cms-el-config-product-box">
     {% block sw_cms_element_product_box_config_product_select %}
-    <sw-entity-single-select
-        ref="cmsProductSelection"
-        v-model:value="element.config.product.value"
-        :label="$tc('sw-cms.elements.productBox.config.label.selection')"
-        :placeholder="$tc('sw-cms.elements.productBox.config.placeholder.selection')"
-        entity="product"
-        :criteria="productCriteria"
-        :context="productSelectContext"
-        show-clearable-button
-        @update:value="onProductChange"
+
+    <sw-cms-inherit-wrapper
+        field="product"
+        :element="element"
+        :label="$t('sw-cms.elements.productBox.config.label.selection')"
     >
-        <template #selection-label-property="{ item }">
-            <sw-product-variant-info
-                :variations="item.variation"
+        <template #default="{ isInherited }">
+            <sw-entity-single-select
+                ref="cmsProductSelection"
+                v-model:value="element.config.product.value"
+                :placeholder="$t('sw-cms.elements.productBox.config.placeholder.selection')"
+                entity="product"
+                :criteria="productCriteria"
+                :context="productSelectContext"
+                :disabled="isInherited"
+                show-clearable-button
+                @update:value="onProductChange"
             >
-                {{ item.translated.name || item.name }}
-            </sw-product-variant-info>
+                <template #selection-label-property="{ item }">
+                    <sw-product-variant-info :variations="item.variation">
+                        {{ item.translated.name || item.name }}
+                    </sw-product-variant-info>
+                </template>
+                <template #result-item="{ item, index }">
+                    <slot
+                        name="result-item"
+                        v-bind="{ item, index }"
+                    >
+                        <sw-select-result v-bind="{ item, index }">
+                            {% block sw_entity_single_select_base_results_list_result_label %}
+                            <span class="sw-select-result__result-item-text">
+                                <sw-product-variant-info :variations="item.variation">
+                                    {{ item.translated.name || item.name }}
+                                </sw-product-variant-info>
+                            </span>
+                            {% endblock %}
+                        </sw-select-result>
+                    </slot>
+                </template>
+            </sw-entity-single-select>
         </template>
-        <template #result-item="{ item, index }">
-            <slot
-                name="result-item"
-                v-bind="{ item, index }"
-            >
-                <sw-select-result
-                    v-bind="{ item, index }"
-                >
-                    {% block sw_entity_single_select_base_results_list_result_label %}
-                    <span class="sw-select-result__result-item-text">
-                        <sw-product-variant-info :variations="item.variation">
-                            {{ item.translated.name || item.name }}
-                        </sw-product-variant-info>
-                    </span>
-                    {% endblock %}
-                </sw-select-result>
-            </slot>
-        </template>
-    </sw-entity-single-select>
+    </sw-cms-inherit-wrapper>
     {% endblock %}
 
     {% block sw_cms_element_product_box_config_layout_select %}
-    <mt-select
-        v-model="element.config.boxLayout.value"
-        :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
-        :options="boxLayoutOptions"
-    />
+    <sw-cms-inherit-wrapper
+        field="boxLayout"
+        :element="element"
+        :label="$t('sw-cms.elements.productBox.config.label.layoutType')"
+    >
+        <template #default="{ isInherited }">
+            <mt-select
+                v-model="element.config.boxLayout.value"
+                :options="boxLayoutOptions"
+                :disabled="isInherited"
+            />
+        </template>
+    </sw-cms-inherit-wrapper>
     {% endblock %}
 
     {% block sw_cms_element_product_box_config_displaymode_select %}
-    <mt-select
-        v-model="element.config.displayMode.value"
-        :label="$tc('sw-cms.elements.general.config.label.displayMode')"
-        :options="displayModeOptions"
-    />
+    <sw-cms-inherit-wrapper
+        field="displayMode"
+        :element="element"
+        :label="$t('sw-cms.elements.general.config.label.displayMode')"
+    >
+        <template #default="{ isInherited }">
+            <mt-select
+                v-model="element.config.displayMode.value"
+                :options="displayModeOptions"
+                :disabled="isInherited"
+            />
+        </template>
+    </sw-cms-inherit-wrapper>
     {% endblock %}
 
     {% block sw_cms_element_product_box_config_settings_vertical_align %}
-    <mt-select
-        v-model="element.config.verticalAlign.value"
-        :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
-        :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
-        :options="verticalAlignOptions"
-    />
+    <sw-cms-inherit-wrapper
+        field="verticalAlign"
+        :element="element"
+        :label="$t('sw-cms.elements.general.config.label.verticalAlign')"
+    >
+        <template #default="{ isInherited }">
+            <mt-select
+                v-model="element.config.verticalAlign.value"
+                :placeholder="$t('sw-cms.elements.general.config.label.verticalAlign')"
+                :options="verticalAlignOptions"
+                :disabled="isInherited"
+            />
+        </template>
+    </sw-cms-inherit-wrapper>
     {% endblock %}
 </div>
 {% endblock %}

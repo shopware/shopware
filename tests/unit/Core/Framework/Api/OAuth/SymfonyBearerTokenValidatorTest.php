@@ -27,7 +27,7 @@ class SymfonyBearerTokenValidatorTest extends TestCase
     // this is a valid token, generated for the test app secret
     private const VALID_TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJ0ZXN0IiwianRpIjoiMDE4ZDlkY2NlMDBhNzA0YWIwMzRlYzA2OTQ5ODFlZDUiLCJpYXQiOjE3MDc3NDk0NjYuMTIyNzU2LCJuYmYiOjE3MDc3NDk0NjYuMTIyNzU2LCJleHAiOjQ4NjM0MjMwNjYuMTIyNDksInN1YiI6IjAxOGQ5ZGNjZTAwYTcwNGFiMDM0ZWMwNjk0OTgxZWQ1Iiwic2NvcGVzIjpbXX0.GnFYQ-VTo7zKnK9-M3m9v4FnugAtNp75kcb8mpxscwY';
 
-    private const TOKEN_USER_ID = '018d9dcce00a704ab034ec0694981ed5';
+    private const OAUTH_USER_ID = '018d9dcce00a704ab034ec0694981ed5';
 
     #[DataProvider('dataProviderInvalidRequests')]
     public function testInvalidRequests(Request $request): void
@@ -51,7 +51,7 @@ class SymfonyBearerTokenValidatorTest extends TestCase
         $accessTokenRepository = $this->createMock(AccessTokenRepositoryInterface::class);
         $accessTokenRepository
             ->method('isAccessTokenRevoked')
-            ->with(self::TOKEN_USER_ID)
+            ->with(self::OAUTH_USER_ID)
             ->willReturn(true);
 
         $validator = new SymfonyBearerTokenValidator(
@@ -78,8 +78,8 @@ class SymfonyBearerTokenValidatorTest extends TestCase
 
         $validator->validateAuthorization($request);
 
-        static::assertSame(self::TOKEN_USER_ID, $request->attributes->get('oauth_user_id'));
-        static::assertSame(self::TOKEN_USER_ID, $request->attributes->get('oauth_access_token_id'));
+        static::assertSame(self::OAUTH_USER_ID, $request->attributes->get('oauth_user_id'));
+        static::assertSame(self::OAUTH_USER_ID, $request->attributes->get('oauth_access_token_id'));
         static::assertSame('test', $request->attributes->get('oauth_client_id'));
         static::assertSame([], $request->attributes->get('oauth_scopes'));
     }

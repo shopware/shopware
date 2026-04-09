@@ -8,6 +8,7 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotGeneratedException;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
@@ -32,6 +33,8 @@ class ExportController
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductExportCollection> $productExportRepository
      */
     public function __construct(
         private readonly ProductExporterInterface $productExportService,
@@ -46,20 +49,19 @@ class ExportController
     #[Route(path: '/store-api/product-export/{accessKey}/{fileName}', name: 'store-api.product.export', methods: ['GET'], defaults: ['auth_required' => false])]
     public function index(Request $request): Response
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $criteria = new Criteria();
         $criteria
-            ->addFilter(new EqualsFilter('fileName', $request->get('fileName')))
-            ->addFilter(new EqualsFilter('accessKey', $request->get('accessKey')))
+            ->addFilter(new EqualsFilter('fileName', $request->attributes->getString('fileName')))
+            ->addFilter(new EqualsFilter('accessKey', $request->attributes->getString('accessKey')))
             ->addFilter(new EqualsFilter('salesChannel.active', true))
             ->addAssociation('salesChannelDomain');
 
-        /** @var ProductExportEntity|null $productExport */
-        $productExport = $this->productExportRepository->search($criteria, $context)->first();
+        $productExport = $this->productExportRepository->search($criteria, $context)->getEntities()->first();
 
         if ($productExport === null) {
-            $exportNotFoundException = new ExportNotFoundException(null, $request->get('fileName'));
+            $exportNotFoundException = new ExportNotFoundException(null, $request->attributes->getString('fileName'));
             $this->logException($context, $exportNotFoundException, Level::Warning);
 
             throw $exportNotFoundException;
@@ -105,6 +107,10 @@ class ExportController
         switch ($fileFormat) {
             case ProductExportEntity::FILE_FORMAT_CSV:
                 $contentType = 'text/csv';
+
+                break;
+            case ProductExportEntity::FILE_FORMAT_JSONL:
+                $contentType = 'application/x-ndjson';
 
                 break;
             case ProductExportEntity::FILE_FORMAT_XML:

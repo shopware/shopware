@@ -61,7 +61,7 @@ class DataAbstractionLayerValidateCommand extends Command
         if (!empty($namespaces)) {
             $errors = array_filter(
                 $errors,
-                function ($_, $class) use ($namespaces) {
+                static function ($_, $class) use ($namespaces) {
                     foreach ($namespaces as $ns) {
                         if (str_starts_with($class, (string) $ns)) {
                             return true;
@@ -74,7 +74,7 @@ class DataAbstractionLayerValidateCommand extends Command
             );
         }
 
-        $hasErrors = \count($errors) > 0;
+        $hasErrors = $errors !== [];
         if ($asJson) {
             if ($hasErrors) {
                 $io->write(json_encode($errors, \JSON_THROW_ON_ERROR));

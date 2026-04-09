@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Exception\DeleteDefaultProfileException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -23,6 +24,9 @@ class ImportExportProfileRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<EntityCollection<ImportExportProfileEntity>>
+     */
     private EntityRepository $repository;
 
     private Connection $connection;
@@ -147,7 +151,7 @@ class ImportExportProfileRepositoryTest extends TestCase
                 }
             }
 
-            $missingPropertyPaths = array_map(fn ($property) => '/' . $property, $requiredProperties);
+            $missingPropertyPaths = array_map(static fn ($property) => '/' . $property, $requiredProperties);
 
             static::assertSame($missingPropertyPaths, $foundViolations);
         }
@@ -245,7 +249,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
             // Remove property before write
             $property = array_pop($properties);
-            if ($property === 'id') {
+            if ($property === 'id' || $property === null) {
                 continue;
             }
             unset($upsertData[$id][$property]);
@@ -333,10 +337,24 @@ class ImportExportProfileRepositoryTest extends TestCase
         static::assertCount($num, $records);
     }
 
+    public function testCanSearchByTechnicalName(): void
+    {
+        $data = $this->prepareImportExportProfileTestData();
+        $this->repository->create(array_values($data), $this->context);
+
+        $criteria = new Criteria();
+        $criteria->setTerm('technical');
+
+        $result = $this->repository->search($criteria, $this->context)->getEntities();
+
+        static::assertCount(1, $result);
+        static::assertInstanceOf(ImportExportProfileEntity::class, $result->first());
+    }
+
     /**
      * Prepare a defined number of test data.
      *
-     * @return array<string, array<string, mixed>>
+     * @return non-empty-array<string, array<string, mixed>>
      */
     protected function prepareImportExportProfileTestData(int $num = 1, string $add = ''): array
     {
@@ -356,6 +374,8 @@ class ImportExportProfileRepositoryTest extends TestCase
                 'mapping' => ['Mapping ' . $i => 'Value ' . $i . $add],
             ];
         }
+
+        static::assertNotSame([], $data);
 
         return $data;
     }

@@ -17,7 +17,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         return {
             isHidden: true,
-            servicesGraphics: assetFilter('/administration/administration/static/img/services/services-graphic.svg'),
+            servicesGraphicLight: assetFilter(
+                '/administration/administration/static/img/services/services-graphic-light.svg',
+            ),
+            servicesGraphicDark: assetFilter('/administration/administration/static/img/services/services-graphic-dark.svg'),
         };
     },
 

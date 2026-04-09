@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Framework\Routing;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
@@ -17,7 +16,6 @@ class ResponseHeaderListener implements EventSubscriberInterface
 {
     private const REMOVAL_HEADERS = [
         PlatformRequest::HEADER_VERSION_ID,
-        PlatformRequest::HEADER_LANGUAGE_ID,
         PlatformRequest::HEADER_CONTEXT_TOKEN,
         'Access-Control-Allow-Origin',
         'Access-Control-Allow-Methods',
@@ -45,13 +43,7 @@ class ResponseHeaderListener implements EventSubscriberInterface
             return;
         }
 
-        $this->manipulateStorefrontHeader($event->getRequest(), $response);
-    }
-
-    private function manipulateStorefrontHeader(Request $request, Response $response): void
-    {
         $this->removeHeaders($response);
-        $this->addNoStoreHeader($request, $response);
     }
 
     private function removeHeaders(Response $response): void
@@ -59,18 +51,5 @@ class ResponseHeaderListener implements EventSubscriberInterface
         foreach (self::REMOVAL_HEADERS as $headerKey) {
             $response->headers->remove($headerKey);
         }
-    }
-
-    private function addNoStoreHeader(Request $request, Response $response): void
-    {
-        if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_NO_STORE)) {
-            return;
-        }
-
-        $response->setMaxAge(0);
-        $response->headers->addCacheControlDirective('no-cache');
-        $response->headers->addCacheControlDirective('no-store');
-        $response->headers->addCacheControlDirective('must-revalidate');
-        $response->setExpires(new \DateTime('@0'));
     }
 }

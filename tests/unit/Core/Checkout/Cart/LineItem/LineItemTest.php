@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -259,6 +260,21 @@ class LineItemTest extends TestCase
 
         static::assertSame(2, $lineItem->getPayloadValue('test'));
         static::assertSame(['a'], $lineItem->getPayloadValue('categoryIds'));
+    }
+
+    public function testIsProductType(): void
+    {
+        $lineItem = new LineItem('abc', 'product');
+
+        $lineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+
+        static::assertTrue($lineItem->isProductType(ProductDefinition::TYPE_DIGITAL));
+        static::assertFalse($lineItem->isProductType(ProductDefinition::TYPE_PHYSICAL));
+
+        $lineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
+
+        static::assertFalse($lineItem->isProductType(ProductDefinition::TYPE_DIGITAL));
+        static::assertTrue($lineItem->isProductType(ProductDefinition::TYPE_PHYSICAL));
     }
 
     #[DataProvider('provideValidIdentifiers')]

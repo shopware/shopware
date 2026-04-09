@@ -9,18 +9,15 @@
     >
 
     <h4 class="sw-first-run-wizard-mailer-selection__headline">
-        <strong>
-            {{ $tc('sw-first-run-wizard.mailerSelection.headline') }}
-        </strong>
+        {{ $tc('sw-first-run-wizard.mailerSelection.headline') }}
     </h4>
-    <p>
+
+    <p class="sw-first-run-wizard-mailer-selection__description">
         {{ $tc('sw-first-run-wizard.mailerSelection.description') }}
     </p>
 
     <p class="sw-first-run-wizard-mailer-selection__subline">
-        <strong>
-            {{ $tc('sw-first-run-wizard.mailerSelection.chooseSubline') }}
-        </strong>
+        {{ $tc('sw-first-run-wizard.mailerSelection.chooseSubline') }}
     </p>
 
     <div class="sw-first-run-wizard-mailer-selection__selections">
@@ -32,7 +29,6 @@
             @click="setMailAgent('local')"
             @keydown.enter="setMailAgent('local')"
         >
-
             <sw-help-text
                 class="sw-first-run-wizard-mailer-selection__help-text"
                 :text="$tc('sw-first-run-wizard.mailerSelection.localOptionHelptext')"
@@ -42,14 +38,12 @@
                 name="regular-paper-plane"
                 class="sw-first-run-wizard-mailer-selection__selection-icon"
             />
-            <p>
-                {{ $tc('sw-first-run-wizard.mailerSelection.localOption') }}
-                <br>
-                <span class="sw-first-run-wizard-mailer-selection__text-light">
-                    {{ $tc('sw-first-run-wizard.mailerSelection.localOptionSubline') }}
-                </span>
-            </p>
 
+            <p>
+                <span>{{ $tc('sw-first-run-wizard.mailerSelection.localOption') }}</span>
+                <br>
+                <span>{{ $tc('sw-first-run-wizard.mailerSelection.localOptionSubline') }}</span>
+            </p>
         </div>
 
         <div
@@ -60,15 +54,14 @@
             @click="setMailAgent('smtp')"
             @keydown.enter="setMailAgent('smtp')"
         >
-
             <mt-icon
                 name="regular-server"
                 class="sw-first-run-wizard-mailer-selection__selection-icon"
             />
+
             <p>
                 {{ $tc('sw-first-run-wizard.mailerSelection.smtpOption') }}
             </p>
-
         </div>
     </div>
 

@@ -19,7 +19,6 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -219,7 +218,10 @@ class PaymentRecurringProcessorTest extends TestCase
         $processor->processRecurring('foo', Context::createDefaultContext());
     }
 
-    private function getOrderTransactionRepository(bool $returnEntity): EntityRepository
+    /**
+     * @return StaticEntityRepository<OrderTransactionCollection>
+     */
+    private function getOrderTransactionRepository(bool $returnEntity): StaticEntityRepository
     {
         $entity = new OrderTransactionEntity();
         $entity->setId('foo');

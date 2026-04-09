@@ -41,7 +41,7 @@
                                 {% block component_checkout_cart_header_tax_price %}
                                     <div class="col-2 order-detail-content-header-cell order-header-tax-price">
                                         {% if context.salesChannel.taxCalculationType == 'horizontal' %}
-                                            {% if context.taxState == 'gross' %}
+                                            {% if order.taxStatus === constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_GROSS') %}
                                                 {{ 'checkout.cartHeaderTaxIncludeVat'|trans|sw_sanitize }}
                                             {% else %}
                                                 {{ 'checkout.cartHeaderTaxExcludeVat'|trans|sw_sanitize }}
@@ -102,7 +102,7 @@
                             <div class="order-item-detail-footer">
                                 <div class="row g-0">
                                     <div class="col-12 col-md-7 col-xl-6">
-                                        <dl class="row g-0 order-item-detail-labels" aria-label="{{ 'account.orderInfoAriaLabel'|trans|striptags }}">
+                                        <dl class="row g-0 order-item-detail-labels" role="region" aria-label="{{ 'account.orderInfoAriaLabel'|trans|striptags }}">
                                             {% block page_account_order_item_detail_date %}
                                                 {% block page_account_order_item_detail_date_label %}
                                                     <dt class="col-6 col-md-5">{{ 'account.orderItemDate'|trans|sw_sanitize }}</dt>
@@ -207,7 +207,7 @@
 
                                     <div class="col-12 col-md-5 col-xl-6">
                                         {% block page_account_order_item_detail_summary %}
-                                            <dl class="row g-0 order-item-detail-summary" aria-label="{{ 'account.orderSummaryAriaLabel'|trans|striptags }}">
+                                            <dl class="row g-0 order-item-detail-summary" role="region" aria-label="{{ 'account.orderSummaryAriaLabel'|trans|striptags }}">
                                                 {% block page_account_order_item_detail_shipping_costs %}
                                                     {% if order.deliveries|length > 0 %}
                                                         {% block page_account_order_item_detail_shipping_costs_label %}
@@ -225,9 +225,14 @@
                                                         {% for calculatedTax in order.price.calculatedTaxes %}
                                                             {% block page_account_order_item_detail_vat_label %}
                                                                 <dt class="col-6 col-md-8">
-                                                                    {{ 'checkout.summaryTax'|trans({
-                                                                        '%rate%':  calculatedTax.taxRate
-                                                                    })|sw_sanitize }}
+                                                                    {% if order.taxStatus === constant('Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\CartPrice::TAX_STATE_GROSS') %}                                                                        {{ 'checkout.summaryTaxInclude'|trans({
+                                                                            '%rate%':  calculatedTax.taxRate
+                                                                        })|sw_sanitize }}
+                                                                    {% else %}
+                                                                        {{ 'checkout.summaryTax'|trans({
+                                                                            '%rate%':  calculatedTax.taxRate
+                                                                        })|sw_sanitize }}
+                                                                    {% endif %}
                                                                 </dt>
                                                             {% endblock %}
 

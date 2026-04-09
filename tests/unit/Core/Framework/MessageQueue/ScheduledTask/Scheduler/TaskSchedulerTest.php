@@ -19,6 +19,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\Envelope;
@@ -34,6 +35,7 @@ class TaskSchedulerTest extends TestCase
      * @param AggregationResult[] $aggregationResult
      */
     #[DataProvider('providerGetNextExecutionTime')]
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetNextExecutionTime(array $aggregationResult, ?\DateTime $time): void
     {
         $scheduledTaskRepository = $this->createMock(EntityRepository::class);
@@ -42,7 +44,8 @@ class TaskSchedulerTest extends TestCase
         $scheduler = new TaskScheduler(
             $scheduledTaskRepository,
             $this->createMock(MessageBusInterface::class),
-            new ParameterBag()
+            new ParameterBag(),
+            12
         );
 
         static::assertEquals(
@@ -89,7 +92,8 @@ class TaskSchedulerTest extends TestCase
         $scheduler = new TaskScheduler(
             $scheduledTaskRepository,
             $this->createMock(MessageBusInterface::class),
-            new ParameterBag()
+            new ParameterBag(),
+            12
         );
 
         static::assertSame(
@@ -134,7 +138,8 @@ class TaskSchedulerTest extends TestCase
         $scheduler = new TaskScheduler(
             $scheduledTaskRepository,
             $bus,
-            new ParameterBag()
+            new ParameterBag(),
+            12
         );
 
         $scheduler->queueScheduledTasks();
@@ -156,7 +161,7 @@ class TaskSchedulerTest extends TestCase
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$scheduledTask]));
         $scheduledTaskRepository->expects($this->once())->method('search')->willReturn($result);
-        $scheduledTaskRepository->expects($this->once())->method('update')->willReturnCallback(function (array $data, Context $context) {
+        $scheduledTaskRepository->expects($this->once())->method('update')->willReturnCallback(static function (array $data, Context $context) {
             static::assertCount(1, $data);
             $data = $data[0];
             static::assertArrayHasKey('id', $data);
@@ -175,7 +180,8 @@ class TaskSchedulerTest extends TestCase
             $bus,
             new ParameterBag([
                 'shopware.test.active' => false,
-            ])
+            ]),
+            12
         );
 
         $scheduler->queueScheduledTasks();
@@ -201,7 +207,7 @@ class TaskSchedulerTest extends TestCase
         $scheduledTaskRepository
             ->expects($this->once())
             ->method('update')
-            ->willReturnCallback(function (array $data, Context $context) use ($shouldSchedule) {
+            ->willReturnCallback(static function (array $data, Context $context) use ($shouldSchedule) {
                 static::assertCount(1, $data);
                 $data = $data[0];
                 static::assertArrayHasKey('status', $data);
@@ -214,7 +220,7 @@ class TaskSchedulerTest extends TestCase
             });
 
         $bus = $this->createMock(MessageBusInterface::class);
-        $bus->expects($shouldSchedule ? $this->once() : $this->never())->method('dispatch')->willReturnCallback(function ($message) {
+        $bus->expects($shouldSchedule ? $this->once() : $this->never())->method('dispatch')->willReturnCallback(static function ($message) {
             static::assertInstanceOf(TestScheduledTask::class, $message);
 
             return new Envelope($message);
@@ -223,7 +229,8 @@ class TaskSchedulerTest extends TestCase
         $scheduler = new TaskScheduler(
             $scheduledTaskRepository,
             $bus,
-            new ParameterBag(['shopware.test.active' => $shouldSchedule])
+            new ParameterBag(['shopware.test.active' => $shouldSchedule]),
+            12
         );
 
         $scheduler->queueScheduledTasks();
@@ -255,7 +262,8 @@ class TaskSchedulerTest extends TestCase
         $scheduler = new TaskScheduler(
             $scheduledTaskRepository,
             $this->createMock(MessageBusInterface::class),
-            new ParameterBag()
+            new ParameterBag(),
+            12
         );
 
         static::expectException(\RuntimeException::class);

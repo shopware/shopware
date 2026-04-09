@@ -203,7 +203,7 @@ class ImportExportActionControllerTest extends TestCase
         }
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        $result = array_map(fn ($mapping) => ['key' => $mapping['key'], 'mappedKey' => $mapping['mappedKey']], $content);
+        $result = array_map(static fn ($mapping) => ['key' => $mapping['key'], 'mappedKey' => $mapping['mappedKey']], $content);
         static::assertSame($expectedMapping, $result);
     }
 
@@ -351,7 +351,7 @@ class ImportExportActionControllerTest extends TestCase
         }
         $fileSystem->dumpFile($file, $content);
 
-        if (!empty($forceFileName)) {
+        if ($forceFileName !== '') {
             $fileName = $forceFileName;
         }
 

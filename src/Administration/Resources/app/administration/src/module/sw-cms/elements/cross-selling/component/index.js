@@ -26,6 +26,7 @@ export default {
     computed: {
         demoProductElement() {
             return {
+                type: 'product-box',
                 config: {
                     boxLayout: {
                         source: 'static',
@@ -201,6 +202,7 @@ export default {
 
         getProductEl(product) {
             return {
+                type: 'product-box',
                 config: {
                     boxLayout: {
                         source: 'static',

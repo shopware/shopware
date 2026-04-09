@@ -147,7 +147,17 @@
 
                     {% block sw_settings_customer_group_detail_content_registration_card_introduction %}
                     <sw-text-editor
+                        v-if="!feature.isActive('METEOR_TEXT_EDITOR')"
                         v-model:value="customerGroup.registrationIntroduction"
+                        :label="$tc('sw-settings-customer-group.registration.introduction')"
+                        :placeholder="placeholder(customerGroup, 'registrationIntroduction', $tc('sw-settings-customer-group.registration.placeholderIntroduction'))"
+                        :disabled="!acl.can('customer_groups.editor') || undefined"
+                        sanitize-input
+                        sanitize-field-name="customer_group_translation.registrationIntroduction"
+                    />
+                    <mt-text-editor
+                        v-else
+                        v-model="customerGroup.registrationIntroduction"
                         :label="$tc('sw-settings-customer-group.registration.introduction')"
                         :placeholder="placeholder(customerGroup, 'registrationIntroduction', $tc('sw-settings-customer-group.registration.placeholderIntroduction'))"
                         :disabled="!acl.can('customer_groups.editor') || undefined"

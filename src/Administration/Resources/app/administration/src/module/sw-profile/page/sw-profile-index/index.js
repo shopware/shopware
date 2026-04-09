@@ -23,6 +23,8 @@ export default {
         'searchPreferencesService',
         'searchRankingService',
         'userConfigService',
+        'ssoSettingsService',
+        'validationApiService',
     ],
 
     mixins: [
@@ -56,7 +58,13 @@ export default {
     },
 
     computed: {
-        searchPreferences: () => Shopware.Store.get('swProfile').searchPreferences,
+        minSearchTermLength() {
+            return Store.get('swProfile').minSearchTermLength;
+        },
+
+        searchPreferences() {
+            return Store.get('swProfile').searchPreferences;
+        },
 
         ...mapPropertyErrors('user', [
             'email',
@@ -236,25 +244,43 @@ export default {
 
         onSave() {
             if (this.$route.name === 'sw.profile.index.searchPreferences') {
-                this.saveUserSearchPreferences();
+                Promise.all([
+                    this.saveMinSearchTermLength(),
+                    this.saveUserSearchPreferences(),
+                ]);
 
                 return;
             }
 
-            if (this.checkEmail() === false) {
-                return;
-            }
+            this.ssoSettingsService.isSso().then(async (response) => {
+                if (response.isSso) {
+                    this.saveUser();
 
-            const passwordCheck = this.checkPassword();
+                    return;
+                }
 
-            if (passwordCheck === null || passwordCheck === true) {
-                this.confirmPasswordModal = true;
-            }
+                const isValid = await this.validationApiService.validateEmailAddress(this.user.email);
+
+                if (isValid) {
+                    const passwordCheck = this.checkPassword();
+                    if (passwordCheck === null || passwordCheck === true) {
+                        this.confirmPasswordModal = true;
+                    }
+
+                    return;
+                }
+
+                this.createErrorMessage(this.$t('sw-profile.index.notificationInvalidEmailErrorMessage'));
+            });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed.
+         * @returns {boolean}
+         */
         checkEmail() {
             if (!this.user.email || !email(this.user.email)) {
-                this.createErrorMessage(this.$tc('sw-profile.index.notificationInvalidEmailErrorMessage'));
+                this.createErrorMessage(this.$t('sw-profile.index.notificationInvalidEmailErrorMessage'));
 
                 return false;
             }
@@ -264,7 +290,7 @@ export default {
         checkPassword() {
             if (this.newPassword && this.newPassword.length > 0) {
                 if (this.newPassword !== this.newPasswordConfirm) {
-                    this.createErrorMessage(this.$tc('sw-profile.index.notificationPasswordErrorMessage'));
+                    this.createErrorMessage(this.$t('sw-profile.index.notificationPasswordErrorMessage'));
                     return false;
                 }
 
@@ -305,7 +331,7 @@ export default {
                             error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
                         });
                         this.createNotificationError({
-                            message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                            message: this.$t('sw-profile.index.notificationSaveErrorMessage'),
                         });
                         this.isLoading = false;
                         this.isSaveSuccessful = false;
@@ -390,7 +416,7 @@ export default {
         handleUserSaveError() {
             if (this.$route.name.includes('sw.profile.index')) {
                 this.createNotificationError({
-                    message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                    message: this.$t('sw-profile.index.notificationSaveErrorMessage'),
                 });
             }
             this.isLoading = false;
@@ -413,8 +439,11 @@ export default {
             return this.mediaDefaultFolderService.getDefaultFolderId('user');
         },
 
+        saveMinSearchTermLength() {
+            return this.searchRankingService.saveMinSearchTermLength(this.minSearchTermLength);
+        },
+
         saveUserSearchPreferences() {
-            // eslint-disable-next-line max-len
             this.userSearchPreferences =
                 this.userSearchPreferences ?? this.searchPreferencesService.createUserSearchPreferences();
             this.userSearchPreferences.value = this.searchPreferences.map(({ entityName, _searchable, fields }) => {

@@ -3,13 +3,11 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -40,7 +38,6 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
-#[CoversClass(CartOrderRoute::class)]
 #[Group('store-api')]
 #[Package('checkout')]
 class CartOrderRouteTest extends TestCase
@@ -86,39 +83,6 @@ class CartOrderRouteTest extends TestCase
         $this->taxProviderRepository = static::getContainer()->get('tax_provider.repository');
         $this->validSalutationId = $this->getValidSalutationId();
         $this->validCountryId = $this->getValidCountryId($this->ids->get('sales-channel'));
-
-        $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
-        $shippingMethodRepository->create([
-            [
-                'id' => $this->ids->get('shipping-method'),
-                'name' => 'test',
-                'technicalName' => 'test',
-                'active' => true,
-                'deliveryTimeId' => static::getContainer()->get('delivery_time.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId(),
-                'prices' => [
-                    [
-                        'currencyId' => Defaults::CURRENCY,
-                        'calculation' => 1,
-                        'quantityStart' => 1,
-                        'quantityEnd' => 100,
-                        'currencyPrice' => [
-                            [
-                                'gross' => 0,
-                                'net' => 0,
-                                'linked' => false,
-                                'currencyId' => Defaults::CURRENCY,
-                            ],
-                        ],
-                    ],
-                ],
-                'salesChannels' => [
-                    ['id' => $this->ids->get('sales-channel')],
-                ],
-                'salesChannelDefaultAssignments' => [
-                    ['id' => $this->ids->get('sales-channel')],
-                ],
-            ],
-        ], Context::createDefaultContext());
 
         $this->createTestData();
     }

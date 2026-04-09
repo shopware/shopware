@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -37,7 +38,7 @@ class TreeUpdater
     public function batchUpdate(array $updateIds, string $entity, Context $context, bool $recursive = false): void
     {
         $updateIds = Uuid::fromHexToBytesList(array_unique($updateIds));
-        if (empty($updateIds)) {
+        if ($updateIds === []) {
             return;
         }
 
@@ -165,7 +166,7 @@ class TreeUpdater
         $query->setParameter('id', $entity['id']);
         $this->makeQueryVersionAware($definition, Uuid::fromHexToBytes($context->getVersionId()), $query);
 
-        RetryableQuery::retryable($this->connection, function () use ($query): void {
+        RetryableQuery::retryable($this->connection, static function () use ($query): void {
             $query->executeStatement();
         });
     }
@@ -235,7 +236,8 @@ class TreeUpdater
 
         return $definition->getFields()
             ->filterInstance(TreePathField::class)
-            ->reduce(function (array $fields, TreePathField $field) {
+            /** @phpstan-ignore argument.type (Collection only contains `TreePathField`) */
+            ->reduce(static function (array $fields, TreePathField $field) {
                 if (!\in_array($field->getPathField(), $fields, true)) {
                     $fields[] = $field->getPathField();
                 }
@@ -289,7 +291,7 @@ class TreeUpdater
         } while ($parentIds !== [] && $levels >= 0);
 
         if ($levels <= 0) {
-            throw new \RuntimeException('Reached max depth, aborting');
+            throw DataAbstractionLayerException::treeUpdateError('Reached max depth, aborting');
         }
     }
 
@@ -300,7 +302,7 @@ class TreeUpdater
      */
     private function fetchByColumn(array $ids, EntityDefinition $definition, string $column, Context $context, TreeUpdaterBag $bag): array
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -327,7 +329,7 @@ class TreeUpdater
      */
     private function updateLevelRecursively(array $updateIds, EntityDefinition $definition, Context $context, TreeUpdaterBag $bag, bool $recursive): void
     {
-        if (empty($updateIds)) {
+        if ($updateIds === []) {
             return;
         }
 
@@ -356,7 +358,7 @@ class TreeUpdater
     private function updateEntity(array $entity, EntityDefinition $definition, ?TreePathField $pathField, ?TreeLevelField $levelField, Context $context, TreeUpdaterBag $bag): void
     {
         if ($pathField === null && $levelField) {
-            throw new \RuntimeException('`TreePathField` or `TreeLevelField` required.');
+            throw DataAbstractionLayerException::treeUpdateError('`TreePathField` or `TreeLevelField` required.');
         }
 
         if ($bag->alreadyUpdated($entity['id'])) {
@@ -403,7 +405,7 @@ class TreeUpdater
 
         RetryableQuery::retryable(
             connection: $this->connection,
-            closure: function () use ($statement, $update): void {
+            closure: static function () use ($statement, $update): void {
                 StatementHelper::executeStatement($statement, $update);
             }
         );

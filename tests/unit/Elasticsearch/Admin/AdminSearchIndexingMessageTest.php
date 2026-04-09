@@ -12,7 +12,7 @@ use Shopware\Elasticsearch\Admin\AdminSearchIndexingMessage;
  *     string,
  *     string,
  *     array<string, string>,
- *     array<string>
+ *     list<string>
  * }
  *
  * @internal
@@ -64,5 +64,18 @@ class AdminSearchIndexingMessageTest extends TestCase
             ['product', 'product-listing', ['sw-admin-product-listing' => 'sw-admin-product-listing_12345'], ['c2b39887227e5542b3319fc4071fd451']],
             false,
         ];
+    }
+
+    public function testGetToRemoveIds(): void
+    {
+        $message = new AdminSearchIndexingMessage(
+            'product',
+            'product-listing',
+            ['sw-admin-product-listing' => 'sw-admin-product-listing_12345'],
+            ['c1a28776116d4431a2208eb2960ec340'],
+            ['deadbeefdeadbeefdeadbeefdeadbeef']
+        );
+
+        static::assertSame(['deadbeefdeadbeefdeadbeefdeadbeef'], $message->getToRemoveIds());
     }
 }

@@ -62,6 +62,7 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
                 overwrites: {
                     active: false,
                     mainVariantId: null,
+                    canonicalProductId: null,
                     name: 'shirt global.default.copy',
                     productNumber: 250,
                     variantListingConfig: {

@@ -159,7 +159,6 @@
                             :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
                             placeholder="∞"
                             :name="`${item.ruleId}-${item.quantityStart}-quantityEnd`"
-                            :min="item.quantityStart"
                             :max="priceGroup.prices[itemIndex + 1] ? priceGroup.prices[itemIndex + 1].quantityStart - 1 : null"
                             :size="compact ? 'small' : 'default'"
                             :disabled="!acl.can('product.editor')"

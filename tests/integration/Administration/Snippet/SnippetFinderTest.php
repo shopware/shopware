@@ -5,12 +5,14 @@ namespace Shopware\Tests\Integration\Administration\Snippet;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem as Flysystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetFinder;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\DataTransfer\SnippetPath\SnippetPath;
 use Shopware\Core\System\Snippet\DataTransfer\SnippetPath\SnippetPathCollection;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
@@ -23,7 +25,6 @@ use Symfony\Component\Finder\SplFileInfo;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(SnippetFinder::class)]
 class SnippetFinderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -41,13 +42,14 @@ class SnippetFinderTest extends TestCase
             static::getContainer()->get(Connection::class),
             $flySystem,
             $configLoader->load(),
-            $this->createMock(TranslationLoader::class),
+            static::getContainer()->get(TranslationLoader::class),
+            static::getContainer()->get(HtmlSanitizer::class),
         );
     }
 
     public function testValidSnippetMergeWithOnlySameLanguageFiles(): void
     {
-        $actual = $this->getResultSnippetsByCase('caseSameLanguage', 'de-DE');
+        $actual = $this->getResultSnippetsByCase('caseSameLanguage', 'de');
 
         $expected = [
             'test' => [
@@ -73,7 +75,7 @@ class SnippetFinderTest extends TestCase
 
     public function testValidSnippetMergeWithDifferentLanguageFiles(): void
     {
-        $actual = $this->getResultSnippetsByCase('caseDifferentLanguages', 'de-DE');
+        $actual = $this->getResultSnippetsByCase('caseDifferentLanguages', 'de');
 
         $expected = [
             'test' => [
@@ -94,8 +96,8 @@ class SnippetFinderTest extends TestCase
 
     public function testValidSnippetMergeWithMultipleLanguageFiles(): void
     {
-        $actualDe = $this->getResultSnippetsByCase('caseMultipleSameAndDifferentLanguages', 'de-DE');
-        $actualEn = $this->getResultSnippetsByCase('caseMultipleSameAndDifferentLanguages', 'en-GB');
+        $actualDe = $this->getResultSnippetsByCase('caseMultipleSameAndDifferentLanguages', 'de');
+        $actualEn = $this->getResultSnippetsByCase('caseMultipleSameAndDifferentLanguages', 'en');
 
         $expectedDe = [
             'test' => [
@@ -139,6 +141,52 @@ class SnippetFinderTest extends TestCase
         static::assertEquals($expectedEn, $actualEn);
     }
 
+    public function testSnippetFinderSanitizesAppSnippets(): void
+    {
+        $this->createAppWithMalformedSnippet();
+        $snippets = $this->snippetFinder->findSnippets('en-GB');
+
+        $actualSnippet = $snippets['theme']['label'];
+        static::assertSame('<h1>This app</h1> is really <b>safe</b>!)', $actualSnippet);
+    }
+
+    private function createAppWithMalformedSnippet(): void
+    {
+        $context = Context::createDefaultContext();
+        static::getContainer()->get('app.repository')->create([
+            [
+                'id' => $id = Uuid::randomHex(),
+                'name' => 'Test app',
+                'active' => true,
+                'appVersion' => '1.0.0',
+                'author' => 'Shopware AG',
+                'label' => [
+                    'en-GB' => 'Test App',
+                ],
+                'path' => 'path',
+                'version' => '1.0.0',
+                'integration' => [
+                    'id' => Uuid::randomHex(),
+                    'label' => 'Test app Integration',
+                    'accessKey' => Uuid::randomHex(),
+                    'secretAccessKey' => Uuid::randomHex(),
+                ],
+                'aclRole' => [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'Test app ACL Role',
+                ],
+            ],
+        ], $context);
+
+        static::getContainer()->get('app_administration_snippet.repository')->create([
+            [
+                'appId' => $id,
+                'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                'value' => '{"theme":{"label":"<script>alert(\"xss attack\");</script><h1>This app</h1> is really <b>safe</b>!)"}}',
+            ],
+        ], $context);
+    }
+
     private function getSnippetFilePathsOfFixtures(string $folder, string $namePattern): SnippetPathCollection
     {
         $finder = (new Finder())
@@ -147,7 +195,7 @@ class SnippetFinderTest extends TestCase
             ->ignoreUnreadableDirs()
             ->name($namePattern);
 
-        $fileArray = array_map(fn (SplFileInfo $file) => $file->getRealPath(), \iterator_to_array($finder->getIterator()));
+        $fileArray = array_map(static fn (SplFileInfo $file) => $file->getRealPath(), \iterator_to_array($finder->getIterator()));
         $fileArray = $this->ensureFileOrder(\array_values($fileArray));
 
         $files = new SnippetPathCollection();
@@ -161,13 +209,12 @@ class SnippetFinderTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function getResultSnippetsByCase(string $folder, string $locale): array
+    private function getResultSnippetsByCase(string $folder, string $localeInFilename): array
     {
-        $files = $this->getSnippetFilePathsOfFixtures($folder, '/' . $locale . '.json/');
+        $files = $this->getSnippetFilePathsOfFixtures($folder, '/' . $localeInFilename . '.json/');
 
         $reflectionClass = new \ReflectionClass(SnippetFinder::class);
         $reflectionMethod = $reflectionClass->getMethod('parseFiles');
-        $reflectionMethod->setAccessible(true);
 
         return $reflectionMethod->invoke(
             $this->snippetFinder,

@@ -1,11 +1,3 @@
-/* stylelint-disable max-nesting-depth */
-@import "~scss/variables";
-@import "~scss/mixins";
-
-$sw-tree-item-color-border: $color-gray-300;
-$sw-tree-item-color-background: $color-gray-50;
-$sw-tree-item-color-text: $color-darkgray-200;
-
 .sw-tree-item {
     &.is--dragging {
         user-select: none;
@@ -13,7 +5,7 @@ $sw-tree-item-color-text: $color-darkgray-200;
 
         .sw-tree-item__element {
             background: transparent;
-            border: 1px dashed $sw-tree-item-color-border;
+            border: 1px dashed var(--color-border-secondary-default);
 
             .sw-tree-item__leaf,
             .sw-tree-item__toggle,
@@ -28,8 +20,8 @@ $sw-tree-item-color-text: $color-darkgray-200;
 
         .sw-tree-item__children {
             .sw-tree-item__element {
-                border-bottom: 1px dashed $sw-tree-item-color-border;
-                border-left: 1px dashed $sw-tree-item-color-border;
+                border-bottom: 1px dashed var(--color-border-secondary-default);
+                border-left: 1px dashed var(--color-border-secondary-default);
                 border-top: 0 none;
 
                 &::before {
@@ -42,12 +34,11 @@ $sw-tree-item-color-text: $color-darkgray-200;
     &.is--drag-element {
         user-select: none;
         pointer-events: none;
-        background: $color-white;
-        box-shadow: 0 0 5px 1px $color-shopware-brand-500;
+        box-shadow: 0 0 5px 1px var(--color-border-brand-default);
 
         .sw-tree-item__child-count {
-            background: $color-shopware-brand-500;
-            color: $color-white;
+            background: var(--color-background-brand-default);
+            color: var(--color-text-primary-inverse);
         }
 
         .sw-tree-item__actions {
@@ -69,52 +60,65 @@ $sw-tree-item-color-text: $color-darkgray-200;
 
     &.is--no-checkbox {
         .sw-tree-item__element {
-            grid-template-columns: 30px 0 20px auto 50px;
+            grid-template-columns: var(--scale-size-30) 0 var(--scale-size-20) auto var(--scale-size-64);
         }
     }
 
     .sw-tree-item__element {
-        height: 42px;
+        height: var(--scale-size-42);
         display: grid;
-        grid-template-columns: 30px 24px 20px auto 50px;
-        grid-column-gap: 2px;
+        grid-template-columns: var(--scale-size-30) var(--scale-size-24) var(--scale-size-20) auto var(--scale-size-64);
+        grid-column-gap: var(--scale-size-2);
         align-items: center;
         align-content: center;
         padding: 0;
-        font-size: $font-size-xs;
-        color: $sw-tree-item-color-text;
-        border-radius: $border-radius-default;
+        font-size: var(--font-size-xs);
+        line-height: var(--line-height-xs);
+        color: var(--color-text-primary-default);
+        border-radius: var(--border-radius-xs);
 
         &:hover {
-            background: $sw-tree-item-color-background;
+            background: var(--color-background-brand-default);
 
             .sw-tree-item__icon,
             .sw-tree-item__content {
-                color: $color-shopware-brand-500;
+                color: var(--color-text-brand-default);
             }
         }
     }
 
     &.is--active {
         > .sw-tree-item__element {
-            background: $sw-tree-item-color-background;
+            background: var(--color-background-brand-default);
 
             .sw-tree-item__icon,
             .sw-tree-item__content {
-                color: $color-shopware-brand-500;
+                color: var(--color-interaction-primary-pressed);
             }
         }
     }
 
     &.is--marked-inactive {
+        &:hover {
+            cursor: not-allowed;
+
+            .sw-tree-item__icon {
+                color: var(--color-icon-primary-disabled);
+            }
+        }
+
         .sw-tree-item__label {
-            color: lighten($color-darkgray-200, 30);
+            color: var(--color-text-primary-disabled);
+        }
+
+        .sw-tree-item__icon {
+            color: var(--color-icon-primary-disabled);
         }
     }
 
     &.is--focus {
         > .sw-tree-item__element {
-            background-color: lighten($color-shopware-brand-500, 40);
+            background: var(--color-background-brand-default);
         }
     }
 
@@ -122,16 +126,16 @@ $sw-tree-item-color-text: $color-darkgray-200;
         outline: 0;
 
         > .sw-tree-item__element {
-            box-shadow: inset 0 0 0 2px $color-shopware-brand-500;
+            box-shadow: inset 0 0 0 2px var(--color-border-brand-default);
             outline: 0;
         }
     }
 
     &.is--highlighted > .sw-tree-item__element {
         .sw-tree-item__label {
-            background-color: $color-gray-100;
-            padding: 1px 3px;
-            border-radius: $border-radius-default;
+            background-color: var(--color-background-tertiary-default);
+            padding: var(--scale-size-4) var(--scale-size-6);
+            border-radius: var(--border-radius-xs);
         }
     }
 
@@ -142,11 +146,11 @@ $sw-tree-item-color-text: $color-darkgray-200;
             }
 
             .sw-tree-item__label {
-                color: $color-gray-500;
+                color: var(--color-text-primary-disabled);
             }
 
             .sw-tree-item__icon {
-                color: $color-gray-500;
+                color: var(--color-icon-primary-disabled);
             }
         }
     }
@@ -156,28 +160,23 @@ $sw-tree-item-color-text: $color-darkgray-200;
         align-items: center;
         width: 100%;
         height: 100%;
-        line-height: $line-height-sm;
         text-align: center;
         position: relative;
         cursor: pointer;
         user-select: none;
+        margin-left: var(--scale-size-4);
 
         .sw-loader {
             background: none;
         }
 
         .icon--regular-chevron-down-xxs {
-            padding: 7px;
+            padding: var(--scale-size-8);
         }
 
         .icon--regular-chevron-right-xxs {
-            padding: 6px 7px 8px 9px;
+            padding: var(--scale-size-8);
         }
-    }
-
-    .sw-tree-item__icon {
-        width: 45px;
-        height: 22px;
     }
 
     .sw-tree-item__content {
@@ -189,34 +188,21 @@ $sw-tree-item-color-text: $color-darkgray-200;
 
     .sw-tree-item__actions {
         text-align: right;
-        margin-left: 4px;
+        margin-right: var(--scale-size-8);
 
-        .sw-context-button__button {
-            padding: 0 6px;
-
-            .mt-icon {
-                width: 18px;
-                height: 18px;
-            }
-        }
-
-        .mt-button {
-            width: 100%;
-            height: 26px;
-            padding: 2px 8px;
-            font-size: $font-size-xs;
-            line-height: 19px;
+        .mt-icon {
+            margin-right: var(--scale-size-4);
         }
     }
 
     .sw-tree-item__children {
         position: relative;
-        padding-left: 24px;
+        padding-left: var(--scale-size-24);
 
         .sw-tree-item {
             &.is--no-children > .sw-tree-item__element {
                 &::before {
-                    width: 35px;
+                    width: var(--scale-size-36);
                 }
             }
 
@@ -227,7 +213,7 @@ $sw-tree-item-color-text: $color-darkgray-200;
             }
 
             .sw-tree-item__children {
-                border-left: 1px solid $color-gray-300;
+                border-left: 1px solid var(--color-border-secondary-default);
             }
         }
     }
@@ -237,16 +223,7 @@ $sw-tree-item-color-text: $color-darkgray-200;
         align-items: center;
 
         .icon--regular-circle-xxs {
-            margin-left: 3px;
-
-            @include size(8px);
-        }
-    }
-
-    &__content {
-        .icon--regular-times-xs,
-        .icon--regular-checkmark-xxs {
-            @include size(8px);
+            margin-left: var(--scale-size-4);
         }
     }
 
@@ -264,24 +241,17 @@ $sw-tree-item-color-text: $color-darkgray-200;
 }
 
 .sw-tree-item__element {
-    height: 42px;
+    height: var(--scale-size-42);
     display: grid;
-    color: $sw-tree-item-color-text;
-    grid-template-columns: 30px 24px 20px auto 50px;
-    grid-column-gap: 2px;
+    grid-template-columns: var(--scale-size-30) var(--scale-size-24) var(--scale-size-20) auto var(--scale-size-64);
+    grid-column-gap: var(--scale-size-2);
     align-items: center;
     align-content: center;
     padding: 0;
-    font-size: $font-size-xs;
-
-    &:hover {
-        background: $sw-tree-item-color-background;
-
-        .sw-tree-item__icon,
-        .sw-tree-item__content {
-            color: $color-shopware-brand-500;
-        }
-    }
+    font-size: var(--font-size-xs);
+    line-height: var(--line-height-xs);
+    color: var(--color-text-primary-default);
+    border-radius: var(--border-radius-xs);
 
     .sw-tree-item__content {
         .tree-link {
@@ -289,11 +259,11 @@ $sw-tree-item-color-text: $color-darkgray-200;
             text-overflow: ellipsis;
             color: inherit;
             text-decoration: inherit;
-            padding: 12px 0;
+            padding: var(--scale-size-12) 0;
             display: block;
 
             &:focus {
-                box-shadow: inset 0 0 0 2px $color-shopware-brand-500;
+                box-shadow: inset 0 0 0 2px var(--color-border-brand-default);
                 outline: none;
             }
         }
@@ -302,12 +272,12 @@ $sw-tree-item-color-text: $color-darkgray-200;
     &.is--drag-element {
         user-select: none;
         pointer-events: none;
-        background: $color-white;
-        box-shadow: 0 0 5px 1px $color-shopware-brand-500;
+        background: var(--color-background-primary-default);
+        box-shadow: 0 0 5px 1px var(--color-border-brand-default);
 
         .sw-tree-item__child-count {
-            background: $color-shopware-brand-500;
-            color: $color-white;
+            background: var(--color-background-brand-default);
+            color: var(--color-text-primary-inverse);
         }
 
         .sw-tree-item__actions {
@@ -319,11 +289,11 @@ $sw-tree-item-color-text: $color-darkgray-200;
         }
 
         .icon--regular-chevron-down-xxs {
-            padding: 7px;
+            padding: var(--scale-size-8);
         }
 
         .icon--regular-chevron-right-xxs {
-            padding: 6px 7px 8px 9px;
+            padding: var(--scale-size-8);
         }
     }
 
@@ -336,16 +306,16 @@ $sw-tree-item-color-text: $color-darkgray-200;
     }
 
     .sw-tree-item__child-count {
-        width: 20px;
-        height: 20px;
-        padding: 2px 6px;
-        margin-left: 10px;
-        line-height: $line-height-sm;
-        font-size: $font-size-xxs;
+        width: var(--scale-size-20);
+        height: var(--scale-size-20);
+        padding: var(--scale-size-4) var(--scale-size-8);
+        margin-left: var(--scale-size-12);
+        background: var(--color-background-secondary-default);
+        border-radius: var(--border-radius-xs);
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-2xs);
+        line-height: var(--font-line-height-2xs);
         text-align: center;
-        border-radius: $border-radius-default;
-        background: $color-gray-100;
-        color: $color-darkgray-200;
     }
 
     .sw-field--checkbox {

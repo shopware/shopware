@@ -131,10 +131,11 @@
         </sw-card-view>
 
         {% block sw_bulk_edit_order_empty_state %}
-        <sw-empty-state
+        <mt-empty-state
             v-if="selectedIds.length <= 0 && !isLoading"
-            :title="$tc('sw-bulk-edit.order.messageEmptyTitle')"
-            :subline="$tc('sw-bulk-edit.order.messageEmptySubline')"
+            :icon="$route.meta.$module.icon"
+            :headline="$tc('sw-bulk-edit.order.messageEmptyTitle')"
+            :description="$tc('sw-bulk-edit.order.messageEmptySubline')"
         />
         {% endblock %}
 

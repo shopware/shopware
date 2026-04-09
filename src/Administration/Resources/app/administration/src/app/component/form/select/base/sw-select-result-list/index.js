@@ -71,7 +71,6 @@ export default {
         popoverResizeWidth: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -236,7 +235,7 @@ export default {
         },
 
         onScroll(event) {
-            if (this.getBottomDistance(event.target) > 0) {
+            if (Math.floor(this.getBottomDistance(event.target)) > 0) {
                 return;
             }
 

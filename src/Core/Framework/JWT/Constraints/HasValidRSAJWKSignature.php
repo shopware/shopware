@@ -11,6 +11,8 @@ use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Validator;
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Math\BigInteger;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\JWT\JWTException;
 use Shopware\Core\Framework\JWT\Struct\JWKCollection;
@@ -33,6 +35,7 @@ final readonly class HasValidRSAJWKSignature implements Constraint
     {
         $this->validateAlgorithm($token);
         $key = $this->getValidKey($token);
+        /** @var non-empty-string $pem */
         $pem = $this->convertToPem($key);
 
         $signer = $this->getSigner($token->headers()->get('alg'));
@@ -68,26 +71,16 @@ final readonly class HasValidRSAJWKSignature implements Constraint
         throw JWTException::invalidJwt('Key ID (kid) could not be found');
     }
 
-    /**
-     * @return non-empty-string
-     */
     private function convertToPem(JWKStruct $key): string
     {
         if ($key->kty !== 'RSA') {
             throw JWTException::invalidJwt(\sprintf('Invalid key type: "%s"', $key->kty));
         }
 
-        $modulus = $this->base64UrlDecode($key->n);
-        $exponent = $this->base64UrlDecode($key->e);
-
-        $modulus = pack('Ca*a*', 2, $this->getLength($modulus), $modulus);
-        $exponent = pack('Ca*a*', 2, $this->getLength($exponent), $exponent);
-
-        $rsaPublicKey = pack('Ca*a*a*', 48, $this->getLength($modulus . $exponent), $modulus, $exponent);
-        $rsaPublicKey = base64_encode($rsaPublicKey);
-        $rsaPublicKey = chunk_split($rsaPublicKey, 64);
-
-        return "-----BEGIN RSA PUBLIC KEY-----\n" . $rsaPublicKey . "-----END RSA PUBLIC KEY-----\n";
+        return (string) PublicKeyLoader::load([
+            'e' => new BigInteger($this->base64UrlDecode($key->e), 256),
+            'n' => new BigInteger($this->base64UrlDecode($key->n), 256),
+        ]);
     }
 
     private function base64UrlDecode(string $data): string
@@ -102,22 +95,6 @@ final readonly class HasValidRSAJWKSignature implements Constraint
         }
 
         return $decoded;
-    }
-
-    private function getLength(string $data): string
-    {
-        $length = \strlen($data);
-        if ($length < 128) {
-            return \chr($length);
-        }
-
-        $lengthBytes = '';
-        while ($length > 0) {
-            $lengthBytes = \chr($length & 0xFF) . $lengthBytes;
-            $length >>= 8;
-        }
-
-        return \chr(0x80 | \strlen($lengthBytes)) . $lengthBytes;
     }
 
     private function getSigner(string $alg): Rsa

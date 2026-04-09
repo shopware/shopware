@@ -11,8 +11,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\CustomerGroupAdminSearchIndexer;
@@ -33,6 +37,30 @@ class CustomerGroupAdminSearchIndexerTest extends TestCase
             $this->createMock(EntityRepository::class),
             100
         );
+    }
+
+    public function testGetUpdatedIds(): void
+    {
+        $indexer = new CustomerGroupAdminSearchIndexer(
+            $this->createMock(Connection::class),
+            $this->createMock(IteratorFactory::class),
+            $this->createMock(EntityRepository::class),
+            100
+        );
+
+        $cgId = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('customer_group_translation', [
+                    new EntityWriteResult(['customerGroupId' => $cgId], ['name' => 'VIP'], 'customer_group', EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        static::assertSame([$cgId], $indexer->getUpdatedIds($event));
     }
 
     public function testGetEntity(): void

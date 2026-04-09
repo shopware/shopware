@@ -7,7 +7,7 @@
     ></div>
 
     <sw-text-editor
-        v-else
+        v-else-if="!feature.isActive('METEOR_TEXT_EDITOR')"
         v-model:value="element.config.content.value"
         :disabled="disabled"
         :vertical-align="element.config.verticalAlign.value"
@@ -18,6 +18,13 @@
         enable-transparent-background
         @blur="onBlur"
         @update:value="onInput"
+    />
+    <mt-text-editor
+        v-else
+        :model-value="element.config.content.value"
+        :custom-buttons="customTextEditorButtons"
+        is-inline-edit
+        @update:model-value="onInput"
     />
 </div>
 {% endblock %}

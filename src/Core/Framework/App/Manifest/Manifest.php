@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Manifest;
 
+use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
@@ -23,6 +24,8 @@ use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @phpstan-import-type SourceConfig from AppDefinition
  */
 #[Package('framework')]
 class Manifest
@@ -34,13 +37,17 @@ class Manifest
     private ?string $sourceType = null;
 
     /**
-     * @var array<string, string|null>
+     * @var SourceConfig
      */
     private array $sourceConfig = [];
 
     private function __construct(
         private string $path,
         private readonly bool $validatesPermissions,
+        /**
+         * @var list<string> list of requirements
+         */
+        private readonly array $requirements,
         private readonly Metadata $metadata,
         private readonly ?Setup $setup,
         private readonly ?Admin $admin,
@@ -107,6 +114,14 @@ class Manifest
     public function validatesPermissions(): bool
     {
         return $this->validatesPermissions;
+    }
+
+    /**
+     * @return list<string> list of requirements.
+     */
+    public function getRequirements(): array
+    {
+        return $this->requirements;
     }
 
     public function getMetadata(): Metadata
@@ -216,7 +231,7 @@ class Manifest
             $urls = \array_merge($urls, $this->tax->getUrls());
         }
 
-        $urls = \array_map(fn (string $url) => (string) \parse_url($url, \PHP_URL_HOST), $urls);
+        $urls = \array_map(static fn (string $url) => (string) \parse_url($url, \PHP_URL_HOST), $urls);
 
         return \array_values(\array_unique(\array_merge($hosts, $urls)));
     }
@@ -247,7 +262,7 @@ class Manifest
     }
 
     /**
-     * @return array<string, string|null>
+     * @return SourceConfig
      */
     public function getSourceConfig(): array
     {
@@ -255,7 +270,7 @@ class Manifest
     }
 
     /**
-     * @param array<string, string|null> $sourceConfig
+     * @param SourceConfig $sourceConfig
      */
     public function setSourceConfig(array $sourceConfig): void
     {
@@ -270,6 +285,8 @@ class Manifest
 
             $validatesPermissions = $manifest->hasAttribute('validates-permissions')
                 && XmlUtils::phpize($manifest->getAttribute('validates-permissions')) === true;
+
+            $requirements = self::buildRequirements($doc);
 
             $meta = $doc->getElementsByTagName('meta')->item(0);
             \assert($meta !== null);
@@ -307,6 +324,7 @@ class Manifest
         return new self(
             \dirname($xmlFile),
             $validatesPermissions,
+            $requirements,
             $metadata,
             $setup,
             $admin,
@@ -322,5 +340,27 @@ class Manifest
             $shippingMethods,
             $gateways
         );
+    }
+
+    /**
+     * @return list<string> list of requirements
+     */
+    private static function buildRequirements(\DOMDocument $doc): array
+    {
+        $requirementsElement = $doc->getElementsByTagName('requirements')->item(0);
+        if ($requirementsElement === null) {
+            return [];
+        }
+
+        $requirements = [];
+
+        // Presence of child elements indicates the requirement is enabled
+        foreach ($requirementsElement->childNodes as $node) {
+            if ($node instanceof \DOMElement) {
+                $requirements[] = $node->tagName;
+            }
+        }
+
+        return $requirements;
     }
 }

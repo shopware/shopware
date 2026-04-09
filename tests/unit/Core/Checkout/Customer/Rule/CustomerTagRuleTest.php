@@ -70,7 +70,7 @@ class CustomerTagRuleTest extends TestCase
         static::assertArrayHasKey('operator', $constraints, 'operator constraints not found');
 
         static::assertEquals(new ArrayOfUuid(), $constraints['identifiers'][1]);
-        static::assertEquals(new Choice($operators), $constraints['operator'][1]);
+        static::assertEquals(new Choice(choices: $operators), $constraints['operator'][1]);
     }
 
     /**

@@ -3,7 +3,9 @@
 namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -23,6 +25,9 @@ class MediaIndexer extends EntityIndexer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $repository
+     * @param EntityRepository<MediaThumbnailCollection> $thumbnailRepository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,
@@ -49,7 +54,7 @@ class MediaIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -64,7 +69,7 @@ class MediaIndexer extends EntityIndexer
 
         $updates = $event->getPrimaryKeys(MediaDefinition::ENTITY_NAME);
 
-        if (empty($updates)) {
+        if ($updates === []) {
             return null;
         }
 
@@ -82,8 +87,8 @@ class MediaIndexer extends EntityIndexer
             return;
         }
 
-        $ids = array_unique(array_filter($ids));
-        if (empty($ids)) {
+        $ids = array_values(array_unique(array_filter($ids)));
+        if ($ids === []) {
             return;
         }
 
@@ -110,7 +115,7 @@ class MediaIndexer extends EntityIndexer
             ]);
         }
 
-        $this->eventDispatcher->dispatch(new MediaIndexerEvent($ids, $context, $message->getSkip()));
+        $this->eventDispatcher->dispatch(new MediaIndexerEvent($ids, $context, array_values($message->getSkip())));
     }
 
     public function getTotal(): int

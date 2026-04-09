@@ -65,7 +65,7 @@ class CacheTagCollector
 
         $tags = array_diff($tags, array_keys($existingTags));
 
-        if (empty($tags)) {
+        if ($tags === []) {
             return;
         }
 

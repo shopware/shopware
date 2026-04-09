@@ -1,5 +1,3 @@
-import type { ACTION } from '../constant/flow.constant';
-
 /**
  * @sw-package after-sales
  */
@@ -25,7 +23,7 @@ type EntityActions =
     | 'SET_CUSTOMER_GROUP_CUSTOM_FIELD'
     | 'ADD_CUSTOMER_AFFILIATE_AND_CAMPAIGN_CODE';
 
-type EntityActionName = (typeof ACTION)[EntityActions];
+type EntityActionName = (typeof Shopware.Constants.FLOW.ACTION)[EntityActions];
 
 const swFlowStore = Shopware.Store.register('swFlow', {
     state: () => ({
@@ -201,6 +199,7 @@ const swFlowStore = Shopware.Store.register('swFlow', {
 
         setFlow(flow: Flow & { config?: Flow }) {
             this.flow = flow;
+
             if (flow.config) {
                 this.flow.description = flow.config.description;
                 this.flow.sequences = flow.config.sequences;
@@ -209,10 +208,27 @@ const swFlowStore = Shopware.Store.register('swFlow', {
         },
 
         setOriginFlow(flow: Flow) {
-            this.originFlow = {
-                ...flow,
-                sequences: flow.sequences?.map((item) => ({ ...item })) as Sequences,
-            } as Flow;
+            const clonedFlow = Shopware.Utils.object.cloneDeep(flow);
+
+            if (!flow.sequences) {
+                this.originFlow = clonedFlow;
+                return;
+            }
+
+            const sequences = new EntityCollection(
+                flow.sequences.source,
+                flow.sequences.entity,
+                Shopware.Context.api,
+                null,
+                [],
+            );
+
+            flow.sequences.forEach((item) => {
+                sequences.add(Shopware.Utils.object.cloneDeep(item) as Sequence);
+            });
+
+            clonedFlow.sequences = sequences;
+            this.originFlow = clonedFlow;
         },
 
         setEventName(eventName: string) {

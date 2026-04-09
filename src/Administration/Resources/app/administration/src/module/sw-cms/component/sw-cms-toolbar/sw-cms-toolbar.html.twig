@@ -34,5 +34,15 @@
         </slot>
     </div>
     {% endblock %}
+
+    {% block sw_cms_toolbar_sidebar %}
+    <div class="sw-cms-toolbar__sidebar">
+        <slot name="sidebar">
+            {% block sw_cms_toolbar_slot_sidebar %}
+            <sw-app-topbar-sidebar />
+            {% endblock %}
+        </slot>
+    </div>
+    {% endblock %}
 </div>
 {% endblock %}

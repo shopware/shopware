@@ -29,6 +29,15 @@ async function createWrapper() {
                     'sw-product-variant-info': true,
                     'sw-select-result': true,
                     'sw-select-field': true,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
+                    },
                 },
                 provide: {
                     cmsService: {
@@ -36,7 +45,20 @@ async function createWrapper() {
                             return {};
                         },
                         getCmsElementRegistry: () => {
-                            return { 'product-description-reviews': {} };
+                            return {
+                                'product-description-reviews': {
+                                    defaultConfig: {
+                                        product: {
+                                            source: 'static',
+                                            value: null,
+                                        },
+                                        alignment: {
+                                            source: 'static',
+                                            value: null,
+                                        },
+                                    },
+                                },
+                            };
                         },
                     },
                     repositoryFactory: {
@@ -51,6 +73,7 @@ async function createWrapper() {
             },
             props: {
                 element: {
+                    type: 'product-description-reviews',
                     config: {},
                     data: {},
                 },

@@ -71,6 +71,10 @@ describe('module/sw-cms/elements/product-name/component', () => {
                         source: 'static',
                         value: 'Sample Product',
                     },
+                    verticalAlign: {
+                        source: 'static',
+                        value: null,
+                    },
                 },
                 translated: {
                     config: {

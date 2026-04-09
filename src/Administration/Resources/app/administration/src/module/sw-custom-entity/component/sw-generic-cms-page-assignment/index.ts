@@ -214,7 +214,6 @@ export default Shopware.Component.wrapComponentConfig({
                             if (configField.entity) {
                                 delete configField.entity;
                             }
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                             if (configField.hasOwnProperty('required')) {
                                 delete configField.required;
                             }

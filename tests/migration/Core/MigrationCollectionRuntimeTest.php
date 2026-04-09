@@ -260,7 +260,12 @@ class MigrationCollectionRuntimeTest extends TestCase
 
     public function testIgnoringInvalidMigrations(): void
     {
+        $invalidMigration = 'WrongClass';
+
         $logger = $this->createMock(Logger::class);
+        $logger->expects($this->once())
+            ->method('notice')
+            ->with(\sprintf('Migration "%s" does not exist. Ignoring it', $invalidMigration));
 
         $connection = $this->createMock(Connection::class);
 
@@ -272,7 +277,7 @@ class MigrationCollectionRuntimeTest extends TestCase
         $queryBuilder->method('andWhere')->willReturn($queryBuilder);
 
         $statement = $this->createMock(Result::class);
-        $statement->method('fetchFirstColumn')->willReturn(['WrongClass']);
+        $statement->method('fetchFirstColumn')->willReturn([$invalidMigration]);
 
         $queryBuilder->method('executeQuery')->willReturn($statement);
 
@@ -285,7 +290,8 @@ class MigrationCollectionRuntimeTest extends TestCase
         /** @var MigrationSource $source */
         $source = static::getContainer()->get(MigrationSource::class . '.core');
 
-        iterator_to_array($runtime->migrate($source), true);
+        $migrations = iterator_to_array($runtime->migrate($source), true);
+        static::assertCount(0, $migrations);
     }
 
     /**

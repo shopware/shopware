@@ -197,7 +197,7 @@ class ThemeController extends AbstractController
 
         $themeConfigException = new ThemeConfigException();
 
-        foreach ($fields as $key => $data) {
+        foreach ($fields as $data) {
             // if no type is set just use the value and continue
             if (!isset($data['type'])) {
                 continue;

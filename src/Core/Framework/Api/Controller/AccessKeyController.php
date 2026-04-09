@@ -8,13 +8,19 @@ use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('fundamentals@framework')]
 class AccessKeyController extends AbstractController
 {
-    #[Route(path: '/api/_action/access-key/intergration', name: 'api.action.access-key.integration', methods: ['GET'], defaults: ['_acl' => ['api_action_access-key_integration']])]
+    #[Route(
+        path: '/api/_action/access-key/intergration',
+        name: 'api.action.access-key.integration',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_action_access-key_integration']],
+        methods: [Request::METHOD_GET]
+    )]
     public function generateIntegrationKey(): JsonResponse
     {
         return new JsonResponse([
@@ -23,7 +29,11 @@ class AccessKeyController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_action/access-key/user', name: 'api.action.access-key.user', methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/access-key/user',
+        name: 'api.action.access-key.user',
+        methods: [Request::METHOD_GET]
+    )]
     public function generateUserKey(): JsonResponse
     {
         return new JsonResponse([
@@ -32,7 +42,11 @@ class AccessKeyController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_action/access-key/sales-channel', name: 'api.action.access-key.sales-channel', methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/access-key/sales-channel',
+        name: 'api.action.access-key.sales-channel',
+        methods: [Request::METHOD_GET]
+    )]
     public function generateSalesChannelKey(): JsonResponse
     {
         return new JsonResponse([
@@ -40,7 +54,11 @@ class AccessKeyController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_action/access-key/product-export', name: 'api.action.access-key.product-export', methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/access-key/product-export',
+        name: 'api.action.access-key.product-export',
+        methods: [Request::METHOD_GET]
+    )]
     public function generateProductExportKey(): JsonResponse
     {
         return new JsonResponse([

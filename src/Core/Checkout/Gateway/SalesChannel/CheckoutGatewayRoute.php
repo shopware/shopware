@@ -67,16 +67,24 @@ class CheckoutGatewayRoute extends AbstractCheckoutGatewayRoute
 
         if (!\in_array($paymentMethod->getId(), $response->getAvailablePaymentMethods()->getIds(), true)) {
             $response->getCartErrors()->add(
-                new PaymentMethodBlockedError((string) $paymentMethod->getTranslation('name'), 'not allowed')
+                new PaymentMethodBlockedError(
+                    id: $paymentMethod->getId(),
+                    name: (string) $paymentMethod->getTranslation('name'),
+                    reason: 'not allowed',
+                )
             );
         }
 
         foreach ($cart->getDeliveries() as $delivery) {
-            $deliveryMethod = $delivery->getShippingMethod();
+            $shippingMethod = $delivery->getShippingMethod();
 
-            if (!\in_array($deliveryMethod->getId(), $response->getAvailableShippingMethods()->getIds(), true)) {
+            if (!\in_array($shippingMethod->getId(), $response->getAvailableShippingMethods()->getIds(), true)) {
                 $response->getCartErrors()->add(
-                    new ShippingMethodBlockedError((string) $deliveryMethod->getTranslation('name'))
+                    new ShippingMethodBlockedError(
+                        id: $shippingMethod->getId(),
+                        name: (string) $shippingMethod->getTranslation('name'),
+                        reason: 'not allowed',
+                    )
                 );
             }
         }

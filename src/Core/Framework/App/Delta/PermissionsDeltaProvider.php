@@ -54,6 +54,6 @@ class PermissionsDeltaProvider extends AbstractAppDeltaProvider
 
         $privilegesDelta = array_diff($newPrivileges, $currentPrivileges);
 
-        return \count($privilegesDelta) > 0;
+        return $privilegesDelta !== [];
     }
 }

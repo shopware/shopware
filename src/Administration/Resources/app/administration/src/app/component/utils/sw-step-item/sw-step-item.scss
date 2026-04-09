@@ -1,21 +1,17 @@
-@use "sass:math";
-@import "~scss/variables";
-
 .sw-step-item {
-    height: 32px;
-    margin: 20px 0;
+    height: var(--scale-size-32);
+    margin: var(--scale-size-20) 0;
     display: flex;
     align-items: center;
     position: relative;
 
     &::before {
         content: "";
-        width: 1px;
-        height: 20px;
-        background-color: $color-gray-100;
-        border: 1px solid $color-gray-100;
+        width: 3px;
+        height: var(--scale-size-20);
+        background: var(--color-background-tertiary-default);
         position: absolute;
-        left: 16px - math.div(3px, 2);
+        left: 14.5px;
         top: -20px;
     }
 
@@ -28,10 +24,10 @@
     }
 
     .sw-step-item__bubble {
-        width: 32px;
-        height: 32px;
+        width: var(--scale-size-32);
+        height: var(--scale-size-32);
         border-radius: 50%;
-        background-color: $color-gray-100;
+        background: var(--color-background-tertiary-default);
         flex-shrink: 0;
         display: flex;
         align-items: center;
@@ -39,56 +35,57 @@
     }
 
     .sw-step-item__description {
-        padding-left: 10px;
-        font-size: $font-size-xs;
-        font-weight: $font-weight-semi-bold;
-        color: $color-gray-500;
-        line-height: $font-size-xs;
+        padding-left: var(--scale-size-10);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-secondary-default);
     }
 
     &.sw-step-item--disabled {
         .sw-step-item__bubble {
-            background-color: $color-gray-100;
+            background-color: var(--color-background-tertiary-default);
         }
 
         .sw-step-item__icon {
-            color: $color-gray-300;
+            color: var(--color-icon-secondary-disabled);
         }
     }
 
     &.sw-step-item--info {
         .sw-step-item__bubble {
-            background-color: $color-shopware-brand-50;
+            background-color: var(--color-background-brand-default);
         }
 
         .sw-step-item__icon {
-            color: $color-shopware-brand-500;
+            color: var(--color-icon-brand-default);
         }
     }
 
     &.sw-step-item--error {
         .sw-step-item__bubble {
-            background-color: $color-crimson-50;
+            background-color: var(--color-background-critical-default);
         }
 
         .sw-step-item__icon {
-            color: $color-crimson-500;
+            color: var(--color-icon-critical-default);
         }
     }
 
     &.sw-step-item--success {
         .sw-step-item__bubble {
-            background-color: $color-emerald-50;
+            background-color: var(--color-background-positive-default);
         }
 
         .sw-step-item__icon {
-            color: $color-emerald-500;
+            color: var(--color-icon-positive-default);
         }
     }
 
     &.sw-step-item--active {
         .sw-step-item__description {
-            color: $color-darkgray-200;
+            color: var(--color-text-primary-default);
+            font-weight: var(--font-weight-semibold);
         }
     }
 }

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\RateLimiter;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 
 #[Package('framework')]
 class RateLimiter
@@ -22,7 +21,13 @@ class RateLimiter
 
     final public const NEWSLETTER_FORM = 'newsletter_form';
 
+    final public const NEWSLETTER_UNSUBSCRIBE_FORM = 'newsletter_unsubscribe_form';
+
+    final public const REVOCATION_REQUEST_FORM = 'revocation_request_form';
+
     final public const CART_ADD_LINE_ITEM = 'cart_add_line_item';
+
+    final public const APP_SHOP_VERIFY = 'app_shop_verify';
 
     /**
      * @var array<string, RateLimiterFactory>
@@ -39,7 +44,7 @@ class RateLimiter
         $limiter = $this->getFactory($route)->create($key)->consume();
 
         if (!$limiter->isAccepted()) {
-            throw new RateLimitExceededException($limiter->getRetryAfter()->getTimestamp());
+            throw RateLimiterException::limitExceeded($limiter->getRetryAfter()->getTimestamp());
         }
     }
 
@@ -53,7 +58,7 @@ class RateLimiter
         $factory = $this->factories[$route] ?? null;
 
         if ($factory === null) {
-            throw new \RuntimeException('Invalid factory.');
+            throw RateLimiterException::factoryNotFound($route);
         }
 
         return $factory;

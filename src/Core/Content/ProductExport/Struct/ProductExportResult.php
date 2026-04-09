@@ -33,7 +33,7 @@ class ProductExportResult
 
     public function hasErrors(): bool
     {
-        return \count($this->errors) > 0;
+        return $this->errors !== [];
     }
 
     public function getTotal(): int

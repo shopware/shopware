@@ -36,6 +36,11 @@ export default {
     },
 
     methods: {
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
         createdComponent() {
             this.updateButtons();
             this.setTitle();
@@ -95,7 +100,7 @@ export default {
                     });
 
                     // need a force reload, after plugin was activated
-                    window.location.reload();
+                    this._reloadPage();
 
                     return Promise.resolve(true);
                 })
@@ -103,8 +108,11 @@ export default {
                     this.isInstallingPlugin = false;
                     this.pluginInstallationFailed = true;
 
-                    if (error.response?.data?.errors) {
-                        this.pluginError = error.response.data.errors.pop();
+                    const raw = error?.response?.data?.errors?.pop() || error?.message || error;
+                    const text = raw?.detail;
+
+                    if (typeof text === 'string') {
+                        this.pluginError = text.length <= 200 ? text : `${text.slice(0, 200)}...`;
                     }
 
                     return true;

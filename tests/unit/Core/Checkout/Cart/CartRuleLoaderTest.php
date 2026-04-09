@@ -17,8 +17,10 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\RuleLoader;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
@@ -96,6 +98,7 @@ class CartRuleLoaderTest extends TestCase
             $this->createMock(Connection::class),
             $factory,
             new ExtensionDispatcher($dispatcher),
+            $this->createMock(AbstractTranslator::class),
         );
 
         static::assertSame($calculatedCart, $cartRuleLoader->loadByToken($salesChannelContext, $salesChannelContext->getToken())->getCart());
@@ -107,7 +110,11 @@ class CartRuleLoaderTest extends TestCase
         $country->setId(Generator::COUNTRY);
         $country->setCustomerTax(new TaxFreeConfig());
 
-        $salesChannelContext = Generator::generateSalesChannelContext(country: $country);
+        $customer = new CustomerEntity();
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+        $customer->setId('test-id');
+
+        $salesChannelContext = Generator::generateSalesChannelContext(customer: $customer, country: $country);
 
         $rule1 = new RuleEntity();
         $rule1->setId(Uuid::randomHex());
@@ -148,7 +155,7 @@ class CartRuleLoaderTest extends TestCase
         $processor
             ->expects($this->exactly(3))
             ->method('process')
-            ->with(static::isInstanceOf(Cart::class), static::callback(function (SalesChannelContext $context) use ($ruleIds, $areaRuleIds) {
+            ->with(static::isInstanceOf(Cart::class), static::callback(static function (SalesChannelContext $context) use ($ruleIds, $areaRuleIds) {
                 static::assertSame($ruleIds, $context->getRuleIds());
                 static::assertSame($areaRuleIds, $context->getAreaRuleIds());
 
@@ -172,6 +179,7 @@ class CartRuleLoaderTest extends TestCase
             $this->createMock(Connection::class),
             $this->createMock(CartFactory::class),
             new ExtensionDispatcher($dispatcher),
+            $this->createMock(AbstractTranslator::class),
         );
 
         $cart = new Cart('test');

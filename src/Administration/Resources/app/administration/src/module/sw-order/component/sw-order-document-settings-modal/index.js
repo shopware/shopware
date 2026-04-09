@@ -1,9 +1,8 @@
+/**
+ * @sw-package after-sales
+ */
 import template from './sw-order-document-settings-modal.html.twig';
 import './sw-order-document-settings-modal.scss';
-
-/**
- * @sw-package checkout
- */
 
 const { Mixin, Utils } = Shopware;
 const { isEmpty } = Utils.types;
@@ -55,7 +54,7 @@ export default {
             uploadDocument: false,
             documentConfig: {
                 custom: {},
-                documentNumber: '0',
+                documentNumber: '',
                 documentComment: '',
                 documentDate: '',
             },
@@ -69,6 +68,24 @@ export default {
     },
 
     computed: {
+        invalidInput() {
+            return (
+                !this.documentConfig?.documentNumber ||
+                !this.documentConfig?.documentDate ||
+                !this.documentPreconditionsFulfilled
+            );
+        },
+
+        documentNumberErrorMessage() {
+            if (!this.documentConfig?.documentNumber) {
+                return {
+                    detail: this.$tc('global.notification.notificationSaveErrorMessageRequiredField'),
+                };
+            }
+
+            return null;
+        },
+
         documentPreconditionsFulfilled() {
             // can be overwritten in extending component
             return true;
@@ -116,6 +133,10 @@ export default {
         async onCreateDocument(additionalAction = false) {
             this.$emit('loading-document');
 
+            if (this.invalidInput) {
+                return;
+            }
+
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
                 const documentNumber = await this.reserveDocumentNumber(false);
 
@@ -143,7 +164,6 @@ export default {
         },
 
         async reserveDocumentNumber(isPreview) {
-            // ZUGFeRD document types have no own number range. We will use the invoice number range instead (NEXT-40492)
             let technicalName = this.currentDocumentType.technicalName;
             if (technicalName?.startsWith('zugferd_')) {
                 technicalName = 'invoice';

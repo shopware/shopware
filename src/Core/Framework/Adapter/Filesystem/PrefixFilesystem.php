@@ -21,7 +21,7 @@ class PrefixFilesystem implements FilesystemOperator
         protected FilesystemOperator $filesystem,
         string $prefix
     ) {
-        if (empty($prefix)) {
+        if ($prefix === '') {
             if (!Feature::isActive('v6.8.0.0')) {
                 // @phpstan-ignore-next-line
                 throw new \InvalidArgumentException('The prefix must not be empty.');

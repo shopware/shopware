@@ -54,15 +54,15 @@ WHERE product_search_config.language_id = :languageId AND product_search_config_
                 ]
             );
 
-            if (!empty($config)) {
-                return array_map(function (array $item): array {
+            if ($config !== []) {
+                return array_map(static function (array $item): array {
                     return [
                         'and_logic' => $item['and_logic'],
                         'excluded_terms' => json_decode($item['excluded_terms'], true),
                         'min_search_length' => (int) $item['min_search_length'],
                         'field' => $item['field'],
                         'tokenize' => (int) $item['tokenize'],
-                        'ranking' => $item['ranking'],
+                        'ranking' => (float) $item['ranking'],
                     ];
                 }, $config);
             }

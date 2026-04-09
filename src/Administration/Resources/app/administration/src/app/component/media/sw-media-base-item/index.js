@@ -45,7 +45,6 @@ export default {
         showContextMenuButton: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -58,14 +57,12 @@ export default {
         editable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         allowMultiSelect: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -78,15 +75,19 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         allowDelete: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -149,6 +150,10 @@ export default {
         },
 
         handleItemClick(originalDomEvent) {
+            if (this.disabled) {
+                return;
+            }
+
             if (this.isSelectionIndicatorClicked(originalDomEvent.composedPath())) {
                 return;
             }

@@ -21,6 +21,11 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
 
     public function buildNamespaceHierarchy(array $namespaceHierarchy): array
     {
+        /*
+         * Priority system: Lower integer = higher precedence
+         * Example: -2 overrides 0, which overrides 1
+         * Used only for sorting, then discarded
+         */
         $bundles = [];
 
         foreach ($this->kernel->getBundles() as $bundle) {
@@ -39,19 +44,26 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
             $bundles[$bundle->getName()] = $bundle->getTemplatePriority();
         }
 
+        // Shopware registers bundles in reverse order
         $bundles = array_reverse($bundles);
+
         $apps = $this->getAppTemplateNamespaces();
 
+        // Extract template_load_priority from app data structure
         /** @var array<int, array<string, mixed>> $combinedApps */
         $combinedApps = array_combine(array_keys($apps), array_column($apps, 'template_load_priority'));
 
         $extensions = array_merge($combinedApps, $bundles);
         asort($extensions);
 
+        // Replace app priorities with version strings after sorting
+        // The sorted order is preserved but values change from int to string
+        // This allows version-aware cache invalidation downstream
         foreach ($apps as $appName => ['version' => $version]) {
             $extensions[$appName] = $version;
         }
 
+        // Chain with existing hierarchy
         return array_merge(
             $extensions,
             $namespaceHierarchy

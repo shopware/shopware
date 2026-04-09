@@ -5,10 +5,11 @@ namespace Shopware\Core\Framework\Event;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\Event\CustomAppEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('fundamentals@after-sales')]
+#[Package('framework')]
 class BusinessEventCollector
 {
     /**
@@ -43,13 +44,13 @@ class BusinessEventCollector
 
         $result = $event->getCollection();
 
-        $result->sort(fn (BusinessEventDefinition $a, BusinessEventDefinition $b) => $a->getName() <=> $b->getName());
+        $result->sort(static fn (BusinessEventDefinition $a, BusinessEventDefinition $b) => $a->getName() <=> $b->getName());
 
         return $result;
     }
 
     /**
-     * @param class-string $class
+     * @param class-string<FlowEventAware> $class
      */
     public function define(string $class, ?string $name = null): ?BusinessEventDefinition
     {
@@ -57,11 +58,11 @@ class BusinessEventCollector
             ->newInstanceWithoutConstructor();
 
         if (!$instance instanceof FlowEventAware) {
-            throw new \RuntimeException(\sprintf('Event %s is not a business event', $class));
+            FrameworkException::invalidEventData(\sprintf('Event %s is not a business event', $class));
         }
 
         $name ??= $instance->getName();
-        if (!$name) {
+        if ($name === '') {
             return null;
         }
 
@@ -86,14 +87,18 @@ class BusinessEventCollector
 
     private function fetchAppEvents(BusinessEventCollectorResponse $result): BusinessEventCollectorResponse
     {
-        $appEvents = $this->connection->fetchAllAssociative('SELECT `app_flow_event`.`name`, `app_flow_event`.`aware` FROM `app_flow_event` JOIN `app` ON `app_flow_event`.`app_id` = `app`.`id` WHERE `app`.`active` = 1');
+        $appEvents = $this->connection->fetchAllAssociative(
+            'SELECT `app_flow_event`.`name`, `app_flow_event`.`aware`
+             FROM `app_flow_event` JOIN `app` ON `app_flow_event`.`app_id` = `app`.`id`
+             WHERE `app`.`active` = 1'
+        );
 
-        array_map(function ($event) use ($result): void {
+        array_map(static function (array $event) use ($result): void {
             $definition = new BusinessEventDefinition(
                 $event['name'],
                 CustomAppEvent::class,
                 [],
-                json_decode($event['aware'], true) ?? []
+                json_decode($event['aware'], true, 512, \JSON_THROW_ON_ERROR) ?? []
             );
 
             if (!$result->get($definition->getName())) {

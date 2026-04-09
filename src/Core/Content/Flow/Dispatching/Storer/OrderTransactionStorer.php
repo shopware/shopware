@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
@@ -19,6 +20,8 @@ class OrderTransactionStorer extends FlowStorer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderTransactionCollection> $orderTransactionRepository
      */
     public function __construct(
         private readonly EntityRepository $orderTransactionRepository,
@@ -76,10 +79,9 @@ class OrderTransactionStorer extends FlowStorer
 
         $this->dispatcher->dispatch($event, $event->getName());
 
-        $orderTransaction = $this->orderTransactionRepository->search($criteria, $context)->get($id);
+        $orderTransaction = $this->orderTransactionRepository->search($criteria, $context)->getEntities()->get($id);
 
         if ($orderTransaction) {
-            /** @var OrderTransactionEntity $orderTransaction */
             return $orderTransaction;
         }
 

@@ -10,21 +10,26 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Content\Test\Flow\OrderActionTrait;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -35,10 +40,28 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('store-api')]
 class DocumentRouteTest extends TestCase
 {
-    use CustomerTestTrait, OrderActionTrait {
-        OrderActionTrait::login insteadof CustomerTestTrait;
-    }
     use IntegrationTestBehaviour;
+
+    /*
+     * import of two traits that both define login() with different parameters.
+     * The conflict is resolved by using insteadof and internal calls inside OrderActionTrait can still use OrderActionTrait::login()
+     * With the alias loginBrowser() the SalesChannelApiTestBehaviour::login() can be called.
+     */
+    use OrderActionTrait, SalesChannelApiTestBehaviour {
+        OrderActionTrait::login insteadof SalesChannelApiTestBehaviour;
+        SalesChannelApiTestBehaviour::login as loginBrowser;
+    }
+    private const INVALID_MIME_TYPE = 'invalid/type';
+
+    private const ACCEPT_WILDCARD = '*/*';
+
+    private const SUPPORTED_FILE_FORMATS = [
+        PdfRenderer::FILE_EXTENSION => PdfRenderer::FILE_CONTENT_TYPE,
+        HtmlRenderer::FILE_EXTENSION => HtmlRenderer::FILE_CONTENT_TYPE,
+        ZugferdRenderer::FILE_EXTENSION => ZugferdRenderer::FILE_CONTENT_TYPE,
+    ];
+
+    private KernelBrowser $browser;
 
     private IdsCollection $ids;
 
@@ -53,6 +76,10 @@ class DocumentRouteTest extends TestCase
 
         $this->createCustomer(null, false, ['id' => $this->ids->get('customer')]);
         $this->createCustomer(null, true, ['id' => $this->ids->get('guest')]);
+
+        $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('sales-channel'),
+        ]);
     }
 
     /**
@@ -118,7 +145,6 @@ class DocumentRouteTest extends TestCase
 
             return;
         }
-
         $headers = $response->headers;
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -284,5 +310,154 @@ class DocumentRouteTest extends TestCase
             'expectedException' => CustomerNotLoggedInException::class,
             'expectedErrorCode' => CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
         ];
+    }
+
+    #[DataProvider('provideRequestAcceptHeaderValues')]
+    public function testDownloadWithMimeTypesInAcceptHeader(
+        string $documentType,
+        string $expectedFileType,
+        string $acceptHeader,
+        string $expectedResponseContentType,
+    ): void {
+        $customerId = $this->loginBrowser($this->browser);
+        $this->createOrder(
+            $customerId,
+            ['salesChannelId' => $this->ids->get('sales-channel')]
+        );
+
+        $operation = new DocumentGenerateOperation($this->ids->get('order'));
+
+        $document = $this->documentGenerator->generate(
+            $documentType,
+            [$operation->getOrderId() => $operation],
+            Context::createDefaultContext()
+        )->getSuccess()->first();
+
+        static::assertInstanceOf(DocumentIdStruct::class, $document);
+
+        $this->browser->request(
+            'GET',
+            '/store-api/document/download/' . $document->getId(),
+            [],
+            [],
+            ['HTTP_ACCEPT' => $acceptHeader]
+        );
+
+        $response = $this->browser->getResponse();
+
+        static::assertNotEmpty($response->getContent());
+        static::assertSame(
+            'inline; filename=invoice_1000.' . $expectedFileType,
+            $response->headers->get('content-disposition')
+        );
+        static::assertStringContainsString(
+            $expectedResponseContentType,
+            (string) $response->headers->get('content-type')
+        );
+    }
+
+    public static function provideRequestAcceptHeaderValues(): \Generator
+    {
+        yield 'accept header "application/pdf" returns pdf document' => [
+            'documentType' => InvoiceRenderer::TYPE,
+            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
+            'acceptHeader' => PdfRenderer::FILE_CONTENT_TYPE,
+            'expectedResponseContentType' => PdfRenderer::FILE_CONTENT_TYPE,
+        ];
+
+        yield 'accept header with order "text/html;q=0.4,application/pdf;q=0.7, application/xml;q=0.1" returns pdf' => [
+            'documentType' => InvoiceRenderer::TYPE,
+            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
+            'acceptHeader' => HtmlRenderer::FILE_CONTENT_TYPE . ';q=0.4, '
+                . PdfRenderer::FILE_CONTENT_TYPE . ';q=0.7, '
+                . ZugferdRenderer::FILE_CONTENT_TYPE . ';q=0.1',
+            'expectedResponseContentType' => PdfRenderer::FILE_CONTENT_TYPE,
+        ];
+
+        yield 'accept header with wildcard should return pdf' => [
+            'documentType' => InvoiceRenderer::TYPE,
+            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
+            'acceptHeader' => self::ACCEPT_WILDCARD,
+            'expectedResponseContentType' => PdfRenderer::FILE_CONTENT_TYPE,
+        ];
+    }
+
+    public function testDownloadShouldThrowExceptionWhenRequestedFileTypeHasNoGeneratedDocument(): void
+    {
+        $customerId = $this->ids->get('customer');
+        $this->createOrder($customerId);
+
+        $salesChannelContext = $this->createSalesChannelContext([], [
+            'customerId' => $customerId,
+        ]);
+
+        $operation = new DocumentGenerateOperation($this->ids->get('order'));
+
+        $document = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$operation->getOrderId() => $operation],
+            Context::createDefaultContext()
+        )->getSuccess()->first();
+
+        static::assertInstanceOf(DocumentIdStruct::class, $document);
+
+        $request = new Request();
+        $request->headers->set('Accept', ZugferdRenderer::FILE_CONTENT_TYPE);
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectExceptionObject(
+                DocumentException::documentFileTypeUnavailable($document->getId(), [ZugferdRenderer::FILE_EXTENSION])
+            );
+        }
+
+        $documentRoute = static::getContainer()->get(DocumentRoute::class);
+
+        $response = $documentRoute->download(
+            $document->getId(),
+            $request,
+            $salesChannelContext,
+        );
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        }
+    }
+
+    public function testDownloadShouldThrowExceptionWithUnsupportedAcceptHeader(): void
+    {
+        $customerId = $this->ids->get('customer');
+        $this->createOrder($customerId);
+
+        $salesChannelContext = $this->createSalesChannelContext([], [
+            'customerId' => $customerId,
+        ]);
+
+        $operation = new DocumentGenerateOperation($this->ids->get('order'));
+
+        $document = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$operation->getOrderId() => $operation],
+            Context::createDefaultContext()
+        )->getSuccess()->first();
+
+        static::assertInstanceOf(DocumentIdStruct::class, $document);
+
+        $request = new Request();
+        $request->headers->set('Accept', self::INVALID_MIME_TYPE);
+
+        $this->expectExceptionObject(
+            DocumentException::documentAcceptHeaderMimeTypesNotSupported(
+                [self::INVALID_MIME_TYPE],
+                array_values(self::SUPPORTED_FILE_FORMATS)
+            )
+        );
+
+        $documentRoute = static::getContainer()->get(DocumentRoute::class);
+
+        $documentRoute->download(
+            $document->getId(),
+            $request,
+            $salesChannelContext,
+        );
     }
 }

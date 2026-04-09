@@ -90,11 +90,10 @@ class AccountService
     }
 
     /**
-     * @throws CustomerNotFoundException
      * @throws BadCredentialsException
      * @throws CustomerOptinNotCompletedException
      */
-    public function loginByCredentials(string $email, string $password, SalesChannelContext $context): string
+    public function loginByCredentials(string $email, #[\SensitiveParameter] string $password, SalesChannelContext $context): string
     {
         if ($email === '' || $password === '') {
             throw CustomerException::badCredentials();
@@ -109,17 +108,20 @@ class AccountService
     }
 
     /**
-     * @throws CustomerNotFoundException
      * @throws BadCredentialsException
      * @throws CustomerOptinNotCompletedException
      */
-    public function getCustomerByLogin(string $email, string $password, SalesChannelContext $context): CustomerEntity
+    public function getCustomerByLogin(string $email, #[\SensitiveParameter] string $password, SalesChannelContext $context): CustomerEntity
     {
         if ($this->isPasswordTooLong($password)) {
             throw CustomerException::badCredentials();
         }
 
-        $customer = $this->getCustomerByEmail($email, $context);
+        try {
+            $customer = $this->getCustomerByEmail($email, $context);
+        } catch (CustomerNotFoundException) {
+            throw CustomerException::badCredentials();
+        }
 
         if ($customer->hasLegacyPassword()) {
             if (!$this->legacyPasswordVerifier->verify($password, $customer)) {
@@ -195,15 +197,15 @@ class AccountService
         $criteria->setTitle('account-service::fetchCustomer');
 
         $result = $this->customerRepository->search($criteria, $context->getContext())->getEntities();
-        $result = $result->filter(function (CustomerEntity $customer) use ($includeGuest, $context): ?bool {
+        $result = $result->filter(static function (CustomerEntity $customer) use ($includeGuest, $context): bool {
             // Skip not active users
             if (!$customer->getActive()) {
-                return null;
+                return false;
             }
 
             // Skip guest if not required
             if (!$includeGuest && $customer->getGuest()) {
-                return null;
+                return false;
             }
 
             // If not bound, we still need to consider it
@@ -213,7 +215,7 @@ class AccountService
 
             // It is bound, but not to the current one. Skip it
             if ($customer->getBoundSalesChannelId() !== $context->getSalesChannelId()) {
-                return null;
+                return false;
             }
 
             return true;
@@ -223,13 +225,13 @@ class AccountService
         // for guest accounts, real customer accounts should only occur once, otherwise the
         // wrong password will be validated
         if ($result->count() > 1) {
-            $result->sort(fn (CustomerEntity $a, CustomerEntity $b) => ($a->getCreatedAt() <=> $b->getCreatedAt()) * -1);
+            $result->sort(static fn (CustomerEntity $a, CustomerEntity $b) => ($a->getCreatedAt() <=> $b->getCreatedAt()) * -1);
         }
 
         return $result->first();
     }
 
-    private function updatePasswordHash(string $password, CustomerEntity $customer, Context $context): void
+    private function updatePasswordHash(#[\SensitiveParameter] string $password, CustomerEntity $customer, Context $context): void
     {
         try {
             $this->customerRepository->update([

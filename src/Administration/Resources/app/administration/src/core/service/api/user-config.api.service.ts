@@ -40,7 +40,7 @@ export default class UserConfigService extends ApiService {
     upsert(upsertData: Record<string, unknown[]>): Promise<void> {
         const headers = this.getBasicHeaders();
 
-        return this.httpClient.post<void>(this.getApiBasePath(), upsertData, { headers }).then((response) => {
+        return this.httpClient.patch<void>(this.getApiBasePath(), upsertData, { headers }).then((response) => {
             return ApiService.handleResponse(response);
         });
     }

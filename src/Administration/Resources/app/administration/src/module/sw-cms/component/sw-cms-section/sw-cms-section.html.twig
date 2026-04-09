@@ -75,7 +75,10 @@
                     >
 
                         {% block sw_cms_section_sidebar_block_component %}
-                        <component :is="`sw-cms-block-${block.type}`">
+                        <component
+                            :is="getBlockComponent(block.type)"
+                            :block="block"
+                        >
                             {% block sw_cms_section_content_block_slot %}
                             <template
                                 v-for="el in block.slots"
@@ -160,7 +163,7 @@
 
                         {% block sw_cms_section_content_block_component %}
                         <component
-                            :is="`sw-cms-block-${block.type}`"
+                            :is="getBlockComponent(block.type)"
                             :block="block"
                         >
                             {% block sw_cms_section_content_block_component_slot %}

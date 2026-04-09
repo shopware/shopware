@@ -87,7 +87,10 @@ class ThemeRuntimeConfigService
 
         $this->runtimeConfigCacheById[$themeId] = $config;
         if ($config !== null) {
-            $this->runtimeConfigCacheByName[$config->technicalName] = $config;
+            $technicalName = $config->technicalName;
+            if ($technicalName !== null) {
+                $this->runtimeConfigCacheByName[$technicalName] = $config;
+            }
         }
 
         return $config;
@@ -112,7 +115,9 @@ class ThemeRuntimeConfigService
             // will throw an exception if theme was not built yet
             $scriptFiles = $this->themeFileResolver->resolveScriptFiles($themeConfig, $configCollection, false)->getPublicPaths('js');
         } catch (ThemeCompileException|AppException $e) {
-            $failOnFileResolveError && throw $e;
+            if ($failOnFileResolveError) {
+                throw $e;
+            }
         }
 
         $runtimeConfig = ThemeRuntimeConfig::fromArray([
@@ -166,6 +171,12 @@ class ThemeRuntimeConfigService
         $this->activeThemeNamesCache = null;
     }
 
+    public function deleteByTechnicalName(string $technicalName): void
+    {
+        $this->storage->deleteByTechnicalName($technicalName);
+        $this->resetCaches();
+    }
+
     /**
      * @return array<string>
      */
@@ -200,7 +211,10 @@ class ThemeRuntimeConfigService
     private function cacheConfig(ThemeRuntimeConfig $config): void
     {
         $this->runtimeConfigCacheById[$config->themeId] = $config;
-        $this->runtimeConfigCacheByName[$config->technicalName] = $config;
+        $technicalName = $config->technicalName;
+        if ($technicalName !== null) {
+            $this->runtimeConfigCacheByName[$technicalName] = $config;
+        }
     }
 
     /**

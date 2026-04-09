@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
@@ -165,11 +166,12 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
      */
     private function getStyleFiles(string $technicalName, string $basePath): array
     {
-        if (!$this->kernel->getContainer()->has(StorefrontPluginRegistry::class)) {
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
+        $registry = $this->kernel->getContainer()->get(StorefrontPluginRegistry::class, ContainerInterface::NULL_ON_INVALID_REFERENCE);
+        if ($registry === null) {
             return [];
         }
 
-        $registry = $this->kernel->getContainer()->get(StorefrontPluginRegistry::class);
         $config = $registry->getConfigurations()->getByTechnicalName($technicalName);
 
         if (!$config) {
@@ -177,7 +179,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         }
 
         return array_map(
-            fn (string $path) => Path::join($basePath, 'Resources', $path),
+            static fn (string $path) => Path::join($basePath, 'Resources', $path),
             $config->getStyleFiles()->getFilepaths()
         );
     }

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cleanup\CleanupCartTask;
+use Shopware\Core\Content\Sitemap\ScheduledTask\SitemapGenerateTask;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -16,7 +17,6 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTask;
 use Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TestScheduledTask;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
@@ -27,7 +27,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 class TaskRegistryTest extends TestCase
 {
     /**
-     * @var EntityRepository&MockObject
+     * @var EntityRepository<ScheduledTaskCollection>&MockObject
      */
     private EntityRepository $scheduleTaskRepository;
 
@@ -38,10 +38,10 @@ class TaskRegistryTest extends TestCase
 
     public function testNewTasksAreCreated(): void
     {
-        $tasks = [new TestScheduledTask(), new CreateAliasTask(), new CleanupCartTask()];
+        $tasks = [new TestScheduledTask(), new SitemapGenerateTask(), new CleanupCartTask()];
         $parameterBag = new ParameterBag([
             'shopware.test.active' => true,
-            'elasticsearch.enabled' => false,
+            'shopware.sitemap.scheduled_task.enabled' => false,
         ]);
 
         $registeredTask = new ScheduledTaskEntity();
@@ -74,10 +74,10 @@ class TaskRegistryTest extends TestCase
                 ],
                 [
                     [
-                        'name' => CreateAliasTask::getTaskName(),
-                        'scheduledTaskClass' => CreateAliasTask::class,
-                        'runInterval' => CreateAliasTask::getDefaultInterval(),
-                        'defaultRunInterval' => CreateAliasTask::getDefaultInterval(),
+                        'name' => SitemapGenerateTask::getTaskName(),
+                        'scheduledTaskClass' => SitemapGenerateTask::class,
+                        'runInterval' => SitemapGenerateTask::getDefaultInterval(),
+                        'defaultRunInterval' => SitemapGenerateTask::getDefaultInterval(),
                         'status' => ScheduledTaskDefinition::STATUS_SKIPPED,
                     ],
                 ],
@@ -117,12 +117,12 @@ class TaskRegistryTest extends TestCase
 
     public function testQueuedOrScheduledTasksShouldBecomeSkipped(): void
     {
-        $tasks = [new TestScheduledTask(), new CreateAliasTask()];
+        $tasks = [new TestScheduledTask(), new SitemapGenerateTask()];
 
         // passing these parameters so these task shouldRun return false
         $parameterBag = new ParameterBag([
             'shopware.test.active' => false,
-            'elasticsearch.enabled' => false,
+            'shopware.sitemap.scheduled_task.enabled' => false,
         ]);
 
         $registry = new TaskRegistry($tasks, $this->scheduleTaskRepository, $parameterBag);
@@ -139,19 +139,19 @@ class TaskRegistryTest extends TestCase
         $queuedTask->setScheduledTaskClass(TestScheduledTask::class);
 
         $scheduledTask->setId('scheduledTask');
-        $scheduledTask->setName(CreateAliasTask::getTaskName());
-        $scheduledTask->setRunInterval(CreateAliasTask::getDefaultInterval());
-        $scheduledTask->setDefaultRunInterval(CreateAliasTask::getDefaultInterval());
+        $scheduledTask->setName(SitemapGenerateTask::getTaskName());
+        $scheduledTask->setRunInterval(SitemapGenerateTask::getDefaultInterval());
+        $scheduledTask->setDefaultRunInterval(SitemapGenerateTask::getDefaultInterval());
         $scheduledTask->setStatus(ScheduledTaskDefinition::STATUS_SCHEDULED);
         $scheduledTask->setNextExecutionTime(new \DateTimeImmutable());
-        $scheduledTask->setScheduledTaskClass(CreateAliasTask::class);
+        $scheduledTask->setScheduledTaskClass(SitemapGenerateTask::class);
 
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$queuedTask, $scheduledTask]));
 
         $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
 
-        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(function (array $data, Context $context) {
+        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(static function (array $data, Context $context) {
             static::assertCount(2, $data);
 
             static::assertNotEmpty($data[0]);
@@ -179,12 +179,12 @@ class TaskRegistryTest extends TestCase
 
     public function testQueuedOrSkippedTasksShouldBecomeScheduled(): void
     {
-        $tasks = [new TestScheduledTask(), new CreateAliasTask()];
+        $tasks = [new TestScheduledTask(), new SitemapGenerateTask()];
 
         // passing these parameters so these task shouldRun return true
         $parameterBag = new ParameterBag([
             'shopware.test.active' => true,
-            'elasticsearch.enabled' => true,
+            'shopware.sitemap.scheduled_task.enabled' => true,
         ]);
 
         $registry = new TaskRegistry($tasks, $this->scheduleTaskRepository, $parameterBag);
@@ -201,19 +201,19 @@ class TaskRegistryTest extends TestCase
         $queuedTask->setScheduledTaskClass(TestScheduledTask::class);
 
         $skippedTask->setId('skippedTask');
-        $skippedTask->setName(CreateAliasTask::getTaskName());
-        $skippedTask->setRunInterval(CreateAliasTask::getDefaultInterval());
-        $skippedTask->setDefaultRunInterval(CreateAliasTask::getDefaultInterval());
+        $skippedTask->setName(SitemapGenerateTask::getTaskName());
+        $skippedTask->setRunInterval(SitemapGenerateTask::getDefaultInterval());
+        $skippedTask->setDefaultRunInterval(SitemapGenerateTask::getDefaultInterval());
         $skippedTask->setStatus(ScheduledTaskDefinition::STATUS_SKIPPED);
         $skippedTask->setNextExecutionTime(new \DateTimeImmutable());
-        $skippedTask->setScheduledTaskClass(CreateAliasTask::class);
+        $skippedTask->setScheduledTaskClass(SitemapGenerateTask::class);
 
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$queuedTask, $skippedTask]));
 
         $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
 
-        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(function (array $data, Context $context) {
+        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(static function (array $data, Context $context) {
             static::assertCount(2, $data);
 
             static::assertNotEmpty($data[0]);
@@ -259,7 +259,7 @@ class TaskRegistryTest extends TestCase
 
         $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
 
-        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(function (array $data, Context $context) {
+        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(static function (array $data, Context $context) {
             static::assertCount(1, $data);
 
             static::assertNotEmpty($data[0]);
@@ -297,7 +297,7 @@ class TaskRegistryTest extends TestCase
 
         $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
 
-        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(function (array $data, Context $context) {
+        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(static function (array $data, Context $context) {
             static::assertCount(1, $data);
 
             static::assertNotEmpty($data[0]);
@@ -385,7 +385,7 @@ class TaskRegistryTest extends TestCase
         $this->scheduleTaskRepository->expects($this->once())
             ->method('update')
             ->with(
-                static::callback(function (array $data) {
+                static::callback(static function (array $data) {
                     static::assertCount(1, $data);
                     static::assertSame('test-task-id', $data[0]['id']);
                     static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $data[0]['status']);

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SearchKeyword;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -24,13 +25,14 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
     public function __construct(
         private readonly ProductSearchTermInterpreterInterface $interpreter,
         private readonly LoggerInterface $logger,
-        private readonly int $searchTermMaxLength
+        private readonly int $searchTermMaxLength,
+        private readonly bool $searchKeywordIndexingEnabled = true,
     ) {
     }
 
     public function build(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        $search = $request->get('search');
+        $search = RequestParamHelper::get($request, 'search');
 
         if (\is_array($search)) {
             $term = implode(' ', $search);
@@ -48,8 +50,14 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
             $term = mb_substr($term, 0, $this->searchTermMaxLength);
         }
 
-        if (empty($term)) {
+        if ($term === '') {
             throw ProductException::missingRequestParameter('search');
+        }
+
+        if (!$this->searchKeywordIndexingEnabled) {
+            $criteria->setTerm($term);
+
+            return;
         }
 
         $pattern = $this->interpreter->interpret($term, $context->getContext());

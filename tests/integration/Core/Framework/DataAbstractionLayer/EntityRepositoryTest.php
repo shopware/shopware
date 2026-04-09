@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -26,6 +25,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
@@ -58,7 +59,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[CoversClass(EntityRepository::class)]
 class EntityRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -70,7 +70,10 @@ class EntityRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->categoryRepository = $this->createRepository(CategoryDefinition::class);
+        /** @var EntityRepository<CategoryCollection> $categoryRepository */
+        $categoryRepository = $this->createRepository(CategoryDefinition::class);
+
+        $this->categoryRepository = $categoryRepository;
     }
 
     protected function tearDown(): void
@@ -94,7 +97,7 @@ class EntityRepositoryTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $products
+     * @param list<array<string, mixed>> $products
      * @param array<string> $expected
      */
     #[DataProvider('productPropertiesQueryProvider')]
@@ -304,11 +307,11 @@ class EntityRepositoryTest extends TestCase
 
         $queue->execute();
 
-        $found = static::getContainer()
+        $foundIds = static::getContainer()
             ->get('order.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        $found = !empty($found->getIds());
+        $found = $foundIds->getIds() !== [];
 
         static::assertSame($match, $found);
     }
@@ -1492,8 +1495,8 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(3, $folder->getChildren());
 
         $secondIds = $folder->getChildren()->getIds();
-        foreach ($firstIds as $id) {
-            static::assertNotContains($id, $secondIds);
+        foreach ($firstIds as $childrenId) {
+            static::assertNotContains($childrenId, $secondIds);
         }
     }
 
@@ -1568,7 +1571,7 @@ class EntityRepositoryTest extends TestCase
         $snippetRepo = $this->createRepository(SnippetDefinition::class);
         $snippetSetId = $this->getSnippetSetIdForLocale('en-GB');
 
-        static::expectException(WriteException::class);
+        $this->expectException(WriteException::class);
         $snippetRepo->create([
             [
                 'id' => Uuid::randomHex(),
@@ -1611,7 +1614,7 @@ class EntityRepositoryTest extends TestCase
                 'taxStatus' => 'gross',
                 'totalPrice' => 100,
                 'positionPrice' => 1,
-            ]),
+            ], \JSON_THROW_ON_ERROR),
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             'state_id' => Uuid::randomBytes(),
             'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
@@ -1641,13 +1644,15 @@ class EntityRepositoryTest extends TestCase
             'order_id' => Uuid::fromHexToBytes($orderId),
             'payment_method_id' => Uuid::fromHexToBytes($payment),
             'state_id' => $stateId,
-            'amount' => json_encode(['unitPrice' => 100]),
+            'amount' => json_encode(['unitPrice' => 100], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
     }
 
     /**
      * @param class-string<EntityDefinition> $definitionClass
+     *
+     * @return EntityRepository<covariant EntityCollection<covariant Entity>>
      */
     private function createRepository(
         string $definitionClass,
@@ -1656,6 +1661,7 @@ class EntityRepositoryTest extends TestCase
         $definition = static::getContainer()->get($definitionClass);
         static::assertInstanceOf(EntityDefinition::class, $definition);
 
+        /** @var EntityRepository<covariant EntityCollection<covariant Entity>> */
         return new EntityRepository(
             $definition,
             static::getContainer()->get(EntityReaderInterface::class),

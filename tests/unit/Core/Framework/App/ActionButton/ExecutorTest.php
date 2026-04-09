@@ -38,7 +38,7 @@ class ExecutorTest extends TestCase
             ->willReturn(new SfRequest());
 
         $guzzleClient = new Client([
-            'handler' => function (): void {
+            'handler' => static function (): void {
                 throw new ConnectException('Connection problems', new Request('POST', 'https://example.com'));
             },
         ]);

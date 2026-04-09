@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Seo;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -22,6 +23,8 @@ class SeoUrlPersister
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
      */
     public function __construct(
         private readonly Connection $connection,
@@ -109,7 +112,7 @@ class SeoUrlPersister
             $insertQuery->addInsert($this->seoUrlRepository->getDefinition()->getEntityName(), $insert);
         }
 
-        $inuseSeoUrls = $this->findInUseCanonicalSeoUrls($seoPathInfos, $salesChannelId);
+        $inuseSeoUrls = $this->findInUseCanonicalSeoUrls($seoPathInfos, $languageId, $salesChannelId);
 
         RetryableTransaction::retryable($this->connection, function () use ($obsoleted, $insertQuery, $foreignKeys, $updatedFks, $salesChannelId): void {
             $this->obsoleteIds($obsoleted, $salesChannelId);
@@ -126,7 +129,7 @@ class SeoUrlPersister
         // the existing row is seamlessly replaced due to the useReplace flag being set to true within the MultiInsertQueryQueue configuration above.
         // Hence, we have to find the default seoUrls for Entity A and update it accordingly to set is_canonical and is_modified to true,
         // thereby preserving the canonical SEO URL for Entity A.
-        $this->updateCanonicalSeoUrls($inuseSeoUrls);
+        $this->updateCanonicalSeoUrls($inuseSeoUrls, $languageId);
 
         $this->eventDispatcher->dispatch(new SeoUrlUpdateEvent($updates));
     }
@@ -196,22 +199,22 @@ class SeoUrlPersister
      *
      * @return array<array<string, mixed>>
      */
-    private function findInUseCanonicalSeoUrls(array $seoPathInfos, ?string $salesChannelId = null): array
+    private function findInUseCanonicalSeoUrls(array $seoPathInfos, string $languageId, ?string $salesChannelId = null): array
     {
-        if (empty($seoPathInfos)) {
+        if ($seoPathInfos === []) {
             return [];
         }
 
-        $query = 'SELECT id, language_id languageId, sales_channel_id salesChannelId, foreign_key foreignKey, route_name routeName
+        $query = 'SELECT id, sales_channel_id salesChannelId, foreign_key foreignKey, route_name routeName
         FROM seo_url
-        WHERE is_canonical = 1 AND seo_path_info IN (:seoPathInfos)';
+        WHERE is_canonical = 1 AND language_id = :languageId AND seo_path_info IN (:seoPathInfos)';
 
-        $params = ['seoPathInfos' => $seoPathInfos];
+        $params = ['seoPathInfos' => $seoPathInfos, 'languageId' => Uuid::fromHexToBytes($languageId)];
         $types = ['seoPathInfos' => ArrayParameterType::BINARY];
 
         if ($salesChannelId !== null) {
             $query .= ' AND sales_channel_id = :salesChannelId';
-            $params['salesChannelId'] = $salesChannelId;
+            $params['salesChannelId'] = Uuid::fromHexToBytes($salesChannelId);
         }
 
         return $this->connection->fetchAllAssociative($query, $params, $types);
@@ -222,16 +225,18 @@ class SeoUrlPersister
      *
      * @param array<array<string, mixed>> $seoUrls
      */
-    private function updateCanonicalSeoUrls(array $seoUrls): void
+    private function updateCanonicalSeoUrls(array $seoUrls, string $languageId): void
     {
-        if (empty($seoUrls)) {
+        if ($seoUrls === []) {
             return;
         }
+
+        $languageId = Uuid::fromHexToBytes($languageId);
 
         $ids = [];
         foreach ($seoUrls as $seoUrl) {
             $id = $this->connection->fetchOne(
-                'SELECT HEX(id) AS id
+                'SELECT id
                  FROM seo_url
                  WHERE language_id = :languageId
                    AND foreign_key = :foreignKey
@@ -241,7 +246,7 @@ class SeoUrlPersister
                  ORDER BY created_at ASC
                  LIMIT 1',
                 [
-                    'languageId' => $seoUrl['languageId'],
+                    'languageId' => $languageId,
                     'foreignKey' => $seoUrl['foreignKey'],
                     'salesChannelId' => $seoUrl['salesChannelId'],
                     'routeName' => (string) $seoUrl['routeName'],
@@ -253,13 +258,13 @@ class SeoUrlPersister
             }
         }
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
         $this->connection->executeStatement(
             'UPDATE seo_url SET is_canonical = 1, is_modified = 1 WHERE id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => $ids],
             ['ids' => ArrayParameterType::BINARY]
         );
     }
@@ -269,7 +274,7 @@ class SeoUrlPersister
      */
     private function obsoleteIds(array $ids, ?string $salesChannelId): void
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -286,7 +291,7 @@ class SeoUrlPersister
             $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
         }
 
-        RetryableQuery::retryable($this->connection, function () use ($query): void {
+        RetryableQuery::retryable($this->connection, static function () use ($query): void {
             $query->executeStatement();
         });
     }
@@ -296,7 +301,7 @@ class SeoUrlPersister
      */
     private function markAsDeleted(bool $deleted, array $ids, ?string $salesChannelId): void
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

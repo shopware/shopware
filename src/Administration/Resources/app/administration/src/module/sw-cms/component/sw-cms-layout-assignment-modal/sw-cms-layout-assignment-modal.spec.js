@@ -670,7 +670,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should contain all available shop pages', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.shopPages).toHaveLength(9);
+        expect(wrapper.vm.shopPages).toHaveLength(10);
 
         expect(wrapper.vm.shopPages).toEqual(
             expect.arrayContaining([
@@ -708,6 +708,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 }),
                 expect.objectContaining({
                     value: 'core.basicInformation.contactPage',
+                    label: expect.any(String),
+                }),
+                expect.objectContaining({
+                    value: 'core.basicInformation.revocationRequestPage',
                     label: expect.any(String),
                 }),
             ]),

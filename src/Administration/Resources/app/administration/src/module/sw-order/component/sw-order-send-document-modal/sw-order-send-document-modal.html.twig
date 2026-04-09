@@ -91,6 +91,7 @@
         {% block sw_order_send_document_modal_secondary_action %}
         <mt-button
             variant="secondary"
+            data-analytics-id="sw-order-send-document-modal.close"
             @click="$emit('modal-close')"
         >
             {{ $tc('sw-order.documentSendModal.labelClose') }}
@@ -101,6 +102,7 @@
         <mt-button
             :disabled="primaryActionDisabled"
             variant="primary"
+            data-analytics-id="sw-order-send-document-modal.send-document"
             @click="onSendDocument"
         >
             {{ $tc('sw-order.documentCard.labelSendDocument') }}

@@ -12,9 +12,10 @@
     }
 
     .sw-category-layout-card__desc {
-        display: grid;
-        grid-template-rows: min-content 1fr min-content;
-        align-items: baseline;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin: auto 0;
 
         .sw-category-layout-card__desc-headline {
             font-weight: $font-weight-semi-bold;
@@ -30,14 +31,16 @@
             color: $color-gray-500;
         }
 
-        .sw-category-layout-card__desc-info {
-            margin-bottom: 16px;
-        }
-
         .sw-category-layout-card__desc-actions {
-            .mt-button {
-                margin-bottom: 8px;
-                margin-right: 8px;
+            .sw-context-button {
+                height: 32px;
+                border-radius: $border-radius-default;
+                border: 1px solid $color-gray-500;
+                background-color: $color-white;
+
+                .sw-context-button__button {
+                    border: none;
+                }
             }
         }
 

@@ -153,7 +153,7 @@ class ImportEntityCommand extends Command
 
             $io->success(\sprintf(
                 'Successfully imported %d records in %d seconds',
-                $progress->getProcessedRecords(),
+                $progress->getProcessedRecords() ?? 0,
                 $elapsed
             ));
 
@@ -164,7 +164,7 @@ class ImportEntityCommand extends Command
 
         $io->error(\sprintf(
             'Errors on import. Rolling back transactions for %d records. Time elapsed: %d seconds',
-            $progress->getProcessedRecords(),
+            $progress->getProcessedRecords() ?? 0,
             $elapsed
         ));
 
@@ -191,7 +191,7 @@ class ImportEntityCommand extends Command
 
         $byName = [];
         foreach ($result as $profile) {
-            $byName[$profile->getLabel()] = $profile;
+            $byName[$profile->getTechnicalName()] = $profile;
         }
 
         $answer = $io->choice('Please choose a profile', array_keys($byName));
@@ -242,7 +242,7 @@ class ImportEntityCommand extends Command
         $importExport = $this->importExportFactory->create($log->getId());
         $results = $importExport->getLogEntity()->getResult();
 
-        if (empty($results)) {
+        if ($results === []) {
             return;
         }
 

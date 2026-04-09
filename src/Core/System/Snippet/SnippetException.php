@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\System\Snippet;
 
+use GuzzleHttp\Psr7\Uri;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('discovery')]
 class SnippetException extends HttpException
 {
@@ -36,6 +34,8 @@ class SnippetException extends HttpException
 
     final public const SNIPPET_TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXIST = 'SYSTEM__TRANSLATION_CONFIGURATION_FILE_DOES_NOT_EXISTS';
 
+    final public const SNIPPET_TRANSLATION_METADATA_DOWNLOAD_FAILED = 'SYSTEM__TRANSLATION_METADATA_DOWNLOAD_FAILED';
+
     final public const SNIPPET_TRANSLATION_CONFIGURATION_FILE_IS_EMPTY = 'SYSTEM__TRANSLATION_CONFIGURATION_FILE_DOES_IS_EMPTY';
 
     final public const SNIPPET_CONFIGURED_LOCALE_DOES_NOT_EXIST = 'SYSTEM__PROVIDED_LOCALE_DOES_NOT_EXIST';
@@ -43,6 +43,8 @@ class SnippetException extends HttpException
     final public const SNIPPET_CONFIGURED_LANGUAGE_DOES_NOT_EXIST = 'SYSTEM__LANGUAGE_DOES_NOT_EXISTS';
 
     final public const SNIPPET_TRANSLATION_CONFIGURATION_INVALID_REPOSITORY_URL = 'SYSTEM__SNIPPET_TRANSLATION_CONFIGURATION_INVALID_REPOSITORY_URL';
+
+    final public const SNIPPET_COUNTRY_AGNOSTIC_FILE_LINTER_INVALID_EXTENSIONS = 'SYSTEM__SNIPPET_COUNTRY_AGNOSTIC_FILE_LINTER_INVALID_EXTENSIONS';
 
     public static function invalidFilterName(): self
     {
@@ -169,6 +171,20 @@ class SnippetException extends HttpException
         );
     }
 
+    public static function translationMetadataDownloadFailed(Uri $uri, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SNIPPET_TRANSLATION_METADATA_DOWNLOAD_FAILED,
+            'Failed to download translation metadata from "{{ uri }}": {{ error }}',
+            [
+                'uri' => (string) $uri,
+                'error' => $previous?->getMessage() ?? 'Unknown error',
+            ],
+            $previous
+        );
+    }
+
     public static function translationConfigurationFileIsEmpty(string $file): self
     {
         return new self(
@@ -216,6 +232,19 @@ class SnippetException extends HttpException
                 'message' => $previous->getMessage(),
             ],
             $previous
+        );
+    }
+
+    /**
+     * @param list<string> $extensionName
+     */
+    public static function invalidExtensions(array $extensionName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SNIPPET_COUNTRY_AGNOSTIC_FILE_LINTER_INVALID_EXTENSIONS,
+            'Specified argument "{{ extensionNames }}" does not contain valid extensions.',
+            ['extensionNames' => implode(', ', $extensionName)],
         );
     }
 }

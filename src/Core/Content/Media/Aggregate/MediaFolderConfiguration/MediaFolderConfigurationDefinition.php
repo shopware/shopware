@@ -59,16 +59,16 @@ class MediaFolderConfigurationDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new BoolField('create_thumbnails', 'createThumbnails'),
-            new BoolField('keep_aspect_ratio', 'keepAspectRatio'),
-            new IntField('thumbnail_quality', 'thumbnailQuality', 0, 100),
-            new BoolField('private', 'private'),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of media folder configuration.'),
+            (new BoolField('create_thumbnails', 'createThumbnails'))->setDescription('When boolean value is `true`, it enables thumbnail creation automatically.'),
+            (new BoolField('keep_aspect_ratio', 'keepAspectRatio'))->setDescription('When boolean value is `true`, the system maintains the aspect ratio of media files when generating.'),
+            (new IntField('thumbnail_quality', 'thumbnailQuality', 0, 100))->setDescription('Parameter that controls the balance between image quality and size when creating thumbnail images.'),
+            (new BoolField('private', 'private'))->setDescription('When boolean value is `true`, the folder contents are restricted from public access.'),
             new BoolField('no_association', 'noAssociation'),
             new OneToManyAssociationField('mediaFolders', MediaFolderDefinition::class, 'media_folder_configuration_id', 'id'),
             new ManyToManyAssociationField('mediaThumbnailSizes', MediaThumbnailSizeDefinition::class, MediaFolderConfigurationMediaThumbnailSizeDefinition::class, 'media_folder_configuration_id', 'media_thumbnail_size_id'),
             (new BlobField('media_thumbnail_sizes_ro', 'mediaThumbnailSizesRo'))->removeFlag(ApiAware::class)->addFlags(new Computed()),
-            new CustomFields(),
+            (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
         ]);
     }
 }

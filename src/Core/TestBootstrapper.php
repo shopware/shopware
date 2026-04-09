@@ -65,10 +65,10 @@ class TestBootstrapper
 
         KernelLifecycleManager::prepare($classLoader);
 
-        if ($this->isForceInstall() || !$this->dbExists()) {
+        if ($this->isForceInstall() || !$this->pluginTableExists()) {
             $this->install();
 
-            if (!empty($this->activePlugins)) {
+            if ($this->activePlugins !== []) {
                 $this->installPlugins();
             }
         } elseif ($this->forceInstallPlugins) {
@@ -230,7 +230,7 @@ class TestBootstrapper
         }
 
         $parts = explode('\\', (string) $baseClass);
-        $pluginName = end($parts);
+        $pluginName = $parts[array_key_last($parts)];
 
         $this->addActivePlugins($pluginName);
 
@@ -382,11 +382,11 @@ class TestBootstrapper
         return $this->getKernel()->getContainer();
     }
 
-    private function dbExists(): bool
+    private function pluginTableExists(): bool
     {
         try {
             $connection = $this->getKernelContainer()->get(Connection::class);
-            $connection->executeQuery('SELECT 1 FROM `plugin`')->fetchAllAssociative();
+            $connection->executeQuery('SELECT 1 FROM `plugin` LIMIT 1')->fetchAllAssociative();
 
             return true;
         } catch (\Throwable) {

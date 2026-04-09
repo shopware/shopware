@@ -48,7 +48,7 @@ abstract class Rule extends Struct
         $ruleName = static::RULE_NAME;
 
         if ($ruleName === null) {
-            throw new \Error('Implement own getName or add RULE_NAME constant');
+            throw RuleException::ruleNameNotImplemented();
         }
 
         return $ruleName;
@@ -67,7 +67,7 @@ abstract class Rule extends Struct
      *   'propertyName2' => [new Constraint(), new OtherConstraint()],
      *  ]
      *
-     * @return array<string, array<Constraint>>
+     * @return array<string, list<Constraint>>
      */
     abstract public function getConstraints(): array;
 
@@ -86,7 +86,7 @@ abstract class Rule extends Struct
         $data['_name'] = $this->getName();
 
         // filter out null values to avoid constraint violations with empty operator
-        return array_filter($data, function ($value) {
+        return array_filter($data, static function ($value) {
             return $value !== null;
         });
     }

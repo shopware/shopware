@@ -161,6 +161,7 @@
                 {% block sw_newsletter_recipient_detail_form_tags %}
                 <sw-entity-tag-select
                     v-model:entity-collection="newsletterRecipient.tags"
+                    class="sw-newsletter-recipient-detail__tags"
                     :label="$tc('sw-newsletter-recipient.general.tags')"
                     :disabled="!acl.can('newsletter_recipient.editor')"
                 />

@@ -20,6 +20,7 @@
             <mt-button
                 variant="secondary"
                 size="default"
+                data-analytics-id="sw-order-create.cancel-order"
                 @click="onCancelOrder"
             >
                 {{ $tc('global.default.cancel') }}
@@ -31,6 +32,7 @@
                 :disabled="isLoading"
                 :is-loading="isLoading"
                 :process-success="isSaveSuccessful"
+                data-analytics-id="sw-order-create.save-order"
                 @update:process-success="saveFinish"
                 @click.prevent="onSaveOrder"
             >
@@ -121,6 +123,7 @@
                     class="sw-order-create__remind-payment-modal-decline"
                     size="small"
                     variant="secondary"
+                    data-analytics-id="sw-order-create.remind-payment-modal-cancel"
                     @click="onRemindPaymentModalClose"
                 >
                     {{ $tc('global.default.no') }}
@@ -130,6 +133,7 @@
                     class="sw-order-create__remind-payment-modal-remind"
                     variant="primary"
                     size="small"
+                    data-analytics-id="sw-order-create.remind-customer"
                     @click="onRemindCustomer"
                 >
                     {{ $tc('sw-order.create.remindPaymentModal.primaryAction') }}

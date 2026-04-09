@@ -42,6 +42,9 @@ export default {
             return this.repositoryFactory.create('promotion_setgroup');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
+         */
         ruleFilter() {
             const criteria = new Criteria(1, 25);
 
@@ -110,34 +113,18 @@ export default {
         },
     },
 
-    watch: {
-        promotion() {
-            this.loadSetGroups();
-        },
-    },
-
     created() {
         this.createdComponent();
     },
 
     methods: {
         createdComponent() {
-            if (this.promotion) {
-                this.loadSetGroups();
-            }
-
             this.promotionSyncService.loadPackagers().then((keys) => {
                 this.packagerKeys = keys;
             });
 
             this.promotionSyncService.loadSorters().then((keys) => {
                 this.sorterKeys = keys;
-            });
-        },
-
-        loadSetGroups() {
-            this.promotionGroupRepository.search(this.setGroupCriteria).then((groups) => {
-                this.promotion.setgroups = groups;
             });
         },
 

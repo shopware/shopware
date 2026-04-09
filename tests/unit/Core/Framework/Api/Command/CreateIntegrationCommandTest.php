@@ -37,7 +37,7 @@ class CreateIntegrationCommandTest extends TestCase
         $admin = null;
         $integrationRepository->expects($this->once())
             ->method('create')
-            ->with(static::callback(function ($input) use (&$accessKey, &$secretAccessKey, &$admin) {
+            ->with(static::callback(static function ($input) use (&$accessKey, &$secretAccessKey, &$admin) {
                 $accessKey = $input[0]['accessKey'];
                 $secretAccessKey = $input[0]['secretAccessKey'];
                 $admin = $input[0]['admin'];
@@ -57,7 +57,7 @@ class CreateIntegrationCommandTest extends TestCase
         static::assertNotNull($accessKey);
         static::assertNotNull($secretAccessKey);
         static::assertNotNull($admin);
-        static::assertSame((bool) $adminOption, $admin);
+        static::assertSame($adminOption, $admin);
 
         $output = $cmd->getDisplay();
         static::assertNotEmpty($output);
@@ -80,7 +80,7 @@ class CreateIntegrationCommandTest extends TestCase
         $admin = null;
         $integrationRepository->expects($this->once())
             ->method('create')
-            ->with(static::callback(function ($input) use (&$accessKey, &$secretAccessKey, &$admin) {
+            ->with(static::callback(static function ($input) use (&$accessKey, &$secretAccessKey, &$admin) {
                 $accessKey = $input[0]['accessKey'];
                 $secretAccessKey = $input[0]['secretAccessKey'];
                 $admin = $input[0]['admin'];

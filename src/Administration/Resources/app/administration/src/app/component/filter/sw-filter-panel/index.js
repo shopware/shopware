@@ -11,7 +11,10 @@ import './sw-filter-panel.scss';
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'feature',
+        'repositoryFactory',
+    ],
 
     emits: ['criteria-changed'],
 

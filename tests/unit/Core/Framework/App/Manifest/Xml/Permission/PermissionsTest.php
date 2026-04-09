@@ -57,4 +57,22 @@ class PermissionsTest extends TestCase
             'user_change_me',
         ], $manifest->getPermissions()->asParsedPrivileges());
     }
+
+    public function testCrudPermission(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../../_fixtures/test/manifest_crud.xml');
+
+        static::assertNotNull($manifest->getPermissions());
+        static::assertCount(8, $manifest->getPermissions()->asParsedPrivileges());
+        static::assertSame([
+            'product:create',
+            'product:read',
+            'product:update',
+            'product:delete',
+            'category:read',
+            'category:create',
+            'category:update',
+            'category:delete',
+        ], $manifest->getPermissions()->asParsedPrivileges());
+    }
 }

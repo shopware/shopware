@@ -1,0 +1,141 @@
+{
+    "sw-first-run-wizard": {
+        "general": {
+            "mainMenuItemGeneral": "Ersteinrichtungs-Assistent",
+            "buttonNext": "Weiter",
+            "buttonSkip": "Überspringen",
+            "buttonNextPayPalInfo": "Konfigurieren",
+            "buttonBack": "Zurück",
+            "buttonInstall": "Installieren",
+            "buttonActivate": "Aktivieren",
+            "buttonFinish": "Fertig",
+            "buttonConfigureLater": "Später einstellen",
+            "pluginInstalled": "Installiert"
+        },
+        "welcome": {
+            "modalTitle": "Willkommen",
+            "headlineWelcome": "Willkommen in der Shopware 6 Administration",
+            "messageWelcome": "Dieser Einrichtungsassistent begleitet Dich durch die wichtigsten Einstellungen und gibt Dir wertvolle Tipps zur Konfiguration."
+        },
+        "dataImport": {
+            "modalTitle": "Dein Start in Shopware 6",
+            "headlineDemoData": "Demodaten benutzen",
+            "messageDemoData": "Statte Deinen Shop mit Demodaten aus und erkunde Shopware 6. Demodaten sollten ausschließlich zu Testzwecken verwendet werden.",
+            "buttonInstallDemoData": "Demodaten installieren",
+            "headlineMigration": "Eigenen Shop migrieren",
+            "messageMigration": "Der Migrations-Assistent hilft Dir, Dein Shopsystem mit Shopware 6 zu verbinden und vorhandene Daten zu übertragen.",
+            "buttonInstallMigration": "Migrations-Assistenten installieren",
+            "loadingMessage": "Installiere Erweiterung<br>Das könnte eine Weile dauern ..."
+        },
+        "mailerSelection": {
+            "headline": "Einrichtung der E-Mail-Kommunikation",
+            "modalTitle": "Mailer-Einstellungen",
+            "description": "Die Kommunikation mit Kunden ist ein Schlüsselfaktor im täglichen E-Commerce. Daher solltest Du Dein Mailingsystem so früh wie möglich einrichten.",
+            "chooseSubline": "Wähle Deinen bevorzugten E-Mail-Agenten aus.",
+            "localOption": "Lokalen E-Mail-Agenten verwenden",
+            "localOptionHelptext": "Diese Option verwendet den Standard-Mailer Deines Systems (Sendmail).  Stelle sicher, dass Sendmail funktioniert und in Deiner eigenen Hosting-Umgebung grundsätzlich verfügbar ist.",
+            "localOptionSubline": "(Sendmail)",
+            "smtpOption": "Eigenen SMTP-Server konfigurieren",
+            "configurationNote": "Alle Mailing-Konfigurationen können auch später noch bearbeitet werden.",
+            "buttonConfigure": "Konfigurieren"
+        },
+        "mailerSmtp": {
+            "headline": "SMTP-Server"
+        },
+        "mailerLocal": {
+            "headline": "Lokalen E-Mail-Agenten"
+        },
+        "paypalInfo": {
+            "modalTitle": "PayPal einrichten",
+            "headline": "Jetzt vorintegriert in Shopware mit noch einfacherer und schnellerer Aktivierung der beliebtesten Zahlarten*",
+            "paymethod": {
+                "paypal": "PayPal",
+                "debit": "Lastschrift",
+                "creditcard": "Kreditkarte",
+                "invoice": "Kauf auf Rechnung"
+            },
+            "disclaimerLineOne": "* ECC Köln: ECC-Payment-Studie Vol. 20, Köln, 2016",
+            "disclaimerLineTwo": "** vorbehaltlich einer positiven Risikoprüfung von PayPal"
+        },
+        "paypalInstall": {
+            "loadingMessage": "PayPal wird konfiguriert<br>Das könnte einen Moment dauern ..."
+        },
+        "recommendedPlugins": {
+            "headline": "Unsere Empfehlungen",
+            "modalTitle": "Erweiterungen",
+            "message": "Hier findest Du eine Auswahl empfohlener Erweiterungen für Deinen Shop. Wähle zunächst die für Dich relevantesten aus. Du kannst später weiter in unterschiedlichen Erweiterungs-Kategorien stöbern.",
+            "availableInRegion": "Verfügbar in Region",
+            "category": "Kategorie",
+            "topRecommendations": "Globale Empfehlungen",
+            "otherRecommendations": "Regionale Empfehlungen"
+        },
+        "shopwareAccount": {
+            "headline": "Shopware Account - Anmeldung",
+            "passwordLabel": "Passwort",
+            "passwordPlaceholder": "Gib Dein Passwort ein ...",
+            "emailAddressLabel": "E-Mail-Adresse",
+            "emailAddressPlaceholder": "Gib Deine E-Mail-Adresse ein ...",
+            "modalTitle": "Shopware Account",
+            "message": "Der Shopware Account ist Deine zentrale Plattform zur Interaktion mit Shopware.",
+            "registerAccountText": "Du hast noch keinen Shopware Account? Dann registriere Dich direkt",
+            "registerAccountHere": "hier",
+            "registerAccountUrl": "https://account.shopware.com/register?lang=de",
+            "forgotPasswordText": "Du hast Dein Passwort vergessen?",
+            "forgotPasswordUrl": "https://account.shopware.com/recovery?lang=de"
+        },
+        "error": {
+            "messageLoginDataInvalid": "Falsche Login-Daten, bitte versuche es nochmal."
+        },
+        "shopwareDomain": {
+            "headline": "Verifiziere Deine Domain",
+            "message": "Mit welcher Domain willst Du diesen Shop verknüpfen? Wähle die entsprechende Domain aus oder lege eine neue an.",
+            "labelCreateDomain": "Erstelle eine neue Shop-Domain",
+            "testEnvironment": "Test-Umgebung"
+        },
+        "store": {
+          "modalTitle": "Shopware Store",
+          "loadStatusCollect": "Store-Informationen werden abgerufen ...",
+          "takeMinutes": "Dies kann ein paar Minuten dauern.",
+          "alreadyActivated": "Store ist bereits erfolgreich aktiviert.",
+          "enablingStore": "Aktivieren des Shopware-Stores ... ",
+          "activationErrorTitle": "Fehler bei der Aktivierung",
+          "activationErrorDescription": "Bitte frage Deinen Administrator um Hilfe.",
+          "headingOne": "Erkunde und kaufe Erweiterungen einfach -",
+          "headingTwo": "direkt aus Deinem eigenen Shopware-Shop.",
+          "description": "Aktiviere den neuen Shopware Store und erhalte Zugriff auf viele hilfreiche Erweiterungen und moderne Themes, die Du nahtlos in Deinen Shop integrieren kannst - ganz ohne Programmierkenntnisse."
+        },
+        "defaults": {
+            "modalTitle": "Standardwerte definieren"
+        },
+        "finish": {
+            "headlineAllDone": "Herzlichen Glückwunsch!",
+            "message": "Deine Shopware 6 {edition} ist jetzt verifiziert.",
+            "messageNotLicensed": "Dein Shopware 6 ist jetzt vorbereitet.",
+            "headlineUsefulLinks": "Nützliche Links",
+            "loadingMessage": "Anwendung wird neu gestartet<br>Das könnte einen Moment dauern ...",
+            "documentationLabel": "Dokumentation",
+            "documentationUrl": "https://docs.shopware.com/de",
+            "forumLabel": "Forum",
+            "forumUrl": "https://forum.shopware.com/",
+            "roadmapLabel": "Roadmap",
+            "roadmapUrl": "https://www.shopware.com/de/roadmap/",
+            "modalTitle": "Fertig"
+        },
+        "stepItemTitle": {
+            "dataImport": "Daten-Import",
+            "mailer": "Mailer-Einstellungen",
+            "setupPaypal": "PayPal einrichten",
+            "plugins": "Erweiterungen",
+            "shopware": "Shopware Account",
+            "store": "Shopware Store",
+            "defaults": "Standardwerte"
+        }
+    },
+    "sw-privileges": {
+        "additional_permissions": {
+            "system": {
+              "frw": "Ersteinrichtungs-Assistent"
+            }
+        }
+    }
+}

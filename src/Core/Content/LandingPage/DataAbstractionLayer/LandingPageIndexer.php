@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\LandingPage\DataAbstractionLayer;
 
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
+use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -11,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlUpdateListener;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('discovery')]
@@ -19,6 +19,8 @@ class LandingPageIndexer extends EntityIndexer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<LandingPageCollection> $repository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,
@@ -38,7 +40,7 @@ class LandingPageIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -49,7 +51,7 @@ class LandingPageIndexer extends EntityIndexer
     {
         $updates = $event->getPrimaryKeys(LandingPageDefinition::ENTITY_NAME);
 
-        if (empty($updates)) {
+        if ($updates === []) {
             return null;
         }
 
@@ -64,7 +66,7 @@ class LandingPageIndexer extends EntityIndexer
         }
 
         $ids = array_unique(array_filter($ids));
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -75,7 +77,7 @@ class LandingPageIndexer extends EntityIndexer
     public function getOptions(): array
     {
         return [
-            SeoUrlUpdateListener::LANDING_PAGE_SEO_URL_UPDATER,
+            'landing_page.seo-url',
         ];
     }
 

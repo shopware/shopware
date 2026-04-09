@@ -42,10 +42,6 @@
                             }
                         },
                         "required": ["breadcrumb"]
-                    },
-                    "type": {
-                        "type": "string",
-                        "enum": ["page", "link"]
                     }
                 },
                 "required": [

@@ -38,13 +38,13 @@ class ImportExportFileDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('original_name', 'originalName'))->addFlags(new Required()),
-            (new StringField('path', 'path'))->addFlags(new Required()),
-            (new DateTimeField('expire_date', 'expireDate'))->addFlags(new Required()),
-            new IntField('size', 'size'),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of import-export file.'),
+            (new StringField('original_name', 'originalName'))->addFlags(new Required())->setDescription('Original name of the import-export file.'),
+            (new StringField('path', 'path'))->addFlags(new Required())->setDescription('A relative URL to the import-export file.'),
+            (new DateTimeField('expire_date', 'expireDate'))->addFlags(new Required())->setDescription('Date and time of import-export file expiry.'),
+            (new IntField('size', 'size'))->setDescription('Size of the import-export file.'),
             (new OneToOneAssociationField('log', 'id', 'file_id', ImportExportLogDefinition::class, false))->addFlags(new CascadeDelete()),
-            new StringField('access_token', 'accessToken'),
+            (new StringField('access_token', 'accessToken'))->setDescription('Secret key to access import-export file.'),
         ]);
     }
 }

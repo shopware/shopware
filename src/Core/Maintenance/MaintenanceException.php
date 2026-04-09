@@ -12,8 +12,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class MaintenanceException extends HttpException
@@ -83,12 +81,13 @@ class MaintenanceException extends HttpException
         );
     }
 
-    public static function dbVersionSelectFailed(): DatabaseSetupException
+    public static function dbVersionSelectFailed(?\Throwable $exception = null): DatabaseSetupException
     {
         return new DatabaseSetupException(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MAINTENANCE_DB_VERSION_SELECT_FAILED,
-            'Failed to select database version'
+            'Failed to select database version',
+            previous: $exception
         );
     }
 

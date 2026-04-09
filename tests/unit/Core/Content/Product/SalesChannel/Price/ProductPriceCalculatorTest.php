@@ -33,7 +33,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Unit\UnitCollection;
@@ -149,7 +148,7 @@ class ProductPriceCalculatorTest extends TestCase
 
     public function testEnsureUnitCaching(): void
     {
-        $property = ReflectionHelper::getProperty(ProductPriceCalculator::class, 'units');
+        $property = new \ReflectionProperty(ProductPriceCalculator::class, 'units');
 
         static::assertNull($property->getValue($this->calculator));
 
@@ -302,31 +301,37 @@ class ProductPriceCalculatorTest extends TestCase
     public static function advancedPricesWillBeCalculatedProvider(): \Generator
     {
         yield 'Prices will not be calculated when not loaded' => [
-            (new PartialEntity())->assign(['prices' => null]),
+            (new PartialEntity())->assign(['id' => Uuid::randomHex(), 'prices' => null]),
             [],
         ];
 
-        yield 'Only product price collection can be calculated' => [
+        yield 'Partial entity price collection will be calculated' => [
             (new PartialEntity())->assign([
+                'id' => Uuid::randomHex(),
+                'taxId' => Uuid::randomHex(),
                 'prices' => new EntityCollection([
-                    (new ProductPriceEntity())->assign([
+                    (new PartialEntity())->assign([
+                        'id' => Uuid::randomHex(),
                         '_uniqueIdentifier' => Uuid::randomHex(),
+                        'ruleId' => Defaults::CURRENCY,
                         'price' => new PriceCollection([
                             new Price(Defaults::CURRENCY, 1, 1, false),
                         ]),
                         'quantityStart' => 1,
-                        'quantityEnd' => 2,
+                        'quantityEnd' => null,
                     ]),
                 ]),
             ]),
-            [],
+            [1.0],
         ];
 
         yield 'Only matching rule ids will be calculated' => [
             (new PartialEntity())->assign([
+                'id' => Uuid::randomHex(),
                 'taxId' => Uuid::randomHex(),
                 'prices' => new ProductPriceCollection([
                     (new ProductPriceEntity())->assign([
+                        'id' => Uuid::randomHex(),
                         '_uniqueIdentifier' => Uuid::randomHex(),
                         // not inside the context (see above inside mock)
                         'ruleId' => Defaults::SALES_CHANNEL_TYPE_API,
@@ -343,9 +348,11 @@ class ProductPriceCalculatorTest extends TestCase
 
         yield 'Product will be calculated when price collection loaded' => [
             (new PartialEntity())->assign([
+                'id' => Uuid::randomHex(),
                 'taxId' => Uuid::randomHex(),
                 'prices' => new ProductPriceCollection([
                     (new ProductPriceEntity())->assign([
+                        'id' => Uuid::randomHex(),
                         '_uniqueIdentifier' => Uuid::randomHex(),
                         'ruleId' => Defaults::CURRENCY,
                         'price' => new PriceCollection([

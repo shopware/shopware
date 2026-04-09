@@ -411,10 +411,13 @@ export default {
             try {
                 await this.userRepository.save(this.user, context);
 
-                if (this.user.password) {
-                    await this.updateAuthToken();
+                if (this.currentUser.id === this.user.id) {
+                    if (this.user.password) {
+                        await this.updateAuthToken();
+                    }
+                    await this.updateCurrentUser();
                 }
-                await this.updateCurrentUser();
+
                 this.createdComponent();
 
                 this.confirmPasswordModal = false;

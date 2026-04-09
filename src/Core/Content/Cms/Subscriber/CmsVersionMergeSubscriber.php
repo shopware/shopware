@@ -69,7 +69,7 @@ class CmsVersionMergeSubscriber implements EventSubscriberInterface
      * @param array<int, array<string, mixed>> $slots
      * @param array<string, array<string, bool>> $deletedBlocks
      *
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function filterSlots(array $slots, array $deletedBlocks): array
     {

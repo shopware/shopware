@@ -197,7 +197,6 @@ class TestCollectionWithSelfReference extends SerializationFixture
                         'translated' => [],
                         'createdAt' => '2012-08-15T00:00:00.000+00:00',
                         'updatedAt' => '2017-11-21T11:25:34.000+00:00',
-                        'extensions' => [],
                         'apiAlias' => 'media_folder',
                     ],
                 ],
@@ -209,7 +208,6 @@ class TestCollectionWithSelfReference extends SerializationFixture
                 'translated' => [],
                 'createdAt' => '2012-08-15T00:00:00.000+00:00',
                 'updatedAt' => '2017-11-21T11:25:34.000+00:00',
-                'extensions' => [],
                 'apiAlias' => 'media_folder',
             ],
         ];

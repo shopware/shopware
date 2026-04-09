@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ProductReviewsLoadedEvent;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
@@ -91,7 +92,7 @@ class ProductReviewLoader extends AbstractProductReviewLoader
         if ($aggregation instanceof TermsResult) {
             $buckets = $aggregation->getBuckets();
 
-            return empty($buckets) ? 0 : $buckets[0]->getCount();
+            return $buckets === [] ? 0 : $buckets[0]->getCount();
         }
 
         return $reviews->getTotal();
@@ -100,7 +101,7 @@ class ProductReviewLoader extends AbstractProductReviewLoader
     private function createReviewCriteria(Request $request, SalesChannelContext $context): Criteria
     {
         $limit = $this->systemConfigService->getInt('core.listing.reviewsPerPage', $context->getSalesChannelId());
-        $page = (int) $request->get(self::PARAMETER_NAME_PAGE, 1);
+        $page = (int) RequestParamHelper::get($request, self::PARAMETER_NAME_PAGE, 1);
         $offset = max(0, $limit * ($page - 1));
 
         $criteria = new Criteria();
@@ -109,13 +110,13 @@ class ProductReviewLoader extends AbstractProductReviewLoader
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         $sorting = new FieldSorting('createdAt', 'DESC');
-        if ($request->get(self::PARAMETER_NAME_SORT, 'createdAt') === 'points') {
+        if (RequestParamHelper::get($request, self::PARAMETER_NAME_SORT, 'createdAt') === 'points') {
             $sorting = new FieldSorting('points', 'DESC');
         }
 
         $criteria->addSorting($sorting);
 
-        if ($request->get(self::PARAMETER_NAME_LANGUAGE) === 'filter-language') {
+        if (RequestParamHelper::get($request, self::PARAMETER_NAME_LANGUAGE) === 'filter-language') {
             $criteria->addPostFilter(
                 new EqualsFilter('languageId', $context->getLanguageId())
             );
@@ -152,9 +153,9 @@ class ProductReviewLoader extends AbstractProductReviewLoader
     private function handlePointsAggregation(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
         $reviewFilters = [];
-        $points = $request->get(self::PARAMETER_NAME_POINTS, []);
+        $points = RequestParamHelper::get($request, self::PARAMETER_NAME_POINTS, []);
 
-        if (\is_array($points) && \count($points) > 0) {
+        if (\is_array($points) && $points !== []) {
             $pointFilter = [];
             foreach ($points as $point) {
                 $pointFilter[] = new RangeFilter('points', [

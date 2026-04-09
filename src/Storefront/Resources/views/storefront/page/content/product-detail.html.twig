@@ -19,7 +19,11 @@
 
             {% block cms_content %}
                 {% set cmsPageClasses = ('cms-page ' ~ page.cmsPage.cssClass|striptags)|trim %}
-                <div class="{{ cmsPageClasses }}" itemscope itemtype="https://schema.org/Product">
+                {# @deprecated tag:v6.8.0 - Product microdata on wrapper div replaced by JSON-LD. Will be removed. #}
+                <div class="{{ cmsPageClasses }}"
+                     {% if not feature('JSON_LD_DATA') %}
+                     itemscope itemtype="https://schema.org/Product"
+                     {% endif %}>
                     {% block page_content_blocks %}
                         {% sw_include '@Storefront/storefront/page/content/detail.html.twig' with {cmsPage: page.cmsPage} %}
                     {% endblock %}

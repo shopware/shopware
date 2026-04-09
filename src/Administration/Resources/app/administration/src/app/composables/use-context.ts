@@ -35,11 +35,13 @@ export interface ContextState {
                 appUrlReachable: boolean;
                 appsRequireAppUrl: boolean;
                 disableExtensionManagement: boolean;
+                firstMigrationDate?: string | null;
             };
             version: null | string;
             versionRevision: null | string;
             inAppPurchases: Record<string, string[]>;
             shopId: null | string;
+            appUrl: null | string;
         };
         environment: null | 'development' | 'production' | 'testing';
         fallbackLocale: null | string;
@@ -50,6 +52,7 @@ export interface ContextState {
         systemCurrencyISOCode: null | string;
         systemCurrencyId: null | string;
         windowId: null | string;
+        analyticsGatewayUrl: null | string;
     };
     api: {
         apiPath: null | string;
@@ -86,6 +89,7 @@ const state: ContextState = reactive({
             versionRevision: null,
             inAppPurchases: {},
             shopId: null,
+            appUrl: null,
         },
         environment: null,
         fallbackLocale: null,
@@ -94,6 +98,7 @@ const state: ContextState = reactive({
         systemCurrencyId: null,
         systemCurrencyISOCode: null,
         windowId: null,
+        analyticsGatewayUrl: null,
     },
     api: {
         apiPath: null,

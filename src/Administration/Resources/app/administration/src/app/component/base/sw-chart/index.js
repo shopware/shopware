@@ -262,21 +262,19 @@ export default {
                 },
 
                 markers: {
-                    size: 4,
-                    strokeWidth: 0,
-                    hover: {
-                        size: 8,
-                    },
+                    size: 0,
                 },
 
                 stroke: {
-                    width: 2,
+                    width: '2',
+                    curve: 'straight',
+                    colors: ['var(--color-border-brand-selected)'],
                 },
 
                 title: {
                     margin: 0,
                     style: {
-                        color: '#52667a',
+                        color: 'var(--color-text-secondary-default)',
                         fontSize: '24px',
                     },
                 },
@@ -287,16 +285,17 @@ export default {
 
                 xaxis: {
                     axisBorder: {
-                        show: false,
+                        color: 'var(--color-border-primary-default)',
                     },
 
                     axisTicks: {
-                        show: false,
+                        show: true,
+                        color: 'var(--color-border-primary-default)',
                     },
 
                     labels: {
                         style: {
-                            colors: '#52667a',
+                            colors: 'var(--color-text-secondary-default)',
                         },
                     },
 
@@ -304,14 +303,28 @@ export default {
                         enabled: true,
                         offsetY: 10,
                     },
+
+                    crosshairs: {
+                        show: true,
+                        width: 1,
+                        stroke: {
+                            color: 'var(--color-border-primary-default)',
+                            width: 1,
+                            dashArray: 0,
+                        },
+                    },
                 },
 
                 yaxis: {
                     labels: {
                         style: {
-                            color: '#52667a',
+                            colors: 'var(--color-text-secondary-default)',
                         },
                     },
+                },
+
+                grid: {
+                    borderColor: 'var(--color-border-primary-default)',
                 },
             };
         },

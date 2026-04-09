@@ -42,8 +42,8 @@ export default Component.wrapComponentConfig({
 
     computed: {
         title(): string {
-            const moduleName = this.$tc('sw-inactivity-login.general.mainMenuItemIndex');
-            const adminName = this.$tc('global.sw-admin-menu.textShopwareAdmin');
+            const moduleName = this.$t('global.sw-inactivity-login.general.mainMenuItemIndex');
+            const adminName = this.$t('global.sw-admin-menu.textShopwareAdmin');
 
             return `${moduleName} | ${adminName}`;
         },
@@ -100,6 +100,11 @@ export default Component.wrapComponentConfig({
     },
 
     methods: {
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
         loginUserWithPassword() {
             this.isLoading = true;
 
@@ -115,7 +120,7 @@ export default Component.wrapComponentConfig({
                     this.password = '';
 
                     this.passwordError = {
-                        detail: this.$tc('sw-inactivity-login.modal.errors.password'),
+                        detail: this.$t('global.sw-inactivity-login.modal.errors.password'),
                     };
 
                     this.isLoading = false;
@@ -145,7 +150,7 @@ export default Component.wrapComponentConfig({
             }
 
             // Reload the page to ensure all non-login initializers are executed
-            window.location.reload();
+            this._reloadPage();
         },
 
         onBackToLogin() {

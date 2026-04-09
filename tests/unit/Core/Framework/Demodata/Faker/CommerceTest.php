@@ -6,7 +6,6 @@ use Faker\Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Demodata\Faker\Commerce;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 /**
  * @internal
@@ -18,7 +17,7 @@ class CommerceTest extends TestCase
     {
         $commerce = new Commerce(Factory::create());
 
-        $productNameProperty = ReflectionHelper::getProperty(Commerce::class, 'productName');
+        $productNameProperty = new \ReflectionProperty(Commerce::class, 'productName');
         $originalProductName = $productNameProperty->getValue($commerce);
         $productNameProperty->setValue($commerce, ['adjective' => ['Test Product Name']]);
 

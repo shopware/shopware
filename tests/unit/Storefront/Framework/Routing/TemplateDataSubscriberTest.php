@@ -8,7 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\Hreflang\HreflangCollection;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -148,7 +150,7 @@ class TemplateDataSubscriberTest extends TestCase
         $this->shopIdProvider
             ->expects($this->once())
             ->method('getShopId')
-            ->willThrowException(new AppUrlChangeDetectedException('before', 'new', '123'));
+            ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('123'), new FingerprintComparisonResult([], [], 75)));
 
         $this->subscriber->addShopIdParameter($event);
     }
@@ -166,10 +168,11 @@ class TemplateDataSubscriberTest extends TestCase
             ->method('getActiveApps')
             ->willReturn(['someApp']);
 
+        $shopId = ShopId::v2('123');
         $this->shopIdProvider
             ->expects($this->once())
             ->method('getShopId')
-            ->willReturn('123');
+            ->willReturn($shopId);
 
         $this->subscriber->addShopIdParameter($event);
 

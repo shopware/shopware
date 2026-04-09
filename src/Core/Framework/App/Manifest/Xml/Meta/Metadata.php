@@ -91,7 +91,7 @@ class Metadata extends XmlElement
         // label is required in app_translation and must therefore be available in all languages
         $diff = array_diff($usedLocales, array_keys($this->getLabel()));
 
-        if (empty($diff)) {
+        if ($diff === []) {
             return null;
         }
 
@@ -191,11 +191,11 @@ class Metadata extends XmlElement
          *      type: string,
          *      author: string,
          *      copyright: string,
-         *      license: ?string,
-         *      compatibility: ?string,
-         *      version: ?string,
-         *      icon: ?string,
-         *      privacy: ?string,
+         *      license?: string,
+         *      compatibility?: string,
+         *      version?: string,
+         *      icon?: string,
+         *      privacy?: string,
          *      privacyPolicyExtensions: array<string, string>,
          *  } $values
          */

@@ -13,13 +13,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Api\StoreController;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
-use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreClient;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -34,6 +35,9 @@ class StoreControllerTest extends TestCase
 
     private Context $defaultContext;
 
+    /**
+     * @var EntityRepository<UserCollection>
+     */
     private EntityRepository $userRepository;
 
     protected function setUp(): void
@@ -126,7 +130,7 @@ class StoreControllerTest extends TestCase
 
         $storeController = $this->getStoreController($storeClientMock);
 
-        static::expectException(StoreInvalidCredentialsException::class);
+        static::expectExceptionObject(StoreException::invalidCredentials());
         $storeController->login($request, $context);
     }
 

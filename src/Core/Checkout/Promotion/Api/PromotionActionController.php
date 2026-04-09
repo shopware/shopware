@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
@@ -26,7 +27,12 @@ class PromotionActionController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/promotion/setgroup/packager', name: 'api.action.promotion.setgroup.packager', methods: ['GET'], defaults: ['_acl' => ['promotion:read']])]
+    #[Route(
+        path: '/api/_action/promotion/setgroup/packager',
+        name: 'api.action.promotion.setgroup.packager',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['promotion:read']],
+        methods: [Request::METHOD_GET]
+    )]
     public function getSetGroupPackagers(): JsonResponse
     {
         $packagerKeys = [];
@@ -39,7 +45,12 @@ class PromotionActionController extends AbstractController
         return new JsonResponse($packagerKeys);
     }
 
-    #[Route(path: '/api/_action/promotion/setgroup/sorter', name: 'api.action.promotion.setgroup.sorter', methods: ['GET'], defaults: ['_acl' => ['promotion:read']])]
+    #[Route(
+        path: '/api/_action/promotion/setgroup/sorter',
+        name: 'api.action.promotion.setgroup.sorter',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['promotion:read']],
+        methods: [Request::METHOD_GET]
+    )]
     public function getSetGroupSorters(): JsonResponse
     {
         $sorterKeys = [];
@@ -52,7 +63,12 @@ class PromotionActionController extends AbstractController
         return new JsonResponse($sorterKeys);
     }
 
-    #[Route(path: '/api/_action/promotion/discount/picker', name: 'api.action.promotion.discount.picker', methods: ['GET'], defaults: ['_acl' => ['promotion:read']])]
+    #[Route(
+        path: '/api/_action/promotion/discount/picker',
+        name: 'api.action.promotion.discount.picker',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['promotion:read']],
+        methods: [Request::METHOD_GET]
+    )]
     public function getDiscountFilterPickers(): JsonResponse
     {
         $pickerKeys = [];

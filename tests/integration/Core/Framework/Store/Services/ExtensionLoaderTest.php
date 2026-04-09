@@ -181,7 +181,7 @@ class ExtensionLoaderTest extends TestCase
 
         $time = new \DateTime();
 
-        /** @var EntityRepository $pluginRepository */
+        /** @var EntityRepository<PluginCollection> $pluginRepository */
         $pluginRepository = static::getContainer()->get('plugin.repository');
         $pluginRepository->update([
             [

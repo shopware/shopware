@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class SearchConfigLoaderTest extends TestCase
 {
     /**
-     * @param array<non-falsy-string, array<array{and_logic: string, field: string, tokenize: int, ranking: float}>> $configKeyedByLanguageId
+     * @param array<string, list<array{and_logic: string, excluded_terms: string, min_search_length: int, field: string, tokenize: int, ranking: float}>> $configKeyedByLanguageId
      * @param array<array{and_logic: string, field: string, tokenize: int, ranking: float}> $expectedResult
      */
     #[DataProvider('loadDataProvider')]
@@ -30,9 +30,11 @@ class SearchConfigLoaderTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
 
+        $firstLanguageId = array_key_first($configKeyedByLanguageId);
+        static::assertNotNull($firstLanguageId);
         $connection->expects($this->once())
             ->method('fetchAllAssociative')
-            ->willReturn($configKeyedByLanguageId[array_key_first($configKeyedByLanguageId)]);
+            ->willReturn($configKeyedByLanguageId[$firstLanguageId]);
 
         $loader = new SearchConfigLoader($connection);
 
@@ -53,7 +55,7 @@ class SearchConfigLoaderTest extends TestCase
 
     public function testLoadWithNoResult(): void
     {
-        static::expectExceptionObject(DataAbstractionLayerException::configNotFound());
+        $this->expectExceptionObject(DataAbstractionLayerException::configNotFound());
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
@@ -73,7 +75,7 @@ class SearchConfigLoaderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{configKeyedByLanguageId: array<string, array<array{and_logic: string, field: string, tokenize: int, ranking: int}>>, expectedResult: array<array{and_logic: string, field: string, tokenize: int, ranking: int}>}>
+     * @return iterable<string, array{configKeyedByLanguageId: array<string, list<array{and_logic: string, excluded_terms: string, min_search_length: int, field: string, tokenize: int, ranking: float}>>, expectedResult: array<array{and_logic: string, field: string, tokenize: int, ranking: float}>}>
      */
     public static function loadDataProvider(): iterable
     {
@@ -81,11 +83,11 @@ class SearchConfigLoaderTest extends TestCase
             'configKeyedByLanguageId' => [
                 Defaults::LANGUAGE_SYSTEM => [[
                     'and_logic' => 'and',
-                    'excluded_terms' => json_encode(['term1', 'term2']),
+                    'excluded_terms' => json_encode(['term1', 'term2'], \JSON_THROW_ON_ERROR),
                     'min_search_length' => 5,
                     'field' => 'name',
                     'tokenize' => 1,
-                    'ranking' => 2,
+                    'ranking' => 2.0,
                 ]],
             ],
             'expectedResult' => [
@@ -95,7 +97,7 @@ class SearchConfigLoaderTest extends TestCase
                     'min_search_length' => 5,
                     'field' => 'name',
                     'tokenize' => 1,
-                    'ranking' => 2,
+                    'ranking' => 2.0,
                 ],
             ],
         ];
@@ -106,17 +108,17 @@ class SearchConfigLoaderTest extends TestCase
                     'and_logic' => 'and',
                     'field' => 'name',
                     'tokenize' => 1,
-                    'ranking' => 100,
-                    'excluded_terms' => json_encode(['term1', 'term2']),
+                    'ranking' => 100.0,
+                    'excluded_terms' => json_encode(['term1', 'term2'], \JSON_THROW_ON_ERROR),
                     'min_search_length' => 5,
                 ]],
                 Uuid::randomHex() => [[
                     'and_logic' => 'and',
-                    'excluded_terms' => json_encode(['term3', 'term4']),
+                    'excluded_terms' => json_encode(['term3', 'term4'], \JSON_THROW_ON_ERROR),
                     'min_search_length' => 15,
                     'field' => 'name',
                     'tokenize' => 0,
-                    'ranking' => 50,
+                    'ranking' => 50.0,
                 ]],
             ],
             'expectedResult' => [
@@ -126,7 +128,7 @@ class SearchConfigLoaderTest extends TestCase
                     'min_search_length' => 5,
                     'field' => 'name',
                     'tokenize' => 1,
-                    'ranking' => 100,
+                    'ranking' => 100.0,
                 ],
             ],
         ];

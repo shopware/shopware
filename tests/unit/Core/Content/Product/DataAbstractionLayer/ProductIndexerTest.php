@@ -25,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -52,8 +53,8 @@ class ProductIndexerTest extends TestCase
             $this->createMock(EventDispatcher::class),
             $this->createMock(CheapestPriceUpdater::class),
             $this->createMock(ProductStreamUpdater::class),
-            $this->createMock(StatesUpdater::class),
             $this->createMock(MessageBusInterface::class),
+            Feature::isActive('v6.8.0.0') ? null : $this->createMock(StatesUpdater::class),
         );
 
         $context = Context::createDefaultContext();

@@ -1,0 +1,102 @@
+name: Admin Performance
+
+on:
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+  workflow_call:
+
+env:
+  COMPOSER_ROOT_VERSION: 6.7.9999999-dev
+
+jobs:
+  lighthouse:
+    name: "Lighthouse CI"
+    runs-on: ubuntu-24.04
+    env:
+      APP_ENV: prod
+      APP_URL: http://localhost:8000
+      APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
+      BLUE_GREEN_DEPLOYMENT: 1
+
+    steps:
+      - name: Start redis
+        shell: bash
+        run: docker run --name redis -p 6379:6379 -d redis:alpine
+      - name: Start mailpit
+        shell: bash
+        run: docker run --name mailpit -p 1025:1025 -p 8025:8025 -d axllent/mailpit
+
+      - name: Define environment
+        shell: bash
+        run: |
+          echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
+          echo "MAILER_DSN=smtp://localhost:1025" >> $GITHUB_ENV
+          echo "MAILPIT_BASE_URL=http://localhost:8025" >> $GITHUB_ENV
+          echo "SHOPWARE_HTTP_CACHE_ENABLED=0" >> $GITHUB_ENV
+          echo "SHOPWARE_DISABLE_UPDATE_CHECK=true" >> $GITHUB_ENV
+          echo "BLUE_GREEN_DEPLOYMENT=1" >> $GITHUB_ENV
+          echo "ENABLE_SERVICES=0" >> $GITHUB_ENV
+
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@main
+        with:
+          install: true
+          install-admin: true
+          env: prod
+          shopware-version: ${{ github.ref }}
+          shopware-repository: ${{ github.repository }}
+
+      - name: Stop already running Symfony server
+        run: symfony server:stop || true
+
+      - name: Start Web Server
+        env:
+          SYMFONY_DAEMON: "1"
+          SYMFONY_NO_TLS: "1"
+          SYMFONY_ALLOW_HTTP: "1"
+          SYMFONY_PORT: "8001" # Symfony server will run on port 8001, Caddy will proxy on 8000
+          SYMFONY_ALLOW_ALL_IP: "1"
+        run: symfony server:start
+
+      # Caddy reverse proxy to add caching headers and compression for better Lighthouse results
+      - name: Write Caddyfile
+        run: |
+          cat <<'EOF' > Caddyfile
+          :8000 {
+            encode gzip zstd
+
+            @static {
+              path /bundles/* /assets/* /theme/* /media/* /thumbnail/* /font/* /fonts/* /css/* /js/* /svg/* /favicon.ico
+            }
+            header @static Cache-Control "public, max-age=31536000, immutable"
+
+            reverse_proxy 127.0.0.1:8001
+          }
+          EOF
+
+      - name: Start Caddy reverse proxy
+        run: docker run --name caddy-proxy --network host -v $PWD/Caddyfile:/etc/caddy/Caddyfile:ro -d caddy:2.8
+
+      - name: Wait for server
+        run: |
+          timeout 30 bash -c 'until curl -sf http://localhost:8000/admin > /dev/null; do sleep 1; done'
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: './src/Administration/Resources/app/administration/lighthouserc.js'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+  admin-performance-check:
+    if: always()
+    needs:
+      - lighthouse
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # v1.2.2
+        with:
+          jobs: ${{ toJSON(needs) }}

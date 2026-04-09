@@ -8,8 +8,10 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\State;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -77,7 +79,11 @@ class LineItemTransformerTest extends TestCase
 
         $item = $this->buildOrderLineItemEntity($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, null, 3);
         $item->setProduct($product);
-        $item->setStates([State::IS_PHYSICAL]);
+        $item->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $item->setStates([State::IS_PHYSICAL]);
+        }
 
         $orderLineItemCollection = new OrderLineItemCollection(
             [
@@ -245,7 +251,7 @@ class LineItemTransformerTest extends TestCase
         $orderLineItemCollection = new OrderLineItemCollection(
             [
                 $this->buildOrderLineItemEntity($customProduct, LineItem::CUSTOM_LINE_ITEM_TYPE, null),
-                $this->buildOrderLineItemEntity($downloadProduct, LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1, [State::IS_DOWNLOAD]),
+                $this->buildOrderLineItemEntity($downloadProduct, LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1, [State::IS_DOWNLOAD], ProductDefinition::TYPE_DIGITAL),
                 $this->buildOrderLineItemEntity($product, LineItem::PRODUCT_LINE_ITEM_TYPE, null),
                 $this->buildOrderLineItemEntity($promotionProduct, LineItem::PROMOTION_LINE_ITEM_TYPE, null),
                 $this->buildOrderLineItemEntity($nonProduct, LineItem::CREDIT_LINE_ITEM_TYPE, null),
@@ -284,7 +290,7 @@ class LineItemTransformerTest extends TestCase
     /**
      * @param string[] $states
      */
-    private function buildOrderLineItemEntity(string $id, string $type, ?string $parentId, int $quantity = 1, array $states = []): OrderLineItemEntity
+    private function buildOrderLineItemEntity(string $id, string $type, ?string $parentId, int $quantity = 1, array $states = [], string $productType = ProductDefinition::TYPE_PHYSICAL): OrderLineItemEntity
     {
         $orderLineItemEntity = new OrderLineItemEntity();
         $orderLineItemEntity->setId($id);
@@ -296,7 +302,11 @@ class LineItemTransformerTest extends TestCase
         $orderLineItemEntity->setRemovable(true);
         $orderLineItemEntity->setStackable(false);
         $orderLineItemEntity->setQuantity($quantity);
-        $orderLineItemEntity->setStates($states);
+        $orderLineItemEntity->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, $productType);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $orderLineItemEntity->setStates($states);
+        }
 
         if ($parentId === null) {
             return $orderLineItemEntity;

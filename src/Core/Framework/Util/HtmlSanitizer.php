@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\Util;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('framework')]
-class HtmlSanitizer
+class HtmlSanitizer implements ResetInterface
 {
     /**
      * @var \HTMLPurifier[]
@@ -15,11 +16,6 @@ class HtmlSanitizer
     private array $purifiers = [];
 
     private readonly string $cacheDir;
-
-    /**
-     * @var array<string, string>
-     */
-    private array $cache = [];
 
     /**
      * @internal
@@ -30,7 +26,7 @@ class HtmlSanitizer
     public function __construct(
         ?string $cacheDir = null,
         private readonly bool $cacheEnabled = true,
-        private array $sets = [],
+        private readonly array $sets = [],
         private readonly array $fieldSets = [],
         private readonly bool $enabled = true
     ) {
@@ -46,6 +42,11 @@ class HtmlSanitizer
             return $text;
         }
 
+        /** Fix double encoding
+         * @see \Shopware\Tests\Unit\Core\Framework\Util\HtmlSanitizerTest::testSanitizeHtmlEntities()
+         */
+        $text = htmlspecialchars_decode($text, \ENT_QUOTES | \ENT_HTML5);
+
         $options ??= [];
 
         $hash = Hasher::hash([
@@ -57,19 +58,17 @@ class HtmlSanitizer
             $hash .= '-override';
         }
 
-        $textKey = $hash . Hasher::hash($text);
-        if (isset($this->cache[$textKey])) {
-            return $this->cache[$textKey];
-        }
-
         if (!isset($this->purifiers[$hash])) {
             $config = $this->getConfig($options, $override, $field);
             $this->purifiers[$hash] = new \HTMLPurifier($config);
         }
 
-        $this->cache[$textKey] = $this->purifiers[$hash]->purify($text);
+        return $this->purifiers[$hash]->purify($text);
+    }
 
-        return $this->cache[$textKey];
+    public function reset(): void
+    {
+        $this->purifiers = [];
     }
 
     private function getBaseConfig(): \HTMLPurifier_Config
@@ -111,7 +110,7 @@ class HtmlSanitizer
         }
 
         if (!$override) {
-            $sets = $this->fieldSets[$field]['sets'] ?? ['basic'];
+            $sets = $this->fieldSets[(string) $field]['sets'] ?? ['basic'];
 
             foreach ($sets as $set) {
                 if (isset($this->sets[$set]['tags'])) {

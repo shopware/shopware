@@ -54,7 +54,7 @@ class UserRecoveryController extends AbstractController
     }
 
     #[Route(path: '/api/_action/user/user-recovery/password', defaults: ['auth_required' => false], name: 'api.action.user.user-recovery.password', methods: ['PATCH'])]
-    public function updateUserPassword(Request $request, Context $context): Response
+    public function updateUserPassword(#[\SensitiveParameter] Request $request, Context $context): Response
     {
         $hash = (string) $request->request->get('hash');
         $password = (string) $request->request->get('password');

@@ -67,6 +67,19 @@ export default {
             return this.propertyGroup.isLoading || !this.isSystemLanguage || !this.acl.can('property.editor');
         },
 
+        useNaturalNameSorting() {
+            const options = this.propertyGroup?.options || [];
+
+            if (!options.length) {
+                return false;
+            }
+
+            return options.some((option) => {
+                const name = (option?.translated?.name ?? option?.name ?? '').toString();
+                return /\d/.test(name);
+            });
+        },
+
         /**
          * @deprecated tag:v6.8.0 - Will be removed
          */
@@ -183,6 +196,7 @@ export default {
                     routerLink: 'sw.property.detail',
                     inlineEdit: 'string',
                     primary: true,
+                    naturalSorting: this.useNaturalNameSorting,
                 },
                 {
                     property: 'colorHexCode',

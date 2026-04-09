@@ -2,7 +2,7 @@
  * @sw-package discovery
  */
 
-const ApiService = Shopware.Classes.ApiService;
+import ApiService from '../api.service';
 
 /**
  * Gateway for the API end point "recommenations"

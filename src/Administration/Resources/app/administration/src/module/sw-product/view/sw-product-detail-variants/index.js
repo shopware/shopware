@@ -7,7 +7,6 @@ import './sw-product-detail-variants.scss';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 const { uniqBy } = Shopware.Utils.array;
-const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -31,7 +30,6 @@ export default {
             showAddPropertiesModal: false,
             defaultTab: 'all',
             activeTab: 'all',
-            configSettingGroups: [],
             limit: 500,
         };
     },
@@ -71,8 +69,16 @@ export default {
                 : this.product.properties;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `currentProductType` instead.
+         * @returns {string[]}
+         */
         currentProductStates() {
             return this.activeTab.split(',');
+        },
+
+        currentProductType() {
+            return this.activeTab.split(',')[0] ?? 'all';
         },
 
         assetFilter() {
@@ -85,6 +91,24 @@ export default {
             criteria.addFields('name');
 
             return criteria;
+        },
+
+        /**
+         * @returns {Object[]}
+         */
+        configSettingGroups() {
+            const settings = this.productEntity?.configuratorSettings ?? [];
+            const groupIds = uniqBy(settings, 'option.groupId').map((item) => item.option.groupId);
+            if (groupIds.length === 0) {
+                return [];
+            }
+            const groupMap = new Map(
+                this.groups.map((group) => [
+                    group.id,
+                    group,
+                ]),
+            );
+            return groupIds.map((id) => groupMap.get(id)).filter(Boolean);
         },
     },
 
@@ -126,29 +150,16 @@ export default {
         },
 
         loadData() {
-            if (!this.isStoreLoading) {
-                this.loadOptions()
-                    .then(() => {
-                        return this.loadGroups();
-                    })
-                    .then(() => {
-                        return this.loadConfigSettingGroups();
-                    });
+            if (!this.isStoreLoading && this.product?.id) {
+                this.loadOptions().then(() => this.loadGroups());
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         async loadConfigSettingGroups() {
-            const groupIds = uniqBy(this.productEntity.configuratorSettings, 'option.groupId').map(
-                (group) => group.option.groupId,
-            );
-
-            const criteria = cloneDeep(this.groupCriteria);
-
-            if (groupIds.length) {
-                criteria.addFilter(Criteria.equalsAny('id', groupIds));
-            }
-
-            this.configSettingGroups = await this.loadAllPropertyGroups(criteria);
+            // No-op: configSettingGroups is computed from productEntity.configuratorSettings and groups.
         },
 
         loadOptions() {
@@ -258,15 +269,14 @@ export default {
 
         async loadAllPropertyGroups(criteria) {
             const initialResult = await this.groupRepository.search(criteria);
-            const totalGroups = initialResult.total;
-            const limit = initialResult.length;
+            const totalGroups = initialResult.total ?? initialResult.length ?? 0;
+            const limit = initialResult.length || criteria.limit || 25;
 
             const totalPages = Math.ceil(totalGroups / limit);
 
             const promises = [];
-            // eslint-disable-next-line no-plusplus
             for (let page = 2; page <= totalPages; page++) {
-                const nextCriteria = new Criteria(page, limit);
+                const nextCriteria = Criteria.fromCriteria(criteria).setPage(page).setLimit(limit);
                 promises.push(this.groupRepository.search(nextCriteria));
             }
 

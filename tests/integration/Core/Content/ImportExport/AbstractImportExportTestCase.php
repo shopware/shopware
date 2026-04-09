@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
@@ -36,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RequestStackTestBehaviour;
@@ -54,6 +56,7 @@ abstract class AbstractImportExportTestCase extends TestCase
 {
     use CacheTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use EventDispatcherBehaviour;
     use FilesystemBehaviour;
     use KernelTestBehaviour;
     use RequestStackTestBehaviour;
@@ -91,6 +94,8 @@ abstract class AbstractImportExportTestCase extends TestCase
 
     /**
      * @param array<string, bool> $configOverrides
+     *
+     * @return MockRepository<CustomerCollection>
      */
     protected function runCustomerImportWithConfigAndMockedRepository(array $configOverrides): MockRepository
     {
@@ -119,6 +124,7 @@ abstract class AbstractImportExportTestCase extends TestCase
         $readerFactory = static::getContainer()->get(CsvReaderFactory::class);
         $writerFactory = static::getContainer()->get(CsvFileWriterFactory::class);
 
+        /** @var MockRepository<CustomerCollection> */
         $mockRepository = new MockRepository(static::getContainer()->get(CustomerDefinition::class));
 
         $importExport = new ImportExport(

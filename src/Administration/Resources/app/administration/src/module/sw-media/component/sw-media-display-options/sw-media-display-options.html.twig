@@ -8,6 +8,7 @@
     :label="$tc('sw-media.presentation.labelPresentation')"
     class="sw-media-display-options__label-presentation"
     :model-value="presentation"
+    :disabled="disabled"
     @update:model-value="onPresentationChanged"
 />
 {% endblock %}
@@ -20,6 +21,7 @@
     :label="$tc('sw-media.sorting.labelSort')"
     class="sw-media-display-options__label-sort"
     :model-value="sortingConCat"
+    :disabled="disabled"
     @update:model-value="onSortingChanged"
 />
 {% endblock %}

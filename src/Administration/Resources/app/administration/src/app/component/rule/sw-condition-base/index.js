@@ -49,7 +49,7 @@ export default {
         conditionClasses() {
             return {
                 'has--error': this.hasError,
-                'is--disabled': this.hasNoComponent || this.disabled,
+                'is--disabled': this.isDisabled,
             };
         },
 
@@ -69,6 +69,10 @@ export default {
 
         value() {
             return this.condition.value;
+        },
+
+        isDisabled() {
+            return this.disabled || this.hasNoComponent;
         },
 
         hasNoComponent() {
@@ -92,7 +96,6 @@ export default {
                 Shopware.Store.get('error').removeApiError(this.valueErrorPath);
             }
             if (this.isEmpty && !!this.inputKey) {
-                // eslint-disable-next-line vue/no-mutating-props
                 delete this.condition.value[this.inputKey];
             }
         },
@@ -113,7 +116,6 @@ export default {
 
         ensureValueExist() {
             if (typeof this.condition.value === 'undefined' || this.condition.value === null) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.condition.value = {};
             }
         },

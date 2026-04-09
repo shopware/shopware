@@ -20,6 +20,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 #[Package('framework')]
 class DynamicEntityDefinition extends EntityDefinition
 {
+    /**
+     * @var non-empty-string
+     */
     protected string $name;
 
     /**
@@ -35,6 +38,7 @@ class DynamicEntityDefinition extends EntityDefinition
     protected ContainerInterface $container;
 
     /**
+     * @param non-empty-string $name
      * @param list<CustomEntityField> $fields
      * @param list<Flag> $flags
      */

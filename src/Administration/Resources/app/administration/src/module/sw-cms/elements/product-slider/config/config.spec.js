@@ -19,6 +19,25 @@ const productMock = [
     },
 ];
 
+const defaultConfig = {
+    title: {
+        value: '',
+    },
+    products: {
+        value: [
+            'de8de156da134dabac24257f81ff282f',
+            '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+        ],
+        source: 'static',
+    },
+    productStreamSorting: {
+        value: 'name:ASC',
+    },
+    productStreamLimit: {
+        value: 10,
+    },
+};
+
 const productStreamMock = {
     name: 'Cheap pc parts',
     apiFilter: [
@@ -37,23 +56,14 @@ async function createWrapper(customCmsElementConfig) {
             props: {
                 element: {
                     config: {
-                        title: {
-                            value: '',
-                        },
-                        products: {
-                            value: [
-                                'de8de156da134dabac24257f81ff282f',
-                                '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-                            ],
-                            source: 'static',
-                        },
-                        productStreamSorting: {
-                            value: 'name:ASC',
-                        },
-                        productStreamLimit: {
-                            value: 10,
-                        },
+                        ...defaultConfig,
                         ...customCmsElementConfig,
+                    },
+                    translated: {
+                        config: {
+                            ...defaultConfig,
+                            ...customCmsElementConfig,
+                        },
                     },
                 },
                 defaultConfig: {},
@@ -83,8 +93,16 @@ async function createWrapper(customCmsElementConfig) {
                     'sw-loader': true,
                     'sw-popover': true,
                     'sw-select-field': true,
-
                     'sw-highlight-text': true,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
+                    },
                 },
                 provide: {
                     cmsService: {
@@ -262,15 +280,10 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         wrapper.vm.onProductsChange();
 
         expect(Array.from(wrapper.vm.element.config.products.value)).toStrictEqual(expectedProductIds);
-        expect(wrapper.vm.element.translated).toBeUndefined();
 
-        wrapper.vm.element.translated = {
-            config: {
-                products: {
-                    value: [],
-                    source: 'static',
-                },
-            },
+        wrapper.vm.element.translated.config.products = {
+            value: [],
+            source: 'static',
         };
 
         await wrapper.vm.$nextTick();

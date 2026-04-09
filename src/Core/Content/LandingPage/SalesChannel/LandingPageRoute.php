@@ -9,6 +9,7 @@ use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\LandingPage\LandingPageException;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -48,7 +49,12 @@ class LandingPageRoute extends AbstractLandingPageRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/landing-page/{landingPageId}', name: 'store-api.landing-page.detail', methods: ['POST'])]
+    #[Route(
+        path: '/store-api/landing-page/{landingPageId}',
+        name: 'store-api.landing-page.detail',
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
+        defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+    )]
     public function load(string $landingPageId, Request $request, SalesChannelContext $context): LandingPageRouteResponse
     {
         $this->cacheTagCollector->addTag(self::buildName($landingPageId));
@@ -102,7 +108,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
         $criteria = new Criteria([$pageId]);
         $criteria->setTitle('landing-page::cms-page');
 
-        $slots = $request->get('slots');
+        $slots = RequestParamHelper::get($request, 'slots');
 
         if (\is_string($slots)) {
             $slots = explode('|', $slots);

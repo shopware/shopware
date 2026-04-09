@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Flow\Indexing;
 
 use Shopware\Core\Content\Flow\Events\FlowIndexerEvent;
+use Shopware\Core\Content\Flow\FlowCollection;
 use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -23,6 +24,8 @@ class FlowIndexer extends EntityIndexer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<FlowCollection> $repository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,
@@ -43,7 +46,7 @@ class FlowIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -54,7 +57,7 @@ class FlowIndexer extends EntityIndexer
     {
         $updates = $event->getPrimaryKeys(FlowDefinition::ENTITY_NAME);
 
-        if (empty($updates)) {
+        if ($updates === []) {
             return null;
         }
 
@@ -70,8 +73,8 @@ class FlowIndexer extends EntityIndexer
             return;
         }
 
-        $ids = array_unique(array_filter($ids));
-        if (empty($ids)) {
+        $ids = array_values(array_unique(array_filter($ids)));
+        if ($ids === []) {
             return;
         }
 

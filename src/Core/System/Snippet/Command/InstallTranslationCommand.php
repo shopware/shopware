@@ -4,12 +4,13 @@ namespace Shopware\Core\System\Snippet\Command;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\Command\Util\TranslationCommandHelper;
+use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
+use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -19,14 +20,15 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 #[AsCommand(
     name: 'translation:install',
-    description: 'Downloads and installs translations from the translations GitHub repository for the specified locales or all available locales',
+    description: 'Downloads and installs translations from the translations GitHub repository for the specified locales or all available locales. Re-installing will overwrite existing translations.',
 )]
 #[Package('discovery')]
 class InstallTranslationCommand extends Command
 {
     public function __construct(
-        private readonly TranslationLoader $translationLoader,
+        private readonly AbstractTranslationLoader $translationLoader,
         private readonly TranslationConfig $config,
+        private readonly TranslationMetadataLoader $metadataLoader,
     ) {
         parent::__construct();
     }
@@ -35,23 +37,45 @@ class InstallTranslationCommand extends Command
     {
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Fetch all available translations');
         $this->addOption('locales', null, InputOption::VALUE_OPTIONAL, 'Fetch translations for specific locale codes comma separated, e.g. "de-DE,en-US"');
+        $this->addOption('skip-activation', null, InputOption::VALUE_NONE, 'Skip activation of created languages');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $locales = $this->getLocales($input);
-        $progressBar = $this->createProgressBar($output, \count($locales));
-        $context = Context::createCLIContext();
 
-        foreach ($locales as $locale) {
-            $progressBar->setMessage($locale);
-            $progressBar->advance();
+        try {
+            $metadata = $this->metadataLoader->getUpdatedLocalMetadata($locales);
+        } catch (\Throwable $e) {
+            TranslationCommandHelper::printMetadataLoadingFailed($output, $e);
 
-            $this->translationLoader->load($locale, $context);
+            return self::FAILURE;
         }
 
-        $progressBar->finish();
+        $localesRequiringUpdate = $metadata->getLocalesRequiringUpdate();
+        if ($localesRequiringUpdate === []) {
+            TranslationCommandHelper::printNoTranslationsToUpdate($output);
+
+            return self::SUCCESS;
+        }
+
+        $localesDiff = array_diff($locales, $localesRequiringUpdate);
+        if ($localesDiff !== []) {
+            TranslationCommandHelper::printSkippedLocales($output, $localesDiff);
+        }
+
+        $context = Context::createCLIContext();
+        $activate = !$input->getOption('skip-activation');
+
+        TranslationCommandHelper::executeLoadWithProgressBar(
+            $localesRequiringUpdate,
+            $output,
+            fn (string $locale) => $this->translationLoader->load($locale, $context, $activate),
+        );
+
         $output->write(\PHP_EOL);
+
+        TranslationCommandHelper::handleSavingMetadataCLIOutput(fn () => $this->metadataLoader->save($metadata), $output);
 
         return self::SUCCESS;
     }
@@ -102,14 +126,5 @@ class InstallTranslationCommand extends Command
             implode(', ', $errors),
             implode(', ', $this->config->locales)
         );
-    }
-
-    private function createProgressBar(OutputInterface $output, int $count): ProgressBar
-    {
-        ProgressBar::setFormatDefinition('install-translations-format', '%current%/%max% -- Fetching translations for locale: %message%');
-        $progressBar = new ProgressBar($output, $count);
-        $progressBar->setFormat('install-translations-format');
-
-        return $progressBar;
     }
 }

@@ -6,9 +6,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\CustomFieldRule;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
@@ -39,14 +46,14 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @param array<string, array<string>|string|bool|float> $customFields
-     * @param array<string>|bool|string|int|null $renderedFieldValue
-     * @param array<string, string> $config
+     * @param array<string, string|float|bool|list<string>|null> $customFields
+     * @param string|float|bool|list<string>|null $renderedFieldValue
+     * @param array{componentName: string}|array{} $config
      */
     #[DataProvider('customFieldRuleMatchDataProvider')]
     public function testCustomFieldRuleMatchesValues(
         array $customFields,
-        array|bool|string|int|null $renderedFieldValue,
+        array|bool|string|float|null $renderedFieldValue,
         string $type,
         string $operator,
         bool $isMatching,
@@ -62,11 +69,15 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<array<string|int, array<string>|string|bool|float|null>|bool|string|int|null>>
+     * @return \Generator<string, array{array<string, string|float|bool|list<string>|null>, string|float|bool|list<string>|null, string, string, bool, 5?: array{componentName: string}}>
      */
-    public static function customFieldRuleMatchDataProvider(): iterable
+    public static function customFieldRuleMatchDataProvider(): \Generator
     {
-        yield from self::boolTypeDataProvider();
+        // All boolean custom field types should behave the same
+        yield from self::boolTypeDataProvider(CustomFieldTypes::BOOL);
+        yield from self::boolTypeDataProvider(CustomFieldTypes::SWITCH);
+        yield from self::boolTypeDataProvider(CustomFieldTypes::CHECKBOX);
+
         yield from self::textTypeDataProvider();
         yield from self::stringTypeDataProvider();
         yield from self::floatTypeDataProvider();
@@ -75,200 +86,277 @@ class CustomFieldRuleTest extends TestCase
         yield from self::dateTypeDataProvider();
     }
 
-    /**
-     * @return iterable<string, array<array<string, bool>|bool|string|null>>
-     */
-    private static function boolTypeDataProvider(): iterable
+    public function testPriceFieldUsesGrossWithoutContext(): void
     {
-        yield 'does not match missing value equals bool true' => [
+        $priceCollection = new PriceCollection([
+            new Price(Defaults::CURRENCY, 84.03, 100.0, false),
+        ]);
+
+        $renderedField = [
+            'type' => CustomFieldTypes::PRICE,
+            'name' => self::CUSTOM_FIELD_NAME,
+            'config' => [],
+        ];
+
+        $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField);
+
+        static::assertSame(100.0, $value);
+    }
+
+    public function testPriceFieldUsesGrossWithGrossTaxState(): void
+    {
+        $priceCollection = new PriceCollection([
+            new Price(Defaults::CURRENCY, 84.03, 100.0, false),
+        ]);
+
+        $renderedField = [
+            'type' => CustomFieldTypes::PRICE,
+            'name' => self::CUSTOM_FIELD_NAME,
+            'config' => [],
+        ];
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
+
+        $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField, $context);
+
+        static::assertSame(100.0, $value);
+    }
+
+    public function testPriceFieldUsesNetWithNetTaxState(): void
+    {
+        $priceCollection = new PriceCollection([
+            new Price(Defaults::CURRENCY, 84.03, 100.0, false),
+        ]);
+
+        $renderedField = [
+            'type' => CustomFieldTypes::PRICE,
+            'name' => self::CUSTOM_FIELD_NAME,
+            'config' => [],
+        ];
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_NET);
+
+        $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField, $context);
+
+        static::assertSame(84.03, $value);
+    }
+
+    public function testPriceFieldReturnsNullWhenCurrencyNotInCollection(): void
+    {
+        $priceCollection = new PriceCollection([
+            new Price(Uuid::randomHex(), 50.0, 60.0, false),
+        ]);
+
+        $renderedField = [
+            'type' => CustomFieldTypes::PRICE,
+            'name' => self::CUSTOM_FIELD_NAME,
+            'config' => [],
+        ];
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+
+        $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField, $context);
+
+        static::assertNull($value);
+    }
+
+    /**
+     * @return \Generator<string, array{array<string, bool>, bool|string|null, string, string, bool}>
+     */
+    private static function boolTypeDataProvider(string $boolCustomFieldType): \Generator
+    {
+        yield $boolCustomFieldType . ': does not match missing value equals bool true' => [
             [],
             true,
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             false,
         ];
 
-        yield 'does match missing value equals bool false' => [
+        yield $boolCustomFieldType . ': does match missing value equals bool false' => [
             [],
             false,
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does not match bool false equals bool true' => [
+        yield $boolCustomFieldType . ': does not match bool false equals bool true' => [
             [self::CUSTOM_FIELD_NAME => false],
             true,
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             false,
         ];
 
-        yield 'does match bool false equals bool false' => [
+        yield $boolCustomFieldType . ': does match bool false equals bool false' => [
             [self::CUSTOM_FIELD_NAME => false],
             false,
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does not match bool true equals bool false' => [
+        yield $boolCustomFieldType . ': does not match bool true equals bool false' => [
             [self::CUSTOM_FIELD_NAME => true],
             false,
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             false,
         ];
 
-        yield 'does match bool true equals bool true' => [
+        yield $boolCustomFieldType . ': does match bool true equals bool true' => [
             [self::CUSTOM_FIELD_NAME => true],
             true,
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool true equals "yes"' => [
+        yield $boolCustomFieldType . ': does match bool true equals "yes"' => [
             [self::CUSTOM_FIELD_NAME => true],
             'yes',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool true equals "yes "' => [
+        yield $boolCustomFieldType . ': does match bool true equals "yes "' => [
             [self::CUSTOM_FIELD_NAME => true],
             'yes ',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool true equals "True"' => [
+        yield $boolCustomFieldType . ': does match bool true equals "True"' => [
             [self::CUSTOM_FIELD_NAME => true],
             'True',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool true equals "true"' => [
+        yield $boolCustomFieldType . ': does match bool true equals "true"' => [
             [self::CUSTOM_FIELD_NAME => true],
             'true',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool true equals "1"' => [
+        yield $boolCustomFieldType . ': does match bool true equals "1"' => [
             [self::CUSTOM_FIELD_NAME => true],
             '1',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does not match bool false equals "yes"' => [
+        yield $boolCustomFieldType . ': does not match bool false equals "yes"' => [
             [self::CUSTOM_FIELD_NAME => false],
             'yes',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             false,
         ];
 
-        yield 'does not match bool false with "yes "' => [
+        yield $boolCustomFieldType . ': does not match bool false with "yes "' => [
             [self::CUSTOM_FIELD_NAME => false],
             'yes ',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             false,
         ];
 
-        yield 'does not match bool false with "True"' => [
+        yield $boolCustomFieldType . ': does not match bool false with "True"' => [
             [self::CUSTOM_FIELD_NAME => false],
             'True',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             false,
         ];
 
-        yield 'does not match bool false with "true"' => [
+        yield $boolCustomFieldType . ': does not match bool false with "true"' => [
             [self::CUSTOM_FIELD_NAME => false],
             'true',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             false,
         ];
 
-        yield 'does not match bool false with "1"' => [
+        yield $boolCustomFieldType . ': does not match bool false with "1"' => [
             [self::CUSTOM_FIELD_NAME => false],
             '1',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             false,
         ];
 
-        yield 'does match bool false equals "no"' => [
+        yield $boolCustomFieldType . ': does match bool false equals "no"' => [
             [self::CUSTOM_FIELD_NAME => false],
             'no',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool false equals "no "' => [
+        yield $boolCustomFieldType . ': does match bool false equals "no "' => [
             [self::CUSTOM_FIELD_NAME => false],
             'no ',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool false equals "False"' => [
+        yield $boolCustomFieldType . ': does match bool false equals "False"' => [
             [self::CUSTOM_FIELD_NAME => false],
             'False',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool false equals "false"' => [
+        yield $boolCustomFieldType . ': does match bool false equals "false"' => [
             [self::CUSTOM_FIELD_NAME => false],
             'false',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool false equals "0"' => [
+        yield $boolCustomFieldType . ': does match bool false equals "0"' => [
             [self::CUSTOM_FIELD_NAME => false],
             '0',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool false equals "some string"' => [
+        yield $boolCustomFieldType . ': does match bool false equals "some string"' => [
             [self::CUSTOM_FIELD_NAME => false],
             'some string',
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
 
-        yield 'does match bool false equals null' => [
+        yield $boolCustomFieldType . ': does match bool false equals null' => [
             [self::CUSTOM_FIELD_NAME => false],
             null,
-            'bool',
+            $boolCustomFieldType,
             Rule::OPERATOR_EQ,
             true,
         ];
     }
 
     /**
-     * @return iterable<string, array<array<string, null>|bool|string>>
+     * @return \Generator<string, array{array<string, null>, string, string, string, bool}>
      */
-    private static function textTypeDataProvider(): iterable
+    private static function textTypeDataProvider(): \Generator
     {
         yield 'does match null not equals "testValue"' => [
             [self::CUSTOM_FIELD_NAME => null],
@@ -288,9 +376,9 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<array<string, string>|bool|string>>
+     * @return \Generator<string, array{array<string, string>, string, string, string, bool}>
      */
-    private static function stringTypeDataProvider(): iterable
+    private static function stringTypeDataProvider(): \Generator
     {
         yield 'does match same strings on equals' => [
             [self::CUSTOM_FIELD_NAME => 'my_test_value'],
@@ -310,13 +398,13 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<array<string, float>|bool|string|int>>
+     * @return \Generator<string, array{array<string, float>, float, string, string, bool}>
      */
-    private static function floatTypeDataProvider(): iterable
+    private static function floatTypeDataProvider(): \Generator
     {
         yield 'does match same float on equals' => [
             [self::CUSTOM_FIELD_NAME => 123.0],
-            123,
+            123.0,
             'float',
             Rule::OPERATOR_EQ,
             true,
@@ -324,9 +412,9 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<array<string|int, array<string>|string>|bool|string|null>>
+     * @return \Generator<string, array{array<string, list<string>>, list<string>|null, string, string, bool, 5?: array{componentName: string}}>
      */
-    private static function selectTypeDataProvider(): iterable
+    private static function selectTypeDataProvider(): \Generator
     {
         yield 'does not match selected options equals null' => [
             [self::CUSTOM_FIELD_NAME => ['option_1', 'option_2']],
@@ -437,9 +525,9 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<array<string,string>|bool|string>>
+     * @return \Generator<string, array{array<string, string>, string, string, string, bool}>
      */
-    private static function datetimeTypeDataProvider(): iterable
+    private static function datetimeTypeDataProvider(): \Generator
     {
         yield 'does not match missing value equals datetime' => [
             [],
@@ -563,9 +651,9 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<array<string, string>|bool|string>>
+     * @return \Generator<string, array{array<string, string>, string, string, string, bool}>
      */
-    private static function dateTypeDataProvider(): iterable
+    private static function dateTypeDataProvider(): \Generator
     {
         yield 'does not match missing value equals date' => [
             [],

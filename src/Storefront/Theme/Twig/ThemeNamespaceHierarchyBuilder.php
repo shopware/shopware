@@ -21,7 +21,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface, EventSubscriberInterface, ResetInterface
 {
     /**
-     * @var array<int|string, bool>
+     * @var array<string, bool>
      */
     private array $themes = [];
 
@@ -68,11 +68,10 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
 
         $theme = $this->salesChannelThemeLoader?->load($context->getSalesChannelId());
 
-        if (empty($theme) || !isset($theme[0])) {
-            return;
+        if ($theme !== null && $theme !== [] && isset($theme[0])) {
+            $themes[$theme[0]] = true;
         }
 
-        $themes[$theme[0]] = true;
         $themes['Storefront'] = true;
 
         $this->themes = $themes;
@@ -80,7 +79,7 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
 
     public function buildNamespaceHierarchy(array $namespaceHierarchy): array
     {
-        if (empty($this->themes)) {
+        if ($this->themes === []) {
             return $namespaceHierarchy;
         }
 
@@ -93,7 +92,7 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
     }
 
     /**
-     * @return array<int|string, bool>
+     * @return array<string, bool>
      */
     private function detectedThemes(Request $request): array
     {

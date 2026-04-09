@@ -1,4 +1,6 @@
 import template from './sw-settings-rule-detail-base.html.twig';
+import './sw-settings-rule-detail-base.scss';
+import { PRODUCT_STREAM_CONDITIONS } from '../../constant/sw-settings-rule.constant';
 
 /**
  * @private
@@ -78,6 +80,25 @@ export default {
         showCustomFields() {
             return this.rule && this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        productStreamIndexingEnabled() {
+            return Shopware.Context.app.productStreamIndexingEnabled ?? true;
+        },
+
+        showProductStreamIndexingWarning() {
+            return (
+                this.productStreamIndexingEnabled === false &&
+                this.conditions &&
+                this.hasProductStreamConditions(this.conditions)
+            );
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed in v6.8.0
+         */
+        showProductStateConditionWarning() {
+            return Array.isArray(this.conditions) && this.hasConditionType(this.conditions, 'cartLineItemProductStates');
+        },
     },
 
     created() {
@@ -92,6 +113,37 @@ export default {
         loadCustomFieldSets() {
             this.customFieldDataProviderService.getCustomFieldSets('rule').then((sets) => {
                 this.customFieldSets = sets;
+            });
+        },
+
+        hasProductStreamConditions(conditions) {
+            return conditions.some((condition) => {
+                if (PRODUCT_STREAM_CONDITIONS.includes(condition.type)) {
+                    return true;
+                }
+
+                return (
+                    condition.children &&
+                    Array.isArray(condition.children) &&
+                    this.hasProductStreamConditions(condition.children)
+                );
+            });
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed in v6.8.0
+         */
+        hasConditionType(conditions, conditionType) {
+            return conditions.some((condition) => {
+                if (condition.type === conditionType) {
+                    return true;
+                }
+
+                return (
+                    condition.children &&
+                    Array.isArray(condition.children) &&
+                    this.hasConditionType(condition.children, conditionType)
+                );
             });
         },
     },

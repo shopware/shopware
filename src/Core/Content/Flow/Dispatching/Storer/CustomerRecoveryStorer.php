@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Content\Flow\Dispatching\Aware\CustomerRecoveryAware;
@@ -19,6 +20,8 @@ class CustomerRecoveryStorer extends FlowStorer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerRecoveryCollection> $customerRecoveryRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRecoveryRepository,
@@ -78,10 +81,9 @@ class CustomerRecoveryStorer extends FlowStorer
 
         $this->dispatcher->dispatch($event, $event->getName());
 
-        $customerRecovery = $this->customerRecoveryRepository->search($criteria, $context)->get($id);
+        $customerRecovery = $this->customerRecoveryRepository->search($criteria, $context)->getEntities()->get($id);
 
         if ($customerRecovery) {
-            /** @var CustomerRecoveryEntity $customerRecovery */
             return $customerRecovery;
         }
 

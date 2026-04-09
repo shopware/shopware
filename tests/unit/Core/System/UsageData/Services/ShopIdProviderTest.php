@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
@@ -34,10 +35,12 @@ class ShopIdProviderTest extends TestCase
 
     public function testReturnsShopIdFromInner(): void
     {
+        $shopId = ShopId::v2('shopId');
+
         $appShopIdProvider = $this->createMock(\Shopware\Core\Framework\App\ShopId\ShopIdProvider::class);
         $appShopIdProvider->expects($this->once())
             ->method('getShopId')
-            ->willReturn('shopId');
+            ->willReturn($shopId);
 
         $providerToTest = new ShopIdProvider(
             $appShopIdProvider,

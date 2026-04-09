@@ -35,7 +35,7 @@ trait UpdateMailTrait
         }
 
         $translations = $this->getTranslationIds($connection, $languages, $update->getType());
-        if (empty($translations)) {
+        if ($translations === []) {
             return;
         }
 
@@ -60,12 +60,12 @@ trait UpdateMailTrait
         $languages = array_merge([Defaults::LANGUAGE_SYSTEM], $this->getLanguageIds($connection, 'en-GB'));
         $languages = array_unique(array_filter($languages));
 
-        if (empty($languages)) {
+        if ($languages === []) {
             return;
         }
 
         $translations = $this->getTranslationIds($connection, $languages, $update->getType());
-        if (empty($translations)) {
+        if ($translations === []) {
             return;
         }
 
@@ -89,12 +89,12 @@ trait UpdateMailTrait
         $languages = array_merge([Defaults::LANGUAGE_SYSTEM], $this->getLanguageIds($connection, 'en-GB'));
         $languages = array_unique(array_filter($languages));
 
-        if (empty($languages)) {
+        if ($languages === []) {
             return;
         }
 
         $translations = $this->getTranslationIds($connection, $languages, $update->getType());
-        if (empty($translations)) {
+        if ($translations === []) {
             return;
         }
 
@@ -120,7 +120,7 @@ trait UpdateMailTrait
         }
 
         $translations = $this->getTranslationIds($connection, $languages, $update->getType());
-        if (empty($translations)) {
+        if ($translations === []) {
             return;
         }
 
@@ -142,10 +142,11 @@ trait UpdateMailTrait
     /**
      * @param array<string> $languageIds
      *
-     * @return mixed[]
+     * @return list<array{mail_template_id: string, language_id: string}>
      */
     private function getTranslationIds(Connection $connection, array $languageIds, string $type): array
     {
+        /** @phpstan-ignore return.type (PHPStan cannot determine the returned keys and values) */
         return $connection->fetchAllAssociative(
             '
             SELECT mail_template_translation.mail_template_id, mail_template_translation.language_id

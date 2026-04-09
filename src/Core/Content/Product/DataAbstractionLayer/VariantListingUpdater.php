@@ -29,7 +29,7 @@ class VariantListingUpdater
     {
         $ids = array_filter($ids);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

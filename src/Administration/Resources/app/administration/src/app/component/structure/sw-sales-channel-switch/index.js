@@ -3,6 +3,7 @@
  */
 import template from './sw-sales-channel-switch.html.twig';
 
+const { Criteria } = Shopware.Data;
 const { debug } = Shopware.Utils;
 
 /**
@@ -26,12 +27,10 @@ export default {
             required: false,
             default: false,
         },
-        // eslint-disable-next-line vue/require-default-prop
         abortChangeFunction: {
             type: Function,
             required: false,
         },
-        // eslint-disable-next-line vue/require-default-prop
         saveChangesFunction: {
             type: Function,
             required: false,
@@ -40,6 +39,16 @@ export default {
             type: String,
             required: false,
             default: '',
+        },
+        salesChannelCriteria: {
+            type: Object,
+            required: false,
+            default: () => {
+                const criteria = new Criteria(1, 25);
+                criteria.addSorting(Criteria.sort('name'));
+
+                return criteria;
+            },
         },
     },
 

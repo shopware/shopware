@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -20,19 +21,19 @@ class Migration1718615305AddEuToCountryTable extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        if (TableHelper::columnExists($connection, 'country', 'is_eu')) {
+            return;
+        }
+
         $connection->executeStatement(
-            <<<SQL
-            ALTER TABLE `country`
-            ADD COLUMN `is_eu` BOOLEAN NOT NULL DEFAULT 0;
-            SQL,
+            'ALTER TABLE `country`
+             ADD COLUMN `is_eu` BOOLEAN NOT NULL DEFAULT 0;',
         );
 
         $connection->executeStatement(
-            <<<SQL
-            UPDATE `country`
-            SET `is_eu` = 1
-            WHERE `iso` IN (:euCountryIsoCodes);
-            SQL,
+            'UPDATE `country`
+             SET `is_eu` = 1
+             WHERE `iso` IN (:euCountryIsoCodes);',
             [
                 'euCountryIsoCodes' => [
                     'AT', // Austria
@@ -64,9 +65,7 @@ class Migration1718615305AddEuToCountryTable extends MigrationStep
                     'SK', // Slovakia
                 ],
             ],
-            [
-                'euCountryIsoCodes' => ArrayParameterType::STRING,
-            ],
+            ['euCountryIsoCodes' => ArrayParameterType::STRING],
         );
     }
 }

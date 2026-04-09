@@ -242,6 +242,7 @@
             <mt-number-field
                 v-if="isInlineEdit && (!variantIsDigital(item) || item.isCloseout === true)"
                 v-model="item.stock"
+                number-type="int"
                 :size="compact ? 'small' : 'default'"
             />
             {% endblock %}

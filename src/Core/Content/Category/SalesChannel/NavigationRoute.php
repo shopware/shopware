@@ -4,21 +4,16 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryException;
+use Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoaderInterface;
+use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\CategoryTreePathResolver;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -30,7 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @phpstan-type CategoryMetaInformation array{id: string, level: int, path: string}
+ * @phpstan-type CategoryMetaInformation array{id: string, level: string, path: string}
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
@@ -48,11 +43,20 @@ class NavigationRoute extends AbstractNavigationRoute
         private readonly SalesChannelRepository $categoryRepository,
         private readonly CacheTagCollector $cacheTagCollector,
         private readonly CategoryTreePathResolver $categoryTreePathResolver,
+        private readonly DefaultCategoryLevelLoaderInterface $categoryLevelLoader,
     ) {
     }
 
+    /**
+     * @deprecated - tag:v6.8.0 - will be removed, navigation route will only be tagged globally, use NavigationRoute::ALL_TAG instead
+     */
     public static function buildName(string $id): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', ' NavigationRoute::ALL_TAG')
+        );
+
         return 'navigation-route-' . $id;
     }
 
@@ -61,7 +65,12 @@ class NavigationRoute extends AbstractNavigationRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/navigation/{activeId}/{rootId}', name: 'store-api.navigation', methods: ['GET', 'POST'], defaults: ['_entity' => 'category'])]
+    #[Route(
+        path: '/store-api/navigation/{activeId}/{rootId}',
+        name: 'store-api.navigation',
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => CategoryDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+    )]
     public function load(
         string $activeId,
         string $rootId,
@@ -69,16 +78,22 @@ class NavigationRoute extends AbstractNavigationRoute
         SalesChannelContext $context,
         Criteria $criteria
     ): NavigationRouteResponse {
-        $depth = $request->query->getInt('depth', $request->request->getInt('depth', 2));
+        $depth = $request->query->getInt('depth', $request->request->getInt('depth', NavigationLoaderInterface::DEFAULT_DEPTH));
 
         $metaInfo = $this->getCategoryMetaInfo($activeId, $rootId);
 
         $active = $this->getMetaInfoById($activeId, $metaInfo);
 
-        $tags = [
-            self::buildName($context->getSalesChannelId()),
-            self::buildName($activeId),
-        ];
+        $tags = [self::ALL_TAG];
+
+        // Navigation route will be tagged & invalidated globally only in 6.8
+        Feature::callSilentIfInactive(
+            'v6.8.0.0',
+            static function () use ($context, $activeId, &$tags): void {
+                $tags[] = self::buildName($context->getSalesChannelId());
+                $tags[] = self::buildName($activeId);
+            }
+        );
 
         $this->cacheTagCollector->addTag(...$tags);
 
@@ -98,12 +113,18 @@ class NavigationRoute extends AbstractNavigationRoute
             $activePath = $root['path'];
         }
 
-        $additionalPathToLoad = $this->categoryTreePathResolver->getAdditionalPathsToLoad($activeId, $activePath, $rootId, $root['path'], $depth);
+        $categories = $this->categoryLevelLoader->loadLevels(
+            $rootId,
+            (int) $root['level'],
+            $context,
+            clone $criteria,
+            $depth
+        );
 
-        $categories = new CategoryCollection();
-        if ($depth > 0 || $additionalPathToLoad !== []) {
-            // Load the first two levels without using the activeId in the query
-            $categories = $this->loadLevels($rootId, (int) $root['level'], $context, clone $criteria, $depth, $additionalPathToLoad);
+        $additionalPathsToLoad = $this->categoryTreePathResolver->getAdditionalPathsToLoad($activeId, $activePath, $rootId, $root['path'], $depth);
+
+        if ($additionalPathsToLoad !== []) {
+            $categories->merge($this->loadAdditionalPaths($context, clone $criteria, $additionalPathsToLoad));
         }
 
         return new NavigationRouteResponse($categories);
@@ -112,39 +133,12 @@ class NavigationRoute extends AbstractNavigationRoute
     /**
      * @param list<string> $additionalPaths
      */
-    private function loadLevels(
-        string $rootId,
-        int $rootLevel,
+    private function loadAdditionalPaths(
         SalesChannelContext $context,
         Criteria $criteria,
-        int $depth,
         array $additionalPaths
     ): CategoryCollection {
-        $filters = [
-            new EqualsFilter('id', $rootId),
-        ];
-
-        if ($depth > 0) {
-            $filters[] = new AndFilter([
-                new ContainsFilter('path', '|' . $rootId . '|'),
-                new RangeFilter('level', [
-                    RangeFilter::GT => $rootLevel,
-                    RangeFilter::LTE => $rootLevel + $depth + 1,
-                ]),
-            ]);
-        }
-
-        if ($additionalPaths !== []) {
-            $filters[] = new EqualsAnyFilter('path', $additionalPaths);
-        }
-
-        switch (\count($filters)) {
-            case 1:
-                $criteria->addFilter($filters[0]);
-                break;
-            default:
-                $criteria->addFilter(new OrFilter($filters));
-        }
+        $criteria->addFilter(new EqualsAnyFilter('path', $additionalPaths));
 
         $criteria->addAssociation('media');
 
@@ -152,8 +146,6 @@ class NavigationRoute extends AbstractNavigationRoute
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
         $levels = $this->categoryRepository->search($criteria, $context)->getEntities();
-
-        $this->addVisibilityCounts($rootId, $rootLevel, $depth, $levels, $context);
 
         return $levels;
     }
@@ -226,57 +218,5 @@ class NavigationRoute extends AbstractNavigationRoute
         }
 
         return false;
-    }
-
-    private function addVisibilityCounts(string $rootId, int $rootLevel, int $depth, CategoryCollection $levels, SalesChannelContext $context): void
-    {
-        $counts = [];
-        foreach ($levels as $category) {
-            if (!$category->getActive() || !$category->getVisible()) {
-                continue;
-            }
-
-            $parentId = $category->getParentId();
-            $counts[$parentId] ??= 0;
-            ++$counts[$parentId];
-        }
-        foreach ($levels as $category) {
-            $category->setVisibleChildCount($counts[$category->getId()] ?? 0);
-        }
-
-        // Fetch additional level of categories for counting visible children that are NOT included in the original query
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new ContainsFilter('path', '|' . $rootId . '|'),
-            new EqualsFilter('level', $rootLevel + $depth + 1),
-            new EqualsFilter('active', true),
-            new EqualsFilter('visible', true)
-        );
-
-        $criteria->addAggregation(
-            new TermsAggregation('category-ids', 'parentId', null, null, new CountAggregation('visible-children-count', 'id'))
-        );
-
-        $termsResult = $this->categoryRepository
-            ->aggregate($criteria, $context)
-            ->get('category-ids');
-
-        if (!($termsResult instanceof TermsResult)) {
-            return;
-        }
-
-        foreach ($termsResult->getBuckets() as $bucket) {
-            $key = $bucket->getKey();
-
-            if ($key === null) {
-                continue;
-            }
-
-            $parent = $levels->get($key);
-
-            if ($parent instanceof CategoryEntity) {
-                $parent->setVisibleChildCount($bucket->getCount());
-            }
-        }
     }
 }

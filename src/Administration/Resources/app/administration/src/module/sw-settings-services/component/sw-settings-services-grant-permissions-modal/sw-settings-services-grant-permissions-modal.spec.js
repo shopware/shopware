@@ -1,11 +1,40 @@
 import { mount } from '@vue/test-utils';
-import { MtModal, MtModalClose, MtModalAction } from '@shopware-ag/meteor-component-library';
+import { MtModal, MtModalClose, MtModalAction, MtModalTrigger, MtModalRoot } from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesGrantPermissionsModal from './index';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
+import * as permissionsComposable from '../../composables/permissions';
+
+jest.mock('../../composables/permissions', () => {
+    const useShopwareServicesStore = require('../../store/shopware-services.store').useShopwareServicesStore;
+    const _reloadPageMock = jest.fn();
+    return {
+        async grantPermissions() {
+            const store = useShopwareServicesStore();
+            const revision = store.currentRevision?.revision;
+            if (!revision) throw new Error('No revision available');
+            await Shopware.Service('shopwareServicesService').acceptRevision(revision);
+            _reloadPageMock();
+        },
+        revokePermissions: jest.fn(),
+        _reloadPage: _reloadPageMock,
+    };
+});
+
+const createWrapper = async () => {
+    return mount(SwSettingsServicesGrantPermissionsModal, {
+        global: {
+            stubs: {
+                'mt-modal': MtModal,
+                'mt-modal-close': MtModalClose,
+                'mt-modal-action': MtModalAction,
+                'mt-modal-trigger': MtModalTrigger,
+                'mt-modal-root': MtModalRoot,
+            },
+        },
+    });
+};
 
 describe('src/module/sw-settings-services/component/sw-settings-services-grant-permissions-modal', () => {
-    let originalLocation;
-
     beforeAll(() => {
         Shopware.Service().register('serviceRegistryClient', () => ({
             getCurrentRevision: jest.fn(async () => ({
@@ -26,21 +55,13 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
         Shopware.Service().register('shopwareServicesService', () => ({
             acceptRevision: jest.fn(),
         }));
-
-        originalLocation = window.location;
-
-        Object.defineProperty(window, 'location', { configurable: true, value: { reload: jest.fn() } });
-    });
-
-    afterAll(() => {
-        Object.defineProperty(window, 'location', { configurable: true, value: originalLocation });
     });
 
     it('can be opened by the pinia store', async () => {
         const shopwareServicesStore = useShopwareServicesStore();
         expect(shopwareServicesStore.revisions).toBeNull();
 
-        const grantPermissionsModal = await mount(SwSettingsServicesGrantPermissionsModal);
+        const grantPermissionsModal = await createWrapper();
         const modal = grantPermissionsModal.getComponent(MtModal);
 
         expect(modal.findComponent(MtModalClose).exists()).toBe(false);
@@ -73,7 +94,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
         const notificationStore = Shopware.Store.get('notification');
         const notificationSpy = jest.spyOn(notificationStore, 'createNotification');
 
-        const grantPermissionsModal = await mount(SwSettingsServicesGrantPermissionsModal);
+        const grantPermissionsModal = await createWrapper();
 
         shopwareServicesStore.showGrantPermissionsModal = true;
         await flushPromises();
@@ -84,7 +105,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
         expect(notificationSpy).not.toHaveBeenCalled();
         expect(Shopware.Service('shopwareServicesService').acceptRevision).toHaveBeenCalledWith('2025-06-25');
 
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(permissionsComposable._reloadPage).toHaveBeenCalled();
     });
 
     it('shows error notification if no revision is available', async () => {
@@ -92,7 +113,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
         const notificationStore = Shopware.Store.get('notification');
         const notificationSpy = jest.spyOn(notificationStore, 'createNotification');
 
-        const grantPermissionsModal = await mount(SwSettingsServicesGrantPermissionsModal);
+        const grantPermissionsModal = await createWrapper();
 
         shopwareServicesStore.showGrantPermissionsModal = true;
         await flushPromises();
@@ -108,6 +129,6 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
             message: 'No revision available',
         });
         expect(Shopware.Service('shopwareServicesService').acceptRevision).not.toHaveBeenCalled();
-        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(permissionsComposable._reloadPage).not.toHaveBeenCalled();
     });
 });

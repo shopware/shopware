@@ -7,7 +7,6 @@ import 'src/app/component/rule/sw-condition-base';
 import 'src/app/component/rule/sw-condition-base-line-item';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import fs from 'fs';
-// eslint-disable-next-line
 import path from 'path';
 import ruleConditionsConfig from './_mocks/ruleConditionsConfig.json';
 
@@ -106,6 +105,23 @@ async function createWrapperForComponent(componentName, props = {}) {
         },
     });
 }
+
+Shopware.Service().register('timezoneService', () => {
+    return {
+        getTimezoneOptions() {
+            return [
+                {
+                    label: 'UTC',
+                    value: 'UTC',
+                },
+                {
+                    label: 'Europe/Berlin',
+                    value: 'Europe/Berlin',
+                },
+            ];
+        },
+    };
+});
 
 function eachField(fieldTypes, callbackFunction) {
     fieldTypes.forEach((fieldType) =>

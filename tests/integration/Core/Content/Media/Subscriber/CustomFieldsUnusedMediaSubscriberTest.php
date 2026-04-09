@@ -3,9 +3,9 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Subscriber;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\Subscriber\CustomFieldsUnusedMediaSubscriber;
 use Shopware\Core\Content\Test\Category\CategoryBuilder;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -22,13 +23,18 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(CustomFieldsUnusedMediaSubscriber::class)]
 class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<MediaCollection>
+     */
     private EntityRepository $mediaRepository;
 
+    /**
+     * @var EntityRepository<CustomFieldSetCollection>
+     */
     private EntityRepository $customFieldSetRepository;
 
     protected function setUp(): void
@@ -110,7 +116,7 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function createContent(): array
     {

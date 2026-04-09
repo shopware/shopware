@@ -10,6 +10,7 @@ use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -50,7 +51,12 @@ class CategoryRoute extends AbstractCategoryRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/category/{navigationId}', name: 'store-api.category.detail', methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/store-api/category/{navigationId}',
+        name: 'store-api.category.detail',
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
+        defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+    )]
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
         $this->cacheTagCollector->addTag(self::buildName($navigationId));
@@ -131,7 +137,7 @@ class CategoryRoute extends AbstractCategoryRoute
         $criteria = new Criteria([$pageId]);
         $criteria->setTitle('category::cms-page');
 
-        $slots = $request->get('slots');
+        $slots = RequestParamHelper::get($request, 'slots');
 
         if (\is_string($slots)) {
             $slots = explode('|', $slots);

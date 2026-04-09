@@ -138,7 +138,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
     private function getBeforeConfirmValidation(string $emHash): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('registration.opt_in_before');
-        $definition->add('em', new EqualTo(['value' => $emHash]));
+        $definition->add('em', new EqualTo(value: $emHash));
         $definition->add('doubleOptInRegistration', new IsTrue());
 
         return $definition;

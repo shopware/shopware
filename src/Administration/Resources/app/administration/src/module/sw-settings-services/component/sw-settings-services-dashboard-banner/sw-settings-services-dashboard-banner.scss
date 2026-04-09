@@ -21,3 +21,21 @@
         grid-template-columns: 1fr 0.45fr;
     }
 }
+
+.sw-settings-services-dashboard-banner__graphic--light {
+    display: block;
+}
+
+.sw-settings-services-dashboard-banner__graphic--dark {
+    display: none;
+}
+
+[data-theme="dark"] {
+    .sw-settings-services-dashboard-banner__graphic--light {
+        display: none;
+    }
+
+    .sw-settings-services-dashboard-banner__graphic--dark {
+        display: block;
+    }
+}

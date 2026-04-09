@@ -32,9 +32,9 @@ class SalesChannelValidatorTest extends TestCase
     private const UPDATE_VALIDATION_MESSAGE = 'Cannot update default language id because the given id is not in the language list of sales channel with id "%s"';
 
     /**
-     * @param array<string, mixed> $inserts
-     * @param array<int, array<string, mixed>> $valids
-     * @param array<string> $invalids
+     * @param list<array{0: string, 1: string, 2?: list<string>}> $inserts
+     * @param list<string> $invalids
+     * @param list<array{id: string}> $valids
      */
     #[DataProvider('getInsertValidationProvider')]
     public function testInsertValidation(array $inserts, array $invalids = [], array $valids = []): void
@@ -42,19 +42,19 @@ class SalesChannelValidatorTest extends TestCase
         $exception = null;
 
         $deDeLanguageId = $this->getDeDeLanguageId();
-        foreach ($inserts as &$insert) {
+        $salesChannelCreationData = [];
+        foreach ($inserts as $insert) {
             foreach ($insert[2] ?? [] as $key => $language) {
                 if ($language === 'de-DE') {
                     $insert[2][$key] = $deDeLanguageId;
                 }
             }
 
-            $insert = $this->getSalesChannelData(...$insert);
+            $salesChannelCreationData[] = $this->getSalesChannelData(...$insert);
         }
 
         try {
-            $this->getSalesChannelRepository()
-                ->create($inserts, Context::createDefaultContext());
+            $this->getSalesChannelRepository()->create($salesChannelCreationData, Context::createDefaultContext());
         } catch (WriteException $exception) {
             // nth
         }
@@ -152,9 +152,9 @@ class SalesChannelValidatorTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $updates
-     * @param array<string> $invalids
-     * @param array<string, mixed> $inserts
+     * @param list<array{id: string, languageId: string, languages?: list<array{id: string}>}> $updates
+     * @param list<string> $invalids
+     * @param list<string> $inserts
      */
     #[DataProvider('getUpdateValidationProvider')]
     public function testUpdateValidation(array $updates, array $invalids = [], array $inserts = []): void
@@ -171,6 +171,7 @@ class SalesChannelValidatorTest extends TestCase
                 }
             }
         }
+        unset($update);
 
         $exception = null;
 
@@ -181,8 +182,7 @@ class SalesChannelValidatorTest extends TestCase
         }
 
         try {
-            $this->getSalesChannelRepository()
-                ->update($updates, Context::createDefaultContext());
+            $this->getSalesChannelRepository()->update($updates, Context::createDefaultContext());
         } catch (WriteException $exception) {
             // nth
         }
@@ -284,8 +284,8 @@ class SalesChannelValidatorTest extends TestCase
 
     public function testPreventDeletionOfDefaultLanguageId(): void
     {
-        static::expectException(WriteException::class);
-        static::expectExceptionMessage(\sprintf(
+        $this->expectException(WriteException::class);
+        $this->expectExceptionMessage(\sprintf(
             self::DELETE_VALIDATION_MESSAGE,
             TestDefaults::SALES_CHANNEL
         ));
@@ -323,8 +323,7 @@ class SalesChannelValidatorTest extends TestCase
         $data = $this->getSalesChannelData($id, $languageId);
         $data['typeId'] = Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON;
 
-        $this->getSalesChannelRepository()
-            ->create([$data], Context::createDefaultContext());
+        $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
 
         $count = (int) static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT COUNT(*) FROM sales_channel_language WHERE sales_channel_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
@@ -337,9 +336,9 @@ class SalesChannelValidatorTest extends TestCase
     }
 
     /**
-     * @param array<string> $languages
+     * @param list<string> $languages
      *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     private function getSalesChannelData(string $id, string $languageId, array $languages = []): array
     {

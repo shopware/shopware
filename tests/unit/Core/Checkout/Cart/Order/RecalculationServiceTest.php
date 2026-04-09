@@ -69,7 +69,7 @@ class RecalculationServiceTest extends TestCase
         $this->orderConverter = $this->createMock(OrderConverter::class);
         $this->orderConverter
             ->method('assembleSalesChannelContext')
-            ->willReturnCallback(function (OrderEntity $order, Context $context) {
+            ->willReturnCallback(static function (OrderEntity $order, Context $context) {
                 static::assertNotNull($order->getTaxStatus());
                 $context->setTaxState($order->getTaxStatus());
 
@@ -103,7 +103,7 @@ class RecalculationServiceTest extends TestCase
         $entityRepository
             ->expects($this->once())
             ->method('upsert')
-            ->willReturnCallback(function (array $data, Context $context) use ($orderEntity) {
+            ->willReturnCallback(static function (array $data, Context $context) use ($orderEntity) {
                 static::assertSame($data[0]['stateId'], $orderEntity->getStateId());
                 static::assertNotNull($data[0]['deliveries']);
                 static::assertNotNull($data[0]['deliveries'][0]);
@@ -128,7 +128,7 @@ class RecalculationServiceTest extends TestCase
         $this->orderConverter
             ->expects($this->once())
             ->method('convertToCart')
-            ->willReturnCallback(function (OrderEntity $order, Context $context) use ($cart) {
+            ->willReturnCallback(static function (OrderEntity $order, Context $context) use ($cart) {
                 static::assertSame($order->getTaxStatus(), CartPrice::TAX_STATE_FREE);
                 static::assertSame($context->getTaxState(), CartPrice::TAX_STATE_FREE);
 
@@ -399,7 +399,7 @@ class RecalculationServiceTest extends TestCase
             ->with(static::anything(), static::anything(), static::callback(static function (OrderConversionContext $context) {
                 return $context->shouldIncludeDeliveries();
             }))
-            ->willReturnCallback(function (Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext) {
+            ->willReturnCallback(static function (Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext) {
                 return CartTransformer::transform(
                     $cart,
                     $context,
@@ -437,7 +437,7 @@ class RecalculationServiceTest extends TestCase
         $entityRepository
             ->expects($this->once())
             ->method('upsert')
-            ->willReturnCallback(function (array $data) {
+            ->willReturnCallback(static function (array $data) {
                 static::assertNotNull($data[0]);
                 static::assertEmpty($data[0]['deliveries']);
 

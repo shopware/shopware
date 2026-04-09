@@ -34,17 +34,14 @@ class SwBlockReferenceExpression extends AbstractExpression
     {
         if ($this->getAttribute('is_defined_test')) {
             $this->compileTemplateCall($compiler, 'hasBlock');
+        } elseif ($this->getAttribute('output')) {
+            $compiler->addDebugInfo($this);
+            $compiler->write('yield from ');
+            $this
+                ->compileTemplateCall($compiler, 'yieldBlock')
+                ->raw(";\n");
         } else {
-            if ($this->getAttribute('output')) {
-                $compiler->addDebugInfo($this);
-
-                $compiler->write('yield from ');
-                $this
-                    ->compileTemplateCall($compiler, 'yieldBlock')
-                    ->raw(";\n");
-            } else {
-                $this->compileTemplateCall($compiler, 'renderBlock');
-            }
+            $this->compileTemplateCall($compiler, 'renderBlock');
         }
     }
 

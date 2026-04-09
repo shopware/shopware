@@ -50,7 +50,9 @@ class UninstallAppCommand extends Command
         }
 
         $context = Context::createCLIContext();
-        if ($input->getOption('skip-theme-compile')) {
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
+        if (class_exists(ThemeLifecycleHandler::class) && $input->getOption('skip-theme-compile')) {
+            /** @phpstan-ignore phpat.restrictNamespacesInCore */
             $context->addState(ThemeLifecycleHandler::STATE_SKIP_THEME_COMPILATION);
         }
 

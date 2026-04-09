@@ -35,6 +35,7 @@ async function createWrapper(customerId = null) {
             },
             stubs: {
                 'sw-order-create-initial-modal': true,
+                'sw-loader': true,
             },
         },
     });

@@ -340,7 +340,7 @@ Shopware.Service().register('cmsService', () => {
                     defaultConfig: {
                         backgroundColor: '#FFFFFF',
                         backgroundMedia: {
-                            url: '/bundles/administration/administration/static/img/cms/preview_mountain_large.jpg',
+                            url: '/bundles/administration/administration/static/img/cms/preview_mountain_large.webp',
                         },
                         marginTop: '20px',
                         marginBottom: '20px',

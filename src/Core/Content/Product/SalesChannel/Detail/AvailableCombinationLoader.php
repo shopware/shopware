@@ -64,7 +64,7 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
     }
 
     /**
-     * @return array<string, array{options: string, available: int, productNumber: string}>
+     * @return array<string, array{options: string, available: string, productNumber: string}>
      */
     private function getCombinations(string $productId, Context $context, string $salesChannelId): array
     {
@@ -94,7 +94,7 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
 
         $combinations = $query->executeQuery()->fetchAllAssociative();
 
-        /** @var array<string, array{options: string, available: int, productNumber: string}> $unique */
+        /** @var array<string, array{options: string, available: string, productNumber: string}> $unique */
         $unique = FetchModeHelper::groupUnique($combinations);
 
         return $unique;

@@ -47,11 +47,19 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
                     'sw-context-menu-item': true,
                     'sw-internal-link': true,
                     'sw-payment-card': true,
-                    'sw-empty-state': true,
                     'sw-extension-component-section': true,
                     'router-link': true,
                     'sw-language-switch': true,
                     'sw-settings-payment-sorting-modal': true,
+                },
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
+                    },
                 },
             },
         },

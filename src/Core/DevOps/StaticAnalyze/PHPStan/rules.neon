@@ -5,8 +5,8 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleAreasFlagNotAllowedRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleConditionHasRuleConfigRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoAssertsOnObjectsRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowEventAwareExtendsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowStoreFunctionRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoUnserializeUsageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoEnvironmentHelperInsideCompilerPassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFileExistsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoSuperGlobalsInsideCompilerPassRule
@@ -21,3 +21,29 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoManualSalesChannelContextCreationRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDelayStampRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoAddCacheTagEventRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoUpdatesInExecuteQueryRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PublicServiceDecoratorRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRouteOverrideInDecoratorsRule
+
+    # rules from https://github.com/symplify/phpstan-rules
+    # domain
+    - Symplify\PHPStanRules\Rules\Enum\RequireUniqueEnumConstantRule
+    - Symplify\PHPStanRules\Rules\PreventParentMethodVisibilityOverrideRule
+
+    # explicit naming
+    - Symplify\PHPStanRules\Rules\ForbiddenMultipleClassLikeInOneFileRule
+
+    - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
+
+    # naming rules
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
+    - Symplify\PHPStanRules\Rules\UppercaseConstantRule
+
+services:
+    - # register the class, so we can decorate it, but don't tag it as a rule, so only our decorator is used by PHPStan
+        class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NotExtendFlowEventAwareRule
+        tags:
+            - phpat.test

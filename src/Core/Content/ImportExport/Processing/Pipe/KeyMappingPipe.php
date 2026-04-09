@@ -52,11 +52,13 @@ class KeyMappingPipe extends AbstractPipe
             $mapped[$newKey] = $value;
         }
 
+        $sorted = [];
+
         foreach ($this->mapping as $m) {
             $sorted[$m->getMappedKey()] = $mapped[$m->getMappedKey()] ?? '';
         }
 
-        if (empty($sorted)) {
+        if ($sorted === []) {
             return;
         }
 

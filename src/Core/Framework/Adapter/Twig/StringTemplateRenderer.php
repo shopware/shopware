@@ -37,7 +37,7 @@ class StringTemplateRenderer
     {
         // use private twig instance here, because we use custom template loader
         $this->twig = new TwigEnvironment(new ArrayLoader(), [
-            'cache' => new FilesystemCache(Path::join($this->cacheDir, 'twig', 'string-template-renderer')),
+            'cache' => new FilesystemCache(Path::join($this->cacheDir)),
         ]);
 
         $this->disableTestMode();

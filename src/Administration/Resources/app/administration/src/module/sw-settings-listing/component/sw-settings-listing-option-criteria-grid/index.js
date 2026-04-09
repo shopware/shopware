@@ -93,7 +93,6 @@ export default {
          * @returns {[]}
          */
         sortedProductSortingFields() {
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             return this.productSortingEntity.fields.sort((a, b) => {
                 if (a.priority === b.priority) {
                     return 0;
@@ -173,6 +172,12 @@ export default {
                     value: 'product.createdAt',
                     label: this.$tc(
                         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.createdAt',
+                    ),
+                },
+                {
+                    value: 'product.available',
+                    label: this.$tc(
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.available',
                     ),
                 },
             ];

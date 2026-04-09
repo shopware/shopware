@@ -2,7 +2,10 @@
     {% set element = block.slots.getSlot('video') %}
 
     <div class="col-12" data-cms-element-id="{{ element.id }}">
-        {% block block_image_inner %}
+        {# @deprecated tag:v6.8.0 - `block_image_inner` will be removed, use `block_vimeo_video_inner` instead #}
+        {% block block_image_inner %}{% endblock %}
+
+        {% block block_vimeo_video_inner %}
             {% sw_include '@Storefront/storefront/element/cms-element-' ~ element.type ~ '.html.twig' ignore missing %}
         {% endblock %}
     </div>

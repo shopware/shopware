@@ -17,12 +17,12 @@ class CountryStateCollection extends EntityCollection
      */
     public function getCountryIds(): array
     {
-        return $this->fmap(fn (CountryStateEntity $countryState) => $countryState->getCountryId());
+        return $this->fmap(static fn (CountryStateEntity $countryState) => $countryState->getCountryId());
     }
 
     public function filterByCountryId(string $id): self
     {
-        return $this->filter(fn (CountryStateEntity $countryState) => $countryState->getCountryId() === $id);
+        return $this->filter(static fn (CountryStateEntity $countryState) => $countryState->getCountryId() === $id);
     }
 
     /**

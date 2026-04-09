@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
@@ -46,6 +47,9 @@ class CrossSellingRouteTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private AbstractProductCrossSellingRoute $route;
@@ -130,8 +134,8 @@ class CrossSellingRouteTest extends TestCase
         static::assertSame('Test Cross Selling', $element->getCrossSelling()->getName());
 
         $lastPrice = 0;
-        foreach ($element->getProducts() as $product) {
-            $productPrice = $product->getCurrencyPrice(Defaults::CURRENCY);
+        foreach ($element->getProducts() as $crossSellingProduct) {
+            $productPrice = $crossSellingProduct->getCurrencyPrice(Defaults::CURRENCY);
             static::assertNotNull($productPrice);
             static::assertGreaterThanOrEqual($lastPrice, $productPrice->getGross());
             $lastPrice = $productPrice->getGross();
@@ -170,8 +174,8 @@ class CrossSellingRouteTest extends TestCase
         static::assertSame('Test Cross Selling', $element->getCrossSelling()->getName());
 
         $lastPrice = 0;
-        foreach ($element->getProducts() as $product) {
-            $productPrice = $product->getCurrencyPrice(Defaults::CURRENCY);
+        foreach ($element->getProducts() as $crossSellingProduct) {
+            $productPrice = $crossSellingProduct->getCurrencyPrice(Defaults::CURRENCY);
             static::assertNotNull($productPrice);
             static::assertGreaterThanOrEqual($lastPrice, $productPrice->getGross());
             $lastPrice = $productPrice->getGross();
@@ -210,8 +214,8 @@ class CrossSellingRouteTest extends TestCase
         static::assertSame('Test Cross Selling', $element->getCrossSelling()->getName());
 
         $lastPrice = 0;
-        foreach ($element->getProducts() as $product) {
-            $productPrice = $product->getCurrencyPrice(Defaults::CURRENCY);
+        foreach ($element->getProducts() as $crossSellingProduct) {
+            $productPrice = $crossSellingProduct->getCurrencyPrice(Defaults::CURRENCY);
             static::assertNotNull($productPrice);
             static::assertGreaterThanOrEqual($lastPrice, $productPrice->getGross());
             $lastPrice = $productPrice->getGross();

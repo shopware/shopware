@@ -25,7 +25,6 @@ use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -107,7 +106,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->connection->expects($this->once())
             ->method('fetchAllKeyValue')
-            ->willReturnCallback(function ($_, $params) {
+            ->willReturnCallback(static function ($_, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];
@@ -154,7 +153,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->connection->expects($this->once())
             ->method('fetchAllKeyValue')
-            ->willReturnCallback(function ($_, $params) {
+            ->willReturnCallback(static function ($_, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];
@@ -258,7 +257,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->connection->expects($this->once())
             ->method('fetchAllKeyValue')
-            ->willReturnCallback(function ($_, $params) {
+            ->willReturnCallback(static function ($_, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];
@@ -305,7 +304,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->connection->expects($this->once())
             ->method('fetchAllKeyValue')
-            ->willReturnCallback(function ($_, $params) {
+            ->willReturnCallback(static function ($_, $params) {
                 return [
                     Uuid::fromBytesToHex($params['ids'][0]) => '/shopware-logo.png',
                 ];
@@ -383,7 +382,7 @@ class ThumbnailServiceTest extends TestCase
         $thumbnailSizeEntity->setWidth($preferredThumbnailSize['width']);
         $thumbnailSizeEntity->setHeight($preferredThumbnailSize['height']);
 
-        $method = ReflectionHelper::getMethod(ThumbnailService::class, 'calculateThumbnailSize');
+        $method = new \ReflectionMethod(ThumbnailService::class, 'calculateThumbnailSize');
         $calculatedSize = $method->invokeArgs($this->thumbnailService, [$imageSize, $thumbnailSizeEntity, $mediaFolderConfigEntity]);
 
         static::assertSame($expectedSize, $calculatedSize);
@@ -460,6 +459,67 @@ class ThumbnailServiceTest extends TestCase
         );
 
         $service->deleteThumbnails(new MediaEntity(), $this->context);
+    }
+
+    public function testGenerateSkipsExternalMediaCompletely(): void
+    {
+        $mediaThumbnailEntity = new MediaThumbnailEntity();
+        $mediaThumbnailEntity->setId('external-thumb-id-1');
+        $mediaThumbnailEntity->setPath('http://localhost:8000/thumb.jpg');
+        $mediaThumbnailEntity->setWidth(200);
+        $mediaThumbnailEntity->setHeight(200);
+        $mediaThumbnailEntity->setMediaId('media-id-1');
+
+        $media = new MediaEntity();
+        $media->setId('media-id-1');
+        $media->setPath('http://localhost:8000/image.jpg');
+        $media->setThumbnails(new MediaThumbnailCollection([$mediaThumbnailEntity]));
+
+        $result = $this->thumbnailService->generate(new MediaCollection([$media]), $this->context);
+
+        static::assertSame(0, $result);
+        static::assertEmpty($this->thumbnailRepository->deletes);
+    }
+
+    public function testUpdateThumbnailsSkipsExternalMedia(): void
+    {
+        $mediaThumbnailEntity = new MediaThumbnailEntity();
+        $mediaThumbnailEntity->setId('external-thumb-id-1');
+        $mediaThumbnailEntity->setPath('http://localhost:8000/thumb.jpg');
+        $mediaThumbnailEntity->setWidth(200);
+        $mediaThumbnailEntity->setHeight(200);
+        $mediaThumbnailEntity->setMediaId('media-id-1');
+
+        $media = new MediaEntity();
+        $media->setId('media-id-1');
+        $media->setPath('http://localhost:8000/image.jpg');
+        $media->setThumbnails(new MediaThumbnailCollection([$mediaThumbnailEntity]));
+
+        $result = $this->thumbnailService->updateThumbnails($media, $this->context, false);
+
+        static::assertSame(0, $result);
+        static::assertEmpty($this->thumbnailRepository->deletes);
+    }
+
+    public function testUpdateThumbnailsDeletesAllThumbnailsForNonImageLocalMedia(): void
+    {
+        $mediaThumbnailEntity = new MediaThumbnailEntity();
+        $mediaThumbnailEntity->setId('thumb-id-1');
+        $mediaThumbnailEntity->setPath('/path/to/thumb.pdf');
+        $mediaThumbnailEntity->setWidth(100);
+        $mediaThumbnailEntity->setHeight(100);
+        $mediaThumbnailEntity->setMediaId('media-id-1');
+
+        $media = new MediaEntity();
+        $media->setId('media-id-1');
+        $media->setPath('/path/to/file.pdf');
+        $media->setMediaType(new DocumentType());
+        $media->setThumbnails(new MediaThumbnailCollection([$mediaThumbnailEntity]));
+
+        $result = $this->thumbnailService->updateThumbnails($media, $this->context, false);
+
+        static::assertSame(0, $result);
+        static::assertCount(1, $this->thumbnailRepository->deletes);
     }
 
     private function createMediaEntity(MediaThumbnailEntity $mediaThumbnailEntity, MediaFolderEntity $mediaFolderEntity): MediaEntity

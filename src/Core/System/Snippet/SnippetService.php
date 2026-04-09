@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Snippet;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use League\Flysystem\FilesystemOperator;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -18,8 +19,10 @@ use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\Event\SnippetsThemeResolveEvent;
 use Shopware\Core\System\Snippet\Extension\StorefrontSnippetsExtension;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
+use Shopware\Core\System\Snippet\Files\RemoteSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
 /**
@@ -45,6 +48,8 @@ class SnippetService
         private readonly SnippetFilterFactory $snippetFilterFactory,
         private readonly ExtensionDispatcher $extensionDispatcher,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly FilesystemOperator $privateFileSystem,
+        private readonly Filesystem $localFileSystem,
     ) {
     }
 
@@ -106,7 +111,7 @@ class SnippetService
             $unusedThemes = $this->getUnusedThemes($usingThemes, $unusedThemes);
         }
 
-        $snippetCollection = $snippetFileCollection->filter(fn (AbstractSnippetFile $snippetFile) => !\in_array($snippetFile->getTechnicalName(), $unusedThemes, true));
+        $snippetCollection = $snippetFileCollection->filter(static fn (AbstractSnippetFile $snippetFile) => !\in_array($snippetFile->getTechnicalName(), $unusedThemes, true));
 
         $fallbackSnippets = [];
 
@@ -203,7 +208,7 @@ class SnippetService
 
         $aggregation = $this->snippetRepository->aggregate($criteria, $context)->get('distinct_author');
 
-        if (!$aggregation instanceof TermsResult || empty($aggregation->getBuckets())) {
+        if (!$aggregation instanceof TermsResult || $aggregation->getBuckets() === []) {
             $result = [];
         } else {
             $result = $aggregation->getKeys();
@@ -301,6 +306,15 @@ class SnippetService
     }
 
     /**
+     *  Collects snippet files for each given locale.
+     *
+     *  For each locale (e.g., "es-AR"), the method first tries to load files
+     *  that match the exact locale. If that locale contains a region separator ("-"),
+     *  it will also load files for the base language (e.g., "es").
+     *
+     *  The base language snippet files are prepended, ensuring country-specific
+     *  snippets (e.g. "es-AR") override more general ones ("es").
+     *
      * @param array<string, string> $isoList
      *
      * @return array<string, list<AbstractSnippetFile>>
@@ -309,7 +323,26 @@ class SnippetService
     {
         $result = [];
         foreach ($isoList as $iso) {
-            $result[$iso] = $this->snippetFileCollection->getSnippetFilesByIso($iso);
+            // Load all snippet files that match the exact locale (e.g., "es-AR")
+            $files = $this->snippetFileCollection->getSnippetFilesByIso($iso);
+            preg_match(
+                SnippetPatterns::COMPLETE_LOCALE_PATTERN,
+                $iso,
+                $matchedPattern,
+                \PREG_UNMATCHED_AS_NULL
+            );
+
+            // If the locale has a region (e.g., "es-AR"), try to load its base language ("es")
+            $region = $matchedPattern['region'] ?? '';
+            if ($region !== '' && strtolower($region) !== $iso) {
+                $language = $matchedPattern['language'] ?? '';
+                \assert($language !== '');
+                $fallbackFiles = $this->snippetFileCollection->getSnippetFilesByIso($language);
+                // Prepend fallback files so region-specific ones override them
+                $files = [...$fallbackFiles, ...$files];
+            }
+
+            $result[$iso] = $files;
         }
 
         return $result;
@@ -545,12 +578,12 @@ class SnippetService
     {
         $result = [];
         foreach ($array as $index => $value) {
-            $newIndex = $prefix . (empty($prefix) ? '' : '.') . $index;
+            $newIndex = $prefix . ($prefix === '' ? '' : '.') . $index;
 
             if (\is_array($value)) {
                 $result = [...$result, ...$this->flatten($value, $newIndex, $additionalParameters)];
             } else {
-                if (!empty($additionalParameters)) {
+                if ($additionalParameters !== null && $additionalParameters !== []) {
                     $result[$newIndex] = array_merge([
                         'value' => $value,
                         'origin' => $value,
@@ -573,12 +606,16 @@ class SnippetService
      */
     private function decodeSnippetFileJson(AbstractSnippetFile $snippetFile): array
     {
+        if ($snippetFile instanceof RemoteSnippetFile) {
+            $content = $this->privateFileSystem->read($snippetFile->getPath());
+        } else {
+            $content = $this->localFileSystem->readFile($snippetFile->getPath());
+        }
+
         try {
-            $json = json_decode((string) file_get_contents($snippetFile->getPath()), true, 512, \JSON_THROW_ON_ERROR);
+            return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw SnippetException::invalidSnippetFile($snippetFile->getPath(), $e);
         }
-
-        return $json;
     }
 }

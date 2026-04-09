@@ -68,7 +68,7 @@ class StructEncoderTest extends TestCase
 
         $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
 
-        $encoded = $structEncoder->encode($product, new ResponseFields(null));
+        $encoded = $structEncoder->encode($product, new ResponseFields());
 
         static::assertArrayNotHasKey('cheapestPrice', $encoded);
         static::assertArrayHasKey('name', $encoded);
@@ -84,7 +84,7 @@ class StructEncoderTest extends TestCase
 
         $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
 
-        $encoded = $structEncoder->encode($product, new ResponseFields(null));
+        $encoded = $structEncoder->encode($product, new ResponseFields());
 
         static::assertArrayNotHasKey('notExposed', $encoded);
         static::assertArrayHasKey('name', $encoded);
@@ -106,7 +106,7 @@ class StructEncoderTest extends TestCase
 
         $structEncoder = $this->createStructEncoder([ExtensionDefinition::class]);
 
-        $encoded = $structEncoder->encode($product, new ResponseFields(null));
+        $encoded = $structEncoder->encode($product, new ResponseFields());
 
         static::assertArrayHasKey('extensions', $encoded);
         static::assertArrayHasKey('exposedExtension', $encoded['extensions']);
@@ -131,7 +131,7 @@ class StructEncoderTest extends TestCase
 
         $structEncoder = $this->createStructEncoder();
 
-        $encoded = $structEncoder->encode($cart, new ResponseFields(null));
+        $encoded = $structEncoder->encode($cart, new ResponseFields());
 
         static::assertArrayHasKey('lineItems', $encoded);
         static::assertArrayHasKey(0, $encoded['lineItems']);
@@ -151,7 +151,7 @@ class StructEncoderTest extends TestCase
 
         $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
 
-        $encoded = $structEncoder->encode($product, new ResponseFields(null));
+        $encoded = $structEncoder->encode($product, new ResponseFields());
 
         $expectedCustomFields = [
             'visible_1' => 'test',
@@ -183,7 +183,7 @@ class StructEncoderTest extends TestCase
 
         $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class], $connection);
 
-        $encoded = $structEncoder->encode($product, new ResponseFields(null));
+        $encoded = $structEncoder->encode($product, new ResponseFields());
 
         $expectedCustomFields = [
             'visible' => 'test',
@@ -215,7 +215,7 @@ class StructEncoderTest extends TestCase
 
         $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class], $connection);
 
-        $encoded = $structEncoder->encode($product, new ResponseFields(null));
+        $encoded = $structEncoder->encode($product, new ResponseFields());
 
         $expectedCustomFields = [
             'visible' => 'test',
@@ -224,6 +224,74 @@ class StructEncoderTest extends TestCase
         static::assertArrayHasKey('customFields', $encoded);
         static::assertEquals($expectedCustomFields, $encoded['customFields']);
         static::assertEquals($expectedCustomFields, $encoded['translated']['customFields']);
+    }
+
+    public function testResponseFieldsEncodeIncludesCorrectly(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+
+        $product->setId('1');
+        $product->setName('test');
+        $product->setEan('ean123');
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
+
+        $responseFields = new ResponseFields(['product' => ['id', 'name']]);
+
+        $encoded = $structEncoder->encode($product, $responseFields);
+
+        $expected = [
+            'name' => 'test',
+            'id' => '1',
+            'apiAlias' => 'product',
+        ];
+
+        static::assertSame($expected, $encoded);
+    }
+
+    public function testResponseFieldsEncodeExcludesCorrectly(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+
+        $product->setId('1');
+        $product->setName('test');
+        $product->setEan('ean123');
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
+
+        $responseFields = new ResponseFields(excludes: ['product' => ['name']]);
+
+        $encoded = $structEncoder->encode($product, $responseFields);
+
+        static::assertArrayHasKey('id', $encoded);
+        static::assertArrayHasKey('ean', $encoded);
+        static::assertArrayNotHasKey('name', $encoded);
+    }
+
+    public function testResponseFieldsEncodeIncludesAndExcludesCorrectly(): void
+    {
+        $product = new ProductEntity();
+        $product->internalSetEntityData('product', new FieldVisibility([]));
+
+        $product->setId('1');
+        $product->setName('test');
+        $product->setEan('ean123');
+
+        $structEncoder = $this->createStructEncoder([SalesChannelProductDefinition::class]);
+
+        $responseFields = new ResponseFields(['product' => ['id', 'name', 'ean']], ['product' => ['name']]);
+
+        $encoded = $structEncoder->encode($product, $responseFields);
+
+        $expected = [
+            'ean' => 'ean123',
+            'id' => '1',
+            'apiAlias' => 'product',
+        ];
+
+        static::assertSame($expected, $encoded);
     }
 
     /**

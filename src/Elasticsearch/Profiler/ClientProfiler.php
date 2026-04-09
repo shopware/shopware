@@ -8,13 +8,13 @@ use OpenSearch\Namespaces\NamespaceBuilderInterface;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @phpstan-type RequestInfo array{url: string, request: array<mixed>, response: array<mixed>, time: float, backtrace: string}
+ * @phpstan-type RequestInfo array{url: string, request: array<string, mixed>, response: array<string, mixed>, time: float, backtrace: string}
  */
 #[Package('framework')]
 class ClientProfiler extends Client
 {
     /**
-     * @var RequestInfo[]
+     * @var list<RequestInfo>
      */
     private array $requests = [];
 
@@ -27,9 +27,9 @@ class ClientProfiler extends Client
     }
 
     /**
-     * @param array<mixed> $request
+     * @param array<string, mixed> $request
      *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function search(array $request = [])
     {
@@ -50,9 +50,9 @@ class ClientProfiler extends Client
     }
 
     /**
-     * @param array<mixed> $params
+     * @param array<string, mixed> $params
      *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function msearch(array $params = [])
     {
@@ -80,7 +80,7 @@ class ClientProfiler extends Client
     }
 
     /**
-     * @return RequestInfo[]
+     * @return list<RequestInfo>
      */
     public function getCalledRequests(): array
     {
@@ -88,9 +88,9 @@ class ClientProfiler extends Client
     }
 
     /**
-     * @param array<mixed> $params
+     * @param array<string, mixed> $params
      *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function bulk(array $params = [])
     {
@@ -114,9 +114,9 @@ class ClientProfiler extends Client
     }
 
     /**
-     * @param array<mixed> $params
+     * @param array<string, mixed> $params
      *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function putScript(array $params = [])
     {
@@ -140,11 +140,11 @@ class ClientProfiler extends Client
     }
 
     /**
-     * @param array{index?: string, body?: array<mixed>} $request
+     * @param array{index?: string, body?: array<string, mixed>} $request
      */
     private function assembleElasticsearchUrl(ConnectionInterface $connection, array $request): string
     {
-        $path = $connection->getPath();
+        $path = $connection->getPath() ?? '';
 
         if (isset($request['index'])) {
             if (\is_array($request['index'])) {

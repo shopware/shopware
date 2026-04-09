@@ -81,7 +81,8 @@ export default {
                 .addAssociation('personaRules')
                 .addAssociation('orderRules')
                 .addAssociation('cartRules')
-                .addAssociation('salesChannels');
+                .addAssociation('salesChannels')
+                .addAssociation('setgroups.setGroupRules');
 
             criteria.getAssociation('discounts').addSorting(Criteria.sort('createdAt', 'ASC'));
 
@@ -261,7 +262,7 @@ export default {
                         params: { id: this.promotion.id },
                     });
                 }
-            } catch (e) {
+            } catch (_e) {
                 this.isLoading = false;
                 this.createNotificationError({
                     message: this.$tc(

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -18,6 +19,9 @@ use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -105,7 +109,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryEntity->setName('category-name-1');
 
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
-            $this->getCategoryRepositoryMock([], [$categoryEntity]),
+            $this->getCategoryRepositoryMock([$categoryEntity], []),
             $this->getProductRepositoryMock([], []),
             $this->getConnectionMock()
         );
@@ -125,7 +129,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryEntity->setName('category-name-1');
 
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
-            $this->getCategoryRepositoryMock([], [$categoryEntity]),
+            $this->getCategoryRepositoryMock([$categoryEntity], []),
             $this->getProductRepositoryMock([], []),
             $this->getConnectionMock()
         );
@@ -133,6 +137,57 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryEntity = $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
 
         static::assertNotNull($categoryEntity);
+    }
+
+    public function testGetProductSeoCategoryShouldReturnDeepestVisibleActiveCategory(): void
+    {
+        $categoryIds = [Uuid::randomHex()];
+
+        $categoryEntity = new CategoryEntity();
+        $categoryEntity->setId($categoryIds[0]);
+        $categoryEntity->setName('category-name-1');
+
+        $categoryRepositoryMock = $this->getCategoryRepositoryMock([], [$categoryEntity]);
+        $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
+            $categoryRepositoryMock,
+            $this->getProductRepositoryMock([], []),
+            $this->getConnectionMock()
+        );
+        $product = $this->getProductEntity([], $categoryIds);
+
+        $categoryRepositoryMock->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(static function (Criteria $criteria): void {
+                $levelSorting = array_values(array_filter(
+                    $criteria->getSorting(),
+                    static fn (FieldSorting $sorting) => $sorting->getField() === 'level'
+                ))[0] ?? null;
+
+                static::assertNotNull($levelSorting);
+                static::assertSame(FieldSorting::DESCENDING, $levelSorting->getDirection());
+
+                static::assertTrue($criteria->hasEqualsFilter('visible'));
+
+                $visibleFilter = array_values(array_filter(
+                    $criteria->getFilters(),
+                    static fn (Filter $filter) => $filter instanceof EqualsFilter && $filter->getField() === 'visible'
+                ))[0] ?? null;
+
+                static::assertInstanceOf(EqualsFilter::class, $visibleFilter);
+                static::assertTrue($visibleFilter->getValue());
+
+                static::assertTrue($criteria->hasEqualsFilter('active'));
+
+                $activeFilter = array_values(array_filter(
+                    $criteria->getFilters(),
+                    static fn (Filter $filter) => $filter instanceof EqualsFilter && $filter->getField() === 'active'
+                ))[0] ?? null;
+
+                static::assertInstanceOf(EqualsFilter::class, $activeFilter);
+                static::assertTrue($activeFilter->getValue());
+            });
+
+        $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
     }
 
     public function testConvertCategoriesToBreadcrumbUrlsWithSeoUrls(): void
@@ -340,8 +395,10 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     /**
      * @param array<CategoryEntity> $categoryEntityCollection1
      * @param array<CategoryEntity> $categoryEntityCollection2
+     *
+     * @return EntityRepository<CategoryCollection>&MockObject
      */
-    private function getCategoryRepositoryMock(array $categoryEntityCollection1, array $categoryEntityCollection2): EntityRepository
+    private function getCategoryRepositoryMock(array $categoryEntityCollection1, array $categoryEntityCollection2): EntityRepository&MockObject
     {
         $categoryRepositoryMock = $this->createMock(EntityRepository::class);
         $categoryRepositoryMock->method('search')->willReturnOnConsecutiveCalls(

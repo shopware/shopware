@@ -49,12 +49,12 @@ export default class AddressSearchPlugin extends Plugin {
         const notFound = this.el.querySelector(this.options.searchNoItemFoundSelector);
         const empty = this.el.querySelector(this.options.searchEmptySateSelector);
 
+        notFound.classList.add('d-none');
+        empty.classList.add('d-none');
+
         if (visibleListItems.length !== 0) {
             return;
         }
-
-        notFound.classList.add('d-none');
-        empty.classList.add('d-none');
 
         searchQuery.length === 0
             ? empty.classList.remove('d-none')

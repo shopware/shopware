@@ -103,6 +103,7 @@
         <mt-button
             size="small"
             variant="secondary"
+            data-analytics-id="sw-order-new-customer-modal.cancel"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
@@ -114,6 +115,7 @@
             size="small"
             variant="primary"
             :is-loading="isLoading"
+            data-analytics-id="sw-order-new-customer-modal.save"
             @click="onSave"
         >
             {{ $tc('global.default.save') }}

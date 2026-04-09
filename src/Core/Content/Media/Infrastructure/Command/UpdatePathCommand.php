@@ -50,9 +50,9 @@ class UpdatePathCommand extends Command
         $progressBar->start();
 
         $chunks = array_chunk($ids, 200);
-        foreach ($chunks as $ids) {
-            $this->updater->updateMedia($ids);
-            $progressBar->advance(\count($ids));
+        foreach ($chunks as $chunkIds) {
+            $this->updater->updateMedia($chunkIds);
+            $progressBar->advance(\count($chunkIds));
         }
 
         $progressBar->finish();
@@ -71,9 +71,9 @@ class UpdatePathCommand extends Command
 
         $progressBar->start();
         $chunks = array_chunk($ids, 200);
-        foreach ($chunks as $ids) {
-            $this->updater->updateThumbnails($ids);
-            $progressBar->advance(\count($ids));
+        foreach ($chunks as $chunkIds) {
+            $this->updater->updateThumbnails($chunkIds);
+            $progressBar->advance(\count($chunkIds));
         }
         $progressBar->finish();
 

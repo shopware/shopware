@@ -83,10 +83,10 @@ export const ACTION_GROUP = Object.freeze({
  * @sw-package after-sales
  */
 export const GROUPS = [
+    GENERAL_GROUP,
     TAG_GROUP,
     CUSTOMER_GROUP,
     ORDER_GROUP,
-    GENERAL_GROUP,
 ];
 
 /**
@@ -96,7 +96,10 @@ export const GROUPS = [
 export default {
     ACTION,
     ACTION_TYPE,
+    GENERAL_GROUP,
+    TAG_GROUP,
+    CUSTOMER_GROUP,
+    ORDER_GROUP,
     ACTION_GROUP,
     GROUPS,
-    GENERAL_GROUP,
 };

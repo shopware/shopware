@@ -66,7 +66,7 @@ class InstallerTest extends TestCase
     {
         static::assertSame(
             [
-                'cs' => ['id' => 'cs-CZ', 'label' => 'Český'],
+                'cs' => ['id' => 'cs-CZ', 'label' => 'Čeština'],
                 'da-DK' => ['id' => 'da-DK', 'label' => 'Dansk'],
                 'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
                 'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
@@ -75,7 +75,7 @@ class InstallerTest extends TestCase
                 'fr' => ['id' => 'fr-FR', 'label' => 'Français'],
                 'it' => ['id' => 'it-IT', 'label' => 'Italiano'],
                 'nl' => ['id' => 'nl-NL', 'label' => 'Nederlands'],
-                'no' => ['id' => 'no-NO', 'label' => 'Norsk'],
+                'no' => ['id' => 'nn-NO', 'label' => 'Norsk'],
                 'pl' => ['id' => 'pl-PL', 'label' => 'Język polski'],
                 'pt-PT' => ['id' => 'pt-PT', 'label' => 'Português'],
                 'sv-SE' => ['id' => 'sv-SE', 'label' => 'Svenska'],

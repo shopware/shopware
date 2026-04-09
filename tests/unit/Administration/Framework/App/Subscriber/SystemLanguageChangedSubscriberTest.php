@@ -9,10 +9,12 @@ use Shopware\Administration\Framework\App\Subscriber\SystemLanguageChangedSubscr
 use Shopware\Administration\Snippet\AppAdministrationSnippetCollection;
 use Shopware\Administration\Snippet\AppAdministrationSnippetEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\System\Service\SystemLanguageChangeEvent;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\Locale\LocaleException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
@@ -47,6 +49,44 @@ class SystemLanguageChangedSubscriberTest extends TestCase
             'en-GB',
             'en-US',
         ));
+    }
+
+    public function testOnSystemLanguageChangedThrowsExceptionWhenNewLocaleDoesNotExist(): void
+    {
+        $localeRepository = $this->createMock(EntityRepository::class);
+        $snippetRepository = $this->createMock(EntityRepository::class);
+
+        $snippetCollection = new AppAdministrationSnippetCollection([
+            (new AppAdministrationSnippetEntity())->assign([
+                'id' => 'snippet-id',
+                'appId' => 'app-id',
+            ]),
+        ]);
+
+        $snippetSearchResult = $this->createMock(EntitySearchResult::class);
+        $snippetSearchResult->method('getEntities')->willReturn($snippetCollection);
+
+        $snippetRepository->method('search')->willReturn($snippetSearchResult);
+
+        $localeSearchResult = $this->createMock(EntitySearchResult::class);
+        $localeSearchResult->method('first')->willReturn(null);
+
+        $localeRepository->method('search')->willReturn($localeSearchResult);
+
+        $subscriber = new SystemLanguageChangedSubscriber(
+            $localeRepository,
+            $snippetRepository
+        );
+
+        $this->expectExceptionObject(LocaleException::localeDoesNotExists('fr-DE'));
+
+        $subscriber->onSystemLanguageChanged(
+            new SystemLanguageChangeEvent(
+                'previous-language-id',
+                'fr-DE',
+                'de-DE'
+            )
+        );
     }
 
     public function testDoesNotUpdateSnippetsIfSystemLanguageIsChangedFromEnGbToDeDe(): void

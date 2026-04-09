@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -44,16 +45,21 @@ class ThemeConfigValueAccessor
             return $this->themeConfig[$key];
         }
 
-        $themeConfig = [
-            'breakpoint' => [
-                'xs' => 0,
-                'sm' => 576,
-                'md' => 768,
-                'lg' => 992,
-                'xl' => 1200,
-                'xxl' => 1400,
-            ],
-        ];
+        $themeConfig = [];
+
+        // @deprecated tag:v6.8.0 - Obsolete. Remove with next major version.
+        if (!Feature::isActive('v6.8.0.0')) {
+            $themeConfig = [
+                'breakpoint' => [
+                    'xs' => 0,
+                    'sm' => 576,
+                    'md' => 768,
+                    'lg' => 992,
+                    'xl' => 1200,
+                    'xxl' => 1400,
+                ],
+            ];
+        }
 
         if (!$themeId) {
             return $this->themeConfig[$key] = $this->flatten($themeConfig, null);
@@ -74,6 +80,20 @@ class ThemeConfigValueAccessor
                 ],
             ],
             $this->themeConfigLoader->load($themeId, $context)
+        );
+
+        $themeConfig = array_merge(
+            $themeConfig,
+            [
+                'breakpoint' => [
+                    'xs' => $themeConfig['sw-breakpoint-xs'] ?? 0,
+                    'sm' => $themeConfig['sw-breakpoint-sm'] ?? 576,
+                    'md' => $themeConfig['sw-breakpoint-md'] ?? 768,
+                    'lg' => $themeConfig['sw-breakpoint-lg'] ?? 992,
+                    'xl' => $themeConfig['sw-breakpoint-xl'] ?? 1200,
+                    'xxl' => $themeConfig['sw-breakpoint-xxl'] ?? 1400,
+                ],
+            ]
         );
 
         return $this->themeConfig[$key] = $this->flatten($themeConfig, null);

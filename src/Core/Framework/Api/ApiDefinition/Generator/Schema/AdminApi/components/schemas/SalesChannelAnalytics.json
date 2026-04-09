@@ -1,0 +1,48 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "SalesChannelAnalytics": {
+                "type": "object",
+                "description": "Sales channel analytics configuration",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "trackingId": {
+                        "type": "string",
+                        "description": "Google Analytics tracking ID (e.g., UA-XXXXX-Y or G-XXXXXXXX)"
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "description": "Whether Google Analytics tracking is enabled"
+                    },
+                    "trackOrders": {
+                        "type": "boolean",
+                        "description": "Track order completions in Google Analytics"
+                    },
+                    "anonymizeIp": {
+                        "type": "boolean",
+                        "description": "Anonymize visitor IP addresses for GDPR compliance"
+                    },
+                    "trackOffcanvasCart": {
+                        "type": "boolean",
+                        "description": "Track off-canvas cart interactions in Google Analytics"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": ["string", "null"],
+                        "format": "date-time"
+                    }
+                },
+                "required": ["id", "active", "trackOrders", "anonymizeIp", "trackOffcanvasCart", "createdAt"]
+            }
+        }
+    }
+}

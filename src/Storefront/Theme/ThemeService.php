@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -102,7 +103,7 @@ class ThemeService implements ResetInterface
     /**
      * Compiles all dependend saleschannel/Theme combinations
      *
-     * @return array<int, string>
+     * @return list<string>
      */
     public function compileThemeById(
         string $themeId,
@@ -151,14 +152,31 @@ class ThemeService implements ResetInterface
             $data['parentThemeId'] = $parentThemeId;
         }
 
+        $themeConfig = $this->getPlainThemeConfiguration($themeId, $context);
+
+        $validFields = [];
+        if ($themeConfig && isset($themeConfig['fields'])) {
+            $validFields = array_keys($themeConfig['fields']);
+        }
+
+        // Cleanup the config values to only include the fields that are defined in the base config.
+        // This is necessary, because the theme config might change and fields could have been removed.
+        if (\array_key_exists('configValues', $data)) {
+            $data['configValues'] = array_intersect_key($data['configValues'], array_flip($validFields));
+        }
+
         if (\array_key_exists('configValues', $data)) {
             $this->dispatcher->dispatch(new ThemeConfigChangedEvent($themeId, $data['configValues']));
         }
 
+        // This part is not executed if the theme was reset before, because the config values are then empty.
         if (\array_key_exists('configValues', $data) && $theme->getConfigValues()) {
             $submittedChanges = $data['configValues'];
             $currentConfig = $theme->getConfigValues();
             $data['configValues'] = array_replace_recursive($currentConfig, $data['configValues']);
+
+            // Cleaning up the config values also here, because there might be removed fields in the existing config values in the database.
+            $data['configValues'] = array_intersect_key($data['configValues'], array_flip($validFields));
 
             foreach ($submittedChanges as $key => $changes) {
                 if (isset($changes['value']) && \is_array($changes['value']) && isset($currentConfig[(string) $key]) && \is_array($currentConfig[(string) $key])) {
@@ -181,7 +199,7 @@ class ThemeService implements ResetInterface
 
     public function assignTheme(string $themeId, string $salesChannelId, Context $context, bool $skipCompile = false): bool
     {
-        $this->connection->transactional(function () use ($themeId, $salesChannelId, $context, $skipCompile): void {
+        RetryableTransaction::transactional($this->connection, function () use ($themeId, $salesChannelId, $context, $skipCompile): void {
             if (!$skipCompile) {
                 $this->compileTheme($salesChannelId, $themeId, $context);
             }

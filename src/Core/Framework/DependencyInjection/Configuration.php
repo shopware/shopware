@@ -3,9 +3,11 @@
 namespace Shopware\Core\Framework\DependencyInjection;
 
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
+use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -53,6 +55,9 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createTelemetrySection())
                 ->append($this->createRedisSection())
                 ->append($this->createProductStreamSection())
+                ->append($this->createSsoLoginSection())
+                ->append($this->createProductTypesSection())
+                ->append($this->createWebhookSection())
             ->end();
 
         return $treeBuilder;
@@ -128,6 +133,11 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue('')
                     ->info('Path prefix to be prepended to the path when using a local download strategy')
                 ->end()
+                ->integerNode('batch_write_size')
+                    ->defaultValue(250)
+                    ->min(1)
+                    ->info('Batch size for writing files simultaneously using AsyncAwsS3WriteBatchAdapter')
+                ->end()
             ->end();
 
         return $rootNode;
@@ -187,6 +197,11 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('access_token_ttl')->defaultValue('PT10M')->end()
             ->scalarNode('refresh_token_ttl')->defaultValue('P1W')->end()
             ->scalarNode('max_limit')->end()
+            ->arrayNode('static_token')
+                ->children()
+                    ->scalarNode('health_check')->end()
+                ->end()
+            ->end()
             ->arrayNode('api_browser')
                 ->children()
                 ->booleanNode('auth_required')
@@ -223,6 +238,7 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue(true)
                 ->end()
                 ->booleanNode('enable_queue_stats_worker')
+                    ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0. The increment-based message queue statistics will be removed, please use "shopware.messenger.stats.enabled" as alternative.')
                     ->defaultValue(true)
                 ->end()
                 ->booleanNode('enable_notification_worker')
@@ -326,7 +342,7 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('enable_url_upload_feature')->end()
                 ->booleanNode('enable_url_validation')->end()
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
-                    ->validate()->always()->then(fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
+                    ->validate()->always()->then(static fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
             ->end();
 
         return $rootNode;
@@ -349,7 +365,7 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->beforeNormalization()
-                    ->always()->then(function ($flags) {
+                    ->always()->then(static function ($flags) {
                         foreach ($flags as $key => $flag) {
                             // support old syntax
                             if (\is_int($key) && \is_string($flag)) {
@@ -403,8 +419,17 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('redis_prefix')->end()
                 ->booleanNode('cache_compression')->defaultTrue()->end()
                 ->scalarNode('cache_compression_method')->defaultValue('gzip')->end()
+                ->booleanNode('disable_stampede_protection')->defaultFalse()->end()
+                ->arrayNode('twig')
+                    ->children()
+                        ->scalarNode('string_template_renderer_cache_dir')->end()
+                    ->end()
+                ->end()
                 ->arrayNode('invalidation')
                     ->children()
+                        ->booleanNode('delay_enabled')
+                            ->defaultTrue()
+                        ->end()
                         ->arrayNode('delay_options')
                             ->children()
                                 ->scalarNode('storage')
@@ -416,8 +441,12 @@ class Configuration implements ConfigurationInterface
                             ->end()
                         ->end()
                         ->arrayNode('http_cache')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as cache states will be removed.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
+                        ->end()
+                        ->booleanNode('tag_invalidation_log_enabled')
+                            ->defaultFalse()
                         ->end()
                         // @deprecated tag:v6.8.0 - remove all route specific invalidation options
                         ->arrayNode('product_listing_route')
@@ -548,6 +577,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('compress')->defaultFalse()->end()
                 ->scalarNode('compression_method')->defaultValue('gzip')->end()
+                ->variableNode('serialization_max_mb_size')->defaultNull()->end()
                 ->integerNode('expire_days')
                     ->min(1)
                     ->defaultValue(120)
@@ -580,9 +610,15 @@ class Configuration implements ConfigurationInterface
                 ->defaultValue('mysql')
                 ->end()
             ->arrayNode('config')
+                ->addDefaultsIfNotSet()
                 ->children()
                     ->scalarNode('connection')->defaultValue(null)->end()
                 ->end()
+            ->end()
+            ->end()
+            ->validate()
+                ->ifTrue(static fn (array $v) => $v['increment_storage'] === 'redis' && ($v['config']['connection'] ?? null) === null)
+                ->thenInvalid('The "config.connection" option is required when "increment_storage" is set to "redis".')
             ->end();
 
         return $rootNode;
@@ -598,6 +634,27 @@ class Configuration implements ConfigurationInterface
                 ->integerNode('expire_days')
                     ->min(1)
                     ->defaultValue(120)
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createProductTypesSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('product');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->arrayNode('allowed_types')
+                ->defaultValue([ProductDefinition::TYPE_PHYSICAL, ProductDefinition::TYPE_DIGITAL])
+                ->scalarPrototype()->end()
+            ->end()
+            ->arrayNode('search_keyword')
+                ->addDefaultsIfNotSet()
+                ->children()
+                    ->booleanNode('indexing')->defaultTrue()->end()
                 ->end()
             ->end();
 
@@ -827,6 +884,13 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('show_banner')->defaultTrue()->end()
                     ->end()
                 ->end()
+                ->arrayNode('extensions')
+                    ->children()
+                        ->arrayNode('disable')
+                            ->scalarPrototype()->end()
+                        ->end()
+                    ->end()
+                ->end()
                 ->arrayNode('sales_channel')
                     ->children()
                         ->arrayNode('domain_rewrite')
@@ -843,6 +907,13 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('elasticsearch')
                     ->children()
                         ->booleanNode('check_for_existence')->defaultTrue()->end()
+                    ->end()
+                ->end()
+                ->arrayNode('system_config')
+                    ->useAttributeAsKey('scope')
+                    ->arrayPrototype()
+                        ->useAttributeAsKey('key')
+                        ->variablePrototype()->end()
                     ->end()
                 ->end()
             ->end();
@@ -873,6 +944,65 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('stale_while_revalidate')->defaultValue(null)->end()
                 ->scalarNode('stale_if_error')->defaultValue(null)->end()
                 ->scalarNode('soft_purge')->defaultValue(false)->end()
+                ->arrayNode('policies')
+                    ->useAttributeAsKey('name')
+                    ->defaultValue([])
+                    ->arrayPrototype()
+                        ->performNoDeepMerging()
+                        ->children()
+                            ->arrayNode('headers')
+                                ->children()
+                                    ->arrayNode('cache_control')
+                                        ->children()
+                                            ->booleanNode('public')->defaultNull()->end()
+                                            ->booleanNode('private')->defaultNull()->end()
+                                            ->booleanNode('no_cache')->defaultNull()->end()
+                                            ->booleanNode('no_store')->defaultNull()->end()
+                                            ->booleanNode('no_transform')->defaultNull()->end()
+                                            ->booleanNode('must_revalidate')->defaultNull()->end()
+                                            ->booleanNode('proxy_revalidate')->defaultNull()->end()
+                                            ->booleanNode('immutable')->defaultNull()->end()
+                                            ->integerNode('max_age')->min(0)->defaultNull()->end()
+                                            ->integerNode('s_maxage')->min(0)->defaultNull()->end()
+                                            ->integerNode('stale_while_revalidate')->min(0)->defaultNull()->end()
+                                            ->integerNode('stale_if_error')->min(0)->defaultNull()->end()
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('default_policies')
+                    ->info('Default cache policies per area. Currently only "storefront" and "store_api" are supported.')
+                    ->useAttributeAsKey('area')
+                    ->arrayPrototype()
+                        ->children()
+                            ->scalarNode('cacheable')
+                                ->info('Policy name to use for cacheable responses')
+                                ->defaultNull()
+                            ->end()
+                            ->scalarNode('uncacheable')
+                                ->info('Policy name to use for uncacheable responses')
+                                ->defaultNull()
+                            ->end()
+                        ->end()
+                    ->end()
+                    ->validate()
+                        ->ifTrue(static function ($areas) {
+                            $allowedAreas = ['storefront', 'store_api'];
+                            $providedAreas = array_keys($areas);
+
+                            return array_diff($providedAreas, $allowedAreas) !== [];
+                        })
+                        ->thenInvalid('Only "storefront" and "store_api" areas are currently supported in default_policies. Config contains unsupported area(s): %s')
+                    ->end()
+                ->end()
+                ->arrayNode('route_policies')
+                    ->useAttributeAsKey('route')
+                    ->defaultValue([])
+                    ->scalarPrototype()->end()
+                ->end()
                 ->arrayNode('cookies')
                     ->performNoDeepMerging()
                     ->scalarPrototype()->end()
@@ -883,20 +1013,39 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('reverse_proxy')
                     ->children()
                         ->booleanNode('enabled')->end()
-                        ->booleanNode('use_varnish_xkey')->defaultFalse()->end()
+                        ->booleanNode('use_varnish_xkey')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option has no effect anymore and therefore will be removed in 6.8.0.')
+                            ->defaultFalse()
+                        ->end()
                         ->arrayNode('hosts')->performNoDeepMerging()
                             ->scalarPrototype()->end()
                         ->end()
                         ->integerNode('max_parallel_invalidations')->defaultValue(2)->end()
-                        ->scalarNode('ban_method')->defaultValue('BAN')->end()
-                        ->arrayNode('ban_headers')->performNoDeepMerging()->defaultValue([])
+                        ->scalarNode('ban_method')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option has no effect anymore and therefore will be removed in 6.8.0.')
+                            ->defaultValue('BAN')
+                        ->end()
+                        ->arrayNode('ban_headers')
+                            ->performNoDeepMerging()
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option has no effect anymore and therefore will be removed in 6.8.0.')
+                            ->defaultValue([])
                             ->scalarPrototype()->end()
                         ->end()
                         ->arrayNode('purge_all')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option has no effect anymore and therefore will be removed in 6.8.0.')
                             ->children()
-                                ->scalarNode('ban_method')->defaultValue('BAN')->end()
-                                ->arrayNode('ban_headers')->performNoDeepMerging()->defaultValue([])->scalarPrototype()->end()->end()
-                                ->arrayNode('urls')->performNoDeepMerging()->defaultValue(['/'])->scalarPrototype()->end()->end()
+                                ->scalarNode('ban_method')
+                                    ->defaultValue('BAN')
+                                    ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option has no effect anymore and therefore will be removed in 6.8.0.')
+                                ->end()
+                                ->arrayNode('ban_headers')
+                                    ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option has no effect anymore and therefore will be removed in 6.8.0.')
+                                    ->performNoDeepMerging()->defaultValue([])->scalarPrototype()->end()
+                                ->end()
+                                ->arrayNode('urls')
+                                    ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option has no effect anymore and therefore will be removed in 6.8.0.')
+                                    ->performNoDeepMerging()->defaultValue(['/'])->scalarPrototype()->end()
+                                ->end()
                             ->end()
                         ->end()
                         ->arrayNode('fastly')
@@ -911,6 +1060,33 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+            ->end()
+            ->validate()
+                ->ifTrue(static function (array $config) {
+                    $policies = array_keys($config['policies'] ?? []);
+
+                    // Check default_policies references
+                    foreach ((array) ($config['default_policies'] ?? []) as $defaults) {
+                        if (!\is_array($defaults)) {
+                            continue;
+                        }
+                        foreach ($defaults as $name) {
+                            if ($name !== null && $name !== '' && !\in_array($name, $policies, true)) {
+                                return true;
+                            }
+                        }
+                    }
+
+                    // Check route_policies references
+                    foreach ((array) ($config['route_policies'] ?? []) as $name) {
+                        if ($name !== null && $name !== '' && !\in_array($name, $policies, true)) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                })
+                ->thenInvalid('Configuration references unknown cache policies. All policy names in default_policies and route_policies must be defined under shopware.http_cache.policies.')
             ->end()
         ->end();
 
@@ -929,6 +1105,12 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->end()
                 ->end()
                 ->booleanNode('enforce_message_size')->defaultFalse()->end()
+                ->integerNode('message_max_kib_size')->defaultValue(1024)->end()
+                ->arrayNode('scheduled_task')
+                    ->children()
+                        ->integerNode('requeue_timeout')->defaultValue(12)->end()
+                    ->end()
+                ->end()
                 ->arrayNode('stats')
                     ->children()
                         ->booleanNode('enabled')->defaultTrue()->end()
@@ -977,7 +1159,7 @@ class Configuration implements ConfigurationInterface
                             ->children()
                                 ->enumNode('type')
                                     ->isRequired()
-                                    ->values(array_map(fn (Type $type) => $type->value, Type::cases()))
+                                    ->values(array_map(static fn (Type $type) => $type->value, Type::cases()))
                                 ->end()
                                 ->scalarNode('description')->end()
                                 ->scalarNode('unit')->end()
@@ -1035,6 +1217,48 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('indexing')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createSsoLoginSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('admin_login');
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode->addDefaultsIfNotSet()
+            ->children()
+                ->booleanNode('use_default')->defaultTrue()->end();
+
+        $rootNode
+            ->children()
+                ->booleanNode('use_default')->isRequired()->end()
+                ->scalarNode('client_id')->isRequired()->end()
+                ->scalarNode('client_secret')->isRequired()->end()
+                ->scalarNode('redirect_uri')->isRequired()->end()
+                ->scalarNode('base_url')->isRequired()->end()
+                ->scalarNode('authorize_path')->isRequired()->end()
+                ->scalarNode('token_path')->isRequired()->end()
+                ->scalarNode('jwks_path')->isRequired()->end()
+                ->scalarNode('scope')->isRequired()->end()
+                ->scalarNode('register_url')->isRequired()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createWebhookSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('webhook');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->enumNode('failure_strategy')
+                    ->info('@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation')
+                    ->values(WebhookFailureStrategy::values())
+                    ->defaultValue(WebhookFailureStrategy::DisableOnThreshold->value)
+                ->end()
             ->end();
 
         return $rootNode;

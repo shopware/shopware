@@ -643,20 +643,30 @@ describe('app/service/search-ranking.service.js', () => {
 
     it('should validate search terms correctly', async () => {
         const service = new SearchRankingService();
-        await service.updateMinSearchTermLength();
+        await service.getMinSearchTermLength();
 
         expect(service.isValidTerm('ab')).toBe(true);
         expect(service.isValidTerm('a')).toBe(false);
         expect(service.isValidTerm('')).toBe(false);
     });
 
-    it('should update minSearchTermLength from config', async () => {
+    it('should get minSearchTermLength from config', async () => {
         const originalService = Shopware.Service('systemConfigApiService');
         originalService.getValues = jest.fn().mockResolvedValue({ 'core.search.minSearchTermLength': 1 });
 
         const service = new SearchRankingService();
-        await service.updateMinSearchTermLength();
+        await service.getMinSearchTermLength();
 
         expect(service.isValidTerm('a')).toBe(true);
+    });
+
+    it('should save minSearchTermLength to config', async () => {
+        const originalService = Shopware.Service('systemConfigApiService');
+        originalService.saveValues = jest.fn();
+
+        const service = new SearchRankingService();
+        await service.saveMinSearchTermLength(3);
+
+        expect(originalService.saveValues).toHaveBeenCalledWith({ 'core.search.minSearchTermLength': 3 });
     });
 });

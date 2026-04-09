@@ -34,6 +34,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-entity',
         // Only the route on controller will be removed
         'reason:remove-route',
+        // Interface methods that will be removed should trigger deprecations instead.
+        'reason:remove-interface',
         // Throwing deprecations in PHPStan rules would cause problems while executed
         'reason:remove-phpstan-rule',
         // Classes that will be internal are still called from inside the core, therefore they do not trigger deprecations.
@@ -46,6 +48,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:becomes-final',
         // If the return type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.
         'reason:return-type-change',
+        // If the parameter type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.
+        'reason:parameter-type-change',
         // If a parameter becomes more flexible, this does not need action and trigger a deprecation warning.
         'reason:parameter-type-extension',
         // If there will be in the class hierarchy of a class we mark the whole class as deprecated, but the functionality itself is not deprecated, therefore they do not trigger deprecations.
@@ -66,6 +70,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-constraint-annotation',
         // Container factory for deprecated service
         'reason:factory-for-deprecation',
+        // Rules still need to be called for rule evaluation, therefore they do not trigger deprecations.
+        'reason:remove-rule',
     ];
 
     public function getNodeType(): string

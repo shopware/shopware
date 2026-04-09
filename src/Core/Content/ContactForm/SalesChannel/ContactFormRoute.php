@@ -3,13 +3,13 @@
 namespace Shopware\Core\Content\ContactForm\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
-use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
+use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
-use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
@@ -35,6 +36,12 @@ class ContactFormRoute extends AbstractContactFormRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CmsSlotCollection> $cmsSlotRepository
+     * @param EntityRepository<SalutationCollection> $salutationRepository
+     * @param EntityRepository<CategoryCollection> $categoryRepository
+     * @param EntityRepository<LandingPageCollection> $landingPageRepository
+     * @param EntityRepository<ProductCollection> $productRepository
      */
     public function __construct(
         private readonly DataValidationFactoryInterface $contactFormValidationFactory,
@@ -127,7 +134,6 @@ class ContactFormRoute extends AbstractContactFormRoute
 
         $criteria = new Criteria([$navigationId]);
 
-        /** @var CategoryEntity|ProductEntity|LandingPageEntity $entity */
         $entity = match ($entityName) {
             ProductDefinition::ENTITY_NAME => $this->productRepository->search($criteria, $context->getContext())->first(),
             LandingPageDefinition::ENTITY_NAME => $this->landingPageRepository->search($criteria, $context->getContext())->first(),
@@ -170,7 +176,6 @@ class ContactFormRoute extends AbstractContactFormRoute
 
         $criteria = new Criteria([$slotId]);
 
-        /** @var CmsSlotEntity|null $slot */
         $slot = $this->cmsSlotRepository->search($criteria, $context->getContext())->getEntities()->first();
 
         if (!$slot) {

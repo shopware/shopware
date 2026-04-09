@@ -1,0 +1,102 @@
+name: Audit check for NPM packages
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every day at 8:30 AM UTC
+    - cron: "30 8 * * *"
+  push:
+    branches: ["trunk"]
+    paths:
+      - "**/package.json"
+      - "**/package-lock.json"
+      - "**/scripts/runNpmAudit.ts"
+      - ".github/bin/js/run-npm-audit.ts"
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - "**/package.json"
+      - "**/package-lock.json"
+      - "**/scripts/runNpmAudit.ts"
+      - ".github/bin/js/run-npm-audit.ts"
+
+jobs:
+  check-package-completeness:
+    name: Verify all package.json files are audited
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: 24
+
+      - name: Validate package.json completeness
+        run: node ./.github/bin/js/package-discovery.ts validate
+
+  check-pinned-dependencies:
+    name: Check pinned dependencies
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: 24
+
+      - name: Check for unpinned dependencies
+        run: node ./.github/bin/js/check-pinned-dependencies.ts
+
+  generate-audit-matrix:
+    name: Generate audit matrix
+    needs: [check-package-completeness, check-pinned-dependencies]
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: 24
+
+      - name: Generate matrix
+        id: generate-matrix
+        run: |
+          matrix=$(node ./.github/bin/js/package-discovery.ts matrix)
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+
+  audit-packages:
+    name: Audit - ${{ matrix.name }}
+    needs: generate-audit-matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.generate-audit-matrix.outputs.matrix) }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ${{ matrix.workingDirectory }}
+
+      - name: Run audit (standard)
+        if: ${{ !matrix.hasCustomAuditScript }}
+        run: npm audit
+        working-directory: ${{ matrix.workingDirectory }}
+
+      - name: Run audit (custom script)
+        if: ${{ matrix.hasCustomAuditScript }}
+        run: node ./scripts/runNpmAudit.ts
+        working-directory: ${{ matrix.workingDirectory }}

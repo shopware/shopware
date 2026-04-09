@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\Test\Stub\Doctrine\FakeConnection;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -47,9 +48,10 @@ class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
     public function __construct(
         array $registeredDefinitions,
         private readonly ValidatorInterface $validator,
-        private readonly EntityWriteGatewayInterface $entityWriteGateway
+        private readonly EntityWriteGatewayInterface $entityWriteGateway,
+        ContainerInterface $container = new ContainerBuilder()
     ) {
-        parent::__construct(new ContainerBuilder(), [], []);
+        parent::__construct($container, [], []);
 
         $this->setUpSerializers();
 

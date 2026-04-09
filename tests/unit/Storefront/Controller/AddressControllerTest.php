@@ -79,7 +79,7 @@ class AddressControllerTest extends TestCase
 
         $translator = $this->createMock(TranslatorInterface::class);
 
-        $translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
+        $translator->method('trans')->willReturnCallback(static fn (string $key): string => $key);
         $containerBuilder = new ContainerBuilder();
         $containerBuilder->set('request_stack', new RequestStack());
         $containerBuilder->set('translator', $translator);
@@ -120,14 +120,15 @@ class AddressControllerTest extends TestCase
     {
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
-        $dataBag = new RequestDataBag();
-        $dataBag->set('address', new DataBag(['id' => Uuid::randomHex()]));
+        $request = new Request();
+        $request->query->set('redirectTo', 'foo');
 
-        $response = $this->controller->accountEditAddress(new Request(), Generator::generateSalesChannelContext(), $customer);
+        $response = $this->controller->accountEditAddress($request, Generator::generateSalesChannelContext(), $customer);
         $renderParams = $this->controller->renderStorefrontParameters;
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertArrayHasKey('page', $renderParams);
+        static::assertSame('foo', $renderParams['redirectTo'] ?? null);
     }
 
     public function testSwitchDefaultAddressThrowsException(): void
@@ -347,11 +348,12 @@ class AddressControllerTest extends TestCase
     {
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
+        $customer->setGuest(false);
 
         $dataBag = new RequestDataBag();
         $dataBag->set('address', new DataBag(['id' => Uuid::randomHex()]));
 
-        $response = $this->controller->saveAddress($dataBag, Generator::generateSalesChannelContext(), $customer);
+        $response = $this->controller->saveAddress($dataBag, Generator::generateSalesChannelContext(), $customer, new Request());
         static::assertInstanceOf(RedirectResponse::class, $response);
 
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
@@ -371,7 +373,7 @@ class AddressControllerTest extends TestCase
             ->method('upsert')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
 
-        $response = $this->controller->saveAddress($dataBag, Generator::generateSalesChannelContext(), $customer);
+        $response = $this->controller->saveAddress($dataBag, Generator::generateSalesChannelContext(), $customer, new Request());
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('forward to frontend.account.address.edit.page', $response->getContent());
@@ -390,7 +392,7 @@ class AddressControllerTest extends TestCase
             ->method('upsert')
             ->willThrowException(new ConstraintViolationException(new ConstraintViolationList(), []));
 
-        $response = $this->controller->saveAddress($dataBag, Generator::generateSalesChannelContext(), $customer);
+        $response = $this->controller->saveAddress($dataBag, Generator::generateSalesChannelContext(), $customer, new Request());
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('forward to frontend.account.address.create.page', $response->getContent());

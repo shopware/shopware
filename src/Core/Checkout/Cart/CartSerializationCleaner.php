@@ -71,7 +71,7 @@ class CartSerializationCleaner
             return;
         }
 
-        if (\count($customFieldAllowList) === 0) {
+        if ($customFieldAllowList === []) {
             $lineItem->setPayloadValue('customFields', []);
 
             return;

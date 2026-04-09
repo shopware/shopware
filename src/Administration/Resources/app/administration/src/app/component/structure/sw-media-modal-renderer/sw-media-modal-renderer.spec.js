@@ -14,6 +14,7 @@ describe('src/app/component/structure/sw-media-modal-renderer', () => {
             global: {
                 stubs: {
                     'sw-media-modal-v2': true,
+                    'sw-media-save-modal': true,
                 },
             },
         });

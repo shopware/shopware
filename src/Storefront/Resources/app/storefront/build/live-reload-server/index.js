@@ -27,11 +27,6 @@ module.exports = function createLiveReloadServer(sslOptions) {
             open: false,
             host: '0.0.0.0',
             server: serverConfig,
-            devMiddleware: {
-                stats: {
-                    colors: true,
-                },
-            },
         });
 
         // start the normal webpack dev server for hot reloading the files
@@ -43,8 +38,6 @@ module.exports = function createLiveReloadServer(sslOptions) {
             } catch (error) {
                 reject(error);
             }
-
-            console.log('Starting the hot reload server: \n');
         })();
 
         compiler.hooks.done.tap('resolveServer', () => {

@@ -122,7 +122,11 @@ class DeliveryCalculator
 
         if (!$costs) {
             $cart->addErrors(
-                new ShippingMethodBlockedError((string) $shippingMethod->getTranslation('name'))
+                new ShippingMethodBlockedError(
+                    id: $shippingMethod->getId(),
+                    name: (string) $shippingMethod->getTranslation('name'),
+                    reason: 'no shipping costs found',
+                )
             );
 
             return;

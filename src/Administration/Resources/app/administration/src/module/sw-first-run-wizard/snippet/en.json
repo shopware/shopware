@@ -1,0 +1,141 @@
+{
+    "sw-first-run-wizard": {
+        "general": {
+            "mainMenuItemGeneral": "First Run Wizard",
+            "buttonNext": "Next",
+            "buttonSkip": "Skip",
+            "buttonNextPayPalInfo": "Configure",
+            "buttonBack": "Back",
+            "buttonInstall": "Install",
+            "buttonActivate": "Activate",
+            "buttonFinish": "Finish",
+            "buttonConfigureLater": "Configure later",
+            "pluginInstalled": "Installed"
+        },
+        "welcome": {
+            "modalTitle": "Welcome",
+            "headlineWelcome": "Welcome to the Shopware 6 Administration",
+            "messageWelcome":  "This wizard guides you through the setup and tries to be helpful with the most important settings."
+        },
+        "dataImport": {
+            "modalTitle": "Getting started with Shopware 6",
+            "headlineDemoData": "Use demo data",
+            "messageDemoData": "Start exploring Shopware 6 by adding a set of demo data. Demo data gives the impression of a fully working shop, but should strictly be used for testing purposes only.",
+            "buttonInstallDemoData": "Install demo data",
+            "headlineMigration": "Migrate your shop data",
+            "messageMigration": "The Migration Assistant helps you connect to and transfer data from a previous shop system right into your new Shopware 6 environment.",
+            "buttonInstallMigration": "Install Migration Assistant",
+            "loadingMessage": "Installing extension<br>This may take a while..."
+        },
+        "mailerSelection": {
+            "headline": "Establishing email communication",
+            "modalTitle": "Mailer configuration",
+            "description": "Communicating with customers is a key factor in everyday ecommerce. Consequently, setting up a mailing scheme should be crossed out from your list as soon as possible.",
+            "chooseSubline": "Choose your preferred email agent.",
+            "localOption": "Use local email agent",
+            "localOptionHelptext": "This option uses your system‘s default mailer (Sendmail).  Make sure Sendmail works and is available in your own hosting environment.",
+            "localOptionSubline": "(Sendmail)",
+            "smtpOption": "Configure own SMTP server",
+            "configurationNote": "Mailing configurations can be edited later.",
+            "buttonConfigure": "Configure"
+        },
+        "mailerSmtp": {
+            "headline": "SMTP server"
+        },
+        "mailerLocal": {
+            "headline": "Local email agent"
+        },
+        "paypalInfo": {
+            "modalTitle": "Setup PayPal",
+            "headline": "Now pre-integrated in Shopware with even easier and faster activation of the most popular payment methods*",
+            "paymethod": {
+                "paypal": "PayPal",
+                "debit": "Debit",
+                "creditcard": "Credit card",
+                "invoice": "Invoice"
+            },
+            "disclaimerLineOne": "* ECC Cologne: ECC-Payment-Study Vol. 20, Cologne, 2016",
+            "disclaimerLineTwo": "** subject to a positive risk assessment by PayPal"
+        },
+        "paypalInstall": {
+            "loadingMessage": "Configuring PayPal<br>This may take a while..."
+        },
+        "recommendedPlugins": {
+            "headline": "Our recommendations",
+            "modalTitle": "Extensions",
+            "message": "Here is a selection of useful extensions for your shop. Select a region that is relevant for you, first. Then you can browse through different categories.",
+            "availableInRegion": "Available in region",
+            "category": "Category",
+            "topRecommendations": "Global recommendations",
+            "otherRecommendations": "Regional recommendations"
+        },
+        "shopwareAccount": {
+            "headline": "Shopware Account - Login",
+            "passwordLabel": "Password",
+            "passwordPlaceholder": "Enter your password...",
+            "emailAddressLabel": "Email address",
+            "emailAddressPlaceholder": "Enter your email address...",
+            "modalTitle": "Shopware Account",
+            "message": "The Shopware Account is your main hub for interaction with all Shopware services.",
+            "registerAccountText": "You don't have a Shopware Account yet? Sign up right",
+            "registerAccountHere": "here",
+            "registerAccountUrl": "https://account.shopware.com/register?lang=en",
+            "forgotPasswordText": "Did you forget your password?",
+            "forgotPasswordUrl": "https://account.shopware.com/recovery?lang=en"
+        },
+        "error": {
+            "messageLoginDataInvalid": "Login credentials incorrect, please try again."
+        },
+        "shopwareDomain": {
+            "headline": "Verify your domain",
+            "message": "Which domain do you want to link this shop? Select a valid domain or create a new one.",
+            "labelCreateDomain": "Create a new shop domain",
+            "testEnvironment": "Test environment"
+        },
+        "store": {
+          "modalTitle": "Shopware Store",
+          "loadStatusCollect": "Collecting store information...",
+          "takeMinutes": "This may take a few minutes.",
+          "alreadyActivated": "Store has already been successfully activated.",
+          "enablingStore": "Enabling the Shopware Store ... ",
+          "activationErrorTitle": "Error on activation",
+          "activationErrorDescription": "Please ask your administrator for help.",
+          "headingOne": "Explore and buy extensions easily -",
+          "headingTwo": "right from within your own Shopware shop.",
+          "description": "Activate the all new Shopware Store and get access to loads of helpful extensions and modern themes that can be integrated into your Shop seemlessly - without any programming skills."
+        },
+        "defaults": {
+            "modalTitle": "Setup default values"
+        },
+        "finish": {
+            "headlineAllDone": "All done!",
+            "message": "Your Shopware 6 {edition} is now verified.",
+            "messageNotLicensed": "Your Shopware 6 is now prepared.",
+            "headlineUsefulLinks": "Useful links",
+            "loadingMessage": "Restarting application<br>This may take a while...",
+            "documentationLabel": "Documentation",
+            "documentationUrl": "https://docs.shopware.com/en",
+            "forumLabel": "Forum",
+            "forumUrl": "https://forum.shopware.com/",
+            "roadmapLabel": "Roadmap",
+            "roadmapUrl": "https://www.shopware.com/en/roadmap/",
+            "modalTitle": "Done"
+        },
+        "stepItemTitle": {
+            "dataImport": "Data import",
+            "mailer": "Mailer configuration",
+            "setupPaypal": "PayPal setup",
+            "plugins": "Extensions",
+            "shopware": "Shopware Account",
+            "store": "Shopware Store",
+            "defaults": "Default values"
+        }
+    },
+    "sw-privileges": {
+        "additional_permissions": {
+            "system": {
+              "frw": "First Run Wizard"
+            }
+        }
+    }
+}

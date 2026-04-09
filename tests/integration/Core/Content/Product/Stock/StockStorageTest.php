@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\Stock;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -11,12 +10,13 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\Stock\StockStorage;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -44,7 +44,6 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('inventory')]
-#[CoversClass(StockStorage::class)]
 #[Group('slow')]
 class StockStorageTest extends TestCase
 {
@@ -52,8 +51,14 @@ class StockStorageTest extends TestCase
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<OrderLineItemCollection>
+     */
     private EntityRepository $lineItemRepository;
 
     private CartService $cartService;
@@ -62,14 +67,14 @@ class StockStorageTest extends TestCase
 
     private SalesChannelContext $context;
 
-    private EntityRepository $orderLineItemRepository;
-
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     private EntityRepository $orderRepository;
 
     protected function setUp(): void
     {
         $this->productRepository = static::getContainer()->get('product.repository');
-        $this->orderLineItemRepository = static::getContainer()->get('order_line_item.repository');
         $this->cartService = static::getContainer()->get(CartService::class);
         $this->contextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $this->lineItemRepository = static::getContainer()->get('order_line_item.repository');
@@ -540,10 +545,10 @@ class StockStorageTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $orderLineItem = $this->orderLineItemRepository->search($criteria, $context)->first();
+        $orderLineItem = $this->lineItemRepository->search($criteria, $context)->first();
         static::assertInstanceOf(OrderLineItemEntity::class, $orderLineItem);
 
-        $this->orderLineItemRepository->delete([
+        $this->lineItemRepository->delete([
             [
                 'id' => $orderLineItem->getId(),
             ],
@@ -578,10 +583,10 @@ class StockStorageTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $orderLineItem = $this->orderLineItemRepository->search($criteria, $context)->first();
+        $orderLineItem = $this->lineItemRepository->search($criteria, $context)->first();
         static::assertInstanceOf(OrderLineItemEntity::class, $orderLineItem);
 
-        $this->orderLineItemRepository->update([
+        $this->lineItemRepository->update([
             [
                 'id' => $orderLineItem->getId(),
                 'referencedId' => $newProduct->getId(),
@@ -629,10 +634,10 @@ class StockStorageTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $orderLineItem = $this->orderLineItemRepository->search($criteria, $context)->first();
+        $orderLineItem = $this->lineItemRepository->search($criteria, $context)->first();
         static::assertInstanceOf(OrderLineItemEntity::class, $orderLineItem);
 
-        $this->orderLineItemRepository->update([
+        $this->lineItemRepository->update([
             [
                 'id' => $orderLineItem->getId(),
                 'referencedId' => $newProduct->getId(),
@@ -671,10 +676,10 @@ class StockStorageTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $orderLineItem = $this->orderLineItemRepository->search($criteria, $context)->first();
+        $orderLineItem = $this->lineItemRepository->search($criteria, $context)->first();
         static::assertInstanceOf(OrderLineItemEntity::class, $orderLineItem);
 
-        $this->orderLineItemRepository->update([
+        $this->lineItemRepository->update([
             [
                 'id' => $orderLineItem->getId(),
                 'quantity' => 2,
@@ -842,6 +847,44 @@ class StockStorageTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertTrue($product->getAvailable());
         $this->assertStock(5, $product);
+    }
+
+    public function testStockAlterationWithClearanceSaleProduct(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $productId = $this->createProduct([
+            'stock' => 1,
+            'isCloseout' => true,
+        ]);
+
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->get($productId);
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertTrue($product->getIsCloseout());
+        static::assertTrue($product->getAvailable());
+
+        $initialUpdatedAt = $product->getUpdatedAt();
+        static::assertNotNull($initialUpdatedAt);
+
+        // Wait to ensure timestamp difference
+        sleep(1);
+
+        $this->orderProduct($productId, 1);
+
+        $productAfterOrder = $this->productRepository->search(new Criteria([$productId]), $context)->get($productId);
+        static::assertInstanceOf(ProductEntity::class, $productAfterOrder);
+
+        $updatedAtAfterOrder = $productAfterOrder->getUpdatedAt();
+        static::assertNotNull($updatedAtAfterOrder);
+
+        static::assertGreaterThan(
+            $initialUpdatedAt->getTimestamp(),
+            $updatedAtAfterOrder->getTimestamp(),
+            'Product updated_at should be updated when clearance sale stock is altered'
+        );
+
+        $this->assertStock(0, $productAfterOrder);
+        static::assertFalse($productAfterOrder->getAvailable());
     }
 
     private function assertStock(int $expectedStock, ProductEntity $product): void

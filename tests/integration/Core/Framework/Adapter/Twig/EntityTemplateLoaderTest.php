@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
+use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -31,6 +32,9 @@ class EntityTemplateLoaderTest extends TestCase
         {% endblock %}
     ';
 
+    /**
+     * @var EntityRepository<TemplateCollection>
+     */
     private EntityRepository $templateRepository;
 
     private EntityTemplateLoader $templateLoader;

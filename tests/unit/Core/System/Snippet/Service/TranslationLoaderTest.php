@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
@@ -79,7 +80,9 @@ class TranslationLoaderTest extends TestCase
             ['es-ES'],
             ['SwagPublisher'],
             new LanguageDtoCollection([new Language('es-ES', 'Español')]),
-            new PluginMappingCollection()
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['it-IT'],
         );
         $this->initClient();
     }
@@ -126,7 +129,7 @@ class TranslationLoaderTest extends TestCase
         $requestException = new RequestException('Not Found', $request, $response404);
 
         $this->client = $this->createMock(ClientInterface::class);
-        $this->client->method('request')->willReturnCallback(function ($method, $url) use ($requestException) {
+        $this->client->method('request')->willReturnCallback(static function ($method, $url) use ($requestException) {
             if (str_contains($url, 'administration.json')) {
                 throw $requestException;
             }
@@ -140,8 +143,8 @@ class TranslationLoaderTest extends TestCase
         $loader->load('es-ES', $this->context);
 
         $writtenFiles = $this->flysystem->listContents(TranslationLoader::TRANSLATION_DIR, true)
-            ->filter(fn ($item) => $item->isFile())
-            ->map(fn ($item) => $item->path())
+            ->filter(static fn ($item) => $item->isFile())
+            ->map(static fn ($item) => $item->path())
             ->toArray();
 
         static::assertCount(3, $writtenFiles);
@@ -156,8 +159,8 @@ class TranslationLoaderTest extends TestCase
         $loader->load('es-ES', $this->context);
 
         $writtenFiles = $this->flysystem->listContents(TranslationLoader::TRANSLATION_DIR, true)
-            ->filter(fn ($item) => $item->isFile())
-            ->map(fn ($item) => $item->path())
+            ->filter(static fn ($item) => $item->isFile())
+            ->map(static fn ($item) => $item->path())
             ->toArray();
 
         static::assertCount(5, $writtenFiles);
@@ -196,6 +199,7 @@ class TranslationLoaderTest extends TestCase
         static::assertIsArray($language);
         static::assertSame('Español', $language['name']);
         static::assertSame($this->ids->get('locale'), $language['localeId']);
+        static::assertTrue($language['active']);
 
         $createdSnippetSets = array_shift($this->snippetSetRepository->creates);
         static::assertIsArray($createdSnippetSets);
@@ -257,7 +261,9 @@ class TranslationLoaderTest extends TestCase
             ['es-ES'],
             ['SwagPaypal'],
             new LanguageDtoCollection([new Language('es-ES', 'Español')]),
-            $pluginMapping
+            $pluginMapping,
+            new Uri('http://localhost:8000/metadata.json'),
+            ['it-IT'],
         );
         $loader = $this->getTranslationLoader();
 
@@ -269,6 +275,61 @@ class TranslationLoaderTest extends TestCase
 
         $this->flysystem->createDirectory($loader->getLocalePath('de-DE') . '/Plugins/MappedName');
         static::assertTrue($loader->pluginTranslationExists($mappedNamePlugin));
+    }
+
+    public function testLoadCreatesLanguageWithActiveFalseWhenSkipped(): void
+    {
+        $this->languageRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+
+        $loader = $this->getTranslationLoader();
+        $loader->load('es-ES', $this->context, false); // activate = false
+
+        $createdLanguages = array_shift($this->languageRepository->creates);
+        static::assertIsArray($createdLanguages);
+        static::assertCount(1, $createdLanguages);
+
+        $language = array_shift($createdLanguages);
+        static::assertIsArray($language);
+        static::assertSame('Español', $language['name']);
+        static::assertSame($this->ids->get('locale'), $language['localeId']);
+        static::assertFalse($language['active']);
+    }
+
+    public function testSnippetSetOnlyCreatedOnce(): void
+    {
+        $this->localeRepository = new StaticEntityRepository([
+            $this->getSearchResult('locale'),
+            $this->getSearchResult('locale'),
+        ]);
+
+        $this->languageRepository = new StaticEntityRepository([
+            $this->getSearchResult('language'),
+            $this->getSearchResult('language'),
+        ]);
+
+        $this->snippetSetRepository = new StaticEntityRepository([
+            $this->getEmptySearchResult(),
+            $this->getSearchResult('snippet-set'),
+        ]);
+
+        $loader = $this->getTranslationLoader();
+
+        $loader->load('es-ES', $this->context);
+
+        static::assertCount(1, $this->snippetSetRepository->creates);
+        $createdSnippetSets = $this->snippetSetRepository->creates[0];
+        static::assertIsArray($createdSnippetSets);
+        static::assertCount(1, $createdSnippetSets);
+
+        $loader->load('es-ES', $this->context);
+        static::assertCount(1, $this->snippetSetRepository->creates);
+    }
+
+    public function testGetDecoratedThrowsException(): void
+    {
+        static::expectException(DecorationPatternException::class);
+        $this->getTranslationLoader()->getDecorated();
     }
 
     private function getTranslationLoader(): TranslationLoader
@@ -286,11 +347,13 @@ class TranslationLoaderTest extends TestCase
 
     private function getSearchResult(string $entity): IdSearchResult
     {
+        $id = $this->ids->get($entity);
+
         return new IdSearchResult(
             1,
-            [[
-                'data' => $this->ids->get($entity),
-                'primaryKey' => $this->ids->get($entity),
+            [$id => [
+                'data' => [],
+                'primaryKey' => $id,
             ]],
             new Criteria(),
             $this->context

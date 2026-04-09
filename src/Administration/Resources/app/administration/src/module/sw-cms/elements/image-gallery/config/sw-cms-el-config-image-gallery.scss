@@ -4,7 +4,7 @@
     .sw-cms-el-config-image-gallery__setting-option {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
-        gap: 0 32px;
+        column-gap: 16px;
 
         .sw-cms-el-config-image-gallery__setting-display-mode {
             grid-column: 1 / -1;
@@ -31,5 +31,11 @@
             height: 100%;
             object-fit: cover;
         }
+    }
+
+    &__settings-options-toggles {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, 1fr);
+        gap: 8px;
     }
 }

@@ -43,8 +43,9 @@ class CustomSnippetFormatController
     #[Route(path: '/api/_action/custom-snippet/render', name: 'api.action.custom-snippet.render', methods: ['POST'])]
     public function render(Request $request): JsonResponse
     {
-        $format = $request->get('format') ?? [];
-        $data = $request->get('data') ?? [];
+        $format = $request->request->all()['format'] ?? [];
+        /** @var array<mixed> $data */
+        $data = $request->request->all()['data'] ?? [];
         $parameters = array_merge_recursive(['format' => $format], $data);
 
         return new JsonResponse([
@@ -53,7 +54,7 @@ class CustomSnippetFormatController
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function getCoreSnippets(): array
     {
@@ -63,7 +64,7 @@ class CustomSnippetFormatController
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function getPluginSnippets(): array
     {
@@ -83,7 +84,7 @@ class CustomSnippetFormatController
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function getSnippetsFromDir(string $directory): array
     {

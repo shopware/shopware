@@ -67,12 +67,14 @@ class DeliveryValidatorTest extends TestCase
         $validator->validate($cart, $errors, $context);
 
         static::assertCount(1, $errors, 'A delivery with an empty string as availability rule should not be valid but no error is thrown.');
-        static::assertSame('Shipping method  not available', $errors->first()?->getMessage());
+        static::assertSame('Shipping method Test not available. Reason: rule not matching or inactive', $errors->first()?->getMessage());
     }
 
     private function generateDeliveryDummy(?string $availabilityRuleId): Delivery
     {
         $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId('shipping-method-id');
+        $shippingMethod->setTranslated(['name' => 'Test']);
         $shippingMethod->setAvailabilityRuleId($availabilityRuleId);
         $shippingMethod->setActive(true);
 

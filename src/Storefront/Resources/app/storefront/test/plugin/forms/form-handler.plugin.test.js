@@ -92,6 +92,7 @@ describe('FormHandler Plugin', () => {
     });
 
     test('should validate form on submit', () => {
+        HTMLElement.prototype.scrollIntoView = jest.fn();
         const submitEvent = new Event('submit', { cancelable: true });
         const eventSpy = jest.spyOn(submitEvent, 'preventDefault');
 

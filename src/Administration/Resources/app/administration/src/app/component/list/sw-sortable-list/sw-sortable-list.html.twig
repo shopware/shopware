@@ -23,10 +23,11 @@
 </ul>
 {% endblock %}
 {% block sw_sortable_list_empty_state %}
-<sw-empty-state
+<mt-empty-state
     v-else
+    :icon="$route.meta.$module.icon"
     class="sw-sortable-list__empty-state"
-    :title="$tc('sw-empty-state.messageNoResultTitle')"
+    :headline="$tc('sw-empty-state.messageNoResultTitle')"
 />
 {% endblock %}
 {% endblock %}

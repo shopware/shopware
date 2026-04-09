@@ -21,10 +21,16 @@ class SalutationMissingErrorTest extends TestCase
             {
                 return 'salutation-missing';
             }
+
+            public function getAddressId(): string
+            {
+                return 'address-id-123';
+            }
         };
 
         static::assertSame('salutation-missing', $error->getMessageKey());
         static::assertSame(10, $error->getLevel());
+        static::assertSame('address-id-123', $error->getAddressId());
         static::assertTrue($error->blockOrder());
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
@@ -12,12 +13,14 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDo
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\GrantDownloadAccessAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -101,7 +104,11 @@ class GrantDownloadAccessActionTest extends TestCase
         $lineItem = new OrderLineItemEntity();
         $lineItem->setId(Uuid::randomHex());
         $lineItem->setGood(true);
-        $lineItem->setStates([State::IS_DOWNLOAD]);
+
+        $lineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_DOWNLOAD]);
+        }
 
         $downloadId = Uuid::randomHex();
         $download = new OrderLineItemDownloadEntity();

@@ -69,7 +69,7 @@ $sw-media-library-color-background: $color-white;
     }
 
     &__empty-state {
-        height: calc(100% - 64px);
-        bottom: 0;
+        height: 100%;
+        margin: 0 auto;
     }
 }

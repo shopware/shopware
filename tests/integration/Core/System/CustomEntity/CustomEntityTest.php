@@ -45,6 +45,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\Exception\CustomEntityXmlParsingException;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
@@ -111,16 +112,11 @@ class CustomEntityTest extends TestCase
             $definition = $container->get(DefinitionInstanceRegistry::class)->getByEntityName($entity);
 
             foreach ($definition->getFields() as $field) {
-                if (\str_starts_with((string) $field->getPropertyName(), 'customEntity')) {
+                if (\str_starts_with($field->getPropertyName(), 'customEntity')) {
                     $definition->getFields()->remove($field->getPropertyName());
                 }
             }
         }
-
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-
-        $result = $container->get('category.repository')->search($criteria, Context::createDefaultContext());
 
         // ensure that the dal extensions are removed before continue with next test
         $categories = $container->get(Connection::class)->fetchAllAssociative('SELECT LOWER(HEX(id)), `type` FROM category WHERE `type` = :type', ['type' => self::CATEGORY_TYPE]);
@@ -474,6 +470,8 @@ class CustomEntityTest extends TestCase
             )
             ->build();
 
+        unset($product['type']);
+
         $event = $container->get('product.repository')
             ->upsert([$product], Context::createDefaultContext());
 
@@ -620,6 +618,8 @@ class CustomEntityTest extends TestCase
             )
             ->build();
 
+        unset($product['type']);
+
         $event = $container->get('product.repository')
             ->upsert([$product], Context::createDefaultContext());
 
@@ -682,7 +682,7 @@ class CustomEntityTest extends TestCase
         $table = $schema->getTable($table);
 
         foreach ($columns as $column) {
-            static::assertTrue($table->hasColumn($column), 'Column ' . $column . ' not found in table ' . $table->getName());
+            static::assertTrue($table->hasColumn($column), 'Column ' . $column . ' not found in table ' . $table->getObjectName()->toString());
         }
     }
 
@@ -864,18 +864,16 @@ class CustomEntityTest extends TestCase
         $client = $this->getBrowser();
 
         // create
-        $client->request('POST', '/api/custom-entity-blog', [], [], [], json_encode(self::blog('blog-1', $ids), \JSON_THROW_ON_ERROR));
+        $client->jsonRequest('POST', '/api/custom-entity-blog', self::blog('blog-1', $ids));
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r((string) $response->getContent(), true));
 
         // update
-        $client->request(
+        $client->jsonRequest(
             'PATCH',
             '/api/custom-entity-blog/' . $ids->get('blog-1'),
-            [],
-            [],
+            ['id' => $ids->get('blog-1'), 'title' => 'update'],
             ['HTTP_ACCEPT' => 'application/json'],
-            \json_encode(['id' => $ids->get('blog-1'), 'title' => 'update'], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
@@ -883,7 +881,7 @@ class CustomEntityTest extends TestCase
         // list
         $client->request('GET', '/api/custom-entity-blog', ['ids' => [$ids->get('blog-1')]], [], ['HTTP_ACCEPT' => 'application/json']);
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         static::assertIsArray($body);
@@ -907,7 +905,7 @@ class CustomEntityTest extends TestCase
             \json_encode(['ids' => [$ids->get('blog-1')]], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         static::assertIsArray($body);
@@ -918,16 +916,14 @@ class CustomEntityTest extends TestCase
         static::assertNull($body['data']['inheritedProducts']);
 
         // search
-        $client->request(
+        $client->jsonRequest(
             'POST',
             '/api/search/custom-entity-blog',
-            [],
-            [],
+            ['ids' => [$ids->get('blog-1')]],
             ['HTTP_ACCEPT' => 'application/json'],
-            \json_encode(['ids' => [$ids->get('blog-1')]], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         static::assertIsArray($body);
@@ -942,16 +938,14 @@ class CustomEntityTest extends TestCase
         static::assertNull($body['data'][0]['inheritedProducts']);
 
         // search-ids
-        $client->request(
+        $client->jsonRequest(
             'POST',
             '/api/search-ids/custom-entity-blog',
-            [],
-            [],
+            ['ids' => [$ids->get('blog-1')]],
             ['HTTP_ACCEPT' => 'application/json'],
-            \json_encode(['ids' => [$ids->get('blog-1')]], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         static::assertIsArray($body);
@@ -961,13 +955,11 @@ class CustomEntityTest extends TestCase
         static::assertSame(1, $body['total']);
         static::assertSame($ids->get('blog-1'), $body['data'][0]);
 
-        $client->request(
+        $client->jsonRequest(
             'DELETE',
             '/api/custom-entity-blog/' . $ids->get('blog-1'),
-            [],
-            [],
+            ['ids' => [$ids->get('blog-1')]],
             ['HTTP_ACCEPT' => 'application/json'],
-            \json_encode(['ids' => [$ids->get('blog-1')]], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
@@ -1140,7 +1132,7 @@ class CustomEntityTest extends TestCase
         static::assertSame('0', $count, 'Custom entity table should be empty after app uninstall');
 
         static::assertFalse(
-            $connection->createSchemaManager()->tablesExist(['custom_entity_blog']),
+            TableHelper::tableExists($connection, 'custom_entity_blog'),
             'Custom entity table should not exist after app uninstall'
         );
 

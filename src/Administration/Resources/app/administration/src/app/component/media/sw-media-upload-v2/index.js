@@ -80,7 +80,6 @@ export default {
         allowMultiSelect: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -90,7 +89,6 @@ export default {
             default: false,
         },
 
-        // eslint-disable-next-line vue/require-default-prop
         label: {
             type: String,
             required: false,
@@ -314,8 +312,11 @@ export default {
                 'dragover',
                 'drop',
             ].forEach((event) => {
-                window.addEventListener(event, this.stopEventPropagation, false);
+                window.removeEventListener(event, this.stopEventPropagation, false);
             });
+            if (this.$refs.dropzone) {
+                this.$refs.dropzone.removeEventListener('drop', this.onDrop);
+            }
 
             window.removeEventListener('dragenter', this.onDragEnter);
             window.removeEventListener('dragleave', this.onDragLeave);
@@ -416,7 +417,7 @@ export default {
 
             try {
                 fileInfo = fileReader.getNameAndExtensionFromUrl(url);
-            } catch (error) {
+            } catch (_error) {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc('global.sw-media-upload-v2.notification.invalidUrl.message'),

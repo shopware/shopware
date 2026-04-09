@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NewsletterRecipientAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Framework\Context;
@@ -19,6 +20,8 @@ class NewsletterRecipientStorer extends FlowStorer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<NewsletterRecipientCollection> $newsletterRecipientRepository
      */
     public function __construct(
         private readonly EntityRepository $newsletterRecipientRepository,
@@ -76,10 +79,9 @@ class NewsletterRecipientStorer extends FlowStorer
 
         $this->dispatcher->dispatch($event, $event->getName());
 
-        $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $context)->get($id);
+        $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $context)->getEntities()->get($id);
 
         if ($newsletterRecipient) {
-            /** @var NewsletterRecipientEntity $newsletterRecipient */
             return $newsletterRecipient;
         }
 

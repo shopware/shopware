@@ -71,6 +71,17 @@
         </template>
         {% endblock %}
 
+        {% block sw_order_state_history_modal_content_columns_internal_comment %}
+        <template #column-internalComment="{ item }">
+            <mt-icon
+                v-if="item.internalComment"
+                v-tooltip="item.internalComment"
+                name="regular-comment"
+                size="14"
+            />
+        </template>
+        {% endblock %}
+
         <template #pagination>
             <sw-pagination
                 :page="page"
@@ -89,6 +100,7 @@
         <mt-button
             size="small"
             variant="secondary"
+            data-analytics-id="sw-order-state-history-modal.close"
             @click="onClose"
         >
             {{ $tc('global.default.close') }}

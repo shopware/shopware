@@ -17,6 +17,11 @@ async function createWrapper(privileges = []) {
                             page: 1,
                             limit: 25,
                         },
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
                     },
                 },
                 provide: {
@@ -57,10 +62,13 @@ async function createWrapper(privileges = []) {
                     'sw-card-view': true,
                     'sw-ignore-class': true,
                     'sw-entity-listing': {
-                        props: ['items'],
+                        props: [
+                            'items',
+                            'dataSource',
+                        ],
                         template: `
                     <div>
-                        <template v-for="item in items">
+                        <template v-for="item in (dataSource || items)">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
                     </div>`,
@@ -69,7 +77,6 @@ async function createWrapper(privileges = []) {
                     'sw-search-bar': true,
                     'sw-context-menu-item': true,
                     'sw-loader': true,
-                    'sw-empty-state': true,
                     'sw-extension-component-section': true,
                     'sw-label': true,
                     'sw-ai-copilot-badge': true,

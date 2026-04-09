@@ -8,10 +8,11 @@ use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexingMessage;
+use Shopware\Core\Content\ProductStream\ProductStreamCollection;
+use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
@@ -46,7 +47,7 @@ class ProductStreamIndexerTest extends TestCase
     private MockObject&EventDispatcherInterface $dispatcher;
 
     /**
-     * @var StaticEntityRepository<ProductCollection>
+     * @var StaticEntityRepository<ProductStreamCollection>
      */
     private StaticEntityRepository $repository;
 
@@ -55,7 +56,7 @@ class ProductStreamIndexerTest extends TestCase
         $this->connection = $this->createMock(Connection::class);
         $this->iteratorFactory = $this->createMock(IteratorFactory::class);
         $this->productDefinition = $this->createMock(ProductDefinition::class);
-        $this->repository = new StaticEntityRepository([], $this->productDefinition);
+        $this->repository = new StaticEntityRepository([], new ProductStreamDefinition());
         $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $this->indexer = new ProductStreamIndexer(
@@ -181,7 +182,7 @@ class ProductStreamIndexerTest extends TestCase
         $matcher = $this->exactly(\count($params));
         $statement->expects($matcher)
             ->method('bindValue')
-            ->willReturnCallback(function (string $key, $value) use ($matcher, $params): void {
+            ->willReturnCallback(static function (string $key, $value) use ($matcher, $params): void {
                 self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
                 self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
             });

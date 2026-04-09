@@ -100,17 +100,15 @@ async function createWrapper(privileges = []) {
                 'sw-field-copyable': true,
 
                 'sw-entity-multi-select': true,
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"></div>',
-                },
                 'sw-entity-listing': {
                     props: [
                         'items',
+                        'dataSource',
                         'detailRoute',
                     ],
                     template: `
                         <div>
-                            <template v-for="item in items" :key="item.id">
+                            <template v-for="item in (dataSource || items)" :key="item.id">
                                 <slot name="actions" v-bind="{ item }">
                                 </slot>
                                 <slot name="action-modals" v-bind="{ item }">
@@ -127,6 +125,15 @@ async function createWrapper(privileges = []) {
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
+            },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
+                },
             },
         },
     });

@@ -5,6 +5,8 @@ import './sw-empty-state.scss';
  * @sw-package framework
  *
  * @private
+ *
+ * @deprecated tag:v6.8.0 - Will be removed
  */
 export default {
     template,
@@ -22,7 +24,6 @@ export default {
         },
         showDescription: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -38,7 +39,6 @@ export default {
         },
         absolute: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },

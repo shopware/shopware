@@ -37,7 +37,7 @@ class MeasurementConvertUnitTwigFilter extends AbstractExtension
     public function convert(array $twigContext, float|string|null $value, string $from = 'mm', ?string $to = null, ?int $precision = null): ?string
     {
         if (!\is_numeric($value)) {
-            return $value === null ? null : (string) $value;
+            return $value === null ? null : $value;
         }
 
         // if the `to` unit is not set, automatically set it to the sales channel configured measurement unit

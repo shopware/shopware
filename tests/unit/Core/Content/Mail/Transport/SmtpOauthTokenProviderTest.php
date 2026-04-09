@@ -48,7 +48,7 @@ class SmtpOauthTokenProviderTest extends TestCase
         $cache->expects($this->once())
             ->method('get')
             ->with('email-token')
-            ->willReturnCallback(function ($_, callable $callback) use ($cacheItem) {
+            ->willReturnCallback(static function ($_, callable $callback) use ($cacheItem) {
                 return $callback($cacheItem);
             });
 
@@ -108,7 +108,7 @@ class SmtpOauthTokenProviderTest extends TestCase
         $cache->expects($this->once())
             ->method('get')
             ->with('email-token')
-            ->willReturnCallback(function ($_, callable $callback) use ($cacheItem) {
+            ->willReturnCallback(static function ($_, callable $callback) use ($cacheItem) {
                 return $callback($cacheItem);
             });
 

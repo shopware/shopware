@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\AbstractSeoResolver;
 use Shopware\Core\Content\Seo\SeoResolver;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -23,6 +24,9 @@ class SeoResolverTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
+    /**
+     * @var EntityRepository<SeoUrlCollection>
+     */
     private EntityRepository $seoUrlRepository;
 
     private AbstractSeoResolver $seoResolver;

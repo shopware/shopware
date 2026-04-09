@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\Media\SalesChannel;
 
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,8 +28,14 @@ class MediaRoute extends AbstractMediaRoute
      * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(
-        private readonly EntityRepository $mediaRepository
+        private readonly EntityRepository $mediaRepository,
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
+    }
+
+    public static function buildName(string $id): string
+    {
+        return 'media-' . $id;
     }
 
     public function getDecorated(): AbstractMediaRoute
@@ -35,15 +43,30 @@ class MediaRoute extends AbstractMediaRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/media', name: 'store-api.media.detail', methods: ['POST'])]
+    #[Route(
+        path: '/store-api/media',
+        name: 'store-api.media.detail',
+        methods: [Request::METHOD_POST, Request::METHOD_GET],
+        defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
+    )]
     public function load(Request $request, SalesChannelContext $context): MediaRouteResponse
     {
-        $ids = $request->get('ids', []);
+        $ids = RequestParamHelper::get($request, 'ids', []);
         if (empty($ids)) {
             throw MediaException::emptyMediaId();
         }
 
-        return new MediaRouteResponse($this->findMediaByIds($ids, $context->getContext()));
+        $mediaCollection = $this->findMediaByIds($ids, $context->getContext());
+
+        $tags = [];
+        foreach ($mediaCollection as $media) {
+            $tags[] = self::buildName($media->getId());
+        }
+        if ($tags !== []) {
+            $this->cacheTagCollector->addTag(...$tags);
+        }
+
+        return new MediaRouteResponse($mediaCollection);
     }
 
     /**

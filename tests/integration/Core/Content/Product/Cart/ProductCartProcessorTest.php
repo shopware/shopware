@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -314,9 +315,9 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @param array{type: string} $testedFeature
+     * @param array{type: string, id: string|null, name: string|null, position: int} $testedFeature
      * @param array<string, mixed> $productData
-     * @param array{type: string, value: array{price: string}, label: string} $expectedFeature
+     * @param array{type: string, value: mixed, label: string} $expectedFeature
      */
     #[DataProvider('productFeatureProvider')]
     #[Group('slow')]
@@ -351,11 +352,11 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @return array{
-     *     0: array{type: string},
-     *     1: array<string, mixed>,
-     *     2: array{type: string, value: mixed, label: string}
-     *     }[]
+     * @return list<array{
+     *     array{type: string, id: string|null, name: string|null, position: int},
+     *     array<string, mixed>,
+     *     array{type: string, value: mixed, label: string}
+     * }>
      */
     public static function productFeatureProvider(): array
     {
@@ -898,11 +899,11 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @return list<string>|list<array<string, string>>
+     * @return list<string>
      */
     private function getCountryIds(): array
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<CountryCollection> $repository */
         $repository = static::getContainer()->get('country.repository');
 
         $criteria = (new Criteria())->setLimit(2)
@@ -1040,11 +1041,11 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @param array{type: string}[]|null $features
+     * @param list<array{type: string, id: string|null, name: string|null, position: int}> $features
      *
      * @return array<string, mixed>
      */
-    private function createFeatureSet(?array $features = []): array
+    private function createFeatureSet(array $features): array
     {
         return [
             'id' => $this->ids->create('product-feature-set'),

@@ -13,6 +13,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
 use Shopware\Core\Test\Integration\Traits\EntityFixturesBase;
 
 /**
@@ -46,6 +48,15 @@ trait MediaFixtures
         $this->thumbnailSize200Id = $mediaThumbnailSizes->filter(
             static fn (MediaThumbnailSizeEntity $size) => $size->getWidth() === 200 && $size->getHeight() === 200
         )->first()?->getId() ?? Uuid::randomHex();
+
+        /** @var EntityRepository<StateMachineStateCollection> */
+        $stateRepository = static::getFixtureRepository('state_machine_state');
+        /** @var EntityRepository<SalesChannelCollection> */
+        $salesChannelRepository = static::getFixtureRepository('sales_channel');
+
+        $stateId = $stateRepository->search(new Criteria(), $this->entityFixtureContext)->getEntities()->first()?->getId() ?? Uuid::randomHex();
+        $salesChannelId = $salesChannelRepository->search(new Criteria(), $this->entityFixtureContext)->getEntities()->first()?->getId() ?? Uuid::randomHex();
+        $productId = Uuid::randomHex();
 
         $this->mediaFixtures = [
             'NamedEmpty' => [
@@ -141,6 +152,119 @@ trait MediaFixtures
                     [
                         'id' => Uuid::randomHex(),
                         'name' => 'manufacturer',
+                    ],
+                ],
+            ],
+            'MediaWithA11yDocument' => [
+                'id' => Uuid::randomHex(),
+                'mimeType' => 'application/pdf',
+                'fileExtension' => 'pdf',
+                'fileName' => 'pdfFileWithA11yDocument',
+                'path' => 'media/_test/pdfFileWithA11yDocument.pdf',
+                'fileSize' => 1024,
+                'mediaType' => new DocumentType(),
+                'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
+                'a11yDocuments' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'deepLinkCode' => Uuid::randomHex(),
+                        'config' => [],
+                        'documentType' => [
+                            'id' => Uuid::randomHex(),
+                            'name' => 'invoice',
+                            'technicalName' => 'a11y_invoice',
+                        ],
+                        'order' => [
+                            'id' => Uuid::randomHex(),
+                            'orderNumber' => '10000',
+                            'orderDateTime' => new \DateTime(),
+                            'stateId' => $stateId,
+                            'paymentMethodId' => Uuid::randomHex(),
+                            'currencyId' => Defaults::CURRENCY,
+                            'currencyFactor' => 1.0,
+                            'salesChannelId' => $salesChannelId,
+                            'billingAddressId' => Uuid::randomHex(),
+                            'itemRounding' => [
+                                'decimals' => 2,
+                                'interval' => 0.01,
+                            ],
+                            'totalRounding' => [
+                                'decimals' => 2,
+                                'interval' => 0.01,
+                            ],
+                            'orderCustomer' => [
+                                'email' => 'test@example.com',
+                                'firstName' => 'Max',
+                                'lastName' => 'Mustermann',
+                                'salutationId' => $this->getValidSalutationId(),
+                                'customerNumber' => '1337',
+                            ],
+                            'billingAddress' => [
+                                'salutationId' => $this->getValidSalutationId(),
+                                'firstName' => 'Max',
+                                'lastName' => 'Mustermann',
+                                'street' => 'Ebbinghoff 10',
+                                'zipcode' => '48624',
+                                'city' => 'Schöppingen',
+                                'countryId' => $this->getValidCountryId(),
+                            ],
+                            'lineItems' => [
+                                [
+                                    'id' => Uuid::randomHex(),
+                                    'identifier' => Uuid::randomHex(),
+                                    'quantity' => 1,
+                                    'type' => 'product',
+                                    'label' => 'product',
+                                    'referencedId' => $productId,
+                                    'productId' => $productId,
+                                    'payload' => [
+                                        'productNumber' => '1',
+                                    ],
+                                    'product' => [
+                                        'id' => $productId,
+                                        'productNumber' => '1',
+                                        'stock' => 1,
+                                        'name' => 'test',
+                                        'tax' => [
+                                            'name' => 'test',
+                                            'taxRate' => 19.0,
+                                        ],
+                                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                                    ],
+                                    'price' => [
+                                        'unitPrice' => 100.0,
+                                        'totalPrice' => 100.0,
+                                        'quantity' => 1,
+                                        'calculatedTaxes' => [],
+                                        'taxRules' => [],
+                                    ],
+                                    'priceDefinition' => [
+                                        'price' => 100.0,
+                                        'taxRules' => [],
+                                        'quantity' => 1,
+                                        'type' => 'quantity',
+                                    ],
+                                ],
+                            ],
+                            'deliveries' => [],
+                            'transactions' => [],
+                            'price' => [
+                                'netPrice' => 100.0,
+                                'totalPrice' => 100.0,
+                                'calculatedTaxes' => [],
+                                'taxRules' => [],
+                                'positionPrice' => 100.0,
+                                'taxStatus' => 'gross',
+                                'rawTotal' => 100.0,
+                            ],
+                            'shippingCosts' => [
+                                'quantity' => 1,
+                                'unitPrice' => 0.0,
+                                'totalPrice' => 0.0,
+                                'calculatedTaxes' => [],
+                                'taxRules' => [],
+                            ],
+                        ],
                     ],
                 ],
             ],
@@ -298,6 +422,11 @@ trait MediaFixtures
     public function getMediaWithManufacturer(): MediaEntity
     {
         return $this->getMediaFixture('MediaWithManufacturer');
+    }
+
+    public function getMediaWithA11yDocument(): MediaEntity
+    {
+        return $this->getMediaFixture('MediaWithA11yDocument');
     }
 
     public function getPngWithFolder(): MediaEntity

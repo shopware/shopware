@@ -4,25 +4,21 @@
         <sw-loader />
 
         <p class="message">
-            {{ $tc('sw-first-run-wizard.store.loadStatusCollect') }}
+            <span>{{ $tc('sw-first-run-wizard.store.loadStatusCollect') }}</span>
             <br>
-            {{ $tc('sw-first-run-wizard.store.takeMinutes') }}
+            <span>{{ $tc('sw-first-run-wizard.store.takeMinutes') }}</span>
         </p>
     </template>
 
     <template v-else-if="extensionStatus && extensionStatus.active">
-        <sw-label
-            class="sw-first-run-wizard-store__label"
-            appearance="pill"
-            variant="success"
-        >
+        <div class="sw-first-run-wizard-store__label success">
             <mt-icon
                 name="regular-check-circle"
                 size="30px"
             />
-        </sw-label>
+        </div>
 
-        <h2>
+        <h2 class="sw-first-run-wizard-store__label-text">
             {{ $tc('sw-first-run-wizard.store.alreadyActivated') }}
         </h2>
     </template>
@@ -31,28 +27,24 @@
         <sw-loader />
 
         <p class="message">
-            {{ $tc('sw-first-run-wizard.store.enablingStore') }}
+            <span>{{ $tc('sw-first-run-wizard.store.enablingStore') }}</span>
             <br>
-            {{ $tc('sw-first-run-wizard.store.takeMinutes') }}
+            <span>{{ $tc('sw-first-run-wizard.store.takeMinutes') }}</span>
         </p>
     </template>
 
     <template v-else-if="activationError">
-        <sw-label
-            class="sw-first-run-wizard-store__label"
-            appearance="pill"
-            variant="danger"
-        >
+        <div class="sw-first-run-wizard-store__label error">
             <mt-icon
                 name="regular-times-circle"
                 size="30px"
             />
-        </sw-label>
+        </div>
 
-        <h2>
+        <h2 class="sw-first-run-wizard-store__label-text">
             {{ error && error.title || $tc('sw-first-run-wizard.store.activationErrorTitle') }}
         </h2>
-        <p>
+        <p class="sw-first-run-wizard-store__label-description">
             {{ error && error.detail || $tc('sw-first-run-wizard.store.activationErrorDescription') }}
         </p>
     </template>
@@ -64,9 +56,9 @@
         >
 
         <h2 class="sw-first-run-wizard-store__heading">
-            {{ $tc('sw-first-run-wizard.store.headingOne') }}
+            <span>{{ $tc('sw-first-run-wizard.store.headingOne') }}</span>
             <br>
-            {{ $tc('sw-first-run-wizard.store.headingTwo') }}
+            <span>{{ $tc('sw-first-run-wizard.store.headingTwo') }}</span>
         </h2>
 
         <p>

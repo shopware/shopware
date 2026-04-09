@@ -1,12 +1,12 @@
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
 import Entity from 'src/core/data/entity.data';
-// eslint-disable-next-line import/named
-import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
  * @sw-package checkout
  */
+
+const { CUSTOMER } = Shopware.Constants;
 
 async function createWrapper() {
     const responses = global.repositoryFactoryMock.responses;
@@ -151,7 +151,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
             customer: {
                 accountType: CUSTOMER.ACCOUNT_TYPE_BUSINESS,
             },
-            address: {},
+            address: new Entity('1', 'customer_address', {}),
         });
 
         await flushPromises();

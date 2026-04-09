@@ -10,9 +10,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginException;
-use Shopware\Core\Framework\Plugin\PluginExtractor;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\PluginZipDetector;
@@ -33,7 +33,7 @@ class PluginManagementServiceTest extends TestCase
         $pluginService = $this->createMock(PluginService::class);
         $pluginService->expects($this->once())->method('refreshPlugins');
 
-        $extractor = $this->createMock(PluginExtractor::class);
+        $extractor = $this->createMock(ExtensionExtractor::class);
         $extractor->expects($this->once())
             ->method('extract');
 
@@ -48,7 +48,7 @@ class PluginManagementServiceTest extends TestCase
         );
 
         $pluginManagementService->downloadStorePlugin(
-            $this->createPluginDownloadDataStruct('location', 'plugin'),
+            $this->createPluginDownloadDataStruct(PluginManagementService::PLUGIN),
             Context::createDefaultContext()
         );
     }
@@ -65,7 +65,7 @@ class PluginManagementServiceTest extends TestCase
             ->with('/some/zip/file.zip')
             ->willReturn(PluginManagementService::PLUGIN);
 
-        $extractor = $this->createMock(PluginExtractor::class);
+        $extractor = $this->createMock(ExtensionExtractor::class);
         $extractor->expects($this->once())
             ->method('extract')
             ->with('/some/zip/file.zip');
@@ -101,7 +101,7 @@ class PluginManagementServiceTest extends TestCase
             ->with('/some/zip/file.zip')
             ->willReturn(PluginManagementService::APP);
 
-        $extractor = $this->createMock(PluginExtractor::class);
+        $extractor = $this->createMock(ExtensionExtractor::class);
         $extractor->expects($this->once())
             ->method('extract')
             ->with('/some/zip/file.zip');
@@ -132,7 +132,7 @@ class PluginManagementServiceTest extends TestCase
         $pluginManagementService = new PluginManagementService(
             '',
             $this->createMock(PluginZipDetector::class),
-            $this->createMock(PluginExtractor::class),
+            $this->createMock(ExtensionExtractor::class),
             $pluginService,
             $this->createMock(Filesystem::class),
             $this->createMock(CacheClearer::class),
@@ -140,33 +140,84 @@ class PluginManagementServiceTest extends TestCase
         );
 
         $pluginManagementService->downloadStorePlugin(
-            $this->createPluginDownloadDataStruct('location', 'app'),
+            $this->createPluginDownloadDataStruct(PluginManagementService::APP),
             Context::createDefaultContext()
         );
     }
 
     public function testDeleteWhenManaged(): void
     {
+        $fs = $this->createMock(Filesystem::class);
+        $fs->expects($this->never())->method('remove');
+
         $pluginManagementService = new PluginManagementService(
             '',
             $this->createMock(PluginZipDetector::class),
-            $this->createMock(PluginExtractor::class),
+            $this->createMock(ExtensionExtractor::class),
             $this->createMock(PluginService::class),
-            $this->createMock(Filesystem::class),
+            $fs,
             $this->createMock(CacheClearer::class),
             new Client(['handler' => new MockHandler()])
         );
 
         $plugin = new PluginEntity();
         $plugin->setManagedByComposer(true);
+        $plugin->setPath('vendor/test');
+        $plugin->setName('Test');
+
+        $this->expectExceptionObject(PluginException::cannotDeleteManaged($plugin->getName()));
+        $pluginManagementService->deletePlugin($plugin, Context::createDefaultContext());
+    }
+
+    public function testDeleteWhenManagedInStaticPlugins(): void
+    {
+        $fs = $this->createMock(Filesystem::class);
+        $fs->expects($this->never())->method('remove');
+
+        $pluginManagementService = new PluginManagementService(
+            '',
+            $this->createMock(PluginZipDetector::class),
+            $this->createMock(ExtensionExtractor::class),
+            $this->createMock(PluginService::class),
+            $fs,
+            $this->createMock(CacheClearer::class),
+            new Client(['handler' => new MockHandler()])
+        );
+
+        $plugin = new PluginEntity();
+        $plugin->setManagedByComposer(true);
+        $plugin->setPath('custom/static-plugins/test');
         $plugin->setName('Test');
 
         static::expectException(PluginException::class);
         $pluginManagementService->deletePlugin($plugin, Context::createDefaultContext());
     }
 
+    public function testDeleteWhenManagedInCustomPluginsStillWorks(): void
+    {
+        $fs = $this->createMock(Filesystem::class);
+        $fs->expects($this->once())->method('remove');
+
+        $pluginManagementService = new PluginManagementService(
+            '',
+            $this->createMock(PluginZipDetector::class),
+            $this->createMock(ExtensionExtractor::class),
+            $this->createMock(PluginService::class),
+            $fs,
+            $this->createMock(CacheClearer::class),
+            new Client(['handler' => new MockHandler()])
+        );
+
+        $plugin = new PluginEntity();
+        $plugin->setManagedByComposer(true);
+        $plugin->setPath('custom/plugins//test');
+        $plugin->setName('Test');
+
+        $pluginManagementService->deletePlugin($plugin, Context::createDefaultContext());
+    }
+
     /**
-     * @param Response[] $responses
+     * @param list<Response> $responses
      */
     private function createClient(array $responses = []): Client
     {
@@ -175,11 +226,11 @@ class PluginManagementServiceTest extends TestCase
         return new Client(['handler' => $mockHandler]);
     }
 
-    private function createPluginDownloadDataStruct(string $location, string $type): PluginDownloadDataStruct
+    private function createPluginDownloadDataStruct(string $type): PluginDownloadDataStruct
     {
         $pluginDownloadData = new PluginDownloadDataStruct();
         $pluginDownloadData->assign([
-            'location' => $location,
+            'location' => 'location',
             'type' => $type,
         ]);
 

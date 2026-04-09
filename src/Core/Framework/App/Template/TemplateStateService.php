@@ -40,10 +40,9 @@ class TemplateStateService
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', $currentActiveState));
 
-        /** @var array<string> $templates */
         $templates = $this->templateRepo->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => $newActiveState], $templates);
+        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => $newActiveState], $templates);
 
         $this->templateRepo->update($updateSet, $context);
 

@@ -26,4 +26,19 @@ describe('src/module/sw-media/component/sw-media-display-options', () => {
         expect(selectResults[2].text()).toBe('sw-media.presentation.labelPresentationLarge');
         expect(selectResults[3].text()).toBe('sw-media.presentation.labelPresentationList');
     });
+
+    it('should disable the presentation select when disabled prop is true', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                disabled: true,
+            },
+        });
+        await flushPromises();
+
+        const presentationSelect = wrapper.find('.sw-media-display-options__label-presentation');
+        expect(presentationSelect.classes()).toContain('is--disabled');
+
+        const sortSelect = wrapper.find('.sw-media-display-options__label-sort');
+        expect(sortSelect.classes()).toContain('is--disabled');
+    });
 });

@@ -21,6 +21,9 @@ import { h, defineComponent } from 'vue';
 window.performance.mark = () => {};
 window.performance.measure = () => {};
 window.performance.clearMarks = () => {};
+window.performance.clearMeasures = () => {};
+
+window.removePageLoadingIndicator = jest.fn();
 
 jest.mock('src/app/adapter/view/sw-vue-devtools', () => {
     return jest.fn();
@@ -90,6 +93,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
     afterEach(() => {
         AsyncComponentFactory.markComponentTemplatesAsNotResolved();
+        window.removePageLoadingIndicator.mockClear();
     });
 
     it('should be an class', async () => {
@@ -705,6 +709,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 'mt-select',
                 'mt-switch',
                 'mt-text-field',
+                'mt-search',
                 'mt-textarea',
                 'mt-icon',
                 'mt-data-table',
@@ -753,6 +758,12 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             await flushPromises();
 
             expect(vueAdapter.i18n.global.locale.value).toEqual(expectedLocale);
+        });
+
+        it('should remove the loading indicator after vue is mounted', async () => {
+            // it is difficult to actually test for removal because the js code is located at /app/administration/shared,
+            // which is not included in the test environment.
+            expect(window.removePageLoadingIndicator).toHaveBeenCalled();
         });
     });
 });

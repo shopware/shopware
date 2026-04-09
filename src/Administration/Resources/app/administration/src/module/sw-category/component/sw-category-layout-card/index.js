@@ -71,6 +71,7 @@ export default {
     methods: {
         onLayoutSelect(selectedLayout) {
             this.category.cmsPageId = selectedLayout;
+            this.category.slotConfig = null;
         },
 
         onLayoutReset() {

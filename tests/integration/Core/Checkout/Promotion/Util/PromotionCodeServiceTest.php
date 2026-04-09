@@ -85,7 +85,7 @@ class PromotionCodeServiceTest extends TestCase
         $pattern = 'PREFIX_%s%d%s%d_SUFFIX';
         $expectedCodeLength = \strlen(str_replace('%', '', $pattern));
         $codeList = $this->codesService->generateIndividualCodes($pattern, $requestedAmount);
-        $codeLengthList = array_map(static fn ($code) => \strlen((string) $code), $codeList);
+        $codeLengthList = array_map(static fn ($code) => \strlen($code), $codeList);
 
         static::assertCount($requestedAmount, $codeList);
         static::assertCount($requestedAmount, array_unique($codeList));

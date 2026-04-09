@@ -51,7 +51,7 @@ class JsonApiEncoder
         $result->setSingleResult($data instanceof Entity);
         $result->setMetaData($metaData);
 
-        $fields = new ResponseFields($criteria->getIncludes());
+        $fields = new ResponseFields($criteria->getIncludes(), $criteria->getExcludes());
 
         $this->encodeData($fields, $definition, $data, $result);
 
@@ -223,7 +223,7 @@ class JsonApiEncoder
 
     private function addExtensions(ResponseFields $fields, Record $serialized, Entity $entity, JsonApiEncodingResult $result): void
     {
-        if (empty($serialized->getExtensions())) {
+        if ($serialized->getExtensions() === []) {
             return;
         }
 

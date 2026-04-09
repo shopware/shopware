@@ -56,7 +56,7 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
 
         $countryResult = new IdSearchResult(
             1,
-            [['primaryKey' => 'countryId', 'data' => []]],
+            ['countryId' => ['primaryKey' => 'countryId', 'data' => []]],
             $expectedCriteria,
             $context->getContext()
         );
@@ -123,7 +123,7 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
 
         $countryStateResult = new IdSearchResult(
             1,
-            [['primaryKey' => 'countryStateId', 'data' => []]],
+            ['countryStateId' => ['primaryKey' => 'countryStateId', 'data' => []]],
             $expectedCriteria,
             $context->getContext()
         );
@@ -190,7 +190,7 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
 
         $countryResult = new IdSearchResult(
             1,
-            [['primaryKey' => 'countryId', 'data' => []]],
+            ['countryId' => ['primaryKey' => 'countryId', 'data' => []]],
             $expectedCountryIso,
             $context->getContext()
         );
@@ -207,7 +207,7 @@ class ChangeShippingLocationCommandHandlerTest extends TestCase
 
         $countryStateResult = new IdSearchResult(
             1,
-            [['primaryKey' => 'countryStateId', 'data' => []]],
+            ['countryStateId' => ['primaryKey' => 'countryStateId', 'data' => []]],
             $expectedStateCriteria,
             $context->getContext()
         );

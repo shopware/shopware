@@ -35,7 +35,7 @@ class ProductListingCriteriaExtensionTest extends TestCase
         $result = (new ExtensionDispatcher($dispatcher))->publish(
             name: ProductListingCriteriaExtension::NAME,
             extension: $extension,
-            function: function (Criteria $criteria, SalesChannelContext $context, string $categoryId): Criteria {
+            function: static function (Criteria $criteria, SalesChannelContext $context, string $categoryId): Criteria {
                 $criteria->addFilter(
                     new EqualsFilter('product.categoriesRo.id', $categoryId)
                 );

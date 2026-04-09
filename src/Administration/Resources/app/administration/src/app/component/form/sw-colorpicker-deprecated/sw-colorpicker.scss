@@ -343,4 +343,8 @@
         }
     }
 }
+
+.sw-popover__wrapper:has(.sw-colorpicker__colorpicker) {
+    z-index: 1000;
+}
 /* stylelint-enable */

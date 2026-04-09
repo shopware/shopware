@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Test\Integration\Builder\Promotion;
 
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupCollection;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,6 +32,11 @@ class PromotionFixtureBuilder
      */
     private array $dataDiscounts = [];
 
+    /**
+     * @param EntityRepository<PromotionCollection> $promotionRepository
+     * @param EntityRepository<PromotionSetGroupCollection> $promotionSetgroupRepository
+     * @param EntityRepository<PromotionDiscountCollection> $promotionDiscountRepository
+     */
     public function __construct(
         private readonly string $promotionId,
         AbstractSalesChannelContextFactory $salesChannelContextFactory,
@@ -106,7 +114,7 @@ class PromotionFixtureBuilder
             $data['useCodes'] = true;
         }
 
-        if (\count($this->dataSetGroups) > 0) {
+        if ($this->dataSetGroups !== []) {
             $data['useSetGroups'] = true;
         }
 
@@ -114,12 +122,12 @@ class PromotionFixtureBuilder
         $this->promotionRepository->create([$data], $this->context->getContext());
 
         // save our defined set groups
-        if (\count($this->dataSetGroups) > 0) {
+        if ($this->dataSetGroups !== []) {
             $this->promotionSetgroupRepository->create($this->dataSetGroups, $this->context->getContext());
         }
 
         // save our added discounts
-        if (\count($this->dataDiscounts) > 0) {
+        if ($this->dataDiscounts !== []) {
             $this->promotionDiscountRepository->create($this->dataDiscounts, $this->context->getContext());
         }
     }

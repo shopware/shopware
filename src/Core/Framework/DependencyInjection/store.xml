@@ -61,6 +61,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="cache.object"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient">
@@ -85,8 +86,6 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService" />
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService" />
             <argument type="service" id="user.repository" />
-            <argument>%kernel.plugin_dir%</argument>
-            <argument>%kernel.project_dir%</argument>
 
             <tag name="console.command"/>
         </service>
@@ -122,6 +121,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\LocaleProvider"/>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider" class="Shopware\Core\Framework\Store\Services\ExtensionDataProvider">
@@ -171,8 +171,6 @@
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
-            <argument>%kernel.plugin_dir%</argument>
-            <argument>%kernel.project_dir%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\ExtensionLifecycleService">

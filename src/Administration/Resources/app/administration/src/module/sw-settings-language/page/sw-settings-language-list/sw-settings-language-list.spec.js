@@ -87,13 +87,14 @@ async function createWrapper(privileges = []) {
                         inject: ['detailPageLinkText'],
                         props: [
                             'items',
+                            'dataSource',
                             'allowEdit',
                             'allowView',
                             'detailRoute',
                         ],
                         template: `
                     <div>
-                        <template v-for="item in items">
+                        <template v-for="item in (dataSource || items)">
                             <slot name="detail-action" v-bind="{ item }">
                                 <sw-context-menu-item
                                     v-if="detailRoute"
@@ -109,6 +110,9 @@ async function createWrapper(privileges = []) {
                     },
                     'sw-text-field': true,
                     'router-link': true,
+                    'sw-card-view': true,
+                    'sw-card': true,
+                    'sw-label': true,
                 },
             },
         },
@@ -224,5 +228,14 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
                 ]),
             }),
         );
+    });
+
+    it('should show a link to the snippets page', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const snippetLink = wrapper.find('.sw-settings-language-list__snippet-link');
+        expect(snippetLink.exists()).toBe(true);
+        expect(snippetLink.text()).toContain('manageSnippets');
     });
 });

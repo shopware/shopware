@@ -129,7 +129,7 @@ class SalesChannelContextPersister
 
         $data = $qb->executeQuery()->fetchAllAssociative();
 
-        if (empty($data)) {
+        if ($data === []) {
             return [];
         }
 
@@ -144,7 +144,11 @@ class SalesChannelContextPersister
         $now = new \DateTimeImmutable();
         if ($expiredTime < $now) {
             // context is expired
-            $payload = ['expired' => true];
+            if ($customerId !== null) {
+                $payload['expired'] = true;
+            } else {
+                $payload = ['expired' => true];
+            }
         } else {
             $payload['expired'] = false;
         }

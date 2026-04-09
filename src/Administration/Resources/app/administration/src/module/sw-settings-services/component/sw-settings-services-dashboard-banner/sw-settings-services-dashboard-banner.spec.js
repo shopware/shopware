@@ -54,7 +54,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-dashboa
         });
 
         axiosMock
-            .onPost('_info/config-me', {
+            .onPatch('_info/config-me', {
                 'core.hide-services-dashboard-banner': [true],
             })
             .replyOnce(204);

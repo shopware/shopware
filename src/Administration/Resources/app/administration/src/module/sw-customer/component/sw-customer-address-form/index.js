@@ -1,6 +1,5 @@
 import template from './sw-customer-address-form.html.twig';
 import './sw-customer-address-form.scss';
-import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
  * @sw-package checkout
@@ -71,7 +70,6 @@ export default {
             'city',
             'countryId',
             'phoneNumber',
-            'vatId',
             'countryStateId',
             'salutationId',
             'city',
@@ -127,7 +125,7 @@ export default {
         },
 
         isBusinessAccountType() {
-            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+            return this.customer?.accountType === Shopware.Constants.CUSTOMER.ACCOUNT_TYPE_BUSINESS;
         },
     },
 
@@ -150,6 +148,15 @@ export default {
                     this.address.country = this.country;
                     this.getCountryStates();
                 });
+            },
+        },
+
+        isBusinessAccountType: {
+            immediate: true,
+            handler(newVal) {
+                const definition = EntityDefinition.get(this.address.getEntityName());
+
+                definition.properties.company.flags.required = newVal;
             },
         },
 

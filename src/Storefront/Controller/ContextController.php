@@ -69,9 +69,13 @@ class ContextController extends StorefrontController
             throw RoutingException::languageNotFound($languageId);
         }
 
-        $params = $request->get('redirectParameters', '[]');
+        $params = $request->request->all()['redirectParameters'] ?? '[]';
         if (\is_string($params)) {
-            $params = json_decode($params, true);
+            try {
+                $params = json_decode($params, true, flags: \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                $params = [];
+            }
         }
 
         $languageCode = $request->request->get('languageCode_' . $languageId);
@@ -80,7 +84,7 @@ class ContextController extends StorefrontController
         }
 
         $route = (string) $request->request->get('redirectTo', 'frontend.home.page');
-        if (empty($route) || $this->routeTargetExists($route, $params) === false) {
+        if ($route === '' || $this->routeTargetExists($route, $params) === false) {
             $route = 'frontend.home.page';
             $params = [];
         }
@@ -123,7 +127,7 @@ class ContextController extends StorefrontController
         $routerContext = $this->router->getContext();
         $routerContext->setHttpPort($parsedUrl['port'] ?? 80);
         $routerContext->setMethod('GET');
-        $routerContext->setHost($parsedUrl['host']);
+        $routerContext->setHost($parsedUrl['host'] ?? '');
         $routerContext->setBaseUrl(rtrim($parsedUrl['path'] ?? '', '/'));
 
         if ($this->requestStack->getMainRequest()) {

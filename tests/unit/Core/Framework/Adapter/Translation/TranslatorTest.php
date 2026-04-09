@@ -10,7 +10,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -83,10 +82,10 @@ class TranslatorTest extends TestCase
         );
 
         $item = new CacheItem();
-        $property = ReflectionHelper::getProperty(CacheItem::class, 'isTaggable');
+        $property = new \ReflectionProperty(CacheItem::class, 'isTaggable');
         $property->setValue($item, true);
 
-        $cache->expects($expectedCacheKey ? $this->once() : $this->never())->method('get')->willReturnCallback(function (string $key, callable $callback) use ($expectedCacheKey, $item) {
+        $cache->expects($expectedCacheKey ? $this->once() : $this->never())->method('get')->willReturnCallback(static function (string $key, callable $callback) use ($expectedCacheKey, $item) {
             static::assertSame($expectedCacheKey, $key);
 
             return $callback($item);
@@ -96,7 +95,7 @@ class TranslatorTest extends TestCase
             $translator->injectSettings($injectSalesChannelId, Uuid::randomHex(), 'en-GB', Context::createDefaultContext());
         }
 
-        $snippetSetIdProp = ReflectionHelper::getProperty(Translator::class, 'snippetSetId');
+        $snippetSetIdProp = new \ReflectionProperty(Translator::class, 'snippetSetId');
         $snippetSetIdProp->setValue($translator, $snippetSetId);
 
         // No snippet is added
@@ -202,7 +201,7 @@ class TranslatorTest extends TestCase
         yield 'without request' => [
             $snippetSetId,
             null,
-            \sprintf('translation.catalog.%s.%s', 'DEFAULT', $snippetSetId),
+            \sprintf('translation.catalog.%s.%s-en-GB', 'DEFAULT', $snippetSetId),
         ];
         yield 'without snippetSetId' => [
             null,
@@ -213,13 +212,13 @@ class TranslatorTest extends TestCase
         yield 'without salesChannelId' => [
             $snippetSetId,
             self::createRequest(null, $snippetSetId),
-            \sprintf('translation.catalog.%s.%s', 'DEFAULT', $snippetSetId),
+            \sprintf('translation.catalog.%s.%s-en-GB', 'DEFAULT', $snippetSetId),
         ];
 
         yield 'with injectSettings' => [
             $snippetSetId,
             null,
-            \sprintf('translation.catalog.%s.%s', $salesChannelId, $snippetSetId),
+            \sprintf('translation.catalog.%s.%s-en-GB', $salesChannelId, $snippetSetId),
             $salesChannelId, // Inject salesChannelId using injectSettings method
         ];
     }
@@ -281,23 +280,6 @@ class TranslatorTest extends TestCase
             'expectedSnippetSetId' => $expectedSnippetSetId,
             'locale' => 'de-DE',
             'requestSnippetSetId' => $expectedSnippetSetId,
-        ];
-    }
-
-    public static function provideTracingExamples(): \Generator
-    {
-        yield 'disabled' => [
-            false,
-            [
-                'shopware.translator',
-            ],
-        ];
-
-        yield 'enabled' => [
-            true,
-            [
-                'translator.foo',
-            ],
         ];
     }
 

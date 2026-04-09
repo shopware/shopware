@@ -9,6 +9,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\RemoveCustomerTagAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Log\Package;
@@ -22,6 +24,9 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 #[CoversClass(RemoveCustomerTagAction::class)]
 class RemoveCustomerTagActionTest extends TestCase
 {
+    /**
+     * @var MockObject&EntityRepository<EntityCollection<Entity>>
+     */
     private MockObject&EntityRepository $repository;
 
     private RemoveCustomerTagAction $action;
@@ -60,7 +65,7 @@ class RemoveCustomerTagActionTest extends TestCase
 
         $this->repository->expects($this->once())
             ->method('delete')
-            ->with(array_map(fn ($id) => [
+            ->with(array_map(static fn ($id) => [
                 CustomerAware::CUSTOMER_ID => $customerId,
                 'tagId' => $id['id'],
             ], $expected));

@@ -31,7 +31,7 @@ class DatabaseSalesChannelThemeLoader
      */
     public function load(string $salesChannelId): array
     {
-        if (!empty($this->themes[$salesChannelId])) {
+        if (($this->themes[$salesChannelId] ?? []) !== []) {
             return $this->themes[$salesChannelId];
         }
 

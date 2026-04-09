@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\SalesChannelCookieName;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
@@ -61,6 +62,10 @@ class CookieProvider
             $cookieGroups->add($this->getCookieGroupComfortFeatures());
             $cookieGroups->add($this->getCookieGroupMarketing());
         }
+
+        // Update the session cookie name to include the sales-channel-specific suffix.
+        // This ensures the cookie consent UI displays the actual cookie name used by PHP.
+        $this->applySalesChannelSessionName($cookieGroups, $salesChannelContext->getSalesChannelId());
 
         $this->eventDispatcher->dispatch(new CookieGroupCollectEvent($cookieGroups, $request, $salesChannelContext));
 
@@ -170,6 +175,24 @@ class CookieProvider
         $cookieGroupMarketing->setEntries(new CookieEntryCollection([]));
 
         return $cookieGroupMarketing;
+    }
+
+    private function applySalesChannelSessionName(CookieGroupCollection $cookieGroups, string $salesChannelId): void
+    {
+        $requiredGroup = $cookieGroups->get(self::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
+        if ($requiredGroup === null) {
+            return;
+        }
+
+        $entries = $requiredGroup->getEntries();
+        if ($entries === null) {
+            return;
+        }
+
+        $sessionEntry = $entries->get($this->sessionName);
+        if ($sessionEntry !== null) {
+            $sessionEntry->cookie = SalesChannelCookieName::resolve($this->sessionName, $salesChannelId);
+        }
     }
 
     private function removeCookieGroupsWithoutCookies(CookieGroupCollection $cookieGroups, CookieGroup $cookieGroup): void

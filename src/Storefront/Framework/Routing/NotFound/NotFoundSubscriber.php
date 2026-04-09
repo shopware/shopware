@@ -13,6 +13,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterfac
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
+use Shopware\Core\Framework\Routing\SalesChannelCookieName;
 use Shopware\Storefront\Framework\Routing\Exception\ErrorRedirectRequestEvent;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -119,9 +120,10 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
 
             $item->tag($this->generateTags($name, $event->getRequest(), $context));
 
-            // Remove session cookie from 404 pages, injected by the Symfony session listener
+            // Remove session cookie from 404 pages, injected by the Symfony session listener.
+            // Uses prefix matching to handle per-sales-channel suffixed session names (e.g. session--a1b2c3d4).
             foreach ($response->headers->getCookies() as $cookie) {
-                if ($cookie->getName() === $this->sessionName) {
+                if (SalesChannelCookieName::matches($cookie->getName(), $this->sessionName)) {
                     $response->headers->removeCookie($cookie->getName(), $cookie->getPath(), $cookie->getDomain());
                 }
             }

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Cache\Message\RefreshHttpCacheMessage;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\Framework\Routing\SalesChannelCookieName;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -170,8 +171,9 @@ class CacheStore implements StoreInterface
         $cacheResponse = clone $response;
         $cacheResponse->headers = clone $response->headers;
 
+        // Uses prefix matching to handle per-sales-channel suffixed session names (e.g. session--a1b2c3d4).
         foreach ($cacheResponse->headers->getCookies() as $cookie) {
-            if ($cookie->getName() === $this->sessionName) {
+            if (SalesChannelCookieName::matches($cookie->getName(), $this->sessionName)) {
                 $cacheResponse->headers->removeCookie($cookie->getName(), $cookie->getPath(), $cookie->getDomain());
             }
         }

@@ -407,8 +407,11 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
-     * Get technically required cookie names that are managed by PHP
-     * These cookies should not be set by JavaScript
+     * Get technically required cookie name prefixes that are managed by PHP.
+     * These cookies should not be set by JavaScript.
+     *
+     * Session cookies use a per-sales-channel suffix (e.g. "session--a1b2c3d4"),
+     * so matching is done via startsWith rather than exact equality.
      * @private
      */
     _getTechnicallyRequiredCookieNames() {
@@ -472,7 +475,7 @@ export default class CookieConfiguration extends Plugin {
         const activeCookieNames = [...phpManagedCookies];
         for (let i = 0; i < cookiesToSet.length; i++) {
             const cookieData = cookiesToSet[i];
-            const isPhpManaged = phpManagedCookies.some(phpCookie => cookieData.cookie === phpCookie);
+            const isPhpManaged = phpManagedCookies.some(phpCookie => cookieData.cookie === phpCookie || cookieData.cookie.startsWith(phpCookie));
             const isCookieConfigHash = cookieData.cookie === this.options.cookieConfigHash;
 
             if (!isPhpManaged) {

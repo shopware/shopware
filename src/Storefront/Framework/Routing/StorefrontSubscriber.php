@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
+use Shopware\Core\Framework\Routing\SalesChannelCookieName;
 use Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -89,12 +90,19 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         $session = $mainRequest->getSession();
 
+        $salesChannelId = $mainRequest->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+
         if (!$session->isStarted()) {
+            // Set a per-sales-channel session cookie name so that different sales channels
+            // on the same domain get isolated sessions. Language domains of the same
+            // sales channel share the suffix and therefore share the session.
+            if ($salesChannelId !== null) {
+                $session->setName(SalesChannelCookieName::resolve($session->getName(), $salesChannelId));
+            }
+
             $session->start();
             $session->set('sessionId', $session->getId());
         }
-
-        $salesChannelId = $mainRequest->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
         if ($salesChannelId === null) {
             $salesChannelContext = $mainRequest->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
             if ($salesChannelContext instanceof SalesChannelContext) {

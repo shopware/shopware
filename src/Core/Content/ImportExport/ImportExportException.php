@@ -43,6 +43,16 @@ class ImportExportException extends HttpException
     final public const INVALID_INSTANCE_TYPE = 'CONTENT__IMPORT_EXPORT__INVALID_INSTANCE_TYPE';
     final public const SERIALIZER_NOT_FOUND = 'CONTENT__IMPORT_EXPORT__SERIALIZER_NOT_FOUND';
     final public const UPDATE_ENTITY_NOT_FOUND = 'CONTENT__IMPORT_EXPORT__UPDATE_ENTITY_NOT_FOUND';
+    final public const INVALID_EVENT_DATA = 'CONTENT__IMPORT_EXPORT__INVALID_EVENT_DATA';
+
+    public static function invalidEventData(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_EVENT_DATA,
+            $message
+        );
+    }
 
     public static function invalidFileAccessToken(): ShopwareHttpException
     {

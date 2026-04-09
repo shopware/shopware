@@ -3,12 +3,14 @@
 namespace Shopware\Core\Content\Media\Event;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('discovery')]
-class MediaFileExtensionWhitelistEvent extends Event
+class MediaFileExtensionWhitelistEvent extends Event implements ShopwareEvent
 {
     /**
      * @param array<string> $whitelist
@@ -22,11 +24,21 @@ class MediaFileExtensionWhitelistEvent extends Event
         }
     }
 
-    public function getContext(): ?Context
+    public function getContext(): Context
     {
         if ($this->context === null) {
-            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Not passing $context to ' . static::class . ' is deprecated and will be required in v6.8.0.');
+            throw MediaException::invalidEventData('No context provided. Pass $context to the constructor of ' . static::class);
         }
+
+        return $this->context;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Use getContext() instead, $context will be required in the constructor.
+     */
+    public function getNullableContext(): ?Context
+    {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'getNullableContext() is deprecated, use getContext() instead.');
 
         return $this->context;
     }

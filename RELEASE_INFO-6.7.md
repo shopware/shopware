@@ -328,9 +328,9 @@ Both `AwsS3v3Factory` and `PresignedUploadUrlGenerator` are wired via DI to the 
 the `shopware.filesystem.s3.client` service to provide a custom Symfony HTTP client with
 custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
 
-### Events gain optional `Context` parameter (deprecated without)
+### Events gain `Context` and implement `ShopwareEvent`
 
-The events below now accept an optional `Context` as the last constructor argument. Shopware's own dispatch sites already pass the context. Third-party code that instantiates these events without `$context` will see a deprecation notice; in 6.8, the parameter becomes required and the events will implement `ShopwareEvent`.
+The events below now accept an optional `Context` as the last constructor argument and implement `ShopwareEvent`. Shopware's own dispatch sites already pass the context. Third-party code that instantiates these events without `$context` will see a deprecation notice; in 6.8, the parameter becomes required. A temporary `getNullableContext()` method is available for consumers who cannot guarantee the dispatcher passed context.
 
 - `Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent`
 - `Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent`
@@ -341,6 +341,7 @@ The events below now accept an optional `Context` as the last constructor argume
 - `Shopware\Storefront\Theme\Event\ThemeAssignedEvent`
 - `Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent`
 - `Shopware\Storefront\Theme\Event\ThemeConfigResetEvent`
+
 ### `#[Field]` attribute supports custom `maxLength` for string fields
 
 The `maxLength` parameter is now available on `#[Field]` for `FieldType::STRING` and `FieldType::EMAIL` fields. Previously the max length was always 255, matching `StringField`'s default, with no way to override it. Setting `maxLength` passes the value through to the underlying `StringField` constructor and the `StringFieldSerializer` validation.

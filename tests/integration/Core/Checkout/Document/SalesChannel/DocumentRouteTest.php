@@ -460,4 +460,52 @@ class DocumentRouteTest extends TestCase
             $salesChannelContext,
         );
     }
+
+    public function testDownloadShouldThrowExceptionWithDeletedCustomer(): void
+    {
+        $orderCustomerId = $this->ids->get('customerToBeDeleted');
+
+        $this->createCustomer(null, false, ['id' => $orderCustomerId]);
+
+        $this->createOrder($orderCustomerId);
+
+        $salesChannelContext = $this->createSalesChannelContext([], [
+            'customerId' => $orderCustomerId,
+        ]);
+
+        $customerRepository = static::getContainer()->get('customer.repository');
+        $customerRepository->delete([['id' => $orderCustomerId]], Context::createDefaultContext());
+
+        $operation = new DocumentGenerateOperation($this->ids->get('order'));
+
+        $document = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$operation->getOrderId() => $operation],
+            Context::createDefaultContext()
+        )->getSuccess()->first();
+
+        static::assertInstanceOf(DocumentIdStruct::class, $document);
+
+        $deepLinkCode = '';
+
+        $request = new Request();
+
+        $documentRoute = static::getContainer()->get(DocumentRoute::class);
+
+        try {
+            $response = $documentRoute->download(
+                $document->getId(),
+                $request,
+                $salesChannelContext,
+                $deepLinkCode
+            );
+
+            static::fail('Download successfully');
+        } catch (HttpException $e) {
+            static::assertInstanceOf(DocumentException::class, $e);
+            static::assertSame(CartException::CUSTOMER_NOT_LOGGED_IN_CODE, $e->getErrorCode());
+
+            return;
+        }
+    }
 }

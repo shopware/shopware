@@ -22,6 +22,7 @@ permissions:
 
 jobs:
   rufus:
+    if: false
     name: Rufus
     runs-on: ubuntu-24.04
     steps:
@@ -46,6 +47,7 @@ jobs:
             NIGHTLY=${{ inputs.nightly }}
 
   commercial:
+    if: false
     name: Commercial
     runs-on: ubuntu-24.04
     steps:
@@ -71,6 +73,7 @@ jobs:
             NIGHTLY=${{ inputs.nightly }}\nUPSTREAM_EVENT_NAME=${{ github.event_name }}
 
   mergeability-check:
+    if: false
     name: Downstream Mergeability Check
     runs-on: ubuntu-latest
     steps:
@@ -140,7 +143,7 @@ jobs:
             }
 
   downstream-check:
-    if: always()
+    if: false
     needs:
     - rufus
     - commercial

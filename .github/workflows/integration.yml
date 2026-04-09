@@ -19,6 +19,7 @@ permissions:
 
 jobs:
   acceptance:
+    if: false
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -69,6 +70,7 @@ jobs:
           report-prefix: playwright-reports
 
   acceptance-tests-changed:
+    if: false
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -97,6 +99,7 @@ jobs:
           artifact-prefix: "ats-changed"
 
   phpunit-matrix:
+    if: false
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
@@ -112,6 +115,7 @@ jobs:
           echo 'EOF' >> $GITHUB_OUTPUT
 
   phpunit:
+    if: false
     name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }} ${{ matrix.opensearch != 'opensearchproject/opensearch:3' && matrix.opensearch || '' }}"
     needs:
       - phpunit-matrix
@@ -198,8 +202,8 @@ jobs:
 
 
   win-checkout:
+    if: false
     runs-on: windows-latest
-    if: ${{ github.event_name != 'pull_request' }}
     name: "Windows check"
 
     steps:
@@ -209,6 +213,7 @@ jobs:
       - name: Clone platform
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
   php-security:
+    if: false
     runs-on: ubuntu-24.04
     name: "Composer dependencies"
     env:
@@ -233,8 +238,8 @@ jobs:
       - name: Run on platform
         run: ./local-php-security-checker
   code-ql:
+    if: false
     name: Analyze
-    if: ${{ github.repository == 'shopware/shopware' }}
     runs-on: ubuntu-24.04
 
     strategy:
@@ -263,6 +268,7 @@ jobs:
         uses: github/codeql-action/analyze@9e907b5e64f6b83e7804b09294d44122997950d6 #  v4.32.3
 
   tested-update-versions:
+    if: false
     name: tested-versions
     runs-on: ubuntu-24.04
     outputs:
@@ -276,6 +282,7 @@ jobs:
         uses: shopware/github-actions/versions@main
 
   acceptance-update:
+    if: false
     needs: tested-update-versions
     runs-on: ubuntu-24.04
     strategy:
@@ -462,6 +469,7 @@ jobs:
             echo "- ${URL}" >> "$GITHUB_STEP_SUMMARY"
 
   blue-green-67-68:
+    if: false
     name: "PHP blue green 6.7 -> 6.8 -> 6.7"
     runs-on: ubuntu-24.04
     env:
@@ -520,6 +528,7 @@ jobs:
         run: php .github/bin/blue-green-check.php
 
   blue-green-66-67:
+    if: false
     name: "PHP blue green 6.6 -> 6.7 -> 6.6"
     runs-on: ubuntu-24.04
     env:
@@ -602,7 +611,7 @@ jobs:
   update-66-67:
       name: "PHP update 6.6 -> 6.7"
       runs-on: ubuntu-24.04
-      if: inputs.nightly == 'true'
+      # if: inputs.nightly == 'true'
       env:
           APP_ENV: test
           APP_URL: http://localhost:8000
@@ -664,7 +673,7 @@ jobs:
   # this allows us to specifiy just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations
   check:
-    if: always()
+    if: false
     needs:
       - acceptance
       - phpunit

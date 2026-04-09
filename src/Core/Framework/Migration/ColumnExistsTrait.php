@@ -19,11 +19,9 @@ trait ColumnExistsTrait
             return TableHelper::columnExists($connection, $table, $column);
         }
 
-        $exists = $connection->fetchOne(
+        return (bool) $connection->fetchOne(
             'SHOW COLUMNS FROM `' . $table . '` WHERE `Field` LIKE :column',
             ['column' => $column]
         );
-
-        return !empty($exists);
     }
 }

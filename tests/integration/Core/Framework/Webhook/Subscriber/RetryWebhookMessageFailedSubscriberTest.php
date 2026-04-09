@@ -75,7 +75,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             ],
         ]], $this->context);
 
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
 
         $webhookEventLogRepository->create([[
             'id' => $webhookEventId,
@@ -148,7 +148,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             ],
         ]], $this->context);
 
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
 
         $webhookEventLogRepository->create([[
             'id' => $webhookEventId,
@@ -221,7 +221,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             ],
         ]], $this->context);
 
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
 
         $webhookEventLogRepository->create([[
             'id' => $webhookEventId,
@@ -260,5 +260,20 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         static::assertInstanceOf(WebhookEntity::class, $webhook);
         static::assertSame(10, $webhook->getErrorCount());
         static::assertTrue($webhook->isActive());
+    }
+
+    private function createWebhookEventMessage(string $webhookEventId, string $appId, string $webhookId): WebhookEventMessage
+    {
+        return new WebhookEventMessage(
+            $webhookEventId,
+            ['body' => 'payload'],
+            $appId,
+            $webhookId,
+            '6.4',
+            'http://test.com',
+            's3cr3t',
+            Defaults::LANGUAGE_SYSTEM,
+            'en-GB',
+        );
     }
 }

@@ -26,17 +26,16 @@ export default function createTelemetryEventHandler(
             });
         },
         identify: (event) => {
-            const shopId = Shopware.Store.get('context').app.config.shopId;
-            const userId = `${shopId}:${event.eventData.userId}`;
-
-            client.identify(userId, event.eventData);
+            if (event.eventData.userId) {
+                client.identify(event.eventData.userId);
+            }
         },
         login: () => {
             client.track('login');
         },
         logout: () => {
             client.track('logout');
-            client.flush();
+            void client.flush();
         },
         user_interaction: (event) => {
             const { target, originalEvent } = event.eventData;
@@ -54,9 +53,7 @@ export default function createTelemetryEventHandler(
 
             target.getAttributeNames().forEach((attributeName) => {
                 if (attributeName.startsWith('data-analytics-')) {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                     const propertyName = string.snakeCase(attributeName.replace('data-analytics-', 'sw_element_'));
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     eventProperties[propertyName] = target.getAttribute(attributeName);
                 }
             });

@@ -492,20 +492,15 @@ class DocumentRouteTest extends TestCase
 
         $documentRoute = static::getContainer()->get(DocumentRoute::class);
 
-        try {
-            $response = $documentRoute->download(
-                $document->getId(),
-                $request,
-                $salesChannelContext,
-                $deepLinkCode
-            );
+        $this->expectExceptionObject(
+            DocumentException::customerNotLoggedIn()
+        );
 
-            static::fail('Download successfully');
-        } catch (HttpException $e) {
-            static::assertInstanceOf(DocumentException::class, $e);
-            static::assertSame(CartException::CUSTOMER_NOT_LOGGED_IN_CODE, $e->getErrorCode());
-
-            return;
-        }
+        $documentRoute->download(
+            $document->getId(),
+            $request,
+            $salesChannelContext,
+            $deepLinkCode
+        );
     }
 }

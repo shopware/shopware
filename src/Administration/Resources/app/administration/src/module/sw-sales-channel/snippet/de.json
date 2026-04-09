@@ -38,7 +38,7 @@
       "buttonShowDetails": "Details",
       "buttonBack": "Zurück",
       "titleDescription": "Informationen",
-      "messageNoProductStreams": "Um Produktvergleiche anzulegen, musst Du zunächst eine dynamische Produktgruppe erstellen."
+      "messageNoProductStreams": "Um Produktvergleiche oder Agentic-Commerce-Vertriebskanäle zu erstellen, musst Du zunächst eine dynamische Produktgruppe erstellen."
     },
     "detail": {
       "messageSaveSuccess": "Der Verkaufskanal \"{name}\" wurde erfolgreich gespeichert.",

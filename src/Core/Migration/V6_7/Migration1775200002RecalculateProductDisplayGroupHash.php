@@ -147,7 +147,8 @@ class Migration1775200002RecalculateProductDisplayGroupHash extends MigrationSte
         try {
             $decoded = json_decode($config, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
-            return [];
+            // Core schema enforces JSON on this column; kept for imports without that constraint.
+            return []; // @codeCoverageIgnore
         }
 
         return \is_array($decoded) ? $decoded : [];

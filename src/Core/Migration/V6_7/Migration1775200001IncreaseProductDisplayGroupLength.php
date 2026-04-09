@@ -21,9 +21,12 @@ class Migration1775200001IncreaseProductDisplayGroupLength extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        // display_group exists on core product in all supported installs; guard matches other migrations.
+        // @codeCoverageIgnoreStart
         if (!TableHelper::columnExists($connection, ProductDefinition::ENTITY_NAME, 'display_group')) {
             return;
         }
+        // @codeCoverageIgnoreEnd
 
         $column = TableHelper::getColumnOfTable($connection, ProductDefinition::ENTITY_NAME, 'display_group');
 

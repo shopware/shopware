@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { MtSwitch } from '@shopware-ag/meteor-component-library';
 
 const responses = global.repositoryFactoryMock.responses;
 
@@ -106,7 +107,7 @@ async function createWrapper() {
                 'sw-product-stream-modal-preview': true,
                 'sw-custom-field-set-renderer': true,
                 'mt-banner': true,
-                'mt-switch': false,
+                'mt-switch': MtSwitch,
             },
             provide: {
                 customFieldDataProviderService: {
@@ -211,11 +212,14 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
 
         await wrapper.vm.$nextTick();
 
-        const field = wrapper.get('.mt-switch input[aria-label="sw-product-stream.detail.labelDisplayAsGroup"]');
+        const field = wrapper.getComponent(MtSwitch);
 
-        expect(field.element.checked).toBe(true);
+        expect(field.props('modelValue')).toBe(true);
+        expect(field.props('label')).toBe('sw-product-stream.detail.labelDisplayAsGroup');
+        expect(field.get('input').element.checked).toBe(true);
 
-        await field.setValue(false);
+        field.vm.$emit('update:modelValue', false);
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.productStream.displayAsGroup).toBe(false);
     });

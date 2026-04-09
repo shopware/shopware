@@ -26,11 +26,9 @@ final class ProductDisplayGroupColumnMigrationHelper
 
     public static function widenVarchar50To64ForSha256IfNeeded(Connection $connection): void
     {
-        // @codeCoverageIgnoreStart
         if (!TableHelper::columnExists($connection, ProductDefinition::ENTITY_NAME, 'display_group')) {
             return;
         }
-        // @codeCoverageIgnoreEnd
 
         $column = TableHelper::getColumnOfTable($connection, ProductDefinition::ENTITY_NAME, 'display_group');
 

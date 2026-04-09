@@ -1,5 +1,5 @@
 includes:
-    - phpstan-baseline.neon
+    - phpstan-baseline.php
     - src/Core/DevOps/StaticAnalyze/PHPStan/common.neon
     - src/Core/DevOps/StaticAnalyze/PHPStan/core-rules.neon
 

@@ -43,6 +43,12 @@ export default {
             default: null,
         },
 
+        allowedFileExtensions: {
+            type: Array,
+            required: false,
+            default: null,
+        },
+
         label: {
             type: String,
             required: false,
@@ -132,7 +138,7 @@ export default {
 
             if (newFiles.length) {
                 const newFile = newFiles[0];
-                if (this.checkFileSize(newFile) && this.checkFileType(newFile)) {
+                if (this.checkFileSize(newFile) && this.checkFileExtension(newFile) && this.checkFileType(newFile)) {
                     this.setSelectedFile(newFile);
                 }
             }
@@ -151,15 +157,11 @@ export default {
             }
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
-                message: this.$tc(
-                    'global.sw-file-input.notification.invalidFileSize.message',
-                    {
-                        name: file.name,
-                        limit: fileSize(this.maxFileSize),
-                    },
-                    0,
-                ),
+                title: this.$t('global.default.error'),
+                message: this.$t('global.sw-file-input.notification.invalidFileSize.message', {
+                    name: file.name,
+                    limit: fileSize(this.maxFileSize),
+                }),
             });
             return false;
         },
@@ -170,16 +172,33 @@ export default {
             }
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
-                message: this.$tc(
-                    'global.sw-file-input.notification.invalidFileType.message',
-                    {
-                        name: file.name,
-                        supportedTypes: this.allowedMimeTypes.join(', '),
-                    },
-                    0,
-                ),
+                title: this.$t('global.default.error'),
+                message: this.$t('global.sw-file-input.notification.invalidFileType.message', {
+                    name: file.name,
+                    supportedTypes: this.allowedMimeTypes.join(', '),
+                }),
             });
+            return false;
+        },
+
+        checkFileExtension(file) {
+            const extension = file.name.toLowerCase().split('.').pop();
+            if (
+                !this.allowedFileExtensions ||
+                !this.allowedFileExtensions.length ||
+                this.allowedFileExtensions.includes(extension)
+            ) {
+                return true;
+            }
+
+            this.createNotificationError({
+                title: this.$t('global.default.error'),
+                message: this.$t('global.sw-file-input.notification.invalidFileExtension.message', {
+                    name: file.name,
+                    supportedExtensions: this.allowedFileExtensions.join(', '),
+                }),
+            });
+
             return false;
         },
 
@@ -225,7 +244,7 @@ export default {
 
             const newFile = newFiles[0];
 
-            if (this.checkFileSize(newFile) && this.checkFileType(newFile)) {
+            if (this.checkFileSize(newFile) && this.checkFileExtension(newFile) && this.checkFileType(newFile)) {
                 this.setSelectedFile(newFile);
             }
 

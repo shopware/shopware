@@ -38,10 +38,25 @@ class ApiRouteScopeTest extends TestCase
      */
     public static function isAllowedPathProvider(): \Generator
     {
-        yield '/api route' => ['path' => '/api/v1/product', 'expected' => true];
-        yield '/sw-domain-hash.html' => ['path' => '/sw-domain-hash.html', 'expected' => true];
-        yield '/storefront route' => ['path' => '/storefront/product', 'expected' => false];
-        yield '/admin route' => ['path' => '/admin', 'expected' => false];
+        yield '/api route' => [
+            'path' => '/api/v1/product',
+            'expected' => true,
+        ];
+
+        yield '/sw-domain-hash.html' => [
+            'path' => '/sw-domain-hash.html',
+            'expected' => true,
+        ];
+
+        yield '/storefront route' => [
+            'path' => '/storefront/product',
+            'expected' => false,
+        ];
+
+        yield '/admin route' => [
+            'path' => '/admin',
+            'expected' => false,
+        ];
     }
 
     /**

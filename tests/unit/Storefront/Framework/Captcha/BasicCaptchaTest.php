@@ -61,7 +61,7 @@ class BasicCaptchaTest extends TestCase
             'expected' => false,
         ];
         yield 'valid captcha value' => [
-            'request' => [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => 'valid-captcha-value'], // defined in setUp
+            'request' => [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => 'valid-captcha-value'],
             'expected' => true,
         ];
     }

@@ -311,4 +311,134 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).toBe('');
         });
     });
+
+    // -------------------------------------------------------------------------
+    describe('composables-component: rewrites $router, $route, $slots, $nextTick, $t, $tc, and $el to their Composition API equivalents', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('composables-component.index.js'));
+        });
+
+        it('reports status fully-migratable with no blockers', () => {
+            expect(result.status).toBe('fully-migratable');
+            expect(result.blockers).toEqual([]);
+        });
+
+        it('produces a <script setup> script type', () => {
+            expect(result.scriptType).toBe('setup');
+        });
+
+        it('rewrites this.$router → router and imports useRouter from vue-router', () => {
+            expect(result.script).toContain('router.back()');
+            expect(result.script).not.toMatch(/\bthis\.\$router\b/);
+            expect(result.script).toMatch(/import\s*\{[^}]*useRouter[^}]*\}\s*from\s*['"]vue-router['"]/);
+        });
+
+        it('rewrites this.$route → route and imports useRoute from vue-router', () => {
+            expect(result.script).toContain('route.name');
+            expect(result.script).not.toMatch(/\bthis\.\$route\b/);
+            expect(result.script).toMatch(/import\s*\{[^}]*useRoute[^}]*\}\s*from\s*['"]vue-router['"]/);
+        });
+
+        it('rewrites this.$slots → slots and imports useSlots from vue', () => {
+            expect(result.script).toContain('slots.default');
+            expect(result.script).not.toMatch(/\bthis\.\$slots\b/);
+            expect(result.script).toMatch(/import\s*\{[^}]*useSlots[^}]*\}\s*from\s*['"]vue['"]/);
+        });
+
+        it('rewrites this.$nextTick → nextTick and imports nextTick from vue', () => {
+            expect(result.script).toContain('await nextTick()');
+            expect(result.script).not.toMatch(/\bthis\.\$nextTick\b/);
+            expect(result.script).toMatch(/import\s*\{[^}]*nextTick[^}]*\}\s*from\s*['"]vue['"]/);
+        });
+
+        it('rewrites this.$tc → tc and this.$t → t, and calls useI18n()', () => {
+            expect(result.script).toContain("tc('sw.composables.label', 2)");
+            expect(result.script).toContain("t('sw.composables.title')");
+            expect(result.script).not.toMatch(/\bthis\.\$tc\b/);
+            expect(result.script).not.toMatch(/\bthis\.\$t\b/);
+            expect(result.script).toContain('useI18n()');
+        });
+
+        it('rewrites this.$el → getCurrentInstance()?.proxy?.$el with a TODO comment', () => {
+            expect(result.script).toContain('/* TODO: $el */ getCurrentInstance()?.proxy?.$el');
+            expect(result.script).not.toMatch(/\bthis\.\$el\b/);
+            expect(result.script).toMatch(/import\s*\{[^}]*getCurrentInstance[^}]*\}\s*from\s*['"]vue['"]/);
+        });
+
+        it('does not contain any this. references', () => {
+            expect(result.script).not.toMatch(/\bthis\./);
+        });
+
+        it('matches the complete converted script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('inherit-attrs-component: emits defineOptions({ inheritAttrs: false }) and excludes inheritAttrs from the options object', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('inherit-attrs-component.index.js'));
+        });
+
+        it('reports status fully-migratable with no blockers', () => {
+            expect(result.status).toBe('fully-migratable');
+            expect(result.blockers).toEqual([]);
+        });
+
+        it('produces a <script setup> script type', () => {
+            expect(result.scriptType).toBe('setup');
+        });
+
+        it('emits defineOptions({ inheritAttrs: false }) at the top of the script', () => {
+            expect(result.script).toContain('defineOptions({ inheritAttrs: false })');
+        });
+
+        it('does not leave an inheritAttrs key inside the createExtendableSetup call', () => {
+            const setupStart = result.script.indexOf('createExtendableSetup(');
+            expect(setupStart).toBeGreaterThan(-1);
+            const afterSetup = result.script.slice(setupStart);
+            expect(afterSetup).not.toContain('inheritAttrs:');
+        });
+
+        it('matches the complete converted script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('extend-component: Shopware.Component.extend() triggers the partially-migratable soft blocker', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('extend-component.index.js'));
+        });
+
+        it('reports status partially-migratable', () => {
+            expect(result.status).toBe('partially-migratable');
+        });
+
+        it('lists extends as a blocker', () => {
+            expect(result.blockers).toContain('extends');
+        });
+
+        it('produces an options script type (backoff — no createExtendableSetup)', () => {
+            expect(result.scriptType).toBe('options');
+            expect(result.script).not.toContain('createExtendableSetup');
+        });
+
+        it('preserves the original Shopware.Component.extend() registration intact', () => {
+            expect(result.script).toContain('sw-extended-button');
+            expect(result.script).toContain('sw-button');
+            expect(result.script).toContain('extraLabel');
+            expect(result.script).toContain('getLabel');
+        });
+
+        it('matches the complete Options API backoff script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
+        });
+    });
 });

@@ -132,4 +132,40 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
             expect(result).toMatchSnapshot();
         });
     });
+
+    describe('extends-template: {% extends %} and its adjacent eslint-disable comment are stripped while block syntax is still converted', () => {
+        let result: string;
+
+        beforeAll(() => {
+            result = transformTemplate(readFixture('extends-template.html.twig'));
+        });
+
+        it('wraps the output in a <template> tag', () => {
+            expect(result.trimStart().startsWith('<template>')).toBe(true);
+            expect(result.trimEnd().endsWith('</template>')).toBe(true);
+        });
+
+        it('removes the {% extends %} line', () => {
+            expect(result).not.toContain('{% extends');
+            expect(result).not.toContain('@Administration/administration/src/module/sw-foo');
+        });
+
+        it('removes the adjacent eslint-disable-next-line comment', () => {
+            expect(result).not.toContain('eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks');
+        });
+
+        it('still converts block syntax to <sw-block> elements', () => {
+            expect(result).toContain('<sw-block name="sw_foo_list" :data="$dataScope">');
+            expect(result).toContain('</sw-block>');
+        });
+
+        it('leaves no twig syntax in the output', () => {
+            expect(result).not.toContain('{%');
+            expect(result).not.toContain('%}');
+        });
+
+        it('matches the complete transformed template snapshot', () => {
+            expect(result).toMatchSnapshot();
+        });
+    });
 });

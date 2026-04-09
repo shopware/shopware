@@ -112,26 +112,28 @@ The codemod is only usable via manual invocation (`npx tsx scripts/codemods/sfc-
 
 **Needed:** Wire the codemod into the standard admin codemod entrypoints.
 
-### 13. Several Conversions Are Coded But Not Proven by Tests
-The following cases have implementation code but no dedicated fixtures or end-to-end test coverage confirming they work:
+### ~~13. Several Conversions Are Coded But Not Proven by Tests~~ ✅ Done
+All conversion paths now have dedicated fixtures and tests. A bug in `findOptionsObject` was also fixed: it was reading the wrong argument index for `Shopware.Component.extend()` calls (3 args), causing them to be incorrectly classified as `not-migratable`. The fix makes `.extend()` components correctly reach the `partially-migratable` soft-blocker path.
 
-- `this.$router` → `useRouter()`
-- `this.$route` → `useRoute()`
-- `this.$slots` → `useSlots()`
-- `this.$nextTick` → `nextTick(...)`
-- `this.$t` / `this.$tc` → `useI18n().t` / `.tc`
-- `this.$el` → `getCurrentInstance()?.proxy?.$el`
-- `inheritAttrs: false` → `defineOptions(...)`
-- `Shopware.Component.extend(...)` soft-blocker behavior
-- `export default { ... }` normalization in the runner
-- Twig `{% extends %}` handling in a fixture
-- File-system behavior of `run-sfc-migration.ts` (recursive discovery, missing Twig handling, output naming)
-
-**Needed:** Dedicated fixtures or integration test cases for each of the above.
+New fixtures: `composables-component`, `inherit-attrs-component`, `extend-component`, `extends-template`. New tests: 21 across `transform-script.spec.ts` and `transform-template.spec.ts`. All 159 tests pass.
 
 ### 14. No Validation Against Real Administration Components
 Test coverage is entirely fixture-based. There is no proof that the codemod works across the broad variety of real Administration component patterns.  
 **Needed:** Run the codemod against a representative sample of real components in the repo and verify the output before marking the PR ready.
+
+---
+
+## Test Coverage Summary (updated)
+
+| Spec file | Tests |
+|---|---|
+| `analyze-component.spec.ts` | ✅ Full coverage |
+| `transform-template.spec.ts` | ✅ Full coverage — 4 fixtures (block, simple, twig-comments, extends-template) |
+| `generate-sfc.spec.ts` | ✅ Full coverage |
+| `transform-script.spec.ts` | ✅ Full coverage — 9 fixtures (simple, block, created, module-level, mixin, render, composables, inherit-attrs, extend) |
+| `run-sfc-migration.spec.ts` | ✅ Full coverage — 25 tests |
+
+**Total: 159 tests, all passing**
 
 ### ~~8. Overwrite Without Warning~~ ✅ Done
 Existing `.vue` files are skipped by default. Pass `--force` to overwrite. `skippedExisting` counter added to stats and summary. 6 new tests in `run-sfc-migration.spec.ts`.

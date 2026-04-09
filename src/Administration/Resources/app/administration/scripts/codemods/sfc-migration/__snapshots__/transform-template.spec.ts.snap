@@ -28,6 +28,18 @@ exports[`scripts/codemods/sfc-migration/transform-template block-component: twig
 </template>"
 `;
 
+exports[`scripts/codemods/sfc-migration/transform-template extends-template: {% extends %} and its adjacent eslint-disable comment are stripped while block syntax is still converted matches the complete transformed template snapshot 1`] = `
+"<template>
+
+<sw-block name="sw_foo_list" :data="$dataScope">
+<div class="sw-foo-list">
+    <slot/>
+</div>
+</sw-block>
+
+</template>"
+`;
+
 exports[`scripts/codemods/sfc-migration/transform-template simple-component: plain HTML without twig blocks is wrapped without modification matches the complete wrapped template snapshot 1`] = `
 "<template>
 <div class="sw-simple-card">

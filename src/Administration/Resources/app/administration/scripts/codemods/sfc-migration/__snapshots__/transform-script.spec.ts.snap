@@ -95,6 +95,76 @@ const {
 );"
 `;
 
+exports[`scripts/codemods/sfc-migration/transform-script composables-component: rewrites $router, $route, $slots, $nextTick, $t, $tc, and $el to their Composition API equivalents matches the complete converted script snapshot 1`] = `
+"const props = defineProps({});
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { ref, computed, nextTick, useSlots, getCurrentInstance } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+
+const router = useRouter();
+const route = useRoute();
+const slots = useSlots();
+const { t, tc } = useI18n();
+
+const {
+    value,
+    currentRoute,
+    hasSlot,
+    label,
+    goBack,
+    update,
+    getTitle,
+    focusItem,
+} = createExtendableSetup(
+    {
+        name: 'sw-composables',
+        props,
+    },
+    () => {
+        const value = ref('');
+
+        const currentRoute = computed(() => {
+            return route.name;
+        });
+        const hasSlot = computed(() => {
+            return !!slots.default;
+        });
+        const label = computed(() => {
+            return tc('sw.composables.label', 2);
+        });
+
+        const goBack = () => {
+            router.back();
+        };
+        const update = async () => {
+            value.value = 'new';
+            await nextTick();
+        };
+        const getTitle = () => {
+            return t('sw.composables.title');
+        };
+        const focusItem = () => {
+            /* TODO: $el */ getCurrentInstance()?.proxy?.$el.querySelector('.item').focus();
+        };
+
+        return {
+            public: {
+                value,
+                currentRoute,
+                hasSlot,
+                label,
+                goBack,
+                update,
+                getTitle,
+                focusItem,
+            },
+        };
+    },
+);"
+`;
+
 exports[`scripts/codemods/sfc-migration/transform-script created-component: created() runs as direct setup code; beforeUnmount/unmounted use correct hooks matches the complete converted script snapshot 1`] = `
 "const props = defineProps({
         selector: {
@@ -144,6 +214,55 @@ const {
                 shortcutService,
                 initialized,
                 reset,
+            },
+        };
+    },
+);"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-script extend-component: Shopware.Component.extend() triggers the partially-migratable soft blocker matches the complete Options API backoff script snapshot 1`] = `
+"Shopware.Component.extend('sw-extended-button', 'sw-button', {
+    data() {
+        return {
+            extraLabel: 'Extended',
+        };
+    },
+
+    methods: {
+        getLabel() {
+            return this.extraLabel;
+        },
+    },
+});"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-script inherit-attrs-component: emits defineOptions({ inheritAttrs: false }) and excludes inheritAttrs from the options object matches the complete converted script snapshot 1`] = `
+"defineOptions({ inheritAttrs: false });
+
+const props = defineProps({});
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { ref } from 'vue';
+
+const {
+    count,
+    increment,
+} = createExtendableSetup(
+    {
+        name: 'sw-inherit-attrs',
+        props,
+    },
+    () => {
+        const count = ref(0);
+
+        const increment = () => {
+            count.value += 1;
+        };
+
+        return {
+            public: {
+                count,
+                increment,
             },
         };
     },

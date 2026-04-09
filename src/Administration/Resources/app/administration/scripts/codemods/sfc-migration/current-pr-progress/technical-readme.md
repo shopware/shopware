@@ -45,9 +45,13 @@ scripts/codemods/sfc-migration/
     ├── created-component.html.twig
     ├── module-level-component.index.js
     ├── module-level-component.html.twig
-    ├── mixin-component.index.js   # soft blocker (no twig)
-    ├── render-component.index.js  # hard blocker (no twig)
-    └── twig-comments.html.twig    # template-only fixture
+    ├── composables-component.{index.js,html.twig}  # $router/$route/$slots/$nextTick/$t/$tc/$el
+    ├── inherit-attrs-component.{index.js,html.twig} # inheritAttrs: false
+    ├── mixin-component.index.js   # soft blocker: mixins (no twig)
+    ├── extend-component.index.js  # soft blocker: Shopware.Component.extend() (no twig)
+    ├── render-component.index.js  # hard blocker: render() (no twig)
+    ├── twig-comments.html.twig    # template-only: {# ... #} comments
+    └── extends-template.html.twig # template-only: {% extends %} stripping
 ```
 
 ---
@@ -265,8 +269,8 @@ All tests use real fixture files from `__fixtures__/` and Jest snapshot testing.
 | Spec file | What it tests | Fixtures used |
 |-----------|---------------|---------------|
 | `analyze-component.spec.ts` | Blocker detection, categorization, summary report | simple, block, mixin, render |
-| `transform-template.spec.ts` | Twig → Vue template conversion | block, simple, twig-comments |
-| `transform-script.spec.ts` | Options API → Composition API | simple, block, created, module-level, mixin, render |
+| `transform-template.spec.ts` | Twig → Vue template conversion | block, simple, twig-comments, extends-template |
+| `transform-script.spec.ts` | Options API → Composition API | simple, block, created, module-level, mixin, render, composables, inherit-attrs, extend |
 | `generate-sfc.spec.ts` | End-to-end pipeline | simple, block, mixin, render |
 | `run-sfc-migration.spec.ts` | CLI runner: `findTwigFile`, `normaliseJsContent`, dry-run, `--write`, skip, not-migratable, partially-migrated | simple, render, mixin + temp dirs |
 
@@ -282,9 +286,13 @@ Snapshots live in `__snapshots__/` and are updated with `--updateSnapshot`.
 | `block-component` | fully-migratable | Twig blocks, props, emits, computed getter+setter, watch (data + prop), `$refs`, lifecycle |
 | `created-component` | fully-migratable | `created()` as direct setup code, `beforeUnmount`, `unmounted` |
 | `module-level-component` | fully-migratable | SCSS import, `const` declarations, module-level Shopware utils |
+| `composables-component` | fully-migratable | `$router`, `$route`, `$slots`, `$nextTick`, `$t`, `$tc`, `$el` |
+| `inherit-attrs-component` | fully-migratable | `inheritAttrs: false` → `defineOptions({ inheritAttrs: false })` |
 | `mixin-component` | partially-migratable | Soft blocker: `mixins` |
+| `extend-component` | partially-migratable | Soft blocker: `Shopware.Component.extend()` |
 | `render-component` | not-migratable | Hard blocker: `render()` function |
 | `twig-comments` | (template only) | `{# ... #}` → `<!-- ... -->` |
+| `extends-template` | (template only) | `{% extends '...' %}` stripping, adjacent eslint-disable removal |
 
 ---
 
@@ -319,5 +327,5 @@ Each item below has a corresponding `.unfinished.md` file in this directory:
 | [pr-description.unfinished.md](pr-description.unfinished.md) | PR description body is empty |
 | [pr-checklist.unfinished.md](pr-checklist.unfinished.md) | PR checklist items are all unchecked |
 | [codemod-tooling-integration.unfinished.md](codemod-tooling-integration.unfinished.md) | Not wired into the admin codemod CLI tooling |
-| [untested-conversions.unfinished.md](untested-conversions.unfinished.md) | Multiple conversion paths have code but no test fixtures |
+| [untested-conversions.finished.md](untested-conversions.finished.md) | ✅ All conversion paths now have dedicated fixtures and tests; `findOptionsObject` bug fixed |
 | [real-component-validation.unfinished.md](real-component-validation.unfinished.md) | No validation run against real Administration components |

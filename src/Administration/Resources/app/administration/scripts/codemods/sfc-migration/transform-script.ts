@@ -121,15 +121,21 @@ function findRegisterCall(sourceFile: SourceFile) {
 }
 
 /**
- * Extracts the Options API object literal from the register call's second argument.
+ * Extracts the Options API object literal from the register/extend call arguments.
+ *
+ * - `Shopware.Component.register('name', { … })` — options at index 1
+ * - `Shopware.Component.extend('name', 'parent', { … })` — options at index 2
  */
 function findOptionsObject(sourceFile: SourceFile): ObjectLiteralExpression | undefined {
     const call = findRegisterCall(sourceFile);
     if (!call) return undefined;
 
-    const secondArg = call.getArguments()[1];
-    return secondArg?.isKind(SyntaxKind.ObjectLiteralExpression)
-        ? secondArg.asKindOrThrow(SyntaxKind.ObjectLiteralExpression)
+    const isExtend = /Shopware\.Component\.extend/.test(call.getExpression().getText());
+    const optionsArgIndex = isExtend ? 2 : 1;
+
+    const arg = call.getArguments()[optionsArgIndex];
+    return arg?.isKind(SyntaxKind.ObjectLiteralExpression)
+        ? arg.asKindOrThrow(SyntaxKind.ObjectLiteralExpression)
         : undefined;
 }
 

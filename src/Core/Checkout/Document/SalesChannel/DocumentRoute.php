@@ -185,7 +185,7 @@ final class DocumentRoute extends AbstractDocumentRoute
         }
 
         $orderCustomer = $order->getOrderCustomer();
-        if (!$orderCustomer || $orderCustomer->getCustomerId() === null) {
+        if (!$orderCustomer || $context->getCustomer()?->getId() === null) {
             throw DocumentException::customerNotLoggedIn();
         }
 

@@ -5,6 +5,7 @@ namespace Shopware\Core\Installer\Controller;
 use Doctrine\DBAL\Exception\DriverException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
+use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
@@ -39,7 +40,7 @@ class DatabaseConfigurationController extends InstallerController
     public function databaseConfiguration(Request $request): Response
     {
         $session = $request->getSession();
-        $connectionInfo = $session->get(DatabaseConnectionInformation::class) ?? new DatabaseConnectionInformation();
+        $connectionInfo = $session->get(DatabaseConnectionInformation::class) ?? $this->getInitialConnectionInformation();
 
         if ($request->isMethod('GET')) {
             return $this->renderInstaller('@Installer/installer/database-configuration.html.twig', [
@@ -127,5 +128,17 @@ class DatabaseConfigurationController extends InstallerController
         }
 
         return new JsonResponse($result);
+    }
+
+    private function getInitialConnectionInformation(): DatabaseConnectionInformation
+    {
+        try {
+            $connectionInfo = DatabaseConnectionInformation::fromEnv();
+            $connectionInfo->assign(['password' => null]);
+
+            return $connectionInfo;
+        } catch (MaintenanceException) {
+            return new DatabaseConnectionInformation();
+        }
     }
 }

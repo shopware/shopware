@@ -6,7 +6,7 @@
 
 ## Core
 
-### Respect storefront preview configuration unless “find best variant” is enabled
+### "Find best variant setting" is now applied for storefront filtering
 
 Users can now control which representative of variant products is shown in filtered listings via the Product settings "Preview best matching variant in search results and filtered listings".
 

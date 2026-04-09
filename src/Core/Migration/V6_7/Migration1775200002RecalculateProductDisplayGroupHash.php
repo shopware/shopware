@@ -4,11 +4,18 @@ namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * Recalculates {@see \Shopware\Core\Content\Product\ProductEntity::displayGroup} via
+ * {@see VariantListingUpdater} (same logic as the product indexer’s variant-listing step).
+ * Migrations only receive a DB connection, so we call the updater directly instead of
+ * {@see \Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer} (which needs the container and message bus).
+ *
  * @internal
  */
 #[Package('framework')]
@@ -23,10 +30,8 @@ class Migration1775200002RecalculateProductDisplayGroupHash extends MigrationSte
 
     public function update(Connection $connection): void
     {
-        $displayParentSql = 'UPDATE product SET display_group = SHA2(HEX(product.id), 256) WHERE product.id = :id AND product.version_id = :versionId';
-        $hideParentSql = 'UPDATE product SET display_group = NULL WHERE product.id = :id AND product.version_id = :versionId';
-        $singleVariantSql = 'UPDATE product SET display_group = SHA2(HEX(product.parent_id), 256) WHERE product.parent_id = :id AND product.version_id = :versionId';
-
+        $updater = new VariantListingUpdater($connection);
+        $context = Context::createDefaultContext();
         $lastAutoIncrement = 0;
 
         while (true) {
@@ -34,15 +39,7 @@ class Migration1775200002RecalculateProductDisplayGroupHash extends MigrationSte
                 <<<'SQL'
                 SELECT
                     parent.id,
-                    parent.version_id,
-                    parent.variant_listing_config as config,
-                    parent.auto_increment,
-                    (
-                        SELECT COUNT(child.id)
-                        FROM product child
-                        WHERE child.parent_id = parent.id
-                          AND child.parent_version_id = parent.version_id
-                    ) as child_count
+                    parent.auto_increment
                 FROM product parent
                 WHERE parent.parent_id IS NULL
                   AND parent.auto_increment > :lastAutoIncrement
@@ -67,126 +64,19 @@ class Migration1775200002RecalculateProductDisplayGroupHash extends MigrationSte
                 break;
             }
 
+            $hexIds = [];
             foreach ($parents as $parent) {
-                // SELECT always provides these keys; guard is defensive.
-                // @codeCoverageIgnoreStart
-                if (!isset($parent['id'], $parent['version_id'])) {
+                if (!isset($parent['id'])) {
                     continue;
                 }
-                // @codeCoverageIgnoreEnd
 
-                $parentId = $parent['id'];
-                $versionId = $parent['version_id'];
-                $childCount = (int) ($parent['child_count'] ?? 0);
+                $hexIds[] = Uuid::fromBytesToHex($parent['id']);
                 $lastAutoIncrement = (int) ($parent['auto_increment'] ?? $lastAutoIncrement);
-
-                $config = $this->decodeConfig($parent['config'] ?? null);
-                $groups = $this->extractListingGroups($config);
-
-                if (($config['mainVariantId'] ?? null) || ($config['displayParent'] ?? null)) {
-                    $groups = [];
-                }
-
-                if ($childCount <= 0) {
-                    $connection->executeStatement($displayParentSql, ['id' => $parentId, 'versionId' => $versionId]);
-                } else {
-                    $connection->executeStatement($hideParentSql, ['id' => $parentId, 'versionId' => $versionId]);
-                }
-
-                if ($groups === []) {
-                    $connection->executeStatement($singleVariantSql, ['id' => $parentId, 'versionId' => $versionId]);
-
-                    continue;
-                }
-
-                $query = $connection->createQueryBuilder();
-                $query->from('(SELECT 1)', 'root');
-
-                $fields = [];
-                $params = ['parentId' => $parentId, 'versionId' => $versionId];
-
-                foreach ($groups as $index => $groupId) {
-                    $mappingAlias = 'mapping' . $index;
-                    $optionAlias = 'option' . $index;
-
-                    $query->innerJoin('root', 'product_option', $mappingAlias, $mappingAlias . '.product_id IS NOT NULL');
-                    $query->innerJoin(
-                        $mappingAlias,
-                        'property_group_option',
-                        $optionAlias,
-                        $optionAlias . '.id = ' . $mappingAlias . '.property_group_option_id AND ' . $optionAlias . '.property_group_id = :' . $optionAlias
-                    );
-                    $query->andWhere($mappingAlias . '.product_id = product.id');
-
-                    $fields[] = 'LOWER(HEX(' . $optionAlias . '.id))';
-                    $params[$optionAlias] = Uuid::fromHexToBytes($groupId);
-                }
-
-                $query->addSelect('CONCAT(' . implode(',', $fields) . ')');
-
-                $sql = '
-                UPDATE product SET display_group = SHA2(
-                    CONCAT(
-                        LOWER(HEX(product.parent_id)),
-                        (' . $query->getSQL() . ')
-                    ),
-                    256
-                ) WHERE parent_id = :parentId AND version_id = :versionId';
-
-                $connection->executeStatement($sql, $params);
-            }
-        }
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function decodeConfig(mixed $config): array
-    {
-        if (!\is_string($config) || $config === '') {
-            return [];
-        }
-
-        try {
-            $decoded = json_decode($config, true, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException) {
-            // Core schema enforces JSON on this column; kept for imports without that constraint.
-            return []; // @codeCoverageIgnore
-        }
-
-        return \is_array($decoded) ? $decoded : [];
-    }
-
-    /**
-     * @param array<string, mixed> $config
-     *
-     * @return list<string>
-     */
-    private function extractListingGroups(array $config): array
-    {
-        $groups = [];
-        $groupConfig = $config['configuratorGroupConfig'] ?? [];
-
-        if (!\is_array($groupConfig)) {
-            return [];
-        }
-
-        foreach ($groupConfig as $group) {
-            if (!\is_array($group)
-                || !\array_key_exists('expressionForListings', $group)
-                || $group['expressionForListings'] !== true
-                || !\is_string($group['id'])) {
-                continue;
             }
 
-            $groupId = strtolower($group['id']);
-            if (!Uuid::isValid($groupId)) {
-                continue;
+            if ($hexIds !== []) {
+                $updater->update($hexIds, $context);
             }
-
-            $groups[] = $groupId;
         }
-
-        return $groups;
     }
 }

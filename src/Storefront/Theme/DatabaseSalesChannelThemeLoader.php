@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class DatabaseSalesChannelThemeLoader
 {
     /**
-     * @var array<string, array<int, string>>
+     * @var array<string, list<string>>
      */
     private array $themes = [];
 
@@ -27,7 +27,7 @@ class DatabaseSalesChannelThemeLoader
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function load(string $salesChannelId): array
     {
@@ -44,7 +44,7 @@ class DatabaseSalesChannelThemeLoader
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function readFromDB(string $salesChannelId): array
     {
@@ -63,20 +63,20 @@ class DatabaseSalesChannelThemeLoader
             $themes['grandParentNames'] = $this->getGrantParents($themes['grandParentThemeId']);
         }
 
-        $usedThemes = array_values(array_filter([
+        $usedThemes = array_filter([
             $themes['themeName'] ?? null,
             $themes['parentThemeName'] ?? null,
-        ]));
+        ]);
 
         if (isset($themes['grandParentNames'])) {
             $usedThemes = array_merge($usedThemes, $themes['grandParentNames']);
         }
 
-        return $this->themes[$salesChannelId] = $usedThemes ?: [];
+        return $this->themes[$salesChannelId] = array_values($usedThemes) ?: [];
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function getGrantParents(mixed $grandParentThemeId): array
     {
@@ -89,15 +89,15 @@ class DatabaseSalesChannelThemeLoader
             'id' => Uuid::fromHexToBytes($grandParentThemeId),
         ]);
 
-        $filtered = array_values(array_filter([
+        $filtered = array_filter([
             $grandParents['themeName'] ?? null,
             $grandParents['parentThemeName'] ?? null,
-        ]));
+        ]);
 
         if (\is_array($grandParents) && isset($grandParents['grandParentThemeId']) && \is_string($grandParents['grandParentThemeId'])) {
             $filtered = array_merge($filtered, $this->getGrantParents($grandParents['grandParentThemeId']));
         }
 
-        return $filtered;
+        return array_values($filtered);
     }
 }

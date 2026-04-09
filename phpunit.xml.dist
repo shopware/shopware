@@ -189,5 +189,7 @@
         <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogExtension"/>
         <!-- Enable to see the db side effects of the tests. -->
 <!--        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\DatabaseDiff\DatabaseDiffExtension"/>-->
+        <!-- Enable to identify tests that leave unreleased requests on the RequestStack. -->
+        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\RequestStackDirty\RequestStackDirtyExtension"/>
     </extensions>
 </phpunit>

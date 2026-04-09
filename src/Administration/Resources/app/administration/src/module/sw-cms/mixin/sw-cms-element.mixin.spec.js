@@ -38,6 +38,9 @@ async function createWrapper(element = defaultElement, routeName = '') {
 }
 
 describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
+    let initialLanguageId;
+    let initialLanguage;
+
     beforeAll(async () => {
         await setupCmsEnvironment();
         await import('src/module/sw-cms/elements/text');
@@ -51,12 +54,16 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
     });
 
     beforeEach(() => {
+        initialLanguageId = Shopware.Store.get('context').api.languageId;
+        initialLanguage = Shopware.Store.get('context').api.language;
         Shopware.Store.get('swCategoryDetail').$reset();
         Shopware.Store.get('swProductDetail').$reset();
     });
 
     afterEach(() => {
         Shopware.Store.get('cmsPage').resetCmsPageState();
+        Shopware.Store.get('context').api.languageId = initialLanguageId;
+        Shopware.Store.get('context').api.language = initialLanguage;
     });
 
     it('initElementConfig is properly merging configs from various sources', async () => {
@@ -80,6 +87,7 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
                 source: 'static',
                 value: expect.any(String),
             },
+            overrideFromCategory: 'bar',
             verticalAlign: {
                 source: 'static',
                 value: null,
@@ -91,7 +99,7 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
 
         /**
          * Existing properties on the element will remain ("overrideFromProp").
-         * Properties on the content-entity, that dont exist in the config are ignored ("overrideFromCategory").
+         * Content overrides on the entity are applied on top, even if the key does not exist in the default config.
          */
         expect(wrapper.vm.element.config).toEqual(expectedElementConfig);
     });

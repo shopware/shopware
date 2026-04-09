@@ -30,12 +30,22 @@ const deviceViews = {
 };
 
 describe('module/sw-cms/mixin/sw-cms-state.mixin.js', () => {
+    let initialLanguageId;
+    let initialLanguage;
+
     beforeAll(async () => {
         await setupCmsEnvironment();
     });
 
+    beforeEach(() => {
+        initialLanguageId = Shopware.Store.get('context').api.languageId;
+        initialLanguage = Shopware.Store.get('context').api.language;
+    });
+
     afterEach(() => {
         Shopware.Store.get('cmsPage').resetCmsPageState();
+        Shopware.Store.get('context').api.languageId = initialLanguageId;
+        Shopware.Store.get('context').api.language = initialLanguage;
     });
 
     it('properties are properly written to and read from the shared store', () => {

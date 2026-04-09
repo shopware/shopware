@@ -5,13 +5,18 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -411,15 +416,35 @@ class ProductDetailRouteTest extends TestCase
                 ['id' => self::LANGUAGE_IDS['en']],
                 ['id' => self::LANGUAGE_IDS['de']],
             ],
+            'domains' => [[
+                'languageId' => self::LANGUAGE_IDS['de'],
+                'currencyId' => Defaults::CURRENCY,
+                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                'url' => 'http://localhost/de-test',
+            ]],
         ]);
 
-        $this->browser->request('POST', $this->getUrl($this->ids->get('translated-product')));
+        $this->browser->request('GET', '/store-api/context');
+        $contextResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
+            $contextResponse['token'],
+            $this->ids->get('sales-channel'),
+            [SalesChannelContextService::LANGUAGE_ID => self::LANGUAGE_IDS['de']],
+        );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = static::getContainer()->get(ProductDetailRoute::class)->load(
+            $this->ids->get('translated-product'),
+            new Request(),
+            $salesChannelContext,
+            new Criteria(),
+        );
+
+        $slot = $response->getProduct()
+            ->getCmsPage()?->getSections()?->first()?->getBlocks()?->first()?->getSlots()?->first();
 
         static::assertSame(
             'default language override',
-            $response['product']['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['config']['content']['value']
+            $slot?->getConfig()['content']['value'] ?? null
         );
     }
 

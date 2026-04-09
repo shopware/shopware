@@ -7,6 +7,7 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
@@ -19,6 +20,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -48,9 +50,11 @@ class ProductDetailRoute extends AbstractProductDetailRoute
      * @internal
      *
      * @param SalesChannelRepository<SalesChannelProductCollection> $productRepository
+     * @param EntityRepository<ProductTranslationCollection> $productTranslationRepository
      */
     public function __construct(
         private readonly SalesChannelRepository $productRepository,
+        private readonly EntityRepository $productTranslationRepository,
         private readonly SystemConfigService $config,
         private readonly Connection $connection,
         private readonly ProductConfiguratorLoader $configuratorLoader,
@@ -108,7 +112,6 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
             $criteria->setIds([$productId]);
             $criteria->setTitle('product-detail-route');
-            $criteria->addAssociation('translations');
 
             $loadCmsPage = !$request->query->getBoolean(self::SKIP_CMS_PAGE);
             $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
@@ -129,6 +132,8 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
             $pageId = $product->getCmsPageId();
             if ($loadCmsPage && $pageId) {
+                $slotConfig = $this->buildMergedCmsSlotConfig($product, $context);
+
                 // clone product to prevent recursion encoding (see NEXT-17603)
                 $resolverContext = new EntityResolverContext($context, $request, $this->productDefinition, clone $product);
 
@@ -136,7 +141,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                     $request,
                     $this->createCriteria($pageId, $request),
                     $context,
-                    $this->buildMergedCmsSlotConfig($product, $context),
+                    $slotConfig,
                     $resolverContext
                 );
 
@@ -173,9 +178,25 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     private function buildMergedCmsSlotConfig(SalesChannelProductEntity $product, SalesChannelContext $context): ?array
     {
         return $this->cmsSlotConfigInheritanceBuilder->build(
-            $product->getTranslations(),
+            $this->loadProductTranslations($product->getId(), $context),
             $context,
         );
+    }
+
+    private function loadProductTranslations(string $productId, SalesChannelContext $context): ?ProductTranslationCollection
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('productId', $productId));
+        $criteria->addFilter(new EqualsFilter('productVersionId', $context->getVersionId()));
+
+        /** @var ProductTranslationCollection $translations */
+        $translations = $this->productTranslationRepository->search($criteria, $context->getContext())->getEntities();
+
+        if ($translations->count() === 0) {
+            return null;
+        }
+
+        return $translations;
     }
 
     private function checkVariantListingConfig(string $productId, SalesChannelContext $context): ?string

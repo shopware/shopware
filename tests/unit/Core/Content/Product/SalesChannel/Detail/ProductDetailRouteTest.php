@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
 use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -25,6 +26,7 @@ use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -56,6 +58,11 @@ class ProductDetailRouteTest extends TestCase
      */
     private SystemConfigService $systemConfig;
 
+    /**
+     * @var MockObject&EntityRepository<ProductTranslationCollection>
+     */
+    private MockObject&EntityRepository $productTranslationRepository;
+
     private MockObject&Connection $connection;
 
     private ProductDetailRoute $route;
@@ -76,6 +83,7 @@ class ProductDetailRouteTest extends TestCase
         $this->context = Generator::generateSalesChannelContext();
         $this->idsCollection = new IdsCollection();
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
+        $this->productTranslationRepository = $this->createMock(EntityRepository::class);
         $this->systemConfig = $this->createMock(SystemConfigService::class);
         $this->connection = $this->createMock(Connection::class);
         $configuratorLoader = $this->createMock(ProductConfiguratorLoader::class);
@@ -87,6 +95,7 @@ class ProductDetailRouteTest extends TestCase
 
         $this->route = new ProductDetailRoute(
             $this->productRepository,
+            $this->productTranslationRepository,
             $this->systemConfig,
             $this->connection,
             $configuratorLoader,

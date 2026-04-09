@@ -169,7 +169,10 @@ class Migration1775200002RecalculateProductDisplayGroupHash extends MigrationSte
         }
 
         foreach ($groupConfig as $group) {
-            if (!\is_array($group) || empty($group['expressionForListings']) || !\is_string($group['id'])) {
+            if (!\is_array($group)
+                || !\array_key_exists('expressionForListings', $group)
+                || $group['expressionForListings'] !== true
+                || !\is_string($group['id'])) {
                 continue;
             }
 

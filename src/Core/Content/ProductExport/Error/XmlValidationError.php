@@ -13,14 +13,14 @@ class XmlValidationError extends Error
     protected array $errorMessages;
 
     /**
-     * @param \LibXMLError[] $errors
+     * @param list<\LibXMLError> $errors
      */
     public function __construct(
         protected string $id,
         protected array $errors = []
     ) {
         $this->errorMessages = array_values(array_map(
-            static function (\LibXMLError $error) {
+            static function (\LibXMLError $error): ErrorMessage {
                 $errorMessage = new ErrorMessage();
                 $errorMessage->assign([
                     'message' => \sprintf('%s on line %d in column %d', trim($error->message), $error->line, $error->column),
@@ -49,7 +49,7 @@ class XmlValidationError extends Error
     }
 
     /**
-     * @return \LibXMLError[][]
+     * @return array{errors: list<\LibXMLError>}
      */
     public function getParameters(): array
     {

@@ -202,7 +202,7 @@ class StaticEntityRepository extends EntityRepository
     }
 
     /**
-     * @param mixed[][] $data
+     * @param array<array<string, mixed|null>> $data
      */
     private function getDummyWriteResults(array $data, string $operation, Context $context): NestedEventCollection
     {

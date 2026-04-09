@@ -19,16 +19,29 @@ parameters:
 
     # For stricter testing those should be set to true at some point
     reportMaybesInMethodSignatures: false
+    reportWrongPhpDocTypeInVarTag: true
 
     # For stricter testing those should be set to true at some point
     strictRules:
+        disallowedLooseComparison: true
         booleansInConditions: false
         booleansInLoopConditions: false
+        uselessCast: true
         requireParentConstructorCall: false
-        disallowedEmpty: false
+        disallowedBacktick: true
+        disallowedEmpty: true
+        disallowedImplicitArrayCreation: true
         disallowedShortTernary: false
+        overwriteVariablesWithLoop: true
+        closureUsesThis: true
+        matchingInheritedMethodNames: true
+        numericOperandsInArithmeticOperators: true
+        strictFunctionCalls: true
         dynamicCallOnStaticMethod: false
+        switchConditionsMatchingType: true
+        noVariableVariables: true
         strictArrayFilter: false
+        illegalConstructorMethodCall: true
 
     type_perfect:
         no_mixed_property: true

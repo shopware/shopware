@@ -50,6 +50,8 @@ class NoLegacySqlHashFunctionRule implements Rule
         }
 
         $firstArg = $firstArgNode->value;
+        // Only compile-time constant SQL strings are inspected; dynamic SQL (sprintf, concatenation, variables)
+        // is not analyzed, which is a PHPStan limitation we accept here.
         $constantStrings = $scope->getType($firstArg)->getConstantStrings();
 
         foreach ($constantStrings as $constantString) {

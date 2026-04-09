@@ -16,6 +16,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * Migrations only receive a DB connection, so we call the updater directly instead of
  * {@see \Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer} (which needs the container and message bus).
  *
+ * **Performance:** Each batch runs the updater for many parent products; that issues several queries per parent
+ * (hide parent, single variant, or grouped listing). Shops with very large variant-parent counts can see long
+ * runtimes and sustained write load on `product` during the migration. Plan a maintenance window or staggered
+ * rollout if needed. For a separate, operator-triggered pass you could alternatively expose equivalent logic via
+ * {@see MigrationStep::updateDestructive()} in a follow-up; this class keeps the work in `update()` for the normal migrate flow.
+ *
  * @internal
  */
 #[Package('framework')]

@@ -649,36 +649,14 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
 
     private function cleanupByProductNumbers(): void
     {
+        // Prefix `migration-dg-` covers all scenario fixtures; legacy names predate that convention.
         $this->connection->executeStatement(
-            'DELETE FROM product WHERE product_number IN (:productNumbers)',
-            ['productNumbers' => [
-                'migration-parent',
-                'migration-variant-a',
-                'migration-variant-b',
-                'migration-dg-group-parent',
-                'migration-dg-group-a',
-                'migration-dg-group-b',
-                'migration-dg-scalar-parent',
-                'migration-dg-scalar-a',
-                'migration-dg-scalar-b',
-                'migration-dg-solo-parent',
-                'migration-dg-disparent-parent',
-                'migration-dg-disparent-a',
-                'migration-dg-disparent-b',
-                'migration-dg-mainvar-parent',
-                'migration-dg-mainvar-a',
-                'migration-dg-mainvar-b',
-                'migration-dg-cgc-parent',
-                'migration-dg-cgc-a',
-                'migration-dg-cgc-b',
-                'migration-dg-baduuid-parent',
-                'migration-dg-baduuid-a',
-                'migration-dg-baduuid-b',
-                'migration-dg-mixuuid-parent',
-                'migration-dg-mixuuid-a',
-                'migration-dg-mixuuid-b',
-            ]],
-            ['productNumbers' => ArrayParameterType::STRING]
+            'DELETE FROM product WHERE product_number LIKE :pattern OR product_number IN (:legacy)',
+            [
+                'pattern' => 'migration-dg-%',
+                'legacy' => ['migration-parent', 'migration-variant-a', 'migration-variant-b'],
+            ],
+            ['legacy' => ArrayParameterType::STRING]
         );
     }
 

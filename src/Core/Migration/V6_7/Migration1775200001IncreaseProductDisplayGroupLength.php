@@ -3,10 +3,9 @@
 namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Util\Database\TableHelper;
+use Shopware\Core\Framework\Migration\ProductDisplayGroupColumnMigrationHelper;
 
 /**
  * @internal
@@ -21,19 +20,6 @@ class Migration1775200001IncreaseProductDisplayGroupLength extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        // display_group exists on core product in all supported installs; guard matches other migrations.
-        // @codeCoverageIgnoreStart
-        if (!TableHelper::columnExists($connection, ProductDefinition::ENTITY_NAME, 'display_group')) {
-            return;
-        }
-        // @codeCoverageIgnoreEnd
-
-        $column = TableHelper::getColumnOfTable($connection, ProductDefinition::ENTITY_NAME, 'display_group');
-
-        if ($column->type !== 'string' || $column->length !== 50) {
-            return;
-        }
-
-        $connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(64) NULL');
+        ProductDisplayGroupColumnMigrationHelper::widenVarchar50To64ForSha256IfNeeded($connection);
     }
 }

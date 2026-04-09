@@ -152,7 +152,7 @@ class DocumentGenerator
             try {
                 $document = $success[$orderId] ?? null;
 
-                if (!($document instanceof RenderedDocument)) {
+                if (!$document instanceof RenderedDocument) {
                     continue;
                 }
 
@@ -195,7 +195,7 @@ class DocumentGenerator
         $criteria->addAssociation('documentMediaFile');
 
         $document = $this->documentRepository->search($criteria, $context)->first();
-        if (!($document instanceof DocumentEntity)) {
+        if (!$document instanceof DocumentEntity) {
             throw DocumentException::documentNotFound($documentId);
         }
 

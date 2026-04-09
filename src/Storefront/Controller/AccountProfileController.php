@@ -90,7 +90,7 @@ class AccountProfileController extends StorefrontController
     {
         try {
             $emailParam = $data->get('email');
-            if (!($emailParam instanceof RequestDataBag)) {
+            if (!$emailParam instanceof RequestDataBag) {
                 throw RoutingException::missingRequestParameter('email');
             }
             $this->changeEmailRoute->change($emailParam->toRequestDataBag(), $context, $customer);
@@ -113,7 +113,7 @@ class AccountProfileController extends StorefrontController
     {
         try {
             $passwordParam = $data->get('password');
-            if (!($passwordParam instanceof RequestDataBag)) {
+            if (!$passwordParam instanceof RequestDataBag) {
                 throw RoutingException::missingRequestParameter('password');
             }
             $this->changePasswordRoute->change($passwordParam->toRequestDataBag(), $context, $customer);

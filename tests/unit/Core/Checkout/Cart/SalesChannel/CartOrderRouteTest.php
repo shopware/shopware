@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Checkout\Payment\PreparedPaymentService;
@@ -43,6 +44,9 @@ class CartOrderRouteTest extends TestCase
 {
     private CartCalculator&MockObject $cartCalculator;
 
+    /**
+     * @var EntityRepository<OrderCollection>&MockObject
+     */
     private EntityRepository&MockObject $orderRepository;
 
     private OrderPersister&MockObject $orderPersister;

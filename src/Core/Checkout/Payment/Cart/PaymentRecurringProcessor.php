@@ -58,7 +58,7 @@ class PaymentRecurringProcessor
 
             // @deprecated tag:v6.7.0 - will be removed with old payment handler interfaces
             if (!$paymentHandler instanceof AbstractPaymentHandler) {
-                if (!($paymentHandler instanceof RecurringPaymentHandlerInterface)) {
+                if (!$paymentHandler instanceof RecurringPaymentHandlerInterface) {
                     throw PaymentException::paymentTypeUnsupported($transaction->getPaymentMethodId(), PaymentHandlerType::RECURRING);
                 }
 

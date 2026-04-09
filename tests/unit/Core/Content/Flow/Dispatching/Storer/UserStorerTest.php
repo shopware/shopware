@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\UserAware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryCollection;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -27,6 +28,9 @@ class UserStorerTest extends TestCase
 {
     private UserStorer $storer;
 
+    /**
+     * @var MockObject&EntityRepository<UserRecoveryCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private MockObject&EventDispatcherInterface $dispatcher;

@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -25,6 +26,9 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(DownloadRoute::class)]
 class DownloadRouteTest extends TestCase
 {
+    /**
+     * @var MockObject&EntityRepository<OrderLineItemDownloadCollection>
+     */
     private MockObject&EntityRepository $downloadRepository;
 
     private MockObject&DownloadResponseGenerator $downloadResponseGenerator;

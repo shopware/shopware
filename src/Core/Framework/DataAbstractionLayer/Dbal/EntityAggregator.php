@@ -235,7 +235,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $found = false;
 
         foreach ($fields as $field) {
-            if (!($field instanceof AssociationField)) {
+            if (!$field instanceof AssociationField) {
                 break;
             }
 

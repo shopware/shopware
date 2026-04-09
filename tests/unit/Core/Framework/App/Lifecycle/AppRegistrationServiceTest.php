@@ -39,7 +39,9 @@ class AppRegistrationServiceTest extends TestCase
 
     private MockHandler $mockHandler;
 
-    /** @var EntityRepository<AppCollection>&MockObject */
+    /**
+     * @var EntityRepository<AppCollection>&MockObject
+     */
     private EntityRepository&MockObject $appRepositoryMock;
 
     private AppRegistrationService $appRegistrationService;

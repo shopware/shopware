@@ -32,7 +32,7 @@
         "forum": "https://forum.shopware.com",
         "wiki": "https://developer.shopware.com",
         "docs": "https://developer.shopware.com",
-        "chat": "https://slack.shopware.com"
+        "chat": "https://chat.shopware.com/"
     },
     "extra": {
         "bamarni-bin": {
@@ -43,6 +43,11 @@
             "dev-main": "6.6.x-dev",
             "dev-master": "6.6.x-dev",
             "dev-trunk": "6.6.x-dev"
+        },
+        "phpstan/extension-installer": {
+            "ignore": [
+                "composer/pcre"
+            ]
         }
     },
     "config": {
@@ -54,10 +59,10 @@
         "allow-plugins": {
             "bamarni/composer-bin-plugin": true,
             "composer/package-versions-deprecated": true,
-            "phpstan/extension-installer": true,
             "cweagans/composer-patches": true,
-            "symfony/runtime": true,
-            "php-http/discovery": false
+            "php-http/discovery": false,
+            "phpstan/extension-installer": true,
+            "symfony/runtime": true
         }
     },
     "require": {
@@ -181,7 +186,7 @@
         "bamarni/composer-bin-plugin": "^1.8.2",
         "dominikb/composer-license-checker": "^2.5",
         "ergebnis/phpunit-slow-test-detector": "^2.4",
-        "friendsofphp/php-cs-fixer": "3.91.2",
+        "friendsofphp/php-cs-fixer": "3.94.2",
         "jdorn/sql-formatter": "^1.2.17",
         "league/flysystem-async-aws-s3": "^3.29.0",
         "league/flysystem-google-cloud-storage": "^3.10.3",
@@ -223,13 +228,13 @@
                 "symlink": true
             }
         },
-      {
-        "type": "path",
-        "url": "custom/static-plugins/*",
-        "options": {
-          "symlink": true
+        {
+            "type": "path",
+            "url": "custom/static-plugins/*",
+            "options": {
+                "symlink": true
+            }
         }
-      }
     ],
     "scripts-descriptions": {
         "admin:code-mods": "Run admin code mods",
@@ -247,8 +252,10 @@
         "build:js:component-library": "Builds the component library",
         "build:js:storefront": "Builds the Storefront's JavaScript",
         "check:license": "Check thrid-party dependency licenses",
-        "ecs": "Checks all files regarding the PHP-CS-Fixer",
-        "ecs-fix": "Checks all files regarding the PHP-CS-Fixer and fixes them if possible",
+        "ecs": "Checks all files regarding the PHP-CS-Fixer. Deprecated! Use 'cs' instead",
+        "cs": "Checks all files regarding the PHP-CS-Fixer",
+        "ecs-fix": "Checks all files regarding the PHP-CS-Fixer and fixes them if possible. Deprecated! Use 'cs-fix' instead",
+        "cs-fix": "Checks all files regarding the PHP-CS-Fixer and fixes them if possible",
         "eslint": "Codestyle checks all (Administration/Storefront) JS/TS files",
         "eslint:admin": "Codestyle checks Administration JS/TS files",
         "eslint:admin:fix": "Codestyle checks Administration JS/TS files and fixes them if possible",
@@ -360,8 +367,16 @@
             "@php bin/console assets:install"
         ],
         "check:license": "bash -c \"vendor/bin/composer-license-checker check -a $(sed -z 's/\\n/ -a /g' .allowed-licenses)\"",
-        "ecs": "php-cs-fixer fix --dry-run --diff",
-        "ecs-fix": "php-cs-fixer fix",
+        "ecs": [
+            "echo \"\\e[31mDeprecated! Use 'cs' instead\n\\e[0m\"",
+            "php-cs-fixer fix --dry-run --diff"
+        ],
+        "cs": "php-cs-fixer fix --dry-run --diff",
+        "ecs-fix": [
+            "echo \"\\e[31mDeprecated! Use 'cs-fix' instead\n\\e[0m\"",
+            "php-cs-fixer fix -v"
+        ],
+        "cs-fix": "php-cs-fixer fix -v",
         "eslint": [
             "@eslint:admin",
             "@eslint:storefront"
@@ -394,7 +409,8 @@
             "export PROJECT_ROOT=\"$PWD\"; \"$PROJECT_ROOT\"/bin/install-extension-npm"
         ],
         "init:testdb": [
-            "FORCE_INSTALL=true vendor/bin/phpunit --group=none"
+            "@putenv FORCE_INSTALL=true",
+            "vendor/bin/phpunit --group=none --testsuite migration,unit,integration,devops"
         ],
         "lint": [
             "@stylelint",
@@ -422,7 +438,7 @@
         "phpstan": [
             "Composer\\Config::disableProcessTimeout",
             "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
-            "phpstan analyze --memory-limit=2G -v"
+            "phpstan analyze --memory-limit=2G -vv"
         ],
         "phpstan-errors-by-area": [
             "php src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php phpstan-baseline.neon"

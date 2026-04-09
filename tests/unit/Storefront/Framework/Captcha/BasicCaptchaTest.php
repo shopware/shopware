@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Captcha;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -20,53 +21,53 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 #[CoversClass(BasicCaptcha::class)]
 class BasicCaptchaTest extends TestCase
 {
-    private BasicCaptcha $captcha;
-
-    protected function setUp(): void
+    /**
+     * @param array<string, string|null> $request
+     */
+    #[DataProvider('requestDataProvider')]
+    #[TestDox('rejects invalid or missing captcha values and accepts a matching one')]
+    public function testIsValid(array $request, bool $expected): void
     {
         $requestStack = new RequestStack();
-        $request = new Request();
-        $request->setSession(new Session(new MockArraySessionStorage()));
-        $requestStack->push($request);
-        $request->getSession()->set('basic_captcha_session', 'valid-captcha-value');
+        $sessionRequest = new Request();
+        $sessionRequest->setSession(new Session(new MockArraySessionStorage()));
+        $requestStack->push($sessionRequest);
+        $sessionRequest->getSession()->set('basic_captcha_session', 'valid-captcha-value');
 
-        $this->captcha = new BasicCaptcha($requestStack, $this->createMock(SystemConfigService::class));
-    }
+        $captcha = new BasicCaptcha($requestStack, static::createStub(SystemConfigService::class));
 
-    #[DataProvider('requestDataProvider')]
-    public function testIsValid(Request $request, bool $expected): void
-    {
-        static::assertSame($expected, $this->captcha->isValid($request, []));
+        static::assertSame($expected, $captcha->isValid(new Request(request: $request), []));
     }
 
     /**
-     * @return \Generator<string, array{request: Request, expected: bool}>
+     * @return \Generator<string, array{request: array<string, string|null>, expected: bool}>
      */
     public static function requestDataProvider(): \Generator
     {
         yield 'missing captcha parameter' => [
-            'request' => self::getRequest(),
+            'request' => [],
             'expected' => false,
         ];
         yield 'null captcha parameter' => [
-            'request' => self::getRequest([BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => null]),
+            'request' => [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => null],
             'expected' => false,
         ];
         yield 'empty string captcha parameter' => [
-            'request' => self::getRequest([BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => '']),
+            'request' => [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => ''],
             'expected' => false,
         ];
         yield 'invalid captcha value' => [
-            'request' => self::getRequest([BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => 'invalid-captcha-value']),
+            'request' => [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => 'invalid-captcha-value'],
             'expected' => false,
         ];
         yield 'valid captcha value' => [
-            'request' => self::getRequest([BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => 'valid-captcha-value']), // defined in setUp method
+            'request' => [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => 'valid-captcha-value'], // defined in setUp
             'expected' => true,
         ];
     }
 
     #[DataProvider('supportsDataProvider')]
+    #[TestDox('is only supported for POST requests with the captcha active in config')]
     public function testSupports(mixed $configValue, Request $request, bool $expected): void
     {
         $systemConfigService = $this->createMock(SystemConfigService::class);
@@ -116,6 +117,7 @@ class BasicCaptchaTest extends TestCase
         ];
     }
 
+    #[TestDox('passes the sales channel ID from the request context to the config lookup')]
     public function testSupportsUsesContextSalesChannelId(): void
     {
         $salesChannelId = 'test-sales-channel-id';
@@ -136,13 +138,5 @@ class BasicCaptchaTest extends TestCase
         $captcha = new BasicCaptcha(new RequestStack(), $systemConfigService);
 
         static::assertTrue($captcha->supports($request, []));
-    }
-
-    /**
-     * @param array<string, string|null> $data
-     */
-    private static function getRequest(array $data = []): Request
-    {
-        return new Request([], $data, [], [], [], [], null);
     }
 }

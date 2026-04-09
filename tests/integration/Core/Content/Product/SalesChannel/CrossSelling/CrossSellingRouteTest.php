@@ -147,6 +147,14 @@ class CrossSellingRouteTest extends TestCase
         $productId = Uuid::randomHex();
         $streamId = Uuid::randomHex();
 
+        static::getContainer()->get('product_stream.repository')->create([
+            [
+                'id' => $streamId,
+                'name' => 'variant-stream',
+                'displayAsGroup' => false,
+            ],
+        ], $this->salesChannelContext->getContext());
+
         $crossSellingProduct = $this->getProductData($productId);
         $crossSellingProduct['crossSellings'] = [[
             'name' => 'Test Cross Selling',
@@ -158,10 +166,7 @@ class CrossSellingRouteTest extends TestCase
         ]];
 
         $variantFixture = $this->createVariantFixture();
-
-        $this->productRepository->create([$crossSellingProduct, $variantFixture['product']], $this->salesChannelContext->getContext());
-
-        static::getContainer()->get('product_stream.repository')->create([
+        $streamPayload = [
             [
                 'id' => $streamId,
                 'name' => 'variant-stream',
@@ -172,7 +177,10 @@ class CrossSellingRouteTest extends TestCase
                     'value' => $variantFixture['redOptionId'],
                 ]],
             ],
-        ], $this->salesChannelContext->getContext());
+        ];
+
+        $this->productRepository->create([$crossSellingProduct, $variantFixture['product']], $this->salesChannelContext->getContext());
+        static::getContainer()->get('product_stream.repository')->update($streamPayload, $this->salesChannelContext->getContext());
 
         $result = $this->route->load($productId, new Request(), $this->salesChannelContext, new Criteria())
             ->getResult();
@@ -694,6 +702,10 @@ class CrossSellingRouteTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $this->salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
                 'options' => [
                     [
                         'id' => $optionId,
@@ -810,6 +822,9 @@ class CrossSellingRouteTest extends TestCase
                     'productNumber' => Uuid::randomHex(),
                     'stock' => 10,
                     'active' => true,
+                    'visibilities' => [
+                        ['salesChannelId' => $this->salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                    ],
                     'options' => [
                         ['id' => $redOptionId],
                         ['id' => $lOptionId],
@@ -820,6 +835,9 @@ class CrossSellingRouteTest extends TestCase
                     'productNumber' => Uuid::randomHex(),
                     'stock' => 10,
                     'active' => true,
+                    'visibilities' => [
+                        ['salesChannelId' => $this->salesChannelContext->getSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                    ],
                     'options' => [
                         ['id' => $redOptionId],
                         ['id' => $xlOptionId],

@@ -103,7 +103,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         $productAssignmentType = $category->get('productAssignmentType');
         $productStreamId = $category->get('productStreamId');
 
-        if ($productAssignmentType === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM && is_string($productStreamId) && $productStreamId !== '') {
+        if ($productAssignmentType === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM && \is_string($productStreamId) && $productStreamId !== '') {
             $this->productStreamBuilder->enrichCriteria($criteria, $productStreamId, $salesChannelContext->getContext());
 
             return;

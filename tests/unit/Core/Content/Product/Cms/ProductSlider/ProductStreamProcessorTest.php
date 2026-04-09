@@ -302,6 +302,8 @@ class ProductStreamProcessorTest extends TestCase
 
     private function configureProductStreamBuilder(bool $displayAsGroup = true): void
     {
+        $this->productStreamBuilder = $this->createMock(AbstractProductStreamBuilder::class);
+
         $filter = $this->getFilter();
 
         $this->productStreamBuilder->method('enrichCriteria')

@@ -157,7 +157,7 @@ class ProductListingRouteTest extends TestCase
             $this->ids->create('productStream'),
             null,
             null,
-            true
+            false
         );
 
         $this->browser->request(
@@ -180,7 +180,7 @@ class ProductListingRouteTest extends TestCase
             $this->ids->create('productStream'),
             'greenL',
             null,
-            true
+            false
         );
 
         $this->browser->request(
@@ -815,12 +815,34 @@ class ProductListingRouteTest extends TestCase
     {
         $products = [];
         foreach ($createdProducts as $created) {
+            if (!\is_array($created) || !isset($created['id']) || !\is_string($created['id'])) {
+                continue;
+            }
+
             $products[] = [
                 'id' => $created['id'],
                 'visibilities' => [
                     ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ];
+
+            $children = $created['children'] ?? null;
+            if (!\is_array($children)) {
+                continue;
+            }
+
+            foreach ($children as $child) {
+                if (!\is_array($child) || !isset($child['id']) || !\is_string($child['id'])) {
+                    continue;
+                }
+
+                $products[] = [
+                    'id' => $child['id'],
+                    'visibilities' => [
+                        ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                    ],
+                ];
+            }
         }
 
         $this->productRepository->update($products, Context::createDefaultContext());

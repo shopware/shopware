@@ -59,6 +59,7 @@ class Migration1775430000AddDisplayAsGroupToProductStreamTest extends TestCase
 
         $migration = new Migration1775430000AddDisplayAsGroupToProductStream();
         $migration->update($this->connection);
+        $migration->update($this->connection);
 
         static::assertTrue(TableHelper::columnExists($this->connection, 'product_stream', 'display_as_group'));
 

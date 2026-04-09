@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`scripts/codemods/sfc-migration/generate-sfc block-component: fully migrated SFC with twig blocks replaced and createExtendableSetup script matches the complete SFC output snapshot 1`] = `
 "<template>

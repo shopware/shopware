@@ -6,33 +6,42 @@
  * normalised automatically so the transformation logic can handle both styles.
  *
  * Usage:
- *   npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts <path>
+ *   npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts [--dry-run | --write] <path>
+ *
+ * Flags:
+ *   --dry-run   (default) Preview what would be written without writing files
+ *   --write     Write .vue files to disk
  *
  * Examples:
  *   npx tsx run-sfc-migration.ts src/app/component/base/sw-button
- *   npx tsx run-sfc-migration.ts src/Resources/app/administration/src
+ *   npx tsx run-sfc-migration.ts --write src/Resources/app/administration/src
  */
 
-import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
-import { join, dirname, basename, resolve } from 'node:path';
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { globSync } from 'glob';
 import { mergeComponentFiles } from './generate-sfc';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
-const targetArg = process.argv[2];
-
-if (!targetArg) {
-    console.error('Usage: npx tsx run-sfc-migration.ts <path>');
-    console.error('  <path>  Directory to scan for index.js component files');
-    process.exit(1);
+export interface RunOptions {
+    dryRun: boolean;
 }
 
-const TARGET_DIR = resolve(targetArg);
+export interface RunStats {
+    fullyMigrated: number;
+    partiallyMigrated: number;
+    notMigratable: number;
+    skipped: number;
+}
 
-function findTwigFile(dir: string): string | null {
+export interface RunResult {
+    stats: RunStats;
+    report: string[];
+}
+
+export function findTwigFile(dir: string): string | null {
     const entries = readdirSync(dir);
     const twig = entries.find((f) => f.endsWith('.html.twig'));
     return twig ? join(dir, twig) : null;
@@ -43,7 +52,7 @@ function findTwigFile(dir: string): string | null {
  * `export default { … }` rather than calling `Shopware.Component.register`.
  * Wrap them so `transform-script.ts` can locate the options object via AST.
  */
-function normaliseJsContent(jsContent: string, componentName: string): string {
+export function normaliseJsContent(jsContent: string, componentName: string): string {
     const exportDefaultMatch = jsContent.match(/^(export\s+default\s*)\{/m);
     if (!exportDefaultMatch) {
         return jsContent;
@@ -63,53 +72,82 @@ function normaliseJsContent(jsContent: string, componentName: string): string {
     return replaced.slice(0, lastSemicolon) + '});' + replaced.slice(lastSemicolon + 2);
 }
 
-const indexFiles = globSync('**/index.js', { cwd: TARGET_DIR, absolute: true });
+export function runMigration(targetDir: string, options: RunOptions): RunResult {
+    const { dryRun } = options;
+    const indexFiles = globSync('**/index.js', { cwd: targetDir, absolute: true });
 
-const stats = { fullyMigrated: 0, partiallyMigrated: 0, notMigratable: 0, skipped: 0 };
-const report: string[] = [];
+    const stats: RunStats = { fullyMigrated: 0, partiallyMigrated: 0, notMigratable: 0, skipped: 0 };
+    const report: string[] = [];
 
-for (const indexPath of indexFiles) {
-    const jsContent = readFileSync(indexPath, 'utf-8');
+    for (const indexPath of indexFiles) {
+        const jsContent = readFileSync(indexPath, 'utf-8');
 
-    const dir = dirname(indexPath);
-    const componentName = basename(dir);
-    const twigPath = findTwigFile(dir);
+        const dir = dirname(indexPath);
+        const componentName = dir.split('/').at(-1) ?? 'unknown';
+        const twigPath = findTwigFile(dir);
 
-    if (!twigPath) {
-        stats.skipped++;
-        report.push(`SKIP (no twig)  ${indexPath}`);
-        continue;
+        if (!twigPath) {
+            stats.skipped++;
+            report.push(`SKIP (no twig)  ${indexPath}`);
+            continue;
+        }
+
+        const twigContent = readFileSync(twigPath, 'utf-8');
+        const normalisedJs = normaliseJsContent(jsContent, componentName);
+        const result = mergeComponentFiles(twigContent, normalisedJs);
+
+        switch (result.status) {
+            case 'fully-migrated': {
+                const vuePath = join(dir, `${componentName}.vue`);
+                if (!dryRun) {
+                    writeFileSync(vuePath, result.sfc, 'utf-8');
+                }
+                stats.fullyMigrated++;
+                const prefix = dryRun ? '[DRY RUN] Would write: ' : '';
+                report.push(`✓  fully-migrated        ${prefix}${vuePath}`);
+                break;
+            }
+            case 'partially-migrated': {
+                const vuePath = join(dir, `${componentName}.vue`);
+                if (!dryRun) {
+                    writeFileSync(vuePath, result.sfc, 'utf-8');
+                }
+                stats.partiallyMigrated++;
+                const prefix = dryRun ? '[DRY RUN] Would write: ' : '';
+                report.push(`~  partially-migrated  [${result.blockers.join(', ')}]  ${prefix}${vuePath}`);
+                break;
+            }
+            case 'not-migratable': {
+                stats.notMigratable++;
+                report.push(`✗  not-migratable      [${result.blockers.join(', ')}]  ${indexPath}`);
+                break;
+            }
+        }
     }
 
-    const twigContent = readFileSync(twigPath, 'utf-8');
-    const normalisedJs = normaliseJsContent(jsContent, componentName);
-    const result = mergeComponentFiles(twigContent, normalisedJs);
-
-    switch (result.status) {
-        case 'fully-migrated': {
-            const vuePath = join(dir, `${componentName}.vue`);
-            writeFileSync(vuePath, result.sfc, 'utf-8');
-            stats.fullyMigrated++;
-            report.push(`✓  fully-migrated        ${vuePath}`);
-            break;
-        }
-        case 'partially-migrated': {
-            const vuePath = join(dir, `${componentName}.vue`);
-            writeFileSync(vuePath, result.sfc, 'utf-8');
-            stats.partiallyMigrated++;
-            report.push(`~  partially-migrated  [${result.blockers.join(', ')}]  ${vuePath}`);
-            break;
-        }
-        case 'not-migratable': {
-            stats.notMigratable++;
-            report.push(`✗  not-migratable      [${result.blockers.join(', ')}]  ${indexPath}`);
-            break;
-        }
-    }
+    return { stats, report };
 }
 
-console.log(report.join('\n'));
-console.log(`
+// Only execute when invoked directly as a script, not when imported by tests.
+if (process.argv[1] === __filename) {
+    const args = process.argv.slice(2);
+    const targetArg = args.find((a) => !a.startsWith('--'));
+
+    if (!targetArg) {
+        console.error('Usage: npx tsx run-sfc-migration.ts [--dry-run | --write] <path>');
+        console.error('  <path>      Directory to scan for index.js component files');
+        console.error('  --dry-run   (default) Preview what would be written without writing files');
+        console.error('  --write     Write .vue files to disk');
+        process.exit(1);
+    }
+
+    const TARGET_DIR = resolve(targetArg);
+    const dryRun = args.includes('--dry-run') || !args.includes('--write');
+
+    const { stats, report } = runMigration(TARGET_DIR, { dryRun });
+
+    console.log(report.join('\n'));
+    console.log(`
 Migration Summary
 =================
 Fully migrated:      ${stats.fullyMigrated}
@@ -117,3 +155,8 @@ Partially migrated:  ${stats.partiallyMigrated}
 Not migratable:      ${stats.notMigratable}
 Skipped (no twig):   ${stats.skipped}
 `);
+
+    if (dryRun) {
+        console.log('[DRY RUN] No files were written. Run with --write to apply.');
+    }
+}

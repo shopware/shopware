@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`scripts/codemods/sfc-migration/analyze-component summary report for the full fixture batch matches the complete summary output snapshot 1`] = `
 "Migration Summary

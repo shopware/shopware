@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`scripts/codemods/sfc-migration/transform-template block-component: twig block syntax is fully replaced across the whole template matches the complete transformed template snapshot 1`] = `
 "<template>

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`scripts/codemods/sfc-migration/transform-script block-component: converts props, emits, data init from prop, computed, watch (prop+data), methods with $emit and $refs, and lifecycle matches the complete converted script snapshot 1`] = `
 "const props = defineProps({

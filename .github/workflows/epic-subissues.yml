@@ -1,0 +1,70 @@
+name: Epic subissues for accessibility
+
+on:
+    issues:
+        types: [opened]
+
+permissions:
+    issues: write
+
+jobs:
+    subissues-tests:
+        runs-on: ubuntu-latest
+        env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            REPO: ${{ github.repository }}
+        if: github.event.issue.type.name =='Epic' && !contains(github.event.issue.body, 'Backend-only work required')
+        steps:
+            - name: Create list of all markdown files from Design
+              run: |
+                  FILES=$(gh api --jq '.[].name' /repos/$REPO/contents/.github/ISSUE_TEMPLATE/Epic/Design | grep '.md' | sed 's|^|Design/|' )
+                  {
+                    echo "FILELIST<<EOF"
+                    echo "${FILES}"
+                    echo "EOF"
+                  } >> "$GITHUB_ENV"
+
+            - name: Create list of all markdown files from Testing
+              if: ${{ !contains(github.event.issue.body, 'Requires frontend work only in the Admin') }}
+              run: |
+                  FILES=$(gh api --jq '.[].name' /repos/$REPO/contents/.github/ISSUE_TEMPLATE/Epic/Testing | grep '\.md$' | sed 's|^|Testing/|')
+                  {
+                    echo "FILELIST<<EOF"
+                    echo "${FILELIST}"
+                    echo "${FILES}"
+                    echo "EOF"
+                  } >> "$GITHUB_ENV"
+
+            - name: Checkout repo
+              uses: actions/checkout@v3
+
+            - name: Create issue for each markdown file and attach as subissue to newly created epic
+              env:
+                  EPIC_NUM: ${{ github.event.issue.number }}
+              run: |
+                  for file in $FILELIST; do
+                    # set title to file name and remove file extension 
+                    TITLE=${file%%.md}
+                    # replace hyphens with spaces
+                    TITLE=${TITLE//-/ }
+                    #remove directory name
+                    if [[ "$TITLE" == "Design/"* ]]; then
+                      TITLE="${TITLE#Design/}"
+                    elif [[ "$TITLE" == "Testing/"* ]]; then
+                      TITLE="${TITLE#Testing/}"
+                    fi
+
+                    # create subissue and get subissue number
+                    SUBISSUE=$(gh issue create --title "$TITLE" --body-file ".github/ISSUE_TEMPLATE/Epic/${file}")
+                    SUBISSUE_NUM=$(gh issue view $SUBISSUE --json number --jq '.number')
+
+                    # get subissue database id
+                    # source: https://jessehouwing.net/create-github-issue-hierarchy-using-the-api/
+                    SUBISSUE_ID=$(gh api /repos/$REPO/issues/$SUBISSUE_NUM --jq .id)
+
+                    # add subissue to epic
+                    gh api -X POST /repos/$REPO/issues/$EPIC_NUM/sub_issues -F sub_issue_id=$SUBISSUE_ID
+
+                    # set subissue type
+                    gh api -X PATCH /repos/$REPO/issues/$SUBISSUE_NUM --field type="Task" 
+                  done

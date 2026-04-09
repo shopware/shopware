@@ -19,7 +19,9 @@ class Migration1775430000AddDisplayAsGroupToProductStream extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $this->addColumn($connection, 'product_stream', 'display_as_group', 'TINYINT(1)', false, '1');
+        if (!$this->columnExists($connection, 'product_stream', 'display_as_group')) {
+            $this->addColumn($connection, 'product_stream', 'display_as_group', 'TINYINT(1)', false, '1');
+        }
     }
 
     public function updateDestructive(Connection $connection): void

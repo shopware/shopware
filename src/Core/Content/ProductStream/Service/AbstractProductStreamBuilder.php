@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @internal
- */
 #[Package('inventory')]
 abstract class AbstractProductStreamBuilder
 {

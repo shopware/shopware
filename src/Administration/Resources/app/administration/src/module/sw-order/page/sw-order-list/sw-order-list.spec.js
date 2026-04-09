@@ -219,6 +219,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                     internalComment: 'Internal comment',
                 },
             ],
+            total: 3,
         });
 
         const firstRowButtons = wrapper.find('.sw-data-grid__row--0').findAll('.sw-order-list__tooltip-order-comment');

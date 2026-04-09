@@ -473,6 +473,180 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
         $this->cleanup([$variantAId, $variantBId, $parentId]);
     }
 
+    public function testMigrationSkipsNonUuidConfiguratorGroupId(): void
+    {
+        $parentId = Uuid::randomBytes();
+        $variantAId = Uuid::randomBytes();
+        $variantBId = Uuid::randomBytes();
+        $liveVersion = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+
+        $this->cleanupByProductNumbers();
+        $this->cleanup([$variantAId, $variantBId, $parentId]);
+
+        $parentIdHex = strtolower(bin2hex($parentId));
+        $legacyHash = md5($parentIdHex);
+
+        $listingConfig = json_encode([
+            'displayParent' => null,
+            'mainVariantId' => null,
+            'configuratorGroupConfig' => [[
+                'id' => 'not-a-valid-32-char-hex-uuid-string',
+                'expressionForListings' => true,
+            ]],
+        ], \JSON_THROW_ON_ERROR);
+
+        $this->connection->insert('product', [
+            'id' => $parentId,
+            'version_id' => $liveVersion,
+            'parent_id' => null,
+            'parent_version_id' => null,
+            'product_number' => 'migration-dg-baduuid-parent',
+            'stock' => 10,
+            'variant_listing_config' => $listingConfig,
+            'display_group' => $legacyHash,
+        ]);
+
+        foreach ([[$variantAId, 'migration-dg-baduuid-a'], [$variantBId, 'migration-dg-baduuid-b']] as [$variantId, $number]) {
+            $this->connection->insert('product', [
+                'id' => $variantId,
+                'version_id' => $liveVersion,
+                'parent_id' => $parentId,
+                'parent_version_id' => $liveVersion,
+                'product_number' => $number,
+                'stock' => 10,
+                'display_group' => $legacyHash,
+            ]);
+        }
+
+        (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
+        (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
+
+        $expectedHash = hash('sha256', strtoupper($parentIdHex));
+        $variantDisplayGroups = $this->connection->fetchFirstColumn(
+            'SELECT display_group FROM product WHERE id IN (:ids) AND version_id = :versionId ORDER BY product_number ASC',
+            ['ids' => [$variantAId, $variantBId], 'versionId' => $liveVersion],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        static::assertSame([$expectedHash, $expectedHash], $variantDisplayGroups);
+
+        $this->cleanup([$variantAId, $variantBId, $parentId]);
+    }
+
+    public function testMigrationKeepsValidConfiguratorGroupWhenMixedWithInvalidGroupId(): void
+    {
+        $liveVersion = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+        $languageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        $createdAt = '2000-01-01 00:00:00.000';
+
+        $groupHex = Uuid::randomHex();
+        $groupBytes = Uuid::fromHexToBytes($groupHex);
+        $optionRedBytes = Uuid::fromHexToBytes(Uuid::randomHex());
+        $optionGreenBytes = Uuid::fromHexToBytes(Uuid::randomHex());
+
+        $parentId = Uuid::randomBytes();
+        $variantAId = Uuid::randomBytes();
+        $variantBId = Uuid::randomBytes();
+        $parentHex = strtolower(bin2hex($parentId));
+
+        $this->cleanupListingGroupRows($groupBytes, [$optionRedBytes, $optionGreenBytes], [$variantAId, $variantBId, $parentId]);
+        $this->cleanupByProductNumbers();
+
+        $this->connection->insert('property_group', [
+            'id' => $groupBytes,
+            'created_at' => $createdAt,
+        ]);
+        $this->connection->insert('property_group_translation', [
+            'property_group_id' => $groupBytes,
+            'language_id' => $languageId,
+            'name' => 'Color',
+            'created_at' => $createdAt,
+        ]);
+        foreach ([[$optionRedBytes, 'Red'], [$optionGreenBytes, 'Green']] as [$optionBytes, $name]) {
+            $this->connection->insert('property_group_option', [
+                'id' => $optionBytes,
+                'property_group_id' => $groupBytes,
+                'created_at' => $createdAt,
+            ]);
+            $this->connection->insert('property_group_option_translation', [
+                'property_group_option_id' => $optionBytes,
+                'language_id' => $languageId,
+                'name' => $name,
+                'created_at' => $createdAt,
+            ]);
+        }
+
+        $listingConfig = json_encode([
+            'displayParent' => null,
+            'mainVariantId' => null,
+            'configuratorGroupConfig' => [
+                [
+                    'id' => 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz',
+                    'expressionForListings' => true,
+                ],
+                [
+                    'id' => $groupHex,
+                    'expressionForListings' => true,
+                    'representation' => 'box',
+                ],
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $this->connection->insert('product', [
+            'id' => $parentId,
+            'version_id' => $liveVersion,
+            'parent_id' => null,
+            'parent_version_id' => null,
+            'product_number' => 'migration-dg-mixuuid-parent',
+            'stock' => 10,
+            'variant_listing_config' => $listingConfig,
+            'display_group' => md5($parentHex),
+        ]);
+        foreach ([[$variantAId, 'migration-dg-mixuuid-a'], [$variantBId, 'migration-dg-mixuuid-b']] as [$variantId, $number]) {
+            $this->connection->insert('product', [
+                'id' => $variantId,
+                'version_id' => $liveVersion,
+                'parent_id' => $parentId,
+                'parent_version_id' => $liveVersion,
+                'product_number' => $number,
+                'stock' => 10,
+                'display_group' => md5($parentHex),
+            ]);
+        }
+
+        $this->connection->insert('product_option', [
+            'product_id' => $variantAId,
+            'product_version_id' => $liveVersion,
+            'property_group_option_id' => $optionRedBytes,
+        ]);
+        $this->connection->insert('product_option', [
+            'product_id' => $variantBId,
+            'product_version_id' => $liveVersion,
+            'property_group_option_id' => $optionGreenBytes,
+        ]);
+
+        (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
+        (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
+
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT product_number, display_group FROM product WHERE id IN (:ids) AND version_id = :version ORDER BY product_number ASC',
+            ['ids' => [$variantAId, $variantBId], 'version' => $liveVersion],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+        $displayByNumber = array_column($rows, 'display_group', 'product_number');
+
+        static::assertSame(
+            hash('sha256', $parentHex . strtolower(bin2hex($optionRedBytes))),
+            $displayByNumber['migration-dg-mixuuid-a']
+        );
+        static::assertSame(
+            hash('sha256', $parentHex . strtolower(bin2hex($optionGreenBytes))),
+            $displayByNumber['migration-dg-mixuuid-b']
+        );
+
+        $this->cleanupListingGroupRows($groupBytes, [$optionRedBytes, $optionGreenBytes], [$variantAId, $variantBId, $parentId]);
+    }
+
     private function cleanupByProductNumbers(): void
     {
         $this->connection->executeStatement(
@@ -497,6 +671,12 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
                 'migration-dg-cgc-parent',
                 'migration-dg-cgc-a',
                 'migration-dg-cgc-b',
+                'migration-dg-baduuid-parent',
+                'migration-dg-baduuid-a',
+                'migration-dg-baduuid-b',
+                'migration-dg-mixuuid-parent',
+                'migration-dg-mixuuid-a',
+                'migration-dg-mixuuid-b',
             ]],
             ['productNumbers' => ArrayParameterType::STRING]
         );

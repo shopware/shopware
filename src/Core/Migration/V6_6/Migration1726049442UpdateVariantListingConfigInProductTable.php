@@ -4,8 +4,10 @@ namespace Shopware\Core\Migration\V6_6;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -35,6 +37,8 @@ class Migration1726049442UpdateVariantListingConfigInProductTable extends Migrat
             return;
         }
 
+        $this->ensureDisplayGroupFitsSha256Hash($connection);
+
         $connection->executeStatement(
             'UPDATE `product` SET `variant_listing_config` = NULL, `display_group` = NULL WHERE `id` IN (:ids)',
             ['ids' => $productIds],
@@ -46,5 +50,20 @@ class Migration1726049442UpdateVariantListingConfigInProductTable extends Migrat
             ['ids' => $productIds],
             ['ids' => ArrayParameterType::STRING]
         );
+    }
+
+    private function ensureDisplayGroupFitsSha256Hash(Connection $connection): void
+    {
+        if (!TableHelper::columnExists($connection, ProductDefinition::ENTITY_NAME, 'display_group')) {
+            return;
+        }
+
+        $column = TableHelper::getColumnOfTable($connection, ProductDefinition::ENTITY_NAME, 'display_group');
+
+        if ($column->type !== 'string' || $column->length !== 50) {
+            return;
+        }
+
+        $connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(64) NULL');
     }
 }

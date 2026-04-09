@@ -179,7 +179,12 @@ class Migration1775200002RecalculateProductDisplayGroupHash extends MigrationSte
                 continue;
             }
 
-            $groups[] = $group['id'];
+            $groupId = strtolower($group['id']);
+            if (!Uuid::isValid($groupId)) {
+                continue;
+            }
+
+            $groups[] = $groupId;
         }
 
         return $groups;

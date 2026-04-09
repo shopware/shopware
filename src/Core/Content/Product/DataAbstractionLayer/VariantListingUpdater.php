@@ -145,9 +145,19 @@ class VariantListingUpdater
             $groups = [];
             $configuratorGroupConfig = $config['config']['configuratorGroupConfig'] ?? [];
             foreach ($configuratorGroupConfig as $group) {
-                if (\array_key_exists('expressionForListings', $group) && $group['expressionForListings']) {
-                    $groups[] = $group['id'];
+                if (!\is_array($group)
+                    || !\array_key_exists('expressionForListings', $group)
+                    || !$group['expressionForListings']
+                    || !\is_string($group['id'] ?? null)) {
+                    continue;
                 }
+
+                $groupId = strtolower($group['id']);
+                if (!Uuid::isValid($groupId)) {
+                    continue;
+                }
+
+                $groups[] = $groupId;
             }
 
             $listingConfiguration[$config['id']] = [

@@ -68,9 +68,12 @@ class Migration1775200002RecalculateProductDisplayGroupHash extends MigrationSte
             }
 
             foreach ($parents as $parent) {
+                // SELECT always provides these keys; guard is defensive.
+                // @codeCoverageIgnoreStart
                 if (!isset($parent['id'], $parent['version_id'])) {
                     continue;
                 }
+                // @codeCoverageIgnoreEnd
 
                 $parentId = $parent['id'];
                 $versionId = $parent['version_id'];

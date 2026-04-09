@@ -146,11 +146,14 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
         $listingConfig = json_encode([
             'displayParent' => null,
             'mainVariantId' => null,
-            'configuratorGroupConfig' => [[
-                'id' => $groupHex,
-                'expressionForListings' => true,
-                'representation' => 'box',
-            ]],
+            'configuratorGroupConfig' => [
+                ['unexpected' => true],
+                [
+                    'id' => $groupHex,
+                    'expressionForListings' => true,
+                    'representation' => 'box',
+                ],
+            ],
         ], \JSON_THROW_ON_ERROR);
 
         $this->connection->insert('product', [
@@ -292,6 +295,184 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
         $this->cleanup([$parentId]);
     }
 
+    public function testMigrationClearsListingGroupsWhenDisplayParentIsEnabled(): void
+    {
+        $parentId = Uuid::randomBytes();
+        $variantAId = Uuid::randomBytes();
+        $variantBId = Uuid::randomBytes();
+        $liveVersion = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+
+        $this->cleanupByProductNumbers();
+        $this->cleanup([$variantAId, $variantBId, $parentId]);
+
+        $parentIdHex = strtolower(bin2hex($parentId));
+        $legacyHash = md5($parentIdHex);
+
+        $listingConfig = json_encode([
+            'displayParent' => true,
+            'mainVariantId' => null,
+            'configuratorGroupConfig' => [[
+                'id' => Uuid::randomHex(),
+                'expressionForListings' => true,
+            ]],
+        ], \JSON_THROW_ON_ERROR);
+
+        $this->connection->insert('product', [
+            'id' => $parentId,
+            'version_id' => $liveVersion,
+            'parent_id' => null,
+            'parent_version_id' => null,
+            'product_number' => 'migration-dg-disparent-parent',
+            'stock' => 10,
+            'variant_listing_config' => $listingConfig,
+            'display_group' => $legacyHash,
+        ]);
+
+        foreach ([[$variantAId, 'migration-dg-disparent-a'], [$variantBId, 'migration-dg-disparent-b']] as [$variantId, $number]) {
+            $this->connection->insert('product', [
+                'id' => $variantId,
+                'version_id' => $liveVersion,
+                'parent_id' => $parentId,
+                'parent_version_id' => $liveVersion,
+                'product_number' => $number,
+                'stock' => 10,
+                'display_group' => $legacyHash,
+            ]);
+        }
+
+        (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
+        (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
+
+        $expectedHash = hash('sha256', strtoupper($parentIdHex));
+        $variantDisplayGroups = $this->connection->fetchFirstColumn(
+            'SELECT display_group FROM product WHERE id IN (:ids) AND version_id = :versionId ORDER BY product_number ASC',
+            ['ids' => [$variantAId, $variantBId], 'versionId' => $liveVersion],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        static::assertSame([$expectedHash, $expectedHash], $variantDisplayGroups);
+
+        $this->cleanup([$variantAId, $variantBId, $parentId]);
+    }
+
+    public function testMigrationClearsListingGroupsWhenMainVariantIdIsSet(): void
+    {
+        $parentId = Uuid::randomBytes();
+        $variantAId = Uuid::randomBytes();
+        $variantBId = Uuid::randomBytes();
+        $liveVersion = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+
+        $this->cleanupByProductNumbers();
+        $this->cleanup([$variantAId, $variantBId, $parentId]);
+
+        $parentIdHex = strtolower(bin2hex($parentId));
+        $legacyHash = md5($parentIdHex);
+        $variantAHex = Uuid::fromBytesToHex($variantAId);
+
+        $listingConfig = json_encode([
+            'displayParent' => null,
+            'mainVariantId' => $variantAHex,
+            'configuratorGroupConfig' => [[
+                'id' => Uuid::randomHex(),
+                'expressionForListings' => true,
+            ]],
+        ], \JSON_THROW_ON_ERROR);
+
+        $this->connection->insert('product', [
+            'id' => $parentId,
+            'version_id' => $liveVersion,
+            'parent_id' => null,
+            'parent_version_id' => null,
+            'product_number' => 'migration-dg-mainvar-parent',
+            'stock' => 10,
+            'variant_listing_config' => $listingConfig,
+            'display_group' => $legacyHash,
+        ]);
+
+        foreach ([[$variantAId, 'migration-dg-mainvar-a'], [$variantBId, 'migration-dg-mainvar-b']] as [$variantId, $number]) {
+            $this->connection->insert('product', [
+                'id' => $variantId,
+                'version_id' => $liveVersion,
+                'parent_id' => $parentId,
+                'parent_version_id' => $liveVersion,
+                'product_number' => $number,
+                'stock' => 10,
+                'display_group' => $legacyHash,
+            ]);
+        }
+
+        (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
+        (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
+
+        $expectedHash = hash('sha256', strtoupper($parentIdHex));
+        $variantDisplayGroups = $this->connection->fetchFirstColumn(
+            'SELECT display_group FROM product WHERE id IN (:ids) AND version_id = :versionId ORDER BY product_number ASC',
+            ['ids' => [$variantAId, $variantBId], 'versionId' => $liveVersion],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        static::assertSame([$expectedHash, $expectedHash], $variantDisplayGroups);
+
+        $this->cleanup([$variantAId, $variantBId, $parentId]);
+    }
+
+    public function testMigrationTreatsNonArrayConfiguratorGroupConfigAsEmpty(): void
+    {
+        $parentId = Uuid::randomBytes();
+        $variantAId = Uuid::randomBytes();
+        $variantBId = Uuid::randomBytes();
+        $liveVersion = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+
+        $this->cleanupByProductNumbers();
+        $this->cleanup([$variantAId, $variantBId, $parentId]);
+
+        $parentIdHex = strtolower(bin2hex($parentId));
+        $legacyHash = md5($parentIdHex);
+
+        $listingConfig = json_encode([
+            'displayParent' => null,
+            'mainVariantId' => null,
+            'configuratorGroupConfig' => 'not-an-array',
+        ], \JSON_THROW_ON_ERROR);
+
+        $this->connection->insert('product', [
+            'id' => $parentId,
+            'version_id' => $liveVersion,
+            'parent_id' => null,
+            'parent_version_id' => null,
+            'product_number' => 'migration-dg-cgc-parent',
+            'stock' => 10,
+            'variant_listing_config' => $listingConfig,
+            'display_group' => $legacyHash,
+        ]);
+
+        foreach ([[$variantAId, 'migration-dg-cgc-a'], [$variantBId, 'migration-dg-cgc-b']] as [$variantId, $number]) {
+            $this->connection->insert('product', [
+                'id' => $variantId,
+                'version_id' => $liveVersion,
+                'parent_id' => $parentId,
+                'parent_version_id' => $liveVersion,
+                'product_number' => $number,
+                'stock' => 10,
+                'display_group' => $legacyHash,
+            ]);
+        }
+
+        (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
+        (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
+
+        $expectedHash = hash('sha256', strtoupper($parentIdHex));
+        $variantDisplayGroups = $this->connection->fetchFirstColumn(
+            'SELECT display_group FROM product WHERE id IN (:ids) AND version_id = :versionId ORDER BY product_number ASC',
+            ['ids' => [$variantAId, $variantBId], 'versionId' => $liveVersion],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        static::assertSame([$expectedHash, $expectedHash], $variantDisplayGroups);
+
+        $this->cleanup([$variantAId, $variantBId, $parentId]);
+    }
+
     private function cleanupByProductNumbers(): void
     {
         $this->connection->executeStatement(
@@ -307,6 +488,15 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
                 'migration-dg-scalar-a',
                 'migration-dg-scalar-b',
                 'migration-dg-solo-parent',
+                'migration-dg-disparent-parent',
+                'migration-dg-disparent-a',
+                'migration-dg-disparent-b',
+                'migration-dg-mainvar-parent',
+                'migration-dg-mainvar-a',
+                'migration-dg-mainvar-b',
+                'migration-dg-cgc-parent',
+                'migration-dg-cgc-a',
+                'migration-dg-cgc-b',
             ]],
             ['productNumbers' => ArrayParameterType::STRING]
         );

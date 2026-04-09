@@ -26,5 +26,6 @@ runNpmAudit({
         'https://github.com/advisories/GHSA-fp25-p6mj-qqg6', // locutus RCE via call_user_func_array, high severity, devDep only (twig), fix requires twig semver major
         'https://github.com/advisories/GHSA-vh9h-29pq-r5m8', // locutus RCE via create_function(), critical severity, devDep only (twig), fix requires twig semver major
         'https://github.com/advisories/GHSA-qpx9-hpmf-5gmw', // underscore unlimited recursion DoS, high severity, devDep only, no fix available in 1.x
+        'https://github.com/advisories/GHSA-qj83-cq47-w5f8', // axios HTTP/2 Session Cleanup State Corruption, moderate severity, devDep only (axios-mock-adapter), fix requires semver major (0.x → 1.x)
     ],
 });

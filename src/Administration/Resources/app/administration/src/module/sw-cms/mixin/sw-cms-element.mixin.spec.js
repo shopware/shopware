@@ -69,6 +69,11 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
     it('initElementConfig is properly merging configs from various sources', async () => {
         Shopware.Store.get('swCategoryDetail').category = {
             id: '12345',
+            slotConfig: {
+                [defaultElement.id]: {
+                    overrideFromCategory: 'bar',
+                },
+            },
             translations: [
                 {
                     languageId: Shopware.Context.api.systemLanguageId,
@@ -233,5 +238,33 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
         const wrapper = await createWrapper(defaultElement, 'sw.product.detail');
 
         expect(wrapper.vm.element.config.content.value).not.toBe('system override');
+    });
+
+    it('should not mutate the parent language slotConfig when editing inherited content', async () => {
+        const parentSlotConfig = {
+            [defaultElement.id]: {
+                content: {
+                    source: 'static',
+                    value: 'default - override',
+                },
+            },
+        };
+
+        Shopware.Store.get('swProductDetail').product = {
+            translations: [
+                {
+                    languageId: 'parent-language-id',
+                    slotConfig: parentSlotConfig,
+                },
+            ],
+        };
+        Shopware.Store.get('context').api.languageId = 'child-language-id';
+        Shopware.Store.get('context').api.language = { parentId: 'parent-language-id' };
+
+        const wrapper = await createWrapper(defaultElement, 'sw.product.detail');
+
+        wrapper.vm.element.config.content.value = 'child custom content';
+
+        expect(parentSlotConfig[defaultElement.id].content.value).toBe('default - override');
     });
 });

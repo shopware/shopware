@@ -99,7 +99,7 @@ export default Mixin.register(
                         key,
                         value,
                     ]) => {
-                        set(this.element, `config.${key}`, value);
+                        set(this.element, `config.${key}`, cloneDeep(value));
                     },
                 );
             },

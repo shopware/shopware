@@ -135,4 +135,44 @@ describe('module/sw-cms/mixin/sw-cms-state.mixin.js', () => {
 
         expect(wrapper.vm.inheritedSlotConfig).toBeNull();
     });
+
+    it('should prefer the live current-language slotConfig over the stale translation row', async () => {
+        const wrapper = await createWrapper('sw.category.detail.cms');
+
+        Shopware.Store.get('swCategoryDetail').category = {
+            slotConfig: null,
+            translations: [
+                {
+                    languageId: 'child-language-id',
+                    slotConfig: {
+                        'slot-id': {
+                            content: {
+                                value: 'stale child override',
+                            },
+                        },
+                    },
+                },
+                {
+                    languageId: 'parent-language-id',
+                    slotConfig: {
+                        'slot-id': {
+                            content: {
+                                value: 'parent override',
+                            },
+                        },
+                    },
+                },
+            ],
+        };
+        Shopware.Store.get('context').api.languageId = 'child-language-id';
+        Shopware.Store.get('context').api.language = { parentId: 'parent-language-id' };
+
+        expect(wrapper.vm.inheritedSlotConfig).toStrictEqual({
+            'slot-id': {
+                content: {
+                    value: 'parent override',
+                },
+            },
+        });
+    });
 });

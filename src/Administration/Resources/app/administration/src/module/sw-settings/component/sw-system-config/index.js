@@ -226,6 +226,10 @@ export default {
             ) {
                 bind.config.labelProperty = 'name';
                 bind.config.valueProperty = 'id';
+
+                if (bind.config.required) {
+                    bind.config.hideClearableButton = true;
+                }
             }
 
             if (element.type === 'text-editor') {
@@ -352,7 +356,7 @@ export default {
             // Bind necessary props to sw-form-field-renderer
             bind.value = mapInheritance?.currentValue;
             bind.type = element.type;
-            bind.config = element.config;
+            bind.config = { ...(element.config || {}) };
 
             // Inheritance bindings
             bind.inheritedValue = this.getInheritedValue(element);
@@ -378,6 +382,10 @@ export default {
             ) {
                 bind.config.labelProperty = 'name';
                 bind.config.valueProperty = 'id';
+
+                if (bind.config.required) {
+                    bind.config.hideClearableButton = true;
+                }
             }
 
             // Handle multi select

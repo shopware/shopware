@@ -8,7 +8,7 @@
         <service id="Shopware\Core\Content\Cookie\Service\CookieProvider">
             <argument type="service" id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface"/>
             <argument type="service" id="translator"/>
-            <argument>%session.storage.options%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelCookieName"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface" on-invalid="null"/>
         </service>
 

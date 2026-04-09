@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\Routing\SalesChannelCookieName;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
@@ -101,6 +102,7 @@ class StorefrontSubscriberTest extends TestCase
             $maintenanceModeResolver,
             new StaticSystemConfigService(),
             $eventDispatcher,
+            new SalesChannelCookieName(),
         ))->maintenanceResolver($event);
 
         $response = $event->getResponse();
@@ -159,6 +161,7 @@ class StorefrontSubscriberTest extends TestCase
             $maintenanceModeResolver,
             new StaticSystemConfigService(),
             $eventDispatcher,
+            new SalesChannelCookieName(),
         ))->maintenanceResolver($event);
 
         static::assertTrue($eventIsThrown);
@@ -189,6 +192,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->customerNotLoggedInHandler($event);
 
         static::assertInstanceOf(RedirectResponse::class, $event->getResponse());
@@ -209,6 +213,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->customerNotLoggedInHandler($event);
 
         static::assertFalse($event->hasResponse());
@@ -239,6 +244,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->customerNotLoggedInHandler($event);
 
         static::assertInstanceOf(RedirectResponse::class, $event->getResponse());
@@ -265,6 +271,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->customerNotLoggedInHandler($event);
     }
 
@@ -294,6 +301,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->preventPageLoadingFromXmlHttpRequest($event);
     }
 
@@ -346,6 +354,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->startSession();
 
         static::assertTrue($request->getSession()->has('sessionId'));
@@ -373,6 +382,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->startSession();
 
         $subRequestContextToken = $subRequest->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
@@ -390,6 +400,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->updateSession(self::TEST_CONTEXT_TOKEN);
 
         static::assertNull($requestStack->getCurrentRequest());
@@ -405,6 +416,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->updateSession(self::TEST_CONTEXT_TOKEN);
 
         static::assertNull($request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
@@ -421,6 +433,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->updateSession(self::TEST_CONTEXT_TOKEN);
 
         static::assertNull($request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
@@ -438,6 +451,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             new StaticSystemConfigService(),
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->updateSession(self::TEST_CONTEXT_TOKEN);
 
         static::assertSame(self::TEST_CONTEXT_TOKEN, $request->getSession()->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
@@ -466,6 +480,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             $configService,
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->startSession();
 
         // Should use default token key
@@ -496,6 +511,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             $configService,
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->startSession();
 
         // Should use channel-specific token key
@@ -537,6 +553,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             $configService,
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->startSession();
 
         $tokenA = $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelIdA);
@@ -558,6 +575,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             $configService,
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->startSession();
 
         $tokenB = $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelIdB);
@@ -580,6 +598,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             $configService,
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->startSession();
 
         $tokenA2 = $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelIdA);
@@ -614,6 +633,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             $configService,
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->updateSession($newToken);
 
         // Should store in both channel-specific and default keys
@@ -647,6 +667,7 @@ class StorefrontSubscriberTest extends TestCase
             $this->createMock(MaintenanceModeResolver::class),
             $configService,
             new EventDispatcher(),
+            new SalesChannelCookieName(),
         ))->updateSession($newToken);
 
         // Should only store in default key

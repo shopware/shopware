@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\SalesChannelCookieName;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -41,12 +42,8 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
      */
     private bool $handled = false;
 
-    private readonly string $sessionName;
-
     /**
      * @internal
-     *
-     * @param array<string, mixed> $sessionOptions
      */
     public function __construct(
         private readonly HttpKernelInterface $httpKernel,
@@ -56,9 +53,8 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
         private readonly EntityCacheKeyGenerator $generator,
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly EventDispatcherInterface $eventDispatcher,
-        array $sessionOptions = []
+        private readonly SalesChannelCookieName $salesChannelCookieName,
     ) {
-        $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
     }
 
     public static function getSubscribedEvents(): array
@@ -119,9 +115,10 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
 
             $item->tag($this->generateTags($name, $event->getRequest(), $context));
 
-            // Remove session cookie from 404 pages, injected by the Symfony session listener
+            // Remove session cookie from 404 pages, injected by the Symfony session listener.
+            // Uses prefix matching to handle per-sales-channel suffixed session names (e.g. session--a1b2c3d4).
             foreach ($response->headers->getCookies() as $cookie) {
-                if ($cookie->getName() === $this->sessionName) {
+                if ($this->salesChannelCookieName->matches($cookie->getName())) {
                     $response->headers->removeCookie($cookie->getName(), $cookie->getPath(), $cookie->getDomain());
                 }
             }

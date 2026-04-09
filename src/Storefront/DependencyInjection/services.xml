@@ -179,6 +179,7 @@
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelCookieName"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -203,7 +204,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument>%session.storage.options%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelCookieName"/>
 
             <tag name="kernel.event_subscriber"/>
             <tag name="kernel.reset" method="reset"/>

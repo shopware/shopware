@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Adapter\Cache\Message\RefreshHttpCacheMessage;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
-use Shopware\Core\PlatformRequest;
+use Shopware\Core\Framework\Routing\SalesChannelCookieName;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,12 +34,8 @@ class CacheStore implements StoreInterface
      */
     private array $locks = [];
 
-    private readonly string $sessionName;
-
     /**
      * @internal
-     *
-     * @param array<string, mixed> $sessionOptions
      *
      * @deprecated tag:v6.8.0 - Parameter $stateValidator will be removed
      */
@@ -49,12 +45,11 @@ class CacheStore implements StoreInterface
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly HttpCacheKeyGenerator $cacheKeyGenerator,
         private readonly MaintenanceModeResolver $maintenanceResolver,
-        array $sessionOptions,
+        private readonly SalesChannelCookieName $salesChannelCookieName,
         private readonly CacheTagCollector $collector,
         private bool $softPurge,
         private readonly MessageBusInterface $bus,
     ) {
-        $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
     }
 
     public function lookup(Request $request): ?Response
@@ -170,8 +165,9 @@ class CacheStore implements StoreInterface
         $cacheResponse = clone $response;
         $cacheResponse->headers = clone $response->headers;
 
+        // Uses prefix matching to handle per-sales-channel suffixed session names (e.g. session--a1b2c3d4).
         foreach ($cacheResponse->headers->getCookies() as $cookie) {
-            if ($cookie->getName() === $this->sessionName) {
+            if ($this->salesChannelCookieName->matches($cookie->getName())) {
                 $cacheResponse->headers->removeCookie($cookie->getName(), $cookie->getPath(), $cookie->getDomain());
             }
         }

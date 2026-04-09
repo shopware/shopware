@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\Routing\SalesChannelCookieName;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -42,7 +43,8 @@ class NotFoundSubscriberTest extends TestCase
             $this->createMock(CacheInterface::class),
             $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(CacheInvalidator::class),
-            new EventDispatcher()
+            new EventDispatcher(),
+            new SalesChannelCookieName(),
         );
 
         $event = new ExceptionEvent(
@@ -74,7 +76,8 @@ class NotFoundSubscriberTest extends TestCase
             new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
             $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(CacheInvalidator::class),
-            new EventDispatcher()
+            new EventDispatcher(),
+            new SalesChannelCookieName(),
         );
 
         $request = new Request();
@@ -115,7 +118,7 @@ class NotFoundSubscriberTest extends TestCase
             $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(CacheInvalidator::class),
             new EventDispatcher(),
-            []
+            new SalesChannelCookieName(),
         );
 
         $request = new Request();
@@ -159,7 +162,8 @@ class NotFoundSubscriberTest extends TestCase
             new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
             $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(CacheInvalidator::class),
-            new EventDispatcher()
+            new EventDispatcher(),
+            new SalesChannelCookieName(),
         );
 
         $request = new Request();
@@ -205,6 +209,7 @@ class NotFoundSubscriberTest extends TestCase
             $this->createMock(EntityCacheKeyGenerator::class),
             $this->createMock(CacheInvalidator::class),
             $eventDispatcher,
+            new SalesChannelCookieName(),
         );
 
         $request = new Request();
@@ -235,7 +240,8 @@ class NotFoundSubscriberTest extends TestCase
             $this->createMock(CacheInterface::class),
             $this->createMock(EntityCacheKeyGenerator::class),
             $cacheInvalidator,
-            new EventDispatcher()
+            new EventDispatcher(),
+            new SalesChannelCookieName(),
         );
 
         $subscriber->onSystemConfigChanged(new SystemConfigChangedEvent($key, 'foo', null));

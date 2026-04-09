@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\Framework\Routing\SalesChannelCookieName;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -47,7 +48,7 @@ class CacheStoreTest extends TestCase
             new EventDispatcher(),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
             $this->createMock(MaintenanceModeResolver::class),
-            [],
+            new SalesChannelCookieName(),
             $this->createMock(CacheTagCollector::class),
             false,
             new CollectingMessageBus()
@@ -80,7 +81,7 @@ class CacheStoreTest extends TestCase
             new EventDispatcher(),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
             $this->createMock(MaintenanceModeResolver::class),
-            [],
+            new SalesChannelCookieName(),
             $this->createMock(CacheTagCollector::class),
             false,
             new CollectingMessageBus()
@@ -109,7 +110,7 @@ class CacheStoreTest extends TestCase
             new EventDispatcher(),
             $keyGenerator,
             $this->createMock(MaintenanceModeResolver::class),
-            [],
+            new SalesChannelCookieName(),
             $this->createMock(CacheTagCollector::class),
             false,
             new CollectingMessageBus()
@@ -142,7 +143,7 @@ class CacheStoreTest extends TestCase
             new EventDispatcher(),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
             $maintenanceResolver,
-            [],
+            new SalesChannelCookieName(),
             $collector,
             true,
             new CollectingMessageBus()
@@ -187,7 +188,7 @@ class CacheStoreTest extends TestCase
             new EventDispatcher(),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
             $maintenanceResolver,
-            [],
+            new SalesChannelCookieName(),
             $collector,
             true,
             new CollectingMessageBus()
@@ -233,7 +234,7 @@ class CacheStoreTest extends TestCase
             new EventDispatcher(),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
             $maintenanceResolver,
-            [],
+            new SalesChannelCookieName(),
             $collector,
             false,
             new CollectingMessageBus()
@@ -276,7 +277,7 @@ class CacheStoreTest extends TestCase
             new EventDispatcher(),
             new HttpCacheKeyGenerator('test', new EventDispatcher(), []),
             $maintenanceResolver,
-            [],
+            new SalesChannelCookieName(),
             $collector,
             false,
             new CollectingMessageBus()
@@ -336,7 +337,7 @@ class CacheStoreTest extends TestCase
             new EventDispatcher(),
             $keyGenerator,
             $maintenanceResolver,
-            [],
+            new SalesChannelCookieName(),
             $this->createMock(CacheTagCollector::class),
             true,
             $bus
@@ -385,7 +386,7 @@ class CacheStoreTest extends TestCase
             new EventDispatcher(),
             $keyGenerator,
             $maintenanceResolver,
-            [],
+            new SalesChannelCookieName(),
             $this->createMock(CacheTagCollector::class),
             true,
             $bus
@@ -437,7 +438,7 @@ class CacheStoreTest extends TestCase
             new EventDispatcher(),
             $keyGenerator,
             $maintenanceResolver,
-            [],
+            new SalesChannelCookieName(),
             $this->createMock(CacheTagCollector::class),
             true,
             $bus
@@ -488,7 +489,7 @@ class CacheStoreTest extends TestCase
             new EventDispatcher(),
             $keyGenerator,
             $maintenanceResolver,
-            [],
+            new SalesChannelCookieName(),
             $this->createMock(CacheTagCollector::class),
             true,
             $bus
@@ -532,7 +533,7 @@ class CacheStoreTest extends TestCase
             new EventDispatcher(),
             $keyGenerator,
             $maintenanceResolver,
-            [],
+            new SalesChannelCookieName(),
             $this->createMock(CacheTagCollector::class),
             true,
             $bus

@@ -10,7 +10,7 @@ use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\PlatformRequest;
+use Shopware\Core\Framework\Routing\SalesChannelCookieName;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,19 +33,16 @@ class CookieProvider
 
     private readonly string $sessionName;
 
-    /**
-     * @param array<string, mixed> $sessionOptions
-     */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly TranslatorInterface $translator,
-        array $sessionOptions = [],
+        SalesChannelCookieName $salesChannelCookieName,
         /**
          * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! This will be fixed with the next major version as it is not used anymore)
          */
         private readonly ?CookieProviderInterface $legacyCookieProvider = null,
     ) {
-        $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
+        $this->sessionName = $salesChannelCookieName->getBaseName();
     }
 
     public function getCookieGroups(Request $request, SalesChannelContext $salesChannelContext): CookieGroupCollection

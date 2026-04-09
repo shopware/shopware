@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
+use Shopware\Core\Framework\Routing\SalesChannelCookieName;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
@@ -35,7 +36,7 @@ class CookieProviderTest extends TestCase
         $cookieGroups = (new CookieProvider(
             $eventDispatcher,
             $translator,
-            ['name' => 'test-session-name-']
+            new SalesChannelCookieName(['name' => 'test-session-name-'])
         )
         )->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
 
@@ -90,7 +91,7 @@ class CookieProviderTest extends TestCase
         $cookieGroups = (new CookieProvider(
             $eventDispatcher,
             $translator,
-            ['name' => 'test-session-name-']
+            new SalesChannelCookieName(['name' => 'test-session-name-'])
         )
         )->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
 
@@ -124,7 +125,7 @@ class CookieProviderTest extends TestCase
         $cookieGroups = (new CookieProvider(
             $eventDispatcher,
             $translator,
-            ['name' => 'test-session-name-']
+            new SalesChannelCookieName(['name' => 'test-session-name-'])
         )
         )->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
         static::assertCount(3, $cookieGroups);
@@ -143,7 +144,7 @@ class CookieProviderTest extends TestCase
         $cookieGroups = (new CookieProvider(
             new EventDispatcher(),
             $translator,
-            [],
+            new SalesChannelCookieName(),
             $legacyCookieProvider,
         ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
 
@@ -207,7 +208,7 @@ class CookieProviderTest extends TestCase
         (new CookieProvider(
             new EventDispatcher(),
             $translator,
-            [],
+            new SalesChannelCookieName(),
             $legacyCookieProvider,
         ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
     }
@@ -234,7 +235,7 @@ class CookieProviderTest extends TestCase
         (new CookieProvider(
             new EventDispatcher(),
             $translator,
-            [],
+            new SalesChannelCookieName(),
             $legacyCookieProvider,
         ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
     }

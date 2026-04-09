@@ -779,6 +779,7 @@ class ProductSearchRouteTest extends TestCase
         self::$ids = new IdsCollection();
         $ids = self::$ids;
         $this->createNavigationCategory($ids);
+        $this->enableParentNameSearch();
 
         self::$browser = $this->createCustomSalesChannelBrowser([
             'id' => $ids->create('sales-channel'),
@@ -964,6 +965,14 @@ class ProductSearchRouteTest extends TestCase
                 ->parent('volvo')
                 ->build(),
         ], Context::createDefaultContext());
+    }
+
+    private function enableParentNameSearch(): void
+    {
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE product_search_config_field SET searchable = 1 WHERE field = :field',
+            ['field' => 'parent.name']
+        );
     }
 
     private function getProductSearchConfigId(): string

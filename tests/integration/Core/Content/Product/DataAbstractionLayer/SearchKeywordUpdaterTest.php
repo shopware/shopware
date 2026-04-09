@@ -190,6 +190,26 @@ class SearchKeywordUpdaterTest extends TestCase
         ]);
     }
 
+    public function testParentNameFieldDoesNotFetchParentAssociationDirectly(): void
+    {
+        /** @var SearchKeywordUpdater $searchKeywordUpdater */
+        $searchKeywordUpdater = static::getContainer()->get('Shopware\\Elasticsearch\\Product\\SearchKeywordReplacement.inner');
+
+        $criteria = new Criteria();
+
+        $buildCriteria = new \ReflectionMethod($searchKeywordUpdater, 'buildCriteria');
+        $buildCriteria->setAccessible(true);
+
+        $buildCriteria->invoke(
+            $searchKeywordUpdater,
+            ['parent.name'],
+            $criteria,
+            Context::createDefaultContext(),
+        );
+
+        static::assertFalse($criteria->hasAssociation('parent'));
+    }
+
     public function testItSkipsKeywordGenerationForNotUsedLanguages(): void
     {
         $ids = new IdsCollection();

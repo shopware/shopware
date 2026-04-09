@@ -116,6 +116,8 @@ class SearchKeywordUpdater implements ResetInterface
         $keywords = [];
         $dictionary = [];
 
+        $requiresParentProducts = \in_array('parent.name', array_column($configFields, 'field'), true);
+
         $iterator = $this->getIterator($ids, $context, $configFields);
 
         while ($products = $iterator->fetch()) {
@@ -124,6 +126,10 @@ class SearchKeywordUpdater implements ResetInterface
                 // otherwise we use the already fetched product from the parent language
                 $existingProducts[$product->getId()] = $product;
             }
+        }
+
+        if ($requiresParentProducts) {
+            $this->hydrateParentProducts($existingProducts, $context);
         }
 
         foreach ($existingProducts as $product) {
@@ -250,6 +256,11 @@ class SearchKeywordUpdater implements ResetInterface
             $path = array_map(static fn (Field $field) => $field->getPropertyName(), $fields);
 
             $association = implode('.', $path);
+            if ($association === 'parent') {
+                // Product parent associations cannot be loaded inline and must be fetched separately.
+                continue;
+            }
+
             if ($criteria->hasAssociation($association)) {
                 continue;
             }
@@ -286,6 +297,43 @@ class SearchKeywordUpdater implements ResetInterface
         }
 
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filters));
+    }
+
+    /**
+     * @param ProductEntity[] $products
+     */
+    private function hydrateParentProducts(array $products, Context $context): void
+    {
+        $parentIds = array_values(array_unique(array_filter(array_map(
+            static fn (ProductEntity $product): ?string => $product->getParentId(),
+            $products
+        ))));
+
+        if ($parentIds === []) {
+            return;
+        }
+
+        $criteria = new Criteria($parentIds);
+        $criteria->setLimit(50);
+
+        $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
+        $parents = [];
+
+        while ($parentProducts = $iterator->fetch()) {
+            foreach ($parentProducts->getEntities() as $parent) {
+                $parents[$parent->getId()] = $parent;
+            }
+        }
+
+        foreach ($products as $product) {
+            $parentId = $product->getParentId();
+
+            if ($parentId === null || !isset($parents[$parentId])) {
+                continue;
+            }
+
+            $product->setParent($parents[$parentId]);
+        }
     }
 
     /**

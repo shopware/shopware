@@ -70,8 +70,8 @@ class Migration1775460999AddParentNameToProductSearchConfigTest extends TestCase
 
         static::assertNotFalse($parentConfig);
         static::assertSame((string) $nameConfig['tokenize'], (string) $parentConfig['tokenize']);
-        static::assertSame((string) $nameConfig['searchable'], (string) $parentConfig['searchable']);
-        static::assertSame('500', (string) $parentConfig['ranking']);
+        static::assertSame('0', (string) $parentConfig['searchable']);
+        static::assertSame((string) round((float) $nameConfig['ranking'] * 0.8), (string) $parentConfig['ranking']);
 
         $count = $this->connection->fetchOne(
             'SELECT COUNT(*) FROM product_search_config_field WHERE product_search_config_id = :configId AND field = :field',

@@ -735,6 +735,7 @@ class ProductSearchQueryBuilderTest extends TestCase
             'nested' => [
                 'path' => $root,
                 'query' => $query,
+                'ignore_unmapped' => true,
             ],
         ];
     }

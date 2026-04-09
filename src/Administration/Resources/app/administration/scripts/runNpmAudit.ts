@@ -27,5 +27,6 @@ runNpmAudit({
         'https://github.com/advisories/GHSA-vh9h-29pq-r5m8', // locutus RCE via create_function(), critical severity, devDep only (twig), fix requires twig semver major
         'https://github.com/advisories/GHSA-qpx9-hpmf-5gmw', // underscore unlimited recursion DoS, high severity, devDep only, no fix available in 1.x
         'https://github.com/advisories/GHSA-chqc-8p9q-pq6q', // basic-ftp basic-ftp has FTP Command Injection via CRLF, high severity
+        'https://github.com/advisories/GHSA-qj83-cq47-w5f8', // axios update to 1.15.0
     ],
 });

@@ -94,12 +94,10 @@ abstract class MigrationStep
             return TableHelper::indexExists($connection, $table, $index);
         }
 
-        $exists = $connection->fetchOne(
+        return (bool) $connection->fetchOne(
             'SHOW INDEXES FROM `' . $table . '` WHERE `key_name` LIKE :index',
             ['index' => $index]
         );
-
-        return !empty($exists);
     }
 
     protected function dropTableIfExists(Connection $connection, string $table): void

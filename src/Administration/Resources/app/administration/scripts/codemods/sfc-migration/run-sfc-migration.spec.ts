@@ -232,6 +232,69 @@ describe('runMigration — not-migratable (render function)', () => {
     });
 });
 
+describe('runMigration — overwrite protection', () => {
+    let tmpDir: string;
+    let componentDir: string;
+
+    beforeEach(() => {
+        tmpDir = createTempDir();
+        componentDir = makeComponent(
+            tmpDir,
+            'sw-simple-card',
+            readFixture('simple-component.index.js'),
+            readFixture('simple-component.html.twig'),
+        );
+    });
+
+    afterEach(() => {
+        rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('skips an existing .vue file and increments skippedExisting', () => {
+        writeFileSync(join(componentDir, 'sw-simple-card.vue'), 'existing content', 'utf-8');
+        const { stats } = runMigration(tmpDir, { dryRun: false });
+        expect(stats.skippedExisting).toBe(1);
+        expect(stats.fullyMigrated).toBe(0);
+    });
+
+    it('preserves the existing .vue content when skipping', () => {
+        const originalContent = 'existing content';
+        writeFileSync(join(componentDir, 'sw-simple-card.vue'), originalContent, 'utf-8');
+        runMigration(tmpDir, { dryRun: false });
+        const content = readFileSync(join(componentDir, 'sw-simple-card.vue'), 'utf-8');
+        expect(content).toBe(originalContent);
+    });
+
+    it('report line contains SKIP (already exists) label', () => {
+        writeFileSync(join(componentDir, 'sw-simple-card.vue'), 'existing content', 'utf-8');
+        const { report } = runMigration(tmpDir, { dryRun: false });
+        expect(report[0]).toContain('SKIP (already exists)');
+        expect(report[0]).toContain('sw-simple-card.vue');
+    });
+
+    it('overwrites the existing .vue file when force is true', () => {
+        writeFileSync(join(componentDir, 'sw-simple-card.vue'), 'existing content', 'utf-8');
+        runMigration(tmpDir, { dryRun: false, force: true });
+        const content = readFileSync(join(componentDir, 'sw-simple-card.vue'), 'utf-8');
+        expect(content).not.toBe('existing content');
+        expect(content).toContain('<template>');
+    });
+
+    it('counts as fully-migrated (not skippedExisting) when force is true', () => {
+        writeFileSync(join(componentDir, 'sw-simple-card.vue'), 'existing content', 'utf-8');
+        const { stats } = runMigration(tmpDir, { dryRun: false, force: true });
+        expect(stats.fullyMigrated).toBe(1);
+        expect(stats.skippedExisting).toBe(0);
+    });
+
+    it('does not skip in dry-run mode (dry-run never writes, so existence is irrelevant)', () => {
+        writeFileSync(join(componentDir, 'sw-simple-card.vue'), 'existing content', 'utf-8');
+        const { stats } = runMigration(tmpDir, { dryRun: true });
+        expect(stats.fullyMigrated).toBe(1);
+        expect(stats.skippedExisting).toBe(0);
+    });
+});
+
 describe('runMigration — partially-migrated (mixins)', () => {
     let tmpDir: string;
     let componentDir: string;

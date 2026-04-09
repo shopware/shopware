@@ -6,18 +6,20 @@
  * normalised automatically so the transformation logic can handle both styles.
  *
  * Usage:
- *   npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts [--dry-run | --write] <path>
+ *   npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts [--dry-run | --write] [--force] <path>
  *
  * Flags:
  *   --dry-run   (default) Preview what would be written without writing files
  *   --write     Write .vue files to disk
+ *   --force     Overwrite existing .vue files (default: skip if already exists)
  *
  * Examples:
  *   npx tsx run-sfc-migration.ts src/app/component/base/sw-button
  *   npx tsx run-sfc-migration.ts --write src/Resources/app/administration/src
+ *   npx tsx run-sfc-migration.ts --write --force src/Resources/app/administration/src
  */
 
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { globSync } from 'glob';
@@ -27,6 +29,7 @@ const __filename = fileURLToPath(import.meta.url);
 
 export interface RunOptions {
     dryRun: boolean;
+    force?: boolean;
 }
 
 export interface RunStats {
@@ -34,6 +37,7 @@ export interface RunStats {
     partiallyMigrated: number;
     notMigratable: number;
     skipped: number;
+    skippedExisting: number;
 }
 
 export interface RunResult {
@@ -73,10 +77,10 @@ export function normaliseJsContent(jsContent: string, componentName: string): st
 }
 
 export function runMigration(targetDir: string, options: RunOptions): RunResult {
-    const { dryRun } = options;
+    const { dryRun, force = false } = options;
     const indexFiles = globSync('**/index.js', { cwd: targetDir, absolute: true });
 
-    const stats: RunStats = { fullyMigrated: 0, partiallyMigrated: 0, notMigratable: 0, skipped: 0 };
+    const stats: RunStats = { fullyMigrated: 0, partiallyMigrated: 0, notMigratable: 0, skipped: 0, skippedExisting: 0 };
     const report: string[] = [];
 
     for (const indexPath of indexFiles) {
@@ -99,6 +103,11 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
         switch (result.status) {
             case 'fully-migrated': {
                 const vuePath = join(dir, `${componentName}.vue`);
+                if (!dryRun && !force && existsSync(vuePath)) {
+                    stats.skippedExisting++;
+                    report.push(`SKIP (already exists)  ${vuePath}`);
+                    break;
+                }
                 if (!dryRun) {
                     writeFileSync(vuePath, result.sfc, 'utf-8');
                 }
@@ -109,6 +118,11 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
             }
             case 'partially-migrated': {
                 const vuePath = join(dir, `${componentName}.vue`);
+                if (!dryRun && !force && existsSync(vuePath)) {
+                    stats.skippedExisting++;
+                    report.push(`SKIP (already exists)  ${vuePath}`);
+                    break;
+                }
                 if (!dryRun) {
                     writeFileSync(vuePath, result.sfc, 'utf-8');
                 }
@@ -134,17 +148,19 @@ if (process.argv[1] === __filename) {
     const targetArg = args.find((a) => !a.startsWith('--'));
 
     if (!targetArg) {
-        console.error('Usage: npx tsx run-sfc-migration.ts [--dry-run | --write] <path>');
+        console.error('Usage: npx tsx run-sfc-migration.ts [--dry-run | --write] [--force] <path>');
         console.error('  <path>      Directory to scan for index.js component files');
         console.error('  --dry-run   (default) Preview what would be written without writing files');
         console.error('  --write     Write .vue files to disk');
+        console.error('  --force     Overwrite existing .vue files (default: skip if already exists)');
         process.exit(1);
     }
 
     const TARGET_DIR = resolve(targetArg);
     const dryRun = args.includes('--dry-run') || !args.includes('--write');
+    const force = args.includes('--force');
 
-    const { stats, report } = runMigration(TARGET_DIR, { dryRun });
+    const { stats, report } = runMigration(TARGET_DIR, { dryRun, force });
 
     console.log(report.join('\n'));
     console.log(`
@@ -154,6 +170,7 @@ Fully migrated:      ${stats.fullyMigrated}
 Partially migrated:  ${stats.partiallyMigrated}
 Not migratable:      ${stats.notMigratable}
 Skipped (no twig):   ${stats.skipped}
+Skipped (exists):    ${stats.skippedExisting}
 `);
 
     if (dryRun) {

@@ -21,6 +21,10 @@ describe("CookiePermissionPlugin tests", () => {
 			writable: true,
 		});
 
+		window.focusHandler = {
+            setFocus: jest.fn(),
+        };
+
 		// Create DOM elements
 		document.body.innerHTML = `
             <div class="cookie-permission-container" style="display: none;">
@@ -265,6 +269,24 @@ describe("CookiePermissionPlugin tests", () => {
 			"hideCookieBar",
 			expect.any(Function),
 		);
+	});
+
+	test('sets focus on cookie bar when autoFocus is true', () => {
+		CookieStorage.getItem.mockReturnValue(null);
+		window.focusHandler.setFocus.mockClear();
+
+		new CookiePermissionPlugin(cookieBarElement, { autoFocus: true });
+
+		expect(window.focusHandler.setFocus).toHaveBeenCalledWith(cookieBarElement, { preventScroll: true });
+	});
+
+	test('does not set focus on cookie bar when autoFocus is false', () => {
+		CookieStorage.getItem.mockReturnValue(null);
+		window.focusHandler.setFocus.mockClear();
+
+		new CookiePermissionPlugin(cookieBarElement, { autoFocus: false });
+
+		expect(window.focusHandler.setFocus).not.toHaveBeenCalled();
 	});
 });
 

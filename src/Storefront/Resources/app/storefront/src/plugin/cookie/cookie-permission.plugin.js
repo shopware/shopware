@@ -31,6 +31,12 @@ export default class CookiePermissionPlugin extends Plugin {
          * resize debounce delay
          */
         resizeDebounceTime: 200,
+
+        /**
+         * When true, the cookie bar will be automatically focused when it is shown
+         * @type {boolean}
+         */
+        autoFocus: true,
     };
 
     init() {
@@ -39,7 +45,7 @@ export default class CookiePermissionPlugin extends Plugin {
         if (!this._isPreferenceSet()) {
             this._setBodyPadding();
             this._registerEvents();
-            this._setFocusTrap();
+            this._setFocus();
         }
 
         this._registerShowAndHideCookieBarEvents();
@@ -50,44 +56,27 @@ export default class CookiePermissionPlugin extends Plugin {
      * @private
      * @returns {void}
      */
-    _setFocusTrap() {
-        window.focusHandler.setFocus(this.el, { preventScroll: true });
-
-        this._onHandleTabKey = this._handleTabKey.bind(this);
-        this.el.addEventListener('keydown', this._onHandleTabKey);
-    }
-
-    /**
-     * Removes the focus trap for the cookie bar
-     * @private
-     * @returns {void}
-     */
-    _removeFocusTrap() {
-        if (!this._onHandleTabKey) {
+    _setFocus() {
+        if (this._isDataPrivacyPage() || !this.options.autoFocus) {
             return;
         }
 
-        this.el.removeEventListener('keydown', this._onHandleTabKey);
+        window.focusHandler.setFocus(this.el, { preventScroll: true });
     }
 
     /**
-     * Handles the tab key for the cookie bar
+     * Checks if the current page is the data privacy page.
+     * When user navigates to the data privacy page from the cookie bar, 
+     * the cookie bar should not be focused so the page can be read first.
      * @private
-     * @param {KeyboardEvent} event
-     * @returns {void}
+     * @returns {boolean}
      */
-    _handleTabKey(event) {
-        const focusable = window.focusHandler.getFocusableElements(this.el);
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
+    _isDataPrivacyPage() {
+        const dataPrivacyLink = this.el.querySelector('.cookie-permission-content > a');
+        const dataPrivacyUrl = dataPrivacyLink?.href;
+        const currentUrl = window.location.href;
 
-        if (event.key === 'Tab') {
-            if (event.shiftKey && document.activeElement === first) {
-                event.preventDefault(); last.focus();
-            } else if (!event.shiftKey && document.activeElement === last) {
-                event.preventDefault(); first.focus();
-            }
-        }
+        return currentUrl === dataPrivacyUrl;
     }
 
     /**
@@ -163,7 +152,7 @@ export default class CookiePermissionPlugin extends Plugin {
     _handleShowCookieBarEvent() {
         this._setBodyPadding();
         this._showCookieBar();
-        this._setFocusTrap();
+        this._setFocus();
     }
 
     /**
@@ -174,7 +163,6 @@ export default class CookiePermissionPlugin extends Plugin {
     _handleHideCookieBarEvent() {
         this._removeBodyPadding();
         this._hideCookieBar();
-        this._removeFocusTrap();
     }
 
     /**
@@ -188,7 +176,6 @@ export default class CookiePermissionPlugin extends Plugin {
         const { cookieExpiration, cookieName } = this.options;
         this._hideCookieBar();
         this._removeBodyPadding();
-        this._removeFocusTrap();
         CookieStorage.setItem(cookieName, '1', cookieExpiration);
 
         this.$emitter.publish('onClickDenyButton');

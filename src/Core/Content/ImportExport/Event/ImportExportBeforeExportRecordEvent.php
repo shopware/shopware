@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Content\ImportExport\Event;
 
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 

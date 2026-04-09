@@ -5,10 +5,10 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport\Event;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Framework\Log\Package;
 
 /**

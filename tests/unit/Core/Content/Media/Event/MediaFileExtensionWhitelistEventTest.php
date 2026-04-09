@@ -5,9 +5,9 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Event;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 
 /**

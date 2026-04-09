@@ -5,9 +5,9 @@ namespace Shopware\Tests\Unit\Core\Content\Seo\Event;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
+use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Framework\Log\Package;
 
 /**

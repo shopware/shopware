@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Content\Seo\Event;
 
+use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 

@@ -37,6 +37,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Kernel;
@@ -1055,6 +1056,8 @@ class WebhookManagerTest extends TestCase
         ?Client $client = null,
         bool $adminWorkerEnabled = true
     ): WebhookManager {
+        $guzzle = $client ?? static::getContainer()->get('shopware.webhook.guzzle');
+
         return new WebhookManager(
             static::getContainer()->get(WebhookLoader::class),
             static::getContainer()->get('event_dispatcher'),
@@ -1062,7 +1065,7 @@ class WebhookManagerTest extends TestCase
             static::getContainer()->get(HookableEventFactory::class),
             static::getContainer()->get(AppLocaleProvider::class),
             static::getContainer()->get(AppPayloadServiceHelper::class),
-            $client ?? static::getContainer()->get('shopware.app_system.guzzle'),
+            new WebhookClient($guzzle),
             $this->bus,
             $this->shopUrl,
             Kernel::SHOPWARE_FALLBACK_VERSION,

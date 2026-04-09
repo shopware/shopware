@@ -28,6 +28,7 @@ use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 
@@ -68,6 +69,7 @@ class TaxProviderPayloadServiceTest extends TestCase
             $shopIdProvider,
             StaticInAppPurchaseFactory::createWithFeatures(),
             'https://test-shop.com',
+            new MockClock(),
         );
 
         $url = 'https://example.com/provide-tax';
@@ -210,7 +212,8 @@ class TaxProviderPayloadServiceTest extends TestCase
             $entityEncoder,
             $shopIdProvider,
             StaticInAppPurchaseFactory::createWithFeatures(),
-            'https://test-shop.com'
+            'https://test-shop.com',
+            new MockClock(),
         );
 
         $url = 'https://example.com/provide-tax';

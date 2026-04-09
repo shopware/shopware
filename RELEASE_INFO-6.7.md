@@ -8,6 +8,11 @@
 
 ## Administration
 
+### Re-render iframe integrations when location changes
+
+Iframe-based Administration extensions now re-render correctly when their `locationId` changes.
+This fixes stale iframe content when switching locations in Meteor Admin SDK integrations and also prevents unnecessary full-page reloads.
+
 ## Storefront
 
 ### Order cancellation only shown for open orders
@@ -28,7 +33,7 @@ preserve the `data-quantity-selector-options` attribute with a `purchaseLimitUrl
 ### GLTF Animations
 
 User are now able to play animations from their 3D models in the Storefront.
-Simply upload a model with one or multiple animations baked into the file, bind the file to a product and display it in the Storefront.
+Simply upload a model with one or multiple animations baked into the file, bind the file to a product, and display it in the Storefront.
 
 ## App System
 
@@ -199,6 +204,11 @@ shopware:
 
 When `bin/console system:setup:staging` is executed, the configured keys are written to the database via `SystemConfigService`.
 
+### [Experimental] Agentic Commerce sales channel
+
+A new "Agentic Commerce" sales channel type is available in this release. The OpenAI Merchant Center integration is the first supported provider for AI-powered product feed exports.
+The Administration includes dedicated views for configuration, product mapping, and usage insights.
+
 ## API
 
 ### Minimum value constraints added to quantity fields in ProductPriceDefinition
@@ -329,11 +339,23 @@ public ?string $url = null;
 
 A value of `0` disables length validation entirely. This is pre-existing `StringFieldSerializer` behavior where any value below `1` is treated as unconstrained.
 
+### JSONL product export format
+
+Product exports now support `ProductExportEntity::FILE_FORMAT_JSONL` as a third file format.
+
+### [Experimental] Agentic Commerce product export provider abstraction
+
+The new `AbstractAgenticCommerceProductExportProvider` can be used to implement custom Agentic Commerce export providers.
+
 ## Administration
 
 ### CMS data mapping source for media custom fields
 
 Fixed media custom fields not being available as data mapping source for image elements in category and product CMS layouts. Shop Administrators can now reliably bind media custom fields to images in CMS pages without workarounds.
+
+### [Experimental] Agentic Commerce sales channel views and tracking entities
+
+New Agentic Commerce sales channels types can be created. These sales channels have dedicated configuration options in the administration for property mapping, and usage insights. New entities for monitoring orders and customers for Agentic Commerce sales channels are included.
 
 ## Storefront
 
@@ -439,7 +461,7 @@ Using `@extend` on generic tooling classes was causing very large combined selec
 ```scss
 .checkout-main {
     @extend .col-lg-8;
-}  
+}
 ```
 
 #### After
@@ -810,7 +832,7 @@ This new component is called `sw-model-viewer`.
 The Model Editor lets you make quick adjustments to your 3D models directly in the Administration. No external software needed.
 Simply select a 3D model in the sidebar and click the Expand button on the Model Viewer.
 A modal will open where you can move, rotate, and scale the model.
-You can also use the sidebar to type in specific values for position, rotation and scale.
+You can also use the sidebar to type in specific values for position, rotation, and scale.
 Click Save, and your changes are applied instantly.
 
 ## API
@@ -966,6 +988,10 @@ The following deprecations apply to `sw-mail-template-index`:
 * The `listing` mixin will be removed in v6.8.0.0
 * `term` data property will be removed in v6.8.0.0
 * `onChangeLanguage` method: the if/else block will be replaced with just the if-branch logic in v6.8.0.0
+
+### Fixed `sw-entity-multi-id-select` crash when used in plugin system config with sales channel inheritance
+
+When `sw-entity-multi-id-select` was used via the `<component>` tag in a plugin's `config.xml`, switching to a non-default sales channel caused a TypeError because the inheritance system passed `null` as the value instead of an array. The component now handles `null` gracefully, aligning with the convention that components used via `<component>` in system config must accept `null` as their value.
 
 ### Admin boot loading spinner shows error instead of infinite loading
 

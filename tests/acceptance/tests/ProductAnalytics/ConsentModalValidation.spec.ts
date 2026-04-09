@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@fixtures/AcceptanceTest';
-import { parseCapturedEvents, setupProductAnalyticsInterceptor, waitForCapturedRequests } from '@helpers/productanalytics-helpers';
+import { parseCapturedRequests, setupProductAnalyticsInterceptor, waitForCapturedRequests } from '@helpers/productanalytics-helpers';
 import { createNewAdminPageContext, loginToAdministration, User } from '@shopware-ag/acceptance-test-suite';
 
 const PRODUCT_ANALYTICS_ENDPOINT = 'event';
@@ -87,10 +87,13 @@ test(
 
         await test.step('Validate anonymous events are fired.', async () => {
 
-            const events = parseCapturedEvents(capturedRequests);
+            const requests = parseCapturedRequests(capturedRequests);
+            expect(requests).toHaveLength(4);
+
+            const events = requests.flatMap((request) => request.events);
             expect(events).toHaveLength(4);
 
-            const eventTypes = events.map(e => e.event_type);
+            const eventTypes = events.map(e => e.name);
             expect(eventTypes).toEqual([
                 'consent_modal_viewed',
                 'consent_status_change',
@@ -105,20 +108,20 @@ test(
                 consentModalDecision,
             ] = events;
 
-            const consentModalViewedProps = consentModalViewed.event_properties;
+            const consentModalViewedProps = consentModalViewed.properties;
             expect(consentModalViewedProps.consents_shown).toEqual(
                 expect.arrayContaining(['backend_data', 'product_analytics'])
             );
 
-            const consentStatusChange1Props = consentStatusChange1.event_properties;
+            const consentStatusChange1Props = consentStatusChange1.properties;
             expect(consentStatusChange1Props.consent).toBe('backend_data');
             expect(consentStatusChange1Props.status).toBe('declined');
 
-            const consentStatusChange2Props = consentStatusChange2.event_properties;
+            const consentStatusChange2Props = consentStatusChange2.properties;
             expect(consentStatusChange2Props.consent).toBe('product_analytics');
             expect(consentStatusChange2Props.status).toBe('declined');
 
-            const consentModalDecisionProps = consentModalDecision.event_properties;
+            const consentModalDecisionProps = consentModalDecision.properties;
             expect(consentModalDecisionProps.backend_data_changed).toBe(false);
             expect(consentModalDecisionProps.backend_data_state).toBe('revoked');
             expect(consentModalDecisionProps.product_analytics_changed).toBe(false);

@@ -1,5 +1,5 @@
 import { isSaaSInstance, test, expect } from '@fixtures/AcceptanceTest';
-import { parseCapturedEvents,
+import { parseCapturedRequests,
     setupProductAnalyticsInterceptor, waitForCapturedRequests,
 } from '@helpers/productanalytics-helpers';
 
@@ -89,54 +89,67 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         // We expect 7 events in total, but they can be in multiple requests
         // 1 anonymous event for consent status change, which is fired when merchant gives consent for product analytics
         // 6 events for user interactions
-        const events = parseCapturedEvents(capturedRequests);
+        const requests = parseCapturedRequests(capturedRequests);
+        expect(requests).toHaveLength(7);
+
+        const events = requests.flatMap((request) => request.events);
         expect(events).toHaveLength(7);
 
-        const eventIds = events.map(e => e.event_id);
-        expect(eventIds).toEqual([undefined, 0, 1, 2, 3, 4, 5]);
-
-        const eventTypes = events.map(e => e.event_type);
-        expect(eventTypes).toEqual([
-            'consent_status_change', // anonymous event undefined event_id
-            'link_visited',   // event_id 0
-            'page_viewed',    // event_id 1
-            'link_visited',   // event_id 2
-            'page_viewed',    // event_id 3
-            'button_click',   // event_id 4
-            'page_viewed',    // event_id 5
+        const eventNames = events.map(e => e.name);
+        expect(eventNames).toEqual([
+            'consent_status_change',
+            'link_visited',
+            'page_viewed',
+            'link_visited',
+            'page_viewed',
+            'button_click',
+            'page_viewed',
         ]);
 
+        requests.forEach((request) => {
+            expect(request.user.shop_id).toBeTruthy();
+            expect(request.user.id).toBeTruthy();
+            expect(request.context.sw_version).toBeTruthy();
+            expect(request.context.sw_app_url).toBeTruthy();
+            expect(request.context.sw_browser_url).toBeTruthy();
+            expect(request.context.sw_user_agent).toBeTruthy();
+            expect(request.context.sw_default_language).toBeTruthy();
+            expect(request.context.sw_default_currency).toBeTruthy();
+            expect(request.context.sw_screen_width).toBeGreaterThan(0);
+            expect(request.context.sw_screen_height).toBeGreaterThan(0);
+            expect(request.context.sw_screen_orientation).toBeTruthy();
+
+            request.events.forEach((event) => {
+                expect(event.timestamp).toBeGreaterThan(0);
+                expect(event.insert_id).toBeTruthy();
+                expect(event.device_id).toBeTruthy();
+                expect(event.session_id).toBeGreaterThan(0);
+            });
+        });
+
         const [
-            consentStatusChange, // anonymous event with undefined event_id
-            firstLinkVisited,    // event_id 0
-            pageViewed,          // event_id 1
-            linkVisited,         // event_id 2
-            pageViewedDetail,    // event_id 3
-            buttonClicked,       // event_id 4
-            pageViewedBackToDash,// event_id 5
+            consentStatusChange,
+            firstLinkVisited,
+            pageViewed,
+            linkVisited,
+            pageViewedDetail,
+            buttonClicked,
+            pageViewedBackToDash,
         ] = events;
 
-        // ----------------------
-        // event_id = undefined: anonymous event
-        // ----------------------
-        const consentStatusChangeProps = consentStatusChange.event_properties;
+        const consentStatusChangeProps = consentStatusChange.properties;
+
         expect(consentStatusChangeProps.consent).toBe('product_analytics');
         expect(consentStatusChangeProps.status).toBe('accepted');
 
-        // ----------------------
-        // event_id = 0: first Link Visited (dashboard -> order listing)
-        // ----------------------
-        const firstLinkVisitedProps = firstLinkVisited.event_properties;
+        const firstLinkVisitedProps = firstLinkVisited.properties;
 
         expect(firstLinkVisitedProps.sw_link_href).toBe('#/sw/order/index');
         expect(firstLinkVisitedProps.sw_link_type).toBe('internal');
         expect(firstLinkVisitedProps.sw_page_path).toBe('/sw/profile/index/privacy-preferences');
         expect(firstLinkVisitedProps.sw_page_name).toBe('sw.profile.index.privacyPreferences');
 
-        // ----------------------
-        // event_id = 1: first Page Viewed (dashboard -> order listing)
-        // ----------------------
-        const pageViewEventProps = pageViewed.event_properties;
+        const pageViewEventProps = pageViewed.properties;
 
         expect(pageViewEventProps.sw_route_from_name).toBe('sw.profile.index.privacyPreferences');
         expect(pageViewEventProps.sw_route_from_href).toBe('/sw/profile/index/privacy-preferences');
@@ -146,10 +159,7 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(pageViewEventProps.sw_page_path).toBe('/sw/order/index');
         expect(pageViewEventProps.sw_page_full_path).toContain('/sw/order/index?limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false');
 
-        // ----------------------
-        // event_id = 2: Link Visited (clicking into order detail from listing)
-        // ----------------------
-        const linkVisitedProps = linkVisited.event_properties;
+        const linkVisitedProps = linkVisited.properties;
 
         expect(linkVisitedProps.sw_link_href).toContain(`#/sw/order/detail/${order.id}`);
         expect(linkVisitedProps.sw_page_full_path).toContain('/sw/order/index?limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false&grid.filter.order=null')
@@ -157,10 +167,7 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(linkVisitedProps.sw_page_path).toBe('/sw/order/index');
         expect(linkVisitedProps.sw_page_name).toBe('sw.order.index');
 
-        // ----------------------
-        // event_id = 3: Page Viewed (order detail.general)
-        // ----------------------
-        const pageViewedDetailProps = pageViewedDetail.event_properties;
+        const pageViewedDetailProps = pageViewedDetail.properties;
 
         expect(pageViewedDetailProps.sw_route_from_name).toBe('sw.order.index');
         expect(pageViewedDetailProps.sw_route_from_href).toBe('/sw/order/index');
@@ -170,20 +177,14 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(pageViewedDetailProps.sw_page_path).toContain('/sw/order/detail/');
         expect(pageViewedDetailProps.sw_page_full_path).toBe(`/sw/order/detail/${order.id}/general`);
 
-        // ----------------------
-        // event_id = 4: Button Click
-        // ----------------------
-        const buttonEventProps = buttonClicked.event_properties;
+        const buttonEventProps = buttonClicked.properties;
 
         expect(buttonEventProps.sw_element_id).toBe('sw-order-detail.save-edits');
         expect(buttonEventProps.sw_page_full_path).toBe(`/sw/order/detail/${order.id}/general`);
         expect(buttonEventProps.sw_page_path).toBe(`/sw/order/detail/${order.id}/general`);
         expect(buttonEventProps.sw_page_name).toBe('sw.order.detail.general');
 
-        // ----------------------
-        // event_id = 5: final Page Viewed (back to dashboard)
-        // ----------------------
-        const pageViewedBackToDashProps = pageViewedBackToDash.event_properties;
+        const pageViewedBackToDashProps = pageViewedBackToDash.properties;
 
         expect(pageViewedBackToDashProps.sw_route_from_name).toBe('sw.order.detail.general');
         expect(pageViewedBackToDashProps.sw_route_from_href).toBe(`/sw/order/detail/${order.id}/general`);

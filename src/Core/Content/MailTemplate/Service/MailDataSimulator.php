@@ -143,8 +143,6 @@ class MailDataSimulator
         $templateData = [];
         $referenceData = [];
 
-        $templateData[MailAware::TIMEZONE] = 'UTC'; // TODO do we need the timezone from the request cookies or is this fine?
-
         $templateData['salesChannel'] = $this->getEntityData(
             SalesChannelDefinition::class,
             (new Criteria())
@@ -153,7 +151,6 @@ class MailDataSimulator
             $referenceData,
             $faker
         );
-        $templateData['salesChannelId'] = $templateData['salesChannel']->get('id');
 
         foreach ($eventData as $name => $type) {
             if (\array_key_exists($name, $templateData)) {

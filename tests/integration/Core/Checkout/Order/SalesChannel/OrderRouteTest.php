@@ -84,8 +84,6 @@ class OrderRouteTest extends TestCase
 
     private string $deepLinkCode;
 
-    private int $mailSentEventCounter = 0;
-
     /**
      * @var EntityRepository<CustomerCollection>
      */
@@ -443,9 +441,11 @@ class OrderRouteTest extends TestCase
         static::getContainer()->get(CachedFlowLoader::class)->invalidate();
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $this->mailSentEventCounter = 0;
 
-        $this->addEventListener($dispatcher, MailSentEvent::class, $this->handleMailSentEvent(...));
+        $capturedEvents = [];
+        $this->addEventListener($dispatcher, MailSentEvent::class, static function (MailSentEvent $event) use (&$capturedEvents): void {
+            $capturedEvents[] = $event;
+        });
 
         $this->browser
             ->request(
@@ -465,9 +465,9 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
 
-        $dispatcher->removeListener(MailSentEvent::class, $this->handleMailSentEvent(...));
-
-        static::assertSame(1, $this->mailSentEventCounter, 'The ‘mail.sent’ event was executed too often');
+        static::assertCount(1, $capturedEvents, 'Expected exactly 1 mail.sent event');
+        static::assertSame('Payment method changed', $capturedEvents[0]->getSubject());
+        static::assertStringContainsString('payment method for your order has been successfully changed', $capturedEvents[0]->getContents()['text/html']);
     }
 
     public function testSetPaymentOrderWrongPayment(): void
@@ -715,16 +715,5 @@ class OrderRouteTest extends TestCase
                 'sent' => $sent,
             ],
         ], Context::createDefaultContext());
-    }
-
-    private function handleMailSentEvent(MailSentEvent $event): void
-    {
-        ++$this->mailSentEventCounter;
-        fwrite(STDERR, "\n=== MAIL SENT EVENT ===\n");
-        fwrite(STDERR, "Subject: " . $event->getSubject() . "\n");
-        fwrite(STDERR, "HTML (first 500): " . substr($event->getContents()['text/html'] ?? '', 0, 500) . "\n");
-        fwrite(STDERR, "=== END MAIL ===\n");
-        static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
-        static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
     }
 }

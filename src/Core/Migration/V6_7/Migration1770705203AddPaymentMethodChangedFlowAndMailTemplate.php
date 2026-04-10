@@ -104,6 +104,8 @@ class Migration1770705203AddPaymentMethodChangedFlowAndMailTemplate extends Migr
                 ]
             );
         }
+
+        $this->registerIndexer($connection, 'flow.indexer');
     }
 
     private function getFlowId(Connection $connection, string $eventName): ?string

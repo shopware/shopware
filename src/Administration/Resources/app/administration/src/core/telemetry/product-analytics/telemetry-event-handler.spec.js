@@ -1,9 +1,9 @@
 import { TelemetryEvent } from '../types';
 import createTelemetryEventHandler from './telemetry-event-handler';
 
-describe('src/core/telemetry/amplitude/telemetry-event-handler.ts', () => {
+describe('src/core/telemetry/product-analytics/telemetry-event-handler.ts', () => {
     let client;
-    let pushTelemetryEventToAmplitude;
+    let pushTelemetryEventToGateway;
 
     beforeEach(() => {
         client = {
@@ -12,13 +12,11 @@ describe('src/core/telemetry/amplitude/telemetry-event-handler.ts', () => {
             flush: jest.fn(),
         };
 
-        Shopware.Store.get('context').app.config.shopId = 'shop-id-1';
-
-        pushTelemetryEventToAmplitude = createTelemetryEventHandler(client);
+        pushTelemetryEventToGateway = createTelemetryEventHandler(client);
     });
 
     it('identifies user', () => {
-        pushTelemetryEventToAmplitude(
+        pushTelemetryEventToGateway(
             new TelemetryEvent('identify', {
                 userId: 'user-id-1',
                 locale: 'en-GB',
@@ -26,28 +24,24 @@ describe('src/core/telemetry/amplitude/telemetry-event-handler.ts', () => {
             }),
         );
 
-        expect(client.identify).toHaveBeenCalledWith('shop-id-1:user-id-1', {
-            userId: 'user-id-1',
-            locale: 'en-GB',
-            isAdmin: false,
-        });
+        expect(client.identify).toHaveBeenCalledWith('user-id-1');
     });
 
     it('tracks login event', () => {
-        pushTelemetryEventToAmplitude(new TelemetryEvent('login', {}));
+        pushTelemetryEventToGateway(new TelemetryEvent('login', {}));
 
         expect(client.track).toHaveBeenCalledWith('login');
     });
 
     it('tracks logout event', () => {
-        pushTelemetryEventToAmplitude(new TelemetryEvent('logout', {}));
+        pushTelemetryEventToGateway(new TelemetryEvent('logout', {}));
 
         expect(client.track).toHaveBeenCalledWith('logout');
         expect(client.flush).toHaveBeenCalled();
     });
 
     it('normalizes non-string route names for page change tracking', () => {
-        pushTelemetryEventToAmplitude(
+        pushTelemetryEventToGateway(
             new TelemetryEvent('page_change', {
                 from: {
                     name: Symbol('from-route'),
@@ -71,7 +65,7 @@ describe('src/core/telemetry/amplitude/telemetry-event-handler.ts', () => {
     });
 
     it('passes through programmatic telemetry event names unchanged', () => {
-        pushTelemetryEventToAmplitude(
+        pushTelemetryEventToGateway(
             new TelemetryEvent('programmatic', {
                 eventName: 'page_viewed',
             }),

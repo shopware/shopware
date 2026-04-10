@@ -33,7 +33,9 @@
       "titleSidebarItemFilterCampaignCode": "Kampagnen-Code",
       "buttonDelete": "Löschen",
       "textDeleteConfirm": "Möchten Sie diese Bestellung ({orderNumber}) wirklich löschen?",
-      "labelManualOrder": "Erstellt von Admin"
+      "labelManualOrder": "Erstellt von Admin",
+      "tooltipCustomerComment": "Zusätzliche Informationen: {comment}",
+      "tooltipInternalComment": "Interner Kommentar: {comment}"
     },
     "detail": {
       "buttonCancel": "Änderungen verwerfen",

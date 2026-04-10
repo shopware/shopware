@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraint;
 
 /**
  * @deprecated tag:v6.8.0 - reason:remove-rule - Use \Shopware\Core\Checkout\Cart\Rule\LineItemProductTypeRule instead.
@@ -50,8 +49,6 @@ class LineItemProductStatesRule extends Rule
     }
 
     /**
-     * @return array<string, array<int, Constraint>>
-     *
      * @deprecated tag:v6.8.0 - reason:remove-rule - Will be removed, as product states are deprecated.
      */
     public function getConstraints(): array

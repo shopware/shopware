@@ -124,10 +124,23 @@
 
                     <mt-button
                         v-if="item.customerComment"
-                        v-tooltip="{ message: item.customerComment }"
+                        v-tooltip="{ message: $tc('sw-order.list.tooltipCustomerComment', { comment: `${item.customerComment}` }) }"
                         class="sw-order-list__tooltip-order-comment"
                         size="x-small"
                         variant="secondary"
+                    >
+                        <mt-icon
+                            name="regular-comments"
+                            size="14px"
+                        />
+                    </mt-button>
+
+                    <mt-button
+                        v-if="item.internalComment"
+                        v-tooltip="{ message: $tc('sw-order.list.tooltipInternalComment', { comment: `${item.internalComment}` }) }"
+                        class="sw-order-list__tooltip-order-comment"
+                        size="x-small"
+                        variant="primary"
                     >
                         <mt-icon
                             name="regular-comments"

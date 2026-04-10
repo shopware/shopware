@@ -63,7 +63,7 @@ return (new Config())
         [
             function (Context $context): void {
                 $filesWithIgnoredErrors = [];
-                $phpstanBaseline = $context->platform->pullRequest->getFile('phpstan-baseline.neon')->getContent();
+                $phpstanBaseline = $context->platform->pullRequest->getFile('phpstan-baseline.php')->getContent();
                 foreach ($context->platform->pullRequest->getFiles()->map(fn (File $f) => $f->name) as $fileName) {
                     if (str_contains($phpstanBaseline, 'path: ' . $fileName)) {
                         $filesWithIgnoredErrors[] = $fileName;
@@ -78,7 +78,7 @@ return (new Config())
                 }
             },
             function (Context $context): void {
-                $phpstanBaseline = $context->platform->pullRequest->getFiles()->get('phpstan-baseline.neon');
+                $phpstanBaseline = $context->platform->pullRequest->getFiles()->get('phpstan-baseline.php');
                 if (!$phpstanBaseline instanceof File) {
                     return;
                 }

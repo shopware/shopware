@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -66,7 +67,42 @@ class ApiRouteScopeTest extends TestCase
     #[TestDox('grants access only to requests carrying a valid Context with AdminApiSource')]
     public function testIsAllowed(array $attributes, bool $expected): void
     {
-        static::assertSame($expected, $this->scope->isAllowed(new Request([], [], $attributes)));
+        static::assertSame($expected, $this->scope->isAllowed(new Request(attributes: $attributes)));
+    }
+
+    /**
+     * @param array<string, string|bool> $attributes
+     */
+    #[DataProvider('missingContextProvider')]
+    #[TestDox('throws RoutingException when the context attribute is absent or not a Context instance')]
+    public function testIsAllowedThrowsOnMissingContext(array $attributes, string $routeAttribute, string $route): void
+    {
+        $this->expectExceptionObject(RoutingException::missingRouteAttribute($routeAttribute, $route));
+        $this->scope->isAllowed(new Request(attributes: $attributes));
+    }
+
+    /**
+     * @return \Generator<string, array{attributes: array<string, string|bool>, routeAttribute: string, route: string}>
+     */
+    public static function missingContextProvider(): \Generator
+    {
+        yield 'no context attribute set' => [
+            'attributes' => [],
+            'routeAttribute' => PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT,
+            'route' => '',
+        ];
+
+        yield 'context attribute is not a Context instance' => [
+            'attributes' => [PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT => 'not-a-context'],
+            'routeAttribute' => PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT,
+            'route' => '',
+        ];
+
+        yield 'context attribute is not a Context instance with route' => [
+            'attributes' => [PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT => 'not-a-context', '_route' => 'api.product.list'],
+            'routeAttribute' => PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT,
+            'route' => 'api.product.list',
+        ];
     }
 
     /**
@@ -74,16 +110,6 @@ class ApiRouteScopeTest extends TestCase
      */
     public static function isAllowedProvider(): \Generator
     {
-        yield 'no context attribute set' => [
-            'attributes' => [],
-            'expected' => false,
-        ];
-
-        yield 'context attribute is not a Context instance' => [
-            'attributes' => [PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT => 'not-a-context'],
-            'expected' => false,
-        ];
-
         yield 'AdminApiSource with auth required (default)' => [
             'attributes' => [PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT => new Context(new AdminApiSource(null))],
             'expected' => true,

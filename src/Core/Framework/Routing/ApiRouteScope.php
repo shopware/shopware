@@ -22,7 +22,7 @@ class ApiRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDe
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
         $authRequired = $request->attributes->get('auth_required', true);
         if (!$context instanceof Context) {
-            return false;
+            throw RoutingException::missingRouteAttribute(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, (string) $request->attributes->get('_route', ''));
         }
         $source = $context->getSource();
 

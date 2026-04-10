@@ -120,6 +120,8 @@ const {
         };
     },
 );
+
+const $dataScope = { acl, title, description, count, canEdit, label, onAction, onReset };
 </script>"
 `;
 

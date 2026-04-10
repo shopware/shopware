@@ -50,7 +50,16 @@ export function mergeComponentFiles(twigContent: string, jsContent: string): Mer
         return { sfc, status: 'partially-migrated', blockers: scriptResult.blockers, warnings: [] };
     }
 
-    const sfc = [templateSection, '', `<script setup>\n${scriptResult.script}\n</script>`].join('\n');
+    // If the template uses $dataScope (i.e. it has <sw-block> elements), append a
+    // $dataScope constant that exposes all public setup state so block overrides can
+    // access the parent component's reactive data via the :data binding.
+    let scriptContent = scriptResult.script;
+    if (templateSection.includes('$dataScope')) {
+        const scopeEntries = scriptResult.publicNames.join(', ');
+        scriptContent += `\n\nconst $dataScope = { ${scopeEntries} };`;
+    }
+
+    const sfc = [templateSection, '', `<script setup>\n${scriptContent}\n</script>`].join('\n');
     const warnings = sfc.includes('TODO: $el') ? ['$el usage detected — replace with a template ref or verify getCurrentInstance() call context'] : [];
 
     return { sfc, status: 'fully-migrated', blockers: [], warnings };

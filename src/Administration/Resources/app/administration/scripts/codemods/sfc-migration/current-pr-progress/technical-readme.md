@@ -116,6 +116,7 @@ Returns:
     scriptType: 'setup' | 'options',
     status: MigrationStatus,
     blockers: string[],
+    publicNames: string[], // names in the `public:` return of createExtendableSetup
 }
 ```
 
@@ -226,7 +227,8 @@ Combines template and script results into a `.vue` file string.
 
 1. Runs `transformScript` → if `not-migratable`, returns empty SFC immediately
 2. Runs `transformTemplate`
-3. Wraps in `<template>...</template>\n\n<script setup>...</script>` (or `<script>` for backoff)
+3. For fully-migratable components: if the template contains `$dataScope` (i.e. has `<sw-block>` elements), appends `const $dataScope = { ...publicNames };` to the script so the `:data` binding is defined
+4. Wraps in `<template>...</template>\n\n<script setup>...</script>` (or `<script>` for backoff)
 
 ---
 
@@ -321,7 +323,7 @@ Each item below has a corresponding `.unfinished.md` file in this directory:
 | [confirmation-before-writes.finished.md](confirmation-before-writes.finished.md) | ✅ `--dry-run` default + `--write` flag implemented; runner tests added |
 | [original-files-cleanup.finished.md](original-files-cleanup.finished.md) | ✅ `--delete-originals` flag deletes source files after writing `.vue`; 11 new tests |
 | [sw-block-components-missing.unfinished.md](sw-block-components-missing.unfinished.md) | `<sw-block>` / `<sw-block-parent>` Vue components don't exist yet |
-| [data-scope-binding.unfinished.md](data-scope-binding.unfinished.md) | `$dataScope` referenced in templates but never defined in generated script |
+| [data-scope-binding.finished.md](data-scope-binding.finished.md) | ✅ `$dataScope` auto-generated from `publicNames` in `generate-sfc.ts`; only emitted when template has blocks; 2 new tests |
 | [this-el-resolution.finished.md](this-el-resolution.finished.md) | ✅ Runner flags `$el` usage with `⚠` report lines and `elWarnings` stat; README updated |
 | [extend-soft-blocker-inlining.finished.md](extend-soft-blocker-inlining.finished.md) | ✅ Option A: parent name in blocker string; `⚠` warning line; `extendsComponents` stat; README manual migration guide; 6 new tests |
 | [runner-tests.finished.md](runner-tests.finished.md) | ✅ 23 tests in `run-sfc-migration.spec.ts` — `findTwigFile`, `normaliseJsContent`, dry-run, write, skip, not-migratable, partial |

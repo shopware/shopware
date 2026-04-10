@@ -17,6 +17,8 @@ export interface TransformScriptResult {
     scriptType: 'setup' | 'options';
     status: MigrationStatus;
     blockers: string[];
+    /** Names exposed in the `public:` return of createExtendableSetup — used by generate-sfc to build $dataScope. */
+    publicNames: string[];
 }
 
 // ---------------------------------------------------------------------------
@@ -549,7 +551,7 @@ function detectBlockers(optionsObj: ObjectLiteralExpression, sourceFile: SourceF
 // Code generators
 // ---------------------------------------------------------------------------
 
-function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componentName: string, sourceFile: SourceFile): string {
+function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componentName: string, sourceFile: SourceFile): { script: string; publicNames: string[] } {
     const injectKeys = extractInjectKeys(optionsObj);
     const dataProps = extractDataProps(optionsObj);
     const computedProps = extractComputedProps(optionsObj);
@@ -784,7 +786,7 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     lines.push('    },');
     lines.push(');');
 
-    return lines.join('\n');
+    return { script: lines.join('\n'), publicNames };
 }
 
 /**
@@ -865,13 +867,13 @@ export function transformScript(jsContent: string): TransformScriptResult {
     const componentName = extractComponentName(sourceFile);
 
     if (!optionsObj) {
-        return { script: '', scriptType: 'options', status: 'not-migratable', blockers: ['no options object found'] };
+        return { script: '', scriptType: 'options', status: 'not-migratable', blockers: ['no options object found'], publicNames: [] };
     }
 
     const blockers = detectBlockers(optionsObj, sourceFile);
 
     if (blockers.includes('render function')) {
-        return { script: '', scriptType: 'options', status: 'not-migratable', blockers };
+        return { script: '', scriptType: 'options', status: 'not-migratable', blockers, publicNames: [] };
     }
 
     if (blockers.length > 0) {
@@ -880,13 +882,16 @@ export function transformScript(jsContent: string): TransformScriptResult {
             scriptType: 'options',
             status: 'partially-migratable',
             blockers,
+            publicNames: [],
         };
     }
 
+    const { script, publicNames } = buildCompositionApiScript(optionsObj, componentName, sourceFile);
     return {
-        script: buildCompositionApiScript(optionsObj, componentName, sourceFile),
+        script,
         scriptType: 'setup',
         status: 'fully-migratable',
         blockers: [],
+        publicNames,
     };
 }

@@ -90,9 +90,8 @@ All transform modules have integration tests using real fixture files:
 The template transformation produces `<sw-block name="..." :data="$dataScope">` and `<sw-block-parent/>`. These custom components and the `$dataScope` prop binding need to be implemented in the framework before any migrated component can actually work.  
 **Needed:** The companion PR/task to create these components is not referenced anywhere.
 
-### 4. `$dataScope` Is Unexplained
-The `:data="$dataScope"` binding is hard-coded in `transform-template.ts` but `$dataScope` is never defined or injected in the generated `<script setup>`. A migrated component would break at runtime.  
-**Needed:** Either generate the correct binding or document how it is injected.
+### ~~4. `$dataScope` Is Unexplained~~ ✅ Done
+Option A implemented: `generate-sfc.ts` now appends `const $dataScope = { ...publicNames };` to the generated `<script setup>` whenever the template contains `$dataScope` (i.e. has Twig blocks). `TransformScriptResult` gains a `publicNames: string[]` field populated by `buildCompositionApiScript`. Components without blocks produce no `$dataScope` so there is no unused variable. 2 new assertions in `generate-sfc.spec.ts`; snapshot updated. Total: 187 tests, all passing.
 
 ### ~~5. `this.$el` Is Unresolved~~ ✅ Done
 `MergeResult.warnings` now carries a `'$el usage detected'` entry when the generated SFC contains `TODO: $el`. The runner prints a `⚠` warning line after the component's report line and increments an `elWarnings` counter in `RunStats`. The summary output includes a `Components with $el` line. `README.md` updated with the recommended template-ref replacement pattern. 4 new tests added across `generate-sfc.spec.ts` and `run-sfc-migration.spec.ts`. Total: 179 tests, all passing.
@@ -124,7 +123,7 @@ Test coverage is entirely fixture-based. There is no proof that the codemod work
 | `transform-script.spec.ts` | ✅ Full coverage — 9 fixtures (simple, block, created, module-level, mixin, render, composables, inherit-attrs, extend) |
 | `run-sfc-migration.spec.ts` | ✅ Full coverage — 42 tests |
 
-**Total: 185 tests, all passing**
+**Total: 187 tests, all passing**
 
 ### ~~8. Overwrite Without Warning~~ ✅ Done
 Existing `.vue` files are skipped by default. Pass `--force` to overwrite. `skippedExisting` counter added to stats and summary. 6 new tests in `run-sfc-migration.spec.ts`.
@@ -148,7 +147,7 @@ The transformation core (template conversion, script conversion, merger, analysi
 
 1. ~~**Acceptance criterion #4** (confirmation before breaking changes) is entirely unimplemented.~~ ✅ Done — dry-run default + `--write` flag.
 2. **`<sw-block>` infrastructure** does not exist — migrated components will not work until those components are built.
-3. **`$dataScope` binding** in templates is undefined in the generated script.
+3. ~~**`$dataScope` binding** in templates is undefined in the generated script.~~ ✅ Done — auto-generated from `publicNames` in `generate-sfc.ts`.
 4. ~~**Original files are never cleaned up** after migration.~~ ✅ Done — `--delete-originals` flag.
 5. ~~**Runner has no tests**.~~ ✅ Done — 23 tests in `run-sfc-migration.spec.ts`.
 6. **PR meta** (description, checklist) is unfinished.

@@ -126,6 +126,21 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
             expect(result.sfc).toContain('public:');
         });
 
+        it('defines $dataScope after createExtendableSetup so <sw-block> can pass reactive state to overrides', () => {
+            expect(result.sfc).toContain('const $dataScope = {');
+            expect(result.sfc).toContain('acl,');
+            expect(result.sfc).toContain('title,');
+            expect(result.sfc).toContain('onAction,');
+        });
+
+        it('does not define $dataScope for components without twig blocks', () => {
+            const simple = mergeComponentFiles(
+                readFixture('simple-component.html.twig'),
+                readFixture('simple-component.index.js'),
+            );
+            expect(simple.sfc).not.toContain('$dataScope');
+        });
+
         it('matches the complete SFC output snapshot', () => {
             expect(result.sfc).toMatchSnapshot();
         });

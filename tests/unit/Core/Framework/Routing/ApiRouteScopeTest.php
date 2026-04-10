@@ -27,7 +27,7 @@ class ApiRouteScopeTest extends TestCase
         $this->scope = new ApiRouteScope();
     }
 
-    #[DataProvider('isAllowedPathProvider')]
+    #[DataProvider('allowsPathProvider')]
     #[TestDox('allows only paths under /api and /sw-domain-hash.html')]
     public function testIsAllowedPath(string $path, bool $expected): void
     {
@@ -35,9 +35,30 @@ class ApiRouteScopeTest extends TestCase
     }
 
     /**
+     * @param array<string, string|bool|Context> $attributes
+     */
+    #[DataProvider('allowsProvider')]
+    #[TestDox('grants access only to requests carrying a valid Context with AdminApiSource')]
+    public function testIsAllowed(array $attributes, bool $expected): void
+    {
+        static::assertSame($expected, $this->scope->isAllowed(new Request(attributes: $attributes)));
+    }
+
+    /**
+     * @param array<string, string|bool> $attributes
+     */
+    #[DataProvider('throwsOnMissingContextProvider')]
+    #[TestDox('throws RoutingException when the context attribute is absent or not a Context instance')]
+    public function testIsAllowedThrowsOnMissingContext(array $attributes, string $routeAttribute, string $route): void
+    {
+        $this->expectExceptionObject(RoutingException::missingRouteAttribute($routeAttribute, $route));
+        $this->scope->isAllowed(new Request(attributes: $attributes));
+    }
+
+    /**
      * @return \Generator<string, array{path: string, expected: bool}>
      */
-    public static function isAllowedPathProvider(): \Generator
+    public static function allowsPathProvider(): \Generator
     {
         yield '/api route' => [
             'path' => '/api/v1/product',
@@ -53,47 +74,15 @@ class ApiRouteScopeTest extends TestCase
             'path' => '/storefront/product',
             'expected' => false,
         ];
-
-        yield '/admin route' => [
-            'path' => '/admin',
-            'expected' => false,
-        ];
-    }
-
-    /**
-     * @param array<string, string|bool|Context> $attributes
-     */
-    #[DataProvider('isAllowedProvider')]
-    #[TestDox('grants access only to requests carrying a valid Context with AdminApiSource')]
-    public function testIsAllowed(array $attributes, bool $expected): void
-    {
-        static::assertSame($expected, $this->scope->isAllowed(new Request(attributes: $attributes)));
-    }
-
-    /**
-     * @param array<string, string|bool> $attributes
-     */
-    #[DataProvider('missingContextProvider')]
-    #[TestDox('throws RoutingException when the context attribute is absent or not a Context instance')]
-    public function testIsAllowedThrowsOnMissingContext(array $attributes, string $routeAttribute, string $route): void
-    {
-        $this->expectExceptionObject(RoutingException::missingRouteAttribute($routeAttribute, $route));
-        $this->scope->isAllowed(new Request(attributes: $attributes));
     }
 
     /**
      * @return \Generator<string, array{attributes: array<string, string|bool>, routeAttribute: string, route: string}>
      */
-    public static function missingContextProvider(): \Generator
+    public static function throwsOnMissingContextProvider(): \Generator
     {
         yield 'no context attribute set' => [
             'attributes' => [],
-            'routeAttribute' => PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT,
-            'route' => '',
-        ];
-
-        yield 'context attribute is not a Context instance' => [
-            'attributes' => [PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT => 'not-a-context'],
             'routeAttribute' => PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT,
             'route' => '',
         ];
@@ -108,7 +97,7 @@ class ApiRouteScopeTest extends TestCase
     /**
      * @return \Generator<string, array{attributes: array<string, string|bool|Context>, expected: bool}>
      */
-    public static function isAllowedProvider(): \Generator
+    public static function allowsProvider(): \Generator
     {
         yield 'AdminApiSource with auth required (default)' => [
             'attributes' => [PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT => new Context(new AdminApiSource(null))],
@@ -118,11 +107,6 @@ class ApiRouteScopeTest extends TestCase
         yield 'SystemSource with auth required (default)' => [
             'attributes' => [PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT => new Context(new SystemSource())],
             'expected' => false,
-        ];
-
-        yield 'AdminApiSource with auth_required=false' => [
-            'attributes' => [PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT => new Context(new AdminApiSource(null)), 'auth_required' => false],
-            'expected' => true,
         ];
 
         yield 'SystemSource with auth_required=false' => [

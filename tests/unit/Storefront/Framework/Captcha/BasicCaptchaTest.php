@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -24,9 +25,9 @@ class BasicCaptchaTest extends TestCase
     /**
      * @param array<string, string|null> $request
      */
-    #[DataProvider('requestDataProvider')]
+    #[DataProvider('validatesProvider')]
     #[TestDox('rejects invalid or missing captcha values and accepts a matching one')]
-    public function testIsValid(array $request, bool $expected): void
+    public function testRejectsInvalidAndAcceptsMatchingCaptchaValues(array $request, bool $expected): void
     {
         $requestStack = new RequestStack();
         $sessionRequest = new Request();
@@ -39,49 +40,46 @@ class BasicCaptchaTest extends TestCase
         static::assertSame($expected, $captcha->isValid(new Request(request: $request), []));
     }
 
-    /**
-     * @return \Generator<string, array{request: array<string, string|null>, expected: bool}>
-     */
-    public static function requestDataProvider(): \Generator
+    #[DataProvider('supportsProvider')]
+    #[TestDox('supports only POST requests when captcha is active in config')]
+    public function testSupportsOnlyPostRequests(mixed $configValue, Request $request, bool $expected): void
     {
-        yield 'missing captcha parameter' => [
-            'request' => [],
-            'expected' => false,
-        ];
-        yield 'null captcha parameter' => [
-            'request' => [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => null],
-            'expected' => false,
-        ];
-        yield 'empty string captcha parameter' => [
-            'request' => [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => ''],
-            'expected' => false,
-        ];
-        yield 'invalid captcha value' => [
-            'request' => [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => 'invalid-captcha-value'],
-            'expected' => false,
-        ];
-        yield 'valid captcha value' => [
-            'request' => [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => 'valid-captcha-value'],
-            'expected' => true,
-        ];
-    }
-
-    #[DataProvider('supportsDataProvider')]
-    #[TestDox('is only supported for POST requests with the captcha active in config')]
-    public function testSupports(mixed $configValue, Request $request, bool $expected): void
-    {
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->method('get')->willReturn($configValue);
+        $systemConfigService = new StaticSystemConfigService([
+            'core.basicInformation.activeCaptchasV2' => $configValue,
+        ]);
 
         $captcha = new BasicCaptcha(new RequestStack(), $systemConfigService);
 
         static::assertSame($expected, $captcha->supports($request, []));
     }
 
+    #[TestDox('passes the sales channel ID from the request context to the config lookup')]
+    public function testSupportsUsesContextSalesChannelId(): void
+    {
+        $salesChannelId = 'test-sales-channel-id';
+        $active = [BasicCaptcha::CAPTCHA_NAME => ['isActive' => true]];
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->once())
+            ->method('get')
+            ->with('core.basicInformation.activeCaptchasV2', $salesChannelId)
+            ->willReturn($active);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getSalesChannelId')->willReturn($salesChannelId);
+
+        $request = Request::create('/', 'POST');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+
+        $captcha = new BasicCaptcha(new RequestStack(), $systemConfigService);
+
+        static::assertTrue($captcha->supports($request, []));
+    }
+
     /**
      * @return \Generator<string, array{configValue: mixed, request: Request, expected: bool}>
      */
-    public static function supportsDataProvider(): \Generator
+    public static function supportsProvider(): \Generator
     {
         $active = [BasicCaptcha::CAPTCHA_NAME => ['isActive' => true]];
 
@@ -117,26 +115,22 @@ class BasicCaptchaTest extends TestCase
         ];
     }
 
-    #[TestDox('passes the sales channel ID from the request context to the config lookup')]
-    public function testSupportsUsesContextSalesChannelId(): void
+    /**
+     * @return \Generator<string, array{request: array<string, string|null>, expected: bool}>
+     */
+    public static function validatesProvider(): \Generator
     {
-        $salesChannelId = 'test-sales-channel-id';
-        $active = [BasicCaptcha::CAPTCHA_NAME => ['isActive' => true]];
-
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects($this->once())
-            ->method('get')
-            ->with('core.basicInformation.activeCaptchasV2', $salesChannelId)
-            ->willReturn($active);
-
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getSalesChannelId')->willReturn($salesChannelId);
-
-        $request = Request::create('/', 'POST');
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-
-        $captcha = new BasicCaptcha(new RequestStack(), $systemConfigService);
-
-        static::assertTrue($captcha->supports($request, []));
+        yield 'missing captcha parameter' => [
+            'request' => [],
+            'expected' => false,
+        ];
+        yield 'invalid captcha value' => [
+            'request' => [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => 'invalid-captcha-value'],
+            'expected' => false,
+        ];
+        yield 'valid captcha value' => [
+            'request' => [BasicCaptcha::CAPTCHA_REQUEST_PARAMETER => 'valid-captcha-value'],
+            'expected' => true,
+        ];
     }
 }

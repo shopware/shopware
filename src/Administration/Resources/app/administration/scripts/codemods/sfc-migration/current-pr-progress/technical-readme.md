@@ -332,7 +332,7 @@ Each item below has a corresponding `.unfinished.md` file in this directory:
 | [runner-tests.finished.md](runner-tests.finished.md) | ✅ 23 tests in `run-sfc-migration.spec.ts` — `findTwigFile`, `normaliseJsContent`, dry-run, write, skip, not-migratable, partial |
 | [overwrite-protection.finished.md](overwrite-protection.finished.md) | ✅ Skip existing `.vue` by default; `--force` flag to overwrite; `skippedExisting` counter |
 | [normalise-js-content-fragile.finished.md](normalise-js-content-fragile.finished.md) | ✅ `normaliseJsContent` rewritten with ts-morph AST; 2 regression tests added |
-| [pr-description.unfinished.md](pr-description.unfinished.md) | PR description body is empty |
+| [pr-description.finished.md](pr-description.finished.md) | ✅ Full PR description drafted (summary, before/after, tables, run instructions, limitations); paste into PR #15673 |
 | [pr-checklist.unfinished.md](pr-checklist.unfinished.md) | PR checklist items are all unchecked |
 | [codemod-tooling-integration.finished.md](codemod-tooling-integration.finished.md) | ✅ `npm run codemod:sfc-migration` added to `package.json`; `import.meta.url` replaced with CJS `__filename` |
 | [untested-conversions.finished.md](untested-conversions.finished.md) | ✅ All conversion paths now have dedicated fixtures and tests; `findOptionsObject` bug fixed |

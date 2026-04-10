@@ -130,9 +130,8 @@ Existing `.vue` files are skipped by default. Pass `--force` to overwrite. `skip
 ### ~~9. `normaliseJsContent` Is Fragile~~ ✅ Done
 Rewrote `normaliseJsContent` in `run-sfc-migration.ts` using ts-morph AST. The old `lastIndexOf('};')` approach would corrupt files that have a `};` pattern (e.g. a module-level const) after the export default block. The new implementation locates the `ExportAssignment` node by position and replaces only that exact range. Two new regression tests added covering the before/after cases. 161 tests, all passing.
 
-### 10. PR Description Is Incomplete
-The "What does this change do, exactly?" section in the PR body is blank.  
-**Needed:** Fill in the description before marking ready for review.
+### ~~10. PR Description Is Incomplete~~ ✅ Done
+Full PR description drafted covering: summary, before/after example (`sw-simple-card`), migration outcomes table, conversion mapping tables, how-to-run instructions, and known limitations. Saved to `current-pr-progress/pr-description.finished.md` — paste into shopware/shopware#15673 (GitHub MCP lacks write access to upstream).
 
 ### 11. PR Checklist Unchecked
 None of the PR checklist items are ticked (tests, release notes, docs).  
@@ -149,5 +148,5 @@ The transformation core (template conversion, script conversion, merger, analysi
 3. ~~**`$dataScope` binding** in templates is undefined in the generated script.~~ ✅ Done — auto-generated from `publicNames` in `generate-sfc.ts`.
 4. ~~**Original files are never cleaned up** after migration.~~ ✅ Done — `--delete-originals` flag.
 5. ~~**Runner has no tests**.~~ ✅ Done — 23 tests in `run-sfc-migration.spec.ts`.
-6. **PR meta** (description, checklist) is unfinished.
+6. ~~**PR description** was blank.~~ ✅ Done — full description drafted and ready to paste. **PR checklist** still needs final verification before promoting draft to ready.
 7. ~~**No validation against real Administration components.**~~ ✅ Done — 89 real components processed; 2 bugs found and fixed (`this.$attrs` → `useAttrs()`, `method: debounce(...)` pattern); 198 tests passing.

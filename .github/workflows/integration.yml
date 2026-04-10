@@ -657,6 +657,9 @@ jobs:
                 DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
             run: bin/console theme:refresh
 
+          - name: Run OrderRouteTest in isolation
+            run: php -d memory_limit=-1 vendor/bin/phpunit --filter testSetSamePaymentMethodToOrder -- tests/integration/Core/Checkout/Order/SalesChannel/OrderRouteTest.php
+
           - name: Run integration tests
             run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure --random-order-seed=1775785348
 

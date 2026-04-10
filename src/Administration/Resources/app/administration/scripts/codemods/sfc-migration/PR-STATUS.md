@@ -94,9 +94,8 @@ The template transformation produces `<sw-block name="..." :data="$dataScope">` 
 The `:data="$dataScope"` binding is hard-coded in `transform-template.ts` but `$dataScope` is never defined or injected in the generated `<script setup>`. A migrated component would break at runtime.  
 **Needed:** Either generate the correct binding or document how it is injected.
 
-### 5. `this.$el` Is Unresolved
-Replaced with `/* TODO: $el */ getCurrentInstance()?.proxy?.$el`. This is noted in the README as a known limitation.  
-**Needed:** At minimum, auto-search and report all generated files containing `TODO: $el` in the summary.
+### ~~5. `this.$el` Is Unresolved~~ ✅ Done
+`MergeResult.warnings` now carries a `'$el usage detected'` entry when the generated SFC contains `TODO: $el`. The runner prints a `⚠` warning line after the component's report line and increments an `elWarnings` counter in `RunStats`. The summary output includes a `Components with $el` line. `README.md` updated with the recommended template-ref replacement pattern. 4 new tests added across `generate-sfc.spec.ts` and `run-sfc-migration.spec.ts`. Total: 179 tests, all passing.
 
 ### 6. `Shopware.Component.extend()` Soft-Blocker — No Inlining Attempt
 Components using `.extend()` are flagged as partially-migratable and dropped to Options API backoff without any attempt to inline the parent component's options.  

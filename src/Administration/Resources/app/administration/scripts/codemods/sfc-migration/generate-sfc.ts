@@ -13,6 +13,8 @@ export interface MergeResult {
     sfc: string;
     status: MergeStatus;
     blockers: string[];
+    /** Non-fatal issues in the generated output that require manual follow-up. */
+    warnings: string[];
 }
 
 // ---------------------------------------------------------------------------
@@ -37,7 +39,7 @@ export function mergeComponentFiles(twigContent: string, jsContent: string): Mer
     const scriptResult = transformScript(jsContent);
 
     if (scriptResult.status === 'not-migratable') {
-        return { sfc: '', status: 'not-migratable', blockers: scriptResult.blockers };
+        return { sfc: '', status: 'not-migratable', blockers: scriptResult.blockers, warnings: [] };
     }
 
     const templateSection = transformTemplate(twigContent);
@@ -45,10 +47,11 @@ export function mergeComponentFiles(twigContent: string, jsContent: string): Mer
     if (scriptResult.status === 'partially-migratable') {
         const sfc = [templateSection, '', `<script>\n${scriptResult.script}\n</script>`].join('\n');
 
-        return { sfc, status: 'partially-migrated', blockers: scriptResult.blockers };
+        return { sfc, status: 'partially-migrated', blockers: scriptResult.blockers, warnings: [] };
     }
 
     const sfc = [templateSection, '', `<script setup>\n${scriptResult.script}\n</script>`].join('\n');
+    const warnings = sfc.includes('TODO: $el') ? ['$el usage detected — replace with a template ref or verify getCurrentInstance() call context'] : [];
 
-    return { sfc, status: 'fully-migrated', blockers: [] };
+    return { sfc, status: 'fully-migrated', blockers: [], warnings };
 }

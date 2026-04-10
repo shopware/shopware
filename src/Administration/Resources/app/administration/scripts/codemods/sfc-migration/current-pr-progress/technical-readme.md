@@ -115,7 +115,7 @@ Returns:
     script: string,
     scriptType: 'setup' | 'options',
     status: MigrationStatus,
-    blockers: string[]
+    blockers: string[],
 }
 ```
 
@@ -322,7 +322,7 @@ Each item below has a corresponding `.unfinished.md` file in this directory:
 | [original-files-cleanup.finished.md](original-files-cleanup.finished.md) | ✅ `--delete-originals` flag deletes source files after writing `.vue`; 11 new tests |
 | [sw-block-components-missing.unfinished.md](sw-block-components-missing.unfinished.md) | `<sw-block>` / `<sw-block-parent>` Vue components don't exist yet |
 | [data-scope-binding.unfinished.md](data-scope-binding.unfinished.md) | `$dataScope` referenced in templates but never defined in generated script |
-| [this-el-resolution.unfinished.md](this-el-resolution.unfinished.md) | `this.$el` replaced with a TODO comment, not a proper solution |
+| [this-el-resolution.finished.md](this-el-resolution.finished.md) | ✅ Runner flags `$el` usage with `⚠` report lines and `elWarnings` stat; README updated |
 | [extend-soft-blocker-inlining.unfinished.md](extend-soft-blocker-inlining.unfinished.md) | `Shopware.Component.extend()` triggers backoff with no inlining attempt |
 | [runner-tests.finished.md](runner-tests.finished.md) | ✅ 23 tests in `run-sfc-migration.spec.ts` — `findTwigFile`, `normaliseJsContent`, dry-run, write, skip, not-migratable, partial |
 | [overwrite-protection.finished.md](overwrite-protection.finished.md) | ✅ Skip existing `.vue` by default; `--force` flag to overwrite; `skippedExisting` counter |

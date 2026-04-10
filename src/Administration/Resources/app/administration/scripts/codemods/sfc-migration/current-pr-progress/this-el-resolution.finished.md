@@ -1,6 +1,6 @@
-# Missing: `this.$el` Replacement Is a TODO Comment
+# `this.$el` Replacement Tracking — ✅ Done
 
-**Status:** Partially handled — the code is replaced with a working but non-clean pattern and no tracking exists for affected components.
+**Status:** Implemented — runner now flags components with `$el` usage in the per-file report and `elWarnings` stat. README documents the recommended manual fix.
 
 ---
 

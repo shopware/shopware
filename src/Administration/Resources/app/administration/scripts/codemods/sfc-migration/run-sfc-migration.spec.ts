@@ -467,6 +467,57 @@ describe('runMigration — delete-originals (partially-migrated)', () => {
     });
 });
 
+describe('runMigration — $el warning', () => {
+    let tmpDir: string;
+
+    beforeEach(() => {
+        tmpDir = createTempDir();
+        makeComponent(
+            tmpDir,
+            'sw-composables',
+            readFixture('composables-component.index.js'),
+            readFixture('composables-component.html.twig'),
+        );
+    });
+
+    afterEach(() => {
+        rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('increments elWarnings stat for a component that uses $el', () => {
+        const { stats } = runMigration(tmpDir, { dryRun: true });
+        expect(stats.elWarnings).toBe(1);
+    });
+
+    it('does not increment elWarnings for a component without $el', () => {
+        const cleanDir = createTempDir();
+        makeComponent(
+            cleanDir,
+            'sw-simple-card',
+            readFixture('simple-component.index.js'),
+            readFixture('simple-component.html.twig'),
+        );
+        const { stats } = runMigration(cleanDir, { dryRun: true });
+        expect(stats.elWarnings).toBe(0);
+        rmSync(cleanDir, { recursive: true, force: true });
+    });
+
+    it('report includes a ⚠ warning line after the component line', () => {
+        const { report } = runMigration(tmpDir, { dryRun: true });
+        const warnLine = report.find((l) => l.includes('⚠'));
+        expect(warnLine).toBeDefined();
+        expect(warnLine).toContain('$el usage detected');
+    });
+
+    it('warning line appears after the fully-migrated line in the report', () => {
+        const { report } = runMigration(tmpDir, { dryRun: true });
+        const migratedIdx = report.findIndex((l) => l.includes('fully-migrated'));
+        const warnIdx = report.findIndex((l) => l.includes('⚠'));
+        expect(migratedIdx).toBeGreaterThanOrEqual(0);
+        expect(warnIdx).toBeGreaterThan(migratedIdx);
+    });
+});
+
 describe('runMigration — delete-originals (not-migratable)', () => {
     let tmpDir: string;
     let componentDir: string;

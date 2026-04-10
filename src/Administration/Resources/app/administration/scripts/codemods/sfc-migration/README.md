@@ -84,6 +84,23 @@ if (result.status === 'fully-migrated') {
 
 After running the codemod, search for `TODO` comments in the generated files:
 
-- **`this.$el`** — no direct equivalent; replaced with `/* TODO: $el */ getCurrentInstance()?.proxy?.$el`
+- **`this.$el`** — no direct equivalent; replaced with `/* TODO: $el */ getCurrentInstance()?.proxy?.$el`.
+  The migration summary prints a `⚠` warning line for every component containing this pattern.
+  Two cases arise:
+
+  1. **Root element access in setup / lifecycle hooks** — prefer a template ref on the root element:
+     ```html
+     <template>
+       <div ref="rootEl">…</div>
+     </template>
+     ```
+     ```ts
+     const rootEl = ref<HTMLElement | null>(null);
+     onMounted(() => { rootEl.value?.focus(); });
+     ```
+  2. **Dynamic DOM access inside methods** — `getCurrentInstance()?.proxy?.$el` is a valid transitional
+     bridge, but note that `getCurrentInstance()` returns `null` when called outside of the synchronous
+     setup phase. If the method runs after setup completes, store the element in a template ref instead.
+
 - **Partially migrated components** — mixins and `extends` must be manually inlined
 - **Render functions** — must be rewritten as templates by hand

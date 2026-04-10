@@ -167,6 +167,36 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         });
     });
 
+    describe('composables-component: warnings field reports $el usage', () => {
+        let result: ReturnType<typeof mergeComponentFiles>;
+
+        beforeAll(() => {
+            result = mergeComponentFiles(
+                readFixture('composables-component.html.twig'),
+                readFixture('composables-component.index.js'),
+            );
+        });
+
+        it('reports status fully-migrated', () => {
+            expect(result.status).toBe('fully-migrated');
+        });
+
+        it('populates warnings with a $el message', () => {
+            expect(result.warnings).toHaveLength(1);
+            expect(result.warnings[0]).toContain('$el usage detected');
+        });
+    });
+
+    describe('simple-component: warnings field is empty when $el is not used', () => {
+        it('has no warnings', () => {
+            const result = mergeComponentFiles(
+                readFixture('simple-component.html.twig'),
+                readFixture('simple-component.index.js'),
+            );
+            expect(result.warnings).toEqual([]);
+        });
+    });
+
     describe('render-component: not migratable — no SFC is produced', () => {
         let result: ReturnType<typeof mergeComponentFiles>;
 

@@ -44,6 +44,7 @@ export interface RunStats {
     skipped: number;
     skippedExisting: number;
     deletedOriginals: number;
+    elWarnings: number;
 }
 
 export interface RunResult {
@@ -100,6 +101,7 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
         skipped: 0,
         skippedExisting: 0,
         deletedOriginals: 0,
+        elWarnings: 0,
     };
     const report: string[] = [];
 
@@ -141,6 +143,10 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
                 stats.fullyMigrated++;
                 const fullyPrefix = dryRun ? '[DRY RUN] Would write: ' : '';
                 report.push(`✓  fully-migrated        ${fullyPrefix}${vuePath}`);
+                for (const warning of result.warnings) {
+                    stats.elWarnings++;
+                    report.push(`   ⚠  ${warning}`);
+                }
                 break;
             }
             case 'partially-migrated': {
@@ -208,6 +214,7 @@ Not migratable:      ${stats.notMigratable}
 Skipped (no twig):   ${stats.skipped}
 Skipped (exists):    ${stats.skippedExisting}
 Deleted originals:   ${stats.deletedOriginals}
+Components with $el: ${stats.elWarnings}
 `);
 
     if (dryRun) {

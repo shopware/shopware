@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -28,7 +27,6 @@ class ProductCrossSellingAssignedProductsRepositoryTest extends TestCase
             ->price(15.0, 10.0)
             ->build();
 
-        /** @var EntityRepository $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
         $productRepository->create([$assignedProduct], $context);
 
@@ -54,7 +52,7 @@ class ProductCrossSellingAssignedProductsRepositoryTest extends TestCase
             ],
         ]];
 
-        $this->expectException(UniqueConstraintViolationException::class);
+        static::expectException(UniqueConstraintViolationException::class);
         $productRepository->create([$mainProduct], $context);
     }
 }

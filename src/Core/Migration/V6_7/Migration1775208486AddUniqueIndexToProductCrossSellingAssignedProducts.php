@@ -40,8 +40,4 @@ SQL;
                 ADD UNIQUE KEY `uniq.cross_selling_id__product_id__product_version_id` (`cross_selling_id`, `product_id`, `product_version_id`)
         ');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

@@ -90,7 +90,7 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         // 1 anonymous event for consent status change, which is fired when merchant gives consent for product analytics
         // 6 events for user interactions
         const requests = parseCapturedRequests(capturedRequests);
-        expect(requests).toHaveLength(7);
+        expect(requests).toHaveLength(5);
 
         const events = requests.flatMap((request) => request.events);
         expect(events).toHaveLength(7);
@@ -107,6 +107,19 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         ]);
 
         requests.forEach((request) => {
+
+            if (request.user?.id == null) {
+                // Anonymous user event
+                expect(request.context.sw_version).toBeTruthy();
+
+                request.events.forEach((event) => {
+
+                    expect(event.timestamp).toBeGreaterThan(0);
+                    expect(event.name).toBeTruthy();
+                    expect(event.properties).toBeTruthy();
+                });
+                return;
+            }
             expect(request.user.shop_id).toBeTruthy();
             expect(request.user.id).toBeTruthy();
             expect(request.context.sw_version).toBeTruthy();

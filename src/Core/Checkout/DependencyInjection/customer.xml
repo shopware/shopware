@@ -316,6 +316,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService" />
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ConvertGuestRoute" />
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController" public="true">

@@ -41,6 +41,12 @@ export default {
         },
     },
 
+    provide() {
+        return {
+            loadCustomer: this.loadCustomer,
+        };
+    },
+
     data() {
         return {
             isLoading: false,

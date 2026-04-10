@@ -9,8 +9,8 @@
     <template #headerRight>
         <div class="sw-customer-card__header">
         {% block sw_customer_card_convert_guest %}
-            <sw-customer-convert-guest
-                :customerId="customer.id"
+            <sw-customer-convert-guest-modal
+                :customer="customer"
                 v-if="showConvertCustomerModal"
                 @modal-close="onCloseConvertCustomerModal"
             />

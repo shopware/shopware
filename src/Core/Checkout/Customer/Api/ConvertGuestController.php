@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Api;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractConvertGuestRoute;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -38,6 +40,7 @@ class ConvertGuestController
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly AbstractConvertGuestRoute $convertGuestRoute,
         private readonly AbstractSendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -50,10 +53,15 @@ class ConvertGuestController
             throw CustomerException::customerNotFoundByIdException($customerId);
         }
 
+        $token = $this->connection->fetchOne(
+            'SELECT token FROM sales_channel_api_context WHERE customer_id = :id',
+            ['id' => Uuid::fromHexToBytes($customerId)]
+        ) ?: Random::getAlphanumericString(32);
+
         $salesChannelContext = $this->contextService->get(
             new SalesChannelContextServiceParameters(
                 $customer->getSalesChannelId(),
-                Random::getAlphanumericString(32),
+                $token,
                 $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
                 $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID),
                 null,

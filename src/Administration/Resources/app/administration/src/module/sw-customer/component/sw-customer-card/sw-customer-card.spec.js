@@ -24,6 +24,18 @@ async function createWrapper() {
                 contextStoreService: {},
             },
             stubs: {
+                'mt-card': {
+                    template: `
+            <div class="mt-card">
+                <div class="header">
+                    <slot name="headerRight"></slot>
+                </div>
+                <div class="content">
+                    <slot name="grid"></slot>
+                </div>
+            </div>
+        `,
+                },
                 'sw-avatar': true,
                 'sw-entity-single-select': true,
                 'sw-text-field': true,
@@ -101,5 +113,19 @@ describe('module/sw-customer/page/sw-customer-card', () => {
         });
 
         expect(wrapper.find('[label="sw-customer.card.labelVatId"]').exists()).toBeFalsy();
+    });
+
+    it('convert modal is disabled by normale customers', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            customer: {
+                ...customer,
+                accountType: 'private',
+            },
+        });
+
+
+        
+        console.log(wrapper.html());
     });
 });

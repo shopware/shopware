@@ -12,7 +12,8 @@
       "vatIds",
       "company",
       "passwordNew",
-      "passwordConfirm"
+      "passwordConfirm",
+      "convert"
     ]
   }
 }

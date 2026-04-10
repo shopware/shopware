@@ -9,6 +9,7 @@ use PHPUnit\TextUI\Configuration\Configuration;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\PHPUnit\Extension\MailEventTrace\Subscriber\BeforeTestMethodCalledSubscriber;
 use Shopware\Core\Test\PHPUnit\Extension\MailEventTrace\Subscriber\TestFinishedSubscriber;
+use Shopware\Core\Test\PHPUnit\Extension\MailEventTrace\Subscriber\TestRunnerFinishedSubscriber;
 
 /**
  * Diagnostic extension: captures a stack trace for every mail.sent dispatch and prints
@@ -26,6 +27,7 @@ class MailEventTraceExtension implements Extension
         $facade->registerSubscribers(
             new BeforeTestMethodCalledSubscriber($tracer),
             new TestFinishedSubscriber($tracer),
+            new TestRunnerFinishedSubscriber($tracer),
         );
     }
 }

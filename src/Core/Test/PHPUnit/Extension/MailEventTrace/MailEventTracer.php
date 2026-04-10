@@ -14,9 +14,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class MailEventTracer
 {
     /**
+     * @var list<array{test: string, traces: list<string>}>
+     */
+    private array $allTraces = [];
+
+    /**
      * @var list<string>
      */
-    private array $traces = [];
+    private array $currentTraces = [];
 
     private ?EventDispatcherInterface $dispatcher = null;
 
@@ -44,7 +49,7 @@ class MailEventTracer
         $this->listener = function (MailSentEvent $event): void {
             $frames = \array_filter(
                 \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS),
-                static fn (array $frame): bool => isset($frame['file']) && !\str_contains($frame['file'], \DIRECTORY_SEPARATOR . 'vendor' . \DIRECTORY_SEPARATOR),
+                static fn (array $frame): bool => isset($frame['file']) && \str_contains($frame['file'], \DIRECTORY_SEPARATOR . 'tests' . \DIRECTORY_SEPARATOR),
             );
 
             $trace = \implode("\n", \array_map(
@@ -52,28 +57,35 @@ class MailEventTracer
                 \array_values($frames),
             ));
 
-            $this->traces[] = \sprintf("Subject: %s\n%s", $event->getSubject(), $trace);
+            $this->currentTraces[] = \sprintf("Subject: %s\n%s", $event->getSubject(), $trace);
         };
 
         $this->dispatcher->addListener(MailSentEvent::class, $this->listener, \PHP_INT_MAX);
     }
 
-    public function reportAndUninstall(string $testDescription): void
+    public function collectAndUninstall(string $testDescription): void
     {
         if ($this->dispatcher !== null && $this->listener !== null) {
             $this->dispatcher->removeListener(MailSentEvent::class, $this->listener);
         }
 
-        if ($this->traces !== []) {
-            echo \PHP_EOL . \sprintf('[MailEventTrace] %s dispatched %d mail.sent event(s):', $testDescription, \count($this->traces)) . \PHP_EOL;
+        if ($this->currentTraces !== []) {
+            $this->allTraces[] = ['test' => $testDescription, 'traces' => $this->currentTraces];
+        }
 
-            foreach ($this->traces as $i => $trace) {
+        $this->currentTraces = [];
+        $this->dispatcher = null;
+        $this->listener = null;
+    }
+
+    public function report(): void
+    {
+        foreach ($this->allTraces as ['test' => $test, 'traces' => $traces]) {
+            echo \PHP_EOL . \sprintf('[MailEventTrace] %s dispatched %d mail.sent event(s):', $test, \count($traces)) . \PHP_EOL;
+
+            foreach ($traces as $i => $trace) {
                 echo \sprintf('  #%d %s', $i + 1, $trace) . \PHP_EOL;
             }
         }
-
-        $this->traces = [];
-        $this->dispatcher = null;
-        $this->listener = null;
     }
 }

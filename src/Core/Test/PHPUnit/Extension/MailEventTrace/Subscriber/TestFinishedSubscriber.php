@@ -19,6 +19,6 @@ class TestFinishedSubscriber implements FinishedSubscriber
 
     public function notify(Finished $event): void
     {
-        $this->tracer->reportAndUninstall($event->test()->id());
+        $this->tracer->collectAndUninstall($event->test()->id());
     }
 }

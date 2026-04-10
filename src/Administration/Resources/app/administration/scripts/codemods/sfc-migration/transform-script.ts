@@ -530,10 +530,15 @@ function escapeRegExp(s: string): string {
 function detectBlockers(optionsObj: ObjectLiteralExpression, sourceFile: SourceFile): string[] {
     const blockers: string[] = [];
 
-    const isExtend = /Shopware\.Component\.extend/.test(
-        findRegisterCall(sourceFile)?.getExpression().getText() ?? '',
-    );
-    if (isExtend) blockers.push('extends');
+    const registerCall = findRegisterCall(sourceFile);
+    const isExtend = /Shopware\.Component\.extend/.test(registerCall?.getExpression().getText() ?? '');
+    if (isExtend) {
+        const parentArg = registerCall?.getArguments()[1];
+        const parentName = parentArg?.isKind(SyntaxKind.StringLiteral)
+            ? parentArg.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue()
+            : null;
+        blockers.push(parentName ? `extends (parent: ${parentName})` : 'extends');
+    }
     if (optionsObj.getProperty('mixins')) blockers.push('mixins');
     if (optionsObj.getProperty('render')) blockers.push('render function');
 

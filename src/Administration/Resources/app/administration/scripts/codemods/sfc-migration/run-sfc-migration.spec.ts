@@ -375,6 +375,67 @@ describe('runMigration — partially-migrated (mixins)', () => {
     });
 });
 
+describe('runMigration — partially-migrated (extends)', () => {
+    let tmpDir: string;
+
+    beforeAll(() => {
+        tmpDir = createTempDir();
+        // extend-component has no .html.twig fixture, so provide a minimal one
+        makeComponent(
+            tmpDir,
+            'sw-extended-button',
+            readFixture('extend-component.index.js'),
+            '<div class="sw-extended-button"></div>',
+        );
+    });
+
+    afterAll(() => {
+        rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('increments partiallyMigrated count', () => {
+        const { stats } = runMigration(tmpDir, { dryRun: true });
+        expect(stats.partiallyMigrated).toBe(1);
+        expect(stats.fullyMigrated).toBe(0);
+    });
+
+    it('increments extendsComponents stat', () => {
+        const { stats } = runMigration(tmpDir, { dryRun: true });
+        expect(stats.extendsComponents).toBe(1);
+    });
+
+    it('report line contains partially-migrated and the parent component name', () => {
+        const { report } = runMigration(tmpDir, { dryRun: true });
+        const mainLine = report.find((l) => l.includes('partially-migrated'));
+        expect(mainLine).toBeDefined();
+        expect(mainLine).toContain('extends (parent: sw-button)');
+    });
+
+    it('report includes a ⚠ warning line with the parent name and README reference', () => {
+        const { report } = runMigration(tmpDir, { dryRun: true });
+        const warnLine = report.find((l) => l.includes('⚠'));
+        expect(warnLine).toBeDefined();
+        expect(warnLine).toContain('sw-button');
+        expect(warnLine).toContain('README.md');
+    });
+
+    it('warning line appears after the partially-migrated line in the report', () => {
+        const { report } = runMigration(tmpDir, { dryRun: true });
+        const mainIdx = report.findIndex((l) => l.includes('partially-migrated'));
+        const warnIdx = report.findIndex((l) => l.includes('⚠'));
+        expect(mainIdx).toBeGreaterThanOrEqual(0);
+        expect(warnIdx).toBeGreaterThan(mainIdx);
+    });
+
+    it('does not increment extendsComponents for a mixins-only component', () => {
+        const mixinDir = createTempDir();
+        makeComponent(mixinDir, 'sw-mixin-list', readFixture('mixin-component.index.js'), '<div/>');
+        const { stats } = runMigration(mixinDir, { dryRun: true });
+        expect(stats.extendsComponents).toBe(0);
+        rmSync(mixinDir, { recursive: true, force: true });
+    });
+});
+
 describe('runMigration — delete-originals (fully-migrated)', () => {
     let tmpDir: string;
     let componentDir: string;

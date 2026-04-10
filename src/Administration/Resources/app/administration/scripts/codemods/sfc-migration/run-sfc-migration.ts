@@ -42,6 +42,7 @@ export interface RunStats {
     skippedExisting: number;
     deletedOriginals: number;
     elWarnings: number;
+    extendsComponents: number;
 }
 
 export interface RunResult {
@@ -99,6 +100,7 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
         skippedExisting: 0,
         deletedOriginals: 0,
         elWarnings: 0,
+        extendsComponents: 0,
     };
     const report: string[] = [];
 
@@ -166,6 +168,13 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
                 stats.partiallyMigrated++;
                 const partialPrefix = dryRun ? '[DRY RUN] Would write: ' : '';
                 report.push(`~  partially-migrated  [${result.blockers.join(', ')}]  ${partialPrefix}${vuePath}`);
+                const extendsBlocker = result.blockers.find((b) => b.startsWith('extends'));
+                if (extendsBlocker) {
+                    const parentMatch = extendsBlocker.match(/\(parent: ([^)]+)\)/);
+                    const parentName = parentMatch ? parentMatch[1] : 'unknown';
+                    stats.extendsComponents++;
+                    report.push(`   ⚠  manually inline parent options from '${parentName}' before re-running codemod; see README.md`);
+                }
                 break;
             }
             case 'not-migratable': {
@@ -212,6 +221,7 @@ Skipped (no twig):   ${stats.skipped}
 Skipped (exists):    ${stats.skippedExisting}
 Deleted originals:   ${stats.deletedOriginals}
 Components with $el: ${stats.elWarnings}
+Components (extends): ${stats.extendsComponents}
 `);
 
     if (dryRun) {

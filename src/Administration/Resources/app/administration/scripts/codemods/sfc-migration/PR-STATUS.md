@@ -97,9 +97,8 @@ The `:data="$dataScope"` binding is hard-coded in `transform-template.ts` but `$
 ### ~~5. `this.$el` Is Unresolved~~ ✅ Done
 `MergeResult.warnings` now carries a `'$el usage detected'` entry when the generated SFC contains `TODO: $el`. The runner prints a `⚠` warning line after the component's report line and increments an `elWarnings` counter in `RunStats`. The summary output includes a `Components with $el` line. `README.md` updated with the recommended template-ref replacement pattern. 4 new tests added across `generate-sfc.spec.ts` and `run-sfc-migration.spec.ts`. Total: 179 tests, all passing.
 
-### 6. `Shopware.Component.extend()` Soft-Blocker — No Inlining Attempt
-Components using `.extend()` are flagged as partially-migratable and dropped to Options API backoff without any attempt to inline the parent component's options.  
-**Needed:** If in-scope, add extend-inlining; otherwise document clearly that this pattern requires manual migration.
+### ~~6. `Shopware.Component.extend()` Soft-Blocker — No Inlining Attempt~~ ✅ Done
+Option A implemented: parent component name is now embedded in the blocker string (`extends (parent: sw-button)`), the runner prints a `⚠` warning line with the parent name and a README reference, an `extendsComponents` counter is added to `RunStats` and the summary, and `README.md` has a new "Manual migration: extends-based components" section with step-by-step instructions. 6 new tests in `run-sfc-migration.spec.ts`; total 185 tests, all passing.
 
 ### ~~12. Codemod Not Integrated Into Existing Admin Codemod Tooling~~ ✅ Done
 `"codemod:sfc-migration"` npm script added to `package.json`, matching the existing `codemod:*` pattern. `run-sfc-migration.ts` was also fixed to remove `import.meta.url` (ESM-only; incompatible with `ts-node --transpileOnly`), replacing it with the CJS-native `__filename` global. `README.md` updated with the canonical `npm run codemod:sfc-migration -- ...` usage. `code-mods.js` is a separate ESLint-based plugin-quality tool — no integration there was appropriate.
@@ -125,7 +124,7 @@ Test coverage is entirely fixture-based. There is no proof that the codemod work
 | `transform-script.spec.ts` | ✅ Full coverage — 9 fixtures (simple, block, created, module-level, mixin, render, composables, inherit-attrs, extend) |
 | `run-sfc-migration.spec.ts` | ✅ Full coverage — 42 tests |
 
-**Total: 172 tests, all passing**
+**Total: 185 tests, all passing**
 
 ### ~~8. Overwrite Without Warning~~ ✅ Done
 Existing `.vue` files are skipped by default. Pass `--force` to overwrite. `skippedExisting` counter added to stats and summary. 6 new tests in `run-sfc-migration.spec.ts`.

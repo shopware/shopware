@@ -57,9 +57,13 @@ function detectBlockers(jsContent: string): string[] {
 
     const blockers: string[] = [];
 
-    // `extend()` itself is a soft blocker
+    // `extend()` itself is a soft blocker; record parent component name for the migration report
     if (/Shopware\.Component\.extend/.test(registerCall?.getExpression().getText() ?? '')) {
-        blockers.push('extends');
+        const parentArg = registerCall?.getArguments()[1];
+        const parentName = parentArg?.isKind(SyntaxKind.StringLiteral)
+            ? parentArg.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue()
+            : null;
+        blockers.push(parentName ? `extends (parent: ${parentName})` : 'extends');
     }
 
     const secondArg = registerCall?.getArguments()[1];

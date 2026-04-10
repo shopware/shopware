@@ -115,3 +115,49 @@ After running the codemod, search for `TODO` comments in the generated files:
 
 - **Partially migrated components** — mixins and `extends` must be manually inlined
 - **Render functions** — must be rewritten as templates by hand
+
+## Manual migration: `extends`-based components
+
+Components registered via `Shopware.Component.extend()` are partially migrated — the Options API is preserved in a plain `<script>` block. The migration report shows a `⚠` warning line with the parent component name:
+
+```
+~  partially-migrated  [extends (parent: sw-button)]  sw-extended-button.vue
+   ⚠  manually inline parent options from 'sw-button' before re-running codemod; see README.md
+```
+
+Automatic inlining is out of scope for this codemod because it requires resolving and deep-merging the parent's implementation, which has too many edge cases (chained inheritance, circular references, parents that are themselves partially-migratable).
+
+### Steps
+
+1. **Find the parent component source** — the report shows the name, e.g. `sw-button`. Locate it at
+   `src/Administration/Resources/app/administration/app/component/<name>/index.js`.
+
+2. **Copy relevant options** — merge the parent's `data`, `computed`, `methods`, and lifecycle hooks
+   into the child, following [Vue's merge strategy](https://v3-migration.vuejs.org/breaking-changes/merge-strategy.html):
+   - `data`: deep-merged (child wins on conflict)
+   - `methods` / `computed`: child overrides parent
+   - lifecycle hooks: both run (parent first)
+
+3. **Replace `.extend()` with `.register()`** using the merged options object:
+
+   ```js
+   // Before
+   Shopware.Component.extend('sw-extended-button', 'sw-button', {
+       data() { return { extraLabel: 'Extended' }; },
+       methods: { getLabel() { return this.extraLabel; } },
+   });
+
+   // After — parent options manually merged in
+   Shopware.Component.register('sw-extended-button', {
+       // …parent props, computed, methods…
+       data() { return { /* parent data */, extraLabel: 'Extended' }; },
+       methods: { getLabel() { return this.extraLabel; } },
+   });
+   ```
+
+4. **Re-run the codemod** — the component should now be classified as `fully-migratable`
+   (unless other blockers remain).
+
+   ```bash
+   npm run codemod:sfc-migration -- --write path/to/sw-extended-button
+   ```

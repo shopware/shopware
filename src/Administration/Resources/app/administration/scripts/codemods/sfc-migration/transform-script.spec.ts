@@ -421,8 +421,8 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.status).toBe('partially-migratable');
         });
 
-        it('lists extends as a blocker', () => {
-            expect(result.blockers).toContain('extends');
+        it('lists extends with parent component name as a blocker', () => {
+            expect(result.blockers).toContain('extends (parent: sw-button)');
         });
 
         it('produces an options script type (backoff — no createExtendableSetup)', () => {

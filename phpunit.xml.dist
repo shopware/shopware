@@ -189,5 +189,7 @@
         <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogExtension"/>
         <!-- Enable to see the db side effects of the tests. -->
 <!--        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\DatabaseDiff\DatabaseDiffExtension"/>-->
+        <!-- Enable to trace unexpected mail.sent dispatches (captures a stack trace per dispatch per test). -->
+<!--        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\MailEventTrace\MailEventTraceExtension"/>-->
     </extensions>
 </phpunit>

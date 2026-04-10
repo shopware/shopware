@@ -28,11 +28,11 @@ module.exports = async (browser, context) => {
     }
 
     // Wait for the login form to be available
-    await page.waitForSelector('input#sw-field--username', { timeout: 30000 });
+    await page.waitForSelector('input[name="sw-field--username"]', { timeout: 30000 });
 
     // Fill in the login credentials (default Shopware admin credentials)
-    await page.type('input#sw-field--username', 'admin');
-    await page.type('input#sw-field--password', 'shopware');
+    await page.type('input[name="sw-field--username"]', 'admin');
+    await page.type('input[name="sw-field--password"]', 'shopware');
 
     // Click the login button
     await page.click('button[type="submit"]');

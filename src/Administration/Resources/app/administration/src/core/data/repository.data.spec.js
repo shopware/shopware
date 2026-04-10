@@ -197,7 +197,8 @@ describe('repository.data.ts', () => {
         const request = clientMock.history.post[0];
 
         expect(request.url).toBe('_action/sync');
-        expect(request.headers['single-operation']).toBe(true);
+        // Axios serializes custom header values to strings (boolean true → "true")
+        expect(request.headers['single-operation']).toBe('true');
 
         expect(request.data).toEqual(
             JSON.stringify([

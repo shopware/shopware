@@ -25,7 +25,7 @@ type ResponseForConfig<TRequestConfig, TData = unknown> = TRequestConfig extends
  * Adapter interface for handling axios version-specific differences
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export interface HttpClientAdapter<TRequestConfig = AxiosRequestConfigV0 | AxiosRequestConfigV1> {
+export interface HttpClientAdapter<TRequestConfig = AxiosRequestConfigV0> {
     /**
      * Execute a request using the underlying axios client
      */

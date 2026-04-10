@@ -143,7 +143,7 @@ class CmsSlotsDataResolver
     }
 
     /**
-     * @param string[][] $directReads
+     * @param array<string, array<string>> $directReads
      *
      * @return array<string, EntitySearchResult<covariant EntityCollection<covariant Entity>>>
      */

@@ -377,4 +377,113 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(wrapper.vm.isLoading).toBe(false);
         expect(mockGet).not.toHaveBeenCalled();
     });
+
+    it('should detect current template on load when product export bodyTemplate matches', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const template = { name: 'open_ai', bodyTemplate: '{{ feedRow|json_encode }}' };
+        wrapper.vm.productComparison.templates = { open_ai: template };
+        wrapper.vm.productComparison.templateOptions = [template];
+        wrapper.vm.salesChannel.productExports = {
+            first: () => ({ bodyTemplate: template.bodyTemplate }),
+        };
+
+        wrapper.vm.detectCurrentTemplate();
+
+        expect(wrapper.vm.productComparison.templateName).toBe('open_ai');
+    });
+
+    it('should not detect a template when bodyTemplate does not match any registered template', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const template = { name: 'open_ai', bodyTemplate: '{{ feedRow|json_encode }}' };
+        wrapper.vm.productComparison.templates = { open_ai: template };
+        wrapper.vm.productComparison.templateOptions = [template];
+        wrapper.vm.salesChannel.productExports = {
+            first: () => ({ bodyTemplate: '<custom>{{ product.name }}</custom>' }),
+        };
+
+        wrapper.vm.detectCurrentTemplate();
+
+        expect(wrapper.vm.productComparison.templateName).toBeNull();
+    });
+
+    it('should set templateName without modal when selecting a template with unchanged content', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const template = { bodyTemplate: '<item />', headerTemplate: '<?xml ?>' };
+        wrapper.vm.productComparison.templates = { google: template };
+        wrapper.vm.salesChannel.productExports = {
+            first: () => ({ bodyTemplate: '<item />', headerTemplate: '<?xml ?>' }),
+        };
+
+        wrapper.vm.onTemplateSelected('google');
+
+        expect(wrapper.vm.productComparison.templateName).toBe('google');
+        expect(wrapper.vm.productComparison.showTemplateModal).toBe(false);
+    });
+
+    it('should store previousTemplateName and show modal when template content differs', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.productComparison.templateName = 'google';
+        wrapper.vm.productComparison.templates = {
+            idealo: { name: 'idealo', bodyTemplate: '"sku"|"title"' },
+        };
+        wrapper.vm.salesChannel.productExports = {
+            first: () => ({ bodyTemplate: '<item />' }),
+        };
+
+        wrapper.vm.onTemplateSelected('idealo');
+
+        expect(wrapper.vm.productComparison.previousTemplateName).toBe('google');
+        expect(wrapper.vm.productComparison.templateName).toBe('idealo');
+        expect(wrapper.vm.productComparison.showTemplateModal).toBe(true);
+    });
+
+    it('should restore previousTemplateName when template modal is closed', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.productComparison.templateName = 'idealo';
+        wrapper.vm.productComparison.previousTemplateName = 'google';
+        wrapper.vm.productComparison.showTemplateModal = true;
+        wrapper.vm.productComparison.selectedTemplate = { bodyTemplate: '"sku"' };
+
+        wrapper.vm.onTemplateModalClose();
+
+        expect(wrapper.vm.productComparison.templateName).toBe('google');
+        expect(wrapper.vm.productComparison.previousTemplateName).toBeNull();
+        expect(wrapper.vm.productComparison.selectedTemplate).toBeNull();
+        expect(wrapper.vm.productComparison.showTemplateModal).toBe(false);
+    });
+
+    it('should apply template with providerName mapping on modal confirm', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.productComparison.previousTemplateName = 'google';
+        wrapper.vm.productComparison.templateName = 'open_ai';
+        wrapper.vm.productComparison.selectedTemplate = {
+            bodyTemplate: '{{ feedRow }}',
+            headerTemplate: '',
+            footerTemplate: '',
+            providerName: 'open-ai',
+        };
+        wrapper.vm.productComparison.showTemplateModal = true;
+
+        const productExport = wrapper.vm.productExport;
+
+        wrapper.vm.onTemplateModalConfirm();
+
+        expect(productExport.bodyTemplate).toBe('{{ feedRow }}');
+        expect(productExport.provider).toBe('open-ai');
+        expect(wrapper.vm.productComparison.templateName).toBe('open_ai');
+        expect(wrapper.vm.productComparison.previousTemplateName).toBeNull();
+        expect(wrapper.vm.productComparison.showTemplateModal).toBe(false);
+    });
 });

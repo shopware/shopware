@@ -26,6 +26,7 @@
         v-if="showDismissable"
         class="sw-label__dismiss"
         :title="$tc('global.default.remove')"
+        @mousedown.prevent
         @click.prevent.stop="$emit('dismiss')"
     >
 

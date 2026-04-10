@@ -179,6 +179,33 @@ class CacheInvalidationSubscriber
         $this->cacheInvalidator->invalidate(array_map(CategoryRoute::buildName(...), $event->getIds()));
     }
 
+    public function invalidateProductListingRouteByCategoryIds(CategoryIndexerEvent $event): void
+    {
+        $ids = $this->getCategoryListingDependencyIds($event->getIds(), $event->getContext()->getVersionId());
+
+        if ($ids === []) {
+            return;
+        }
+
+        $this->cacheInvalidator->invalidate(array_map(ProductListingRoute::buildName(...), $ids));
+    }
+
+    public function invalidateChangedCategoryListings(EntityWrittenContainerEvent $event): void
+    {
+        $ids = $event->getPrimaryKeysWithPropertyChange(
+            CategoryDefinition::ENTITY_NAME,
+            ['productAssignmentType', 'productStreamId']
+        );
+
+        if ($ids === []) {
+            return;
+        }
+
+        $ids = $this->getCategoryListingDependencyIds($ids, $event->getContext()->getVersionId());
+
+        $this->cacheInvalidator->invalidate(array_map(ProductListingRoute::buildName(...), $ids));
+    }
+
     public function invalidateIndexedLandingPages(LandingPageIndexerEvent $event): void
     {
         // invalidates the landing page route, if the corresponding landing page changed
@@ -455,6 +482,42 @@ class CacheInvalidationSubscriber
             ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => ArrayParameterType::BINARY]
         );
+    }
+
+    /**
+     * @param list<string> $ids
+     *
+     * @return list<string>
+     */
+    private function getCategoryListingDependencyIds(array $ids, string $versionId): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(id)) as id, path
+             FROM category
+             WHERE id IN (:ids)
+             AND version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes($versionId)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        $listingIds = $ids;
+
+        foreach ($rows as $row) {
+            if (!isset($row['path']) || !\is_string($row['path'])) {
+                continue;
+            }
+
+            array_push($listingIds, ...array_filter(explode('|', trim($row['path'], '|'))));
+        }
+
+        $listingIds = array_values(array_unique($listingIds));
+        sort($listingIds);
+
+        return $listingIds;
     }
 
     /**

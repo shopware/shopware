@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Cms\Service;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
+use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -22,7 +23,7 @@ readonly class EntityCmsSlotConfigInheritanceBuilder
     }
 
     /**
-     * @template TTranslation of CategoryTranslationEntity|ProductTranslationEntity
+     * @template TTranslation of CategoryTranslationEntity|LandingPageTranslationEntity|ProductTranslationEntity
      *
      * @param EntityCollection<TTranslation>|null $translations
      *
@@ -44,7 +45,7 @@ readonly class EntityCmsSlotConfigInheritanceBuilder
     }
 
     /**
-     * @template TTranslation of CategoryTranslationEntity|ProductTranslationEntity
+     * @template TTranslation of CategoryTranslationEntity|LandingPageTranslationEntity|ProductTranslationEntity
      *
      * @param EntityCollection<TTranslation>|null $translations
      *

@@ -83,23 +83,27 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     {
         return Profiler::trace('product-detail-route', function () use ($productId, $request, $context, $criteria) {
             $requestedProductId = $productId;
-            $mainVariantId = $this->checkVariantListingConfig($productId, $context);
-
+            [$mainVariantId, $parentProductId] = $this->checkVariantListingConfig($productId, $context);
+            $searchVariantId = $this->resolveSearchVariantId(
+                $requestedProductId,
+                $parentProductId,
+                $this->getSearchTerm($request),
+                $context
+            );
             $resolveVariantIdEvent = new ResolveVariantIdEvent(
                 $productId,
-                $mainVariantId,
+                $searchVariantId ?? $mainVariantId,
                 $context,
             );
 
             $this->dispatcher->dispatch($resolveVariantIdEvent);
 
-            if ($resolveVariantIdEvent->getResolvedVariantId()) {
-                $productId = $resolveVariantIdEvent->getResolvedVariantId();
-            } else {
-                $term = $request->query->get('search');
-                $variantId = $term ? $this->findBestVariantByTerm($term, $productId, $context) : null;
-                $productId = $variantId ?? $this->findBestVariant($productId, $context);
-            }
+            $productId = $this->resolveCandidateProductId(
+                $requestedProductId,
+                $parentProductId,
+                $resolveVariantIdEvent->getResolvedVariantId(),
+                $context
+            );
 
             $this->addFilters($context, $criteria);
 
@@ -109,18 +113,17 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $loadCmsPage = !$request->query->getBoolean(self::SKIP_CMS_PAGE);
             $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
 
-            /**
-             * if the product has main variant that has been closed out
-             * we should fallback to the best variant instead of not found error with main variant id
-             */
             if (
                 !$product instanceof SalesChannelProductEntity
-                && $mainVariantId !== null
-                && $productId === $mainVariantId
-                && $this->hideCloseoutProductsWhenOutOfStock($context)
+                && $this->shouldFallbackToBestVariant(
+                    $requestedProductId,
+                    $parentProductId,
+                    $productId,
+                    $mainVariantId,
+                    $searchVariantId
+                )
             ) {
                 $fallbackProductId = $this->findBestVariant($requestedProductId, $context);
-
                 if ($fallbackProductId !== $requestedProductId && $fallbackProductId !== $productId) {
                     $productId = $fallbackProductId;
                     $criteria->setIds([$productId]);
@@ -176,10 +179,13 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $this->addCloseoutFilter($context, $criteria);
     }
 
-    private function checkVariantListingConfig(string $productId, SalesChannelContext $context): ?string
+    /**
+     * @return array{0: string|null, 1: string|null}
+     */
+    private function checkVariantListingConfig(string $productId, SalesChannelContext $context): array
     {
         if (!Uuid::isValid($productId)) {
-            return null;
+            return [null, null];
         }
 
         $productData = $this->connection->fetchAssociative(
@@ -196,17 +202,24 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             ]
         );
 
-        if (empty($productData) || $productData['variantListingConfig'] === null) {
-            return null;
+        if (empty($productData)) {
+            return [null, null];
         }
 
-        $variantListingConfig = json_decode((string) $productData['variantListingConfig'], true, 512, \JSON_THROW_ON_ERROR);
+        $mainVariantId = null;
+        if ($productData['variantListingConfig'] !== null) {
+            $variantListingConfig = json_decode((string) $productData['variantListingConfig'], true, 512, \JSON_THROW_ON_ERROR);
 
-        if (isset($variantListingConfig['displayParent']) && (bool) $variantListingConfig['displayParent'] === true && !isset($variantListingConfig['mainVariantId'])) {
-            return null;
+            if (
+                !isset($variantListingConfig['displayParent'])
+                || (bool) $variantListingConfig['displayParent'] !== true
+                || isset($variantListingConfig['mainVariantId'])
+            ) {
+                $mainVariantId = $variantListingConfig['mainVariantId'] ?? null;
+            }
         }
 
-        return $variantListingConfig['mainVariantId'] ?? null;
+        return [$mainVariantId, $productData['parentId'] ?? $productId];
     }
 
     /**
@@ -254,6 +267,71 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     private function hideCloseoutProductsWhenOutOfStock(SalesChannelContext $context): bool
     {
         return $this->config->getBool('core.listing.hideCloseoutProductsWhenOutOfStock', $context->getSalesChannelId());
+    }
+
+    private function getSearchTerm(Request $request): ?string
+    {
+        $searchTerm = $request->query->get('search');
+
+        if (!\is_string($searchTerm) || $searchTerm === '') {
+            return null;
+        }
+
+        return $searchTerm;
+    }
+
+    private function resolveSearchVariantId(
+        string $requestedProductId,
+        ?string $parentProductId,
+        ?string $searchTerm,
+        SalesChannelContext $context
+    ): ?string {
+        if (
+            $searchTerm === null
+            || !$this->isParentProductRequest($requestedProductId, $parentProductId)
+            || !$this->config->getBool('core.listing.findBestVariant', $context->getSalesChannelId())
+        ) {
+            return null;
+        }
+
+        return $this->findBestVariantByTerm($searchTerm, $requestedProductId, $context);
+    }
+
+    private function resolveCandidateProductId(
+        string $requestedProductId,
+        ?string $parentProductId,
+        ?string $resolvedVariantId,
+        SalesChannelContext $context
+    ): string {
+        if ($resolvedVariantId !== null) {
+            return $resolvedVariantId;
+        }
+
+        if (!$this->isParentProductRequest($requestedProductId, $parentProductId)) {
+            return $requestedProductId;
+        }
+
+        return $this->findBestVariant($requestedProductId, $context);
+    }
+
+    private function shouldFallbackToBestVariant(
+        string $requestedProductId,
+        ?string $parentProductId,
+        string $productId,
+        ?string $mainVariantId,
+        ?string $searchVariantId
+    ): bool {
+        if (!$this->isParentProductRequest($requestedProductId, $parentProductId)) {
+            return false;
+        }
+
+        return $productId === $mainVariantId
+            || ($searchVariantId !== null && $productId === $searchVariantId);
+    }
+
+    private function isParentProductRequest(string $requestedProductId, ?string $parentProductId): bool
+    {
+        return $parentProductId !== null && $requestedProductId === $parentProductId;
     }
 
     private function createCriteria(string $pageId, Request $request): Criteria

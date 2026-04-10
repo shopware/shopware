@@ -160,8 +160,19 @@ class ProductDetailRouteTest extends TestCase
         static::assertTrue($result->getProduct()->getAvailable());
     }
 
-    public function testLoadBestVariantByTerm(): void
+    public function testLoadParentSearchUsesMatchedVariantWhenFindBestVariantEnabled(): void
     {
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn([
+                'variantListingConfig' => null,
+                'parentId' => null,
+            ]);
+
+        $this->systemConfig->method('getBool')
+            ->willReturnCallback(static fn (string $key, ?string $_salesChannelId = null): bool => $key === 'core.listing.findBestVariant');
+
         $productTerm = new SalesChannelProductEntity();
         $productTerm->setCmsPageId('term');
         $productTerm->setId($this->idsCollection->create('term'));
@@ -184,6 +195,11 @@ class ProductDetailRouteTest extends TestCase
             ->willReturn(
                 $idsSearchResult
             );
+
+        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, static function (ResolveVariantIdEvent $event) use ($product1Id): void {
+            static::assertSame($product1Id, $event->getResolvedVariantId());
+        });
+
         $this->productRepository->expects($this->once())
             ->method('search')
             ->willReturnOnConsecutiveCalls(
@@ -196,6 +212,51 @@ class ProductDetailRouteTest extends TestCase
 
         static::assertSame('term', $result->getProduct()->getCmsPageId());
         static::assertSame('term', $result->getProduct()->getUniqueIdentifier());
+    }
+
+    public function testLoadParentSearchKeepsMainVariantWhenFindBestVariantDisabled(): void
+    {
+        $mainVariantId = Uuid::randomHex();
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn([
+                'variantListingConfig' => '{"displayParent": false, "mainVariantId": "' . $mainVariantId . '"}',
+                'parentId' => null,
+            ]);
+
+        $this->systemConfig->method('getBool')->willReturn(false);
+
+        $productEntity = new SalesChannelProductEntity();
+        $productEntity->setId($mainVariantId);
+        $productEntity->setCmsPageId('4');
+        $productEntity->setUniqueIdentifier('mainVariant');
+
+        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, static function (ResolveVariantIdEvent $event) use ($mainVariantId): void {
+            static::assertSame($mainVariantId, $event->getResolvedVariantId());
+        });
+
+        $this->productRepository->expects($this->never())
+            ->method('searchIds');
+        $this->productRepository->expects($this->once())
+            ->method('search')
+            ->willReturn(
+                new EntitySearchResult(
+                    'product',
+                    1,
+                    new ProductCollection([$productEntity]),
+                    null,
+                    new Criteria(),
+                    $this->context->getContext()
+                )
+            );
+
+        $request = new Request();
+        $request->query->set('search', 'term');
+
+        $result = $this->route->load(Uuid::randomHex(), $request, $this->context, new Criteria());
+
+        static::assertSame('mainVariant', $result->getProduct()->getUniqueIdentifier());
     }
 
     public function testLoadVariantListingConfig(): void
@@ -367,13 +428,14 @@ class ProductDetailRouteTest extends TestCase
 
     public function testLoadBestVariantWithCloseoutWithMainVariant(): void
     {
+        $parentProductId = Uuid::randomHex();
         $mainVariantId = Uuid::randomHex();
         $this->connection
             ->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn([
                 'variantListingConfig' => '{"displayParent": true, "mainVariantId": "' . $mainVariantId . '"}',
-                'parentId' => 'parentId',
+                'parentId' => null,
             ]);
 
         $this->systemConfig->method('getBool')->willReturn(true);
@@ -391,9 +453,9 @@ class ProductDetailRouteTest extends TestCase
                 new EntitySearchResult('product', 1, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
             );
 
-        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, static function (ResolveVariantIdEvent $event) use ($mainVariantId): void {
-            static::assertSame($mainVariantId, $event->getProductId());
-            $event->setResolvedVariantId($mainVariantId);
+        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, static function (ResolveVariantIdEvent $event) use ($parentProductId, $mainVariantId): void {
+            static::assertSame($parentProductId, $event->getProductId());
+            static::assertSame($mainVariantId, $event->getResolvedVariantId());
         });
 
         $idsSearchResult = new IdSearchResult(
@@ -411,7 +473,75 @@ class ProductDetailRouteTest extends TestCase
             ->method('searchIds')
             ->willReturn($idsSearchResult);
 
-        $result = $this->route->load($mainVariantId, new Request(), $this->context, new Criteria());
+        $result = $this->route->load($parentProductId, new Request(), $this->context, new Criteria());
+
+        static::assertSame('BestVariant', $result->getProduct()->getUniqueIdentifier());
+    }
+
+    public function testLoadParentSearchFallsBackToBestVariantWhenMatchedVariantCannotBeLoaded(): void
+    {
+        $parentProductId = Uuid::randomHex();
+        $hiddenVariantId = Uuid::randomHex();
+
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn([
+                'variantListingConfig' => null,
+                'parentId' => null,
+            ]);
+
+        $this->systemConfig->method('getBool')
+            ->willReturnCallback(static fn (string $key, ?string $_salesChannelId = null): bool => $key === 'core.listing.findBestVariant');
+
+        $productEntity = new SalesChannelProductEntity();
+        $productEntity->setId('bestVariantId');
+        $productEntity->setCmsPageId('4');
+        $productEntity->setUniqueIdentifier('BestVariant');
+        $productEntity->setParentId($parentProductId);
+
+        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, static function (ResolveVariantIdEvent $event) use ($hiddenVariantId): void {
+            static::assertSame($hiddenVariantId, $event->getResolvedVariantId());
+        });
+
+        $this->productRepository->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnOnConsecutiveCalls(
+                new EntitySearchResult('product', 0, new ProductCollection(), null, new Criteria(), $this->context->getContext()),
+                new EntitySearchResult('product', 1, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
+            );
+
+        $this->productRepository->expects($this->exactly(2))
+            ->method('searchIds')
+            ->willReturnOnConsecutiveCalls(
+                new IdSearchResult(
+                    1,
+                    [
+                        $hiddenVariantId => [
+                            'primaryKey' => $hiddenVariantId,
+                            'data' => [],
+                        ],
+                    ],
+                    new Criteria(),
+                    $this->context->getContext()
+                ),
+                new IdSearchResult(
+                    1,
+                    [
+                        'bestVariantId' => [
+                            'primaryKey' => 'bestVariantId',
+                            'data' => [],
+                        ],
+                    ],
+                    new Criteria(),
+                    $this->context->getContext()
+                )
+            );
+
+        $request = new Request();
+        $request->query->set('search', 'hidden');
+
+        $result = $this->route->load($parentProductId, $request, $this->context, new Criteria());
 
         static::assertSame('BestVariant', $result->getProduct()->getUniqueIdentifier());
     }

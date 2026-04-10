@@ -191,7 +191,6 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $criteria->addFilter(new EqualsAnyFilter('productId', $productIds));
         $criteria->addFilter(new EqualsFilter('productVersionId', $context->getVersionId()));
 
-        /** @var ProductTranslationCollection $translations */
         $translations = $this->productTranslationRepository->search($criteria, $context->getContext())->getEntities();
 
         if ($translations->count() === 0) {

@@ -24,7 +24,7 @@ class ClientProfilerTest extends TestCase
     public function testSearching(string|array $index, string $expectedUrl): void
     {
         $builder = new ClientBuilder();
-        $builder->setHandler(fn () => new FutureArray(resolve([
+        $builder->setHandler(static fn () => new FutureArray(resolve([
             'status' => 200,
             'body' => fopen('php://memory', 'r'),
             'transfer_stats' => [
@@ -54,7 +54,7 @@ class ClientProfilerTest extends TestCase
     public function testMSearching(string|array $index, string $expectedUrl): void
     {
         $builder = new ClientBuilder();
-        $builder->setHandler(fn () => new FutureArray(resolve([
+        $builder->setHandler(static fn () => new FutureArray(resolve([
             'status' => 200,
             'body' => fopen('php://memory', 'r'),
             'transfer_stats' => [
@@ -81,7 +81,7 @@ class ClientProfilerTest extends TestCase
     {
         $index = 'testIndex';
         $builder = new ClientBuilder();
-        $builder->setHandler(fn () => new FutureArray(resolve([
+        $builder->setHandler(static fn () => new FutureArray(resolve([
             'status' => 200,
             'body' => fopen('php://memory', 'r'),
             'transfer_stats' => [
@@ -107,7 +107,7 @@ class ClientProfilerTest extends TestCase
     public function testPutScript(): void
     {
         $builder = new ClientBuilder();
-        $builder->setHandler(fn () => new FutureArray(resolve([
+        $builder->setHandler(static fn () => new FutureArray(resolve([
             'status' => 200,
             'body' => fopen('php://memory', 'r'),
             'transfer_stats' => [

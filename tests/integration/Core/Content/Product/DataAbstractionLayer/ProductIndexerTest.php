@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -73,8 +74,8 @@ class ProductIndexerTest extends TestCase
             self::getContainer()->get('event_dispatcher'),
             self::getContainer()->get(CheapestPriceUpdater::class),
             self::getContainer()->get(ProductStreamUpdater::class),
-            self::getContainer()->get(StatesUpdater::class),
-            $this->messageBus
+            $this->messageBus,
+            Feature::isActive('v6.8.0.0') ? null : self::getContainer()->get(StatesUpdater::class),
         );
     }
 

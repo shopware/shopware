@@ -16,10 +16,6 @@
                         "items": {
                             "$ref": "#/components/schemas/CmsBlock"
                         }
-                    },
-                    "type": {
-                        "type": "string",
-                        "enum": ["default", "sidebar"]
                     }
                 },
                 "required": ["apiAlias", "blocks"]

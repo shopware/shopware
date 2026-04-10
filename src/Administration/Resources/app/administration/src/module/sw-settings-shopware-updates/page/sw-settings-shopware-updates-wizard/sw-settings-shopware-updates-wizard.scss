@@ -1,8 +1,17 @@
 .sw-settings-shopware-updates-wizard {
     &__content {
+        box-sizing: border-box;
         width: 100%;
-        height: 100%;
-        position: absolute;
+        min-height: 100%;
+        padding-bottom: var(--scale-size-24);
+
+        &:has(.mt-empty-state) {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100%;
+        }
     }
 
     .sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {
@@ -10,14 +19,8 @@
         min-height: 42px;
     }
 
-    .sw-changelog {
-        h3 {
-            margin-bottom: 0;
-        }
-
-        .mt-button.mt-button--ghost {
-            margin-top: 20px;
-        }
+    .sw-changelog .mt-button.mt-button--ghost {
+        margin-top: var(--scale-size-20);
     }
 }
 

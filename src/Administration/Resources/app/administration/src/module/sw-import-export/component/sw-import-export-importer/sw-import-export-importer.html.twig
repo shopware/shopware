@@ -1,5 +1,36 @@
 {% block sw_import_export_importer %}
 <div class="sw-import-export-importer">
+    <template v-if="showProductVariantsInfo">
+        {% block sw_import_export_importer_product_variants_warning %}
+        <mt-banner
+            variant="attention"
+            class="sw-import-export-importer__variants-warning"
+        >
+            {% block sw_import_export_importer_product_variants_warning_text %}
+            <span>{{ $tc('sw-import-export.importer.variantsWarning') }}</span>
+
+            <div class="sw-import-export-importer__variants-warning-links">
+                <mt-link
+                    as="button"
+                    class="sw-import-export-importer__link"
+                    @click="setImportModalProfile('product_configurator_setting')"
+                >
+                    {{ $tc('sw-import-export.importer.directImportVariantsLabel') }}
+                </mt-link>
+
+                <mt-link
+                    as="button"
+                    class="sw-import-export-importer__link"
+                    @click="setImportModalProfile('property_group_option')"
+                >
+                    {{ $tc('sw-import-export.importer.directImportPropertiesLabel') }}
+                </mt-link>
+            </div>
+            {% endblock %}
+        </mt-banner>
+        {% endblock %}
+    </template>
+
     {% block sw_import_export_importer_upload_csv_label %}
     <span class="sw-import-export-importer__title">
         {{ $tc('sw-import-export.importer.uploadCsvLabel') }}
@@ -8,7 +39,7 @@
 
     {% block sw_import_export_importer_warning_block %}
     <p class="sw-import-export-importer__text">
-        <span v-html="$tc('sw-import-export.importer.warningBlock')"></span>
+        {{ $tc('sw-import-export.importer.warningBlock') }}
     </p>
     {% endblock %}
 
@@ -41,44 +72,11 @@
 
     <template v-if="selectedProfile && selectedProfile.sourceEntity === 'product'">
         {% block sw_import_export_importer_profile_select_product_variants_switch %}
-
         <mt-switch
             v-model="config.includeVariants"
             class="sw-import-export-importer__variants-switch-field"
             :label="$tc('sw-import-export.importer.importVariants')"
         />
-        {% endblock %}
-    </template>
-
-    <template v-if="showProductVariantsInfo">
-        {% block sw_import_export_importer_product_variants_warning %}
-        <mt-banner
-            variant="attention"
-            class="sw-import-export-importer__variants-warning"
-        >
-            {% block sw_import_export_importer_product_variants_warning_text %}
-            <p>
-                <span v-html="$tc('sw-import-export.importer.variantsWarning')"></span>
-            </p>
-            <p>
-                <a
-                    href="#"
-                    class="sw-import-export-importer__link"
-                    @click.prevent="setImportModalProfile('product_configurator_setting')"
-                >
-                    {{ $tc('sw-import-export.importer.directImportVariantsLabel') }}
-                </a>
-                <br>
-                <a
-                    href="#"
-                    class="sw-import-export-importer__link"
-                    @click.prevent="setImportModalProfile('property_group_option')"
-                >
-                    {{ $tc('sw-import-export.importer.directImportPropertiesLabel') }}
-                </a>
-            </p>
-            {% endblock %}
-        </mt-banner>
         {% endblock %}
     </template>
 

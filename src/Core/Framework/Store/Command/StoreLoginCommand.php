@@ -10,8 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Store\Exception\StoreApiException;
-use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserCollection;
@@ -21,6 +19,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -61,7 +61,7 @@ class StoreLoginCommand extends Command
 
         $host = $input->getOption('host');
         if (!empty($host)) {
-            $this->configService->set('core.store.licenseHost', $host);
+            $this->configService->set('core.store.licenseHost', $host, null, false);
         }
 
         $shopwareId = $input->getOption('shopwareId');
@@ -70,13 +70,7 @@ class StoreLoginCommand extends Command
 
         if (!$password) {
             $passwordQuestion = new Question('Enter password');
-            $passwordQuestion->setValidator(static function ($value): string {
-                if ($value === null || trim($value) === '') {
-                    throw new \RuntimeException('The password cannot be empty');
-                }
-
-                return $value;
-            });
+            $passwordQuestion->setValidator(Validation::createCallable(new NotBlank(message: 'The password cannot be empty')));
             $passwordQuestion->setHidden(true);
             $passwordQuestion->setMaxAttempts(3);
 
@@ -89,19 +83,25 @@ class StoreLoginCommand extends Command
         $userId = $this->userRepository->searchIds($criteria, $context)->firstId();
 
         if ($userId === null) {
-            throw new \RuntimeException('User not found');
+            $io->error('User not found');
+
+            return self::FAILURE;
         }
 
         $userContext = new Context(new AdminApiSource($userId));
 
         if ($shopwareId === null || $password === null) {
-            throw new StoreInvalidCredentialsException();
+            $io->error('Shopware ID and password are required.');
+
+            return self::FAILURE;
         }
 
         try {
             $this->storeClient->loginWithShopwareId($shopwareId, $password, $userContext);
         } catch (ClientException $exception) {
-            throw new StoreApiException($exception);
+            $io->error(\sprintf('Store login failed: %s', $exception->getMessage()));
+
+            return self::FAILURE;
         }
 
         $io->success('Successfully logged in.');

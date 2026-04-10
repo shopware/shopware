@@ -11,7 +11,6 @@
                 "size": "Size",
                 "profile": "Profile",
                 "date": "Date",
-                "user": "User",
                 "state": "Status",
                 "records": "Records",
                 "invalidRecords": "Invalid records"
@@ -42,6 +41,10 @@
               "importLabel": "Import",
               "dryrunLabel": "Dry run",
               "labelDownloadFile": "Download export file"
+            },
+            "detail": {
+              "importLabel": "Import",
+              "ExportLabel": "Export"
             },
             "result": {
               "modalTitle": "Import summary",
@@ -168,8 +171,11 @@
             "promotionDiscountLabel": "Promotion discounts",
             "promotionIndividualCodesLabel": "Promotion codes",
             "productPriceLabel": "Advanced prices",
-            "closeViolation": "Close",
-            "violationMessage": "Your profile is not valid, yet. You need to add mappings to the required fields shown below to save the profile:",
+            "violationModal": {
+                "title": "Your profile isn't valid yet",
+                "missingRequiredFields": "You need to add mappings to the <strong>required fields</strong> shown below to save the profile:",
+                "duplicateMappings": "You have <strong>duplicate mappings</strong> in the following fields. Please remove the duplicates to save the profile:"
+            },
             "importSettingsHeadline": "Import settings",
             "fieldIndicatorsHeadline": "Field indicators",
             "createEntitiesLabel": "Create new entities",
@@ -197,7 +203,7 @@
             "directExportVariantsLabel": "Export variant settings",
             "directExportPropertiesLabel": "Export properties",
             "close": "Close",
-            "variantsWarning": "<strong>Warning:</strong> Make sure that the properties and variants linked to the products in the exported CSV file are available in the new system. If this is not the case, you have the possibility to export properties and variants as single CSV files with corresponding profiles. If you do not have both cases, you have to create the product variants manually in the new system after the export.",
+            "variantsWarning": "Warning: Make sure that the properties and variants linked to the products in the exported CSV file are available in the new system. If this is not the case, you have the possibility to export properties and variants as single CSV files with corresponding profiles. If you do not have both cases, you have to create the product variants manually in the new system after the export.",
             "exportVariants": "Export product variants"
         },
         "importer": {
@@ -209,14 +215,14 @@
             "startImportLabel": "Start import",
             "selectProfileLabel": "Select profile",
             "profileLabel": "Profile",
-            "warningBlock": "<strong>Warning:</strong> Make sure that the properties and variants linked to the products in the uploaded CSV file are available in your shop. If this is not the case, you can import properties and variants as separate CSV files with corresponding profiles. If neither of these do apply, you'll have to maintain the product variants manually in the product module after the import.",
+            "warningBlock": "Warning: Make sure that the properties and variants linked to the products in the uploaded CSV file are available in your shop. If this is not the case, you can import properties and variants as separate CSV files with corresponding profiles. If neither of these do apply, you'll have to maintain the product variants manually in the product module after the import.",
             "importActivityLabel": "Import activity",
             "importLabel": "Import",
             "directImportVariantsLabel": "Import variant settings",
             "directImportPropertiesLabel": "Import properties",
             "close": "Close",
             "labelUploadCaption": "Select a CSV file to upload",
-            "variantsWarning": "<strong>Attention: </strong> If you are importing products with variants, be sure to use a profile that can import variant settings.<br>If you don't, only the main products are imported and the variants must be created manually by the admin afterwards.",
+            "variantsWarning": "Attention: If you are importing products with variants, be sure to use a profile that can import variant settings.<br>If you don't, only the main products are imported and the variants must be created manually by the admin afterwards.",
             "importVariants": "Import product variants"
         },
         "page": {

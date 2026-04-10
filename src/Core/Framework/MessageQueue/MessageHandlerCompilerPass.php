@@ -27,7 +27,7 @@ class MessageHandlerCompilerPass implements CompilerPassInterface
 
             $attributes = (new \ReflectionClass($class))->getAttributes(AsMessageHandler::class);
 
-            if (empty($attributes)) {
+            if ($attributes === []) {
                 continue;
             }
 

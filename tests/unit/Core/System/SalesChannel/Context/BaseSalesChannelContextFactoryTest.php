@@ -36,7 +36,6 @@ use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageDefinition;
-use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory;
@@ -148,8 +147,10 @@ class BaseSalesChannelContextFactoryTest extends TestCase
         $countryId = Uuid::randomHex();
         $anotherLanguageId = Uuid::randomHex();
 
-        $locale = new LocaleEntity();
-        $locale->setCode('en-GB');
+        $locale = new PartialEntity();
+        $locale->assign([
+            'code' => 'en-GB',
+        ]);
 
         $language = new PartialEntity();
         $language->assign([

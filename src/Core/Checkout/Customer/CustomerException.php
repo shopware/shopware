@@ -81,6 +81,7 @@ class CustomerException extends HttpException
     public const MISSING_OPTION = 'CONTENT__MISSING_OPTION';
     public const INVALID_OPTION = 'CONTENT__INVALID_OPTION';
     public const REGISTERED_CUSTOMER_CANNOT_BE_CONVERTED = 'CHECKOUT__REGISTERED_CUSTOMER_CANNOT_BE_CONVERTED';
+    public const CUSTOMER_INACTIVE = 'CHECKOUT__CUSTOMER_INACTIVE';
 
     public static function customerGroupNotFound(string $id): self
     {
@@ -477,5 +478,15 @@ class CustomerException extends HttpException
     public static function unexpectedConstraintValue(mixed $value, string $expectedType): ValidatorException
     {
         return new UnexpectedValueException($value, $expectedType);
+    }
+
+    public static function inactive(string $customerId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CUSTOMER_INACTIVE,
+            'Customer with id "{{ customerId }}" is inactive',
+            ['customerId' => $customerId],
+        );
     }
 }

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -53,9 +54,6 @@ final class PaymentMethodAdminSearchIndexer extends AbstractAdminIndexer
         return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
     }
 
-    /**
-     * @param EntityWrittenContainerEvent<covariant array<string, string>> $event Translation definitions have multiple primary keys
-     */
     public function getUpdatedIds(EntityWrittenContainerEvent $event): array
     {
         $ids = [];
@@ -70,7 +68,7 @@ final class PaymentMethodAdminSearchIndexer extends AbstractAdminIndexer
             }
         }
 
-        return \array_values(\array_unique($ids));
+        return array_values(array_unique(array_filter($ids, '\is_string')));
     }
 
     public function globalData(array $result, Context $context): array
@@ -107,6 +105,16 @@ final class PaymentMethodAdminSearchIndexer extends AbstractAdminIndexer
         foreach ($data as $row) {
             $id = (string) $row['id'];
             $text = \implode(' ', array_filter($row));
+
+            if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                $mapped[$id] = [
+                    'id' => $id,
+                    'text' => \strtolower($text),
+                ];
+
+                continue;
+            }
+
             $mapped[$id] = ['id' => $id, 'text' => \strtolower($text)];
         }
 

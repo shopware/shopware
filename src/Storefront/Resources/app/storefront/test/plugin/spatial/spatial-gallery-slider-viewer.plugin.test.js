@@ -13,7 +13,6 @@ window.DIVEQuickViewPlugin = {
 
 const options = {
     sliderPosition: "1",
-    lightIntensity: "100",
     modelUrl: "http://test/file.glb",
 };
 
@@ -70,7 +69,7 @@ describe('SpatialGallerySliderViewerPlugin tests', () => {
 
         await spatialGallerySliderViewerPlugin.initViewer();
 
-        expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledWith(options.modelUrl, { autoStart: false, canvas: mockElement, displayFloor: true, lightIntensity: Number(options.lightIntensity) / 100 });
+        expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledWith(options.modelUrl, { autoStart: false, canvas: mockElement });
 
         expect(spatialGallerySliderViewerPlugin.ready).toBe(true);
 

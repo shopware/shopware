@@ -1,0 +1,75 @@
+name: Merge downstream PRs
+
+on:
+  pull_request_target:
+    types:
+      - closed
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: read
+  statuses: read
+  id-token: write
+
+jobs:
+  merge_downstreams:
+    name: Merge downstream PRs
+    if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: sts
+        continue-on-error: true
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: ShopwareDownstream
+
+      - name: Merge downstream PRs
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ steps.sts.outputs.token || secrets.GITHUB_TOKEN }}
+          script: |
+            const branch = context.payload.pull_request.head && context.payload.pull_request.head.ref;
+            if (!branch) {
+              core.setFailed('Could not determine branch name from event payload');
+              return;
+            }
+
+            const repos = [
+              { owner: 'shopware', repo: 'rufus' },
+              { owner: 'shopware', repo: 'SwagCommercial' }
+            ];
+
+            const failures = [];
+
+            for (const r of repos) {
+              core.info(`Attempting to merge downstream ${r.owner}/${r.repo} for branch ${branch}`);
+
+              const pulls = await github.rest.pulls.list({ owner: r.owner, repo: r.repo, head: `${r.owner}:${branch}`, state: 'open' });
+              if (!pulls || !pulls.data || pulls.data.length === 0) {
+                core.info(`No open PR found for ${r.owner}/${r.repo} with branch ${branch} — nothing to merge`);
+                continue;
+              }
+
+              const pr = pulls.data[0];
+
+              // Try merging the PR
+              try {
+                const mergeResp = await github.rest.pulls.merge({ owner: r.owner, repo: r.repo, pull_number: pr.number, merge_method: 'squash' });
+                if (mergeResp && mergeResp.data && mergeResp.data.merged) {
+                  core.info(`Merged ${r.repo} PR #${pr.number} successfully`);
+                } else {
+                  failures.push(`${r.repo} PR #${pr.number} could not be merged - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
+                }
+              } catch (err) {
+                failures.push(`${r.repo} PR #${pr.number} merge failed: ${err.message} - https://github.com/${r.owner}/${r.repo}/pull/${pr.number}`);
+                continue;
+              }
+            }
+
+            if (failures.length > 0) {
+              throw new Error('Merging downstream PRs failed:\n' + failures.join('\n'));
+            } else {
+              core.info('All downstream PRs merged successfully or none existed');
+            }

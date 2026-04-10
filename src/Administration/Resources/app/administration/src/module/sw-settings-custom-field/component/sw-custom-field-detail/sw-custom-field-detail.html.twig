@@ -80,6 +80,27 @@
         />
         {% endblock %}
 
+        {% block sw_custom_field_detail_modal_allow_searchable %}
+        <mt-switch
+            v-if="isProductCustomField"
+            v-model="currentCustomField.includeInSearch"
+            bordered
+            :help-text="$tc('sw-settings-custom-field.customField.detail.tooltipAllowSearchable')"
+            class="sw-custom-field-detail__allow-searchable"
+            :label="$tc('sw-settings-custom-field.customField.detail.labelAllowSearchable')"
+            :disabled="!acl.can('custom_field.editor') || undefined"
+        />
+        {% endblock %}
+
+        {% block sw_custom_field_detail_modal_searchable_banner %}
+        <mt-banner
+            v-if="!currentCustomField._isNew && isProductCustomField"
+            class="sw-custom-field-detail__searchable-banner"
+        >
+            {{ $tc('sw-settings-custom-field.customField.detail.bannerSearchableEnabled', 0) }}
+        </mt-banner>
+        {% endblock %}
+
         {% block sw_custom_field_detail_modal_snippet_info  %}
         <mt-banner class="sw-custom-field-detail__info">
             {{ $tc('sw-settings-custom-field.customField.detail.infoText', { name: currentCustomField.name }, 0) }}

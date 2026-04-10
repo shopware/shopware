@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\AbstractSetPaymentOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -46,7 +47,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
-#[Package('framework')]
+#[Package('checkout')]
 class AccountOrderController extends StorefrontController
 {
     /**
@@ -76,15 +77,20 @@ class AccountOrderController extends StorefrontController
         path: '/account/order',
         name: 'frontend.account.order.page',
         options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_noStore' => true],
-        methods: ['GET', 'POST']
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+            PlatformRequest::ATTRIBUTE_NO_STORE => true,
+        ],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     #[Route(
         path: '/account/order',
         name: 'frontend.account.order.page',
         options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, '_noStore' => true],
-        methods: ['GET', 'POST']
+        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function orderOverview(Request $request, SalesChannelContext $context): Response
     {
@@ -95,11 +101,15 @@ class AccountOrderController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/account/order-history/index.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/account/order/cancel', name: 'frontend.account.order.cancel', methods: ['POST'])]
+    #[Route(
+        path: '/account/order/cancel',
+        name: 'frontend.account.order.cancel',
+        methods: [Request::METHOD_POST]
+    )]
     public function cancelOrder(Request $request, SalesChannelContext $context): Response
     {
         $cancelOrderRequestData = [
-            'orderId' => $request->get('orderId'),
+            'orderId' => RequestParamHelper::get($request, 'orderId'),
             'transition' => 'cancel',
         ];
 
@@ -113,7 +123,7 @@ class AccountOrderController extends StorefrontController
             return $this->redirectToRoute(
                 'frontend.account.order.single.page',
                 [
-                    'deepLinkCode' => $request->get('deepLinkCode'),
+                    'deepLinkCode' => RequestParamHelper::get($request, 'deepLinkCode'),
                 ]
             );
         }
@@ -125,8 +135,8 @@ class AccountOrderController extends StorefrontController
         path: '/account/order/{deepLinkCode}',
         name: 'frontend.account.order.single.page',
         options: ['seo' => false],
-        defaults: ['_noStore' => true],
-        methods: ['GET', 'POST']
+        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function orderSingleOverview(Request $request, SalesChannelContext $context): Response
     {
@@ -139,7 +149,7 @@ class AccountOrderController extends StorefrontController
                 'frontend.account.guest.login.page',
                 [
                     'redirectTo' => 'frontend.account.order.single.page',
-                    'redirectParameters' => ['deepLinkCode' => $request->get('deepLinkCode')],
+                    'redirectParameters' => ['deepLinkCode' => $request->attributes->get('deepLinkCode')],
                     'loginError' => ($exception instanceof WrongGuestCredentialsException),
                     'waitTime' => ($exception instanceof CustomerAuthThrottledException) ? $exception->getWaitTime() : '',
                 ]
@@ -156,8 +166,8 @@ class AccountOrderController extends StorefrontController
         path: '/widgets/account/order/detail/{id}',
         name: 'widgets.account.order.detail',
         options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, '_loginRequired' => true],
-        methods: ['GET']
+        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_GET]
     )]
     public function ajaxOrderDetail(Request $request, SalesChannelContext $context): Response
     {
@@ -184,14 +194,18 @@ class AccountOrderController extends StorefrontController
     #[Route(
         path: '/account/order/edit/{orderId}',
         name: 'frontend.account.edit-order.page',
-        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_noStore' => true],
-        methods: ['GET']
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+            PlatformRequest::ATTRIBUTE_NO_STORE => true,
+        ],
+        methods: [Request::METHOD_GET]
     )]
     #[Route(
         path: '/account/order/edit/{orderId}',
         name: 'frontend.account.edit-order.page',
-        defaults: ['_noStore' => true],
-        methods: ['GET']
+        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        methods: [Request::METHOD_GET]
     )]
     public function editOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {
@@ -222,7 +236,9 @@ class AccountOrderController extends StorefrontController
             $mostCurrentDelivery = $order->getDeliveries()?->last();
         }
 
-        if ($mostCurrentDelivery !== null && $context->getShippingMethod()->getId() !== $mostCurrentDelivery->getShippingMethodId()) {
+        if ($mostCurrentDelivery !== null
+            && $context->getShippingMethod()->getId() !== $mostCurrentDelivery->getShippingMethodId()
+        ) {
             $this->contextSwitchRoute->switchContext(
                 new RequestDataBag([SalesChannelContextService::SHIPPING_METHOD_ID => $mostCurrentDelivery->getShippingMethodId()]),
                 $context
@@ -234,7 +250,10 @@ class AccountOrderController extends StorefrontController
         try {
             $page = $this->accountEditOrderPageLoader->load($request, $context);
         } catch (OrderException $exception) {
-            $this->addFlash(self::DANGER, $this->trans('error.' . $exception->getErrorCode(), ['%orderNumber%' => $order->getOrderNumber()]));
+            $this->addFlash(
+                self::DANGER,
+                $this->trans('error.' . $exception->getErrorCode(), ['%orderNumber%' => $order->getOrderNumber()])
+            );
 
             return $this->redirectToRoute('frontend.account.order.page');
         }
@@ -249,7 +268,7 @@ class AccountOrderController extends StorefrontController
             }
         }
 
-        $page->setErrorCode($request->get('error-code'));
+        $page->setErrorCode($request->query->get('error-code'));
 
         $header = $this->headerPageletLoader->load($request, $context);
         $footer = $this->footerPageletLoader->load($request, $context);
@@ -261,13 +280,17 @@ class AccountOrderController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/account/order/payment/{orderId}', name: 'frontend.account.edit-order.change-payment-method', methods: ['POST'])]
+    #[Route(
+        path: '/account/order/payment/{orderId}',
+        name: 'frontend.account.edit-order.change-payment-method',
+        methods: [Request::METHOD_POST]
+    )]
     public function orderChangePayment(string $orderId, Request $request, SalesChannelContext $context): Response
     {
         $this->contextSwitchRoute->switchContext(
             new RequestDataBag(
                 [
-                    SalesChannelContextService::PAYMENT_METHOD_ID => $request->get('paymentMethodId'),
+                    SalesChannelContextService::PAYMENT_METHOD_ID => RequestParamHelper::get($request, 'paymentMethodId'),
                 ]
             ),
             $context
@@ -276,7 +299,11 @@ class AccountOrderController extends StorefrontController
         return $this->redirectToRoute('frontend.account.edit-order.page', ['orderId' => $orderId]);
     }
 
-    #[Route(path: '/account/order/update/{orderId}', name: 'frontend.account.edit-order.update-order', methods: ['POST'])]
+    #[Route(
+        path: '/account/order/update/{orderId}',
+        name: 'frontend.account.edit-order.update-order',
+        methods: [Request::METHOD_POST]
+    )]
     public function updateOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {
         $finishUrl = $this->generateUrl('frontend.checkout.finish.page', [

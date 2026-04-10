@@ -156,6 +156,21 @@
 
         <service id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
 
+        <service id="Shopware\Core\Content\Product\Subscriber\CustomFieldSearchableSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="parameter_bag"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Subscriber\RepairDigitalProductStatesSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage"/>
+            <argument type="service" id="logger"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Subscriber\ProductSubscriber">
             <argument type="service" id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator"/>
@@ -166,6 +181,7 @@
             <argument type="service" id="Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder"/>
             <argument type="service" id="Shopware\Core\Content\MeasurementSystem\Unit\MeasurementUnitConverter"/>
             <argument type="service" id="request_stack"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -194,6 +210,7 @@
 
         <service id="Shopware\Core\Content\Product\Api\ProductActionController" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\Util\VariantCombinationLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductTypeRegistry"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -231,6 +248,7 @@
 
         <service id="Shopware\Core\Content\Product\Cms\ProductSlider\StaticProductProcessor">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="shopware.cms.product_slider.processor"/>
         </service>
@@ -238,6 +256,7 @@
         <service id="Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor">
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
             <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="shopware.cms.product_slider.processor"/>
         </service>
@@ -279,6 +298,12 @@
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor">
             <argument type="tagged_iterator" tag="shopware.listing.processor" />
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompressedCriteriaListingProcessor">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder" />
+            <!-- priority needs to be higher than of all other processors to make custom filters passed in compressed criteria to work -->
+            <tag name="shopware.listing.processor" priority="1000"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ManufacturerListingFilterHandler" />
@@ -330,6 +355,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter"/>
             <argument type="service" id="logger"/>
             <argument>%shopware.search.term_max_length%</argument>
+            <argument>%shopware.product.search_keyword.indexing%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductLineItemCommandValidator">
@@ -359,8 +385,6 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute" decoration-priority="-2000" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute.inner"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor" />
         </service>
 
@@ -372,6 +396,7 @@
 
         <service id="Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute" public="true">
             <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
         <!-- decorated by cached route -->
@@ -398,8 +423,8 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater"/>
-            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater"/>
             <argument type="service" id="messenger.default_bus"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater" on-invalid="null"/>
             <tag name="shopware.entity_indexer" priority="100"/>
         </service>
 
@@ -413,9 +438,17 @@
             <tag name="shopware.entity_indexer"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\ProductTypeRegistry" public="true">
+            <argument>%shopware.product.allowed_types%</argument>
+
+            <tag name="shopware.api.enum_provider" />
+        </service>
+
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
+
+            <deprecated package="shopware/core" version="6.8.0">tag:v6.8.0 - The %service_id% service will be removed, as product states are deprecated.</deprecated>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater">
@@ -443,6 +476,7 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer"/>
+            <argument>%shopware.product.search_keyword.indexing%</argument>
             <tag name="kernel.reset" method="reset"/>
         </service>
 
@@ -475,6 +509,11 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitRoute" public="true">
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader">

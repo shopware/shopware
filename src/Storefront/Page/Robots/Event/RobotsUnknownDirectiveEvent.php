@@ -16,7 +16,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * - Prevent warnings for known-custom directives
  * - Set custom issues for specific directive types
  *
- * @codeCoverageIgnore Simple DTO with no business logic
+ *  Simple DTO with no business logic
  */
 #[Package('framework')]
 class RobotsUnknownDirectiveEvent extends Event implements ShopwareEvent

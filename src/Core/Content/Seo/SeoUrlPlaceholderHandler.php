@@ -73,7 +73,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         foreach ($matches as $match) {
             // remove self::DOMAIN_PLACEHOLDER from start
             // remove # from end
-            $mapping[$match] = substr((string) $match, $placeholder, -1);
+            $mapping[$match] = str_replace('\/', '/', substr((string) $match, $placeholder, -1));
         }
 
         return $mapping;
@@ -86,7 +86,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
      */
     private function createSeoMapping(SalesChannelContext $context, array $mapping): array
     {
-        if (empty($mapping)) {
+        if ($mapping === []) {
             return [];
         }
 

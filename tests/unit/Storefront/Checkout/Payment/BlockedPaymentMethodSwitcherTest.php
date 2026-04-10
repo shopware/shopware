@@ -70,7 +70,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof PaymentMethodChangedError
+            static fn ($error) => $error instanceof PaymentMethodChangedError
         );
 
         static::assertCount(0, $errorCollectionFiltered);
@@ -87,7 +87,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof PaymentMethodChangedError
+            static fn ($error) => $error instanceof PaymentMethodChangedError
         );
         static::assertCount(1, $errorCollectionFiltered);
         $error = $errorCollectionFiltered->first();
@@ -120,7 +120,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof PaymentMethodChangedError
+            static fn ($error) => $error instanceof PaymentMethodChangedError
         );
         static::assertCount(1, $errorCollectionFiltered);
         $error = $errorCollectionFiltered->first();
@@ -146,7 +146,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof PaymentMethodChangedError
+            static fn ($error) => $error instanceof PaymentMethodChangedError
         );
         static::assertCount(2, $errorCollectionFiltered);
 
@@ -186,7 +186,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof PaymentMethodChangedError
+            static fn ($error) => $error instanceof PaymentMethodChangedError
         );
 
         static::assertCount(1, $errorCollectionFiltered);
@@ -216,7 +216,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
         // Assert notices
         $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof PaymentMethodChangedError
+            static fn ($error) => $error instanceof PaymentMethodChangedError
         );
 
         static::assertCount(0, $errorCollectionFiltered);
@@ -264,11 +264,11 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
             $ids = $idsFilter->getValue();
 
             $collection = $this->paymentMethodCollection->filter(
-                fn (PaymentMethodEntity $entity) => !\in_array($entity->getId(), $ids, true)
+                static fn (PaymentMethodEntity $entity) => !\in_array($entity->getId(), $ids, true)
             );
         } else {
             $collection = $this->paymentMethodCollection->filter(
-                fn (PaymentMethodEntity $entity) => \in_array($entity->getId(), $searchIds, true)
+                static fn (PaymentMethodEntity $entity) => \in_array($entity->getId(), $searchIds, true)
             );
         }
 
@@ -289,7 +289,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
             $collection = new PaymentMethodCollection();
         } else {
             $collection = $this->paymentMethodCollection->filter(
-                fn (PaymentMethodEntity $entity) => \in_array($entity->getId(), $searchIds, true)
+                static fn (PaymentMethodEntity $entity) => \in_array($entity->getId(), $searchIds, true)
             );
         }
 

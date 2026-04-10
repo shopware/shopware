@@ -1,17 +1,32 @@
-@import "~scss/variables";
-
 .sw-system-config {
     .sw-select,
     .sw-single-select {
-        margin-bottom: 22px;
+        margin-bottom: var(--scale-size-8);
+    }
+
+    .sw-form-field-renderer:not(.sw-field) {
+        margin-bottom: var(--scale-size-32);
+        margin-top: 0;
+    }
+
+    .mt-card {
+        &__content {
+            > :last-child {
+                .sw-form-field-renderer {
+                    margin-bottom: 0;
+                }
+            }
+        }
+
+        &__toolbar {
+            .sw-sales-channel-switch {
+                width: 100%;
+            }
+        }
     }
 
     .sw-system-config__global-sales-channel-switch {
-        max-width: $content-width;
-        margin: 0 auto 40px;
-
-        @media screen and (max-width: 1360px) {
-            max-width: 770px;
-        }
+        max-width: 60rem;
+        margin: 0 auto var(--scale-size-32);
     }
 }

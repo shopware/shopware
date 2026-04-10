@@ -13,8 +13,6 @@ use Symfony\Contracts\EventDispatcher\Event;
  *
  * @internal
  *
- * @codeCoverageIgnore
- *
  * @see InAppPurchasesGateway::process() for an example implementation
  */
 #[Package('checkout')]

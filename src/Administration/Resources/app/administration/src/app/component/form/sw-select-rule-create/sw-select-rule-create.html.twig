@@ -9,7 +9,6 @@
         :advanced-selection-parameters="getAdvancedSelectionParameters()"
         @update:entity-collection="onUpdateCollection"
     >
-
         <template #before-item-list>
             {% block sw_select_rule_create_select_before %}
             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
@@ -45,6 +44,7 @@
                             :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
                             :search-term="searchTerm"
                         />
+
                         <template v-else>
                             {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                         </template>
@@ -81,6 +81,7 @@
             </div>
             {% endblock %}
         </template>
+
         <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
             {% block sw_select_rule_create_select_entity_select_result_list_item %}
             <slot
@@ -104,6 +105,7 @@
                             :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
                             :search-term="searchTerm"
                         />
+
                         <template v-else>
                             {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                         </template>

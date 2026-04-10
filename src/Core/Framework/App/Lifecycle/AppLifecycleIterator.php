@@ -76,7 +76,7 @@ class AppLifecycleIterator
             }
         }
 
-        if (empty($installAppNames)) {
+        if ($installAppNames === []) {
             $this->deleteNotFoundAndFailedInstallApps($this->getRegisteredApps($context), $successfulUpdates, $appLifecycle, $context);
         }
 

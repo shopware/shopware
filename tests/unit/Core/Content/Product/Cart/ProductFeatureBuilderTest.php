@@ -35,7 +35,9 @@ class ProductFeatureBuilderTest extends TestCase
 {
     private ProductFeatureBuilder $productFeatureBuilder;
 
-    /** @var MockObject&EntityRepository<ProductFeatureSetCollection> */
+    /**
+     * @var MockObject&EntityRepository<ProductFeatureSetCollection>
+     */
     private MockObject&EntityRepository $customFieldRepository;
 
     private MockObject&LanguageLocaleCodeProvider $languageLocaleProvider;

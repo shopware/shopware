@@ -53,13 +53,13 @@ class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('cross_selling_id', 'crossSellingId', ProductCrossSellingDefinition::class))->addFlags(new Required()),
-            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
-            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of Product CrossSelling Assigned Products.'),
+            (new FkField('cross_selling_id', 'crossSellingId', ProductCrossSellingDefinition::class))->addFlags(new Required())->setDescription('Unique identity of Product CrossSelling.'),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required())->setDescription('Unique identity of Product.'),
+            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class),
             new ManyToOneAssociationField('crossSelling', 'cross_selling_id', ProductCrossSellingDefinition::class),
-            new IntField('position', 'position'),
+            (new IntField('position', 'position'))->setDescription('The order of the tabs of your defined product cross-selling in the storefront by entering numerical values like 1,2,3, etc.'),
         ]);
     }
 }

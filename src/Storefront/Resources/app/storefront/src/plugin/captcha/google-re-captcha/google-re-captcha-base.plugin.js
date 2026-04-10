@@ -3,13 +3,15 @@ import Plugin from 'src/plugin-system/plugin.class';
 export default class GoogleReCaptchaBasePlugin extends Plugin {
     init() {
         const recaptchaScript = document.getElementById('recaptcha-script');
-        if (!recaptchaScript || recaptchaScript.hasAttribute('src')) {
+        if (!recaptchaScript) {
             return;
         }
 
-        const dataSrc = recaptchaScript.getAttribute('data-src');
-        if (dataSrc && this._isValidUrl(dataSrc)) {
-            recaptchaScript.setAttribute('src', encodeURI(dataSrc));
+        if (!recaptchaScript.hasAttribute('src')) {
+            const dataSrc = recaptchaScript.getAttribute('data-src');
+            if (dataSrc && this._isValidUrl(dataSrc)) {
+                recaptchaScript.setAttribute('src', encodeURI(dataSrc));
+            }
         }
 
         // The shim script in main.js ensures window.grecaptcha and window.grecaptcha.ready exist.
@@ -89,17 +91,9 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
             token: this.grecaptchaInput.value,
         });
 
-        if (this._isCmsForm()) {
-            const formCmsHandlerPlugin = this.formPluginInstances.get('FormCmsHandler');
-            if (formCmsHandlerPlugin) {
-                formCmsHandlerPlugin._submitForm();
-                return;
-            }
-        }
-
         let ajaxSubmitFound = false;
 
-        for (const plugin of this.formPluginInstances) {
+        for (const plugin of this.formPluginInstances.values()) {
             if (typeof plugin.sendAjaxFormSubmit === 'function' && plugin.options.useAjax !== false) {
                 ajaxSubmitFound = true;
                 plugin.sendAjaxFormSubmit();
@@ -126,22 +120,11 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
     }
 
     _setGoogleReCaptchaHandleSubmit() {
-        for (const plugin of this.formPluginInstances) {
+        for (const plugin of this.formPluginInstances.values()) {
             if (typeof plugin.sendAjaxFormSubmit === 'function' && plugin.options.useAjax !== false) {
                 plugin.formSubmittedByCaptcha = true;
             }
         }
-    }
-
-    /**
-     * Checks if the form is the CMS contact form.
-     * This is used to work in association with the form CMS handler.
-     *
-     * @return {boolean}
-     * @private
-     */
-    _isCmsForm() {
-        return this.formPluginInstances.has('FormCmsHandler');
     }
 
     _isValidUrl(url) {

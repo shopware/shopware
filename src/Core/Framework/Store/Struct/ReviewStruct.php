@@ -7,9 +7,6 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Exception\InvalidExtensionRatingValueException;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class ReviewStruct extends StoreStruct
 {

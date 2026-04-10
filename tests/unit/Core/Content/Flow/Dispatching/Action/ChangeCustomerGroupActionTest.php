@@ -21,7 +21,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(ChangeCustomerGroupAction::class)]
 class ChangeCustomerGroupActionTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<CustomerCollection> */
+    /**
+     * @var MockObject&EntityRepository<CustomerCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private ChangeCustomerGroupAction $action;
@@ -57,7 +59,7 @@ class ChangeCustomerGroupActionTest extends TestCase
 
         $this->repository->expects($this->once())
             ->method('update')
-            ->with([['id' => $customerId, 'groupId' => $groupId]]);
+            ->with([['id' => $customerId, 'groupId' => $groupId, 'requestedGroupId' => null]]);
 
         $this->action->handleFlow($flow);
     }

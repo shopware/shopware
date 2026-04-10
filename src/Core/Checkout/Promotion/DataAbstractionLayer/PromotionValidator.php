@@ -39,7 +39,7 @@ class PromotionValidator implements EventSubscriberInterface
 
         $ids = \array_column($ids, 'id');
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -49,7 +49,7 @@ class PromotionValidator implements EventSubscriberInterface
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        if (!empty($promotionIds)) {
+        if ($promotionIds !== false) {
             throw PromotionException::promotionUsedDeleteRestriction();
         }
     }

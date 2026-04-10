@@ -13,9 +13,11 @@ use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[Package('framework')]
-final class StateValidator
+class StateValidator
 {
     final public const SESSION_KEY = 'sw_sso_session_key';
 
@@ -24,16 +26,24 @@ final class StateValidator
     public function validateRequest(Request $request): void
     {
         $this->validateState(
-            $request->get('rdm'),
+            $request->query->get('rdm'),
             $request->getSession()->get(self::SESSION_KEY),
         );
 
+        $request->getSession()->remove(self::SESSION_KEY);
+
         $request->request->set('grant_type', 'shopware_grant');
-        $request->request->set('code', $request->get('code'));
+        $request->request->set('code', $request->query->get('code'));
     }
 
     public function createRandom(Request $request): string
     {
+        $existing = $request->getSession()->get(self::SESSION_KEY);
+
+        if ($existing !== null) {
+            return $existing;
+        }
+
         $random = ByteString::fromRandom(self::RANDOM_LENGTH)->toString();
 
         $request->getSession()->set(self::SESSION_KEY, $random);

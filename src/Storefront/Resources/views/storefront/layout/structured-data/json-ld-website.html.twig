@@ -1,0 +1,25 @@
+{% block layout_structured_data_website %}
+    {#
+        WebSite schema enables the Google Sitelinks Searchbox, showing an inline search field
+        in search results. The urlTemplate must contain the exact query parameter name the
+        storefront search route expects.
+    #}
+    {% set websiteData = {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        '@id': app.request.schemeAndHttpHost ~ '/#website',
+        url: app.request.schemeAndHttpHost ~ '/',
+        potentialAction: {
+            '@type': 'SearchAction',
+            target: url('frontend.search.page') ~ '?search={search_term_string}',
+            'query-input': 'required name=search_term_string'
+        }
+    } %}
+
+    {% block layout_structured_data_website_script %}
+        <script type="application/ld+json">
+        {# ludtwig-ignore twig-json-encode-escape-js #}
+        {{ websiteData|json_encode(jsonLdFlags)|raw }}
+        </script>
+    {% endblock %}
+{% endblock %}

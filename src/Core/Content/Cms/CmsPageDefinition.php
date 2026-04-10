@@ -56,16 +56,16 @@ class CmsPageDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of CMS page.'),
             (new VersionField())->addFlags(new ApiAware()),
             (new TranslatedField('name'))->addFlags(new ApiAware()),
-            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('entity', 'entity'))->addFlags(new ApiAware()),
-            (new StringField('css_class', 'cssClass'))->addFlags(new ApiAware()),
+            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required())->setDescription('CMS page types can be `landingpage`, `page`, `product_list`, `product_detail`.'),
+            (new StringField('entity', 'entity'))->addFlags(new ApiAware())->setDescription('This field will be implemented in the future.'),
+            (new StringField('css_class', 'cssClass'))->addFlags(new ApiAware())->setDescription('One or more CSS classes added and separated by spaces.'),
             (new JsonField('config', 'config', [
                 (new StringField('background_color', 'backgroundColor'))->addFlags(new ApiAware()),
-            ]))->addFlags(new ApiAware()),
-            (new FkField('preview_media_id', 'previewMediaId', MediaDefinition::class))->addFlags(new ApiAware()),
+            ]))->addFlags(new ApiAware())->setDescription('Background color of the CMS page.'),
+            (new FkField('preview_media_id', 'previewMediaId', MediaDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of media to be previewed.'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             new LockedField(),
 

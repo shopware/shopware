@@ -153,7 +153,7 @@ class ProfilerControllerTest extends TestCase
         $query = new Query('select * from table where key = ?');
         $query->setValue(
             1,
-            new class {
+            new class implements \Stringable {
                 public function __toString(): string
                 {
                     return 'value';

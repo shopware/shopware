@@ -2,8 +2,11 @@
 
 namespace Shopware\Core\Checkout\Cart\Subscriber;
 
+use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
+use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartDeletedEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -17,7 +20,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 readonly class CartOrderEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private AbstractContextSwitchRoute $contextSwitchRoute
+        private AbstractContextSwitchRoute $contextSwitchRoute,
+        private LineItemGroupBuilder $lineItemGroupBuilder
     ) {
     }
 
@@ -26,6 +30,8 @@ readonly class CartOrderEventSubscriber implements EventSubscriberInterface
         return [
             CartDeletedEvent::class => ['handleContextAddress', 1],
             CheckoutOrderPlacedEvent::class => ['handleContextAddress', 1],
+            BeforeLineItemAddedEvent::class => 'resetBuilder',
+            BeforeLineItemRemovedEvent::class => 'resetBuilder',
         ];
     }
 
@@ -35,5 +41,11 @@ readonly class CartOrderEventSubscriber implements EventSubscriberInterface
             SalesChannelContextService::SHIPPING_ADDRESS_ID => null,
             SalesChannelContextService::BILLING_ADDRESS_ID => null,
         ]), $event->getSalesChannelContext());
+    }
+
+    public function resetBuilder(BeforeLineItemAddedEvent|BeforeLineItemRemovedEvent $event): void
+    {
+        // We must reset the calculated results when an line item is added or removed.
+        $this->lineItemGroupBuilder->reset();
     }
 }

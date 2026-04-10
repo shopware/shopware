@@ -47,13 +47,13 @@
 
                 {% block sw_cms_element_buy_box_config_product_select %}
                 <sw-cms-inherit-wrapper
+                    v-if="!isProductPage"
                     field="product"
                     :element="element"
                     :label="$t('sw-cms.elements.buyBox.config.label.selection')"
                 >
                     <template #default="{ isInherited }">
                         <sw-entity-single-select
-                            v-if="!isProductPage"
                             ref="cmsProductSelection"
                             v-model:value="element.config.product.value"
                             entity="product"

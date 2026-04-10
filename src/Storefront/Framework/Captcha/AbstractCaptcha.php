@@ -22,7 +22,7 @@ abstract class AbstractCaptcha
             return false;
         }
 
-        if (empty($captchaConfig)) {
+        if ($captchaConfig === []) {
             return false;
         }
 

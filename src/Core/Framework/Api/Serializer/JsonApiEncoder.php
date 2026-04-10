@@ -223,7 +223,7 @@ class JsonApiEncoder
 
     private function addExtensions(ResponseFields $fields, Record $serialized, Entity $entity, JsonApiEncodingResult $result): void
     {
-        if (empty($serialized->getExtensions())) {
+        if ($serialized->getExtensions() === []) {
             return;
         }
 

@@ -45,7 +45,7 @@ class ConfigValidator extends AbstractManifestValidator
             }
         }
 
-        if (!empty($invalids)) {
+        if ($invalids !== []) {
             $errors->add(new ConfigurationError($invalids));
         }
 

@@ -166,7 +166,7 @@ EOF;
         static::assertSame(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $toPlace->getTechnicalName());
     }
 
-    public function testStateMachineTransitionStoresUserAndIntegrationId(): void
+    public function testStateMachineTransitionStoresUserAndIntegrationIdAndInternalComment(): void
     {
         $ids = new IdsCollection();
 
@@ -201,14 +201,14 @@ EOF;
         $stateMachineRegistry = self::getContainer()->get(StateMachineRegistry::class);
         static::assertInstanceOf(StateMachineRegistry::class, $stateMachineRegistry);
         $stateMachineRegistry->transition(
-            new Transition('order', $ids->get('o-1'), 'process', 'stateId'),
+            new Transition('order', $ids->get('o-1'), 'process', 'stateId', 'internal comment'),
             $context
         );
 
         $connection = self::getContainer()->get(Connection::class);
         static::assertInstanceOf(Connection::class, $connection);
 
-        $historyData = $connection->fetchAssociative('SELECT LOWER(HEX(integration_id)) as integration_id, LOWER(HEX(user_id)) as user_id FROM `state_machine_history` WHERE referenced_id = :id AND referenced_version_id = :version ORDER BY created_at DESC LIMIT 1', [
+        $historyData = $connection->fetchAssociative('SELECT LOWER(HEX(integration_id)) as integration_id, LOWER(HEX(user_id)) as user_id, internal_comment FROM `state_machine_history` WHERE referenced_id = :id AND referenced_version_id = :version ORDER BY created_at DESC LIMIT 1', [
             'id' => Uuid::fromHexToBytes($ids->get('o-1')),
             'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
         ]);
@@ -217,6 +217,7 @@ EOF;
         static::assertSame([
             'integration_id' => $ids->get('integration-1'),
             'user_id' => $userId,
+            'internal_comment' => 'internal comment',
         ], $historyData);
     }
 

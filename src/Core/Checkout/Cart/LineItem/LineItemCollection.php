@@ -5,18 +5,16 @@ namespace Shopware\Core\Checkout\Cart\LineItem;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @extends Collection<LineItem>
+ * @extends Collection<LineItem, string>
  */
 #[Package('checkout')]
 class LineItemCollection extends Collection
 {
-    /**
-     * @param LineItem[] $elements
-     */
     public function __construct(iterable $elements = [])
     {
         parent::__construct();
@@ -27,8 +25,6 @@ class LineItemCollection extends Collection
     }
 
     /**
-     * @param LineItem $lineItem
-     *
      * @throws CartException
      */
     public function add($lineItem): void
@@ -57,10 +53,6 @@ class LineItemCollection extends Collection
         $this->elements[$this->getKey($lineItem)] = $lineItem;
     }
 
-    /**
-     * @param int|string $key
-     * @param LineItem $lineItem
-     */
     public function set($key, $lineItem): void
     {
         $this->validateType($lineItem);
@@ -107,14 +99,33 @@ class LineItemCollection extends Collection
     public function filterType(string $type): LineItemCollection
     {
         return $this->filter(
-            fn (LineItem $lineItem) => $lineItem->getType() === $type
+            static fn (LineItem $lineItem) => $lineItem->getType() === $type
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Use hasLineItemWithProductType() method instead.
+     */
     public function hasLineItemWithState(string $state): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'hasLineItemWithState', 'v6.8.0.0', 'hasLineItemWithProductType')
+        );
+
         foreach ($this->buildFlat($this) as $lineItem) {
             if (\in_array($state, $lineItem->getStates(), true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function hasLineItemWithProductType(string $productType): bool
+    {
+        foreach ($this->buildFlat($this) as $lineItem) {
+            if ($lineItem->isProductType($productType)) {
                 return true;
             }
         }
@@ -127,7 +138,7 @@ class LineItemCollection extends Collection
      */
     public function getPayload(): array
     {
-        return $this->map(fn (LineItem $lineItem) => $lineItem->getPayload());
+        return $this->map(static fn (LineItem $lineItem) => $lineItem->getPayload());
     }
 
     public function getPrices(): PriceCollection
@@ -148,7 +159,6 @@ class LineItemCollection extends Collection
     public function sortByPriority(): void
     {
         $lineItemsByPricePriority = [];
-        /** @var LineItem $lineItem */
         foreach ($this->elements as $lineItem) {
             $priceDefinitionPriority = QuantityPriceDefinition::SORTING_PRIORITY;
             if ($lineItem->getPriceDefinition()) {
@@ -164,15 +174,19 @@ class LineItemCollection extends Collection
         // Sort all line items by their price definition priority
         krsort($lineItemsByPricePriority);
 
-        if (\count($lineItemsByPricePriority)) {
-            $this->elements = array_merge(...$lineItemsByPricePriority);
+        if ($lineItemsByPricePriority !== []) {
+            $merged = array_merge(...$lineItemsByPricePriority);
+            $this->elements = \array_combine(
+                \array_map($this->getKey(...), $merged),
+                $merged,
+            );
         }
     }
 
     public function filterGoods(): self
     {
         return $this->filter(
-            fn (LineItem $lineItem) => $lineItem->isGood()
+            static fn (LineItem $lineItem) => $lineItem->isGood()
         );
     }
 
@@ -199,7 +213,7 @@ class LineItemCollection extends Collection
     public function getTypes(): array
     {
         return $this->fmap(
-            fn (LineItem $lineItem) => $lineItem->getType()
+            static fn (LineItem $lineItem) => $lineItem->getType()
         );
     }
 
@@ -209,7 +223,7 @@ class LineItemCollection extends Collection
     public function getReferenceIds(): array
     {
         return $this->fmap(
-            fn (LineItem $lineItem) => $lineItem->getReferencedId()
+            static fn (LineItem $lineItem) => $lineItem->getReferencedId()
         );
     }
 
@@ -220,7 +234,7 @@ class LineItemCollection extends Collection
 
     public function getTotalQuantity(): int
     {
-        return $this->reduce(fn (int $result, LineItem $item) => $result + $item->getQuantity(), 0);
+        return $this->reduce(static fn (int $result, LineItem $item) => $result + $item->getQuantity(), 0);
     }
 
     protected function getKey(LineItem $element): string

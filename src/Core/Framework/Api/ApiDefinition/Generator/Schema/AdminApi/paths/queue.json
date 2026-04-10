@@ -1,0 +1,53 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "\/_info\/queue.json": {
+            "get": {
+                "tags": [
+                    "System Info & Health Check"
+                ],
+                "summary": "Get message queue statistics (deprecated)",
+                "description": "Returns increment-based message queue statistics.\n\n**Deprecated:** This endpoint is deprecated and will be removed in v6.8.0. Use `GET \/_info\/message-stats.json` instead for accurate message processing statistics.",
+                "operationId": "queue",
+                "deprecated": true,
+                "responses": {
+                    "200": {
+                        "description": "Message queue statistics returned.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string",
+                                                "description": "Fully qualified class name of the message."
+                                            },
+                                            "size": {
+                                                "type": "integer",
+                                                "description": "Number of pending messages of this type."
+                                            }
+                                        },
+                                        "required": ["name", "size"]
+                                    }
+                                },
+                                "example": [
+                                    {
+                                        "name": "Shopware\\Core\\Content\\Product\\DataAbstractionLayer\\ProductIndexingMessage",
+                                        "size": 150
+                                    },
+                                    {
+                                        "name": "Shopware\\Core\\Content\\Media\\Message\\GenerateThumbnailsMessage",
+                                        "size": 25
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

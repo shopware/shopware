@@ -14,8 +14,10 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\State;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -77,15 +79,20 @@ class LineItemTransformer
             'parentId' => $parentId,
             'coverId' => $lineItem->getCover()?->getId(),
             'payload' => $lineItem->getPayload(),
-            'states' => $lineItem->getStates(),
         ];
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::callSilentIfInactive('v6.8.0.0', static function () use (&$data, $lineItem): void {
+                $data['states'] = $lineItem->getStates();
+            });
+        }
 
         $downloads = $lineItem->getExtensionOfType(OrderConverter::ORIGINAL_DOWNLOADS, OrderLineItemDownloadCollection::class);
         if ($downloads instanceof OrderLineItemDownloadCollection) {
-            $data['downloads'] = array_values($downloads->map(fn (OrderLineItemDownloadEntity $download): array => ['id' => $download->getId()]));
+            $data['downloads'] = array_values($downloads->map(static fn (OrderLineItemDownloadEntity $download): array => ['id' => $download->getId()]));
         }
 
-        $output[$lineItem->getId()] = array_filter($data, fn ($value) => $value !== null);
+        $output[$lineItem->getId()] = array_filter($data, static fn ($value) => $value !== null);
 
         if ($lineItem->hasChildren()) {
             $output = [...$output, ...self::transformCollection($lineItem->getChildren(), $id)];
@@ -139,8 +146,11 @@ class LineItemTransformer
             ->setGood($entity->getGood())
             ->setRemovable($entity->getRemovable())
             ->setStackable($entity->getStackable())
-            ->setStates($entity->getStates())
             ->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct($id));
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates($entity->getStates());
+        }
 
         if ($entity->getPayload() !== null) {
             $lineItem->setPayload($entity->getPayload());
@@ -180,7 +190,19 @@ class LineItemTransformer
             LineItem::PRODUCT_LINE_ITEM_TYPE,
             LineItem::CUSTOM_LINE_ITEM_TYPE,
         ], true);
-        $isDownloadState = \in_array(State::IS_DOWNLOAD, $entity->getStates(), true);
+
+        if ($isProduct && !$entity->hasPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE)) {
+            $item->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
+        }
+
+        $isDownloadState = $entity->getPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE) === ProductDefinition::TYPE_DIGITAL;
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::callSilentIfInactive('v6.8.0.0', static function () use (&$isDownloadState, $entity): void {
+                $isDownloadState = $isDownloadState || \in_array(State::IS_DOWNLOAD, $entity->getStates(), true);
+            });
+        }
+
         if ($isNonProduct || ($isProduct && $isDownloadState)) {
             $item->setShippingCostAware(false);
 
@@ -212,9 +234,19 @@ class LineItemTransformer
             $product->getPurchaseSteps() ?? 1
         );
 
+        $lineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, $product->getType());
+
         $lineItem->setQuantityInformation($quantityInformation);
 
-        if ($lineItem->hasState(State::IS_PHYSICAL)) {
+        $isPhysicalLineItem = $lineItem->isProductType(ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::callSilentIfInactive('v6.8.0.0', static function () use ($lineItem, &$isPhysicalLineItem): void {
+                $isPhysicalLineItem = $isPhysicalLineItem || $lineItem->hasState(State::IS_PHYSICAL);
+            });
+        }
+
+        if ($isPhysicalLineItem) {
             $deliveryTime = null;
             if ($product->getDeliveryTime() !== null) {
                 $deliveryTime = DeliveryTime::createFromEntity($product->getDeliveryTime());

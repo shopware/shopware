@@ -122,7 +122,7 @@ class CreateAliasTaskHandlerTest extends TestCase
 
         $called = false;
 
-        $eventDispatcher->addListener(ElasticsearchIndexAliasSwitchedEvent::class, function (ElasticsearchIndexAliasSwitchedEvent $event) use (&$called): void {
+        $eventDispatcher->addListener(ElasticsearchIndexAliasSwitchedEvent::class, static function (ElasticsearchIndexAliasSwitchedEvent $event) use (&$called): void {
             $changes = $event->getChanges();
             static::assertArrayHasKey('second', $changes);
 

@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -24,7 +26,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('checkout')]
 class LineItemDownloadLoaderTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<ProductDownloadCollection> */
+    /**
+     * @var MockObject&EntityRepository<ProductDownloadCollection>
+     */
     private MockObject&EntityRepository $productDownloadRepository;
 
     private LineItemDownloadLoader $loader;
@@ -74,6 +78,9 @@ class LineItemDownloadLoaderTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'referencedId' => Uuid::randomHex(),
                 'states' => [State::IS_DOWNLOAD],
+                'payload' => [
+                    LineItem::PAYLOAD_PRODUCT_TYPE => ProductDefinition::TYPE_DIGITAL,
+                ],
             ],
         ];
 
@@ -105,6 +112,9 @@ class LineItemDownloadLoaderTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'referencedId' => $productId,
                 'states' => [State::IS_DOWNLOAD],
+                'payload' => [
+                    LineItem::PAYLOAD_PRODUCT_TYPE => ProductDefinition::TYPE_DIGITAL,
+                ],
             ],
         ];
 

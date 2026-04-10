@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1747746986OrderTaxCalculationType;
 
 /**
@@ -25,7 +26,7 @@ class Migration1747746986OrderTaxCalculationTypeTest extends TestCase
 
     public function testAddedColumn(): void
     {
-        if ($this->columnExists()) {
+        if (TableHelper::columnExists($this->connection, 'order', 'tax_calculation_type')) {
             $this->rollback();
         }
 
@@ -33,20 +34,11 @@ class Migration1747746986OrderTaxCalculationTypeTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        static::assertTrue($this->columnExists());
+        static::assertTrue(TableHelper::columnExists($this->connection, 'order', 'tax_calculation_type'));
     }
 
-    public function rollback(): void
+    private function rollback(): void
     {
         $this->connection->executeStatement('ALTER TABLE `order` DROP COLUMN `tax_calculation_type`');
-    }
-
-    protected function columnExists(): bool
-    {
-        $exists = $this->connection->fetchOne(
-            'SHOW COLUMNS FROM `order` WHERE `Field` LIKE "tax_calculation_type"',
-        );
-
-        return !empty($exists);
     }
 }

@@ -26,8 +26,8 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
 use Shopware\Core\Test\Generator;
-use Shopware\Tests\Unit\Core\Framework\Gateway\Context\Command\_fixture\TestAllCommandsGatewayCommandHandler;
-use Shopware\Tests\Unit\Core\Framework\Gateway\Context\Command\_fixture\TestContextGatewayCommand;
+use Shopware\Tests\Unit\Core\Framework\Gateway\Context\Command\_fixture\StubAllCommandsGatewayCommandHandler;
+use Shopware\Tests\Unit\Core\Framework\Gateway\Context\Command\_fixture\StubContextGatewayCommand;
 
 /**
  * @internal
@@ -44,7 +44,7 @@ class ContextGatewayCommandExecutorTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $newContext = Generator::generateSalesChannelContext(token: 'hatoken');
 
-        $registry = new ContextGatewayCommandRegistry([new TestAllCommandsGatewayCommandHandler()]);
+        $registry = new ContextGatewayCommandRegistry([new StubAllCommandsGatewayCommandHandler()]);
         $salesChannelService = $this->createMock(SalesChannelContextServiceInterface::class);
         $salesChannelService
             ->expects($this->once())
@@ -73,7 +73,7 @@ class ContextGatewayCommandExecutorTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $newContext = Generator::generateSalesChannelContext(token: 'hatoken');
 
-        $registry = new ContextGatewayCommandRegistry([new TestAllCommandsGatewayCommandHandler()]);
+        $registry = new ContextGatewayCommandRegistry([new StubAllCommandsGatewayCommandHandler()]);
         $salesChannelService = $this->createMock(SalesChannelContextServiceInterface::class);
         $salesChannelService
             ->expects($this->once())
@@ -117,7 +117,7 @@ class ContextGatewayCommandExecutorTest extends TestCase
             'shippingMethod' => 'app_test_shipping',
         ]);
 
-        $registry = new ContextGatewayCommandRegistry([new TestAllCommandsGatewayCommandHandler()]);
+        $registry = new ContextGatewayCommandRegistry([new StubAllCommandsGatewayCommandHandler()]);
 
         $switchRoute = $this->createMock(AbstractContextSwitchRoute::class);
         $switchRoute
@@ -142,7 +142,7 @@ class ContextGatewayCommandExecutorTest extends TestCase
     public function testExecuteWithUnknownCommand(): void
     {
         $commands = new ContextGatewayCommandCollection();
-        $commands->add(TestContextGatewayCommand::createFromPayload());
+        $commands->add(StubContextGatewayCommand::createFromPayload());
 
         $context = Generator::generateSalesChannelContext();
 
@@ -152,7 +152,7 @@ class ContextGatewayCommandExecutorTest extends TestCase
         $logger
             ->expects($this->once())
             ->method('logOrThrowException')
-            ->with(GatewayException::handlerNotFound(TestContextGatewayCommand::getDefaultKeyName()));
+            ->with(GatewayException::handlerNotFound(StubContextGatewayCommand::getDefaultKeyName()));
 
         $executor = new ContextGatewayCommandExecutor(
             $this->createMock(AbstractContextSwitchRoute::class),

@@ -4,8 +4,10 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoaderInterface;
+use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\CategoryTreePathResolver;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -63,7 +65,12 @@ class NavigationRoute extends AbstractNavigationRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/navigation/{activeId}/{rootId}', name: 'store-api.navigation', methods: ['GET', 'POST'], defaults: ['_entity' => 'category'])]
+    #[Route(
+        path: '/store-api/navigation/{activeId}/{rootId}',
+        name: 'store-api.navigation',
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => CategoryDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+    )]
     public function load(
         string $activeId,
         string $rootId,
@@ -71,7 +78,7 @@ class NavigationRoute extends AbstractNavigationRoute
         SalesChannelContext $context,
         Criteria $criteria
     ): NavigationRouteResponse {
-        $depth = $request->query->getInt('depth', $request->request->getInt('depth', 2));
+        $depth = $request->query->getInt('depth', $request->request->getInt('depth', NavigationLoaderInterface::DEFAULT_DEPTH));
 
         $metaInfo = $this->getCategoryMetaInfo($activeId, $rootId);
 

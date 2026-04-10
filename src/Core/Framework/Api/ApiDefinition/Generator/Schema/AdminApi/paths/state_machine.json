@@ -1,0 +1,187 @@
+{
+  "openapi": "3.1.0",
+  "info": [],
+  "paths": {
+    "/_action/state-machine/{entityName}/{entityId}/state": {
+      "get": {
+        "tags": [
+          "State Machine"
+        ],
+        "summary": "Get available transitions for an entity",
+        "description": "Retrieves the available state transitions for the specified entity.",
+        "operationId": "getEntityState",
+        "parameters": [
+          {
+            "name": "entityName",
+            "in": "path",
+            "description": "Name of the entity.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entityId",
+            "in": "path",
+            "description": "Identifier of the entity.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            }
+          },
+          {
+            "name": "stateFieldName",
+            "in": "query",
+            "description": "This is the state column within the order delivery database table. There should be no need to change it from the default.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "stateId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Available transitions for the current state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transitions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "The name of the transition."
+                          },
+                          "technicalName": {
+                            "type": "string",
+                            "description": "The technical name of the transition."
+                          },
+                          "actionName": {
+                            "type": "string",
+                            "description": "The action name of the transition."
+                          },
+                          "fromStateName": {
+                            "type": "string",
+                            "description": "The technical name of the state the transition starts from."
+                          },
+                          "toStateName": {
+                            "type": "string",
+                            "description": "The technical name of the state the transition goes to."
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "The URL to trigger the transition."
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "technicalName",
+                          "actionName",
+                          "fromStateName",
+                          "toStateName",
+                          "url"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "transitions"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unable to read the entity or entity field."
+          },
+          "403": {
+            "description": "Forbidden. Missing privileges to access the entity."
+          }
+        }
+      }
+    },
+    "/_action/state-machine/{entityName}/{entityId}/state/{transition}": {
+      "post": {
+        "tags": [
+          "State Machine"
+        ],
+        "summary": "Transition an entity to a new state",
+        "description": "Changes the entity state by applying the given transition.",
+        "operationId": "transitionEntityState",
+        "parameters": [
+          {
+            "name": "entityName",
+            "in": "path",
+            "description": "Name of the entity.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entityId",
+            "in": "path",
+            "description": "Identifier of the entity.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            }
+          },
+          {
+            "name": "transition",
+            "in": "path",
+            "description": "The `action_name` of the `state_machine_transition`.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stateFieldName",
+            "in": "query",
+            "description": "This is the state column within the order delivery database table. There should be no need to change it from the default.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "stateId"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Optional internal comment for the state transition.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "internalComment": {
+                    "type": "string",
+                    "description": "An optional internal comment that will be saved with the state transition."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "State transition applied successfully."
+          },
+          "400": {
+            "description": "Unable to read the entity or entity field, or invalid transition."
+          },
+          "403": {
+            "description": "Forbidden. Missing privileges to access the entity."
+          }
+        }
+      }
+    }
+  }
+}

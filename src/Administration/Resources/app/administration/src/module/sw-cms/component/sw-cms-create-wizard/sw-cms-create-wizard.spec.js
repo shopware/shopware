@@ -155,7 +155,7 @@ describe('module/sw-cms/component/sw-cms-create-wizard', () => {
     it('should generate the correct pagePreviewMedia tag', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm.pagePreviewMedia).toBe(
-            'url(administration/administration/static/img/cms/preview_landingpage_default.png)',
+            'url(administration/administration/static/img/cms/preview_landingpage_default.webp)',
         );
     });
 

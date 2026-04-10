@@ -12,16 +12,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Inherited as InheritedAttr;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ListField as ListFieldAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToOne;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Password;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey as PrimaryKeyAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Protection;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ReferenceVersion;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required as RequiredAttr;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ReverseInherited as ReverseInheritedAttr;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\SearchRanking as SearchRankingAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
@@ -33,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EnumField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field as DalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -41,20 +46,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AsArray;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\SerializedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
@@ -62,29 +73,39 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\WasModifiedByUserField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
- * @phpstan-type FieldArray array{type?: string, name?: string, class: class-string<DalField>, flags: array<string, array<string, array<bool|string>|string>|null>, translated: bool, args: list<string|false>}
+ * @phpstan-type FieldArray array{
+ *     type?: string,
+ *     name?: string,
+ *     class: class-string<DalField>,
+ *     flags: array<string, array{class: string, args?: array<string, string|bool|float|null>|list<string>}>,
+ *     translated: bool,
+ *     args: list<string|int|false>
+ * }
  */
 #[Package('framework')]
 class AttributeEntityCompiler
 {
     private const FIELD_ATTRIBUTES = [
+        OneToMany::class,
+        ManyToMany::class,
+        ManyToOne::class,
+        OneToOne::class,
         Translations::class,
         AutoIncrement::class,
         Serialized::class,
         ForeignKey::class,
         Version::class,
+        Password::class,
         Field::class,
-        OneToMany::class,
-        ManyToMany::class,
-        ManyToOne::class,
-        OneToOne::class,
         State::class,
         ReferenceVersion::class,
+        ListFieldAttr::class,
         CustomFieldsAttr::class,
     ];
 
@@ -105,7 +126,17 @@ class AttributeEntityCompiler
     /**
      * @param class-string<EntityStruct> $class
      *
-     * @return list<array{type: 'entity'|'mapping', since?: string|null, parent: string|null, entity_class: class-string<EntityStruct>, entity_name: string, collection_class?: class-string<EntityCollection<EntityStruct>>, fields: list<FieldArray>, source?: string, reference?: string}>
+     * @return list<array{
+     *     type: 'entity'|'mapping',
+     *     since?: string|null,
+     *     parent: string|null,
+     *     entity_class: class-string<EntityStruct>,
+     *     entity_name: string,
+     *     collection_class?: class-string<EntityCollection<EntityStruct>>,
+     *     fields: list<FieldArray>,
+     *     source?: string,
+     *     reference?: string
+     * }>
      */
     public function compile(string $class): array
     {
@@ -113,7 +144,7 @@ class AttributeEntityCompiler
 
         $collection = $reflection->getAttributes(Entity::class);
 
-        if (empty($collection)) {
+        if ($collection === []) {
             return [];
         }
 
@@ -163,7 +194,7 @@ class AttributeEntityCompiler
     {
         foreach ($list as $attribute) {
             $attribute = $property->getAttributes($attribute);
-            if (!empty($attribute)) {
+            if ($attribute !== []) {
                 return $attribute[0];
             }
         }
@@ -172,7 +203,14 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return array{type: string, name: string, class: class-string<DalField>, flags: array<string, array<string, array<bool|string>|string>|null>, translated: bool, args: list<string|false>}|null
+     * @return array{
+     *     type: string,
+     *     name: string,
+     *     class: class-string<DalField>,
+     *     flags: array<string, array{class: string, args?: array<string, string|bool|float|null>|list<string>}>,
+     *     translated: bool,
+     *     args: list<string|int|false>
+     * }|null
      */
     private function parseField(string $entity, \ReflectionProperty $property): ?array
     {
@@ -205,29 +243,33 @@ class AttributeEntityCompiler
         }
 
         return match ($field->type) {
-            FieldType::INT => IntField::class,
+            FieldType::UUID => IdField::class,
             FieldType::TEXT => LongTextField::class,
+            FieldType::INT => IntField::class,
             FieldType::FLOAT => FloatField::class,
             FieldType::BOOL => BoolField::class,
-            FieldType::DATETIME => DateTimeField::class,
-            FieldType::UUID => IdField::class,
-            AutoIncrement::TYPE => AutoIncrementField::class,
-            CustomFieldsAttr::TYPE => CustomFields::class,
-            Serialized::TYPE => SerializedField::class,
             FieldType::ENUM => EnumField::class,
             FieldType::JSON => JsonField::class,
+            FieldType::DATETIME => DateTimeField::class,
             FieldType::DATE => DateField::class,
             FieldType::DATE_INTERVAL => DateIntervalField::class,
             FieldType::TIME_ZONE => TimeZoneField::class,
+            FieldType::EMAIL => EmailField::class,
+            FieldType::PRICE => PriceField::class,
             OneToMany::TYPE => OneToManyAssociationField::class,
             OneToOne::TYPE => OneToOneAssociationField::class,
             ManyToOne::TYPE => ManyToOneAssociationField::class,
             ManyToMany::TYPE => ManyToManyAssociationField::class,
+            AutoIncrement::TYPE => AutoIncrementField::class,
+            Serialized::TYPE => SerializedField::class,
+            Password::TYPE => PasswordField::class,
             ForeignKey::TYPE => FkField::class,
             State::TYPE => StateMachineStateField::class,
             Version::TYPE => VersionField::class,
             ReferenceVersion::TYPE => ReferenceVersionField::class,
             Translations::TYPE => TranslationsAssociationField::class,
+            CustomFieldsAttr::TYPE => CustomFields::class,
+            ListFieldAttr::TYPE => ListField::class,
             default => StringField::class,
         };
     }
@@ -235,8 +277,11 @@ class AttributeEntityCompiler
     /**
      * @return list<mixed>
      */
-    private function getFieldArgs(string $entity, OneToMany|ManyToMany|ManyToOne|OneToOne|Field|Serialized|AutoIncrement $field, \ReflectionProperty $property): array
-    {
+    private function getFieldArgs(
+        string $entity,
+        OneToMany|ManyToMany|ManyToOne|OneToOne|Field|Serialized|AutoIncrement|Password|ListFieldAttr $field,
+        \ReflectionProperty $property
+    ): array {
         if ($field->column) {
             $column = $field->column;
             $fk = $column;
@@ -256,7 +301,11 @@ class AttributeEntityCompiler
             $field instanceof AutoIncrement, $field instanceof Version => [],
             $field instanceof ReferenceVersion => [$field->entity, $column],
             $field instanceof Serialized => [$column, $property->getName(), $field->serializer],
+            $field instanceof Password => [$column, $property->getName(), $field->algorithm, $field->hashOptions, $field->for],
+            $field instanceof ListFieldAttr => [$column, $property->getName(), $field->fieldType],
             $field->type === FieldType::ENUM => [$column, $property->getName(), $this->getFirstEnumCase($property)],
+            $field->type === FieldType::STRING,
+            $field->type === FieldType::EMAIL => [$column, $property->getName(), $field->maxLength],
             default => [$column, $property->getName()],
         };
     }
@@ -274,7 +323,7 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return array<string, array{class: string, args?: array<bool|string>}>
+     * @return array<string, array{class: string, args?: array<string, string|bool|float|null>|list<string>}>
      */
     private function getFlags(Field $field, \ReflectionProperty $property): array
     {
@@ -288,14 +337,25 @@ class AttributeEntityCompiler
             $flags[Required::class] = ['class' => Required::class];
         }
 
+        // Translation association fields need to be marked as required,
+        // because otherwise required fields in the association are not validated
+        if ($field instanceof Translations) {
+            $flags[Required::class] = ['class' => Required::class];
+        }
+
         if ($this->getAttribute($property, PrimaryKeyAttr::class)) {
             $flags[PrimaryKey::class] = ['class' => PrimaryKey::class];
             $flags[Required::class] = ['class' => Required::class];
         }
 
-        if ($inherited = $this->getAttribute($property, Inherited::class)) {
+        if ($inherited = $this->getAttribute($property, InheritedAttr::class)) {
             $instance = $inherited->newInstance();
-            $flags[Inherited::class] = ['class' => Inherited::class, 'args' => ['reversed' => $instance->reversed]];
+            $flags[Inherited::class] = ['class' => Inherited::class, 'args' => ['foreignKey' => $instance->foreignKey]];
+        }
+
+        if ($reverseInherited = $this->getAttribute($property, ReverseInheritedAttr::class)) {
+            $instance = $reverseInherited->newInstance();
+            $flags[ReverseInherited::class] = ['class' => ReverseInherited::class, 'args' => ['propertyName' => $instance->propertyName]];
         }
 
         if ($this->getAttribute($property, AllowEmptyStringAttr::class)) {
@@ -353,10 +413,18 @@ class AttributeEntityCompiler
             }
         }
 
+        if ($searchRanking = $this->getAttribute($property, SearchRankingAttr::class)) {
+            $instance = $searchRanking->newInstance();
+            $flags[SearchRanking::class] = ['class' => SearchRanking::class, 'args' => ['ranking' => $instance->ranking, 'tokenize' => $instance->tokenize]];
+        }
+
         if ($field->type === AutoIncrement::TYPE) {
             unset($flags[Required::class]);
         }
         if ($field->type === CustomFieldsAttr::TYPE) {
+            unset($flags[Required::class]);
+        }
+        if (is_a($field->type, WasModifiedByUserField::class, true)) {
             unset($flags[Required::class]);
         }
 
@@ -364,13 +432,21 @@ class AttributeEntityCompiler
     }
 
     /**
-     * @return array{type: 'mapping', parent: null, entity_class: class-string<ArrayEntity>, entity_name: string, fields: list<FieldArray>, source: string, reference: string}
+     * @return array{
+     *     type: 'mapping',
+     *     parent: null,
+     *     entity_class: class-string<ArrayEntity>,
+     *     entity_name: string,
+     *     fields: list<FieldArray>,
+     *     source: string,
+     *     reference: string
+     * }
      */
     private function mapping(string $entity, \ReflectionProperty $property): array
     {
         $attribute = $this->getAttribute($property, ManyToMany::class);
 
-        if (!$attribute) {
+        if (!$attribute instanceof \ReflectionAttribute) {
             throw DataAbstractionLayerException::canNotFindAttribute(ManyToMany::class, $property->getName());
         }
         $field = $attribute->newInstance();

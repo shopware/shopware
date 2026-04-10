@@ -103,11 +103,12 @@ async function createWrapper(privileges = []) {
                 'sw-entity-listing': {
                     props: [
                         'items',
+                        'dataSource',
                         'detailRoute',
                     ],
                     template: `
                         <div>
-                            <template v-for="item in items" :key="item.id">
+                            <template v-for="item in (dataSource || items)" :key="item.id">
                                 <slot name="actions" v-bind="{ item }">
                                 </slot>
                                 <slot name="action-modals" v-bind="{ item }">

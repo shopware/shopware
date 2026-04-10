@@ -11,6 +11,9 @@ class MissingPrivilegeException extends ShopwareHttpException
 {
     final public const MISSING_PRIVILEGE_ERROR = 'FRAMEWORK__MISSING_PRIVILEGE_ERROR';
 
+    /**
+     * @param list<string> $privilege
+     */
     public function __construct(array $privilege = [])
     {
         $errorMessage = json_encode([

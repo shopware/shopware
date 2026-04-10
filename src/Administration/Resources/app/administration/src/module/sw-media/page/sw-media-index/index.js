@@ -35,6 +35,7 @@ export default {
             isLoading: false,
             selectedItems: [],
             uploads: [],
+            pendingUploadsCount: 0,
             term: this.$route.query?.term ?? '',
             uploadTag: 'upload-tag-sw-media-index',
             parentFolder: null,
@@ -104,21 +105,42 @@ export default {
 
         destroyedComponent() {},
 
-        async onUploadsAdded() {
+        async onUploadsAdded({ data } = {}) {
+            if (Array.isArray(data) && data.length > 0) {
+                this.pendingUploadsCount += data.length;
+            }
+
             await this.mediaService.runUploads(this.uploadTag);
-            this.reloadList();
         },
 
-        onUploadFinished({ targetId }) {
-            this.uploads = this.uploads.filter((upload) => {
-                return upload.id !== targetId;
-            });
+        onUploadFinished({ targetId } = {}) {
+            if (targetId) {
+                this.uploads = this.uploads.filter((upload) => {
+                    return upload.id !== targetId;
+                });
+            }
+
+            this.decrementPendingUploads();
         },
 
-        onUploadFailed({ targetId }) {
-            this.uploads = this.uploads.filter((upload) => {
-                return targetId !== upload.id;
-            });
+        onUploadFailed({ targetId } = {}) {
+            if (targetId) {
+                this.uploads = this.uploads.filter((upload) => {
+                    return targetId !== upload.id;
+                });
+            }
+
+            this.decrementPendingUploads();
+        },
+
+        onUploadCanceled({ data } = {}) {
+            if (Array.isArray(data) && data.length > 0) {
+                this.pendingUploadsCount = Math.max(0, this.pendingUploadsCount - data.length);
+            }
+
+            if (this.pendingUploadsCount === 0) {
+                this.reloadList();
+            }
         },
 
         onChangeLanguage() {
@@ -156,6 +178,16 @@ export default {
 
         reloadList() {
             this.$refs.mediaLibrary.refreshList();
+        },
+
+        decrementPendingUploads() {
+            if (this.pendingUploadsCount > 0) {
+                this.pendingUploadsCount -= 1;
+            }
+
+            if (this.pendingUploadsCount === 0) {
+                this.reloadList();
+            }
         },
 
         clearSelection() {

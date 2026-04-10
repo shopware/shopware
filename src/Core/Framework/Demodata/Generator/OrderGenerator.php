@@ -80,7 +80,7 @@ class OrderGenerator implements DemodataGeneratorInterface
             $productIds
         );
         $promotionLineItems = array_map(
-            function ($promotionCode) {
+            static function ($promotionCode) {
                 $uniqueKey = 'promotion-' . $promotionCode;
 
                 return (new LineItem(Uuid::fromStringToHex($uniqueKey), LineItem::PROMOTION_LINE_ITEM_TYPE))
@@ -128,7 +128,7 @@ class OrderGenerator implements DemodataGeneratorInterface
             }
         }
 
-        if (!empty($orders)) {
+        if ($orders !== []) {
             $this->writer->upsert($this->orderDefinition, $orders, $writeContext);
         }
 
@@ -144,7 +144,7 @@ class OrderGenerator implements DemodataGeneratorInterface
     {
         $tagAssignments = [];
 
-        if (!empty($tags)) {
+        if ($tags !== []) {
             $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit());
 
             if (!empty($chosenTags)) {
@@ -180,7 +180,7 @@ class OrderGenerator implements DemodataGeneratorInterface
             SalesChannelContextService::CUSTOMER_ID => $customerId,
         ];
 
-        if (!empty($paymentMethodIds)) {
+        if ($paymentMethodIds !== []) {
             $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $this->faker->randomElement($paymentMethodIds);
         }
 

@@ -10,8 +10,8 @@
             <label>Subscription URL</label>
             <label lang="de-DE">Anmelde-URL</label>
             <placeholder><![CDATA[/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%]]></placeholder>
-            <helpText><![CDATA[URL to confirm the subscription to the newsletter.<br/>Available placeholders: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%]]></helpText>
-            <helpText lang="de-DE"><![CDATA[URL um die Newsletter-Anmeldung zu bestätigen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%]]></helpText>
+            <helpText><![CDATA[URL to confirm the subscription to the newsletter.<br/>Available placeholders: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%<br/><br/>Use "redirectTo" or "forwardTo" parameters to send customers to a specific page after newsletter confirmation. Make sure to use the technical route name and URL-encode the "redirectParameters" parameter if needed.<br/>Example:<br/><em>/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%<b>&redirectTo=frontend.landing.page&redirectParameters=%7B%22landingPageId%22%3A%20%22019c0477f11d709b838b7108f2260cb9%22%7D</b></em>]]></helpText>
+            <helpText lang="de-DE"><![CDATA[URL um die Newsletter-Anmeldung zu bestätigen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%<br/><br/>Verwende die Parameter "redirectTo" oder "forwardTo", um Kunden nach der Bestätigung des Newsletters auf eine bestimmte Seite weiterzuleiten. Stelle sicher, dass der technische Routenname verwendet wird und der Parameter "redirectParameters" bei Bedarf URL-codiert ist.<br/>Beispiel:<br/><em>/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%<b>&redirectTo=frontend.landing.page&redirectParameters=%7B%22landingPageId%22%3A%20%22019c0477f11d709b838b7108f2260cb9%22%7D</b></em>]]></helpText>
         </input-field>
 
         <input-field type="bool">

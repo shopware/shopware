@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -46,7 +45,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[CoversClass(EntityWriter::class)]
 class EntityWriterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -233,6 +231,47 @@ class EntityWriterTest extends TestCase
 
         $deleteResult = $this->getWriter()->delete(static::getContainer()->get(ProductCategoryDefinition::class), [
             ['productId' => $productId, 'categoryId' => $categoryId],
+        ], $context);
+
+        $exists = $this->connection->fetchAllAssociative(
+            'SELECT * FROM product_category WHERE product_id = :product AND category_id = :category',
+            ['product' => Uuid::fromHexToBytes($productId), 'category' => Uuid::fromHexToBytes($categoryId)]
+        );
+        static::assertEmpty($exists);
+
+        static::assertCount(1, $deleteResult->getDeleted()[ProductCategoryDefinition::ENTITY_NAME]);
+        static::assertCount(0, $deleteResult->getNotFound());
+    }
+
+    public function testDeleteWithMultiplePrimaryColumnsThroughCascadeDelete(): void
+    {
+        $productId = Uuid::randomHex();
+        $categoryId = Uuid::randomHex();
+
+        $context = $this->createWriteContext();
+        $this->getWriter()->insert(static::getContainer()->get(ProductDefinition::class), [
+            [
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'name' => 'test 1',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 5],
+                'manufacturer' => ['name' => 'test'],
+                'categories' => [
+                    ['id' => $categoryId, 'name' => 'test'],
+                ],
+            ],
+        ], $context);
+
+        $exists = $this->connection->fetchAllAssociative(
+            'SELECT * FROM product_category WHERE product_id = :product AND category_id = :category',
+            ['product' => Uuid::fromHexToBytes($productId), 'category' => Uuid::fromHexToBytes($categoryId)]
+        );
+        static::assertCount(1, $exists);
+
+        $deleteResult = $this->getWriter()->delete(static::getContainer()->get(ProductDefinition::class), [
+            ['id' => $productId],
         ], $context);
 
         $exists = $this->connection->fetchAllAssociative(
@@ -462,7 +501,7 @@ class EntityWriterTest extends TestCase
         static::assertSame('_THE_TITLE_', $productTranslation['name'], print_r($productTranslation, true));
         static::assertSame('<p>html</p>', $productTranslation['description']);
         static::assertSame('Another Company', $productManufacturerTranslation['name']);
-        static::assertSame('http://www.shopware.com', $productManufacturer['link']);
+        static::assertSame('http://www.shopware.com', $productManufacturerTranslation['link']);
     }
 
     public function testUpdateWritesDefaultColumnsIfOmmitted(): void
@@ -626,7 +665,7 @@ class EntityWriterTest extends TestCase
 
         static::assertCount(2, $productTranslations, print_r($productTranslations, true));
 
-        $productTranslations = array_map(function ($a) {
+        $productTranslations = array_map(static function ($a) {
             $a['language_id'] = Uuid::fromBytesToHex($a['language_id']);
 
             return $a;

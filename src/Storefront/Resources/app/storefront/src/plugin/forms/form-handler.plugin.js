@@ -67,6 +67,8 @@ export default class FormHandler extends Plugin {
         /**
          * Define the selector for gathering all fields of the form.
          *
+         * @deprecated tag:v6.8.0 - Default will be replaced with `null`
+         *
          * @type {string}
          */
         formFieldSelector: 'input, textarea, select',
@@ -91,7 +93,6 @@ export default class FormHandler extends Plugin {
         }
 
         this.form = this.el;
-        this.formFields = this.form.querySelectorAll(this.options.formFieldSelector);
         this.submitButtons = this._getSubmitButtons();
 
         // Will hold the instances of loading indicators for each submit button.
@@ -102,6 +103,19 @@ export default class FormHandler extends Plugin {
         }
 
         this._initFormEvents();
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
+    set formFields(formFields) {
+        this._formFields = formFields;
+    }
+
+    get formFields() {
+        return this.options.formFieldSelector
+            ? this.form.querySelectorAll(this.options.formFieldSelector)
+            : [...this.form.elements];
     }
 
     /**
@@ -156,8 +170,8 @@ export default class FormHandler extends Plugin {
             validationEvent,
             Debouncer.debounce(
                 window.formValidation.validateField.bind(window.formValidation, field),
-                this.options.debounceTime
-            )
+                this.options.debounceTime,
+            ),
         );
     }
 
@@ -174,8 +188,6 @@ export default class FormHandler extends Plugin {
         // Handle form validation
         if (this.options.validateOnSubmit === true) {
             // Form fields are always updated again, because there might be fields that where added async.
-            this.formFields = this.form.querySelectorAll(this.options.formFieldSelector);
-
             const invalidFields = window.formValidation.validateForm(this.form, this.formFields);
 
             if (invalidFields.length > 0) {
@@ -187,6 +199,8 @@ export default class FormHandler extends Plugin {
                 // The focus will be set to the first invalid field.
                 // The page will automatically scroll to the field with focus.
                 if (this.options.focusInvalidField === true) {
+                    // In Safari, focus alone may not scroll, so manual scrolling is needed.
+                    invalidFields[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
                     invalidFields[0].focus();
                 }
 
@@ -231,8 +245,6 @@ export default class FormHandler extends Plugin {
      */
     _checkValidity() {
         // Form fields are always updated again, because there might be fields that where added async.
-        this.formFields = this.form.querySelectorAll(this.options.formFieldSelector);
-
         const invalidFields = window.formValidation.validateForm(this.form, this.formFields);
 
         return invalidFields.length === 0;

@@ -106,8 +106,8 @@ async function createWrapper() {
                                 @click="onClickRemoveInheritance">
                             </div>
                             <div v-else
-                                 class="sw-inheritance-switch--is-not-inherited"
-                                 @click="onClickRestoreInheritance">
+                                class="sw-inheritance-switch--is-not-inherited"
+                                @click="onClickRestoreInheritance">
                             </div>
                         </div>`,
                     methods: {
@@ -156,14 +156,6 @@ async function createWrapper() {
                         </div>
                     `,
                 },
-                'sw-empty-state': {
-                    template: `
-                        <div class="sw-empty-state">
-                            <slot></slot>
-                            <slot name="actions"></slot>
-                        </div>
-                    `,
-                },
                 'sw-product-add-properties-modal': true,
                 'sw-loader': true,
                 'sw-simple-search-field': true,
@@ -173,6 +165,15 @@ async function createWrapper() {
             provide: {
                 repositoryFactory: {
                     create: () => repositoryFactoryCreateResult,
+                },
+            },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'regular-content',
+                        },
+                    },
                 },
             },
         },
@@ -346,7 +347,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
+        const getPropertiesSpy = jest.spyOn(wrapper.vm, 'getProperties').mockImplementation(() => Promise.resolve());
+
         wrapper.vm.onDeleteProperty(propertiesMock[0]);
+        await nextTick();
 
         expect(wrapper.vm.productProperties).toEqual(
             expect.arrayContaining([
@@ -362,7 +366,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
                 }),
             ]),
         );
+        expect(getPropertiesSpy).toHaveBeenCalled();
+
         wrapper.vm.propertyGroupRepository.search.mockRestore();
+        getPropertiesSpy.mockRestore();
     });
 
     it('should delete properties successful', async () => {
@@ -370,7 +377,6 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.setData({ $refs: $refsMock });
         wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
             return Promise.resolve(propertiesMock);
         });
@@ -379,7 +385,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         await wrapper.vm.getGroupIds();
         await wrapper.vm.getProperties();
 
+        const getPropertiesSpy = jest.spyOn(wrapper.vm, 'getProperties').mockImplementation(() => Promise.resolve());
+
         wrapper.vm.onDeleteProperties();
+        await nextTick();
 
         expect(wrapper.vm.productProperties).toEqual(
             expect.arrayContaining([
@@ -395,7 +404,10 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
                 }),
             ]),
         );
+        expect(getPropertiesSpy).toHaveBeenCalled();
+
         wrapper.vm.propertyGroupRepository.search.mockRestore();
+        getPropertiesSpy.mockRestore();
     });
 
     it('should get properties when changing search term', async () => {

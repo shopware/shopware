@@ -34,7 +34,7 @@ readonly class CacheRelevantRulesResolver
         $ruleAreas = $this->extensions->publish(
             name: ResolveCacheRelevantRuleIdsExtension::NAME,
             extension: $ruleIdsExtension,
-            function: function (Request $request, array $ruleAreas, SalesChannelContext $salesChannelContext): array {
+            function: static function (Request $request, array $ruleAreas, SalesChannelContext $salesChannelContext): array {
                 return $ruleAreas;
             },
         );

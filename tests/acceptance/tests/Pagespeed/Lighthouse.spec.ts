@@ -21,23 +21,28 @@ test('Category Lighthouse Report', async ({
     ValidateLighthouseScore,
     StorefrontCategory,
 }) => {
+
+    test.setTimeout(150_000);
+
     const productCount = 10;
-    const promises = [];
 
     const category = await TestDataService.createCategory();
 
-    const createProductAndAssign = async() => {
-        const product = await TestDataService.createProductWithImage();
-        return await TestDataService.assignProductCategory(product.id, category.id);
-    }
-
     for (let i = 0; i < productCount; i++) {
-        promises.push(createProductAndAssign());
+        const product = await TestDataService.createProductWithImage();
+        await TestDataService.assignProductCategory(product.id, category.id);
     }
-
-    await Promise.all(promises);
 
     await ShopCustomer.goesTo(StorefrontCategory.url(category.name));
+
+    await ShopCustomer.expects(async () => {
+        await TestDataService.clearCaches();
+        await ShopCustomer.goesTo(`${StorefrontCategory.url(category.name)}?a=${Date.now()}`);
+        await ShopCustomer.expects(StorefrontCategory.page.locator('.cms-listing-row').locator('.product-name')).toHaveCount(productCount);
+    }).toPass({
+        intervals: [1_000, 2_500], // retry after 1 seconds, then every 2.5 seconds
+    });
+
     await ShopCustomer.attemptsTo(ValidateLighthouseScore(StorefrontCategory.page, 'Storefront-Category'))
 });
 

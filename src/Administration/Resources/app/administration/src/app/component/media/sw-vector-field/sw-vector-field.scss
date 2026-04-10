@@ -1,0 +1,60 @@
+@import "~scss/variables";
+
+.sw-vector-field {
+    .sw-vector-field__input {
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 32px;
+        gap: 16px;
+    }
+
+    .mt-field__addition.is--prefix {
+        min-width: 32px;
+        font-weight: $font-weight-bold;
+    }
+
+    .sw-vector-field__lock-icon {
+        float: right;
+        cursor: pointer;
+
+        &.is--linked {
+            color: var(--color-blue-500);
+        }
+
+        &.is--disabled {
+            cursor: default;
+            color: var(--color-gray-700);
+        }
+    }
+
+    .mt-number-field {
+        margin-bottom: 0;
+    }
+
+    .mt-number-field__controls {
+        display: none;
+    }
+}
+
+.sw-vector-field--colored {
+    .sw-vector-field__input__x {
+        .mt-field__addition.is--prefix {
+            color: #c20017;
+            background: #fff2f0;
+        }
+    }
+
+    .sw-vector-field__input__y {
+        .mt-field__addition.is--prefix {
+            color: #00ab26;
+            background: #e1ffe0;
+        }
+    }
+
+    .sw-vector-field__input__z {
+        .mt-field__addition.is--prefix {
+            color: #0081d4;
+            background: #eef6ff;
+        }
+    }
+}

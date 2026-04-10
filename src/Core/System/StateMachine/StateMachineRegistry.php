@@ -126,9 +126,9 @@ class StateMachineRegistry implements ResetInterface
                 $repository
             );
 
-            if (empty($transition->getTransitionName())) {
+            if ($transition->getTransitionName() === '') {
                 $transitions = $this->getAvailableTransitionsById($stateMachine->getTechnicalName(), $fromPlace->getId(), $context);
-                $transitionNames = array_map(fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
+                $transitionNames = array_map(static fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
 
                 throw StateMachineException::illegalStateTransition($fromPlace->getId(), '', $transitionNames);
             }
@@ -160,6 +160,7 @@ class StateMachineRegistry implements ResetInterface
                 'integrationId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getIntegrationId() : null,
                 'referencedId' => $transition->getEntityId(),
                 'referencedVersionId' => $context->getVersionId(),
+                'internalComment' => $transition->getInternalComment(),
             ];
 
             $this->stateMachineHistoryRepository->create([$stateMachineHistoryEntity], $context);
@@ -174,7 +175,8 @@ class StateMachineRegistry implements ResetInterface
                     $transition->getEntityId(),
                     $fromPlace,
                     $toPlace,
-                    $context
+                    $context,
+                    $transition->getInternalComment(),
                 )
             );
 
@@ -305,7 +307,7 @@ class StateMachineRegistry implements ResetInterface
         }
 
         $transitions = $this->getAvailableTransitionsById($stateMachineName, $fromStateId, $context);
-        $transitionNames = array_map(fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
+        $transitionNames = array_map(static fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
 
         throw StateMachineException::illegalStateTransition(
             $fromStateId,

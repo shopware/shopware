@@ -31,7 +31,11 @@ class AppActionController extends AbstractController
     ) {
     }
 
-    #[Route(path: 'api/app-system/action-button/{entity}/{view}', name: 'api.app_system.action_buttons', methods: ['GET'])]
+    #[Route(
+        path: 'api/app-system/action-button/{entity}/{view}',
+        name: 'api.app_system.action_buttons',
+        methods: [Request::METHOD_GET]
+    )]
     public function getActionsPerView(string $entity, string $view, Context $context): Response
     {
         return new JsonResponse([
@@ -39,17 +43,27 @@ class AppActionController extends AbstractController
         ]);
     }
 
-    #[Route(path: 'api/app-system/action-button/run/{id}', name: 'api.app_system.action_button.run', methods: ['POST'], defaults: ['_acl' => ['app']])]
+    #[Route(
+        path: 'api/app-system/action-button/run/{id}',
+        name: 'api.app_system.action_button.run',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['app']],
+        methods: [Request::METHOD_POST]
+    )]
     public function runAction(string $id, Request $request, Context $context): Response
     {
-        $entityIds = $request->get('ids', []);
+        /** @var array<string> $entityIds */
+        $entityIds = $request->request->all()['ids'] ?? [];
 
         $action = $this->appActionFactory->loadAppAction($id, $entityIds, $context);
 
         return $this->executor->execute($action, $context);
     }
 
-    #[Route(path: 'api/app-system/modules', name: 'api.app_system.modules', methods: ['GET'])]
+    #[Route(
+        path: 'api/app-system/modules',
+        name: 'api.app_system.modules',
+        methods: [Request::METHOD_GET]
+    )]
     public function getModules(Context $context): Response
     {
         return new JsonResponse(['modules' => $this->moduleLoader->loadModules($context)]);

@@ -171,6 +171,10 @@ export default {
                 return Promise.resolve();
             }
 
+            if (!this.document[documentType]) {
+                this.document[documentType] = {};
+            }
+
             this.document[documentType].isDownloading = true;
             return this.orderDocumentApiService
                 .download(documentIds)

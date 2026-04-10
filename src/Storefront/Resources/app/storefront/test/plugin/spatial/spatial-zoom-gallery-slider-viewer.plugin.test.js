@@ -14,7 +14,6 @@ window.DIVEQuickViewPlugin = {
 
 const options = {
     sliderPosition: "1",
-    lightIntensity: "100",
     modelUrl: "http://test/file.glb",
 };
 
@@ -74,7 +73,7 @@ describe('SpatialZoomGallerySliderViewerPlugin tests', function () {
         spatialZoomGallerySliderViewerPlugin.initViewer();
 
         process.nextTick(() => {
-            expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledWith(options.modelUrl, { autoStart: false, canvas: mockElement, displayFloor: true, lightIntensity: Number(options.lightIntensity) / 100 });
+            expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledWith(options.modelUrl, { autoStart: false, canvas: mockElement });
             expect(spatialZoomGallerySliderViewerPlugin.scene.add).toHaveBeenCalledTimes(1);
         });
     });

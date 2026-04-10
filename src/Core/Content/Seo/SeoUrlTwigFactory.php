@@ -2,10 +2,7 @@
 
 namespace Shopware\Core\Content\Seo;
 
-use Cocur\Slugify\Bridge\Twig\SlugifyExtension;
 use Cocur\Slugify\SlugifyInterface;
-use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
-use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
@@ -35,9 +32,6 @@ class SeoUrlTwigFactory
         }
 
         $twig->enableStrictVariables();
-        $twig->addExtension(new SlugifyExtension($slugify));
-        $twig->addExtension(new PhpSyntaxExtension());
-        $twig->addExtension(new SecurityExtension([]));
 
         foreach ($twigExtensions as $twigExtension) {
             $twig->addExtension($twigExtension);

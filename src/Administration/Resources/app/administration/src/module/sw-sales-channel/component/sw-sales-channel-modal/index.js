@@ -63,7 +63,9 @@ export default {
     methods: {
         createdComponent() {
             this.productStreamsLoading = true;
-            this.productStreamRepository.search(new Criteria(1, 1)).then((result) => {
+            const criteria = new Criteria(1, 1);
+            criteria.addFilter(Criteria.equals('internal', false));
+            this.productStreamRepository.search(criteria).then((result) => {
                 if (result.total > 0) {
                     this.productStreamsExist = true;
                 }
@@ -97,7 +99,10 @@ export default {
         },
 
         isProductComparisonSalesChannelType(salesChannelTypeId) {
-            return salesChannelTypeId === Defaults.productComparisonTypeId;
+            return (
+                salesChannelTypeId === Defaults.productComparisonTypeId ||
+                salesChannelTypeId === Defaults.agenticCommerceTypeId
+            );
         },
     },
 };

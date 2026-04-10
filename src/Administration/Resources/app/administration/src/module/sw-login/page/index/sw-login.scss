@@ -1,98 +1,94 @@
-@import "~scss/variables";
-
-$sw-login-color-background: $color-gray-100;
-$sw-login-container-color-background: $color-white;
-$sw-login-badge-color-background: $color-shopware-brand-500;
-$sw-login-back-color: $color-darkgray-200;
-$sw-login-forgot-password-link-color: blue;
-$sw-login-success-animation-duration: 0.3s;
-$sw-login-media-query-animation-duration: 0.2s;
-$sw-login-error-animation-duration: 0.15s;
-
 .sw-login {
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    background-color: $sw-login-color-background;
-    transition: background-color $sw-login-success-animation-duration ease-in-out;
+    padding: var(--scale-size-20);
+    background-color: var(--color-background-tertiary-default);
+    transition: background-color 0.3s ease-in-out;
     overflow: auto;
 
-    @media screen and (max-width: 500px) {
-        padding: 0;
+    @media screen and (max-width: 31.25rem) {
         align-items: start;
-        background: $sw-login-container-color-background;
         transition: none;
     }
 
     .sw-login__container {
-        background: $color-white;
-        width: 1120px;
-        min-height: 590px;
+        background: var(--color-elevation-surface-default);
+        width: 71.5rem;
+        min-height: 40rem;
         display: grid;
-        grid-template-columns: auto 480px;
-        transition: all $sw-login-success-animation-duration ease-in-out;
+        grid-template-columns: auto 31rem;
+        transition: all 0.3s ease-in-out;
         transform: scale(1);
+        border-radius: var(--border-radius-card);
 
         &.is--login-error {
-            animation: sw-login-error-shake $sw-login-error-animation-duration ease-in-out infinite;
+            animation: sw-login-error-shake 0.15s ease-in-out infinite;
         }
 
-        @media screen and (max-width: 600px) {
+        @media screen and (max-width: 52rem) {
             min-height: auto;
+            min-width: 20rem;
             width: 100%;
             display: block;
         }
     }
 
     .sw-login__content {
-        min-width: 320px;
-        padding: 130px 50px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 20rem;
+        padding: var(--scale-size-48);
         position: relative;
         opacity: 1;
         transition:
-            opacity $sw-login-success-animation-duration ease-in-out,
-            padding $sw-login-media-query-animation-duration ease-in-out;
+            opacity 0.3s ease-in-out,
+            padding 0.2s ease-in-out;
 
-        @media screen and (max-width: 600px) {
-            padding: 30px;
+        @media screen and (max-width: 52rem) {
+            padding: var(--scale-size-36);
         }
     }
 
     .sw-login__content-headline {
-        font-size: $font-size-l;
-        font-weight: $font-weight-semi-bold;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xl);
+        font-weight: var(--font-weight-semibold);
+        margin-bottom: var(--scale-size-24);
     }
 
     .mt-button {
-        @media screen and (max-width: 600px) {
+        @media screen and (max-width: 52rem) {
             display: block;
         }
     }
 
     .sw-login__form-headline {
-        margin-bottom: 40px;
-        font-size: $font-size-m;
-        font-weight: normal;
+        margin-bottom: var(--scale-size-24);
         display: flex;
         align-items: center;
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-m);
+        font-weight: var(--font-weight-semibold);
 
         .mt-icon {
-            margin-right: 10px;
+            margin-right: var(--scale-size-10);
         }
 
-        @media screen and (max-width: 600px) {
-            padding-right: 80px;
+        @media screen and (max-width: 52rem) {
+            padding-right: var(--scale-size-80);
         }
     }
 
     .sw-login__back {
+        color: var(--color-icon-primary-default);
         background: 0 none;
         border: 0 none;
         padding: 0;
         line-height: inherit;
-        color: $sw-login-back-color;
         outline: none;
     }
 
@@ -106,32 +102,70 @@ $sw-login-error-animation-duration: 0.15s;
         top: -10px;
         right: -10px;
         z-index: 420;
-        background: $sw-login-badge-color-background;
+        border-radius: var(--border-radius-s);
+        background: var(--color-icon-brand-default);
         transition:
-            top $sw-login-media-query-animation-duration ease-in-out,
-            right $sw-login-media-query-animation-duration ease-in-out;
+            top 0.2s ease-in-out,
+            right 0.2s ease-in-out;
 
         svg {
-            fill: $color-white;
+            fill: var(--color-static-white);
         }
 
-        @media screen and (max-width: 600px) {
+        @media screen and (max-width: 52rem) {
             top: 0;
             right: 0;
+            height: 56px;
+            width: 56px;
+
+            svg {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        @media screen and (max-width: 31.25rem) {
+            height: 48px;
+            width: 48px;
+
+            svg {
+                width: 28px;
+                height: 28px;
+            }
         }
     }
 
     .sw-login__submit {
-        margin-top: 32px;
-        text-align: right;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: var(--scale-size-16);
+        margin-top: var(--scale-size-32);
 
         .mt-button {
             display: inline-block;
         }
 
-        @media screen and (max-width: 500px) {
+        &-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        @media screen and (max-width: 31.25rem) {
+            gap: var(--scale-size-32);
+
+            &-container {
+                flex-direction: column;
+                align-items: center;
+                gap: var(--scale-size-16);
+            }
+
             .mt-button {
                 display: block;
+                width: 100%;
             }
 
             .sw-button__element {
@@ -141,68 +175,90 @@ $sw-login-error-animation-duration: 0.15s;
         }
     }
 
-    .sw-login__sso-button {
-        margin-top: 32px;
-        text-align: left;
-    }
-
     .sw-login__image {
         display: flex;
         flex-direction: row;
         overflow: hidden;
-        background-color: lighten($sw-login-color-background, 10%);
-        background-image: url("https://login-image.shopware.com/login/login.jpg"), url("./assets/sw-login-background.png");
+        background-color: var(--color-background-brand-default);
+        background-image: url("https://login-image.shopware.com/login/login.jpg"), url("./assets/sw-login-background.webp");
         background-position: center center;
         background-size: cover;
+        border-top-left-radius: var(--border-radius-card);
+        border-bottom-left-radius: var(--border-radius-card);
         opacity: 1;
         transition:
-            opacity $sw-login-success-animation-duration ease-in-out,
-            padding $sw-login-media-query-animation-duration ease-in-out;
+            opacity 0.3s ease-in-out,
+            padding 0.2s ease-in-out;
 
-        @media screen and (max-width: 600px) {
+        @media screen and (max-width: 52rem) {
             display: none;
         }
     }
 
     .sw-login__image-headlines {
-        padding-left: 60px;
-        padding-bottom: 115px;
+        padding-bottom: var(--scale-size-128);
+        padding-left: var(--scale-size-36);
         align-self: flex-end;
         white-space: nowrap;
-        color: $color-white;
-        transition: opacity $sw-login-media-query-animation-duration ease-in-out;
+        transition: opacity 0.2s ease-in-out;
         opacity: 1;
 
-        @media screen and (max-width: 850px) {
+        @media screen and (max-width: 52rem) {
             opacity: 0;
         }
     }
 
     .sw-login__headline {
-        font-size: 60px;
-        font-weight: $font-weight-semi-bold;
-        transition: font-size $sw-login-media-query-animation-duration ease-in-out;
+        font-size: 58px;
+        line-height: 65px;
+        color: var(--color-text-primary-inverse);
+        font-weight: var(--font-weight-semibold);
+        transition: font-size 0.2s ease-in-out;
 
-        @media screen and (max-width: 1100px) {
+        @media screen and (max-width: 68.75rem) {
             font-size: 40px;
+            line-height: 50px;
         }
     }
 
     .sw-login__sub-headline {
-        font-size: 48px;
-        font-weight: $font-weight-regular;
-        transition: font-size $sw-login-media-query-animation-duration ease-in-out;
+        font-size: 42px;
+        line-height: 50px;
+        color: var(--color-text-primary-inverse);
+        font-weight: var(--font-weight-regular);
+        transition: font-size 0.2s ease-in-out;
 
-        @media screen and (max-width: 1100px) {
+        @media screen and (max-width: 68.75rem) {
             font-size: 30px;
+            line-height: 40px;
         }
     }
 
-    .sw-login__forgot-password-action {
-        color: $sw-login-badge-color-background;
-        text-decoration: none;
-        margin-right: 12px;
-        font-size: $font-size-xs;
+    .sw-login__sso {
+        &-divider {
+            display: flex;
+            align-items: center;
+            margin-top: var(--scale-size-32);
+            margin-bottom: var(--scale-size-32);
+
+            &::before,
+            &::after {
+                flex: 1;
+                content: "";
+                border-top: 1px solid var(--color-border-primary-default);
+            }
+        }
+
+        &-divider-text {
+            padding: 0 var(--scale-size-16);
+            color: var(--color-text-secondary-default);
+            font-size: var(--font-size-xs);
+            white-space: nowrap;
+        }
+
+        &-button-icon {
+            color: var(--color-icon-brand-default);
+        }
     }
 
     .sw-login__back-arrow {
@@ -221,12 +277,28 @@ $sw-login-error-animation-duration: 0.15s;
         transform: translateX(-20px);
     }
 
+    .sw-login-recovery {
+        .sw-login__submit {
+            align-items: start;
+        }
+
+        p {
+            font-size: var(--font-size-xs);
+        }
+    }
+
     .sw-login__recovery-form {
-        margin-top: 20px;
+        margin-top: var(--scale-size-18);
+    }
+
+    .mt-loader {
+        border-top-right-radius: var(--border-radius-card);
+        border-bottom-right-radius: var(--border-radius-card);
+        background: var(--color-elevation-surface-default) !important;
     }
 
     &.is--login-success {
-        background-color: $sw-login-container-color-background;
+        background-color: var(--color-background-tertiary-default);
         overflow: hidden;
 
         .sw-login__container {

@@ -28,7 +28,7 @@ class DocumentTemplateRendererTest extends TestCase
     {
         $templateFinder = $this->createMock(TemplateFinder::class);
         $templateFinder->expects($this->once())->method('reset');
-        $templateFinder->expects($this->once())->method('find')->willReturnCallback(function (string $template): string {
+        $templateFinder->expects($this->once())->method('find')->willReturnCallback(static function (string $template): string {
             static::assertTrue(self::$rendererParameterEventCalled, 'Expected DocumentTemplateRendererParameterEvent being thrown before TemplateFinder is called to ensure that the TemplateFinder is configured correctly');
 
             return $template;
@@ -38,7 +38,7 @@ class DocumentTemplateRendererTest extends TestCase
         $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(DocumentTemplateRendererParameterEvent::class))
-            ->willReturnCallback(function (DocumentTemplateRendererParameterEvent $event) {
+            ->willReturnCallback(static function (DocumentTemplateRendererParameterEvent $event) {
                 static::assertFalse(self::$rendererParameterEventCalled);
                 self::$rendererParameterEventCalled = true;
 

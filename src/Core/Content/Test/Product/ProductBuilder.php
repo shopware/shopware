@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Product;
 
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Cms\LayoutBuilder;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
@@ -187,7 +188,8 @@ class ProductBuilder
         IdsCollection $ids,
         protected string $productNumber,
         protected int $stock = 1,
-        string $taxKey = 't1'
+        string $taxKey = 't1',
+        private string $type = ProductDefinition::TYPE_PHYSICAL
     ) {
         $this->ids = $ids;
         $this->id = $this->ids->create($productNumber);
@@ -259,6 +261,13 @@ class ProductBuilder
     public function variantListingConfig(array $data): self
     {
         $this->variantListingConfig = $data;
+
+        return $this;
+    }
+
+    public function type(string $productType): self
+    {
+        $this->type = $productType;
 
         return $this;
     }

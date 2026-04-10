@@ -5,11 +5,10 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1657011337AddFillableInStorefront extends MigrationStep
@@ -21,19 +20,10 @@ class Migration1657011337AddFillableInStorefront extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $field = $connection->fetchOne(
-            'SHOW COLUMNS FROM `custom_field` WHERE `Field` LIKE :column;',
-            ['column' => 'allow_customer_write']
-        );
-
-        if (!empty($field)) {
+        if (TableHelper::columnExists($connection, 'custom_field', 'allow_customer_write')) {
             return;
         }
 
         $connection->executeStatement('ALTER TABLE `custom_field` ADD `allow_customer_write` tinyint default 0 NOT NULL');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 }

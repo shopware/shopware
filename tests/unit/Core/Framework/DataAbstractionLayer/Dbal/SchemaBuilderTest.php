@@ -296,11 +296,11 @@ class SchemaBuilderTest extends TestCase
         static::assertTrue($table->hasColumn('association_id3'));
         static::assertSame(Types::BINARY, Type::getTypeRegistry()->lookupName($table->getColumn('association_id3')->getType()));
 
-        static::assertTrue($table->hasForeignKey('fk.test_entity_with_foreign_keys.association_id'));
-        static::assertTrue($table->hasForeignKey('fk.test_entity_with_foreign_keys.association_id2'));
-        static::assertTrue($table->hasForeignKey('fk.test_entity_with_foreign_keys.association_id3'));
+        static::assertTrue($table->hasForeignKey('fk__test_entity_with_foreign_keys__association_id'));
+        static::assertTrue($table->hasForeignKey('fk__test_entity_with_foreign_keys__association_id2'));
+        static::assertTrue($table->hasForeignKey('fk__test_entity_with_foreign_keys__association_id3'));
 
-        $associationFk = $table->getForeignKey('fk.test_entity_with_foreign_keys.association_id');
+        $associationFk = $table->getForeignKey('fk__test_entity_with_foreign_keys__association_id');
 
         static::assertSame('association_id', $associationFk->getReferencingColumnNames()[0]->toString());
         static::assertSame('test_association', $associationFk->getReferencedTableName()->toString());
@@ -308,7 +308,7 @@ class SchemaBuilderTest extends TestCase
         static::assertSame('CASCADE', $associationFk->getOnUpdateAction()->value);
         static::assertSame('SET NULL', $associationFk->getOnDeleteAction()->value);
 
-        $associationFk2 = $table->getForeignKey('fk.test_entity_with_foreign_keys.association_id2');
+        $associationFk2 = $table->getForeignKey('fk__test_entity_with_foreign_keys__association_id2');
 
         static::assertSame('association_id2', $associationFk2->getReferencingColumnNames()[0]->toString());
         static::assertSame('test_association', $associationFk2->getReferencedTableName()->toString());
@@ -316,7 +316,7 @@ class SchemaBuilderTest extends TestCase
         static::assertSame('CASCADE', $associationFk2->getOnUpdateAction()->value);
         static::assertSame('CASCADE', $associationFk2->getOnDeleteAction()->value);
 
-        $associationFk3 = $table->getForeignKey('fk.test_entity_with_foreign_keys.association_id3');
+        $associationFk3 = $table->getForeignKey('fk__test_entity_with_foreign_keys__association_id3');
 
         static::assertSame('association_id3', $associationFk3->getReferencingColumnNames()[0]->toString());
         static::assertSame('test_association', $associationFk3->getReferencedTableName()->toString());

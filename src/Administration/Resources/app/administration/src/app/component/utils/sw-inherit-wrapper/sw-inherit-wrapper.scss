@@ -3,7 +3,7 @@
 .sw-inherit-wrapper {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
 
     .sw-inherit-wrapper__toggle-wrapper {
         display: flex;

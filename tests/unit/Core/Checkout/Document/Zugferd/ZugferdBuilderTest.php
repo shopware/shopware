@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Document\Zugferd;
 
+use horstoeko\zugferd\codelists\ZugferdInvoiceType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -14,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument;
@@ -52,42 +54,29 @@ class ZugferdBuilderTest extends TestCase
     protected function tearDown(): void
     {
         $this->position = 0;
+        $this->totalAmount = 0.0;
     }
 
     public function testBuildDocument(): void
     {
         $order = $this->buildOrder();
+        $documentConfig = $this->buildDocumentConfig();
 
-        $country = new CountryEntity();
-        $country->setId(Uuid::randomHex());
-        $country->setIso('UK');
+        $xmlContent = $this->createZugferdBuilder()->buildDocumentWithType(
+            $order,
+            $documentConfig,
+            Context::createDefaultContext(),
+            ZugferdInvoiceType::CORRECTION,
+            [
+                'documentNumber' => '1001',
+                'config' => [
+                    'documentDate' => (new \DateTime('2024-01-01'))->format('Y-m-d'),
+                ],
+            ]
+        );
 
-        $config = [
-            'documentNumber' => 'test-1000',
-            'companyCountryId' => $country->getId(),
-            'companyStreet' => 'Musterstreet 1',
-            'companyZipcode' => '12345',
-            'companyCity' => 'Mustercity',
-            'companyName' => 'Muster company SE',
-            'companyEmail' => 'test@example.de',
-            'companyPhone' => '0123456789',
-            'executiveDirector' => 'Max Mustermann',
-            'placeOfJurisdiction' => 'Muster',
-            'taxNumber' => '0123456789',
-            'vatId' => '012356789',
-            'paymentDueDate' => '+30 day',
-        ];
-
-        $documentConfig = DocumentConfigurationFactory::createConfiguration($config);
-        $documentConfig->setCompanyCountry($country);
-
-        $xmlContent = (new ZugferdBuilder(
-            $this->createMock(EventDispatcherInterface::class),
-            new AmountCalculator(new CashRounding(), new PercentageTaxRuleBuilder(), new TaxCalculator())
-        ))->buildDocument($order, $documentConfig, Context::createDefaultContext());
-
+        $typeCode = ZugferdInvoiceType::CORRECTION;
         $totalAmount = number_format($this->totalAmount, 2, '.', '');
-
         $shippingCost = number_format(self::SHIPPING_COST_NET, 2, '.', '');
         $allowance = number_format(self::ALLOWANCE_TOTAL, 2, '.', '');
         $grandTotal = number_format($order->getAmountTotal(), 2, '.', '');
@@ -102,14 +91,12 @@ class ZugferdBuilderTest extends TestCase
         static::assertStringContainsString("TaxTotalAmount currencyID=\"EUR\">$taxTotal<", $xmlContent);
         static::assertStringContainsString("GrandTotalAmount>$grandTotal<", $xmlContent);
         static::assertStringContainsString("DuePayableAmount>$grandTotal<", $xmlContent);
+        static::assertStringContainsString("TypeCode>$typeCode<", $xmlContent);
+        static::assertStringContainsString('IssuerAssignedID>1001<', $xmlContent);
+        static::assertStringContainsString('DateTimeString format="102">20240101<', $xmlContent);
 
-        foreach ($config as $key => $value) {
-            match (true) {
-                str_starts_with($key, 'companyCountry') => static::assertStringContainsString('UK', $xmlContent),
-                $key === 'paymentDueDate' => static::assertStringContainsString('DueDateDateTime', $xmlContent),
-                default => static::assertStringContainsString($value, $xmlContent),
-            };
-        }
+        static::assertStringContainsString('UK', $xmlContent);
+        static::assertStringContainsString('DueDateDateTime', $xmlContent);
 
         $lineItems = $order->getLineItems();
         static::assertNotNull($lineItems);
@@ -118,12 +105,139 @@ class ZugferdBuilderTest extends TestCase
             $this->assertLineItemProperties($lineItem, $xmlContent);
         }
 
-        $customerData = array_filter($order->getOrderCustomer()?->getVars() ?? []);
+        $customerData = \array_filter($order->getOrderCustomer()?->getVars() ?? []);
         static::assertNotEmpty($customerData);
 
         foreach ($customerData as $value) {
             static::assertStringContainsString($value, $xmlContent);
         }
+    }
+
+    public function testHandleCreditLineItemByDocumentType(): void
+    {
+        $creditLabel = 'credit-item-label-' . Uuid::randomHex();
+
+        $order = $this->buildOrderWithCreditLineItem($creditLabel);
+        $documentConfig = $this->buildDocumentConfig();
+        $builder = $this->createZugferdBuilder();
+
+        $creditNoteXml = $builder->buildDocumentWithType(
+            $order,
+            $documentConfig,
+            Context::createDefaultContext(),
+            ZugferdInvoiceType::CREDITNOTE,
+        );
+
+        static::assertStringContainsString('TypeCode>' . ZugferdInvoiceType::CREDITNOTE . '<', $creditNoteXml);
+        static::assertStringContainsString("Name>$creditLabel<", $creditNoteXml);
+        static::assertStringNotContainsString("Reason>$creditLabel<", $creditNoteXml);
+
+        $this->position = 0;
+        $this->totalAmount = 0.0;
+
+        $order = $this->buildOrderWithCreditLineItem($creditLabel);
+
+        $invoiceXml = $builder->buildDocument(
+            $order,
+            $documentConfig,
+            Context::createDefaultContext()
+        );
+
+        static::assertStringContainsString('TypeCode>' . ZugferdInvoiceType::INVOICE . '<', $invoiceXml);
+        static::assertStringContainsString("Reason>$creditLabel<", $invoiceXml);
+        static::assertStringNotContainsString("Name>$creditLabel<", $invoiceXml);
+    }
+
+    private function buildOrderWithCreditLineItem(string $creditLabel): OrderEntity
+    {
+        $creditId = Uuid::randomHex();
+
+        $creditItem = $this->buildOrderLineItemEntity($creditId, LineItem::CREDIT_LINE_ITEM_TYPE);
+        $creditItem->setLabel($creditLabel);
+        $creditItem->setUnitPrice(-50.0);
+        $creditItem->setTotalPrice(-50.0);
+        $creditItem->setPrice(new CalculatedPrice(
+            -50.0,
+            -50.0,
+            new CalculatedTaxCollection([
+                new CalculatedTax(-7.98, 19, -50.0),
+            ]),
+            new TaxRuleCollection()
+        ));
+
+        $currency = new CurrencyEntity();
+        $currency->setIsoCode('EUR');
+
+        $address = $this->getOrderAddress();
+        $order = new OrderEntity();
+        $order->setTaxStatus('gross');
+        $order->setLineItems(new OrderLineItemCollection([$creditItem]));
+        $order->setOrderCustomer($this->getOrderCustomer());
+        $order->setBillingAddressId($address->getId());
+        $order->setAddresses(new OrderAddressCollection([$address]));
+        $order->setSalesChannelId(Uuid::randomHex());
+        $order->setAmountTotal(-50.0);
+        $order->setAmountNet(-42.02);
+        $order->setCurrency($currency);
+        $order->setPrice(new CartPrice(
+            -42.02,
+            -50.0,
+            -50.0,
+            new CalculatedTaxCollection([new CalculatedTax(-7.98, 19, -50.0)]),
+            new TaxRuleCollection(),
+            'gross'
+        ));
+
+        $delivery = new OrderDeliveryEntity();
+        $delivery->setId(Uuid::randomHex());
+        $delivery->setShippingDateLatest(new \DateTimeImmutable());
+        $delivery->setShippingCosts(new CalculatedPrice(
+            0.0,
+            0.0,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection()
+        ));
+        $order->setDeliveries(new OrderDeliveryCollection([$delivery]));
+
+        return $order;
+    }
+
+    private function createZugferdBuilder(): ZugferdBuilder
+    {
+        return new ZugferdBuilder(
+            $this->createMock(EventDispatcherInterface::class),
+            new AmountCalculator(new CashRounding(), new PercentageTaxRuleBuilder(), new TaxCalculator())
+        );
+    }
+
+    private function buildDocumentConfig(): DocumentConfiguration
+    {
+        $overrides = [];
+
+        $country = new CountryEntity();
+        $country->setId(Uuid::randomHex());
+        $country->setIso('UK');
+
+        $config = \array_merge([
+            'documentNumber' => 'test-1000',
+            'companyCountryId' => $country->getId(),
+            'companyStreet' => 'Musterstreet 1',
+            'companyZipcode' => '12345',
+            'companyCity' => 'Mustercity',
+            'companyName' => 'Muster company SE',
+            'companyEmail' => 'test@example.de',
+            'companyPhone' => '0123456789',
+            'executiveDirector' => 'Max Mustermann',
+            'placeOfJurisdiction' => 'Muster',
+            'taxNumber' => '0123456789',
+            'vatId' => '012356789',
+            'paymentDueDate' => '+30 day',
+        ], \array_filter($overrides, static fn ($key) => !str_starts_with($key, '_'), \ARRAY_FILTER_USE_KEY));
+
+        $documentConfig = DocumentConfigurationFactory::createConfiguration($config);
+        $documentConfig->setCompanyCountry($country);
+
+        return $documentConfig;
     }
 
     private function buildOrder(): OrderEntity
@@ -234,10 +348,7 @@ class ZugferdBuilderTest extends TestCase
         return $position . $lineItem->getPosition();
     }
 
-    /**
-     * @param string[] $states
-     */
-    private function buildOrderLineItemEntity(string $id, string $type, ?OrderLineItemEntity $parent = null, int $quantity = 1, array $states = []): OrderLineItemEntity
+    private function buildOrderLineItemEntity(string $id, string $type, ?OrderLineItemEntity $parent = null, int $quantity = 1): OrderLineItemEntity
     {
         $orderLineItemEntity = new OrderLineItemEntity();
         $orderLineItemEntity->setId($id);
@@ -249,7 +360,6 @@ class ZugferdBuilderTest extends TestCase
         $orderLineItemEntity->setRemovable(true);
         $orderLineItemEntity->setStackable(false);
         $orderLineItemEntity->setQuantity($quantity);
-        $orderLineItemEntity->setStates($states);
         $orderLineItemEntity->setChildren(new OrderLineItemCollection());
         $orderLineItemEntity->setParent($parent);
 

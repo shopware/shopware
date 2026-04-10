@@ -43,7 +43,7 @@ class RuleComparison
         return match ($operator) {
             Rule::OPERATOR_EQ => strcasecmp($ruleValue, $itemValue) === 0,
             Rule::OPERATOR_NEQ => strcasecmp($ruleValue, $itemValue) !== 0,
-            Rule::OPERATOR_EMPTY => empty(trim($itemValue)),
+            Rule::OPERATOR_EMPTY => trim($itemValue) === '',
             default => throw RuleException::unsupportedOperator($operator, self::class),
         };
     }
@@ -81,9 +81,9 @@ class RuleComparison
         $diff = array_intersect($itemValue, $ruleValue);
 
         return match ($operator) {
-            Rule::OPERATOR_EQ => !empty($diff),
-            Rule::OPERATOR_NEQ => empty($diff),
-            Rule::OPERATOR_EMPTY => empty($itemValue),
+            Rule::OPERATOR_EQ => $diff !== [],
+            Rule::OPERATOR_NEQ => $diff === [],
+            Rule::OPERATOR_EMPTY => $itemValue === [],
             default => throw RuleException::unsupportedOperator($operator, self::class),
         };
     }

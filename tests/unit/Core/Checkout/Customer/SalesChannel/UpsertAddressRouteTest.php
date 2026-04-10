@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -48,12 +49,14 @@ class UpsertAddressRouteTest extends TestCase
         $address->setId(Uuid::randomHex());
         $result->method('getEntities')->willReturn(new CustomerAddressCollection([$address]));
 
+        $salesChannelAddressRepository = $this->createMock(SalesChannelRepository::class);
+        $salesChannelAddressRepository->method('search')->willReturn($result);
+
         $addressRepository = $this->createMock(EntityRepository::class);
-        $addressRepository->method('search')->willReturn($result);
         $addressRepository
             ->expects($this->once())
             ->method('upsert')
-            ->willReturnCallback(function (array $data) {
+            ->willReturnCallback(static function (array $data) {
                 static::assertSame(['mapped' => 1], $data[0]['customFields']);
 
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
@@ -67,6 +70,7 @@ class UpsertAddressRouteTest extends TestCase
 
         $upsert = new UpsertAddressRoute(
             $addressRepository,
+            $salesChannelAddressRepository,
             $this->createMock(DataValidator::class),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(DataValidationFactoryInterface::class),
@@ -100,7 +104,7 @@ class UpsertAddressRouteTest extends TestCase
         $addressRepository = $this->createMock(EntityRepository::class);
         $addressRepository
             ->method('upsert')
-            ->with(static::callback(function (array $data) use ($salutationId) {
+            ->with(static::callback(static function (array $data) use ($salutationId) {
                 static::assertCount(1, $data);
                 static::assertIsArray($data[0]);
                 static::assertSame($data[0]['salutationId'], $salutationId);
@@ -112,7 +116,8 @@ class UpsertAddressRouteTest extends TestCase
         $address->setId(Uuid::randomHex());
         $address->setSalutationId($salutationId);
 
-        $addressRepository->expects($this->once())->method('search')->willReturn(
+        $salesChannelAddressRepository = $this->createMock(SalesChannelRepository::class);
+        $salesChannelAddressRepository->expects($this->once())->method('search')->willReturn(
             new EntitySearchResult(
                 'customer_address',
                 1,
@@ -137,6 +142,7 @@ class UpsertAddressRouteTest extends TestCase
 
         $upsert = new UpsertAddressRoute(
             $addressRepository,
+            $salesChannelAddressRepository,
             $this->createMock(DataValidator::class),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(DataValidationFactoryInterface::class),

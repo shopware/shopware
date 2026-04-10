@@ -10,8 +10,8 @@ test('Visual: storefront:checkout/finish.', { tag: '@Visual' }, async ({
     AddProductToCart,
     ProceedFromProductToCheckout,
     ConfirmTermsAndConditions,
-    SelectInvoicePaymentOption,
-    SelectStandardShippingOption,
+    SelectPaymentMethod,
+    SelectShippingMethod,
     SubmitOrder,
     StorefrontCheckoutFinish,
     StorefrontCheckoutConfirm,
@@ -64,8 +64,8 @@ test('Visual: storefront:checkout/finish.', { tag: '@Visual' }, async ({
 
     await test.step('Create screenshot of checkout/finish page in storefront.', async () => {
         await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-        await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-        await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+        await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+        await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
         await ShopCustomer.attemptsTo(SubmitOrder());
         const orderId = StorefrontCheckoutFinish.getOrderId();
         TestDataService.addCreatedRecord('order', orderId);

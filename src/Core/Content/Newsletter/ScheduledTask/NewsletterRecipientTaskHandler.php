@@ -42,11 +42,11 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
         $criteria = $this->getExpiredNewsletterRecipientCriteria();
         $emailRecipient = $this->newsletterRecipientRepository->searchIds($criteria, $context);
 
-        if (empty($emailRecipient->getIds())) {
+        if ($emailRecipient->getIds() === []) {
             return;
         }
 
-        $emailRecipientIds = array_map(fn ($id) => ['id' => $id], $emailRecipient->getIds());
+        $emailRecipientIds = array_map(static fn ($id) => ['id' => $id], $emailRecipient->getIds());
 
         $this->newsletterRecipientRepository->delete($emailRecipientIds, $context);
     }

@@ -12,8 +12,10 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -67,6 +69,40 @@ class ProductExportRepositoryTest extends TestCase
         static::assertInstanceOf(ProductExportEntity::class, $entity);
         static::assertSame('Testexport', $entity->getFileName());
         static::assertSame($id, $entity->getId());
+    }
+
+    public function testStorefrontSalesChannelIdIsRequired(): void
+    {
+        $id = Uuid::randomHex();
+
+        $e = null;
+
+        try {
+            $this->productExportRepository->upsert([
+                [
+                    'id' => $id,
+                    'fileName' => 'Testexport',
+                    'accessKey' => Uuid::randomHex(),
+                    'encoding' => ProductExportEntity::ENCODING_UTF8,
+                    'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
+                    'interval' => 0,
+                    'bodyTemplate' => 'test',
+                    'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+                    'storefrontSalesChannelId' => null,
+                    'salesChannelId' => $this->getSalesChannelId(),
+                    'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+                    'generateByCronjob' => false,
+                    'currencyId' => Defaults::CURRENCY,
+                ],
+            ], $this->context);
+        } catch (WriteException $e) {
+        }
+
+        static::assertInstanceOf(WriteException::class, $e);
+        $exception = $e->getExceptions()[0];
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
+        $violation = $exception->getViolations()->get(0);
+        static::assertSame('/storefrontSalesChannelId', $violation->getPropertyPath());
     }
 
     public function testUpdateEntity(): void

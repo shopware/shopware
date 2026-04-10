@@ -15,6 +15,7 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
@@ -170,8 +171,8 @@ class EntityReaderTest extends TestCase
         static::assertSame('p1', $entity->get('name'));
         static::assertNull($entity->get('active'));
 
-        /** @var EntityCollection<PartialEntity> $collection */
         $collection = $entity->get('categories');
+        static::assertInstanceOf(EntityCollection::class, $collection);
 
         static::assertInstanceOf(PartialEntity::class, $collection->first());
         $collection->sortByIdArray([$ids->get('c1'), $ids->get('c2')]);
@@ -255,8 +256,7 @@ class EntityReaderTest extends TestCase
         $criteria->addAssociation('seoUrls');
         $criteria->addFields(['name', 'seoUrls.routeName']);
 
-        $values = static::getContainer()
-            ->get('category.repository')
+        $values = $this->categoryRepository
             ->search($criteria, Context::createDefaultContext());
 
         $entity = $values->first();
@@ -273,8 +273,7 @@ class EntityReaderTest extends TestCase
 
         $criteria->setLimit(50);
         $criteria->getAssociation('seoUrls')->setLimit(50);
-        $values = static::getContainer()
-            ->get('category.repository')
+        $values = $this->categoryRepository
             ->search($criteria, Context::createDefaultContext());
 
         $entity = $values->first();
@@ -301,7 +300,7 @@ class EntityReaderTest extends TestCase
             ->build(),
         ];
 
-        static::getContainer()->get('product.repository')
+        $this->productRepository
             ->create($products, Context::createDefaultContext());
 
         $criteria = new Criteria([$ids->get('p1')]);
@@ -310,8 +309,7 @@ class EntityReaderTest extends TestCase
         $criteria->getAssociation('categories')->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
         $criteria->addFields(['name', 'categories.name', 'manufacturer.name']);
 
-        $values = static::getContainer()
-            ->get('product.repository')
+        $values = $this->productRepository
             ->search($criteria, Context::createDefaultContext());
 
         $entity = $values->first();
@@ -330,8 +328,7 @@ class EntityReaderTest extends TestCase
         $criteria->getAssociation('categories')->setLimit(50);
         $criteria->getAssociation('manufacturer')->setLimit(50);
 
-        $values = static::getContainer()
-            ->get('product.repository')
+        $values = $this->productRepository
             ->search($criteria, Context::createDefaultContext());
 
         $entity = $values->first();
@@ -344,6 +341,39 @@ class EntityReaderTest extends TestCase
         static::assertSame('c1', $entity->get('categories')->first()->get('name'));
         static::assertInstanceOf(PartialEntity::class, $entity->get('manufacturer'));
         static::assertSame('m1', $entity->get('manufacturer')->get('name'));
+    }
+
+    public function testPartialLoadingWithLongAssociationChain(): void
+    {
+        $ids = new IdsCollection();
+
+        $productNumber = 'p1';
+        $products = [
+            (new ProductBuilder($ids, $productNumber))
+                ->price(100)
+                ->categories(['c1', 'c2'])
+                ->visibility()
+                ->manufacturer('m1')
+                ->cover('cover1')
+                ->build(),
+        ];
+        $context = Context::createDefaultContext();
+        $this->productRepository->create($products, $context);
+
+        $criteria = new Criteria();
+        $criteria->addFields(['cover.media']);
+        $criteria->addFilter(new EqualsFilter('productNumber', $productNumber));
+        $criteria->addAssociation('cover.media.thumbnails');
+
+        $product = $this->productRepository->search($criteria, $context)->first();
+        static::assertInstanceOf(PartialEntity::class, $product);
+        $cover = $product->get('cover');
+        static::assertInstanceOf(PartialEntity::class, $cover);
+        $media = $cover->get('media');
+        static::assertInstanceOf(PartialEntity::class, $media);
+        $thumbnails = $media->get('thumbnails');
+        static::assertInstanceOf(EntityCollection::class, $thumbnails);
+        static::assertNotInstanceOf(MediaThumbnailCollection::class, $thumbnails);
     }
 
     public function testTranslated(): void
@@ -1423,7 +1453,7 @@ class EntityReaderTest extends TestCase
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
 
-        $streets = $customer->getAddresses()->map(fn (CustomerAddressEntity $e) => $e->getStreet());
+        $streets = $customer->getAddresses()->map(static fn (CustomerAddressEntity $e) => $e->getStreet());
         static::assertSame(['A', 'B', 'D'], array_values($streets));
 
         $criteria = new Criteria([$id]);
@@ -1438,7 +1468,7 @@ class EntityReaderTest extends TestCase
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
 
-        $streets = $customer->getAddresses()->map(fn (CustomerAddressEntity $e) => $e->getStreet());
+        $streets = $customer->getAddresses()->map(static fn (CustomerAddressEntity $e) => $e->getStreet());
         static::assertSame(['X', 'E', 'D'], array_values($streets));
     }
 
@@ -1610,8 +1640,8 @@ class EntityReaderTest extends TestCase
             ->setIds([$productId])
             ->addAssociation('categories');
 
-        /** @var ProductManufacturerEntity $manufacturer */
         $manufacturer = $manufacturerRepo->search($manufacturerCriteria, $context)->get($manufacturerId);
+        static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
         $products = $manufacturer->getProducts();
         static::assertNotNull($products);
 
@@ -1771,6 +1801,155 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(CategoryEntity::class, $category1);
         static::assertInstanceOf(ProductCollection::class, $category1->getProducts());
         static::assertCount(1, $category1->getProducts());
+
+        static::assertInstanceOf(CategoryEntity::class, $category2);
+        static::assertInstanceOf(ProductCollection::class, $category2->getProducts());
+        static::assertCount(0, $category2->getProducts());
+    }
+
+    public function testLoadManyToManyWithFilteringOutAllAssociatedEntities(): void
+    {
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
+
+        $product1 = [
+            'id' => $id1,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'active' => true,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+        ];
+
+        $product2 = [
+            'id' => $id2,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'active' => false,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+        ];
+
+        $product3 = [
+            'id' => $id3,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'active' => false,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+        ];
+
+        $context = Context::createDefaultContext();
+
+        $this->categoryRepository->upsert(
+            [
+                ['id' => $id1, 'name' => 'test', 'products' => [$product1, $product3]],
+                ['id' => $id2, 'name' => 'test', 'products' => [$product3, $product2]],
+            ],
+            $context
+        );
+
+        $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
+        static::assertCount(4, $mapping);
+
+        $criteria = new Criteria([$id1, $id2]);
+
+        $criteria->getAssociation('products')
+            ->addFilter(new EqualsFilter('product.name', 'foo'));
+
+        $categories = $this->categoryRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        $category1 = $categories->get($id1);
+        $category2 = $categories->get($id2);
+
+        static::assertInstanceOf(CategoryEntity::class, $category1);
+        static::assertInstanceOf(ProductCollection::class, $category1->getProducts());
+        static::assertCount(0, $category1->getProducts());
+
+        static::assertInstanceOf(CategoryEntity::class, $category2);
+        static::assertInstanceOf(ProductCollection::class, $category2->getProducts());
+        static::assertCount(0, $category2->getProducts());
+    }
+
+    public function testLoadManyToManyWithoutAnyAssociatedEntities(): void
+    {
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
+
+        $product1 = [
+            'id' => $id1,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'active' => true,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+        ];
+
+        $product2 = [
+            'id' => $id2,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'active' => false,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+        ];
+
+        $product3 = [
+            'id' => $id3,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'active' => false,
+            'manufacturer' => ['name' => 'test'],
+            'name' => 'test',
+            'tax' => ['taxRate' => 13, 'name' => 'green'],
+        ];
+
+        $context = Context::createDefaultContext();
+
+        $this->productRepository->upsert([$product1, $product2, $product3], $context);
+
+        $this->categoryRepository->upsert(
+            [
+                ['id' => $id1, 'name' => 'test'],
+                ['id' => $id2, 'name' => 'test'],
+            ],
+            $context
+        );
+
+        $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
+        static::assertCount(0, $mapping);
+
+        $criteria = new Criteria([$id1, $id2]);
+
+        $criteria->getAssociation('products');
+
+        $categories = $this->categoryRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        $category1 = $categories->get($id1);
+        $category2 = $categories->get($id2);
+
+        static::assertInstanceOf(CategoryEntity::class, $category1);
+        static::assertInstanceOf(ProductCollection::class, $category1->getProducts());
+        static::assertCount(0, $category1->getProducts());
 
         static::assertInstanceOf(CategoryEntity::class, $category2);
         static::assertInstanceOf(ProductCollection::class, $category2->getProducts());
@@ -2152,13 +2331,13 @@ class EntityReaderTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
         ];
 
-        static::getContainer()->get('product.repository')
+        $this->productRepository
             ->create([$data], Context::createDefaultContext());
 
         $exception = null;
 
         try {
-            static::getContainer()->get('product.repository')
+            $this->productRepository
                 ->search($criteria, Context::createDefaultContext());
         } catch (ParentAssociationCanNotBeFetched $e) {
             $exception = $e;
@@ -2343,7 +2522,7 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(CategoryEntity::class, $result);
         $seoUrlCollection = $result->getSeoUrls();
         static::assertNotNull($seoUrlCollection);
-        $urls = $seoUrlCollection->map(fn (SeoUrlEntity $e) => $e->getSeoPathInfo());
+        $urls = $seoUrlCollection->map(static fn (SeoUrlEntity $e) => $e->getSeoPathInfo());
 
         static::assertSame($expected, array_values($urls));
     }
@@ -2410,7 +2589,7 @@ class EntityReaderTest extends TestCase
                     'isDeleted' => true,
                 ],
             ],
-            function (Criteria $criteria): void {
+            static function (Criteria $criteria): void {
                 $criteria->getAssociation('seoUrls')->addSorting(
                     new FieldSorting('isCanonical', FieldSorting::DESCENDING),
                     new FieldSorting('isDeleted', FieldSorting::ASCENDING),
@@ -2440,7 +2619,7 @@ class EntityReaderTest extends TestCase
                     'isCanonical' => false,
                 ],
             ],
-            function (Criteria $criteria): void {
+            static function (Criteria $criteria): void {
                 $criteria->getAssociation('seoUrls')->addSorting(
                     new FieldSorting('salesChannel.id', FieldSorting::DESCENDING),
                     new FieldSorting('isCanonical', FieldSorting::DESCENDING)
@@ -2476,7 +2655,7 @@ class EntityReaderTest extends TestCase
                     'isCanonical' => false,
                 ],
             ],
-            function (Criteria $criteria): void {
+            static function (Criteria $criteria): void {
                 $filter = new OrFilter([
                     new EqualsFilter('isCanonical', true),
                 ]);
@@ -2526,7 +2705,7 @@ class EntityReaderTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $productRepository = static::getContainer()->get('product.repository');
+        $productRepository = $this->productRepository;
         $productRepository->create([
             $product->build(),
         ], $context);
@@ -2582,7 +2761,7 @@ class EntityReaderTest extends TestCase
             ->active(false)
             ->price(50, 50);
 
-        $productRepository = static::getContainer()->get('product.repository');
+        $productRepository = $this->productRepository;
         $productRepository->create([
             $product->build(),
             $product2->build(),
@@ -2609,7 +2788,7 @@ class EntityReaderTest extends TestCase
 
         $criteria->getAssociation('consistsOf')->addFilter(new EqualsFilter('active', true));
 
-        $result = static::getContainer()->get('product.repository')
+        $result = $this->productRepository
             ->search($criteria, Context::createDefaultContext());
 
         static::assertCount(1, $result->getEntities());

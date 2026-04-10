@@ -68,12 +68,12 @@ class MailAttachmentsBuilder
             $documentIds = array_unique(array_merge($documentIds, $latestDocuments));
         }
 
-        if (!empty($documentIds)) {
+        if ($documentIds !== []) {
             $extensions->setDocumentIds($documentIds);
             $attachments = $this->mappingAttachments($documentIds, $attachments, $context);
         }
 
-        if (empty($extensions->getMediaIds())) {
+        if ($extensions->getMediaIds() === []) {
             return $attachments;
         }
 
@@ -93,7 +93,7 @@ class MailAttachmentsBuilder
      *
      * @return array<string>
      */
-    private function getLatestDocumentsOfTypes(string $orderId, array $documentTypeIds): array
+    public function getLatestDocumentsOfTypes(string $orderId, array $documentTypeIds): array
     {
         $documents = $this->connection->fetchAllAssociative(
             'SELECT
@@ -127,7 +127,7 @@ class MailAttachmentsBuilder
     private function mappingAttachments(array $documentIds, array $attachments, Context $context): array
     {
         foreach ($documentIds as $documentId) {
-            $document = $this->documentGenerator->readDocument($documentId, $context);
+            $document = $this->documentGenerator->readDocument($documentId, $context, fileType: null);
 
             if ($document === null) {
                 continue;

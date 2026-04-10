@@ -13,8 +13,6 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 class Migration1638514913RemovedUnusedVarsInMailTemplates extends MigrationStep

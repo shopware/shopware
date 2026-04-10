@@ -7,7 +7,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Migration\V6_7\Migration1744203319MailTemplate;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Migration\MigrationException;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
@@ -16,11 +18,33 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 #[CoversClass(Migration1744203319MailTemplate::class)]
 class Migration1744203319MailTemplateTest extends TestCase
 {
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
+
     private Connection $connection;
 
     protected function setUp(): void
     {
-        $this->connection = KernelLifecycleManager::getConnection();
+        $this->connection = static::getContainer()->get(Connection::class);
+    }
+
+    public function testCreationTimestamp(): void
+    {
+        $migration = new Migration1744203319MailTemplate();
+        static::assertSame(1744203319, $migration->getCreationTimestamp());
+    }
+
+    public function testUpdateThrowsExceptionHtmlTemplateFileNotFound(): void
+    {
+        $migration = new class extends Migration1744203319MailTemplate {
+            protected string $assetFolder = '/non/existent/path/';
+        };
+
+        $message = 'Could not access mail template asset folder: Failed to read file "/non/existent/path/sso_user_invitation_mail.en-GB.html.twig": file_get_contents(/non/existent/path/sso_user_invitation_mail.en-GB.html.twig): Failed to open stream: No such file or directory';
+
+        $this->expectExceptionObject(MigrationException::migrationError($message));
+
+        $migration->update($this->connection);
     }
 
     public function testMigration(): void

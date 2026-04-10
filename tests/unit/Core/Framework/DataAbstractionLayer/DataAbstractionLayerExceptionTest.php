@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -89,7 +88,6 @@ class DataAbstractionLayerExceptionTest extends TestCase
     {
         $e = DataAbstractionLayerException::invalidSortQuery('foo', 'baz');
 
-        static::assertInstanceOf(InvalidSortQueryException::class, $e);
         static::assertSame('foo', $e->getMessage());
         static::assertSame('baz', $e->getParameters()['path']);
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
@@ -273,5 +271,14 @@ class DataAbstractionLayerExceptionTest extends TestCase
         static::assertSame('Configuration for product elasticsearch definition not found', $e->getMessage());
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
         static::assertSame('ELASTICSEARCH_PRODUCT__CONFIGURATION_NOT_FOUND', $e->getErrorCode());
+    }
+
+    public function testInvalidCriteriaParameter(): void
+    {
+        $e = DataAbstractionLayerException::invalidCompressedCriteriaParameter('error message');
+
+        static::assertSame('Invalid _criteria parameter: error message', $e->getMessage());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__INVALID_COMPRESSED_CRITERIA_PARAMETER', $e->getErrorCode());
     }
 }

@@ -6,16 +6,17 @@ test(
         ShopCustomer,
         TestDataService,
         DefaultSalesChannel,
-        StorefrontProductDetail,
         StorefrontCheckoutConfirm,
         StorefrontCheckoutFinish,
-        ChangeStorefrontCurrency,
-        Login,
+        StorefrontHeader,
+        StorefrontProductDetail,
         AddProductToCart,
-        ProceedFromProductToCheckout,
+        ChangeStorefrontCurrency,
         ConfirmTermsAndConditions,
-        SelectInvoicePaymentOption,
-        SelectStandardShippingOption,
+        Login,
+        ProceedFromProductToCheckout,
+        SelectPaymentMethod,
+        SelectShippingMethod,
         SubmitOrder,
         InstanceMeta,
     }) => {
@@ -27,8 +28,16 @@ test(
     await ShopCustomer.attemptsTo(Login(customer));
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-    await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.name));
 
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (satisfies(InstanceMeta.version, '<6.7') && !InstanceMeta.features['ACCESSIBILITY_TWEAKS']) {
+        await StorefrontHeader.currenciesDropdown.click();
+        await StorefrontHeader.currenciesMenuOptions.getByText(currency.symbol).click();
+    }   
+    else {
+        await ShopCustomer.attemptsTo(ChangeStorefrontCurrency(currency.name));
+    }
+    
     let productPrice = `${currency.isoCode} 24.00`;
     let totalPrice = `${currency.isoCode} 20.16`;
 
@@ -46,8 +55,8 @@ test(
     await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
 
     await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-    await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-    await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+    await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+    await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
 
     await ShopCustomer.expects(StorefrontCheckoutConfirm.taxPrice).not.toBeVisible();
     await ShopCustomer.expects(StorefrontCheckoutConfirm.grandTotalPrice).toHaveText(currency.isoCode + ' 20.16');

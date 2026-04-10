@@ -30,6 +30,10 @@ class Criteria extends Struct implements \Stringable
 
     final public const STATE_DISABLE_SEARCH_INFO = 'disableSearchInfo';
 
+    final public const STATE_SCORE_RANKED_GROUPING = 'scoreRankedGrouping';
+
+    final public const SCORE_FIELD = '_score';
+
     /**
      * no total count will be selected. Should be used if no pagination required (fastest)
      */
@@ -194,7 +198,7 @@ class Criteria extends Struct implements \Stringable
      */
     public function hasEqualsFilter($field): bool
     {
-        return \count(array_filter($this->filters, static fn (Filter $filter) /* EqualsFilter $filter */ => $filter instanceof EqualsFilter && $filter->getField() === $field)) > 0;
+        return array_filter($this->filters, static fn (Filter $filter) /* EqualsFilter $filter */ => $filter instanceof EqualsFilter && $filter->getField() === $field) !== [];
     }
 
     /**
@@ -492,7 +496,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param array<string>|array<int, array<string>> $ids
+     * @param array<IDStructure> $ids
      */
     public function cloneForRead(array $ids = []): Criteria
     {
@@ -574,22 +578,22 @@ class Criteria extends Struct implements \Stringable
 
     public function useIdSorting(): bool
     {
-        if (empty($this->getIds())) {
+        if ($this->getIds() === []) {
             return false;
         }
 
         // manual sorting provided
-        if (!empty($this->getSorting())) {
+        if ($this->getSorting() !== []) {
             return false;
         }
 
         // result will be sorted by interpreted search term and the calculated ranking
-        if (!empty($this->getTerm())) {
+        if (($this->getTerm() ?? '') !== '') {
             return false;
         }
 
         // result will be sorted by calculated ranking
-        if (!empty($this->getQueries())) {
+        if ($this->getQueries() !== []) {
             return false;
         }
 
@@ -664,7 +668,7 @@ class Criteria extends Struct implements \Stringable
      */
     private function validateIds(array $ids): void
     {
-        if (\count($ids) === 0) {
+        if ($ids === []) {
             throw DataAbstractionLayerException::invalidCriteriaIds($ids, 'Ids should not be empty');
         }
 

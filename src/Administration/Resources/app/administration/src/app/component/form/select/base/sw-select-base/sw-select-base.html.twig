@@ -31,7 +31,7 @@
             />
 
             <button
-                v-if="!disabled && showClearableButton"
+                v-if="!disabled && isClearable"
                 class="sw-select__select-indicator-hitbox"
                 data-clearable-button
                 :aria-label="$tc('global.sw-select-base.buttonClear')"

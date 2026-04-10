@@ -61,7 +61,7 @@ class Calculator
         }
 
         return $calculated->filter(
-            function (LineItem $lineItem) use ($filter, $context) {
+            static function (LineItem $lineItem) use ($filter, $context) {
                 $match = $filter->match(
                     new LineItemScope($lineItem, $context)
                 );

@@ -79,7 +79,7 @@ class AddressControllerTest extends TestCase
 
         $translator = $this->createMock(TranslatorInterface::class);
 
-        $translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
+        $translator->method('trans')->willReturnCallback(static fn (string $key): string => $key);
         $containerBuilder = new ContainerBuilder();
         $containerBuilder->set('request_stack', new RequestStack());
         $containerBuilder->set('translator', $translator);
@@ -121,7 +121,7 @@ class AddressControllerTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
         $request = new Request();
-        $request->request->set('redirectTo', 'foo');
+        $request->query->set('redirectTo', 'foo');
 
         $response = $this->controller->accountEditAddress($request, Generator::generateSalesChannelContext(), $customer);
         $renderParams = $this->controller->renderStorefrontParameters;

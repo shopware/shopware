@@ -71,7 +71,7 @@ export default class AjaxOffCanvas extends OffCanvas {
 
     /**
      * Executes the given callback
-     * and initializes all plugins
+     * and initializes all plugins within the offcanvas
      *
      * @param {function} cb
      * @param {string} response
@@ -80,6 +80,10 @@ export default class AjaxOffCanvas extends OffCanvas {
         if (typeof cb === 'function') {
             cb(response);
         }
-        window.PluginManager.initializePlugins();
+
+        const offcanvasElements = OffCanvas.getOffCanvas();
+        if (offcanvasElements.length > 0) {
+            window.PluginManager.initializePluginsInParentElement(offcanvasElements[0]);
+        }
     }
 }

@@ -16,11 +16,17 @@ test('As a customer, I want to repeat a previous order via the storefront accoun
         customer
     );
 
+    // create another order with different quantity to ensure that the correct order is repeated
+    await TestDataService.createOrder(
+        [{ product: product, quantity: 1 }],
+        customer
+    );
+
     await ShopCustomer.attemptsTo(Login(customer));
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
-    await orderItemLocators.orderActionsButton.click();
-    await orderItemLocators.orderRepeatButton.click();
+    await ShopCustomer.presses(orderItemLocators.orderActionsButton);
+    await ShopCustomer.presses(orderItemLocators.orderRepeatButton);
 
     await ShopCustomer.expects(StorefrontOffCanvasCart.itemCount).toBeVisible();
     await ShopCustomer.expects(StorefrontOffCanvasCart.itemCount).toContainText('1 item');

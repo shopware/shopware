@@ -272,24 +272,21 @@ export default {
             const clonedMappings = cloneDeep(this.sortedMappings);
             const clonedMapping = clonedMappings[index];
 
-            // directions must be up and mapping should not be the most upper one
+            const totalLengthOfMappings = clonedMappings.length;
+
             if (direction === 'up' && index > 0) {
                 const previousMapping = clonedMappings[index - 1];
                 this.swapItems(previousMapping, clonedMapping);
-
-                this.$emit('update-mapping', clonedMappings);
-
-                return;
             }
 
-            const totalLengthOfMappings = clonedMappings.length;
-            // direction must be down and mapping should not be the last one
-            if (direction === 'down' && totalLengthOfMappings - 1) {
+            if (direction === 'down' && index < totalLengthOfMappings - 1) {
                 const nextMapping = clonedMappings[index + 1];
                 this.swapItems(clonedMapping, nextMapping);
-
-                this.$emit('update-mapping', clonedMappings);
             }
+
+            this.profile.mapping = clonedMappings;
+            this.loadMappings();
+            this.$emit('update-mapping', clonedMappings);
         },
 
         /**
@@ -305,11 +302,13 @@ export default {
         },
 
         isFirstMapping(item) {
-            return item.position === 0;
+            const firstPosition = this.sortedMappings.at(0)?.position;
+
+            return item.position === firstPosition;
         },
 
         isLastMapping(item) {
-            const lastPosition = this.profile.mapping.length - 1;
+            const lastPosition = this.sortedMappings.at(-1)?.position;
 
             return item.position === lastPosition;
         },

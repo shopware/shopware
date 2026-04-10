@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -59,7 +60,8 @@ class ExtensionLoader
         private readonly ConfigurationService $configurationService,
         private readonly LocaleProvider $localeProvider,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
-        private readonly InAppPurchase $inAppPurchase
+        private readonly InAppPurchase $inAppPurchase,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -132,9 +134,16 @@ class ExtensionLoader
     {
         $extensions = new ExtensionCollection();
 
-        foreach ($collection as $app) {
-            $plugin = $this->loadFromPlugin($context, $app);
-            $extensions->set($plugin->getName(), $plugin);
+        foreach ($collection as $plugin) {
+            try {
+                $extension = $this->loadFromPlugin($context, $plugin);
+                $extensions->set($extension->getName(), $extension);
+            } catch (\Throwable $e) {
+                $this->logger->error('Failed to load plugin extension data', [
+                    'plugin' => $plugin->getName(),
+                    'exception' => $e->getMessage(),
+                ]);
+            }
         }
 
         return $extensions;
@@ -148,7 +157,7 @@ class ExtensionLoader
 
         $id = $this->getLocalesCodesFromLanguageIds([$languageId]);
 
-        if (empty($id)) {
+        if ($id === []) {
             return null;
         }
 

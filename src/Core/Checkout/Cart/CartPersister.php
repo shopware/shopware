@@ -63,6 +63,7 @@ class CartPersister extends AbstractCartPersister
         $cart->setToken($token);
         $cart->setRuleIds(json_decode((string) $content['rule_ids'], true, 512, \JSON_THROW_ON_ERROR) ?? []);
         $cart->setErrorHash($cart->getErrors()->getUniqueHash());
+        $cart->setPersisted(true);
 
         $this->eventDispatcher->dispatch(new CartLoadedEvent($cart, $context));
 
@@ -90,11 +91,19 @@ class CartPersister extends AbstractCartPersister
             return;
         }
 
-        $sql = <<<'SQL'
-            INSERT INTO `cart` (`token`, `payload`, `rule_ids`, `compressed`, `created_at`)
-            VALUES (:token, :payload, :rule_ids, :compressed, :now)
-            ON DUPLICATE KEY UPDATE `payload` = :payload, `compressed` = :compressed, `rule_ids` = :rule_ids, `created_at` = :now;
-        SQL;
+        if (!$cart->isPersisted()) {
+            $sql = <<<'SQL'
+                INSERT INTO `cart` (`token`, `payload`, `rule_ids`, `compressed`, `created_at`)
+                VALUES (:token, :payload, :rule_ids, :compressed, :now)
+                ON DUPLICATE KEY UPDATE `payload` = :payload, `compressed` = :compressed, `rule_ids` = :rule_ids, `created_at` = :now;
+            SQL;
+        } else {
+            $sql = <<<'SQL'
+                UPDATE `cart`
+                SET `payload` = :payload, `rule_ids` = :rule_ids, `compressed` = :compressed, `created_at` = :now
+                WHERE `token` = :token;
+            SQL;
+        }
 
         [$compressed, $serializeCart] = $this->serializeCart($cart);
 
@@ -107,8 +116,13 @@ class CartPersister extends AbstractCartPersister
         ];
 
         $query = new RetryableQuery($this->connection, $this->connection->prepare($sql));
-        $query->execute($data);
+        $result = $query->execute($data);
 
+        if ($cart->isPersisted() && (int) $result === 0) {
+            return;
+        }
+
+        $cart->setPersisted(true);
         $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
     }
 

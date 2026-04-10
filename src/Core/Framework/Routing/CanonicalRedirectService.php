@@ -42,13 +42,13 @@ class CanonicalRedirectService
     {
         // This attribute has been set by the RequestTransformer if the requested URL was superseded.
         $canonical = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK);
-        $shouldRedirect = $this->configService->get('core.seo.redirectToCanonicalUrl');
+        $shouldRedirect = $this->configService->getBool('core.seo.redirectToCanonicalUrl');
 
-        if (!$shouldRedirect) {
+        if ($shouldRedirect === false) {
             return null;
         }
 
-        if (!\is_string($canonical) || empty($canonical)) {
+        if (!\is_string($canonical) || $canonical === '') {
             return null;
         }
 

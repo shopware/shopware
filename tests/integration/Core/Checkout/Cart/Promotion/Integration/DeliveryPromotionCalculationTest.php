@@ -632,7 +632,7 @@ class DeliveryPromotionCalculationTest extends TestCase
             $data[]['id'] = $id;
         }
 
-        if (\count($data) === 0) {
+        if ($data === []) {
             return;
         }
         $this->promotionRepository->delete($data, $this->context->getContext());

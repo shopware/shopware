@@ -2,9 +2,10 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Hmac;
 
+use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Uri;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
@@ -13,12 +14,12 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
  */
-#[CoversClass(QuerySigner::class)]
 #[Package('framework')]
 class QuerySignerTest extends TestCase
 {
@@ -44,7 +45,15 @@ class QuerySignerTest extends TestCase
 
     public function testSignUri(): void
     {
-        $signedUri = $this->querySigner->signUri('http://app.url/?foo=bar', $this->app, Context::createDefaultContext());
+        $connection = static::getContainer()->get(Connection::class);
+
+        $userId = Uuid::fromBytesToHex(
+            (string) $connection->fetchOne('SELECT id FROM `user` WHERE username = "admin"')
+        );
+
+        $context = new Context(new AdminApiSource($userId));
+
+        $signedUri = $this->querySigner->signUri('http://app.url/?foo=bar', $this->app, $context);
         parse_str($signedUri->getQuery(), $signedQuery);
 
         $shopIdConfig = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
@@ -64,13 +73,16 @@ class QuerySignerTest extends TestCase
         static::assertSame(static::getContainer()->getParameter('kernel.shopware_version'), $signedQuery['sw-version']);
 
         static::assertArrayHasKey('sw-context-language', $signedQuery);
-        static::assertSame(Context::createDefaultContext()->getLanguageId(), $signedQuery['sw-context-language']);
+        static::assertSame($context->getLanguageId(), $signedQuery['sw-context-language']);
 
         static::assertArrayHasKey('sw-user-language', $signedQuery);
         static::assertSame('en-GB', $signedQuery['sw-user-language']);
 
         static::assertArrayHasKey('app-version', $signedQuery);
         static::assertSame('1.0.0', $signedQuery['app-version']);
+
+        static::assertArrayHasKey('sw-user-id', $signedQuery);
+        static::assertSame($userId, $signedQuery['sw-user-id']);
 
         static::assertNotNull($this->app->getAppSecret());
 

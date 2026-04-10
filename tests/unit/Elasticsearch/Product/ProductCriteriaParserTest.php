@@ -177,6 +177,39 @@ class ProductCriteriaParserTest extends TestCase
         static::assertSame($visibility, $visibilityQuery['range']['visibility_' . $salesChannelId]['gte']);
     }
 
+    public function testParseProductAvailableFilterWithoutActiveFilter(): void
+    {
+        $storage = new ArrayKeyValueStorage([
+            ElasticsearchOptimizeSwitch::FLAG => true,
+        ]);
+        $parser = new ProductCriteriaParser(
+            $this->helper,
+            $this->customFieldService,
+            $storage,
+            $this->decoratedParser
+        );
+
+        $salesChannelId = Uuid::randomHex();
+        $visibility = 30;
+        $filter = new ProductAvailableFilter($salesChannelId, $visibility);
+
+        $queries = $filter->getQueries();
+        array_pop($queries);
+        $filter->assign(['queries' => $queries]);
+
+        $result = $parser->parseFilter($filter, $this->productDefinition, 'root', $this->context);
+
+        static::assertInstanceOf(BoolQuery::class, $result);
+
+        $queryArray = $result->toArray();
+
+        static::assertSame([
+            'range' => [
+                'visibility_' . $salesChannelId => ['gte' => $visibility],
+            ],
+        ], $queryArray);
+    }
+
     public function testParseCategoriesRoIdEqualsFilter(): void
     {
         $storage = new ArrayKeyValueStorage();

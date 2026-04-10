@@ -4,18 +4,16 @@
     overflow: hidden;
     align-items: center;
     justify-content: center;
+    height: 100%;
 
     &__img {
-        width: 100%;
         height: 100%;
+        object-fit: cover;
     }
 
     &__icon {
-        $icon-width: 35px;
-        $icon-height: 35px;
-
-        width: $icon-width;
-        height: $icon-height;
+        width: 35px;
+        height: 35px;
         position: absolute;
     }
 }

@@ -36,6 +36,7 @@ use Shopware\Core\Content\Product\Cart\ProductStockReachedError;
 use Shopware\Core\Content\Product\Cart\PurchaseStepsError;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -60,10 +61,7 @@ class ErrorTest extends TestCase
         static::assertSame('foo', $error->getName());
         static::assertSame('bar', $error->getReason());
 
-        $serialized = serialize($error);
-
-        $unserialized = unserialize($serialized);
-        static::assertInstanceOf(ShippingMethodBlockedError::class, $unserialized);
+        $unserialized = Serialization::assertRoundTrip($error);
 
         static::assertSame($id, $unserialized->getShippingMethodId());
         static::assertSame('foo', $unserialized->getName());
@@ -73,10 +71,7 @@ class ErrorTest extends TestCase
     #[DataProvider('serializationDataProvider')]
     public function testErrorSerialization(Error $error): void
     {
-        $serialized = serialize($error);
-
-        $unserialized = unserialize($serialized);
-        static::assertInstanceOf($error::class, $unserialized);
+        $unserialized = Serialization::assertRoundTrip($error);
 
         // Call all public methods without parameters (i.e. getters) to make sure the don't throw an exception
         $refClass = new \ReflectionClass($error);
@@ -119,14 +114,14 @@ class ErrorTest extends TestCase
         yield PromotionsOnCartPriceZeroError::class => [new PromotionsOnCartPriceZeroError(['foo', 'bar'])];
         yield PromotionCartAddedInformationError::class => [new PromotionCartAddedInformationError(self::createLineItem())];
         yield PromotionCartDeletedInformationError::class => [new PromotionCartDeletedInformationError(self::createLineItem())];
-        yield ShippingMethodBlockedError::class => [new ShippingMethodBlockedError('foo', Uuid::randomHex(), 'reason')];
+        yield ShippingMethodBlockedError::class => [new ShippingMethodBlockedError(id: Uuid::randomHex(), name: 'foo', reason: 'reason')];
         yield MinOrderQuantityError::class => [new MinOrderQuantityError(Uuid::randomHex(), 'foo', 5)];
         yield ProductNotFoundError::class => [new ProductNotFoundError(Uuid::randomHex())];
         yield ProductOutOfStockError::class => [new ProductOutOfStockError(Uuid::randomHex(), 'foo')];
         yield ProductStockReachedError::class => [new ProductStockReachedError(Uuid::randomHex(), 'foo', 1)];
         yield PurchaseStepsError::class => [new PurchaseStepsError(Uuid::randomHex(), 'foo', 5)];
-        yield PaymentMethodChangedError::class => [new PaymentMethodChangedError('foo', 'bar', Uuid::randomHex(), Uuid::randomHex(), 'reason')];
-        yield ShippingMethodChangedError::class => [new ShippingMethodChangedError('foo', 'bar', Uuid::randomHex(), Uuid::randomHex(), 'reason')];
+        yield PaymentMethodChangedError::class => [new PaymentMethodChangedError(oldPaymentMethodId: Uuid::randomHex(), oldPaymentMethodName: 'foo', newPaymentMethodId: Uuid::randomHex(), newPaymentMethodName: 'bar', reason: 'reason')];
+        yield ShippingMethodChangedError::class => [new ShippingMethodChangedError(oldShippingMethodId: Uuid::randomHex(), oldShippingMethodName: 'foo', newShippingMethodId: Uuid::randomHex(), newShippingMethodName: 'bar', reason: 'reason')];
     }
 
     private static function createCustomerAddress(): CustomerAddressEntity

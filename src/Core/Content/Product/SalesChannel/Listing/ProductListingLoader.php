@@ -116,7 +116,7 @@ class ProductListingLoader
             array_push($fields, ...$filter->getFields());
         }
 
-        $fields = array_map(fn (string $field) => preg_replace('/^product./', '', $field), $fields);
+        $fields = array_map(static fn (string $field) => preg_replace('/^product./', '', $field), $fields);
 
         if (\in_array('options.id', $fields, true)) {
             return true;
@@ -178,7 +178,7 @@ class ProductListingLoader
         }
 
         // now we have a mapping for "child => main variant"
-        if (empty($mapping)) {
+        if ($mapping === []) {
             return $ids;
         }
 
@@ -264,6 +264,15 @@ class ProductListingLoader
     {
         $this->addGrouping($criteria);
 
+        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
+
+        if ($isSearchRoute && $this->systemConfigService->getBool(
+            'core.listing.findBestVariant',
+            $context->getSalesChannelId()
+        )) {
+            $criteria->addState(Criteria::STATE_SCORE_RANKED_GROUPING);
+        }
+
         if ($this->systemConfigService->getBool(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             $context->getSalesChannelId()
@@ -287,7 +296,7 @@ class ProductListingLoader
 
         $hasOptionFilter = $this->hasOptionFilter($criteria);
 
-        $shouldLoadPreviews = $this->shouldLoadPreviews($hasOptionFilter, $criteria);
+        $shouldLoadPreviews = $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
 
         if ($shouldLoadPreviews) {
             $mapping = $this->extensions->publish(
@@ -303,13 +312,24 @@ class ProductListingLoader
         return $event->getMapping();
     }
 
-    private function shouldLoadPreviews(bool $hasOptionFilter, Criteria $criteria): bool
+    private function shouldLoadPreviews(bool $hasOptionFilter, Criteria $criteria, SalesChannelContext $context): bool
     {
         if ($hasOptionFilter === true) {
             return false;
         }
 
-        return !$criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
+        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
+
+        $shouldLoadPreviewsOnSearch = !$this->systemConfigService->getBool(
+            'core.listing.findBestVariant',
+            $context->getSalesChannelId()
+        );
+
+        if ($shouldLoadPreviewsOnSearch && $isSearchRoute) {
+            return true;
+        }
+
+        return !$isSearchRoute;
     }
 
     /**

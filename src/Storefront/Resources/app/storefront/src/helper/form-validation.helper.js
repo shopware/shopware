@@ -288,14 +288,32 @@ export default class FormValidation {
 
     /**
      * Checks if the value is a valid email address.
+     * Supports IDN
      *
      * @param {string} value
      * @returns {boolean}
      */
     validateEmail(value) {
-        const emailRegEx = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        // https://regex101.com/r/bfI8Ea/1
+        const emailRegEx = /^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+        let emailAddress = value;
 
-        return emailRegEx.test(value);
+        if (emailAddress.includes('@')) {
+            const [user, domain] = emailAddress.split('@');
+
+            // eslint-disable-next-line no-control-regex
+            if (domain && /[^\u0000-\u007F]/.test(domain)) {
+                try {
+                    const url = new URL(`https://${domain}`);
+                    const asciiDomain = url.hostname;
+                    emailAddress = `${user}@${asciiDomain}`;
+                } catch (e) {
+                    // If URL parsing fails, fall back to standard validation
+                }
+            }
+        }
+
+        return emailRegEx.test(emailAddress);
     }
 
     /**
@@ -467,7 +485,7 @@ export default class FormValidation {
         const label = document.querySelector(`[for="${field.id}"]`);
         const requiredLabel = label.querySelector('.form-required-label');
 
-        if (validationRules) {
+        if (validationRules && validationRules.includes('required')) {
             const rules = validationRules.split(',');
             rules.splice(rules.indexOf('required'), 1);
             field.setAttribute('data-validation', rules.join(','));

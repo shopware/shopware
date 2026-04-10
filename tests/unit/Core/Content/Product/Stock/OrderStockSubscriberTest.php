@@ -187,7 +187,7 @@ class OrderStockSubscriberTest extends TestCase
      * @param list<array{id: string, quantity: string, referenced_id: string}> $beforeState
      * @param list<array{id: string, quantity: string, referenced_id: string}> $afterState
      * @param list<array{lineItemId: string, productId: string, quantityBefore: int, newQuantity: int}> $expectedUpdates
-     * @param list<array{type: 'insert'|'delete'|'update', id: string, state: array<string, mixed>}> $commands
+     * @param list<array{type: 'insert', id: string}|array{type: 'delete', id: string}|array{type: 'update', id: string, state: array<string, mixed>}> $commands
      */
     #[DataProvider('orderItemWriteProvider')]
     public function testOrderItemWrites(array $beforeState, array $afterState, array $expectedUpdates, array $commands): void
@@ -208,12 +208,12 @@ class OrderStockSubscriberTest extends TestCase
         $afterState = array_map($idMapper(['id', 'referenced_id']), $afterState);
 
         $beforeState = array_combine(
-            array_map(fn (array $lineItem) => $lineItem['id'], $beforeState),
+            array_map(static fn (array $lineItem) => $lineItem['id'], $beforeState),
             $beforeState
         );
 
         $afterState = array_combine(
-            array_map(fn (array $lineItem) => $lineItem['id'], $afterState),
+            array_map(static fn (array $lineItem) => $lineItem['id'], $afterState),
             $afterState
         );
 
@@ -235,7 +235,7 @@ class OrderStockSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $stockStorage->expects($this->once())
             ->method('alter')
-            ->with(static::callback(function (array $changes) use ($expectedUpdates): bool {
+            ->with(static::callback(static function (array $changes) use ($expectedUpdates): bool {
                 static::assertSameSize($expectedUpdates, $changes);
 
                 foreach ($expectedUpdates as $i => $expectedUpdate) {

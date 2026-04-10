@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Saas;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Sso\SsoService;
@@ -34,7 +35,7 @@ class SsoServiceTest extends TestCase
             $this->createMock(RouterInterface::class)
         );
 
-        $ssoService = new SsoService($loginConfigService);
+        $ssoService = new SsoService($loginConfigService, $this->createMock(RefreshTokenRepository::class));
 
         static::assertTrue($ssoService->isSso());
     }
@@ -44,8 +45,22 @@ class SsoServiceTest extends TestCase
         // @phpstan-ignore argument.type (LoginConfigService expected an array with specific key-value pairs)
         $loginConfigService = new LoginConfigService([], $this->createMock(RouterInterface::class));
 
-        $ssoService = new SsoService($loginConfigService);
+        $ssoService = new SsoService($loginConfigService, $this->createMock(RefreshTokenRepository::class));
 
         static::assertFalse($ssoService->isSso());
+    }
+
+    public function testRevokeUserTokensDelegatesToRepository(): void
+    {
+        // @phpstan-ignore argument.type (LoginConfigService expected an array with specific key-value pairs)
+        $loginConfigService = new LoginConfigService([], $this->createMock(RouterInterface::class));
+
+        $refreshTokenRepository = $this->createMock(RefreshTokenRepository::class);
+        $refreshTokenRepository->expects($this->once())
+            ->method('revokeRefreshTokensForUser')
+            ->with('user-id-123');
+
+        $ssoService = new SsoService($loginConfigService, $refreshTokenRepository);
+        $ssoService->revokeUserTokens('user-id-123');
     }
 }

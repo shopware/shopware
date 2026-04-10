@@ -56,7 +56,6 @@ async function createWrapper() {
                             },
                             save: (productSearchConfigs) => {
                                 if (!productSearchConfigs) {
-                                    // eslint-disable-next-line prefer-promise-reject-errors
                                     return Promise.reject({ error: 'Error' });
                                 }
                                 return Promise.resolve();

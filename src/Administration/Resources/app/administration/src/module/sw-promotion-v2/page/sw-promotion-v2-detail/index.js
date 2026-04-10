@@ -262,7 +262,7 @@ export default {
                         params: { id: this.promotion.id },
                     });
                 }
-            } catch (e) {
+            } catch (_e) {
                 this.isLoading = false;
                 this.createNotificationError({
                     message: this.$tc(

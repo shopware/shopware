@@ -29,7 +29,8 @@ class MediaFolderConfigLoadedSubscriber implements EventSubscriberInterface
         foreach ($event->getEntities() as $media) {
             if ($media->getMediaThumbnailSizes() === null) {
                 if ($media->getMediaThumbnailSizesRo()) {
-                    $media->setMediaThumbnailSizes(unserialize($media->getMediaThumbnailSizesRo()));
+                    /** @phpstan-ignore shopware.unserializeUsage */
+                    $media->setMediaThumbnailSizes(\unserialize($media->getMediaThumbnailSizesRo()));
                 } else {
                     $media->setMediaThumbnailSizes(new MediaThumbnailSizeCollection());
                 }

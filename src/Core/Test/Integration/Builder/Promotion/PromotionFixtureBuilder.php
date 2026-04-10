@@ -114,7 +114,7 @@ class PromotionFixtureBuilder
             $data['useCodes'] = true;
         }
 
-        if (\count($this->dataSetGroups) > 0) {
+        if ($this->dataSetGroups !== []) {
             $data['useSetGroups'] = true;
         }
 
@@ -122,12 +122,12 @@ class PromotionFixtureBuilder
         $this->promotionRepository->create([$data], $this->context->getContext());
 
         // save our defined set groups
-        if (\count($this->dataSetGroups) > 0) {
+        if ($this->dataSetGroups !== []) {
             $this->promotionSetgroupRepository->create($this->dataSetGroups, $this->context->getContext());
         }
 
         // save our added discounts
-        if (\count($this->dataDiscounts) > 0) {
+        if ($this->dataDiscounts !== []) {
             $this->promotionDiscountRepository->create($this->dataDiscounts, $this->context->getContext());
         }
     }

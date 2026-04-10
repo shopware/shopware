@@ -18,7 +18,7 @@ use Shopware\Storefront\Theme\Validator\SCSSValidator;
 class SCSSValidatorTest extends TestCase
 {
     /**
-     * @param array<string, string> $data
+     * @param array<string, string|bool|int> $data
      */
     #[DataProvider('sanitizeDataProvider')]
     public function testValidateSanitize(array $data, string|bool|null $expected): void
@@ -29,13 +29,13 @@ class SCSSValidatorTest extends TestCase
     }
 
     /**
-     * @param array<string, string> $data
+     * @param array<string, string|bool|int> $data
      */
     #[DataProvider('validateDataProvider')]
     public function testValidateNoSanitize(array $data, string|bool|null $expected, bool $throwsException = false): void
     {
         if ($throwsException) {
-            self::expectException(ThemeException::class);
+            $this->expectException(ThemeException::class);
         }
 
         $returned = SCSSValidator::validate(new ScssPhpCompiler(), $data);
@@ -50,7 +50,7 @@ class SCSSValidatorTest extends TestCase
     public function testValidateNoSanitizeRegex(array $data, string|bool|null $expected, bool $throwsException = false): void
     {
         if ($throwsException) {
-            self::expectException(ThemeException::class);
+            $this->expectException(ThemeException::class);
         }
 
         $returned = SCSSValidator::validate(new ScssPhpCompiler(), $data, ['^\$.*']);
@@ -641,6 +641,20 @@ class SCSSValidatorTest extends TestCase
             ],
             true,
         ];
+        yield 'boolean true' => [
+            [
+                'type' => 'boolean',
+                'value' => true,
+            ],
+            true,
+        ];
+        yield 'bool true' => [
+            [
+                'type' => 'bool',
+                'value' => true,
+            ],
+            true,
+        ];
         yield 'checkbox false' => [
             [
                 'type' => 'checkbox',
@@ -651,6 +665,20 @@ class SCSSValidatorTest extends TestCase
         yield 'switch false' => [
             [
                 'type' => 'switch',
+                'value' => false,
+            ],
+            false,
+        ];
+        yield 'boolean false' => [
+            [
+                'type' => 'boolean',
+                'value' => false,
+            ],
+            false,
+        ];
+        yield 'bool false' => [
+            [
+                'type' => 'bool',
                 'value' => false,
             ],
             false,

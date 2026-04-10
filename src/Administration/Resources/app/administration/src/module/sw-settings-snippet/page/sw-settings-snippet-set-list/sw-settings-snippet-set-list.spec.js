@@ -46,6 +46,11 @@ function getSnippetSetData() {
 
 describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
     const saveSpy = jest.fn(() => Promise.resolve());
+    const createSnippetSetEntity = (overrides = {}) => ({
+        ...getSnippetSetData()[0],
+        ...overrides,
+    });
+
     async function createWrapper(privileges = []) {
         return mount(
             await wrapTestComponent('sw-settings-snippet-set-list', {
@@ -79,7 +84,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                         },
                         repositoryFactory: {
                             create: () => ({
-                                create: () => Promise.resolve(getSnippetSetData()[0]),
+                                create: () => createSnippetSetEntity(),
                                 search: () => Promise.resolve(getSnippetSetData()),
                                 save: saveSpy,
                             }),
@@ -188,5 +193,21 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         expect(saveSpy).toHaveBeenCalledWith(
             expect.objectContaining({ name: `sw-settings-snippet.setList.newSnippetName (2)` }),
         );
+    });
+
+    it('should activate inline edit after creating a snippet set', async () => {
+        const wrapper = await createWrapper([
+            'snippet.creator',
+            'snippet.editor',
+        ]);
+        await flushPromises();
+
+        const toggleSpy = jest.spyOn(wrapper.vm, 'toggleInlineEdit');
+
+        const createSetButton = wrapper.findByText('button', 'sw-settings-snippet.setList.buttonAddSet');
+        await createSetButton.trigger('click');
+        await flushPromises();
+
+        expect(toggleSpy).toHaveBeenCalledWith(getSnippetSetData()[0].id);
     });
 });

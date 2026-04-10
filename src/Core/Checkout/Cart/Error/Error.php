@@ -4,12 +4,13 @@ namespace Shopware\Core\Checkout\Cart\Error;
 
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\AssignArrayInterface;
 use Shopware\Core\Framework\Struct\AssignArrayTrait;
 use Shopware\Core\Framework\Struct\CreateFromTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
 #[Package('checkout')]
-abstract class Error extends \Exception implements \JsonSerializable
+abstract class Error extends \Exception implements \JsonSerializable, AssignArrayInterface
 {
     // allows to assign array data to this object
     use AssignArrayTrait;

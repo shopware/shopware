@@ -70,7 +70,7 @@ readonly class InstallationPath implements Fingerprint, FingerprintCustomCompare
             $results[$i] = $previousResult && $storedPart === $newPart;
         }
 
-        $numFailures = \count(array_filter($results, fn ($result) => $result === false));
+        $numFailures = \count(array_filter($results, static fn ($result) => $result === false));
 
         return (int) (100 / $maxParts) * $numFailures;
     }

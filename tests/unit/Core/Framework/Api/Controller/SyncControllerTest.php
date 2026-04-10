@@ -47,7 +47,7 @@ class SyncControllerTest extends TestCase
         $service = $this->createMock(SyncService::class);
         $service->expects($this->once())
             ->method('sync')
-            ->willReturnCallback(function ($operations) use ($criteria) {
+            ->willReturnCallback(static function ($operations) use ($criteria) {
                 static::assertCount(1, $operations);
                 static::assertInstanceOf(SyncOperation::class, $operations[0]);
 

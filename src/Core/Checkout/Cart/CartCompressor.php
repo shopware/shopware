@@ -77,7 +77,8 @@ class CartCompressor
             throw CartException::deserializeFailed();
         }
 
-        return unserialize($uncompressed);
+        /** @phpstan-ignore shopware.unserializeUsage */
+        return \unserialize($uncompressed);
     }
 
     private function checkSerializationMaxSize(string $compressed): void

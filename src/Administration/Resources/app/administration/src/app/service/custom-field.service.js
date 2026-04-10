@@ -81,7 +81,7 @@ export default function createCustomFieldService() {
             },
         },
         colorpicker: {
-            configRenderComponent: 'sw-custom-field-type-base',
+            configRenderComponent: 'sw-custom-field-type-colorpicker',
             type: 'text',
             config: {
                 componentName: 'sw-field',

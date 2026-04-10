@@ -35,12 +35,17 @@ class DocumentGeneratorController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/order/document/{documentTypeName}/create', name: 'api.action.document.bulk.create', methods: ['POST'], defaults: ['_acl' => ['document:create']])]
+    #[Route(
+        path: '/api/_action/order/document/{documentTypeName}/create',
+        name: 'api.action.document.bulk.create',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['document:create']],
+        methods: [Request::METHOD_POST]
+    )]
     public function createDocuments(Request $request, string $documentTypeName, Context $context): JsonResponse
     {
         $documents = $this->serializer->decode($request->getContent(), 'json');
 
-        if (empty($documents) || !\is_array($documents)) {
+        if (!\is_array($documents) || $documents === []) {
             throw DocumentException::invalidRequestParameter('Request parameters must be an array of documents object');
         }
 
@@ -78,7 +83,12 @@ class DocumentGeneratorController extends AbstractController
         return new JsonResponse($this->documentGenerator->generate($documentTypeName, $operations, $context));
     }
 
-    #[Route(path: '/api/_action/document/{documentId}/upload', name: 'api.action.document.upload', methods: ['POST'], defaults: ['_acl' => ['document:update']])]
+    #[Route(
+        path: '/api/_action/document/{documentId}/upload',
+        name: 'api.action.document.upload',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['document:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function uploadToDocument(Request $request, string $documentId, Context $context): JsonResponse
     {
         $documentIdStruct = $this->documentGenerator->upload(

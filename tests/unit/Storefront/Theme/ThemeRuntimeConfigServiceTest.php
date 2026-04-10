@@ -183,7 +183,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $this->storage
             ->expects($this->once())
             ->method('save')
-            ->with(static::callback(function (ThemeRuntimeConfig $config) {
+            ->with(static::callback(static function (ThemeRuntimeConfig $config) {
                 return $config->scriptFiles === ['js/foo/file1.js', 'js/foo/file2.js'];
             }));
 
@@ -230,7 +230,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $this->storage
             ->expects($this->once())
             ->method('save')
-            ->willReturnCallback(function ($config): void {
+            ->willReturnCallback(static function ($config): void {
                 static::assertInstanceOf(ThemeRuntimeConfig::class, $config);
                 static::assertNotNull($config->scriptFiles);
                 static::assertSame(['js/foo/file1.js', 'js/foo/file2.js'], $config->scriptFiles);
@@ -276,7 +276,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $this->storage
             ->expects($this->once())
             ->method('save')
-            ->willReturnCallback(function ($config): void {
+            ->willReturnCallback(static function ($config): void {
                 static::assertInstanceOf(ThemeRuntimeConfig::class, $config);
                 static::assertNull($config->scriptFiles);
             });
@@ -364,6 +364,32 @@ class ThemeRuntimeConfigServiceTest extends TestCase
 
         static::assertSame($expectedNames, $result1);
         static::assertSame($expectedNames, $result2);
+    }
+
+    public function testDeleteByTechnicalName(): void
+    {
+        $technicalName = 'test-theme';
+
+        $this->storage
+            ->expects($this->once())
+            ->method('deleteByTechnicalName')
+            ->with($technicalName);
+
+        // Verify cache is cleared by checking storage is called again after delete
+        $this->storage
+            ->expects($this->exactly(2))
+            ->method('getByName')
+            ->with($technicalName)
+            ->willReturn(null);
+
+        // Populate cache
+        $this->service->getRuntimeConfigByName($technicalName);
+
+        // Delete - should call storage and reset cache
+        $this->service->deleteByTechnicalName($technicalName);
+
+        // This call should hit storage again (cache was reset)
+        $this->service->getRuntimeConfigByName($technicalName);
     }
 
     /**

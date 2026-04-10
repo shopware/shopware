@@ -1,27 +1,19 @@
-@import "~scss/variables";
-
 .sw-import-export-view-profiles {
     .sw-import-export-view-profiles__grid-card {
-        .sw-data-grid.sw-data-grid--full-page {
-            padding-top: 83px;
-        }
-
         .mt-card__content {
             padding: 0;
         }
     }
 
-    .sw-import-export-view-profiles__toolbar {
-        z-index: 10;
-        height: 83px;
+    &__toolbar {
         display: flex;
-        padding: 25px 35px;
-        background-color: $color-gray-100;
-        border-bottom: 1px solid $color-gray-300;
+        padding: var(--scale-size-24) var(--scale-size-32);
+        background-color: var(--color-elevation-surface-sunken);
+        border-bottom: 1px solid var(--color-border-secondary-default);
     }
 
-    .sw-simple-search-field {
+    &__search {
         flex-grow: 1;
-        margin-right: 16px;
+        margin-right: var(--scale-size-16);
     }
 }

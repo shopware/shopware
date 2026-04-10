@@ -59,7 +59,6 @@ export default {
         inherit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -227,6 +226,10 @@ export default {
             ) {
                 bind.config.labelProperty = 'name';
                 bind.config.valueProperty = 'id';
+
+                if (bind.config.required) {
+                    bind.config.hideClearableButton = true;
+                }
             }
 
             if (element.type === 'text-editor') {
@@ -353,12 +356,13 @@ export default {
             // Bind necessary props to sw-form-field-renderer
             bind.value = mapInheritance?.currentValue;
             bind.type = element.type;
-            bind.config = element.config;
+            bind.config = { ...(element.config || {}) };
 
             // Inheritance bindings
             bind.inheritedValue = this.getInheritedValue(element);
             bind.isInheritanceField = mapInheritance?.isInheritField;
             bind.isInherited = mapInheritance?.isInherited;
+            bind.disabled = mapInheritance?.isInherited || element.config?.disabled;
 
             // Handle datepicker date/datetime value format
             if (element.type === 'date') {
@@ -378,6 +382,10 @@ export default {
             ) {
                 bind.config.labelProperty = 'name';
                 bind.config.valueProperty = 'id';
+
+                if (bind.config.required) {
+                    bind.config.hideClearableButton = true;
+                }
             }
 
             // Handle multi select

@@ -30,7 +30,9 @@ class CustomerStorerTest extends TestCase
 {
     private CustomerStorer $storer;
 
-    /** @var MockObject&EntityRepository<CustomerCollection> */
+    /**
+     * @var MockObject&EntityRepository<CustomerCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private MockObject&EventDispatcherInterface $dispatcher;

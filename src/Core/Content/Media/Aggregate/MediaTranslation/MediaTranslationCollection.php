@@ -16,12 +16,12 @@ class MediaTranslationCollection extends EntityCollection
      */
     public function getMediaIds(): array
     {
-        return $this->fmap(fn (MediaTranslationEntity $mediaTranslation) => $mediaTranslation->getMediaId());
+        return $this->fmap(static fn (MediaTranslationEntity $mediaTranslation) => $mediaTranslation->getMediaId());
     }
 
     public function filterByMediaId(string $id): self
     {
-        return $this->filter(fn (MediaTranslationEntity $mediaTranslation) => $mediaTranslation->getMediaId() === $id);
+        return $this->filter(static fn (MediaTranslationEntity $mediaTranslation) => $mediaTranslation->getMediaId() === $id);
     }
 
     /**
@@ -29,12 +29,12 @@ class MediaTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (MediaTranslationEntity $mediaTranslation) => $mediaTranslation->getLanguageId());
+        return $this->fmap(static fn (MediaTranslationEntity $mediaTranslation) => $mediaTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (MediaTranslationEntity $mediaTranslation) => $mediaTranslation->getLanguageId() === $id);
+        return $this->filter(static fn (MediaTranslationEntity $mediaTranslation) => $mediaTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

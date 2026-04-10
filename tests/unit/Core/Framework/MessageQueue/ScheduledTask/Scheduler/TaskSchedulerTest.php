@@ -161,7 +161,7 @@ class TaskSchedulerTest extends TestCase
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$scheduledTask]));
         $scheduledTaskRepository->expects($this->once())->method('search')->willReturn($result);
-        $scheduledTaskRepository->expects($this->once())->method('update')->willReturnCallback(function (array $data, Context $context) {
+        $scheduledTaskRepository->expects($this->once())->method('update')->willReturnCallback(static function (array $data, Context $context) {
             static::assertCount(1, $data);
             $data = $data[0];
             static::assertArrayHasKey('id', $data);
@@ -207,7 +207,7 @@ class TaskSchedulerTest extends TestCase
         $scheduledTaskRepository
             ->expects($this->once())
             ->method('update')
-            ->willReturnCallback(function (array $data, Context $context) use ($shouldSchedule) {
+            ->willReturnCallback(static function (array $data, Context $context) use ($shouldSchedule) {
                 static::assertCount(1, $data);
                 $data = $data[0];
                 static::assertArrayHasKey('status', $data);
@@ -220,7 +220,7 @@ class TaskSchedulerTest extends TestCase
             });
 
         $bus = $this->createMock(MessageBusInterface::class);
-        $bus->expects($shouldSchedule ? $this->once() : $this->never())->method('dispatch')->willReturnCallback(function ($message) {
+        $bus->expects($shouldSchedule ? $this->once() : $this->never())->method('dispatch')->willReturnCallback(static function ($message) {
             static::assertInstanceOf(TestScheduledTask::class, $message);
 
             return new Envelope($message);

@@ -1,25 +1,43 @@
 import { mount } from '@vue/test-utils';
-import { MtModalAction, MtModalClose, MtModal } from '@shopware-ag/meteor-component-library';
+import { MtModal, MtModalClose, MtModalAction, MtModalTrigger, MtModalRoot } from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesRevokePermissionsModal from './index';
+import * as permissionsComposable from '../../composables/permissions';
+
+jest.mock('../../composables/permissions', () => {
+    const _reloadPageMock = jest.fn();
+    return {
+        grantPermissions: jest.fn(),
+        async revokePermissions() {
+            await Shopware.Service('shopwareServicesService').revokePermissions();
+            _reloadPageMock();
+        },
+        _reloadPage: _reloadPageMock,
+    };
+});
+
+const createWrapper = async () => {
+    return mount(SwSettingsServicesRevokePermissionsModal, {
+        global: {
+            stubs: {
+                'mt-modal': MtModal,
+                'mt-modal-close': MtModalClose,
+                'mt-modal-action': MtModalAction,
+                'mt-modal-trigger': MtModalTrigger,
+                'mt-modal-root': MtModalRoot,
+            },
+        },
+    });
+};
 
 describe('src/module/sw-settings-services/component/sw-settings-services-revoke-permissions-modal', () => {
-    let originalLocation;
-
     beforeAll(() => {
         Shopware.Service().register('shopwareServicesService', () => ({
             revokePermissions: jest.fn(),
         }));
-        originalLocation = window.location;
-
-        Object.defineProperty(window, 'location', { configurable: true, value: { reload: jest.fn() } });
-    });
-
-    afterAll(() => {
-        Object.defineProperty(window, 'location', { configurable: true, value: originalLocation });
     });
 
     it('can be opened and closed', async () => {
-        const revokePermissionsModal = await mount(SwSettingsServicesRevokePermissionsModal);
+        const revokePermissionsModal = await createWrapper();
         await flushPromises();
 
         let modal = revokePermissionsModal.getComponent(MtModal);
@@ -49,7 +67,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-revoke-
             enabled: true,
         }));
 
-        const revokePermissionsModal = await mount(SwSettingsServicesRevokePermissionsModal);
+        const revokePermissionsModal = await createWrapper();
         await flushPromises();
 
         await revokePermissionsModal.get('button').trigger('click');
@@ -58,7 +76,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-revoke-
 
         expect(notificationSpy).not.toHaveBeenCalled();
         expect(Shopware.Service('shopwareServicesService').revokePermissions).toHaveBeenCalled();
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(permissionsComposable._reloadPage).toHaveBeenCalled();
     });
 
     it('shows notification if permissions request fails', async () => {
@@ -69,7 +87,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-revoke-
             throw new Error('Revoke Permissions failed');
         });
 
-        const revokePermissionsModal = await mount(SwSettingsServicesRevokePermissionsModal);
+        const revokePermissionsModal = await createWrapper();
         await flushPromises();
 
         await revokePermissionsModal.get('button').trigger('click');
@@ -82,6 +100,6 @@ describe('src/module/sw-settings-services/component/sw-settings-services-revoke-
             message: 'Revoke Permissions failed',
         });
         expect(revokePermissionsModal.emitted('service-permissions-revoked')).toBeUndefined();
-        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(permissionsComposable._reloadPage).not.toHaveBeenCalled();
     });
 });

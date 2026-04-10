@@ -87,9 +87,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             return;
         }
 
-        $considerInheritance = $message->getContext()->considerInheritance();
-        $message->getContext()->setConsiderInheritance(true);
-
         $binaryStreamId = Uuid::fromHexToBytes($streamId);
 
         /** @var list<string> $oldMatches */
@@ -99,7 +96,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         );
 
         try {
-            $newMatches = $this->repository->searchIds($criteria, $message->getContext())->getIds();
+            $newMatches = $message->getContext()->enableInheritance(fn (Context $context): array => $this->repository->searchIds($criteria, $context)->getIds());
         } catch (UnmappedFieldException) {
             // invalid filter, remove all mappings
             $newMatches = [];
@@ -120,7 +117,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $insert->execute();
 
-        if (!empty($toBeDeleted)) {
+        if ($toBeDeleted !== []) {
             RetryableTransaction::retryable($this->connection, function () use ($toBeDeleted, $binaryStreamId): void {
                 $this->connection->executeStatement(
                     'DELETE FROM product_stream_mapping WHERE product_id IN (:ids) AND product_stream_id = :streamId',
@@ -132,8 +129,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 );
             });
         }
-
-        $message->getContext()->setConsiderInheritance($considerInheritance);
 
         $ids = array_unique([...$toBeAdded, ...$toBeDeleted]);
 
@@ -163,7 +158,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             'position',
         ]);
 
-        if (empty($ids) || empty($filterIds)) {
+        if ($ids === [] || $filterIds === []) {
             return null;
         }
 
@@ -257,7 +252,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             $parsed[] = QueryStringParser::fromArray($this->productDefinition, $filter, $exception, '');
         }
 
-        if (empty($filters)) {
+        if ($filters === []) {
             return null;
         }
 

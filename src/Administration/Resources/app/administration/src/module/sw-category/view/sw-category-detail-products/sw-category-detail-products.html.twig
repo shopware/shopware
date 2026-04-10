@@ -30,6 +30,7 @@
                 :disabled="!acl.can('category.editor')"
                 required
                 show-clearable-button
+                @update:value="onUpdateProductAssignmentType"
             />
             {% endblock %}
 
@@ -55,6 +56,7 @@
                 v-model:value="category.productStreamId"
                 class="sw-category-detail-products__product-stream-select"
                 entity="product_stream"
+                :criteria="productStreamCriteria"
                 show-clearable-button
                 :disabled="!acl.can('category.editor')"
                 :label="$tc('sw-category.base.products.productAssignmentTypeStreamLabel')"

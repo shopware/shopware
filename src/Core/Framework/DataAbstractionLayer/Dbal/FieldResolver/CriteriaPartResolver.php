@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinGroup;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
@@ -16,8 +17,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
@@ -43,15 +46,13 @@ class CriteriaPartResolver
     {
         foreach ($parts as $part) {
             if ($part instanceof JoinGroup) {
-                $this->resolveSubJoin($part, $definition, $query, $context);
-
-                $query->addState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
+                $this->resolveJoinGroup($part, $definition, $query, $context);
 
                 continue;
             }
 
             foreach ($part->getFields() as $accessor) {
-                if ($accessor === '_score') {
+                if ($accessor === Criteria::SCORE_FIELD) {
                     continue;
                 }
                 $this->resolveField($part, $accessor, $definition, $query, $context);
@@ -59,54 +60,34 @@ class CriteriaPartResolver
         }
     }
 
-    private function resolveSubJoin(JoinGroup $group, EntityDefinition $definition, QueryBuilder $query, Context $context): void
+    private function resolveJoinGroup(JoinGroup $group, EntityDefinition $definition, QueryBuilder $query, Context $context): void
     {
         $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $group->getPath(), false);
 
         $first = array_shift($fields);
 
         if (!$first instanceof AssociationField) {
-            throw new \RuntimeException('Expect association field in first level of join group');
+            throw DataAbstractionLayerException::expectedAssociationFieldInFirstLevelOfJoinGroup($first ? $first::class : null);
         }
 
-        $nested = $this->createNestedQuery($first, $definition, $context);
+        $nestedQuery = $this->createNestedQuery($first, $definition, $context);
 
         foreach ($group->getFields() as $accessor) {
-            if ($accessor === '_score') {
+            if ($accessor === Criteria::SCORE_FIELD) {
                 continue;
             }
-            $this->resolveField($group, $accessor, $definition, $nested, $context);
+            $this->resolveField($group, $accessor, $definition, $nestedQuery, $context);
         }
 
-        $alias = $definition->getEntityName() . '.' . $first->getPropertyName() . $group->getSuffix();
+        $this->parseAndResolveFilters($group, $definition, $nestedQuery, $context);
 
-        $this->parseFilter($group, $definition, $nested, $context, $alias);
-
-        $parameters = [
-            '#root#' => self::escape($definition->getEntityName()),
-            '#source_column#' => $this->getSourceColumn($first, $context),
-            '#alias#' => self::escape($alias),
-        ];
-
-        $query->leftJoin(
-            self::escape($definition->getEntityName()),
-            '(' . $nested->getSQL() . ')',
-            self::escape($alias),
-            str_replace(
-                array_keys($parameters),
-                array_values($parameters),
-                '#root#.#source_column# = #alias#.`id`'
-                . $this->buildVersionWhere($definition, $first)
-            )
-        );
-
-        foreach ($nested->getParameters() as $key => $value) {
-            $type = $nested->getParameterType($key);
+        foreach ($nestedQuery->getParameters() as $key => $value) {
+            $type = $nestedQuery->getParameterType($key);
             $query->setParameter($key, $value, $type);
         }
     }
 
-    private function parseFilter(JoinGroup $group, EntityDefinition $definition, QueryBuilder $query, Context $context, string $alias): void
+    private function parseAndResolveFilters(JoinGroup $group, EntityDefinition $definition, QueryBuilder $subQuery, Context $context): void
     {
         $filter = new AndFilter($group->getQueries());
         if ($group->getOperator() === MultiFilter::CONNECTION_OR) {
@@ -114,22 +95,39 @@ class CriteriaPartResolver
         }
 
         $parsed = $this->parser->parse($filter, $definition, $context);
-        if (empty($parsed->getWheres())) {
+        if ($parsed->getWheres() === []) {
             return;
         }
 
         foreach ($parsed->getParameters() as $key => $value) {
-            $query->setParameter($key, $value, $parsed->getType($key));
+            $subQuery->setParameter($key, $value, $parsed->getType($key));
         }
 
-        foreach ($filter->getQueries() as $queryFilter) {
-            if (!$queryFilter instanceof SingleFieldFilter) {
-                continue;
-            }
-            $queryFilter->setResolved(self::escape($alias) . '.id IS NOT NULL');
+        $subQuery->andWhere(implode(' AND ', $parsed->getWheres()));
+
+        $singleFieldFilters = array_filter($filter->getQueries(), static fn (Filter $filter): bool => $filter instanceof SingleFieldFilter);
+        if ($singleFieldFilters === []) {
+            return;
         }
 
-        $query->andWhere(implode(' AND ', $parsed->getWheres()));
+        // We generate an EXISTS condition using our correlated subquery to avoid joining any table multiple
+        // times (even though it might be filtered). This avoids possible exponential join explosions. In some cases,
+        // MySQL/MariaDB will perform a semi-join optimization on these EXISTS conditions (see https://dev.mysql.com/doc/refman/8.0/en/semijoins.html).
+        // Since all single field filters will just be combined using AND/OR operators on the same level, we only
+        // need to include our EXISTS sub query for one of these filters. The where conditions actually representing
+        // these filters have been added to the subquery above.
+        array_shift($singleFieldFilters)->setResolved('EXISTS (' . $subQuery->getSQL() . ')');
+
+        // All other filters will be resolved to a constant value of FALSE or TRUE, depending on the operator used.
+        // For example, if the root filter has 3 queries:
+        // - ... and is an AND filter, we will generate `WHERE EXISTS(...) AND TRUE AND TRUE`
+        // - ... and is an OR filter, we will generate `WHERE EXISTS(...) OR FALSE OR FALSE`
+        // Simply, this no-op value puts the filters in a resolved state but is chosen in a way that it will not affect
+        // the result.
+        $noOpValue = $group->getOperator() === MultiFilter::CONNECTION_OR ? 'FALSE' : 'TRUE';
+        foreach ($singleFieldFilters as $singleFieldFilter) {
+            $singleFieldFilter->setResolved($noOpValue);
+        }
     }
 
     private function createNestedQuery(AssociationField $field, EntityDefinition $definition, Context $context): QueryBuilder
@@ -140,13 +138,23 @@ class CriteriaPartResolver
             $reference = $field->getReferenceDefinition();
             $alias = $definition->getEntityName() . '.' . $field->getPropertyName();
 
-            $query->addSelect(self::accessor($alias, $field->getReferenceField()) . ' as id');
-            if ($definition->isVersionAware() && $reference->getFields()->getByStorageName($definition->getEntityName() . '_version_id')) {
-                $query->addSelect(self::accessor($alias, $definition->getEntityName() . '_version_id'));
-            }
-
+            // Since this query only acts as an EXISTS check, we select a dummy value that will cause the EXISTS to be true.
+            $query->addSelect('1');
             $query->from(self::escape($reference->getEntityName()), self::escape($alias));
             $query->addState($alias);
+
+            $parameters = [
+                '#root#' => self::escape($definition->getEntityName()),
+                '#source_column#' => $this->getSourceColumn($field, $context),
+                '#alias#' => self::escape($alias),
+                '#reference_column#' => self::escape($field->getReferenceField()),
+            ];
+
+            $query->andWhere(str_replace(
+                array_keys($parameters),
+                array_values($parameters),
+                '#root#.#source_column# = #alias#.#reference_column#' . $this->buildVersionWhere($definition, $field),
+            ));
 
             return $query;
         }
@@ -155,25 +163,37 @@ class CriteriaPartResolver
             $reference = $field->getReferenceDefinition();
             $alias = $definition->getEntityName() . '.' . $field->getPropertyName();
 
-            $query->addSelect(self::accessor($alias, $field->getReferenceField()) . ' as id');
-            if ($reference->isVersionAware()) {
-                $version = 'version_id';
-                // it could be the case that we have a reverse join and the reference is the "parent" definition
-                if ($reference->getFields()->getByStorageName($definition->getEntityName() . '_version_id')) {
-                    $version = $definition->getEntityName() . '_version_id';
-                }
-
-                $query->addSelect(self::accessor($alias, $version));
-            }
-
+            // Since this query only acts as an EXISTS check, we select a dummy value that will cause the EXISTS to be true.
+            $query->addSelect('1');
             $query->from(self::escape($reference->getEntityName()), self::escape($alias));
             $query->addState($alias);
+
+            $versionWhere = '';
+            if ($reference->isVersionAware()) {
+                $aliasVersionId = $this->getVersionIdFieldForManyToOneRelation($reference, $definition);
+                $rootVersionId = $this->getVersionIdFieldForManyToOneRelation($definition, $reference);
+
+                $versionWhere = ' AND #root#.`' . $rootVersionId . '` = #alias#.`' . $aliasVersionId . '`';
+            }
+
+            $parameters = [
+                '#root#' => self::escape($definition->getEntityName()),
+                '#source_column#' => $this->getSourceColumn($field, $context),
+                '#alias#' => self::escape($alias),
+                '#reference_column#' => self::escape($field->getReferenceField()),
+            ];
+
+            $query->andWhere(str_replace(
+                array_keys($parameters),
+                array_values($parameters),
+                '#root#.#source_column# = #alias#.#reference_column#' . $versionWhere,
+            ));
 
             return $query;
         }
 
         if (!$field instanceof ManyToManyAssociationField) {
-            throw new \RuntimeException(\sprintf('Unknown association class provided %s', $field::class));
+            throw DataAbstractionLayerException::unexpectedAssociationFieldClass($field::class);
         }
 
         $reference = $field->getReferenceDefinition();
@@ -181,11 +201,8 @@ class CriteriaPartResolver
         $mappingAlias = $definition->getEntityName() . '.' . $field->getPropertyName() . '.mapping';
         $alias = $definition->getEntityName() . '.' . $field->getPropertyName();
 
-        $query->addSelect(self::accessor($mappingAlias, $field->getMappingLocalColumn()) . ' as id');
-        if ($definition->isVersionAware()) {
-            $query->addSelect(self::accessor($mappingAlias, $definition->getEntityName() . '_version_id'));
-        }
-
+        // Since this query only acts as an EXISTS check, we select a dummy value that will cause the EXISTS to be true.
+        $query->addSelect('1');
         $query->from(self::escape($reference->getEntityName()), self::escape($mappingAlias));
         $query->addState($alias);
 
@@ -207,6 +224,19 @@ class CriteriaPartResolver
                 . $this->buildMappingVersionWhere($field->getToManyReferenceDefinition(), $field)
             )
         );
+
+        $parameters = [
+            '#alias#' => self::escape($definition->getEntityName()),
+            '#source_column#' => $this->getSourceColumn($field, $context),
+            '#mapping#' => self::escape($mappingAlias),
+            '#reference_column#' => self::escape($field->getMappingLocalColumn()),
+        ];
+
+        $query->andWhere(str_replace(
+            array_keys($parameters),
+            array_values($parameters),
+            '#alias#.#source_column# = #mapping#.#reference_column#' . $this->buildMappingVersionWhere($definition, $field),
+        ));
 
         return $query;
     }
@@ -289,12 +319,7 @@ class CriteriaPartResolver
             return self::escape($field->getReferenceField());
         }
 
-        $flag = $field->getFlag(ReverseInherited::class);
-        if ($flag === null) {
-            return self::escape($field->getReferenceField());
-        }
-
-        return self::escape($flag->getReversedPropertyName());
+        return self::escape($field->getFlag(ReverseInherited::class)->getReversedPropertyName());
     }
 
     private function buildMappingVersionWhere(EntityDefinition $definition, AssociationField $field): string
@@ -330,11 +355,6 @@ class CriteriaPartResolver
         return EntityDefinitionQueryHelper::escape($string);
     }
 
-    private static function accessor(string $alias, string $field): string
-    {
-        return self::escape($alias) . '.' . self::escape($field);
-    }
-
     private function getSourceColumn(AssociationField $association, Context $context): string
     {
         if ($association->is(Inherited::class) && $context->considerInheritance()) {
@@ -353,6 +373,17 @@ class CriteriaPartResolver
             return EntityDefinitionQueryHelper::escape($association->getLocalField());
         }
 
-        throw new \RuntimeException(\sprintf('Unknown association class provided %s', $association::class));
+        throw DataAbstractionLayerException::unexpectedAssociationFieldClass($association::class);
+    }
+
+    private function getVersionIdFieldForManyToOneRelation(EntityDefinition $definition, EntityDefinition $reference): string
+    {
+        $rootVersionId = 'version_id';
+        // it could be the case that we have a reverse join and the reference is the "parent" definition
+        if ($definition->getFields()->getByStorageName($reference->getEntityName() . '_version_id')) {
+            $rootVersionId = $reference->getEntityName() . '_version_id';
+        }
+
+        return $rootVersionId;
     }
 }

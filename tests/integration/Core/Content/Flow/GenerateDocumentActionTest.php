@@ -133,7 +133,7 @@ class GenerateDocumentActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         $referenceDoctype = $documentType === StornoRenderer::TYPE || $documentType === CreditNoteRenderer::TYPE;
-        if ($referenceDoctype && !$autoGenInvoiceDoc && empty($multipleDoc)) {
+        if ($referenceDoctype && !$autoGenInvoiceDoc && $multipleDoc === false) {
             static::assertEmpty($this->getDocumentId($order->getId()));
         } else {
             static::assertNotEmpty($this->getDocumentId($order->getId()));

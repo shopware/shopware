@@ -628,4 +628,53 @@ describe('src/app/mixin/listing.mixin.ts', () => {
 
         expect(wrapper.vm.selectionCount).toBe(2);
     });
+
+    describe('updateCriteria', () => {
+        it('should reset page to 1 when updateCriteria is called', async () => {
+            wrapper.vm.page = 5;
+
+            const newCriteria = [{ type: 'equals', field: 'active', value: true }];
+            wrapper.vm.updateCriteria(newCriteria);
+
+            expect(wrapper.vm.page).toBe(1);
+        });
+
+        it('should call updateRoute with page 1 when updateCriteria is called', async () => {
+            wrapper.vm.page = 5;
+            wrapper.vm.disableRouteParams = false;
+
+            wrapper.vm.updateRoute = jest.fn();
+
+            const newCriteria = [{ type: 'equals', field: 'active', value: true }];
+            wrapper.vm.updateCriteria(newCriteria);
+
+            expect(wrapper.vm.updateRoute).toHaveBeenCalledWith({ page: 1 });
+
+            wrapper.vm.updateRoute.mockRestore();
+        });
+
+        it('should call getList directly when updateCriteria is called and disableRouteParams is true', async () => {
+            wrapper.vm.page = 5;
+            wrapper.vm.disableRouteParams = true;
+
+            wrapper.vm.getList = jest.fn();
+            wrapper.vm.updateRoute = jest.fn();
+
+            const newCriteria = [{ type: 'equals', field: 'active', value: true }];
+            wrapper.vm.updateCriteria(newCriteria);
+
+            expect(wrapper.vm.getList).toHaveBeenCalled();
+            expect(wrapper.vm.updateRoute).not.toHaveBeenCalled();
+
+            wrapper.vm.getList.mockRestore();
+            wrapper.vm.updateRoute.mockRestore();
+        });
+
+        it('should set filterCriteria when updateCriteria is called', async () => {
+            const newCriteria = [{ type: 'equals', field: 'active', value: true }];
+            wrapper.vm.updateCriteria(newCriteria);
+
+            expect(wrapper.vm.filterCriteria).toStrictEqual(newCriteria);
+        });
+    });
 });

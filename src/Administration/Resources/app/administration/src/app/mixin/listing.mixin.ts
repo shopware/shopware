@@ -11,7 +11,7 @@ import type { LocationQuery, RouteLocationNamedRaw } from 'vue-router';
 export {};
 
 /* Mixin uses many untyped dependencies */
-/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,max-len,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
 
 /**
  * @private
@@ -385,6 +385,28 @@ export default Shopware.Mixin.register(
                         // @ts-expect-error
                         query[key] = false;
                     }
+                });
+            },
+
+            /**
+             * Update filter criteria and reset pagination to page 1.
+             * This method is called when filters are changed via sw-sidebar-filter-panel.
+             *
+             * @param {Array} criteria - The new filter criteria
+             */
+            updateCriteria(criteria: any[]) {
+                this.page = 1;
+
+                // @ts-expect-error - filterCriteria is defined in base component
+                this.filterCriteria = criteria;
+
+                if (this.disableRouteParams) {
+                    this.getList();
+                    return;
+                }
+
+                this.updateRoute({
+                    page: 1,
                 });
             },
         },

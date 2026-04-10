@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('framework')]
 class HttpCacheKeyEvent
 {
+    public bool $isCacheable = true;
+
     /**
      * @param array<string, string> $parts - Contains an associative array of all parts that are:
      *

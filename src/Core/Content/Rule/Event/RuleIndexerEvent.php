@@ -9,6 +9,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('fundamentals@after-sales')]
 class RuleIndexerEvent extends NestedEvent
 {
+    /**
+     * @param list<string> $ids
+     * @param list<string> $skip
+     */
     public function __construct(
         private readonly array $ids,
         private readonly Context $context,
@@ -21,11 +25,17 @@ class RuleIndexerEvent extends NestedEvent
         return $this->context;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getIds(): array
     {
         return $this->ids;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getSkip(): array
     {
         return $this->skip;

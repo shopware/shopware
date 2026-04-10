@@ -39,7 +39,7 @@ class SyncFkResolver
     {
         $map = $this->collect($entity, $payload, $key);
 
-        if (empty($map)) {
+        if ($map === []) {
             return $payload;
         }
 
@@ -49,7 +49,7 @@ class SyncFkResolver
 
         $exceptions = [];
 
-        \array_walk_recursive($payload, function (&$value) use (&$exceptions): void {
+        \array_walk_recursive($payload, static function (&$value) use (&$exceptions): void {
             if (!$value instanceof FkReference) {
                 return;
             }
@@ -72,7 +72,7 @@ class SyncFkResolver
             ];
         });
 
-        if (!empty($exceptions)) {
+        if ($exceptions !== []) {
             throw ApiException::canNotResolveForeignKeysException($exceptions);
         }
 

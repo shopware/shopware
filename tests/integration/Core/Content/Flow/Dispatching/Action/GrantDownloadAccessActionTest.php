@@ -26,6 +26,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -35,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -265,7 +267,11 @@ class GrantDownloadAccessActionTest extends TestCase
         static::assertNotNull($lineItems);
         $lineItems->sortByPosition();
         static::assertCount(\count($productDownloads), $lineItems);
-        static::assertTrue($lineItems->hasLineItemWithState(State::IS_DOWNLOAD));
+        static::assertTrue($lineItems->hasLineItemWithType(ProductDefinition::TYPE_DIGITAL));
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertTrue($lineItems->hasLineItemWithState(State::IS_DOWNLOAD));
+        }
 
         foreach ($productDownloads as $key => $downloadFiles) {
             $lineItem = $lineItems->getAt($key);
@@ -276,7 +282,7 @@ class GrantDownloadAccessActionTest extends TestCase
                 static::assertFalse($download->isAccessGranted());
 
                 try {
-                    $request = new Request(['downloadId' => $download->getId(), 'orderId' => $orderId]);
+                    $request = new Request([], [], ['downloadId' => $download->getId(), 'orderId' => $orderId]);
                     $this->downloadRoute->load($request, $this->salesChannelContext);
 
                     static::fail('Download route returned response without access granted');
@@ -290,7 +296,11 @@ class GrantDownloadAccessActionTest extends TestCase
         static::assertNotNull($order->getDeliveries());
         if (\in_array([], $productDownloads, true)) {
             static::assertNotNull($order->getLineItems());
-            static::assertTrue($order->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL));
+            static::assertTrue($lineItems->hasLineItemWithType(ProductDefinition::TYPE_PHYSICAL));
+
+            if (!Feature::isActive('v6.8.0.0')) {
+                static::assertTrue($order->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL));
+            }
             static::assertCount(1, $order->getDeliveries());
         } else {
             static::assertCount(0, $order->getDeliveries());
@@ -314,7 +324,11 @@ class GrantDownloadAccessActionTest extends TestCase
         static::assertNotNull($lineItems);
         $lineItems->sortByPosition();
         static::assertCount(\count($productDownloads), $lineItems);
-        static::assertTrue($lineItems->hasLineItemWithState(State::IS_DOWNLOAD));
+        static::assertTrue($lineItems->hasLineItemWithType(ProductDefinition::TYPE_DIGITAL));
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertTrue($lineItems->hasLineItemWithState(State::IS_DOWNLOAD));
+        }
 
         foreach ($productDownloads as $key => $downloadFiles) {
             $lineItem = $lineItems->getAt($key);
@@ -325,7 +339,7 @@ class GrantDownloadAccessActionTest extends TestCase
                 static::assertTrue($download->isAccessGranted());
                 static::assertNotNull($download->getMedia());
 
-                $request = new Request(['downloadId' => $download->getId(), 'orderId' => $orderId]);
+                $request = new Request([], [], ['downloadId' => $download->getId(), 'orderId' => $orderId]);
                 $response = $this->downloadRoute->load($request, $this->salesChannelContext);
                 static::assertInstanceOf(StreamedResponse::class, $response);
                 ob_start();
@@ -389,7 +403,8 @@ class GrantDownloadAccessActionTest extends TestCase
                 ->price(1.0)
                 ->tax('t1')
                 ->visibility()
-                ->add('downloads', array_map(function (string $file): array {
+                ->type($downloadFiles === [] ? ProductDefinition::TYPE_PHYSICAL : ProductDefinition::TYPE_DIGITAL)
+                ->add('downloads', array_map(static function (string $file): array {
                     [$fileName, $fileExtension] = explode('.', $file);
 
                     return [

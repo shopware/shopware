@@ -9,10 +9,11 @@
             <mt-icon
                 class="sw-login__back-arrow"
                 name="regular-long-arrow-left"
-                size="16px"
+                size="14px"
             />
         </router-link>
-        {{ $tc('sw-login.recovery.headline') }}
+
+        <span>{{ $tc('sw-login.recovery.headline') }}</span>
     </h2>
     {% endblock %}
 
@@ -26,12 +27,12 @@
         @submit.prevent="sendRecoveryMail"
     >
         {% block sw_login_recovery_form_email_field %}
-
         <mt-text-field
             ref="swLoginRecoveryEmailField"
             v-model="email"
             :label="$tc('sw-login.recovery.email.label')"
             :placeholder="$tc('sw-login.recovery.email.placeholder')"
+            @input="debouncedEmailValidation"
         />
         {% endblock %}
 
@@ -39,7 +40,7 @@
         <div class="sw-login__submit">
             <mt-button
                 variant="primary"
-                :disabled="!isEmailValid()"
+                :disabled="!isEmailValid"
                 type="submit"
             >
                 {{ $tc('sw-login.recovery.submit') }}

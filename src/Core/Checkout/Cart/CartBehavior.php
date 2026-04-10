@@ -23,7 +23,7 @@ class CartBehavior extends Struct
 
     public function hasPermission(string $permission): bool
     {
-        return !empty($this->permissions[$permission]);
+        return $this->permissions[$permission] ?? false;
     }
 
     public function getApiAlias(): string

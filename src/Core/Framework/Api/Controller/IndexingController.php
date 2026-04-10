@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -11,7 +13,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -44,12 +45,12 @@ class IndexingController extends AbstractController
         $indexingSkips = array_filter(explode(',', (string) $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
 
         if (!$request->request->has('offset')) {
-            throw new BadRequestHttpException('Parameter `offset` missing');
+            throw ApiException::missingRequestParameter('offset');
         }
 
         $indexer = $this->registry->getIndexer($indexer);
 
-        $offset = ['offset' => $request->get('offset')];
+        $offset = ['offset' => RequestParamHelper::get($request, 'offset')];
         $message = $indexer ? $indexer->iterate($offset) : null;
 
         if ($message === null) {
@@ -69,13 +70,13 @@ class IndexingController extends AbstractController
     public function products(Request $request): JsonResponse
     {
         if (!$request->request->has('ids')) {
-            throw new BadRequestHttpException('Parameter `ids` missing');
+            throw ApiException::missingRequestParameter('ids');
         }
 
         $ids = $request->request->all('ids');
 
-        if (empty($ids)) {
-            throw new BadRequestHttpException('Parameter `ids` is no array or empty');
+        if ($ids === []) {
+            throw ApiException::invalidIdsParameter();
         }
 
         $skips = array_filter(explode(',', (string) $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));

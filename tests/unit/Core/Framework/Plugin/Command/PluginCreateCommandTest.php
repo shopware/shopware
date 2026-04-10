@@ -21,12 +21,12 @@ use Symfony\Component\Filesystem\Filesystem;
 class PluginCreateCommandTest extends TestCase
 {
     /**
-     * @param array<string, string> $arguments
-     * @param array<string, string> $inputs
+     * @param array<string, string|true> $arguments
+     * @param list<string> $inputs
      * @param array<int, array<string, mixed>> $generators
      */
     #[DataProvider('commandProvider')]
-    public function testSuccessfulCreateCommandWithArguments(
+    public function testSuccessfulCreateCommandWithArgumentsOrInputs(
         array $arguments,
         array $inputs,
         array $generators = []
@@ -106,16 +106,16 @@ class PluginCreateCommandTest extends TestCase
     }
 
     /**
-     * @param array<int, string> $inputs
+     * @param list<string> $inputs
      */
     #[DataProvider('invalidInputsProvider')]
-    public function testInvalidInputs(array $inputs, string $expectedErrorMessage): void
+    public function testInvalidInputs(array $inputs, string $expectedErrorMessage, bool $interactive = true): void
     {
         $commandTester = $this->getCommandTester();
 
         $commandTester->setInputs($inputs);
 
-        $commandTester->execute([]);
+        $commandTester->execute([], ['interactive' => $interactive]);
 
         static::assertStringContainsString(
             $expectedErrorMessage,
@@ -133,6 +133,12 @@ class PluginCreateCommandTest extends TestCase
         yield 'invalid plugin name' => [
             'inputs' => ['test'],
             'expectedErrorMessage' => 'The name must start with an uppercase character',
+        ];
+
+        yield 'non-interactive without arguments' => [
+            'inputs' => [],
+            'expectedErrorMessage' => 'This command requires interactive mode or the argument must be provided.',
+            'interactive' => false,
         ];
     }
 
@@ -169,7 +175,7 @@ class PluginCreateCommandTest extends TestCase
 
         $commandTester = new CommandTester($command);
         $application = new Application();
-        $application->add($command);
+        $application->addCommand($command);
 
         return $commandTester;
     }

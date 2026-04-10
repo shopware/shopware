@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Seo\SalesChannel;
 
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -31,7 +32,12 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/seo-url', name: 'store-api.seo.url', methods: ['GET', 'POST'], defaults: ['_entity' => 'seo_url'])]
+    #[Route(
+        path: '/store-api/seo-url',
+        name: 'store-api.seo.url',
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => SeoUrlDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+    )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SeoUrlRouteResponse
     {
         return new SeoUrlRouteResponse($this->salesChannelRepository->search($criteria, $context));

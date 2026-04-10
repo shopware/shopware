@@ -14,9 +14,11 @@ jobs:
       fail-fast: false
       matrix:
         redis:
-          - redis:alpine
-          - eqalpha/keydb:latest
+          - redis:7.2-alpine
+          - redis:7-alpine
+          - redis:8.2-alpine
           - valkey/valkey:8.0
+          - valkey/valkey:9.0
     services:
       redis:
         image: ${{ matrix.redis }}
@@ -51,7 +53,7 @@ jobs:
     secrets: inherit
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
-      currents: true
+      currents: ${{ github.event_name == 'schedule' }}
   php:
     uses: ./.github/workflows/php.yml
     secrets: inherit

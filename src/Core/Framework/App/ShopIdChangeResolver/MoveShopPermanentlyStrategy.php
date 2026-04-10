@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
-use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
+use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Source\SourceResolver;
@@ -31,10 +31,10 @@ class MoveShopPermanentlyStrategy extends AbstractShopIdChangeStrategy
     public function __construct(
         SourceResolver $sourceResolver,
         EntityRepository $appRepository,
-        AppRegistrationService $registrationService,
+        AppSecretRotationService $appSecretRotationService,
         private readonly ShopIdProvider $shopIdProvider
     ) {
-        parent::__construct($sourceResolver, $appRepository, $registrationService);
+        parent::__construct($sourceResolver, $appRepository, $appSecretRotationService);
     }
 
     public function getDecorated(): AbstractShopIdChangeStrategy
@@ -49,7 +49,7 @@ class MoveShopPermanentlyStrategy extends AbstractShopIdChangeStrategy
 
     public function getDescription(): string
     {
-        return 'This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before.';
+        return 'This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before. This means, that this instance will override the app data of the original installation.';
     }
 
     public function resolve(Context $context): void

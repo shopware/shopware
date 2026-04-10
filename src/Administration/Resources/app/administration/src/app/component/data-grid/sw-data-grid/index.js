@@ -44,6 +44,7 @@ export default {
         'inline-edit-save',
         'inline-edit-cancel',
         'column-sort',
+        'row-click',
     ],
 
     props: {
@@ -65,21 +66,18 @@ export default {
 
         showSelection: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
 
         showActions: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
 
         showHeader: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -141,7 +139,6 @@ export default {
         compactMode: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -154,7 +151,6 @@ export default {
         showPreviews: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -175,6 +171,12 @@ export default {
                     Object.keys(this.selection).includes(item[this.itemIdentifierProperty])
                 );
             },
+        },
+
+        rowsClickable: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
 
         itemIdentifierProperty: {
@@ -229,9 +231,7 @@ export default {
             currentInlineEditId: '',
             hasPreviewSlots: false,
             hasResizeColumns: false,
-            // eslint-disable-next-line vue/no-reserved-keys
             _hasColumnsResize: false,
-            // eslint-disable-next-line vue/no-reserved-keys
             _isResizing: false,
         };
     },
@@ -579,6 +579,7 @@ export default {
                     'is--inline-edit': this.isInlineEdit(item),
                     'is--selected': this.isSelected(item.id),
                     'is--disabled': this.isRecordDisabled(item),
+                    'is--clickable': this.rowsClickable,
                 },
                 `sw-data-grid__row--${itemIndex}`,
             ];
@@ -767,6 +768,36 @@ export default {
             this.setAllColumnElementWidths();
 
             this.sort(column);
+        },
+
+        onRowClick(event, item) {
+            if (!this.rowsClickable) {
+                return;
+            }
+
+            const target = event.target;
+
+            const blockedSelectors = [
+                '.sw-data-grid__cell--selection',
+                '.sw-data-grid__cell--actions',
+                '.sw-context-button',
+                'button',
+                'a',
+                'input',
+            ];
+
+            if (blockedSelectors.some((selector) => target.closest(selector))) {
+                return;
+            }
+
+            if (this.showSelection) {
+                const itemId = item[this.itemIdentifierProperty];
+                const isCurrentlySelected = this.isSelected(itemId);
+
+                this.selectItem(!isCurrentlySelected, item);
+            }
+
+            this.$emit('row-click', item);
         },
 
         onStartResize(event, column, columnIndex) {

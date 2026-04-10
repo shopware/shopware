@@ -7,9 +7,11 @@ use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -71,6 +73,52 @@ final class FileLoaderTest extends TestCase
         $this->fileFetcher->cleanUpTempFile($mediaFile);
 
         static::assertSame($blob, (string) $this->fileLoader->loadMediaFileStream($mediaId, $context));
+        static::assertFileDoesNotExist($mediaFile->getFileName());
+
+        $this->mediaRepository->delete([['id' => $mediaId]], $context);
+    }
+
+    public function testLoadMediaEntityFile(): void
+    {
+        $context = Context::createDefaultContext();
+        $blob = \file_get_contents(self::TEST_IMAGE);
+        static::assertIsString($blob);
+        $mediaFile = $this->fileFetcher->fetchBlob($blob, 'png', 'image/png');
+        $mediaId = Uuid::randomHex();
+        $this->mediaRepository->create([['id' => $mediaId]], $context);
+        $this->fileSaver->persistFileToMedia($mediaFile, $mediaId . '.png', $mediaId, $context);
+        $this->fileFetcher->cleanUpTempFile($mediaFile);
+
+        $media = $this->mediaRepository->search(
+            new Criteria([$mediaId]),
+            $context
+        )->getEntities()->first();
+        static::assertInstanceOf(MediaEntity::class, $media);
+
+        static::assertSame($blob, $this->fileLoader->loadMediaEntityFile($media));
+        static::assertFileDoesNotExist($mediaFile->getFileName());
+
+        $this->mediaRepository->delete([['id' => $mediaId]], $context);
+    }
+
+    public function testLoadMediaEntityFileStream(): void
+    {
+        $context = Context::createDefaultContext();
+        $blob = \file_get_contents(self::TEST_IMAGE);
+        static::assertIsString($blob);
+        $mediaFile = $this->fileFetcher->fetchBlob($blob, 'png', 'image/png');
+        $mediaId = Uuid::randomHex();
+        $this->mediaRepository->create([['id' => $mediaId]], $context);
+        $this->fileSaver->persistFileToMedia($mediaFile, $mediaId . '.png', $mediaId, $context);
+        $this->fileFetcher->cleanUpTempFile($mediaFile);
+
+        $media = $this->mediaRepository->search(
+            new Criteria([$mediaId]),
+            $context
+        )->getEntities()->first();
+        static::assertInstanceOf(MediaEntity::class, $media);
+
+        static::assertSame($blob, (string) $this->fileLoader->loadMediaEntityFileStream($media));
         static::assertFileDoesNotExist($mediaFile->getFileName());
 
         $this->mediaRepository->delete([['id' => $mediaId]], $context);

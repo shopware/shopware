@@ -903,7 +903,7 @@ class LanguageValidatorTest extends TestCase
         } catch (WriteException $exception) {
             $stack = $exception;
         }
-        if (!empty($expectedCodePathPairs)) {
+        if ($expectedCodePathPairs !== []) {
             static::assertInstanceOf(WriteException::class, $stack);
         }
 

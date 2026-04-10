@@ -198,7 +198,7 @@ class ProductSerializer extends EntitySerializer
             }
         }
 
-        if (empty($salesChannelNames)) {
+        if ($salesChannelNames === []) {
             return $ids;
         }
 

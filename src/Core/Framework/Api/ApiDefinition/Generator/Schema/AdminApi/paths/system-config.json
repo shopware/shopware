@@ -1,0 +1,186 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "\/_action\/system-config": {
+            "get": {
+                "tags": [
+                    "System Config"
+                ],
+                "summary": "Get configuration values",
+                "description": "Returns the configuration values for the given domain and optional sales channel.",
+                "operationId": "getConfigurationValues",
+                "parameters": [
+                    {
+                        "name": "domain",
+                        "in": "query",
+                        "description": "The configuration domain.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "salesChannelId",
+                        "in": "query",
+                        "description": "The sales channel ID to scope the configuration to.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "inherit",
+                        "in": "query",
+                        "description": "Whether to include inherited (global) values.",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the configuration values as a key-value object."
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "System Config"
+                ],
+                "summary": "Save configuration values",
+                "description": "Saves the given configuration key-value pairs for the given sales channel.",
+                "operationId": "saveConfiguration",
+                "parameters": [
+                    {
+                        "name": "salesChannelId",
+                        "in": "query",
+                        "description": "The sales channel ID to scope the configuration to.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "silent",
+                        "in": "query",
+                        "description": "If true, the HTTP cache will not be invalidated. Use this for internal configuration values that do not affect the storefront.",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Key-value pairs of configuration values to save.",
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Configuration saved successfully."
+                    }
+                }
+            }
+        },
+        "\/_action\/system-config\/check": {
+            "get": {
+                "tags": [
+                    "System Config"
+                ],
+                "summary": "Check configuration",
+                "description": "Checks if a configuration domain exists.",
+                "operationId": "checkConfiguration",
+                "parameters": [
+                    {
+                        "name": "domain",
+                        "in": "query",
+                        "description": "The configuration domain to check.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns whether the configuration domain exists."
+                    }
+                }
+            }
+        },
+        "\/_action\/system-config\/schema": {
+            "get": {
+                "tags": [
+                    "System Config"
+                ],
+                "summary": "Get configuration schema",
+                "description": "Returns the configuration schema for the given domain.",
+                "operationId": "getConfiguration",
+                "parameters": [
+                    {
+                        "name": "domain",
+                        "in": "query",
+                        "description": "The configuration domain.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the configuration schema."
+                    }
+                }
+            }
+        },
+        "\/_action\/system-config\/batch": {
+            "post": {
+                "tags": [
+                    "System Config"
+                ],
+                "summary": "Batch save configuration values",
+                "description": "Saves configuration values for multiple sales channels at once. The request body is keyed by sales channel ID (use \"null\" for global scope).",
+                "operationId": "batchSaveConfiguration",
+                "parameters": [
+                    {
+                        "name": "silent",
+                        "in": "query",
+                        "description": "If true, the HTTP cache will not be invalidated. Use this for internal configuration values that do not affect the storefront.",
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Object keyed by sales channel ID, each containing key-value pairs of configuration values.",
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object",
+                                    "additionalProperties": true
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Configuration saved successfully."
+                    }
+                }
+            }
+        }
+    }
+}

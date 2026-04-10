@@ -143,12 +143,12 @@ class AnnotationTagTester
         $match = [];
         preg_match('/([^\s]+):([^\s]*)\s+([^\s]+):([^\s]*)/', $propertiesString, $match, \PREG_UNMATCHED_AS_NULL);
 
-        if (empty($match)) {
+        if ($match === []) {
             throw new \InvalidArgumentException('Incorrect format for experimental annotation. Properties `stableVersion` and/or `feature` are not declared.');
         }
         $properties = [
-            $match[1] => (string) $match[2],
-            $match[3] => (string) $match[4],
+            $match[1] => $match[2],
+            $match[3] => $match[4],
         ];
 
         match (true) {

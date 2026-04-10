@@ -1,4 +1,4 @@
-import camelCase from 'lodash/camelCase';
+import camelCase from 'lodash-es/camelCase';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type { DragConfig } from 'src/app/directive/dragdrop.directive';
 import template from './sw-settings-country-address-handling.html.twig';
@@ -364,7 +364,6 @@ export default Component.wrapComponentConfig({
                             name: this.getLabelProperty(snippet),
                         };
                     });
-                    // eslint-disable-next-line @typescript-eslint/no-empty-function
                 })
                 .catch(() => {});
         },

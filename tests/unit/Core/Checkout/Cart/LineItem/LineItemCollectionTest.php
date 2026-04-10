@@ -13,7 +13,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -35,8 +37,23 @@ class LineItemCollectionTest extends TestCase
     #[DataProvider('lineItemStateProvider')]
     public function testHasLineItemWithState(LineItemCollection $collection, array $expectedResults): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         foreach ($expectedResults as $state => $expected) {
             static::assertSame($expected, $collection->hasLineItemWithState($state), 'Line item of state `' . $state . '` could not be found.');
+        }
+    }
+
+    /**
+     * @param array<string, bool> $expectedResults
+     */
+    #[DataProvider('lineItemProductTypeProvider')]
+    public function testHasLineItemWithProductType(LineItemCollection $collection, array $expectedResults): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        foreach ($expectedResults as $type => $expected) {
+            static::assertSame($expected, $collection->hasLineItemWithProductType($type), 'Line item of type `' . $type . '` could not be found.');
         }
     }
 
@@ -76,6 +93,45 @@ class LineItemCollectionTest extends TestCase
                 (new LineItem('B', 'test'))->setStates(['foo']),
             ]),
             [State::IS_PHYSICAL => false, State::IS_DOWNLOAD => false, 'foo' => true],
+        ];
+    }
+
+    public static function lineItemProductTypeProvider(): \Generator
+    {
+        yield 'collection has line item with state download and physical' => [
+            new LineItemCollection([
+                (new LineItem('A', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL),
+                (new LineItem('B', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL),
+            ]),
+            [ProductDefinition::TYPE_PHYSICAL => true, ProductDefinition::TYPE_DIGITAL => true],
+        ];
+        yield 'collection has line item with only state physical' => [
+            new LineItemCollection([
+                (new LineItem('A', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL),
+                (new LineItem('B', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL),
+            ]),
+            [ProductDefinition::TYPE_PHYSICAL => true, ProductDefinition::TYPE_DIGITAL => false],
+        ];
+        yield 'collection has line item with only state download' => [
+            new LineItemCollection([
+                (new LineItem('A', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL),
+                (new LineItem('B', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL),
+            ]),
+            [ProductDefinition::TYPE_PHYSICAL => false, ProductDefinition::TYPE_DIGITAL => true],
+        ];
+        yield 'collection has line items without any state' => [
+            new LineItemCollection([
+                new LineItem('A', 'test'),
+                new LineItem('B', 'test'),
+            ]),
+            [ProductDefinition::TYPE_PHYSICAL => false, ProductDefinition::TYPE_DIGITAL => false],
+        ];
+        yield 'collection has line items with a unknown state' => [
+            new LineItemCollection([
+                (new LineItem('A', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, 'foo'),
+                (new LineItem('B', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, 'foo'),
+            ]),
+            [ProductDefinition::TYPE_PHYSICAL => false, ProductDefinition::TYPE_DIGITAL => false, 'foo' => true],
         ];
     }
 

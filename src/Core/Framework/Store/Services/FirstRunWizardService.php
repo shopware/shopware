@@ -18,8 +18,9 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardStartedEvent;
-use Shopware\Core\Framework\Store\Exception\LicenseDomainVerificationException;
+use Shopware\Core\Framework\Store\Event\ShopwareAccountLoginEvent;
 use Shopware\Core\Framework\Store\Exception\StoreLicenseDomainMissingException;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\Framework\Store\Struct\DomainVerificationRequestStruct;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
@@ -88,8 +89,10 @@ class FirstRunWizardService
         $accessToken = $this->createAccessTokenStruct($accessTokenResponse, $accessTokenResponse['shopUserToken']);
 
         $this->storeService->updateStoreToken($context, $accessToken);
-        $this->configService->set(StoreRequestOptionsProvider::CONFIG_KEY_STORE_SHOP_SECRET, $accessToken->getShopSecret());
+        $this->configService->set(StoreRequestOptionsProvider::CONFIG_KEY_STORE_SHOP_SECRET, $accessToken->getShopSecret(), null, false);
         $this->removeFrwUserToken($context);
+
+        $this->eventDispatcher->dispatch(new ShopwareAccountLoginEvent($context));
     }
 
     public function finishFrw(bool $failed, Context $context): void
@@ -169,15 +172,20 @@ class FirstRunWizardService
         foreach ($this->frwClient->getRecommendationRegions($context) as $region) {
             $categories = [];
             foreach ($region['categories'] as $category) {
-                if (empty($category['name']) || empty($category['label'])) {
+                $categoryName = $category['name'] ?? '';
+                $categoryLabel = $category['label'] ?? '';
+
+                if ($categoryName === '' || $categoryLabel === '') {
                     continue;
                 }
-                $categories[] = new PluginCategoryStruct($category['name'], $category['label']);
+                $categories[] = new PluginCategoryStruct($categoryName, $categoryLabel);
             }
-            if (empty($region['name']) || empty($region['label']) || empty($categories)) {
+            $regionName = $region['name'] ?? '';
+            $regionLabel = $region['label'] ?? '';
+            if ($regionName === '' || $regionLabel === '' || $categories === []) {
                 continue;
             }
-            $regions->add(new PluginRegionStruct($region['name'], $region['label'], $categories));
+            $regions->add(new PluginRegionStruct($regionName, $regionLabel, $categories));
         }
 
         return $regions;
@@ -234,12 +242,12 @@ class FirstRunWizardService
         }
 
         if (!$existing || !$existing->isVerified()) {
-            throw new LicenseDomainVerificationException($domain);
+            throw StoreException::licenseDomainVerificationFailure($domain);
         }
         $existing->assign(['active' => true]);
 
-        $this->configService->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, $domain);
-        $this->configService->set(StoreService::CONFIG_KEY_STORE_LICENSE_EDITION, $existing->getEdition());
+        $this->configService->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, $domain, null, false);
+        $this->configService->set(StoreService::CONFIG_KEY_STORE_LICENSE_EDITION, $existing->getEdition(), null, false);
 
         return $existing;
     }
@@ -258,9 +266,9 @@ class FirstRunWizardService
             $failureCount = $currentState->getFailureCount() + 1;
         }
 
-        $this->configService->set('core.frw.completedAt', $completedAt);
-        $this->configService->set('core.frw.failedAt', $failedAt);
-        $this->configService->set('core.frw.failureCount', $failureCount);
+        $this->configService->set('core.frw.completedAt', $completedAt, null, false);
+        $this->configService->set('core.frw.failedAt', $failedAt, null, false);
+        $this->configService->set('core.frw.failureCount', $failureCount, null, false);
     }
 
     /**
@@ -275,14 +283,16 @@ class FirstRunWizardService
     ): array {
         $mappedExtensions = [];
         foreach ($extensions as $extension) {
-            if (empty($extension['name']) || empty($extension['localizedInfo']['name'])) {
+            $extensionName = $extension['name'] ?? '';
+            $label = $extension['localizedInfo']['name'] ?? '';
+            if ($extensionName === '' || $label === '') {
                 continue;
             }
 
             $mappedExtensions[] = (new StorePluginStruct())->assign([
-                'name' => $extension['name'],
+                'name' => $extensionName,
                 'type' => $extension['type'] ?? 'plugin',
-                'label' => $extension['localizedInfo']['name'],
+                'label' => $label,
                 'shortDescription' => $extension['localizedInfo']['shortDescription'] ?? '',
 
                 'iconPath' => $extension['iconPath'] ?? null,
@@ -329,7 +339,7 @@ class FirstRunWizardService
         try {
             $this->filesystem->write($validationRequest->getFileName(), $validationRequest->getContent());
         } catch (UnableToWriteFile) {
-            throw new LicenseDomainVerificationException($domain);
+            throw StoreException::licenseDomainVerificationFailure($domain);
         }
     }
 

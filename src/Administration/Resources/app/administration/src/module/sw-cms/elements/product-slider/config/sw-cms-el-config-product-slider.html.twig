@@ -83,6 +83,7 @@
                             <sw-entity-single-select
                                 v-model:value="element.config.products.value"
                                 entity="product_stream"
+                                :criteria="productStreamCriteria"
                                 class="sw-cms-el-config-product-slider__tab-content-product-stream-select"
                                 :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.productStreamChoice')"
                                 :disabled="isInherited"
@@ -308,6 +309,7 @@
                                 class="sw-cms-el-config-product-slider__tab-settings-layout-border"
                                 :label="$t('sw-cms.elements.productSlider.config.label.border')"
                                 :disabled="isInherited"
+                                bordered
                             />
                         </template>
                     </sw-cms-inherit-wrapper>
@@ -321,13 +323,12 @@
                         :element="element"
                     >
                         <template #default="{ isInherited }">
-                            <mt-switch
+                            <mt-select
                                 v-model="element.config.navigationArrows.value"
                                 class="sw-cms-el-config-product-slider__tab-settings-navigation-arrows"
                                 :label="$t('sw-cms.elements.productSlider.config.label.navigationArrows')"
                                 :options="arrowOptions"
                                 :disabled="isInherited"
-                                @update:model-value="emitUpdateEl"
                             />
                         </template>
                     </sw-cms-inherit-wrapper>

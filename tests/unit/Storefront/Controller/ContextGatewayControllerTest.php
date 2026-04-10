@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 #[CoversClass(ContextGatewayController::class)]
 class ContextGatewayControllerTest extends TestCase
 {

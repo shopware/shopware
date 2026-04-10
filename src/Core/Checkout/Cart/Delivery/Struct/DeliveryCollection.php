@@ -21,12 +21,12 @@ class DeliveryCollection extends Collection
      */
     public function sortDeliveries(): self
     {
-        $this->sort(function (Delivery $a, Delivery $b) {
+        $this->sort(static function (Delivery $a, Delivery $b) {
             if ($a->getLocation() !== $b->getLocation()) {
                 return -1;
             }
 
-            return $a->getDeliveryDate()->getEarliest() > $b->getDeliveryDate()->getEarliest();
+            return (int) ($a->getDeliveryDate()->getEarliest() > $b->getDeliveryDate()->getEarliest());
         });
 
         return $this;
@@ -67,7 +67,7 @@ class DeliveryCollection extends Collection
     public function getShippingCosts(): PriceCollection
     {
         return new PriceCollection(
-            $this->map(fn (Delivery $delivery) => $delivery->getShippingCosts())
+            $this->map(static fn (Delivery $delivery) => $delivery->getShippingCosts())
         );
     }
 
@@ -90,7 +90,7 @@ class DeliveryCollection extends Collection
     public function getPrimaryDelivery(?string $primaryDeliveryId): ?Delivery
     {
         if ($primaryDeliveryId) {
-            $delivery = $this->firstWhere(function (Delivery $delivery) use ($primaryDeliveryId) {
+            $delivery = $this->firstWhere(static function (Delivery $delivery) use ($primaryDeliveryId) {
                 return $delivery->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId() === $primaryDeliveryId;
             });
         }

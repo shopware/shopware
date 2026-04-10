@@ -1,29 +1,30 @@
 import { mount } from '@vue/test-utils';
-import { MtModal, MtModalClose, MtModalAction } from '@shopware-ag/meteor-component-library';
+import { MtModal, MtModalClose, MtModalAction, MtModalTrigger, MtModalRoot } from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesDeactivateModal from './index';
 
-describe('src/module/sw-settings-services/component/sw-settings-services-deactivate-modal', () => {
-    const location = window.location;
+const createWrapper = async () => {
+    return mount(SwSettingsServicesDeactivateModal, {
+        global: {
+            stubs: {
+                'mt-modal': MtModal,
+                'mt-modal-close': MtModalClose,
+                'mt-modal-action': MtModalAction,
+                'mt-modal-trigger': MtModalTrigger,
+                'mt-modal-root': MtModalRoot,
+            },
+        },
+    });
+};
 
+describe('src/module/sw-settings-services/component/sw-settings-services-deactivate-modal', () => {
     beforeAll(() => {
         Shopware.Service().register('shopwareServicesService', () => ({
             disableAllServices: jest.fn(),
         }));
     });
 
-    beforeEach(() => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: jest.fn() },
-        });
-    });
-
-    afterEach(() => {
-        Object.defineProperty(window, 'location', { configurable: true, value: location });
-    });
-
     it('can be opened and closed', async () => {
-        const deactivateModal = await mount(SwSettingsServicesDeactivateModal);
+        const deactivateModal = await createWrapper();
         await flushPromises();
 
         let modal = deactivateModal.getComponent(MtModal);
@@ -52,8 +53,10 @@ describe('src/module/sw-settings-services/component/sw-settings-services-deactiv
             disabled: true,
         }));
 
-        const deactivateModal = await mount(SwSettingsServicesDeactivateModal);
+        const deactivateModal = await createWrapper();
         await flushPromises();
+
+        jest.spyOn(deactivateModal.vm, '_reloadPage').mockImplementation(() => {});
 
         await deactivateModal.get('button').trigger('click');
         const modal = deactivateModal.getComponent(MtModal);
@@ -61,7 +64,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-deactiv
         await flushPromises();
 
         expect(notificationSpy).not.toHaveBeenCalled();
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(deactivateModal.vm._reloadPage).toHaveBeenCalled();
     });
 
     it('shows notification if request fails', async () => {
@@ -72,7 +75,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-deactiv
             throw new Error('Deactivation failed');
         });
 
-        const deactivateModal = await mount(SwSettingsServicesDeactivateModal);
+        const deactivateModal = await createWrapper();
         await flushPromises();
 
         await deactivateModal.get('button').trigger('click');

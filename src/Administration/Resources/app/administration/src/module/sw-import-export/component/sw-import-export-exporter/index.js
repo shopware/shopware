@@ -71,10 +71,6 @@ export default {
                 this.config.parameters.includeVariants
             );
         },
-
-        logRepository() {
-            return this.repositoryFactory.create('import_export_log');
-        },
     },
 
     methods: {

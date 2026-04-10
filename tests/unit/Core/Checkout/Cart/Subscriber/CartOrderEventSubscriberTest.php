@@ -5,8 +5,11 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
+use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartDeletedEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\Subscriber\CartOrderEventSubscriber;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
@@ -29,7 +32,7 @@ class CartOrderEventSubscriberTest extends TestCase
     protected function setUp(): void
     {
         $this->contextSwitchRoute = $this->createMock(AbstractContextSwitchRoute::class);
-        $this->subscriber = new CartOrderEventSubscriber($this->contextSwitchRoute);
+        $this->subscriber = new CartOrderEventSubscriber($this->contextSwitchRoute, $this->createMock(LineItemGroupBuilder::class));
     }
 
     public function testGetSubscribedEvents(): void
@@ -40,6 +43,8 @@ class CartOrderEventSubscriberTest extends TestCase
         static::assertArrayHasKey(CheckoutOrderPlacedEvent::class, $events);
         static::assertEquals(['handleContextAddress', 1], $events[CartDeletedEvent::class]);
         static::assertEquals(['handleContextAddress', 1], $events[CheckoutOrderPlacedEvent::class]);
+        static::assertEquals('resetBuilder', $events[BeforeLineItemAddedEvent::class]);
+        static::assertEquals('resetBuilder', $events[BeforeLineItemRemovedEvent::class]);
     }
 
     public function testHandleContextAddressWithCartDeletedEvent(): void
@@ -55,7 +60,7 @@ class CartOrderEventSubscriberTest extends TestCase
         $this->contextSwitchRoute->expects($this->once())
             ->method('switchContext')
             ->with(
-                static::callback(function (RequestDataBag $dataBag) use ($expectedDataBag) {
+                static::callback(static function (RequestDataBag $dataBag) use ($expectedDataBag) {
                     return $dataBag->all() === $expectedDataBag->all();
                 }),
                 static::equalTo($salesChannelContext)
@@ -78,12 +83,23 @@ class CartOrderEventSubscriberTest extends TestCase
         $this->contextSwitchRoute->expects($this->once())
             ->method('switchContext')
             ->with(
-                static::callback(function (RequestDataBag $dataBag) use ($expectedDataBag) {
+                static::callback(static function (RequestDataBag $dataBag) use ($expectedDataBag) {
                     return $dataBag->all() === $expectedDataBag->all();
                 }),
                 static::equalTo($salesChannelContext)
             );
 
         $this->subscriber->handleContextAddress($event);
+    }
+
+    public function testResetBuilder(): void
+    {
+        $builder = $this->createMock(LineItemGroupBuilder::class);
+        $builder
+            ->expects($this->once())
+            ->method('reset');
+
+        (new CartOrderEventSubscriber($this->createMock(AbstractContextSwitchRoute::class), $builder))
+            ->resetBuilder($this->createMock(BeforeLineItemAddedEvent::class));
     }
 }

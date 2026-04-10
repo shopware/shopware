@@ -21,8 +21,13 @@ Thumbs.db
 /.vscode/
 !/.vscode/settings.json
 
+# Yalc
+.yalc/
+yalc.lock
+
 # AI/LLM Development Tools
 .claude/
+.codex/
 .cursor/
 .cursorrules
 .tabnine/

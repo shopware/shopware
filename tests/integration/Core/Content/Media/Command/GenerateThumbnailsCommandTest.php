@@ -377,7 +377,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
     private function getNewMediaEntities(): MediaCollection
     {
-        if (!empty($this->initialMediaIds)) {
+        if ($this->initialMediaIds !== []) {
             $criteria = new Criteria($this->initialMediaIds);
             $result = $this->mediaRepository->searchIds($criteria, $this->context);
             static::assertSame(\count($this->initialMediaIds), $result->getTotal());
@@ -385,7 +385,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addAssociation('thumbnails');
-        if (!empty($this->initialMediaIds)) {
+        if ($this->initialMediaIds !== []) {
             $criteria->addFilter(new NotFilter(
                 NotFilter::CONNECTION_AND,
                 [

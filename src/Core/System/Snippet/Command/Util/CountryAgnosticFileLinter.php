@@ -40,6 +40,7 @@ class CountryAgnosticFileLinter
         private readonly Filesystem $filesystem,
         private readonly EntityRepository $pluginRepository,
         private readonly EntityRepository $appRepository,
+        private readonly Finder $finder,
     ) {
     }
 
@@ -77,7 +78,7 @@ class CountryAgnosticFileLinter
 
             $currentDomain = $currentFileData['domain'] ?? 'administration';
             $locale = str_replace('_', '-', $currentFileData['locale']);
-            $isBase = !$isAdminTranslationFile && !empty($currentFileData['isBase']);
+            $isBase = !$isAdminTranslationFile && ($currentFileData['isBase'] ?? '') !== '';
 
             $translationFile = new TranslationFile(
                 $file->getFilename(),
@@ -133,7 +134,7 @@ class CountryAgnosticFileLinter
 
     private function getFinder(LintedTranslationFileOptions $options): Finder
     {
-        $finder = (new Finder())
+        $this->finder
             ->files()
             ->ignoreUnreadableDirs()
             ->ignoreDotFiles(true)
@@ -152,18 +153,18 @@ class CountryAgnosticFileLinter
             ->sortByName(true);
 
         if ($options->dir) {
-            $finder->in($options->dir);
-        } elseif (empty($options->extensionPaths)) {
-            $finder->in('src');
+            $this->finder->in($options->dir);
+        } elseif ($options->extensionPaths === []) {
+            $this->finder->in('src');
 
             if ($options->isAll) {
-                $finder->in('custom');
+                $this->finder->in('custom');
             }
         } else {
-            $finder->in($this->getExtensionPaths($options));
+            $this->finder->in($this->getExtensionPaths($options));
         }
 
-        return $finder;
+        return $this->finder;
     }
 
     /**
@@ -178,11 +179,11 @@ class CountryAgnosticFileLinter
         $apps = $this->appRepository->search($criteria, $context)->getEntities();
 
         $extensionPaths = [
-            ...$plugins->map(static fn (PluginEntity $plugin) => $plugin->getPath()),
-            ...$apps->map(static fn (AppEntity $app) => $app->getPath()),
+            ...$plugins->fmap(static fn (PluginEntity $plugin) => $plugin->getPath()),
+            ...$apps->fmap(static fn (AppEntity $app) => $app->getPath()),
         ];
 
-        if (empty($extensionPaths)) {
+        if ($extensionPaths === []) {
             throw SnippetException::invalidExtensions($options->extensionPaths);
         }
 

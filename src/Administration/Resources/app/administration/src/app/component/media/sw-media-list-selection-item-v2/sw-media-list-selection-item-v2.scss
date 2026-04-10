@@ -16,6 +16,7 @@ $sw-media-list-selection-item-v2-placeholder-color: lighten($color-gray-300, 5%)
         display: flex;
         align-items: center;
         justify-content: center;
+        aspect-ratio: 1;
 
         &:hover {
             background-color: transparent;

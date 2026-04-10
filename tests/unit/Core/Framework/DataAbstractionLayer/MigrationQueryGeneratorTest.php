@@ -62,9 +62,9 @@ class MigrationQueryGeneratorTest extends TestCase
     {
         $entityDefinition = $this->createMock(EntityDefinition::class);
 
-        $this->schemaManager->method('tablesExist')->willReturn(true);
+        $this->schemaManager->method('tableExists')->willReturn(true);
 
-        $this->schemaManager->method('introspectTable')->willReturn($this->getOriginalTable());
+        $this->schemaManager->method('introspectTableByUnquotedName')->willReturn($this->getOriginalTable());
 
         $this->schemaBuilder->method('buildSchemaOfDefinition')->willReturn($this->getNewTable());
 

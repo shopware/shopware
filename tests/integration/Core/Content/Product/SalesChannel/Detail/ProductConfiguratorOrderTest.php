@@ -186,7 +186,7 @@ class ProductConfiguratorOrderTest extends TestCase
                 'stock' => 10,
                 'active' => true,
                 'parentId' => $productId,
-                'options' => array_map(fn (array $group) => ['id' => $group[0]], $optionIds),
+                'options' => array_map(static fn (array $group) => ['id' => $group[0]], $optionIds),
             ],
         ];
 
@@ -199,7 +199,7 @@ class ProductConfiguratorOrderTest extends TestCase
 
         // get ordered PropertyGroupCollection
         $groups = $this->loader->load($salesChannelProduct, $this->context);
-        $propertyGroupNames = array_map(fn (PropertyGroupEntity $propertyGroupEntity) => $propertyGroupEntity->getName(), $groups->getElements());
+        $propertyGroupNames = array_map(static fn (PropertyGroupEntity $propertyGroupEntity) => $propertyGroupEntity->getName(), $groups->getElements());
 
         return array_values($propertyGroupNames);
     }

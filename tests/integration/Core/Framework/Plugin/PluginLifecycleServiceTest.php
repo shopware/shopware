@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
+use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
@@ -86,6 +87,11 @@ class PluginLifecycleServiceTest extends TestCase
 
     private string $fixturePath;
 
+    /**
+     * @var array<array{string, callable}>
+     */
+    private array $registeredListeners = [];
+
     protected function setUp(): void
     {
         // force kernel boot
@@ -137,6 +143,14 @@ class PluginLifecycleServiceTest extends TestCase
         if (isset($_SERVER['TEST_KEEP_MIGRATIONS'])) {
             unset($_SERVER['TEST_KEEP_MIGRATIONS']);
         }
+
+        $dispatcher = $this->container->get('event_dispatcher');
+
+        foreach ($this->registeredListeners as [$eventName, $listener]) {
+            $dispatcher->removeListener($eventName, $listener);
+        }
+
+        $this->registeredListeners = [];
     }
 
     public function testInstallPlugin(): void
@@ -514,6 +528,26 @@ class PluginLifecycleServiceTest extends TestCase
         \ComposerAutoloaderInitPluginTestShipsVendorDirectory::getLoader()->unregister();
     }
 
+    public function testPluginInstallFailureTriggersUninstall(): void
+    {
+        $plugin = $this->getPlugin($this->context);
+        $expectedException = new \RuntimeException('Fail from post-install event');
+
+        $listener = static function () use ($expectedException): void {
+            throw $expectedException;
+        };
+
+        $this->addTestListener(PluginPostInstallEvent::class, $listener);
+
+        try {
+            $this->pluginLifecycleService->installPlugin($plugin, $this->context);
+            static::fail('Expected exception was not thrown.');
+        } catch (\Throwable $actualException) {
+            static::assertSame($expectedException, $actualException);
+            static::assertNull($plugin->getInstalledAt());
+        }
+    }
+
     private function installNotSupportedPlugin(string $name): PluginEntity
     {
         $pluginRepository = static::getContainer()->get('plugin.repository');
@@ -870,5 +904,14 @@ class PluginLifecycleServiceTest extends TestCase
     private function getTestPlugin(Context $context): PluginEntity
     {
         return $this->pluginService->getPluginByName(self::PLUGIN_NAME, $context);
+    }
+
+    private function addTestListener(string $eventName, callable $listener): void
+    {
+        $dispatcher = $this->container->get('event_dispatcher');
+
+        $dispatcher->addListener($eventName, $listener);
+
+        $this->registeredListeners[] = [$eventName, $listener];
     }
 }

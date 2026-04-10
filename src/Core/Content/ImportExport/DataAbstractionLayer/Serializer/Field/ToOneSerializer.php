@@ -74,7 +74,7 @@ class ToOneSerializer extends FieldSerializer
         if (!\is_array($result)) {
             $result = iterator_to_array($result);
         }
-        if (empty($result)) {
+        if ($result === []) {
             return null;
         }
 

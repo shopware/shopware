@@ -5,30 +5,29 @@
         v-if="!item.hasFile"
         class="sw-media-quickinfo__alert-file-missing"
         variant="attention"
-        :title="$tc('sw-media.sidebar.infoMissingFile.titleMissingFile')"
+        :title="$t('sw-media.sidebar.infoMissingFile.titleMissingFile')"
     >
-        {{ $tc('sw-media.sidebar.infoMissingFile.descriptionMissingFile') }}
+        {{ $t('sw-media.sidebar.infoMissingFile.descriptionMissingFile') }}
     </mt-banner>
     {% endblock %}
 
     {% block sw_media_quickinfo_quickactions %}
     <sw-media-collapse
         v-if="editable"
-        :title="$tc('sw-media.sidebar.sections.actions')"
+        :title="$t('sw-media.sidebar.sections.actions')"
         :expand-on-loading="true"
     >
 
         <template #content>
             {% block sw_media_quickinfo_quickactions_content %}
-            <ul class="sw-media-sidebar__quickactions-list">
+            <ul
+                :key="item.id"
+                class="sw-media-sidebar__quickactions-list"
+            >
                 {% block sw_media_quickinfo_quickactions_replace %}
                 <li
                     v-if="!item.private"
-                    v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
-                        disabled: acl.can('media.editor'),
-                        showOnDisabledElements: true
-                    }"
+                    v-tooltip="editorTooltip"
                     class="quickaction--replace"
                     :class="quickActionClasses(!acl.can('media.editor'))"
                     role="button"
@@ -41,7 +40,7 @@
                         name="regular-files"
                         class="sw-media-sidebar__quickactions-icon"
                     />
-                    {{ $tc('sw-media.sidebar.actions.replace') }}
+                    {{ $t('sw-media.sidebar.actions.replace') }}
                 </li>
                 {% endblock %}
 
@@ -60,17 +59,13 @@
                             name="regular-cloud-download"
                             class="sw-media-sidebar__quickactions-icon"
                         />
-                        {{ $tc('sw-media.sidebar.actions.download') }}
+                        {{ $t('sw-media.sidebar.actions.download') }}
                     </sw-external-link>
                 </li>
                 {% endblock %}
                 {% block sw_media_quickinfo_quickactions_move %}
                 <li
-                    v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
-                        disabled: acl.can('media.editor'),
-                        showOnDisabledElements: true
-                    }"
+                    v-tooltip="editorTooltip"
                     class="quickaction--move"
                     :class="quickActionClasses(!acl.can('media.editor'))"
                     role="button"
@@ -84,7 +79,47 @@
                         name="regular-file-export"
                         class="sw-media-sidebar__quickactions-icon"
                     />
-                    {{ $tc('sw-media.sidebar.actions.move') }}
+                    {{ $t('sw-media.sidebar.actions.move') }}
+                </li>
+                {% endblock %}
+
+                {% block sw_media_quickinfo_quickactions_set_cover %}
+                <li
+                    v-if="canManageVideoCover"
+                    v-tooltip="editorTooltip"
+                    class="quickaction--set-cover"
+                    :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
+                    @click="openCoverSelectionModal"
+                    @keydown.enter="openCoverSelectionModal"
+                >
+                    <mt-icon
+                        size="16px"
+                        name="regular-image"
+                        class="sw-media-sidebar__quickactions-icon"
+                    />
+                    {{ $t('sw-media.sidebar.actions.setCover') }}
+                </li>
+                {% endblock %}
+
+                {% block sw_media_quickinfo_quickactions_remove_cover %}
+                <li
+                    v-if="canManageVideoCover && hasVideoCover"
+                    v-tooltip="editorTooltip"
+                    class="quickaction--remove-cover"
+                    :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
+                    @click="removeVideoCover"
+                    @keydown.enter="removeVideoCover"
+                >
+                    <mt-icon
+                        size="16px"
+                        name="regular-times"
+                        class="sw-media-sidebar__quickactions-icon"
+                    />
+                    {{ $t('sw-media.sidebar.actions.removeCover') }}
                 </li>
                 {% endblock %}
 
@@ -103,7 +138,7 @@
                         name="regular-link"
                         class="sw-media-sidebar__quickactions-icon"
                     />
-                    {{ $tc('sw-media.sidebar.actions.copyLink') }}
+                    {{ $t('sw-media.sidebar.actions.copyLink') }}
                 </li>
                 {% endblock %}
 
@@ -124,7 +159,7 @@
                             :name="action.meteorIcon"
                             class="sw-media-sidebar__quickactions-icon"
                         />
-                        {{ $tc(action.label) }}
+                        {{ $t(action.label) }}
                     </li>
                 </template>
                 {% endblock %}
@@ -132,11 +167,7 @@
                 {% block sw_media_quickinfo_quickactions_delete %}
                 <li
                     v-if="!item.private"
-                    v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
-                        disabled: acl.can('media.deleter'),
-                        showOnDisabledElements: true
-                    }"
+                    v-tooltip="deleterTooltip"
                     class="quickaction--delete"
                     :class="quickActionClasses(!acl.can('media.deleter'))"
                     role="button"
@@ -149,7 +180,7 @@
                         name="regular-trash"
                         class="sw-media-sidebar__quickactions-icon is--danger"
                     />
-                    {{ $tc('sw-media.sidebar.actions.delete') }}
+                    {{ $t('sw-media.sidebar.actions.delete') }}
                 </li>
                 {% endblock %}
             </ul>
@@ -162,7 +193,7 @@
     {% block sw_media_quickinfo_spatial_configuration %}
     <sw-media-collapse
         v-if="isSpatial"
-        :title="$tc('sw-media.sidebar.sections.configuration')"
+        :title="$t('sw-media.sidebar.sections.configuration')"
         :expand-on-loading="true"
     >
         <template #content>
@@ -177,7 +208,7 @@
                         :is-inheritance-field="props.isInheritField"
                         :is-inherited="props.isInherited"
                         :help-text="buildAugmentedRealityTooltip('sw-media.sidebar.actions.arHelpText')"
-                        :label="$tc('sw-media.sidebar.actions.ar')"
+                        :label="$t('sw-media.sidebar.actions.ar')"
                         :disabled="props.isInherited || !editable"
                         :model-value="props.currentValue"
                         class="sw-media-sidebar__quickactions-switch ar-ready-toggle"
@@ -200,8 +231,8 @@
                     <mt-select
                         :is-inheritance-field="props.isInheritField"
                         :is-inherited="props.isInherited"
-                        :label="$tc('sw-media.sidebar.actions.arPlacement')"
-                        :help-text="$tc('sw-media.sidebar.actions.arPlacementHelpText')"
+                        :label="$t('sw-media.sidebar.actions.arPlacement')"
+                        :help-text="$t('sw-media.sidebar.actions.arPlacementHelpText')"
                         :disabled="props.isInherited || !editable"
                         :model-value="props.currentValue"
                         :options="arPlacementOptions"
@@ -220,7 +251,7 @@
     <sw-media-collapse
         v-if="item.hasFile"
         :expand-on-loading="true"
-        :title="$tc('sw-media.sidebar.sections.preview')"
+        :title="$t('sw-media.sidebar.sections.preview')"
     >
 
         {% block sw_media_quickinfo_preview_content %}
@@ -237,12 +268,64 @@
                 {% endblock %}
 
                 {% block sw_media_quickinfo_preview_item %}
-                <sw-media-preview-v2
-                    class="sw-media-quickinfo__media-preview"
-                    :source="item.id"
-                    :show-controls="true"
-                    :use-thumbnails="false"
-                />
+                <template v-if="item.mimeType?.startsWith('model/gltf')">
+                    <div class="sw-model-viewer-wrapper">
+                        <mt-button
+                            v-if="!isLoading"
+                            v-tooltip="{ message: $t('sw-model-editor.open-model-editor-tooltip'), showDelay: 300, hideDelay: 0, width: 'auto' }"
+                            class="sw-model-viewer-button"
+                            variant="secondary"
+                            size="x-small"
+                            @click="openModelEditorModal()"
+                        >
+                            <mt-icon name="cog" />
+                        </mt-button>
+                        <sw-model-viewer
+                            :source="item"
+                        />
+                    </div>
+
+                    {% block sw_model_editor_modal %}
+                    <sw-modal
+                        v-if="showModelEditorModal"
+                        class="sw-model-editor-modal"
+                        :title="$t('sw-model-editor.titleModal')"
+                        variant="full"
+                        @modal-close="closeModelEditorModal()"
+                    >
+                        <div class="sw-model-editor-modal-wrapper">
+                            <sw-model-editor
+                                ref="modelEditorRef"
+                                :source="item"
+                                @save="onSaveComplete"
+                            />
+                        </div>
+                        <template #modal-footer>
+                            <mt-button
+                                variant="secondary"
+                                @click="closeModelEditorModal()"
+                            >
+                                {{ $t('global.default.cancel') }}
+                            </mt-button>
+                            <mt-button
+                                variant="primary"
+                                @click="$refs.modelEditorRef.save()"
+                            >
+                                {{ $t('global.default.save') }}
+                            </mt-button>
+                        </template>
+                    </sw-modal>
+                    {% endblock %}
+                </template>
+
+                <template v-else>
+                    <sw-media-preview-v2
+                        class="sw-media-quickinfo__media-preview"
+                        :source="item.id"
+                        :show-controls="true"
+                        :use-thumbnails="false"
+                    />
+                </template>
                 {% endblock %}
             </div>
         </template>
@@ -254,7 +337,7 @@
     <sw-media-collapse
         v-if="item.hasFile"
         :expand-on-loading="true"
-        :title="$tc('sw-media.sidebar.sections.metadata')"
+        :title="$t('sw-media.sidebar.sections.metadata')"
     >
 
         {% block sw_media_quickinfo_metadata_content %}
@@ -264,7 +347,7 @@
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-name"
                     :class="fileNameClasses"
-                    :label-name="$tc('sw-media.sidebar.metadata.name')"
+                    :label-name="$t('sw-media.sidebar.metadata.name')"
                     :truncated="false"
                 >
 
@@ -285,14 +368,14 @@
 
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-file-type"
-                    :label-name="$tc('sw-media.sidebar.metadata.fileType')"
+                    :label-name="$t('sw-media.sidebar.metadata.fileType')"
                 >
                     {{ item.fileExtension.toUpperCase() }}
                 </sw-media-quickinfo-metadata-item>
 
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-alt-field"
-                    :label-name="$tc('sw-media.sidebar.metadata.altText')"
+                    :label-name="$t('sw-media.sidebar.metadata.altText')"
                     :truncated="false"
                 >
                     <sw-confirm-field
@@ -300,7 +383,7 @@
                         ref="inlineEditFieldAlt"
                         :disabled="!acl.can('media.editor')"
                         compact
-                        :placeholder="placeholder(item, 'alt', $tc('sw-media.sidebar.metadata.altText'))"
+                        :placeholder="placeholder(item, 'alt', $t('sw-media.sidebar.metadata.altText'))"
                         :value="item.alt"
                         @input="onSubmitAltText"
                     />
@@ -311,7 +394,7 @@
 
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-alt-field"
-                    :label-name="$tc('sw-media.sidebar.metadata.title')"
+                    :label-name="$t('sw-media.sidebar.metadata.title')"
                     :truncated="false"
                 >
                     <sw-confirm-field
@@ -319,7 +402,7 @@
                         ref="inlineEditFieldTitle"
                         :disabled="!acl.can('media.editor')"
                         compact
-                        :placeholder="placeholder(item, 'title', $tc('sw-media.sidebar.metadata.title'))"
+                        :placeholder="placeholder(item, 'title', $t('sw-media.sidebar.metadata.title'))"
                         :value="item.title"
                         @input="onSubmitTitle"
                     />
@@ -330,21 +413,21 @@
 
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-mimeType"
-                    :label-name="$tc('sw-media.sidebar.metadata.mimeType')"
+                    :label-name="$t('sw-media.sidebar.metadata.mimeType')"
                 >
                     {{ item.mimeType }}
                 </sw-media-quickinfo-metadata-item>
 
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-size"
-                    :label-name="$tc('sw-media.sidebar.metadata.fileSize')"
+                    :label-name="$t('sw-media.sidebar.metadata.fileSize')"
                 >
                     {{ fileSize }}
                 </sw-media-quickinfo-metadata-item>
 
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-createdAt"
-                    :label-name="$tc('sw-media.sidebar.metadata.createdAt')"
+                    :label-name="$t('sw-media.sidebar.metadata.createdAt')"
                 >
                     {{ createdAt }}
                 </sw-media-quickinfo-metadata-item>
@@ -357,7 +440,7 @@
                         <sw-media-quickinfo-metadata-item
                             v-if="item.metaData.width"
                             class="sw-media-quickinfo-metadata-width"
-                            :label-name="$tc('sw-media.sidebar.metadata.width')"
+                            :label-name="$t('sw-media.sidebar.metadata.width')"
                         >
                             {{ item.metaData.width }}px
                         </sw-media-quickinfo-metadata-item>
@@ -365,7 +448,7 @@
                         <sw-media-quickinfo-metadata-item
                             v-if="item.metaData.height"
                             class="sw-media-quickinfo-metadata-height"
-                            :label-name="$tc('sw-media.sidebar.metadata.height')"
+                            :label-name="$t('sw-media.sidebar.metadata.height')"
                         >
                             {{ item.metaData.height }}px
                         </sw-media-quickinfo-metadata-item>
@@ -390,7 +473,7 @@
     <sw-media-collapse
         v-if="editable && item.hasFile"
         :expand-on-loading="true"
-        :title="$tc('sw-media.sidebar.sections.usage')"
+        :title="$t('sw-media.sidebar.sections.usage')"
     >
 
         <template #content>
@@ -423,6 +506,16 @@
         :items-to-move="[item]"
         @media-move-modal-close="closeModalMove"
         @media-move-modal-items-move="onFolderMoved"
+    />
+    {% endblock %}
+
+    {% block sw_media_quickinfo_cover_modal %}
+    <sw-media-modal-v2
+        v-if="showCoverSelectionModal"
+        :allow-multi-select="false"
+        file-accept="image/*"
+        @modal-close="closeCoverSelectionModal"
+        @media-modal-selection-change="onCoverSelectionChange"
     />
     {% endblock %}
 

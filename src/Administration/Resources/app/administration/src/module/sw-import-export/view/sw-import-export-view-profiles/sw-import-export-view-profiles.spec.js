@@ -66,7 +66,7 @@ async function createWrapper() {
                     'sw-wizard': true,
                     'sw-wizard-page': true,
                     'sw-wizard-dot-navigation': true,
-                    'sw-simple-search-field': true,
+                    'mt-search': true,
                     'sw-import-export-edit-profile-modal': {
                         template: `
                         <div class="sw-import-export-edit-profile-modal"></div>

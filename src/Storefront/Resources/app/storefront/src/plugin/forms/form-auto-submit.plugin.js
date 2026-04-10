@@ -162,7 +162,9 @@ export default class FormAutoSubmitPlugin extends Plugin {
             this._form.submit();
         }
 
-        PageLoadingIndicatorUtil.create();
+        if (this._form.checkValidity()) {
+            PageLoadingIndicatorUtil.create();
+        }
     }
 
     /**
@@ -258,7 +260,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
     }
 
     _updateRedirectParameters() {
-        const params = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+        const params = Object.fromEntries(new URLSearchParams(this._getLocationSearch()).entries());
         const formData = FormSerializeUtil.serialize(this._form);
 
         Object.keys(params)
@@ -267,6 +269,14 @@ export default class FormAutoSubmitPlugin extends Plugin {
             .forEach((input) => {
                 this._form.appendChild(input);
             });
+    }
+
+    /**
+     * Thin wrapper so tests can spy on location access without mocking window.location
+     * (non-configurable in JSDOM v26).
+     */
+    _getLocationSearch() {
+        return window.location.search;
     }
 
     _createInputForRedirectParameter(name, value) {

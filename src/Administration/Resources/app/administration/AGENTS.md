@@ -68,6 +68,11 @@ composer format:admin:fix # Format code with Prettier and --write
 composer admin:unit # Run unit tests
 composer admin:unit:watch # Run unit tests in watch mode
 
+# Single jest test, run inside "src/Administration/Resources/app/administration" folder
+npx jest --collectCoverage=false src/core/factory/http.factory.spec.js # Example single test run
+# All jest tests without coverage for better readability, run inside "src/Administration/Resources/app/administration" folder 
+npx jest --collectCoverage=false
+
 # Build
 composer build:js:admin # Build the administration
 ```

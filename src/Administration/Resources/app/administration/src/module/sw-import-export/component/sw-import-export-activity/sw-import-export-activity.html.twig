@@ -4,41 +4,47 @@
     <sw-entity-listing
         v-if="showGrid"
         :repository="logRepository"
-        :items="logs"
+        :data-source="logs"
         :columns="exportActivityColumns"
         sort-by="createdAt"
         sort-direction="DESC"
         :show-selection="false"
         :allow-column-edit="false"
-        :full-page="true"
+        :full-page="false"
     >
         {% block sw_import_export_activity_listing_size %}
         <template #column-file.size="{ item }">
             {{ calculateFileSize(item.file.size) }}
         </template>
         {% endblock %}
+
         {% block sw_import_export_activity_listing_records %}
         <template #column-records="{ item }">
             {{ item.records }}
         </template>
         {% endblock %}
+
         <template #column-label-invalidRecords="{ column }">
-            {{ $te(column.label) ? $t(column.label) : column.label }}
+            <span>{{ $te(column.label) ? $t(column.label) : column.label }}</span>
+
             <sw-help-text
                 class="sw-import-export-activity__invalid-records-help-text"
                 :text="$t('sw-import-export.activity.invalidHelpText')"
             />
         </template>
         {% block sw_import_export_activity_listing_invalid_records %}
+
         <template #column-invalidRecords="{ item }">
             <template v-if="item.invalidRecordsLog">
                 {{ item.invalidRecordsLog.records }}
             </template>
+
             <template v-else>
                 0
             </template>
         </template>
         {% endblock %}
+
         {% block sw_import_export_activity_listing_createdAt %}
         <template #column-createdAt="{ item }">
             <sw-label
@@ -48,16 +54,17 @@
             >
                 {{ $t('sw-import-export.activity.dryrun') }}
             </sw-label>
-            <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
-            <a
-                href="#"
-                @click.prevent="onShowLog(item)"
+
+            <mt-link
+                as="a"
+                variant="primary"
+                @click="onShowLog(item)"
             >
                 <sw-time-ago
                     :date="item.createdAt"
                     :date-time-format="{ month: '2-digit', day: '2-digit' }"
                 />
-            </a>
+            </mt-link>
         </template>
         {% endblock %}
 
@@ -68,15 +75,18 @@
                 variant="error"
                 rounded
             />
+
             <sw-color-badge
                 v-else-if="item.state === 'succeeded'"
                 variant="success"
                 rounded
             />
+
             <sw-color-badge
                 v-else
                 rounded
             />
+
             <span :class="getStateClass(item.state)">{{ getStateLabel(item.state) }}</span>
         </template>
         {% endblock %}
@@ -92,6 +102,7 @@
                 {{ $t('sw-import-export.activity.contextMenu.showResults') }}
             </sw-context-menu-item>
             {% endblock %}
+
             {% block sw_import_export_activity_listing_actions_show_log_info %}
             <sw-context-menu-item
                 v-if="type === 'export'"
@@ -101,24 +112,26 @@
                 {{ $t('sw-import-export.activity.contextMenu.showLogInfo') }}
             </sw-context-menu-item>
             {% endblock %}
+
             {% block sw_import_export_activity_listing_actions_download_file %}
-            <a
+            <sw-context-menu-item
                 class="sw-import-export-activity__download-action"
-                role="button"
-                tabindex="0"
+                :disabled="type === 'export' && item.state !== 'succeeded'"
                 @click="openProcessFileDownload(item)"
-                @keydown.enter="openProcessFileDownload(item)"
             >
-                <sw-context-menu-item :disabled="type === 'export' && item.state !== 'succeeded'">
-                    {{ downloadFileText }}
-                </sw-context-menu-item>
-            </a>
+                {{ downloadFileText }}
+            </sw-context-menu-item>
             {% endblock %}
+
             {% block sw_import_export_activity_listing_actions_open_profile %}
-            <sw-context-menu-item @click="onOpenProfile(item.profileId)">
+            <sw-context-menu-item
+                class="sw-import-export-activity__open-profile-action"
+                @click="onOpenProfile(item.profileId)"
+            >
                 {{ $t('sw-import-export.activity.contextMenu.showProfile') }}
             </sw-context-menu-item>
             {% endblock %}
+
             {% block sw_import_export_activity_listing_actions_abort_process %}
             <sw-context-menu-item
                 v-if="item.state === 'progress'"
@@ -129,19 +142,15 @@
                 {{ $t('sw-import-export.activity.contextMenu.abortProcess') }}
             </sw-context-menu-item>
             {% endblock %}
+
             {% block sw_import_export_activity_listing_actions_download_invalid %}
             <template v-if="item.invalidRecordsLog">
-                <a
+                <sw-context-menu-item
                     class="sw-import-export-activity__download-action"
-                    role="button"
-                    tabindex="0"
                     @click="openProcessFileDownload(item.invalidRecordsLog)"
-                    @keydown.enter="openProcessFileDownload(item.invalidRecordsLog)"
                 >
-                    <sw-context-menu-item>
-                        {{ $t('sw-import-export.activity.contextMenu.downloadInvalidFile') }}
-                    </sw-context-menu-item>
-                </a>
+                    {{ $t('sw-import-export.activity.contextMenu.downloadInvalidFile') }}
+                </sw-context-menu-item>
             </template>
             {% endblock %}
         </template>
@@ -159,6 +168,7 @@
         icon="solid-database"
         :headline="emptyStateTitle"
         :description="emptyStateSubLine"
+        centered
     />
     {% endblock %}
 

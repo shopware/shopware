@@ -149,7 +149,12 @@ class PromotionCollector implements CartDataCollectorInterface
                     continue;
                 }
 
-                if ($cartExtension->isPromotionBlocked($tuple->getPromotion()->getId())) {
+                // @deprecated tag:v6.8.0 - remove complete following block incl. `isPromotionBlocked` variable
+                $isPromotionBlocked = false;
+                Feature::callSilentIfInactive('PERMANENT_AUTOMATIC_PROMOTIONS', static function () use ($tuple, $cartExtension, &$isPromotionBlocked): void {
+                    $isPromotionBlocked = $cartExtension->isPromotionBlocked($tuple->getPromotion()->getId());
+                });
+                if ($isPromotionBlocked) {
                     continue;
                 }
 

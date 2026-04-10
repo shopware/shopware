@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
@@ -226,7 +227,6 @@ class CustomFieldSetRepositoryTest extends TestCase
 
         $update = [
             'id' => $id,
-            'name' => 'test_set_update',
             'config' => ['description' => 'update', 'translatable' => true],
         ];
         $result = $this->repo->update([$update], Context::createDefaultContext());
@@ -238,6 +238,26 @@ class CustomFieldSetRepositoryTest extends TestCase
         $set = $result->first();
         static::assertNotNull($set);
         static::assertSame($update['config'], $set->getConfig());
+    }
+
+    public function testNameIsImmutable(): void
+    {
+        $id = Uuid::randomHex();
+        $attributeSet = [
+            'id' => $id,
+            'name' => 'test_set',
+            'config' => ['description' => 'test'],
+        ];
+
+        $this->repo->create([$attributeSet], Context::createDefaultContext());
+
+        $this->expectException(WriteException::class);
+        $this->repo->update([
+            [
+                'id' => $id,
+                'name' => 'renamed_set',
+            ],
+        ], Context::createDefaultContext());
     }
 
     public function testSearchWithAssociations(): void

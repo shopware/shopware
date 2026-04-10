@@ -69,10 +69,12 @@ describe('src/app/init-pre/api-services.init.ts', () => {
             ];
 
             serviceNames.forEach((serviceName) => {
-                const MockApiService = jest.fn().mockImplementation(function () {
-                    this.name = serviceName;
-                });
-                services.push(() => Promise.resolve({ default: MockApiService }));
+                const MockApiClass = class {
+                    constructor() {
+                        this.name = serviceName;
+                    }
+                };
+                services.push(MockApiClass);
             });
 
             return services;

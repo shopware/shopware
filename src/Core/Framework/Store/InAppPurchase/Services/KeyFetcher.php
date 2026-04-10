@@ -77,7 +77,7 @@ final readonly class KeyFetcher
 
                     return null;
                 }
-                $this->systemConfigService->set(self::CORE_STORE_JWKS, $result);
+                $this->systemConfigService->set(self::CORE_STORE_JWKS, $result, null, true);
 
                 /** @var array{keys: array<int, JSONWebKey>} $key */
                 $key = json_decode($result, true, 512, \JSON_THROW_ON_ERROR);

@@ -47,8 +47,8 @@ class NumberRangeStateDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('number_range_id', 'numberRangeId', NumberRangeDefinition::class))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new Required())->setDescription('Unique identity of number range\'s state.'),
+            (new FkField('number_range_id', 'numberRangeId', NumberRangeDefinition::class))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of number range.'),
             (new IntField('last_value', 'lastValue'))->addFlags(new Required()),
 
             (new OneToOneAssociationField('numberRange', 'number_range_id', 'id', NumberRangeDefinition::class, false))->addFlags(new RestrictDelete()),

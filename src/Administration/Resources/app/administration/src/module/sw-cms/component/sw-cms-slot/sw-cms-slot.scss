@@ -123,6 +123,7 @@
         background-clip: padding-box;
         position: relative;
         cursor: pointer;
+        overflow: hidden;
 
         &:hover {
             border-color: $color-shopware-brand-500;

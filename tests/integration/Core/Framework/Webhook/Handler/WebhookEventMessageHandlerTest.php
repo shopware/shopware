@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Webhook\Handler;
 
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
@@ -69,7 +71,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
         $webhookEventId = Uuid::randomHex();
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
 
         $webhookEventLogRepository->create([[
             'id' => $webhookEventId,
@@ -109,6 +111,18 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
         static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_SUCCESS);
+        static::assertEquals(
+            [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'sw-version' => '6.4',
+                    AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => Defaults::LANGUAGE_SYSTEM,
+                    AuthMiddleware::SHOPWARE_USER_LANGUAGE => 'en-GB',
+                ],
+                'body' => $payload,
+            ],
+            $webhookEventLog->getRequestContent()
+        );
     }
 
     /**
@@ -149,7 +163,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
         $webhookEventId = Uuid::randomHex();
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
 
         $webhookEventLogRepository->create([[
             'id' => $webhookEventId,
@@ -230,7 +244,11 @@ class WebhookEventMessageHandlerTest extends TestCase
         ]], Context::createDefaultContext());
 
         $webhookEventId = Uuid::randomHex();
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
+        $customHeaders = [
+            'X-Custom-Header' => 'custom-value',
+            'X-Another-Header' => 'another-value',
+        ];
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, $customHeaders);
 
         $this->appendNewResponse(new Response(200));
 
@@ -254,6 +272,9 @@ class WebhookEventMessageHandlerTest extends TestCase
             hash_hmac('sha256', $payload, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
+        // Verify custom webhook headers are sent
+        static::assertSame('custom-value', $request->getHeaderLine('X-Custom-Header'));
+        static::assertSame('another-value', $request->getHeaderLine('X-Another-Header'));
     }
 
     public function testNonJsonErrorResponse(): void
@@ -290,7 +311,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
         $webhookEventId = Uuid::randomHex();
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
 
         $webhookEventLogRepository->create([[
             'id' => $webhookEventId,
@@ -325,5 +346,71 @@ class WebhookEventMessageHandlerTest extends TestCase
             'headers' => [],
             'body' => '<h1>not json</h1>',
         ]);
+    }
+
+    public function testNetworkErrorThrowsWebhookFailed(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+
+        $appRepository = static::getContainer()->get('app.repository');
+        $appRepository->create([[
+            'id' => $appId,
+            'name' => 'SwagApp',
+            'active' => true,
+            'path' => __DIR__ . '/Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'test',
+            'appSecret' => 's3cr3t',
+            'integration' => [
+                'label' => 'test',
+                'accessKey' => 'api access key',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'name' => 'SwagApp',
+            ],
+            'webhooks' => [
+                [
+                    'id' => $webhookId,
+                    'name' => 'hook1',
+                    'eventName' => 'order',
+                    'url' => 'https://test.com',
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
+
+        $this->appendNewResponse(new ConnectException('Connection refused', new Request('POST', 'https://test.com')));
+
+        $this->expectException(WebhookException::class);
+        $this->expectExceptionMessage('Connection refused');
+
+        ($this->webhookEventMessageHandler)($webhookEventMessage);
+    }
+
+    /**
+     * @param array<string, string> $webhookHeaders
+     */
+    private function createWebhookEventMessage(
+        string $webhookEventId,
+        string $appId,
+        string $webhookId,
+        array $webhookHeaders = []
+    ): WebhookEventMessage {
+        return new WebhookEventMessage(
+            $webhookEventId,
+            ['body' => 'payload'],
+            $appId,
+            $webhookId,
+            '6.4',
+            'http://test.com',
+            's3cr3t',
+            Defaults::LANGUAGE_SYSTEM,
+            'en-GB',
+            $webhookHeaders
+        );
     }
 }

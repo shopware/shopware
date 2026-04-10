@@ -47,7 +47,7 @@ class EntityDispatcher
             return;
         }
 
-        if (empty($entities)) {
+        if ($entities === []) {
             return;
         }
 

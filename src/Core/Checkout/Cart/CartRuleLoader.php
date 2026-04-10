@@ -131,7 +131,7 @@ class CartRuleLoader implements ResetInterface
         // For existing carts filter rules to only contain the rules from the current cart
         if ($new === false) {
             $rules = $rules->filter(
-                fn (RuleEntity $rule) => \in_array($rule->getId(), $originalCart->getRuleIds(), true)
+                static fn (RuleEntity $rule) => \in_array($rule->getId(), $originalCart->getRuleIds(), true)
             );
         }
 

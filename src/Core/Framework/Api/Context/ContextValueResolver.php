@@ -12,6 +12,9 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 #[Package('framework')]
 class ContextValueResolver implements ValueResolverInterface
 {
+    /**
+     * @return \Generator<Context>
+     */
     public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
         if ($argument->getType() !== Context::class) {

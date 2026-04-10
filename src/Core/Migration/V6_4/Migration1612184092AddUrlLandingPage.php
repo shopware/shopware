@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1612184092AddUrlLandingPage extends MigrationStep
@@ -36,7 +34,7 @@ class Migration1612184092AddUrlLandingPage extends MigrationStep
             ['routeName' => 'frontend.landing.page']
         );
 
-        if (empty($seoUrlTemplate)) {
+        if ($seoUrlTemplate === []) {
             $connection->insert('seo_url_template', [
                 'id' => Uuid::randomBytes(),
                 /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Legacy usage in old migration) */

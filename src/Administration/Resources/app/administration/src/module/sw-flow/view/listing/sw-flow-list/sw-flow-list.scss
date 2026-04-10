@@ -1,15 +1,22 @@
-@import "~scss/variables";
-
-.sw-flow-list-card {
-    overflow: hidden;
-
-    .mt-card__content {
-        padding: 0;
-    }
-}
-
 .sw-flow-list {
-    .sw-flow-list__empty-state {
-        min-height: 550px;
+    &-card {
+        overflow: hidden;
+
+        .mt-card__content {
+            padding: 0;
+        }
+    }
+
+    &__empty-state {
+        min-height: 34.375rem;
+    }
+
+    &__event-name {
+        min-width: var(--scale-size-256);
+    }
+
+    .sw-empty-state__icon {
+        display: flex;
+        justify-content: center;
     }
 }

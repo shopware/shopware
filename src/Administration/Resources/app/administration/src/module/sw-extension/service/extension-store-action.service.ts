@@ -48,7 +48,6 @@ interface License {
     paymentText: string;
     netPrice: number;
     nextBookingDate: string | null;
-    // eslint-disable-next-line no-use-before-define
     licensedExtension: Extension;
 }
 

@@ -45,7 +45,7 @@
                 :class="`sw-settings-rule-detail-assignments__entity-listing-${entity.id}`"
                 :is-loading="isLoading"
                 :detail-route="entity.detailRoute"
-                :items="entity.loadedData"
+                :data-source="entity.loadedData"
                 :repository="entity.repository"
                 :local-mode="false"
                 :criteria-limit="5"

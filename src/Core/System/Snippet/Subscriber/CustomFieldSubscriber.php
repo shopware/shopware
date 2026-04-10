@@ -50,7 +50,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
                     $snippetSets = $this->connection->fetchAllAssociative('SELECT id, iso FROM snippet_set');
                 }
 
-                if (empty($snippetSets)) {
+                if ($snippetSets === []) {
                     return;
                 }
 
@@ -58,7 +58,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
             }
         }
 
-        if (empty($snippets)) {
+        if ($snippets === []) {
             return;
         }
 

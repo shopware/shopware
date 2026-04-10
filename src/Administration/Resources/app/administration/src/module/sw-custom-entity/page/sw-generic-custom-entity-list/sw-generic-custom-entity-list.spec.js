@@ -82,6 +82,7 @@ async function createWrapper(query = {}) {
                         props: [
                             'repository',
                             'items',
+                            'dataSource',
                             'allow-inline-edit',
                             'allow-column-edit',
                             'columns',
@@ -175,7 +176,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
             },
         ]);
 
-        const criteriaData = entityListingProps.items.criteria.getCriteriaData();
+        const criteriaData = entityListingProps.dataSource.criteria.getCriteriaData();
         expect(criteriaData).toStrictEqual({
             aggregations: [],
             associations: [],
@@ -201,7 +202,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
             totalCountMode: 1,
         });
 
-        expect(entityListingProps.items).toStrictEqual(testEntityData);
+        expect(entityListingProps.dataSource).toStrictEqual(testEntityData);
     });
 
     it('changes to content language with the language switch', async () => {
@@ -249,7 +250,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
         expect(entityListingProps.naturalSorting).toBe(false);
         expect(entityListingProps.criteriaLimit).toBe(10);
 
-        const criteriaData = entityListingProps.items.criteria.getCriteriaData();
+        const criteriaData = entityListingProps.dataSource.criteria.getCriteriaData();
         expect(criteriaData).toStrictEqual({
             aggregations: [],
             associations: [],
@@ -395,7 +396,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
         expect(entityListingProps.naturalSorting).toBe(false);
         expect(entityListingProps.criteriaLimit).toBe(10);
 
-        const criteriaData = entityListingProps.items.criteria.getCriteriaData();
+        const criteriaData = entityListingProps.dataSource.criteria.getCriteriaData();
         expect(criteriaData).toStrictEqual({
             aggregations: [],
             associations: [],

@@ -57,7 +57,7 @@ class EntitySearchResultTest extends TestCase
 
         $count = 0;
 
-        $newInstance = $entitySearchResult->filter(function () use (&$count) {
+        $newInstance = $entitySearchResult->filter(static function () use (&$count) {
             return $count++ > 5;
         });
 

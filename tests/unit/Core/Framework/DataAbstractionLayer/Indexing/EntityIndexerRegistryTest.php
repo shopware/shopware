@@ -51,7 +51,7 @@ class EntityIndexerRegistryTest extends TestCase
     {
         $this->dispatcherMock->expects($this->exactly(4))
             ->method('dispatch')
-            ->willReturnCallback(function ($event) {
+            ->willReturnCallback(static function ($event) {
                 if ($event instanceof ProgressStartedEvent || $event instanceof ProgressFinishedEvent) {
                     return $event;
                 }

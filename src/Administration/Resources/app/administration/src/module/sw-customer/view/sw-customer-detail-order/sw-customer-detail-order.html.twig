@@ -43,7 +43,7 @@
             v-if="(orders && orders.total > 0) || term"
             :columns="orderColumns"
             :repository="orderRepository"
-            :items="orders"
+            :data-source="orders"
             :allow-column-edit="false"
             :show-settings="false"
             :show-selection="false"

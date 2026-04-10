@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\ImportExportProfileDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1717573310ImportExportTechnicalNameRequired;
 
@@ -30,10 +31,8 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         $connection = self::getContainer()->get(Connection::class);
-        $columns = $connection->fetchAllAssociative('SHOW COLUMNS FROM `import_export_profile`');
-        $columns = array_column($columns, 'Field');
 
-        if (!\in_array('name', $columns, true)) {
+        if (!TableHelper::columnExists($connection, 'import_export_profile', 'name')) {
             $connection->executeStatement('ALTER TABLE `import_export_profile` ADD COLUMN `name` VARCHAR(255) NULL');
             self::$nameColumnAdded = true;
         }
@@ -50,8 +49,7 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
-        $this->connection
-            ->executeStatement('ALTER TABLE `import_export_profile` MODIFY COLUMN `technical_name` VARCHAR(255) NULL');
+        $this->connection->executeStatement('ALTER TABLE `import_export_profile` MODIFY COLUMN `technical_name` VARCHAR(255) NULL');
     }
 
     protected function tearDown(): void
@@ -66,11 +64,8 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $manager = $this->connection->createSchemaManager();
-        $columns = $manager->listTableColumns(ImportExportProfileDefinition::ENTITY_NAME);
-
-        static::assertArrayHasKey('technical_name', $columns);
-        static::assertTrue($columns['technical_name']->getNotnull());
+        $technicalNameColumn = TableHelper::getColumnOfTable($this->connection, ImportExportProfileDefinition::ENTITY_NAME, 'technical_name');
+        static::assertTrue($technicalNameColumn->isNotNull);
     }
 
     /**

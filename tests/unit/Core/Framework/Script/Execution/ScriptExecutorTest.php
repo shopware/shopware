@@ -6,10 +6,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\InterfaceHook;
+use Shopware\Core\Framework\Script\Execution\ScriptEnvironmentFactory;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptException;
-use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -24,8 +24,7 @@ class ScriptExecutorTest extends TestCase
             $this->createMock(ScriptLoader::class),
             $this->createMock(ScriptTraces::class),
             $this->createMock(ContainerInterface::class),
-            new TranslationExtension(),
-            '6.7.0.0',
+            $this->createMock(ScriptEnvironmentFactory::class),
         );
 
         try {

@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -24,7 +25,7 @@ class Migration1728040169AddPrimaryOrderDelivery extends MigrationStep
         // No foreign key set both from order -> (primary) order delivery on
         // purpose so the DAL can handle the circular reference. We have a similar situation with the order and order
         // address.
-        if (!$this->columnExists($connection, 'order', 'primary_order_delivery_id')) {
+        if (!TableHelper::columnExists($connection, 'order', 'primary_order_delivery_id')) {
             $connection->executeStatement(
                 'ALTER TABLE `order`
                 ADD COLUMN `primary_order_delivery_id` BINARY(16) NULL DEFAULT NULL,
@@ -47,7 +48,7 @@ class Migration1728040169AddPrimaryOrderDelivery extends MigrationStep
                 ['limit' => ParameterType::INTEGER]
             );
 
-            if (empty($ids)) {
+            if ($ids === []) {
                 break;
             }
 
@@ -61,7 +62,7 @@ class Migration1728040169AddPrimaryOrderDelivery extends MigrationStep
                             FROM `order_delivery`
                             WHERE `order_delivery`.`order_id` = `order`.`id`
                             AND `order_delivery`.`order_version_id` = `order`.`version_id`
-                            ORDER BY `order_delivery`.`created_at` DESC
+                            ORDER BY JSON_EXTRACT(`order_delivery`.`shipping_costs`, \'$.unitPrice\') DESC
                             LIMIT 1
                         )
                     SET `order`.`primary_order_delivery_id` = `primary_order_delivery`.`id`,

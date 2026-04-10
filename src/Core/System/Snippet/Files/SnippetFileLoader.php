@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Kernel;
-use Shopware\Core\System\Snippet\Service\TranslationLoader;
+use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
@@ -37,7 +37,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         private readonly AppSnippetFileLoader $appSnippetFileLoader,
         private readonly ActiveAppsLoader $activeAppsLoader,
         private readonly TranslationConfig $config,
-        private readonly TranslationLoader $translationLoader,
+        private readonly AbstractTranslationLoader $translationLoader,
         private readonly Filesystem $translationReader,
     ) {
     }
@@ -64,7 +64,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
             . '.*$#';
 
         $excludedPathsRegexp = array_map(
-            fn (string $path) => \sprintf($translationPathRegexpTemplate, self::SCOPE_PLUGINS, $path),
+            static fn (string $path) => \sprintf($translationPathRegexpTemplate, self::SCOPE_PLUGINS, $path),
             $exclude
         );
 
@@ -75,9 +75,9 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
 
         $translationFiles = $this->translationReader
             ->listContents($localesBasePath, true)
-            ->filter(fn (StorageAttributes $node) => $node->isFile())
-            ->filter(fn (StorageAttributes $node) => \str_ends_with($node->path(), '.json'))
-            ->filter(fn (StorageAttributes $node) => \preg_filter($excludedPathsRegexp, 'EXCLUDED', $node->path()) !== 'EXCLUDED');
+            ->filter(static fn (StorageAttributes $node) => $node->isFile())
+            ->filter(static fn (StorageAttributes $node) => \str_ends_with($node->path(), '.json'))
+            ->filter(static fn (StorageAttributes $node) => \preg_filter($excludedPathsRegexp, 'EXCLUDED', $node->path()) !== 'EXCLUDED');
 
         $isPluginPathCheckRegexp = \sprintf($translationPathRegexpTemplate, self::SCOPE_PLATFORM . '|' . self::SCOPE_PLUGINS, '');
         foreach ($translationFiles as $translationFile) {
@@ -248,7 +248,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     {
         $excludedLocales = $this->config->excludedLocales;
 
-        if (empty($excludedLocales)) {
+        if ($excludedLocales === []) {
             return null;
         }
 

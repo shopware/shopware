@@ -19,7 +19,7 @@ class RuleCollection extends EntityCollection
     public function filterMatchingRules(Cart $cart, SalesChannelContext $context): self
     {
         return $this->filter(
-            function (RuleEntity $rule) use ($cart, $context) {
+            static function (RuleEntity $rule) use ($cart, $context) {
                 if (!$rule->getPayload() instanceof Rule) {
                     return false;
                 }
@@ -32,14 +32,14 @@ class RuleCollection extends EntityCollection
     public function filterForContext(): self
     {
         return $this->filter(
-            fn (RuleEntity $rule) => !$rule->getAreas() || !\in_array(RuleAreas::FLOW_CONDITION_AREA, $rule->getAreas(), true)
+            static fn (RuleEntity $rule) => !$rule->getAreas() || !\in_array(RuleAreas::FLOW_CONDITION_AREA, $rule->getAreas(), true)
         );
     }
 
     public function filterForFlow(): self
     {
         return $this->filter(
-            fn (RuleEntity $rule) => $rule->getAreas() && \in_array(RuleAreas::FLOW_AREA, $rule->getAreas(), true)
+            static fn (RuleEntity $rule) => $rule->getAreas() && \in_array(RuleAreas::FLOW_AREA, $rule->getAreas(), true)
         );
     }
 
@@ -61,7 +61,7 @@ class RuleCollection extends EntityCollection
 
     public function sortByPriority(): void
     {
-        $this->sort(fn (RuleEntity $a, RuleEntity $b) => $b->getPriority() <=> $a->getPriority());
+        $this->sort(static fn (RuleEntity $a, RuleEntity $b) => $b->getPriority() <=> $a->getPriority());
     }
 
     public function equals(RuleCollection $rules): bool

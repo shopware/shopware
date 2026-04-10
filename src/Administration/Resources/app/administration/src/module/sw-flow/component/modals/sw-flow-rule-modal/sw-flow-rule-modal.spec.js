@@ -70,6 +70,7 @@ async function createWrapper() {
                         template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
                     },
                     'sw-condition-tree': true,
+                    'mt-banner': true,
                     'sw-extension-component-section': true,
                     'router-link': true,
                     'sw-select-selection-list': true,
@@ -119,5 +120,22 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
         await flushPromises();
 
         expect(wrapper.emitted()['process-finish']).toBeTruthy();
+    });
+
+    it('should show deprecation warning when legacy product states condition exists', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.conditions = [
+            {
+                type: 'cartLineItemProductStates',
+            },
+        ];
+        await wrapper.vm.$nextTick();
+
+        const banner = wrapper.find('mt-banner-stub.sw-flow-rule-modal__product-type-warning');
+        expect(wrapper.vm.showProductStateConditionWarning).toBe(true);
+        expect(banner.exists()).toBe(true);
+        expect(banner.attributes('variant')).toBe('attention');
     });
 });

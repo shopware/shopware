@@ -48,6 +48,22 @@ describe('scripts/codemods/sfc-migration/analyze-component', () => {
             expect(result.status).toBe('not-migratable');
             expect(result.blockers).toContain('render function');
         });
+
+        it('marks extend-mixin-component as partially-migratable — mixins blocker is detected at options index 2', () => {
+            const result = analyzeComponent('sw-extended-mixin', readFixture('extend-mixin-component.index.js'));
+
+            expect(result.status).toBe('partially-migratable');
+            expect(result.blockers).toContain('mixins');
+            expect(result.blockers).toContain('extends (parent: sw-base)');
+        });
+
+        it('marks extend-render-component as not-migratable — render blocker is detected at options index 2', () => {
+            const result = analyzeComponent('sw-extended-render', readFixture('extend-render-component.index.js'));
+
+            expect(result.status).toBe('not-migratable');
+            expect(result.blockers).toContain('render function');
+            expect(result.blockers).toContain('extends (parent: sw-base)');
+        });
     });
 
     describe('categorization of the full fixture batch', () => {

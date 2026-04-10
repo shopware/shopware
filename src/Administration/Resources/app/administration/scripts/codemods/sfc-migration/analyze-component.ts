@@ -57,8 +57,10 @@ function detectBlockers(jsContent: string): string[] {
 
     const blockers: string[] = [];
 
+    const isExtend = /Shopware\.Component\.extend/.test(registerCall?.getExpression().getText() ?? '');
+
     // `extend()` itself is a soft blocker; record parent component name for the migration report
-    if (/Shopware\.Component\.extend/.test(registerCall?.getExpression().getText() ?? '')) {
+    if (isExtend) {
         const parentArg = registerCall?.getArguments()[1];
         const parentName = parentArg?.isKind(SyntaxKind.StringLiteral)
             ? parentArg.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue()
@@ -66,12 +68,13 @@ function detectBlockers(jsContent: string): string[] {
         blockers.push(parentName ? `extends (parent: ${parentName})` : 'extends');
     }
 
-    const secondArg = registerCall?.getArguments()[1];
-    if (!secondArg?.isKind(SyntaxKind.ObjectLiteralExpression)) {
+    const optionsArgIndex = isExtend ? 2 : 1;
+    const optionsArg = registerCall?.getArguments()[optionsArgIndex];
+    if (!optionsArg?.isKind(SyntaxKind.ObjectLiteralExpression)) {
         return blockers;
     }
 
-    const optionsObj = secondArg.asKindOrThrow(SyntaxKind.ObjectLiteralExpression);
+    const optionsObj = optionsArg.asKindOrThrow(SyntaxKind.ObjectLiteralExpression);
 
     // `mixins: […]` → soft blocker (can't be automatically inlined)
     if (optionsObj.getProperty('mixins')) {

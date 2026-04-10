@@ -63,9 +63,9 @@ jobs:
     secrets: inherit
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   downstream:
+    if: false
     uses: ./.github/workflows/downstream.yml
     secrets: inherit
-    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       nightly: true
   prepare-release: # This will only execute dry-runs and push current trunk to the many-repos

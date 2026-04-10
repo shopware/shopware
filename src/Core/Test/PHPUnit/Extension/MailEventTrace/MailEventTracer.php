@@ -13,7 +13,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class MailEventTracer
 {
-    /** @var list<string> */
+    /**
+     * @var list<string>
+     */
     private array $traces = [];
 
     private ?EventDispatcherInterface $dispatcher = null;
@@ -31,12 +33,26 @@ class MailEventTracer
             return;
         }
 
+        // If the test already registered a MailSentEvent listener in setUp,
+        // it is explicitly handling mail — skip tracing for this test.
+        if ($this->dispatcher->getListeners(MailSentEvent::class) !== []) {
+            $this->dispatcher = null;
+
+            return;
+        }
+
         $this->listener = function (MailSentEvent $event): void {
-            $this->traces[] = \sprintf(
-                "Subject: %s\n%s",
-                $event->getSubject(),
-                (new \Exception())->getTraceAsString(),
+            $frames = \array_filter(
+                \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS),
+                static fn (array $frame): bool => isset($frame['file']) && !\str_contains($frame['file'], \DIRECTORY_SEPARATOR . 'vendor' . \DIRECTORY_SEPARATOR),
             );
+
+            $trace = \implode("\n", \array_map(
+                static fn (array $frame): string => \sprintf('  %s(%d)', $frame['file'], $frame['line'] ?? 0),
+                \array_values($frames),
+            ));
+
+            $this->traces[] = \sprintf("Subject: %s\n%s", $event->getSubject(), $trace);
         };
 
         $this->dispatcher->addListener(MailSentEvent::class, $this->listener, \PHP_INT_MAX);

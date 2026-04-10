@@ -86,9 +86,9 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
 
     await test.step('Validate captured requests for product analytics', async () => {
 
-        // We expect 7 events in total, but they can be in multiple requests
+        // We expect 9 events in total, but they can be in multiple requests
         // 1 anonymous event for consent status change, which is fired when merchant gives consent for product analytics
-        // 6 events for user interactions
+        // 8 events for user interactions
         const requests = parseCapturedRequests(capturedRequests);
         expect(requests).toHaveLength(5);
 
@@ -108,20 +108,25 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
             'page_viewed',
         ]);
 
-        requests.forEach((request) => {
+        const anonymousRequests = requests.filter((request) => request.user?.id == null);
+        const authenticatedRequests = requests.filter((request) => request.user?.id != null);
 
-            if (request.user?.id == null) {
-                // Anonymous user event
-                expect(request.context.sw_version).toBeTruthy();
+        expect(anonymousRequests).toHaveLength(1);
+        expect(authenticatedRequests).toHaveLength(4);
 
-                request.events.forEach((event) => {
+        for (const request of anonymousRequests) {
+            expect(request.context.sw_version).toBeTruthy();
+            expect(request.context.sw_app_url).toBeUndefined();
 
-                    expect(event.timestamp).toBeGreaterThan(0);
-                    expect(event.name).toBeTruthy();
-                    expect(event.properties).toBeTruthy();
-                });
-                return;
+            for (const event of request.events) {
+                expect(event.timestamp).toBeGreaterThan(0);
+                expect(event.name).toBeTruthy();
+                expect(event.device_id).toBeUndefined();
+                expect(event.properties).toBeTruthy();
             }
+        }
+
+        for (const request of authenticatedRequests) {
             expect(request.user.shop_id).toBeTruthy();
             expect(request.user.id).toBeTruthy();
             expect(request.context.sw_version).toBeTruthy();
@@ -134,13 +139,13 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
             expect(request.context.sw_screen_height).toBeGreaterThan(0);
             expect(request.context.sw_screen_orientation).toBeTruthy();
 
-            request.events.forEach((event) => {
+            for (const event of request.events) {
                 expect(event.timestamp).toBeGreaterThan(0);
                 expect(event.insert_id).toBeTruthy();
                 expect(event.device_id).toBeTruthy();
                 expect(event.session_id).toBeGreaterThan(0);
-            });
-        });
+            }
+        }
 
         const [
             consentStatusChange,

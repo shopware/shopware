@@ -93,12 +93,14 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(requests).toHaveLength(5);
 
         const events = requests.flatMap((request) => request.events);
-        expect(events).toHaveLength(7);
+        expect(events).toHaveLength(9);
 
         const eventNames = events.map(e => e.name);
         expect(eventNames).toEqual([
             'consent_status_change',
             'link_visited',
+            'page_viewed',
+            'page_viewed',
             'page_viewed',
             'link_visited',
             'page_viewed',
@@ -144,6 +146,8 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
             consentStatusChange,
             firstLinkVisited,
             pageViewed,
+            pageViewed1,
+            pageViewed2,
             linkVisited,
             pageViewedDetail,
             buttonClicked,
@@ -170,7 +174,27 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(pageViewEventProps.sw_route_to_href).toBe('/sw/order/index');
         expect(pageViewEventProps.sw_page_name).toBe('sw.order.index');
         expect(pageViewEventProps.sw_page_path).toBe('/sw/order/index');
-        expect(pageViewEventProps.sw_page_full_path).toContain('/sw/order/index?limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false');
+        expect(pageViewEventProps.sw_page_full_path).toContain('/sw/order/index');
+
+        const pageView1EventProps = pageViewed1.properties;
+
+        expect(pageView1EventProps.sw_route_from_name).toBe('sw.order.index');
+        expect(pageView1EventProps.sw_route_from_href).toBe('/sw/order/index');
+        expect(pageView1EventProps.sw_route_to_name).toBe('sw.order.index');
+        expect(pageView1EventProps.sw_route_to_href).toBe('/sw/order/index');
+        expect(pageView1EventProps.sw_page_name).toBe('sw.order.index');
+        expect(pageView1EventProps.sw_page_path).toBe('/sw/order/index');
+        expect(pageView1EventProps.sw_page_full_path).toContain('/sw/order/index?limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false');
+
+        const pageView2EventProps = pageViewed2.properties;
+
+        expect(pageView2EventProps.sw_route_from_name).toBe('sw.order.index');
+        expect(pageView2EventProps.sw_route_from_href).toBe('/sw/order/index');
+        expect(pageView2EventProps.sw_route_to_name).toBe('sw.order.index');
+        expect(pageView2EventProps.sw_route_to_href).toBe('/sw/order/index');
+        expect(pageView2EventProps.sw_page_name).toBe('sw.order.index');
+        expect(pageView2EventProps.sw_page_path).toBe('/sw/order/index');
+        expect(pageView2EventProps.sw_page_full_path).toContain('/sw/order/index?limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false&grid.filter.order=null');
 
         const linkVisitedProps = linkVisited.properties;
 

@@ -12,6 +12,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Validation\Requirements\PublicAccess;
 use Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -192,7 +193,7 @@ class PublicAccessTest extends TestCase
     private function createManifestMock(string $appName = 'test-app'): Manifest
     {
         $manifest = $this->createMock(Manifest::class);
-        $metadata = \Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata::fromArray([
+        $metadata = Metadata::fromArray([
             'name' => $appName,
             'label' => [],
             'author' => 'myApp',

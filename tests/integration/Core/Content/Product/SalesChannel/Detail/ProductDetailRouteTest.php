@@ -448,6 +448,115 @@ class ProductDetailRouteTest extends TestCase
         );
     }
 
+    public function testLoadInheritedProductCmsSlotConfigFromParentProductLanguageOverride(): void
+    {
+        $context = Context::createDefaultContext();
+        $this->createLanguages($context);
+
+        $slotId = $this->ids->create('translated-parent-slot');
+        $parentProductId = $this->ids->create('translated-parent-product');
+        $variantProductId = $this->ids->create('translated-variant-product');
+
+        static::getContainer()->get('product.repository')->create([[
+            'id' => $parentProductId,
+            'name' => 'Translated parent product',
+            'productNumber' => 'translated-parent-product',
+            'stock' => 10,
+            'active' => true,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'tax' => ['name' => 'tax', 'taxRate' => 15],
+            'visibilities' => [
+                ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+            'cmsPage' => [
+                'id' => $this->ids->create('translated-parent-product-cms-page'),
+                'type' => 'product_detail',
+                'sections' => [[
+                    'id' => $this->ids->create('translated-parent-section'),
+                    'type' => 'default',
+                    'position' => 0,
+                    'blocks' => [[
+                        'id' => $this->ids->create('translated-parent-block'),
+                        'type' => 'text',
+                        'position' => 0,
+                        'slots' => [[
+                            'id' => $slotId,
+                            'type' => 'text',
+                            'slot' => 'content',
+                            'config' => [
+                                'content' => [
+                                    'source' => 'static',
+                                    'value' => 'layout placeholder',
+                                ],
+                            ],
+                        ]],
+                    ]],
+                ]],
+            ],
+            'slotConfig' => [
+                $slotId => [
+                    'content' => [
+                        'source' => 'static',
+                        'value' => 'default language override',
+                    ],
+                ],
+            ],
+            'children' => [[
+                'id' => $variantProductId,
+                'productNumber' => 'translated-variant-product',
+                'stock' => 10,
+                'active' => true,
+                'options' => [],
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                ],
+            ]],
+            'configuratorSettings' => [],
+        ]], $context);
+
+        $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->get('sales-channel'),
+            'languageId' => self::LANGUAGE_IDS['de'],
+            'languages' => [
+                ['id' => self::LANGUAGE_IDS['en']],
+                ['id' => self::LANGUAGE_IDS['de']],
+            ],
+            'domains' => [[
+                'languageId' => self::LANGUAGE_IDS['de'],
+                'currencyId' => Defaults::CURRENCY,
+                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                'url' => 'http://localhost/de-test',
+            ]],
+        ]);
+
+        $this->browser->request('GET', '/store-api/context');
+        $contextResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
+            $contextResponse['token'],
+            $this->ids->get('sales-channel'),
+            [SalesChannelContextService::LANGUAGE_ID => self::LANGUAGE_IDS['de']],
+        );
+
+        $response = static::getContainer()->get(ProductDetailRoute::class)->load(
+            $parentProductId,
+            new Request(),
+            $salesChannelContext,
+            new Criteria(),
+        );
+
+        static::assertSame($variantProductId, $response->getProduct()->getId());
+
+        $slot = $response->getProduct()
+            ->getCmsPage()?->getSections()?->first()?->getBlocks()?->first()?->getSlots()?->first();
+
+        static::assertSame(
+            'default language override',
+            $slot?->getConfig()['content']['value'] ?? null
+        );
+    }
+
     /**
      * @param array<string, string> $expected
      * @param array<string, string> $actual

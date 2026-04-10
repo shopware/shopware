@@ -178,15 +178,17 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     private function buildMergedCmsSlotConfig(SalesChannelProductEntity $product, SalesChannelContext $context): ?array
     {
         return $this->cmsSlotConfigInheritanceBuilder->build(
-            $this->loadProductTranslations($product->getId(), $context),
+            $this->loadProductTranslations($product, $context),
             $context,
         );
     }
 
-    private function loadProductTranslations(string $productId, SalesChannelContext $context): ?ProductTranslationCollection
+    private function loadProductTranslations(SalesChannelProductEntity $product, SalesChannelContext $context): ?ProductTranslationCollection
     {
+        $productIds = array_filter([$product->getParentId(), $product->getId()]);
+
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('productId', $productId));
+        $criteria->addFilter(new EqualsAnyFilter('productId', $productIds));
         $criteria->addFilter(new EqualsFilter('productVersionId', $context->getVersionId()));
 
         /** @var ProductTranslationCollection $translations */
@@ -196,7 +198,33 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             return null;
         }
 
-        return $translations;
+        return $this->buildInheritedProductTranslations($translations, $product);
+    }
+
+    private function buildInheritedProductTranslations(ProductTranslationCollection $translations, SalesChannelProductEntity $product): ProductTranslationCollection
+    {
+        $effectiveTranslations = [];
+        $parentId = $product->getParentId();
+
+        foreach ($translations as $translation) {
+            if ($translation->getSlotConfig() === null) {
+                continue;
+            }
+
+            $languageId = $translation->getLanguageId();
+
+            if ($translation->getProductId() === $parentId) {
+                $effectiveTranslations[$languageId] ??= $translation;
+
+                continue;
+            }
+
+            if ($translation->getProductId() === $product->getId()) {
+                $effectiveTranslations[$languageId] = $translation;
+            }
+        }
+
+        return new ProductTranslationCollection(array_values($effectiveTranslations));
     }
 
     private function checkVariantListingConfig(string $productId, SalesChannelContext $context): ?string

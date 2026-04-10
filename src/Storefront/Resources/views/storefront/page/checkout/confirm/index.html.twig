@@ -209,7 +209,9 @@
                                               placeholder="{{ 'checkout.customerCommentPlaceholder'|trans|sw_sanitize }}"
                                               id="{{ constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY') }}"
                                               form="confirmOrderForm"
-                                              name="{{ constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY') }}"></textarea>
+                                              name="{{ constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY') }}"
+                                              data-checkout-customer-comment-storage="true"
+                                              data-checkout-customer-comment-storage-options="{{ { customerId: context.customer.id }|json_encode }}"></textarea>
                                 {% endblock %}
                             </div>
                         {% endblock %}
@@ -321,6 +323,7 @@
         <form id="confirmOrderForm"
               action="{{ confirmOrderFormAction }}"
               data-form-preserver="true"
+              data-form-preserver-options="{{ { ignoredElementNames: [constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY')] }|json_encode }}"
               data-form-handler="true"
               data-form-handler-options="{{ { formFieldSelector: null }|json_encode }}"
               data-form-add-history="true"

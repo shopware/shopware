@@ -259,16 +259,15 @@
                         {% endblock %}
 
                         {% block sw_sales_channel_detail_base_general_input_sales_channel %}
-                        <sw-multi-select
-                            v-if="numberRange && (!numberRange.global || numberRange.global === false)"
+                        <sw-entity-multi-select
+                            v-if="numberRange && (!numberRange.global || numberRange.global === false) && selectedSalesChannelsCollection"
                             class="sw-number-range-detail__select-type"
                             :label="$tc('sw-settings-number-range.detail.labelSalesChannel')"
                             :disabled="!numberRange.typeId || !acl.can('number_ranges.editor')"
-                            :value="selectedNumberRangeSalesChannels"
-                            :options="salesChannels"
-                            name="sw-field--selectedNumberRangeSalesChannels"
+                            entity-name="sales_channel"
+                            :entity-collection="selectedSalesChannelsCollection"
+                            :criteria="salesChannelCriteria"
                             label-property="translated.name"
-                            value-property="id"
                             @item-add="addSalesChannel"
                             @item-remove="removeSalesChannel"
                         />

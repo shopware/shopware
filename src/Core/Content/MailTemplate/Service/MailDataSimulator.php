@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent;
 use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\AbstractProvider;
@@ -97,6 +98,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\HttpFoundation\IpUtils;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -117,6 +119,7 @@ class MailDataSimulator
         private readonly BusinessEventCollector $businessEventCollector,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly EntityRepository $languageRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
         iterable $dataProviders,
     ) {
         $this->dataProviders = $dataProviders instanceof \Traversable ? iterator_to_array($dataProviders) : $dataProviders;
@@ -150,7 +153,8 @@ class MailDataSimulator
                 ->addAssociation('mailHeaderFooter')
                 ->addAssociation('domains'),
             $entityCache,
-            $faker
+            $faker,
+            $context
         );
 
         foreach ($eventData as $name => $type) {
@@ -183,7 +187,8 @@ class MailDataSimulator
                 $definition,
                 $dataProvider?->getCriteria('mail template test id', $context),
                 $entityCache,
-                $faker
+                $faker,
+                $context
             );
         }
 
@@ -212,14 +217,19 @@ class MailDataSimulator
     /**
      * @param array<string, Entity> $entityCache
      */
-    private function getEntityData(EntityDefinition|string $definition, ?Criteria $criteria, array &$entityCache, Generator $faker): Entity
-    {
+    private function getEntityData(
+        EntityDefinition|string $definition,
+        ?Criteria $criteria,
+        array &$entityCache,
+        Generator $faker,
+        Context $context
+    ): Entity {
         if (\is_string($definition)) {
             $definition = $this->definitionRegistry->getByClassOrEntityName($definition);
         }
 
         if (!\array_key_exists($definition::class, $entityCache)) {
-            $this->generateEntityData($definition, $entityCache, $faker);
+            $this->generateEntityData($definition, $entityCache, $faker, $context);
         }
 
         $cachedEntity = $entityCache[$definition::class];
@@ -229,7 +239,15 @@ class MailDataSimulator
         $fields = $definition->getFields();
 
         foreach ($fields as $field) {
-            $entity->assign([$field->getPropertyName() => $this->getEntityField($definition, $field, $cachedEntity, $criteria, $entityCache, $faker)]);
+            $entity->assign([$field->getPropertyName() => $this->getEntityField(
+                $definition,
+                $field,
+                $cachedEntity,
+                $criteria,
+                $entityCache,
+                $faker,
+                $context
+            )]);
         }
 
         return $entity;
@@ -238,8 +256,15 @@ class MailDataSimulator
     /**
      * @param array<string, Entity> $entityCache
      */
-    private function getEntityField(EntityDefinition $definition, Field $field, Entity $cachedEntity, ?Criteria $criteria, array &$entityCache, Generator $faker): mixed
-    {
+    private function getEntityField(
+        EntityDefinition $definition,
+        Field $field,
+        Entity $cachedEntity,
+        ?Criteria $criteria,
+        array &$entityCache,
+        Generator $faker,
+        Context $context
+    ): mixed {
         $propertyName = $field->getPropertyName();
 
         if (
@@ -259,22 +284,48 @@ class MailDataSimulator
             $data = [];
 
             foreach ($translatedFields as $translatedField) {
-                $data[$translatedField->getPropertyName()] = $this->getEntityField($definition, $translatedField, $cachedEntity, $criteria?->getAssociation(EntityDefinition::TRANSLATED_FIELD), $entityCache, $faker);
+                $data[$translatedField->getPropertyName()] = $this->getEntityField(
+                    $definition,
+                    $translatedField,
+                    $cachedEntity,
+                    $criteria?->getAssociation(EntityDefinition::TRANSLATED_FIELD),
+                    $entityCache,
+                    $faker,
+                    $context
+                );
             }
 
             return $data;
         } elseif ($field instanceof ManyToManyAssociationField) {
-            return $this->getEntityData($field->getToManyReferenceDefinition(), $criteria?->getAssociation($propertyName), $entityCache, $faker);
+            return $this->getEntityData(
+                $field->getToManyReferenceDefinition(),
+                $criteria?->getAssociation($propertyName),
+                $entityCache,
+                $faker,
+                $context
+            );
         } elseif ($field instanceof OneToManyAssociationField) {
             $toManyDefinition = $field->getReferenceDefinition();
 
             $collection = new ($toManyDefinition->getCollectionClass());
             \assert($collection instanceof EntityCollection);
-            $collection->add($this->getEntityData($toManyDefinition, $criteria?->getAssociation($propertyName), $entityCache, $faker));
+            $collection->add($this->getEntityData(
+                $toManyDefinition,
+                $criteria?->getAssociation($propertyName),
+                $entityCache,
+                $faker,
+                $context
+            ));
 
             return $collection;
         } elseif ($field instanceof AssociationField) {
-            return $this->getEntityData($field->getReferenceClass(), $criteria?->getAssociation($propertyName), $entityCache, $faker);
+            return $this->getEntityData(
+                $field->getReferenceClass(),
+                $criteria?->getAssociation($propertyName),
+                $entityCache,
+                $faker,
+                $context
+            );
         }
 
         return $cachedEntity->get($propertyName);
@@ -283,12 +334,12 @@ class MailDataSimulator
     /**
      * @param array<string, Entity> $entityCache
      */
-    private function generateEntityData(EntityDefinition|string $definition, array &$entityCache, Generator $faker): Entity
-    {
-        if (\is_string($definition)) {
-            $definition = $this->definitionRegistry->getByClassOrEntityName($definition);
-        }
-
+    private function generateEntityData(
+        EntityDefinition $definition,
+        array &$entityCache,
+        Generator $faker,
+        Context $context
+    ): Entity {
         if (\array_key_exists($definition::class, $entityCache)) {
             return $entityCache[$definition::class];
         }
@@ -304,19 +355,20 @@ class MailDataSimulator
         foreach ($fields as $field) {
             $propertyName = $field->getPropertyName();
 
-            if ($field::class === TranslationsAssociationField::class) {
+            if ($field instanceof TranslationsAssociationField) {
                 $entity->assign([
                     EntityDefinition::TRANSLATED_FIELD => $this->generateEntityData(
                         $field->getReferenceClass(),
                         $entityCache,
                         $faker,
+                        $context,
                     )->jsonSerialize(),
                 ]);
             }
 
             if (
                 $field->getFlag(ApiAware::class) === null
-                || ($field::class === JsonField::class && $propertyName === EntityDefinition::TRANSLATED_FIELD)
+                || ($field instanceof JsonField && $propertyName === EntityDefinition::TRANSLATED_FIELD)
             ) {
                 continue;
             }
@@ -331,7 +383,7 @@ class MailDataSimulator
                 continue;
             }
 
-            if ($field::class === ManyToManyIdField::class) {
+            if ($field instanceof ManyToManyIdField) {
                 $associationField = $fields->get($field->getAssociationName());
                 \assert($associationField instanceof ManyToManyAssociationField);
 
@@ -349,14 +401,15 @@ class MailDataSimulator
                 $referencedEntity = $this->generateEntityData(
                     $fkField->getReferenceClass(),
                     $entityCache,
-                    $faker
+                    $faker,
+                    $context
                 );
 
                 $entity->assign([$propertyName => [$referencedEntity->get($fkField->getReferenceField())]]);
                 continue;
             }
 
-            $entity->assign([$propertyName => $this->generateFieldData($field, $entityCache, $faker)]);
+            $entity->assign([$propertyName => $this->generateFieldData($field, $entityCache, $faker, $context)]);
         }
 
         foreach ($translatedFields as $field) {
@@ -369,23 +422,33 @@ class MailDataSimulator
     /**
      * @param array<string, Entity> $entityCache
      */
-    private function generateFieldData(Field $field, array &$entityCache, Generator $faker): mixed
+    private function generateFieldData(Field $field, array &$entityCache, Generator $faker, Context $context): mixed
     {
         $propertyName = $field->getPropertyName();
 
-        switch ($field::class) {
-            case AutoIncrementField::class:
+        $event = new MailDataSimulatorFieldEvent($field, $context, $faker);
+        $this->eventDispatcher->dispatch($event);
+
+        if ($event->hasValue()) {
+            return $event->getValue();
+        }
+
+        switch (true) {
+            case $field instanceof AutoIncrementField:
                 return $faker->numberBetween();
-            case BlobField::class:
+
+            case $field instanceof BlobField:
                 return $propertyName;
-            case BoolField::class:
-            case LockedField::class:
+
+            case $field instanceof BoolField:
+            case $field instanceof LockedField:
                 return false;
-            case BreadcrumbField::class:
-            case EnumField::class:
-            case ListField::class:
-                return [];
-            case CalculatedPriceField::class:
+
+            case $field instanceof ParentAssociationField:
+            case $field instanceof ParentFkField:
+                return null;
+
+            case $field instanceof CalculatedPriceField:
                 return new CalculatedPrice(
                     $faker->randomFloat(2, 1, 10000),
                     $faker->randomFloat(2, 1, 10000),
@@ -398,7 +461,8 @@ class MailDataSimulator
                         $faker->randomElement([7.0, 19.0]),
                     )]),
                 );
-            case CartPriceField::class:
+
+            case $field instanceof CartPriceField:
                 return new CartPrice(
                     $faker->randomFloat(2, 1, 10000),
                     $faker->randomFloat(2, 1, 10000),
@@ -413,37 +477,44 @@ class MailDataSimulator
                     )]),
                     $faker->word(),
                 );
-            case CashRoundingConfigField::class:
+
+            case $field instanceof CashRoundingConfigField:
                 return new CashRoundingConfig(
                     2,
                     0.01,
                     false
                 );
-            case ChildCountField::class:
-            case IntField::class:
-            case TreeLevelField::class:
+
+            case $field instanceof ChildCountField:
+            case $field instanceof IntField:
+            case $field instanceof TreeLevelField:
                 return $faker->randomNumber();
-            case ChildrenAssociationField::class:
-            case ManyToOneAssociationField::class:
-            case OneToOneAssociationField::class:
-                return $this->generateEntityData($field->getReferenceClass(), $entityCache, $faker);
-            case ConfigJsonField::class:
-            case CustomFields::class:
-            case JsonField::class:
-            case ObjectField::class:
-            case PriceDefinitionField::class:
-            case PriceField::class:
-            case SlotConfigField::class:
-            case TaxFreeConfigField::class:
-            case TreeBreadcrumbField::class:
-            case VariantListingConfigField::class:
-            case VersionDataPayloadField::class:
+
+            case $field instanceof ChildrenAssociationField:
+            case $field instanceof ManyToOneAssociationField:
+            case $field instanceof OneToOneAssociationField:
+                return $this->generateEntityData($field->getReferenceClass(), $entityCache, $faker, $context);
+
+            case $field instanceof MeasurementUnitsField:
+                return MeasurementUnits::createDefaultUnits();
+
+            case $field instanceof ConfigJsonField:
+            case $field instanceof CustomFields:
+            case $field instanceof ObjectField:
+            case $field instanceof PriceDefinitionField:
+            case $field instanceof PriceField:
+            case $field instanceof SlotConfigField:
+            case $field instanceof TaxFreeConfigField:
+            case $field instanceof TreeBreadcrumbField:
+            case $field instanceof VariantListingConfigField:
+            case $field instanceof VersionDataPayloadField:
+            case $field instanceof JsonField:
                 $jsonFields = $field->getPropertyMapping();
 
                 $data = [];
 
                 foreach ($jsonFields as $jsonField) {
-                    $data[$jsonField->getPropertyName()] = $this->generateFieldData($jsonField, $entityCache, $faker);
+                    $data[$jsonField->getPropertyName()] = $this->generateFieldData($jsonField, $entityCache, $faker, $context);
                 }
 
                 try {
@@ -452,47 +523,57 @@ class MailDataSimulator
                 }
 
                 return $data;
-            case CreatedAtField::class:
-            case DateField::class:
-            case DateTimeField::class:
-            case UpdatedAtField::class:
+
+            case $field instanceof CreatedAtField:
+            case $field instanceof DateField:
+            case $field instanceof DateTimeField:
+            case $field instanceof UpdatedAtField:
                 return $this->randomDateTime($faker);
-            case CreatedByField::class:
-            case FkField::class:
-            case ReferenceVersionField::class:
-            case StateMachineStateField::class:
-            case UpdatedByField::class:
-            case VersionField::class:
-                return $this->generateEntityData($field->getReferenceClass(), $entityCache, $faker)->get($field->getReferenceField());
-            case CronIntervalField::class:
+
+            case $field instanceof CreatedByField:
+            case $field instanceof ReferenceVersionField:
+            case $field instanceof StateMachineStateField:
+            case $field instanceof UpdatedByField:
+            case $field instanceof VersionField:
+            case $field instanceof FkField:
+                return $this->generateEntityData($field->getReferenceClass(), $entityCache, $faker, $context)->get($field->getReferenceField());
+
+            case $field instanceof CronIntervalField:
                 return '8 * * * *';
-            case DateIntervalField::class:
+
+            case $field instanceof DateIntervalField:
                 return (string) (new DateInterval('PT30M'));
-            case EmailField::class:
+
+            case $field instanceof EmailField:
                 return $faker->email();
-            case FloatField::class:
+
+            case $field instanceof FloatField:
                 return $faker->randomFloat(2, 1, 10000);
-            case IdField::class:
+
+            case $field instanceof IdField:
                 return Uuid::fromStringToHex($faker->uuid());
-            case LongTextField::class:
-            case TreePathField::class:
+
+            case $field instanceof TreePathField:
+            case $field instanceof LongTextField:
                 return '"' . $faker->text() . '"';
-            case ManyToManyAssociationField::class:
-                $entity = $this->generateEntityData($field->getToManyReferenceDefinition(), $entityCache, $faker);
+
+            case $field instanceof ManyToManyAssociationField:
+                $entity = $this->generateEntityData($field->getToManyReferenceDefinition(), $entityCache, $faker, $context);
 
                 $collection = new ($this->getCollectionClass($entity))();
                 \assert($collection instanceof EntityCollection);
                 $collection->add($entity);
 
                 return $collection;
-            case ManyToManyIdField::class:
-                break;
-            case MeasurementUnitsField::class:
-                return MeasurementUnits::createDefaultUnits();
-            case NumberRangeField::class:
+
+            case $field instanceof ManyToManyIdField:
+                return null;
+
+            case $field instanceof NumberRangeField:
                 return '"' . $faker->randomNumber() . '"';
-            case OneToManyAssociationField::class:
-                $entity = $this->generateEntityData($field->getReferenceClass(), $entityCache, $faker);
+
+            case $field instanceof OneToManyAssociationField:
+                $entity = $this->generateEntityData($field->getReferenceClass(), $entityCache, $faker, $context);
 
                 $collection = new ($this->getCollectionClass($entity))();
                 \assert($collection instanceof EntityCollection);
@@ -508,20 +589,22 @@ class MailDataSimulator
                 $collection->add($entity);
 
                 return $collection;
-            case ParentAssociationField::class:
-            case ParentFkField::class:
-                return null;
-            case PasswordField::class:
+
+            case $field instanceof PasswordField:
                 return '"' . $faker->password() . '"';
-            case RemoteAddressField::class:
+
+            case $field instanceof RemoteAddressField:
                 return '"' . IpUtils::anonymize($faker->ipv4()) . '"';
-            case StringField::class:
-                return '"' . $faker->text(20) . '"';
-            case TimeZoneField::class:
+
+            case $field instanceof TimeZoneField:
                 return '"' . $faker->timezone() . '"';
-            case TranslationsAssociationField::class:
-                $entity = $this->generateEntityData($field->getReferenceClass(), $entityCache, $faker);
-                $language = $this->generateEntityData(LanguageDefinition::class, $entityCache, $faker);
+
+            case $field instanceof StringField:
+                return '"' . $faker->text(20) . '"';
+
+            case $field instanceof TranslationsAssociationField:
+                $entity = $this->generateEntityData($field->getReferenceClass(), $entityCache, $faker, $context);
+                $language = $this->generateEntityData(LanguageDefinition::class, $entityCache, $faker, $context);
 
                 $entity->setUniqueIdentifier($language->getUniqueIdentifier());
 
@@ -530,9 +613,14 @@ class MailDataSimulator
                 $collection->add($entity);
 
                 return $collection;
+
+            case $field instanceof BreadcrumbField:
+            case $field instanceof EnumField:
+            case $field instanceof ListField:
+                return [];
         }
 
-        throw MailTemplateException::unknownFieldDataType($field::class);
+        return null;
     }
 
     private function createFaker(Context $context, ?int $seed = null): Generator

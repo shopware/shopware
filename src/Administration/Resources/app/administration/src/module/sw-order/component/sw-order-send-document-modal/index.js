@@ -236,7 +236,7 @@ export default {
                         )
                         .catch(() => {
                             this.createNotificationError({
-                                message: this.$tc('sw-order.documentSendModal.errorMessage'),
+                                message: this.$t('sw-order.documentSendModal.errorMessage'),
                             });
                             this.$emit('modal-close');
                         })

@@ -401,7 +401,7 @@
     "convertGuestTitle": "Erstelle Kundenkonto",
     "convertGuestInfo": "Setze ein Passwort für <span class=\"account-guest-conversion__subtitle\">%email%</span>",
     "privacyNoticeTextModal": "Mit der Festlegung eines Passworts bestätigen Sie, dass Sie unsere %privacyModalTagOpen%Datenschutzhinweise%privacyModalTagClose% gelesen und unsere %tosModalTagOpen%Allgemeinen Geschäftsbedingungen%tosModalTagClose% akzeptiert haben.",
-    "convertSucceeded": "Ihr Konto wurde erfolgreich umgewandelt. Sie können sich jetzt anmelden"
+    "convertSucceeded": "Ihr Kundenkonto wurde erfolgreich erstellt. Sie können sich jetzt anmelden."
   },
   "address": {
     "streetLabel": "Straße und Hausnummer",

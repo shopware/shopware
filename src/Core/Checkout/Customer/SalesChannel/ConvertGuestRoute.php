@@ -72,8 +72,8 @@ class ConvertGuestRoute extends AbstractConvertGuestRoute
             throw CustomerException::registeredCustomerCannotBeConverted($customer->getId());
         }
 
-        if (($request = $this->requestStack->getMainRequest()) !== null) {
-            $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, strtolower($customer->getId() . '-' . $request->getClientIp()));
+        if ($this->requestStack->getMainRequest() !== null) {
+            $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $customer->getId());
         }
 
         $requestDataBag->add([

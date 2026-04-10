@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Content\Flow\Dispatching\CachedFlowLoader;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -438,6 +439,9 @@ class OrderRouteTest extends TestCase
 
     public function testSetSamePaymentMethodToOrder(): void
     {
+        // Reset flow cache to avoid pollution from previous tests
+        static::getContainer()->get(CachedFlowLoader::class)->invalidate();
+
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $this->mailSentEventCounter = 0;
 

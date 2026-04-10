@@ -9,23 +9,34 @@ Automatically converts Shopware Administration components from the Options API (
 
 ## Usage
 
-Pass the directory you want to migrate as the first argument:
+Run from inside `src/Administration/Resources/app/administration/`:
 
 ```bash
-npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts <path>
-```
+# Preview what would be migrated (default — no files written)
+npm run codemod:sfc-migration -- <path>
+npm run codemod:sfc-migration -- --dry-run <path>
 
-The script scans `<path>` recursively for `index.js` files and converts every component it finds alongside a `.html.twig` file.
+# Write .vue files to disk (skips existing .vue files)
+npm run codemod:sfc-migration -- --write <path>
+
+# Overwrite existing .vue files
+npm run codemod:sfc-migration -- --write --force <path>
+
+# Write .vue files and delete the source index.js + .html.twig afterwards
+npm run codemod:sfc-migration -- --write --delete-originals <path>
+```
 
 **Examples:**
 
 ```bash
 # Migrate a single component
-npx tsx run-sfc-migration.ts src/Resources/app/administration/src/component/my-component
+npm run codemod:sfc-migration -- src/app/component/base/sw-button
 
 # Migrate an entire plugin's administration folder
-npx tsx run-sfc-migration.ts src/Resources/app/administration/src
+npm run codemod:sfc-migration -- --write src/Resources/app/administration/src
 ```
+
+Pass `<path>` relative to the `administration/` directory, or use an absolute path.
 
 Components are expected to follow this structure:
 

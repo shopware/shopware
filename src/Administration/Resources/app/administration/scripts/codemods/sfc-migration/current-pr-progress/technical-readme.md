@@ -232,21 +232,21 @@ Combines template and script results into a `.vue` file string.
 
 ### `run-sfc-migration.ts`
 
-CLI runner. Invoked via:
+CLI runner. Invoked via (from `src/Administration/Resources/app/administration/`):
 
 ```bash
 # Preview only (default — no files written)
-npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts <target-directory>
-npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts --dry-run <target-directory>
+npm run codemod:sfc-migration -- <target-directory>
+npm run codemod:sfc-migration -- --dry-run <target-directory>
 
 # Write .vue files to disk (skips existing .vue files by default)
-npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts --write <target-directory>
+npm run codemod:sfc-migration -- --write <target-directory>
 
 # Write .vue files, overwriting any that already exist
-npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts --write --force <target-directory>
+npm run codemod:sfc-migration -- --write --force <target-directory>
 
 # Write .vue files and delete the source index.js + .html.twig afterwards
-npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts --write --delete-originals <target-directory>
+npm run codemod:sfc-migration -- --write --delete-originals <target-directory>
 ```
 
 **What it does:**
@@ -329,6 +329,6 @@ Each item below has a corresponding `.unfinished.md` file in this directory:
 | [normalise-js-content-fragile.finished.md](normalise-js-content-fragile.finished.md) | ✅ `normaliseJsContent` rewritten with ts-morph AST; 2 regression tests added |
 | [pr-description.unfinished.md](pr-description.unfinished.md) | PR description body is empty |
 | [pr-checklist.unfinished.md](pr-checklist.unfinished.md) | PR checklist items are all unchecked |
-| [codemod-tooling-integration.unfinished.md](codemod-tooling-integration.unfinished.md) | Not wired into the admin codemod CLI tooling |
+| [codemod-tooling-integration.finished.md](codemod-tooling-integration.finished.md) | ✅ `npm run codemod:sfc-migration` added to `package.json`; `import.meta.url` replaced with CJS `__filename` |
 | [untested-conversions.finished.md](untested-conversions.finished.md) | ✅ All conversion paths now have dedicated fixtures and tests; `findOptionsObject` bug fixed |
 | [real-component-validation.unfinished.md](real-component-validation.unfinished.md) | No validation run against real Administration components |

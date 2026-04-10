@@ -5,8 +5,8 @@
  * use `export default {}` (instead of `Shopware.Component.register`) are
  * normalised automatically so the transformation logic can handle both styles.
  *
- * Usage:
- *   npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts [--dry-run | --write] [--force] [--delete-originals] <path>
+ * Usage (from src/Administration/Resources/app/administration/):
+ *   npm run codemod:sfc-migration -- [--dry-run | --write] [--force] [--delete-originals] <path>
  *
  * Flags:
  *   --dry-run          (default) Preview what would be written without writing files
@@ -16,20 +16,17 @@
  *                      (only applies to fully- and partially-migrated components in --write mode)
  *
  * Examples:
- *   npx tsx run-sfc-migration.ts src/app/component/base/sw-button
- *   npx tsx run-sfc-migration.ts --write src/Resources/app/administration/src
- *   npx tsx run-sfc-migration.ts --write --force src/Resources/app/administration/src
- *   npx tsx run-sfc-migration.ts --write --delete-originals src/Resources/app/administration/src
+ *   npm run codemod:sfc-migration -- src/app/component/base/sw-button
+ *   npm run codemod:sfc-migration -- --write src/Resources/app/administration/src
+ *   npm run codemod:sfc-migration -- --write --force src/Resources/app/administration/src
+ *   npm run codemod:sfc-migration -- --write --delete-originals src/Resources/app/administration/src
  */
 
 import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { globSync } from 'glob';
 import { Project, ScriptKind } from 'ts-morph';
 import { mergeComponentFiles } from './generate-sfc';
-
-const __filename = fileURLToPath(import.meta.url);
 
 export interface RunOptions {
     dryRun: boolean;

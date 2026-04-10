@@ -101,14 +101,8 @@ The `:data="$dataScope"` binding is hard-coded in `transform-template.ts` but `$
 Components using `.extend()` are flagged as partially-migratable and dropped to Options API backoff without any attempt to inline the parent component's options.  
 **Needed:** If in-scope, add extend-inlining; otherwise document clearly that this pattern requires manual migration.
 
-### 12. Codemod Not Integrated Into Existing Admin Codemod Tooling
-The codemod is only usable via manual invocation (`npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts <path>`). It is not a first-class Shopware codemod:
-
-- No `package.json` script entry
-- No integration into `src/Administration/Resources/app/administration/code-mods.js`
-- No entry in the existing codemod CLI flow used elsewhere in Administration
-
-**Needed:** Wire the codemod into the standard admin codemod entrypoints.
+### ~~12. Codemod Not Integrated Into Existing Admin Codemod Tooling~~ ✅ Done
+`"codemod:sfc-migration"` npm script added to `package.json`, matching the existing `codemod:*` pattern. `run-sfc-migration.ts` was also fixed to remove `import.meta.url` (ESM-only; incompatible with `ts-node --transpileOnly`), replacing it with the CJS-native `__filename` global. `README.md` updated with the canonical `npm run codemod:sfc-migration -- ...` usage. `code-mods.js` is a separate ESLint-based plugin-quality tool — no integration there was appropriate.
 
 ### ~~13. Several Conversions Are Coded But Not Proven by Tests~~ ✅ Done
 All conversion paths now have dedicated fixtures and tests. A bug in `findOptionsObject` was also fixed: it was reading the wrong argument index for `Shopware.Component.extend()` calls (3 args), causing them to be incorrectly classified as `not-migratable`. The fix makes `.extend()` components correctly reach the `partially-migratable` soft-blocker path.

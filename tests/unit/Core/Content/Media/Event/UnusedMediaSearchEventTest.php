@@ -9,45 +9,20 @@ use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature\FeatureException;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(UnusedMediaSearchEvent::class)]
 class UnusedMediaSearchEventTest extends TestCase
 {
-    public function testGetIds(): void
+    public function testConstructorRequiresContextWhenFeatureActive(): void
     {
-        $event = new UnusedMediaSearchEvent(['1', '2', '3'], Context::createDefaultContext());
-        static::assertSame(['1', '2', '3'], $event->getUnusedIds());
-    }
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
 
-    public function testGetContext(): void
-    {
-        $context = Context::createDefaultContext();
-        $event = new UnusedMediaSearchEvent(['1'], $context);
-        static::assertSame($context, $event->getContext());
-    }
-
-    public function testGetContextThrowsWithoutContext(): void
-    {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
-        $event = @new UnusedMediaSearchEvent(['1', '2', '3']);
-
-        $this->expectException(MediaException::class);
-        $event->getContext();
-    }
-
-    public function testGetNullableContextReturnsNullWithoutContext(): void
-    {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
-        $event = @new UnusedMediaSearchEvent(['1', '2', '3']);
-
-        static::assertNull(@$event->getNullableContext());
+        $this->expectException(FeatureException::class);
+        new UnusedMediaSearchEvent(['1', '2', '3']);
     }
 
     /**
@@ -62,17 +37,34 @@ class UnusedMediaSearchEventTest extends TestCase
         static::assertSame($expectedIds, $event->getUnusedIds());
     }
 
-    /**
-     * @return array<string, array{idsToRemove: array<string>, expectedIds: array<string>}>
-     */
-    public static function removeIdsProvider(): array
+    public function testGetContextThrowsWithoutContext(): void
     {
-        return [
-            'remove-last-id' => ['idsToRemove' => ['3'], 'expectedIds' => ['1', '2']],
-            'remove-middle-id' => ['idsToRemove' => ['2'], 'expectedIds' => ['1', '3']],
-            'remove-multiple' => ['idsToRemove' => ['1', '2'], 'expectedIds' => ['3']],
-            'remove-all' => ['idsToRemove' => ['1', '2', '3'], 'expectedIds' => []],
-            'remove-non-existing-elem' => ['idsToRemove' => ['4'], 'expectedIds' => ['1', '2', '3']],
-        ];
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $event = new UnusedMediaSearchEvent(['1', '2', '3']);
+
+        $this->expectExceptionObject(MediaException::invalidEventData('No context provided. Pass $context to the constructor of ' . UnusedMediaSearchEvent::class));
+        $event->getContext();
+    }
+
+    public function testGetNullableContextReturnsNullWithoutContext(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $event = new UnusedMediaSearchEvent(['1', '2', '3']);
+
+        static::assertNull($event->getNullableContext());
+    }
+
+    /**
+     * @return iterable<string, array{idsToRemove: array<string>, expectedIds: array<string>}>
+     */
+    public static function removeIdsProvider(): iterable
+    {
+        yield 'remove-last-id' => ['idsToRemove' => ['3'], 'expectedIds' => ['1', '2']];
+        yield 'remove-middle-id' => ['idsToRemove' => ['2'], 'expectedIds' => ['1', '3']];
+        yield 'remove-multiple' => ['idsToRemove' => ['1', '2'], 'expectedIds' => ['3']];
+        yield 'remove-all' => ['idsToRemove' => ['1', '2', '3'], 'expectedIds' => []];
+        yield 'remove-non-existing-elem' => ['idsToRemove' => ['4'], 'expectedIds' => ['1', '2', '3']];
     }
 }

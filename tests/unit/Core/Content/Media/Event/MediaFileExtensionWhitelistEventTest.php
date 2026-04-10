@@ -6,45 +6,30 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\MediaException;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature\FeatureException;
 
 /**
  * @internal
  */
-#[Package('discovery')]
 #[CoversClass(MediaFileExtensionWhitelistEvent::class)]
 class MediaFileExtensionWhitelistEventTest extends TestCase
 {
-    public function testGetters(): void
+    public function testConstructorRequiresContextWhenFeatureActive(): void
     {
-        $whitelist = ['jpg', 'png', 'gif'];
-        $context = Context::createDefaultContext();
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
 
-        $event = new MediaFileExtensionWhitelistEvent($whitelist, $context);
-
-        static::assertSame($whitelist, $event->getWhitelist());
-        static::assertSame($context, $event->getContext());
-    }
-
-    public function testSetWhitelist(): void
-    {
-        $event = new MediaFileExtensionWhitelistEvent(['jpg'], Context::createDefaultContext());
-
-        $newWhitelist = ['png', 'webp'];
-        $event->setWhitelist($newWhitelist);
-
-        static::assertSame($newWhitelist, $event->getWhitelist());
+        $this->expectException(FeatureException::class);
+        new MediaFileExtensionWhitelistEvent(['jpg']);
     }
 
     public function testGetContextThrowsWithoutContext(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
-        $event = @new MediaFileExtensionWhitelistEvent(['jpg']);
+        $event = new MediaFileExtensionWhitelistEvent(['jpg']);
 
-        $this->expectException(MediaException::class);
+        $this->expectExceptionObject(MediaException::invalidEventData('No context provided. Pass $context to the constructor of ' . MediaFileExtensionWhitelistEvent::class));
         $event->getContext();
     }
 
@@ -52,8 +37,8 @@ class MediaFileExtensionWhitelistEventTest extends TestCase
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
-        $event = @new MediaFileExtensionWhitelistEvent(['jpg']);
+        $event = new MediaFileExtensionWhitelistEvent(['jpg']);
 
-        static::assertNull(@$event->getNullableContext());
+        static::assertNull($event->getNullableContext());
     }
 }

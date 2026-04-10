@@ -9,56 +9,52 @@ use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature\FeatureException;
 
 /**
  * @internal
  */
-#[Package('fundamentals@after-sales')]
 #[CoversClass(ImportExportBeforeExportRecordEvent::class)]
 class ImportExportBeforeExportRecordEventTest extends TestCase
 {
-    public function testGetters(): void
+    public function testConstructorRequiresContextWhenFeatureActive(): void
     {
-        $config = new Config([], [], []);
-        $record = ['key' => 'value'];
-        $originalRecord = ['key' => 'original'];
-        $context = Context::createDefaultContext();
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
 
-        $event = new ImportExportBeforeExportRecordEvent($config, $record, $originalRecord, $context);
-
-        static::assertSame($config, $event->getConfig());
-        static::assertSame($record, $event->getRecord());
-        static::assertSame($originalRecord, $event->getOriginalRecord());
-        static::assertSame($context, $event->getContext());
+        $this->expectException(FeatureException::class);
+        new ImportExportBeforeExportRecordEvent(
+            new Config([], [], []),
+            ['key' => 'value'],
+            ['key' => 'original']
+        );
     }
 
-    public function testSetRecord(): void
+    public function testSetRecordDoesNotMutateOriginalRecord(): void
     {
+        $originalRecord = ['key' => 'original'];
         $event = new ImportExportBeforeExportRecordEvent(
             new Config([], [], []),
             ['key' => 'value'],
-            ['key' => 'original'],
+            $originalRecord,
             Context::createDefaultContext()
         );
 
-        $newRecord = ['key' => 'new'];
-        $event->setRecord($newRecord);
+        $event->setRecord(['key' => 'new']);
 
-        static::assertSame($newRecord, $event->getRecord());
+        static::assertSame($originalRecord, $event->getOriginalRecord());
     }
 
     public function testGetContextThrowsWithoutContext(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
-        $event = @new ImportExportBeforeExportRecordEvent(
+        $event = new ImportExportBeforeExportRecordEvent(
             new Config([], [], []),
             ['key' => 'value'],
             ['key' => 'original']
         );
 
-        $this->expectException(ImportExportException::class);
+        $this->expectExceptionObject(ImportExportException::invalidEventData('No context provided. Pass $context to the constructor of ' . ImportExportBeforeExportRecordEvent::class));
         $event->getContext();
     }
 
@@ -66,12 +62,12 @@ class ImportExportBeforeExportRecordEventTest extends TestCase
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
-        $event = @new ImportExportBeforeExportRecordEvent(
+        $event = new ImportExportBeforeExportRecordEvent(
             new Config([], [], []),
             ['key' => 'value'],
             ['key' => 'original']
         );
 
-        static::assertNull(@$event->getNullableContext());
+        static::assertNull($event->getNullableContext());
     }
 }

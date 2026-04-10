@@ -1,5 +1,5 @@
-import { test, expect, Page } from '@fixtures/AcceptanceTest';
-import { parseCapturedRequests, setupProductAnalyticsInterceptor, waitForCapturedRequests } from '@helpers/productanalytics-helpers';
+import { test, expect, Page, Locator } from '@fixtures/AcceptanceTest';
+import { parseCapturedRequests, removeSymfonyToolbar, setupProductAnalyticsInterceptor, waitForCapturedRequests } from '@helpers/productanalytics-helpers';
 import { createNewAdminPageContext, loginToAdministration, User } from '@shopware-ag/acceptance-test-suite';
 
 const PRODUCT_ANALYTICS_ENDPOINT = 'event';
@@ -19,6 +19,8 @@ test(
 
         let page: Page;
         let adminUser: User;
+        let consentModal: Locator;
+        let rejectAllButton: Locator;
 
         await test.step('Setup page object before login to shopware administration', async () => {
 
@@ -61,28 +63,45 @@ test(
         });
 
         await test.step('Validate modal appeared.', async () => {
-            await expect(page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Help us to improve Shopware' }) }) ).toBeVisible();
+            consentModal = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Help us to improve Shopware' }) });
+            const shareStoreDataHeadline = consentModal.getByRole('heading', { name: 'Store data' });
+            const shareStoreDataText = consentModal.getByText(
+                'Anonymous data from your Shopware environment such as orders, diagnostic data, and store data helps us to improve features. You can find an overview of all collected data and details of the agreement here.'
+            );
+            const shareStoreDataCheckbox = consentModal.getByRole('checkbox', { name: 'Share store data (anonymous)' });
+            const shareUsageDataHeadline = consentModal.getByRole('heading', { name: 'Usage data' });
+            const shareUsageDataText = consentModal.getByText(
+                'We use personal usage data about how you interact with the administration to continously improve usability. You can find all details in our Privacy Policy.'
+            );
+            const shareUsageDataCheckbox = consentModal.getByRole('checkbox', { name: 'Share Usage data' });
+            const storeDataCollectionDetailsLink = consentModal.getByRole('link', { name: 'here' });
+            const privacyPolicyLink = consentModal.getByRole('link', { name: 'Privacy Policy' });
+            const allowAllButton = consentModal.getByRole('button', { name: 'Allow all' });
+            rejectAllButton = consentModal.getByRole('button', { name: 'Reject All' });
+
+            await expect(consentModal).toBeVisible();
+            await expect(shareStoreDataCheckbox).not.toBeChecked();
+            await expect(shareStoreDataHeadline).toBeVisible();
+            await expect(shareStoreDataText).toBeVisible();
+            await expect(shareUsageDataHeadline).toBeVisible();
+            await expect(shareUsageDataText).toBeVisible();
+            await expect(shareUsageDataCheckbox).toBeVisible();
+            await expect(shareUsageDataCheckbox).not.toBeChecked();
+            await expect(storeDataCollectionDetailsLink).toBeVisible();
+            await expect(privacyPolicyLink).toBeVisible();
+            await expect(allowAllButton).toBeVisible();
+            await expect(rejectAllButton).toBeVisible();
         });
 
         await test.step('Reject all consents.', async () => {
 
-            await page.addStyleTag({
-                content: `
-                .sf-toolbar {
-                    width: 0 !important;
-                    height: 0 !important;
-                    display: none !important;
-                    pointer-events: none !important;
-                }
-                `.trim(),
-            });
-
-            await page.getByRole('button', { name: 'Reject all' }).click();
+            await removeSymfonyToolbar(page);
+            await rejectAllButton.click();
             await waitForCapturedRequests(capturedRequests, 4);
         });
 
         await test.step('Validate modal disappeared.', async () => {
-            await expect(page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Help us to improve Shopware' }) }) ).toBeHidden();
+            await expect(consentModal).toBeHidden();
         });
 
         await test.step('Validate anonymous events are fired.', async () => {

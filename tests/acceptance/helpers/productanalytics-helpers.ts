@@ -1,4 +1,4 @@
-import type { Route } from '@playwright/test';
+import type { Route, Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 
 export interface CapturedRequest {
@@ -86,4 +86,19 @@ export async function waitForCapturedRequests(
     expectedCount: number
 ) {
     await expect.poll(() => capturedRequests.length, { timeout: 10_000 }).toBe(expectedCount);
+}
+
+export async function removeSymfonyToolbar(page: Page): Promise<boolean>{
+
+    await page.addStyleTag({
+        content: `
+                .sf-toolbar {
+                    width: 0 !important;
+                    height: 0 !important;
+                    display: none !important;
+                    pointer-events: none !important;
+                }
+                `.trim(),
+    });
+    return true;
 }

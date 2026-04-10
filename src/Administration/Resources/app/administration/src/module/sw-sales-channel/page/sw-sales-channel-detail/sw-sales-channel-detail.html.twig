@@ -68,9 +68,9 @@
                 <sw-tabs-item
                     v-if="isAgenticCommerce && !isLoading"
                     :route="{ name: 'sw.sales.channel.detail.productExportInsights', params: { id: $route.params.id } }"
-                    :title="$tc('sw-sales-channel.detail.productExport.tabInsights')"
+                    :title="$t('sw-sales-channel.detail.productExport.tabInsights')"
                 >
-                    {{ $tc('sw-sales-channel.detail.productExport.tabInsights') }}
+                    {{ $t('sw-sales-channel.detail.productExport.tabInsights') }}
                 </sw-tabs-item>
                 {% endblock %}
 

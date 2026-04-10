@@ -52,7 +52,7 @@ export default class CookiePermissionPlugin extends Plugin {
     }
 
     /**
-     * Sets a focus trap for the cookie bar
+     * Sets a automatic focus to the cookie bar
      * @private
      * @returns {void}
      */

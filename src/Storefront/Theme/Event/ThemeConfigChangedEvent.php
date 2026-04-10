@@ -40,6 +40,7 @@ class ThemeConfigChangedEvent extends Event implements ShopwareEvent
 
     public function getContext(): Context
     {
+        // tag:v6.8.0 - Remove this null check, $context will be required
         if ($this->context === null) {
             throw FrameworkException::invalidEventData('No context provided. Pass $context to the constructor of ' . static::class);
         }

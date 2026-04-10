@@ -574,24 +574,15 @@ shopware:
 
 ## Events require `Context` constructor parameter
 
-The following events now require `Context` as the last constructor parameter and implement `ShopwareEvent`. In 6.7, omitting `$context` triggers a deprecation notice. In 6.8, the parameter becomes required and the deprecated `getNullableContext()` method is removed.
+The following events now require `Context` as the last constructor parameter and implement `ShopwareEvent`.
+The deprecated `getNullableContext()` method was removed.
 
-**Dispatchers (constructing events):**
 ```php
 // Before
 $event = new ThemeAssignedEvent($themeId, $salesChannelId);
 
 // After
 $event = new ThemeAssignedEvent($themeId, $salesChannelId, $context);
-```
-
-**Consumers (reading context) during 6.7 migration:**
-```php
-// If you cannot guarantee the dispatcher passed $context, use the deprecated helper:
-$context = $event->getNullableContext() ?? Context::createDefaultContext();
-
-// In 6.8, $context is always present:
-$context = $event->getContext();
 ```
 
 - `Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent`

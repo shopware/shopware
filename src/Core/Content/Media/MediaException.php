@@ -28,6 +28,9 @@ class MediaException extends HttpException
     public const MEDIA_INVALID_THUMBNAIL_DATA = 'CONTENT__MEDIA_INVALID_THUMBNAIL_DATA';
     public const MEDIA_INVALID_DIMENSION = 'CONTENT__MEDIA_INVALID_DIMENSION';
     public const MEDIA_EXTERNAL_MEDIA_REQUIRED = 'CONTENT__MEDIA_EXTERNAL_MEDIA_REQUIRED';
+    /**
+     * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
+     */
     public const INVALID_EVENT_DATA = 'CONTENT__MEDIA_INVALID_EVENT_DATA';
 
     public const MEDIA_FOLDER_NOT_FOUND = 'CONTENT__MEDIA_FOLDER_NOT_FOUND';
@@ -67,6 +70,9 @@ class MediaException extends HttpException
     public const MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION';
     public const MEDIA_PRESIGNED_UPLOAD_FAILED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_FAILED';
 
+    /**
+     * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
+     */
     public static function invalidEventData(string $message): self
     {
         return new self(

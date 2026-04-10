@@ -333,7 +333,7 @@ Each item below has a corresponding `.unfinished.md` file in this directory:
 | [overwrite-protection.finished.md](overwrite-protection.finished.md) | ✅ Skip existing `.vue` by default; `--force` flag to overwrite; `skippedExisting` counter |
 | [normalise-js-content-fragile.finished.md](normalise-js-content-fragile.finished.md) | ✅ `normaliseJsContent` rewritten with ts-morph AST; 2 regression tests added |
 | [pr-description.finished.md](pr-description.finished.md) | ✅ Full PR description drafted (summary, before/after, tables, run instructions, limitations); paste into PR #15673 |
-| [pr-checklist.unfinished.md](pr-checklist.unfinished.md) | PR checklist items are all unchecked |
+| [pr-checklist.finished.md](pr-checklist.finished.md) | ✅ All checklist items verified; release notes added to `RELEASE_INFO-6.7.md`; TypeScript and linter clean; 198 tests passing |
 | [codemod-tooling-integration.finished.md](codemod-tooling-integration.finished.md) | ✅ `npm run codemod:sfc-migration` added to `package.json`; `import.meta.url` replaced with CJS `__filename` |
 | [untested-conversions.finished.md](untested-conversions.finished.md) | ✅ All conversion paths now have dedicated fixtures and tests; `findOptionsObject` bug fixed |
 | [real-component-validation.finished.md](real-component-validation.finished.md) | ✅ 89 real components processed; `$attrs` and `debounce()` bugs found and fixed; 198 tests passing; results in [real-component-validation-results.md](real-component-validation-results.md) |

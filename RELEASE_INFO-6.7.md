@@ -8,6 +8,22 @@
 
 ## Administration
 
+### SFC migration codemod for Administration components
+
+A new developer tool is available to migrate Shopware Administration components from the legacy two-file format (`index.js` + `.html.twig`) to single-file components (`.vue` SFCs).
+
+Run it via:
+
+```bash
+npm run codemod:sfc-migration -- <target-directory>        # dry-run preview
+npm run codemod:sfc-migration -- --write <target-directory> # write .vue files
+```
+
+The codemod converts Options API to Composition API (`data` → `ref`, `computed`, `watch`, `methods`, lifecycle hooks), rewrites Twig block syntax to `<sw-block>` elements, and merges template + script into a single `.vue` file.
+Components with `render()` functions are skipped; components using `mixins` or `Shopware.Component.extend()` receive a backoff to plain `<script>` so they can be migrated manually.
+
+See `src/Administration/Resources/app/administration/scripts/codemods/sfc-migration/README.md` for full usage, flags, and known limitations.
+
 ### Re-render iframe integrations when location changes
 
 Iframe-based Administration extensions now re-render correctly when their `locationId` changes.

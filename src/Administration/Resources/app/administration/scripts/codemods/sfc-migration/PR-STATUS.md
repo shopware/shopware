@@ -133,9 +133,8 @@ Rewrote `normaliseJsContent` in `run-sfc-migration.ts` using ts-morph AST. The o
 ### ~~10. PR Description Is Incomplete~~ ✅ Done
 Full PR description drafted covering: summary, before/after example (`sw-simple-card`), migration outcomes table, conversion mapping tables, how-to-run instructions, and known limitations. Saved to `current-pr-progress/pr-description.finished.md` — paste into shopware/shopware#15673 (GitHub MCP lacks write access to upstream).
 
-### 11. PR Checklist Unchecked
-None of the PR checklist items are ticked (tests, release notes, docs).  
-**Needed:** Verify each item before the draft is promoted.
+### ~~11. PR Checklist Unchecked~~ ✅ Done
+All checklist items verified: 198 tests passing, release notes entry added to `RELEASE_INFO-6.7.md` under Administration (upcoming), README complete, no debug console.log statements, TypeScript and linter clean. PR description ready to paste. Only remaining open item is the `<sw-block>` companion PR (tracked separately).
 
 ---
 
@@ -148,5 +147,5 @@ The transformation core (template conversion, script conversion, merger, analysi
 3. ~~**`$dataScope` binding** in templates is undefined in the generated script.~~ ✅ Done — auto-generated from `publicNames` in `generate-sfc.ts`.
 4. ~~**Original files are never cleaned up** after migration.~~ ✅ Done — `--delete-originals` flag.
 5. ~~**Runner has no tests**.~~ ✅ Done — 23 tests in `run-sfc-migration.spec.ts`.
-6. ~~**PR description** was blank.~~ ✅ Done — full description drafted and ready to paste. **PR checklist** still needs final verification before promoting draft to ready.
+6. ~~**PR description** was blank.~~ ✅ Done — full description drafted and ready to paste. ~~**PR checklist** still needs final verification before promoting draft to ready.~~ ✅ Done — all items verified; release notes added to `RELEASE_INFO-6.7.md`.
 7. ~~**No validation against real Administration components.**~~ ✅ Done — 89 real components processed; 2 bugs found and fixed (`this.$attrs` → `useAttrs()`, `method: debounce(...)` pattern); 198 tests passing.

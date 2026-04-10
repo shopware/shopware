@@ -1,0 +1,135 @@
+name: Visual Tests Docker
+
+permissions:
+  id-token: write
+
+# Once proven stable, this workflow can be integrated into the integration workflow
+# by adding "Visual" to the "name" matrix element.
+on:
+  workflow_dispatch:
+    inputs:
+      update-snapshots:
+        description: 'Update snapshots?'
+        type: boolean
+        default: false
+      currents:
+        description: 'Report to currents?'
+        type: boolean
+        default: false
+      filter:
+        description: 'Use this field to provide a filter that will be passed to playwrights `--grep` input.'
+        type: string
+        default: ''
+
+  workflow_call:
+    inputs:
+      update-snapshots:
+        description: 'Update snapshots?'
+        type: boolean
+        default: false
+      currents:
+        description: 'Report to currents?'
+        type: boolean
+        default: false
+      filter:
+        description: 'Use this field to provide a filter that will be passed to playwrights `--grep` input.'
+        type: string
+        default: ''
+
+jobs:
+  visual-tests:
+    runs-on: ubuntu-latest
+    env:
+      COMPOSE_PROJECT_NAME: visualci
+      APP_URL: http://web:8000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Determine Playwright version
+        run: |
+          echo "PLAYWRIGHT_VERSION=$(node -p 'require("./tests/acceptance/package-lock.json").packages["node_modules/playwright-core"].version')" >> "$GITHUB_ENV"
+
+      - name: Cache npm packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            tests/acceptance/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-tests/acceptance-${{ hashFiles('tests/acceptance/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-tests/acceptance
+
+      - name: Start Docker
+        run: docker compose -f compose.yaml -f .github/docker/compose.visual-ci.yaml up -d
+
+      - name: Install Shopware
+        run: docker compose -f compose.yaml -f .github/docker/compose.visual-ci.yaml exec -T web composer setup
+
+      - name: Wait for Shopware
+        run: |
+          for i in {1..60}; do
+            if docker compose -f compose.yaml -f .github/docker/compose.visual-ci.yaml exec -T web sh -lc 'curl -kfsS -o /dev/null "$APP_URL"'; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Shopware did not become ready in time"
+          docker compose -f compose.yaml -f .github/docker/compose.visual-ci.yaml ps
+          exit 1
+
+      - name: Install acceptance test dependencies
+        run: mkdir -p "$HOME/.npm"
+
+      - name: Run visual tests
+        continue-on-error: true
+        working-directory: tests/acceptance
+        run: |
+          ATS_CMD="playwright"
+          ARGS=(test --project=Visual)
+
+          if [ "${{ inputs.update-snapshots }}" = "true" ]; then
+            ARGS+=(--update-snapshots)
+          fi
+
+          if [ -n "${{ inputs.filter }}" ]; then
+            ARGS+=("--grep=${{ inputs.filter }}")
+          fi
+
+          if [ "${{ inputs.currents }}" = "true" ]; then
+            ATS_CMD="pwc"
+          fi
+
+          docker run --rm --network "${COMPOSE_PROJECT_NAME}_default" \
+            -w /ats \
+            -v "$PWD:/ats" \
+            -v "$HOME/.npm:/root/.npm" \
+            -e CI=1 \
+            -e APP_URL="${APP_URL}" \
+            -e SHOPWARE_PLAYWRIGHT_IGNORE_HTTPS_ERRORS=1 \
+            -e CURRENTS_PROJECT_ID="${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}" \
+            -e CURRENTS_RECORD_KEY="${{ secrets.CURRENTS_RECORD_KEY }}" \
+            -e CURRENTS_BUILD_ID="${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}" \
+            "mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble" \
+            bash -lc 'npm ci && npx "$@"' bash "${ATS_CMD}" "${ARGS[@]}"
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-tests
+          path: |
+            tests/acceptance/playwright-report
+            tests/acceptance/test-results
+          retention-days: 3
+
+      - name: Stop Docker
+        if: always()
+        run: docker compose -f compose.yaml -f .github/docker/compose.visual-ci.yaml down -v

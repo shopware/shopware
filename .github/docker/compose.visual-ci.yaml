@@ -1,0 +1,13 @@
+services:
+  web:
+    ports: !override []
+    environment:
+      APP_ENV: prod
+      APP_URL: http://web:8000
+      MAILER_DSN: smtp://mailer:1025
+  database:
+    ports: !override []
+  adminer:
+    ports: !override []
+  mailer:
+    ports: !override []

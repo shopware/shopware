@@ -54,6 +54,12 @@ jobs:
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       currents: ${{ github.event_name == 'schedule' }}
+  visual-tests-docker:
+    uses: ./.github/workflows/visual-tests-docker.yml
+    secrets: inherit
+    if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
+    with:
+      currents: ${{ github.event_name == 'schedule' }}
   php:
     uses: ./.github/workflows/php.yml
     secrets: inherit

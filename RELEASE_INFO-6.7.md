@@ -20,6 +20,19 @@ This fixes stale iframe content when switching locations in Meteor Admin SDK int
 The account order cancellation action is now only shown for orders in state `open`.
 This prevents customers from being offered an invalid cancel action for completed orders.
 
+### Earlier focus for cookie banner
+
+The default cookie banner `.cookie-permission-container` is currently located at the very bottom of the page before the closing `</body>` element.
+This is an issue for keyboard and screenreader users because they don't see the cookie banner unless the entire page is skipped first.
+
+If no consent was selected yet, the cookie banner needs earlier attention and it now receives automatic focus when it is displayed.
+With this, screenreader and keyboard users start at the cookie banner region and can select a consent mode.
+A new option `autoFocus` (default: `true`) was added to the `cookie-permission.html.twig` template and `CookiePermissionPlugin`.
+
+In addition to this the cookie banner will be moved to the top of the body element.
+To avoid breaking changes for those who assume the bottom position of the cookie banner, the change will happen in the upcoming major version.
+* Deprecated block position of `base_cookie_permission` Cookie permission banner will be moved to top of the body element.
+
 ### Live purchase limits for closeout products on the product detail page
 
 The buy-widget quantity selector now fetches live `minPurchase`, `purchaseSteps`, and `maxPurchase` values for closeout products (internally uses new Store API endpoint `GET /store-api/product/purchase-limit`) on first user interaction (focus or click).

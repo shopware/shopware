@@ -65,10 +65,6 @@ class Migration1775200002RecalculateProductDisplayGroupHash extends MigrationSte
 
             $hexIds = [];
             foreach ($parents as $parent) {
-                if (!isset($parent['id'])) {
-                    continue;
-                }
-
                 $hexIds[] = Uuid::fromBytesToHex($parent['id']);
                 $lastAutoIncrement = (int) ($parent['auto_increment'] ?? $lastAutoIncrement);
             }

@@ -50,6 +50,16 @@ class Migration1775200001IncreaseProductDisplayGroupLengthTest extends TestCase
         static::assertNull($column->defaultValue);
     }
 
+    public function testMigrationSkipsAlterWhenDisplayGroupAlreadyAtLeast64(): void
+    {
+        $this->connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(64) NULL');
+
+        (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
+
+        $column = TableHelper::getColumnOfTable($this->connection, ProductDefinition::ENTITY_NAME, 'display_group');
+        static::assertSame(64, $column->length);
+    }
+
     private function rollback(): void
     {
         $this->connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(50) NULL');

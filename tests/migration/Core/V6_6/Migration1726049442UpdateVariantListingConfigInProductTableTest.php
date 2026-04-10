@@ -52,6 +52,13 @@ class Migration1726049442UpdateVariantListingConfigInProductTableTest extends Te
         static::assertSame(1726049442, (new Migration1726049442UpdateVariantListingConfigInProductTable())->getCreationTimestamp());
     }
 
+    public function testMigrationDoesNothingWhenNoMatchingParentProducts(): void
+    {
+        (new Migration1726049442UpdateVariantListingConfigInProductTable())->update($this->connection);
+
+        static::assertSame(0, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM product'));
+    }
+
     public function testMigration(): void
     {
         $this->createProducts();

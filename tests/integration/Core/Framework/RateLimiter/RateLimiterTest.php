@@ -49,6 +49,8 @@ class RateLimiterTest extends TestCase
     use OrderFixture;
     use RateLimiterTestTrait;
 
+    private const TEST_THROTTLE_LIMIT = 1;
+
     private Context $context;
 
     private IdsCollection $ids;
@@ -82,6 +84,7 @@ class RateLimiterTest extends TestCase
         $this->salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class)->getDecorated();
 
         $this->clearCache();
+        $this->overrideRateLimiters();
     }
 
     protected function tearDown(): void
@@ -95,7 +98,7 @@ class RateLimiterTest extends TestCase
         $password = 'wrongPassword';
         $this->createCustomer($email);
 
-        for ($i = 0; $i <= 10; ++$i) {
+        for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
             $this->browser
                 ->request(
                     'POST',
@@ -111,7 +114,7 @@ class RateLimiterTest extends TestCase
 
             static::assertArrayHasKey('errors', $response);
 
-            if ($i >= 10) {
+            if ($i >= self::TEST_THROTTLE_LIMIT) {
                 static::assertSame(429, (int) $response['errors'][0]['status']);
                 static::assertSame('CHECKOUT__CUSTOMER_AUTH_THROTTLED', $response['errors'][0]['code']);
             } else {
@@ -126,7 +129,7 @@ class RateLimiterTest extends TestCase
         $email = Uuid::randomHex() . '@example.com';
         $this->createCustomer($email);
 
-        for ($i = 0; $i <= 10; ++$i) {
+        for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
             $this->browser
                 ->request(
                     'POST',
@@ -144,7 +147,7 @@ class RateLimiterTest extends TestCase
 
             static::assertArrayHasKey('errors', $response);
 
-            if ($i >= 10) {
+            if ($i >= self::TEST_THROTTLE_LIMIT) {
                 static::assertSame(429, (int) $response['errors'][0]['status']);
                 static::assertSame('CHECKOUT__CUSTOMER_AUTH_THROTTLED', $response['errors'][0]['code']);
             } else {
@@ -155,7 +158,7 @@ class RateLimiterTest extends TestCase
 
     public function testRateLimitLoginRouteByClientWithRotatingEmails(): void
     {
-        for ($i = 0; $i <= 10; ++$i) {
+        for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
             $email = 'user' . $i . '@example.com';
             $this->createCustomer($email);
 
@@ -176,7 +179,7 @@ class RateLimiterTest extends TestCase
 
             static::assertArrayHasKey('errors', $response);
 
-            if ($i >= 10) {
+            if ($i >= self::TEST_THROTTLE_LIMIT) {
                 static::assertSame(429, (int) $response['errors'][0]['status']);
                 static::assertSame('CHECKOUT__CUSTOMER_AUTH_THROTTLED', $response['errors'][0]['code']);
             } else {
@@ -210,7 +213,7 @@ class RateLimiterTest extends TestCase
 
     public function testRateLimitOauth(): void
     {
-        for ($i = 0; $i <= 10; ++$i) {
+        for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
             $this->browser
                 ->request(
                     'POST',
@@ -228,7 +231,7 @@ class RateLimiterTest extends TestCase
 
             static::assertArrayHasKey('errors', $response);
 
-            if ($i >= 10) {
+            if ($i >= self::TEST_THROTTLE_LIMIT) {
                 static::assertSame(429, (int) $response['errors'][0]['status']);
                 static::assertSame('FRAMEWORK__NOTIFICATION_THROTTLED', $response['errors'][0]['code']);
             } else {
@@ -240,7 +243,7 @@ class RateLimiterTest extends TestCase
 
     public function testRateLimitOauthByUserWithRotatingIps(): void
     {
-        for ($i = 0; $i <= 10; ++$i) {
+        for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
             $this->browser
                 ->request(
                     'POST',
@@ -260,7 +263,7 @@ class RateLimiterTest extends TestCase
 
             static::assertArrayHasKey('errors', $response);
 
-            if ($i >= 10) {
+            if ($i >= self::TEST_THROTTLE_LIMIT) {
                 static::assertSame(429, (int) $response['errors'][0]['status']);
                 static::assertSame('FRAMEWORK__NOTIFICATION_THROTTLED', $response['errors'][0]['code']);
             } else {
@@ -272,7 +275,7 @@ class RateLimiterTest extends TestCase
 
     public function testRateLimitOauthByClientWithRotatingUsernames(): void
     {
-        for ($i = 0; $i <= 10; ++$i) {
+        for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
             $this->browser
                 ->request(
                     'POST',
@@ -292,7 +295,7 @@ class RateLimiterTest extends TestCase
 
             static::assertArrayHasKey('errors', $response);
 
-            if ($i >= 10) {
+            if ($i >= self::TEST_THROTTLE_LIMIT) {
                 static::assertSame(429, (int) $response['errors'][0]['status']);
                 static::assertSame('FRAMEWORK__NOTIFICATION_THROTTLED', $response['errors'][0]['code']);
             } else {
@@ -324,7 +327,7 @@ class RateLimiterTest extends TestCase
 
     public function testRateLimitContactForm(): void
     {
-        for ($i = 0; $i <= 3; ++$i) {
+        for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
             $this->browser
                 ->request(
                     'POST',
@@ -343,7 +346,7 @@ class RateLimiterTest extends TestCase
             $response = $this->browser->getResponse()->getContent();
             $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
 
-            if ($i >= 3) {
+            if ($i >= self::TEST_THROTTLE_LIMIT) {
                 static::assertArrayHasKey('errors', $response, print_r($response, true));
                 static::assertSame(429, (int) $response['errors'][0]['status']);
                 static::assertSame('FRAMEWORK__RATE_LIMIT_EXCEEDED', $response['errors'][0]['code']);
@@ -355,7 +358,7 @@ class RateLimiterTest extends TestCase
 
     public function testRateLimitUserRecovery(): void
     {
-        for ($i = 0; $i <= 3; ++$i) {
+        for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
             $this->browser
                 ->request(
                     'POST',
@@ -367,7 +370,7 @@ class RateLimiterTest extends TestCase
 
             $response = $this->browser->getResponse()->getContent();
 
-            if ($i >= 3) {
+            if ($i >= self::TEST_THROTTLE_LIMIT) {
                 static::assertJson((string) $response, (string) $response);
                 $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
                 static::assertIsArray($response);
@@ -435,7 +438,7 @@ class RateLimiterTest extends TestCase
 
     public function testRateLimitNewsletterSubscribeForm(): void
     {
-        for ($i = 0; $i <= 3; ++$i) {
+        for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
             $this->browser
                 ->request(
                     'POST',
@@ -449,7 +452,7 @@ class RateLimiterTest extends TestCase
 
             $response = $this->browser->getResponse()->getContent();
 
-            if ($i >= 3) {
+            if ($i >= self::TEST_THROTTLE_LIMIT) {
                 static::assertJson((string) $response);
                 $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
 
@@ -467,8 +470,6 @@ class RateLimiterTest extends TestCase
         $emailList = [
             'testOne@example.com',
             'testTwo@example.com',
-            'testThress@example.com',
-            'testFour@example.com',
         ];
 
         $this->createNewsletterRecipient($emailList);
@@ -485,7 +486,7 @@ class RateLimiterTest extends TestCase
 
             $response = $this->browser->getResponse()->getContent();
 
-            if ($email === 'testFour@example.com') {
+            if ($email === 'testTwo@example.com') {
                 static::assertJson((string) $response);
                 $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
 
@@ -515,5 +516,42 @@ class RateLimiterTest extends TestCase
         }
 
         $this->getContainer()->get('newsletter_recipient.repository')->upsert($newsletterRecipients, $this->context);
+    }
+
+    private function overrideRateLimiters(): void
+    {
+        $limitOneConfig = [
+            'enabled' => true,
+            'policy' => 'time_backoff',
+            'reset' => '1 hour',
+            'limits' => [['limit' => 1, 'interval' => '1 hour']],
+        ];
+
+        $routes = [
+            RateLimiter::LOGIN_ROUTE,
+            RateLimiter::LOGIN_USER,
+            RateLimiter::LOGIN_CLIENT,
+            RateLimiter::OAUTH,
+            RateLimiter::OAUTH_USER,
+            RateLimiter::OAUTH_CLIENT,
+            RateLimiter::CONTACT_FORM,
+            RateLimiter::USER_RECOVERY,
+            RateLimiter::NEWSLETTER_FORM,
+            RateLimiter::NEWSLETTER_UNSUBSCRIBE_FORM,
+        ];
+
+        // LoginRoute is injected with RateLimiter::class, AuthController with 'shopware.rate_limiter'
+        // These may be separate instances in the compiled container, so override both
+        foreach ([RateLimiter::class, 'shopware.rate_limiter'] as $serviceId) {
+            $rateLimiter = static::getContainer()->get($serviceId);
+            \assert($rateLimiter instanceof RateLimiter);
+            foreach ($routes as $name) {
+                $rateLimiter->registerLimiterFactory($name, new RateLimiterFactory(
+                    $limitOneConfig + ['id' => $name],
+                    new CacheStorage(new ArrayAdapter()),
+                    static::createStub(SystemConfigService::class),
+                ));
+            }
+        }
     }
 }

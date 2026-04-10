@@ -244,6 +244,9 @@ npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts --write <target-dire
 
 # Write .vue files, overwriting any that already exist
 npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts --write --force <target-directory>
+
+# Write .vue files and delete the source index.js + .html.twig afterwards
+npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts --write --delete-originals <target-directory>
 ```
 
 **What it does:**
@@ -316,7 +319,7 @@ Each item below has a corresponding `.unfinished.md` file in this directory:
 | File | Summary |
 |------|---------|
 | [confirmation-before-writes.finished.md](confirmation-before-writes.finished.md) | ✅ `--dry-run` default + `--write` flag implemented; runner tests added |
-| [original-files-cleanup.unfinished.md](original-files-cleanup.unfinished.md) | `index.js` and `.html.twig` not deleted after migration |
+| [original-files-cleanup.finished.md](original-files-cleanup.finished.md) | ✅ `--delete-originals` flag deletes source files after writing `.vue`; 11 new tests |
 | [sw-block-components-missing.unfinished.md](sw-block-components-missing.unfinished.md) | `<sw-block>` / `<sw-block-parent>` Vue components don't exist yet |
 | [data-scope-binding.unfinished.md](data-scope-binding.unfinished.md) | `$dataScope` referenced in templates but never defined in generated script |
 | [this-el-resolution.unfinished.md](this-el-resolution.unfinished.md) | `this.$el` replaced with a TODO comment, not a proper solution |

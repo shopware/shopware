@@ -6,20 +6,23 @@
  * normalised automatically so the transformation logic can handle both styles.
  *
  * Usage:
- *   npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts [--dry-run | --write] [--force] <path>
+ *   npx tsx scripts/codemods/sfc-migration/run-sfc-migration.ts [--dry-run | --write] [--force] [--delete-originals] <path>
  *
  * Flags:
- *   --dry-run   (default) Preview what would be written without writing files
- *   --write     Write .vue files to disk
- *   --force     Overwrite existing .vue files (default: skip if already exists)
+ *   --dry-run          (default) Preview what would be written without writing files
+ *   --write            Write .vue files to disk
+ *   --force            Overwrite existing .vue files (default: skip if already exists)
+ *   --delete-originals Delete the source index.js and .html.twig after writing the .vue file
+ *                      (only applies to fully- and partially-migrated components in --write mode)
  *
  * Examples:
  *   npx tsx run-sfc-migration.ts src/app/component/base/sw-button
  *   npx tsx run-sfc-migration.ts --write src/Resources/app/administration/src
  *   npx tsx run-sfc-migration.ts --write --force src/Resources/app/administration/src
+ *   npx tsx run-sfc-migration.ts --write --delete-originals src/Resources/app/administration/src
  */
 
-import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { globSync } from 'glob';
@@ -31,6 +34,7 @@ const __filename = fileURLToPath(import.meta.url);
 export interface RunOptions {
     dryRun: boolean;
     force?: boolean;
+    deleteOriginals?: boolean;
 }
 
 export interface RunStats {
@@ -39,6 +43,7 @@ export interface RunStats {
     notMigratable: number;
     skipped: number;
     skippedExisting: number;
+    deletedOriginals: number;
 }
 
 export interface RunResult {
@@ -85,10 +90,17 @@ export function normaliseJsContent(jsContent: string, componentName: string): st
 }
 
 export function runMigration(targetDir: string, options: RunOptions): RunResult {
-    const { dryRun, force = false } = options;
+    const { dryRun, force = false, deleteOriginals = false } = options;
     const indexFiles = globSync('**/index.js', { cwd: targetDir, absolute: true });
 
-    const stats: RunStats = { fullyMigrated: 0, partiallyMigrated: 0, notMigratable: 0, skipped: 0, skippedExisting: 0 };
+    const stats: RunStats = {
+        fullyMigrated: 0,
+        partiallyMigrated: 0,
+        notMigratable: 0,
+        skipped: 0,
+        skippedExisting: 0,
+        deletedOriginals: 0,
+    };
     const report: string[] = [];
 
     for (const indexPath of indexFiles) {
@@ -118,10 +130,17 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
                 }
                 if (!dryRun) {
                     writeFileSync(vuePath, result.sfc, 'utf-8');
+                    if (deleteOriginals) {
+                        rmSync(indexPath);
+                        rmSync(twigPath);
+                        stats.deletedOriginals++;
+                        report.push(`  deleted originals    ${indexPath}`);
+                        report.push(`  deleted originals    ${twigPath}`);
+                    }
                 }
                 stats.fullyMigrated++;
-                const prefix = dryRun ? '[DRY RUN] Would write: ' : '';
-                report.push(`✓  fully-migrated        ${prefix}${vuePath}`);
+                const fullyPrefix = dryRun ? '[DRY RUN] Would write: ' : '';
+                report.push(`✓  fully-migrated        ${fullyPrefix}${vuePath}`);
                 break;
             }
             case 'partially-migrated': {
@@ -133,10 +152,17 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
                 }
                 if (!dryRun) {
                     writeFileSync(vuePath, result.sfc, 'utf-8');
+                    if (deleteOriginals) {
+                        rmSync(indexPath);
+                        rmSync(twigPath);
+                        stats.deletedOriginals++;
+                        report.push(`  deleted originals    ${indexPath}`);
+                        report.push(`  deleted originals    ${twigPath}`);
+                    }
                 }
                 stats.partiallyMigrated++;
-                const prefix = dryRun ? '[DRY RUN] Would write: ' : '';
-                report.push(`~  partially-migrated  [${result.blockers.join(', ')}]  ${prefix}${vuePath}`);
+                const partialPrefix = dryRun ? '[DRY RUN] Would write: ' : '';
+                report.push(`~  partially-migrated  [${result.blockers.join(', ')}]  ${partialPrefix}${vuePath}`);
                 break;
             }
             case 'not-migratable': {
@@ -156,19 +182,21 @@ if (process.argv[1] === __filename) {
     const targetArg = args.find((a) => !a.startsWith('--'));
 
     if (!targetArg) {
-        console.error('Usage: npx tsx run-sfc-migration.ts [--dry-run | --write] [--force] <path>');
-        console.error('  <path>      Directory to scan for index.js component files');
-        console.error('  --dry-run   (default) Preview what would be written without writing files');
-        console.error('  --write     Write .vue files to disk');
-        console.error('  --force     Overwrite existing .vue files (default: skip if already exists)');
+        console.error('Usage: npx tsx run-sfc-migration.ts [--dry-run | --write] [--force] [--delete-originals] <path>');
+        console.error('  <path>               Directory to scan for index.js component files');
+        console.error('  --dry-run            (default) Preview what would be written without writing files');
+        console.error('  --write              Write .vue files to disk');
+        console.error('  --force              Overwrite existing .vue files (default: skip if already exists)');
+        console.error('  --delete-originals   Delete source index.js and .html.twig after writing the .vue file');
         process.exit(1);
     }
 
     const TARGET_DIR = resolve(targetArg);
     const dryRun = args.includes('--dry-run') || !args.includes('--write');
     const force = args.includes('--force');
+    const deleteOriginals = args.includes('--delete-originals');
 
-    const { stats, report } = runMigration(TARGET_DIR, { dryRun, force });
+    const { stats, report } = runMigration(TARGET_DIR, { dryRun, force, deleteOriginals });
 
     console.log(report.join('\n'));
     console.log(`
@@ -179,6 +207,7 @@ Partially migrated:  ${stats.partiallyMigrated}
 Not migratable:      ${stats.notMigratable}
 Skipped (no twig):   ${stats.skipped}
 Skipped (exists):    ${stats.skippedExisting}
+Deleted originals:   ${stats.deletedOriginals}
 `);
 
     if (dryRun) {

@@ -83,9 +83,8 @@ All transform modules have integration tests using real fixture files:
 
 ## What is Missing / Incomplete
 
-### 2. Original Files Are Not Deleted
-After generating a `.vue` file, the original `index.js` and `.html.twig` are left in place.  
-**Needed:** Either auto-delete them (with confirmation) or print explicit instructions to remove them.
+### ~~2. Original Files Are Not Deleted~~ ✅ Done
+`--delete-originals` flag added to `run-sfc-migration.ts`. When passed with `--write`, the source `index.js` and `.html.twig` are deleted immediately after each `.vue` is written. Not-migratable and skipped components are never touched. Dry-run mode ignores the flag. 11 new tests; total 172, all passing.
 
 ### 3. `<sw-block>` / `<sw-block-parent>` Components Do Not Exist Yet
 The template transformation produces `<sw-block name="..." :data="$dataScope">` and `<sw-block-parent/>`. These custom components and the `$dataScope` prop binding need to be implemented in the framework before any migrated component can actually work.  
@@ -131,9 +130,9 @@ Test coverage is entirely fixture-based. There is no proof that the codemod work
 | `transform-template.spec.ts` | ✅ Full coverage — 4 fixtures (block, simple, twig-comments, extends-template) |
 | `generate-sfc.spec.ts` | ✅ Full coverage |
 | `transform-script.spec.ts` | ✅ Full coverage — 9 fixtures (simple, block, created, module-level, mixin, render, composables, inherit-attrs, extend) |
-| `run-sfc-migration.spec.ts` | ✅ Full coverage — 31 tests |
+| `run-sfc-migration.spec.ts` | ✅ Full coverage — 42 tests |
 
-**Total: 161 tests, all passing**
+**Total: 172 tests, all passing**
 
 ### ~~8. Overwrite Without Warning~~ ✅ Done
 Existing `.vue` files are skipped by default. Pass `--force` to overwrite. `skippedExisting` counter added to stats and summary. 6 new tests in `run-sfc-migration.spec.ts`.
@@ -158,6 +157,6 @@ The transformation core (template conversion, script conversion, merger, analysi
 1. ~~**Acceptance criterion #4** (confirmation before breaking changes) is entirely unimplemented.~~ ✅ Done — dry-run default + `--write` flag.
 2. **`<sw-block>` infrastructure** does not exist — migrated components will not work until those components are built.
 3. **`$dataScope` binding** in templates is undefined in the generated script.
-4. **Original files are never cleaned up** after migration.
+4. ~~**Original files are never cleaned up** after migration.~~ ✅ Done — `--delete-originals` flag.
 5. ~~**Runner has no tests**.~~ ✅ Done — 23 tests in `run-sfc-migration.spec.ts`.
 6. **PR meta** (description, checklist) is unfinished.

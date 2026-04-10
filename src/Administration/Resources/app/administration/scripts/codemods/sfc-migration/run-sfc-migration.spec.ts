@@ -374,3 +374,125 @@ describe('runMigration — partially-migrated (mixins)', () => {
         expect(report[0]).toContain('mixins');
     });
 });
+
+describe('runMigration — delete-originals (fully-migrated)', () => {
+    let tmpDir: string;
+    let componentDir: string;
+
+    beforeEach(() => {
+        tmpDir = createTempDir();
+        componentDir = makeComponent(
+            tmpDir,
+            'sw-simple-card',
+            readFixture('simple-component.index.js'),
+            readFixture('simple-component.html.twig'),
+        );
+    });
+
+    afterEach(() => {
+        rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('deletes index.js and .html.twig after writing the .vue file', () => {
+        runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
+        expect(existsSync(join(componentDir, 'index.js'))).toBe(false);
+        expect(existsSync(join(componentDir, 'sw-simple-card.html.twig'))).toBe(false);
+    });
+
+    it('writes the .vue file before deleting originals', () => {
+        runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
+        expect(existsSync(join(componentDir, 'sw-simple-card.vue'))).toBe(true);
+    });
+
+    it('increments deletedOriginals stat', () => {
+        const { stats } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
+        expect(stats.deletedOriginals).toBe(1);
+        expect(stats.fullyMigrated).toBe(1);
+    });
+
+    it('report includes deletion lines for both original files', () => {
+        const { report } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
+        const deletionLines = report.filter((l) => l.includes('deleted originals'));
+        expect(deletionLines).toHaveLength(2);
+        expect(deletionLines.some((l) => l.includes('index.js'))).toBe(true);
+        expect(deletionLines.some((l) => l.includes('.html.twig'))).toBe(true);
+    });
+
+    it('does not delete originals in dry-run mode even when deleteOriginals is true', () => {
+        runMigration(tmpDir, { dryRun: true, deleteOriginals: true });
+        expect(existsSync(join(componentDir, 'index.js'))).toBe(true);
+        expect(existsSync(join(componentDir, 'sw-simple-card.html.twig'))).toBe(true);
+    });
+
+    it('does not delete originals when deleteOriginals is false', () => {
+        runMigration(tmpDir, { dryRun: false, deleteOriginals: false });
+        expect(existsSync(join(componentDir, 'index.js'))).toBe(true);
+        expect(existsSync(join(componentDir, 'sw-simple-card.html.twig'))).toBe(true);
+    });
+
+    it('deletedOriginals stat is 0 when deleteOriginals is false', () => {
+        const { stats } = runMigration(tmpDir, { dryRun: false, deleteOriginals: false });
+        expect(stats.deletedOriginals).toBe(0);
+    });
+});
+
+describe('runMigration — delete-originals (partially-migrated)', () => {
+    let tmpDir: string;
+    let componentDir: string;
+
+    beforeEach(() => {
+        tmpDir = createTempDir();
+        componentDir = makeComponent(
+            tmpDir,
+            'sw-mixin-list',
+            readFixture('mixin-component.index.js'),
+            '<div class="sw-mixin-list"></div>',
+        );
+    });
+
+    afterEach(() => {
+        rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('deletes originals for a partially-migrated component', () => {
+        runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
+        expect(existsSync(join(componentDir, 'index.js'))).toBe(false);
+        expect(existsSync(join(componentDir, 'sw-mixin-list.html.twig'))).toBe(false);
+    });
+
+    it('increments deletedOriginals stat for partially-migrated component', () => {
+        const { stats } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
+        expect(stats.deletedOriginals).toBe(1);
+        expect(stats.partiallyMigrated).toBe(1);
+    });
+});
+
+describe('runMigration — delete-originals (not-migratable)', () => {
+    let tmpDir: string;
+    let componentDir: string;
+
+    beforeAll(() => {
+        tmpDir = createTempDir();
+        componentDir = makeComponent(
+            tmpDir,
+            'sw-render-component',
+            readFixture('render-component.index.js'),
+            '<div class="sw-render-component"></div>',
+        );
+    });
+
+    afterAll(() => {
+        rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('never deletes originals for a not-migratable component', () => {
+        runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
+        expect(existsSync(join(componentDir, 'index.js'))).toBe(true);
+        expect(existsSync(join(componentDir, 'sw-render-component.html.twig'))).toBe(true);
+    });
+
+    it('deletedOriginals stat remains 0 for not-migratable component', () => {
+        const { stats } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
+        expect(stats.deletedOriginals).toBe(0);
+    });
+});

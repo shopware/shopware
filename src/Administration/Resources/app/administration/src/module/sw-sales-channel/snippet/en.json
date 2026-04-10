@@ -38,7 +38,7 @@
       "buttonShowDetails": "Show details",
       "buttonBack": "Back",
       "titleDescription": "Information",
-      "messageNoProductStreams": "In order to use product comparisons a dynamic product group has to be created first."
+      "messageNoProductStreams": "In order to use product comparisons or agentic commerce sales channels, a dynamic product group has to be created first."
     },
     "detail": {
       "messageSaveSuccess": "Sales Channel \"{name}\" saved.",

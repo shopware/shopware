@@ -11,10 +11,19 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_7\Migration1775200001IncreaseProductDisplayGroupLength;
 use Shopware\Core\Migration\V6_7\Migration1775200002RecalculateProductDisplayGroupHash;
 
 /**
+ * Assumes a fully migrated test database (including {@see \Shopware\Core\Migration\V6_7\Migration1775200001IncreaseProductDisplayGroupLength}
+ * so `product.display_group` is wide enough for SHA-256 hex values). Same as a normal installation after upgrade.
+ *
+ * Several scenarios assert the same outcome: parent `display_group` NULL, all variants share
+ * `hash('sha256', strtoupper(parentIdHex))`. That is still meaningful: each test uses a **different**
+ * `variant_listing_config` (display parent, main variant, invalid JSON, bad group id, etc.). They all collapse to
+ * no listing dimensions in {@see \Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater}, so the
+ * single-variant listing branch runs. The value is proving decoding and edge-case handling, not a different hash shape.
+ * Tests that wire real listing dimensions and `product_option` rows assert **distinct** variant hashes instead.
+ *
  * @internal
  */
 #[CoversClass(Migration1775200002RecalculateProductDisplayGroupHash::class)]
@@ -37,7 +46,6 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
         $liveVersion = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $this->cleanupByProductNumbers();
-        $this->cleanup([$variantAId, $variantBId, $parentId]);
 
         $parentIdHex = strtolower(bin2hex($parentId));
         $legacyHash = md5($parentIdHex);
@@ -71,8 +79,6 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
             'stock' => 10,
             'display_group' => $legacyHash,
         ]);
-
-        (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
 
         $migration = new Migration1775200002RecalculateProductDisplayGroupHash();
         static::assertSame(1775200002, $migration->getCreationTimestamp());
@@ -191,7 +197,6 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
             'property_group_option_id' => $optionGreenBytes,
         ]);
 
-        (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
         $this->runScheduledVariantListingIndexer();
 
@@ -228,7 +233,6 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
         $liveVersion = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $this->cleanupByProductNumbers();
-        $this->cleanup([$variantAId, $variantBId, $parentId]);
 
         $parentIdHex = strtolower(bin2hex($parentId));
         $legacyHash = md5($parentIdHex);
@@ -256,9 +260,10 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
             ]);
         }
 
-        (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
         $this->runScheduledVariantListingIndexer();
+
+        $this->assertParentDisplayGroupNullWhenParentHasVariants($parentId, $liveVersion);
 
         $expectedHash = hash('sha256', strtoupper($parentIdHex));
         $variantDisplayGroups = $this->connection->fetchFirstColumn(
@@ -278,7 +283,6 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
         $liveVersion = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $this->cleanupByProductNumbers();
-        $this->cleanup([$parentId]);
 
         $parentIdHex = strtolower(bin2hex($parentId));
 
@@ -292,7 +296,6 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
             'display_group' => md5($parentIdHex),
         ]);
 
-        (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
         $this->runScheduledVariantListingIndexer();
 
@@ -314,7 +317,6 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
         $liveVersion = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $this->cleanupByProductNumbers();
-        $this->cleanup([$variantAId, $variantBId, $parentId]);
 
         $parentIdHex = strtolower(bin2hex($parentId));
         $legacyHash = md5($parentIdHex);
@@ -351,9 +353,10 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
             ]);
         }
 
-        (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
         $this->runScheduledVariantListingIndexer();
+
+        $this->assertParentDisplayGroupNullWhenParentHasVariants($parentId, $liveVersion);
 
         $expectedHash = hash('sha256', strtoupper($parentIdHex));
         $variantDisplayGroups = $this->connection->fetchFirstColumn(
@@ -375,7 +378,6 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
         $liveVersion = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $this->cleanupByProductNumbers();
-        $this->cleanup([$variantAId, $variantBId, $parentId]);
 
         $parentIdHex = strtolower(bin2hex($parentId));
         $legacyHash = md5($parentIdHex);
@@ -413,9 +415,10 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
             ]);
         }
 
-        (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
         $this->runScheduledVariantListingIndexer();
+
+        $this->assertParentDisplayGroupNullWhenParentHasVariants($parentId, $liveVersion);
 
         $expectedHash = hash('sha256', strtoupper($parentIdHex));
         $variantDisplayGroups = $this->connection->fetchFirstColumn(
@@ -437,7 +440,6 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
         $liveVersion = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $this->cleanupByProductNumbers();
-        $this->cleanup([$variantAId, $variantBId, $parentId]);
 
         $parentIdHex = strtolower(bin2hex($parentId));
         $legacyHash = md5($parentIdHex);
@@ -471,9 +473,10 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
             ]);
         }
 
-        (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
         $this->runScheduledVariantListingIndexer();
+
+        $this->assertParentDisplayGroupNullWhenParentHasVariants($parentId, $liveVersion);
 
         $expectedHash = hash('sha256', strtoupper($parentIdHex));
         $variantDisplayGroups = $this->connection->fetchFirstColumn(
@@ -495,7 +498,6 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
         $liveVersion = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $this->cleanupByProductNumbers();
-        $this->cleanup([$variantAId, $variantBId, $parentId]);
 
         $parentIdHex = strtolower(bin2hex($parentId));
         $legacyHash = md5($parentIdHex);
@@ -532,9 +534,10 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
             ]);
         }
 
-        (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
         $this->runScheduledVariantListingIndexer();
+
+        $this->assertParentDisplayGroupNullWhenParentHasVariants($parentId, $liveVersion);
 
         $expectedHash = hash('sha256', strtoupper($parentIdHex));
         $variantDisplayGroups = $this->connection->fetchFirstColumn(
@@ -640,9 +643,10 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
             'property_group_option_id' => $optionGreenBytes,
         ]);
 
-        (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
         $this->runScheduledVariantListingIndexer();
+
+        $this->assertParentDisplayGroupNullWhenParentHasVariants($parentId, $liveVersion);
 
         $rows = $this->connection->fetchAllAssociative(
             'SELECT product_number, display_group FROM product WHERE id IN (:ids) AND version_id = :version ORDER BY product_number ASC',
@@ -661,6 +665,24 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
         );
 
         $this->cleanupListingGroupRows($groupBytes, [$optionRedBytes, $optionGreenBytes], [$variantAId, $variantBId, $parentId]);
+    }
+
+    /**
+     * If a parent has children, {@see \Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater} runs
+     * `hideParent` and sets the parent `display_group` to NULL. How the storefront listing behaves (show parent only,
+     * prefer a main variant, or split rows by listing dimensions) is driven by `variant_listing_config` and reflected in
+     * **variant** `display_group` values, not by storing a listing hash on the parent while variants exist.
+     *
+     * @param string $parentId binary product id
+     * @param string $liveVersion binary version id
+     */
+    private function assertParentDisplayGroupNullWhenParentHasVariants(string $parentId, string $liveVersion): void
+    {
+        $parentDisplayGroup = $this->connection->fetchOne(
+            'SELECT display_group FROM product WHERE id = :id AND version_id = :versionId',
+            ['id' => $parentId, 'versionId' => $liveVersion]
+        );
+        static::assertNull($parentDisplayGroup);
     }
 
     /**

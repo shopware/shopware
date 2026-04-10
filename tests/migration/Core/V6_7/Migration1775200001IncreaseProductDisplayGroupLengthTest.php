@@ -25,13 +25,6 @@ class Migration1775200001IncreaseProductDisplayGroupLengthTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
-    protected function tearDown(): void
-    {
-        $this->connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(64) NULL');
-
-        parent::tearDown();
-    }
-
     public function testMigration(): void
     {
         $this->rollback();

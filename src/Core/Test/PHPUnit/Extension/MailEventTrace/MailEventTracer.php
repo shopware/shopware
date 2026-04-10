@@ -27,9 +27,25 @@ class MailEventTracer
 
     private ?\Closure $listener = null;
 
-    public function install(): void
+    private bool $stopped = false;
+
+    public function __construct(private readonly string $stopBeforeTest = '')
     {
-        $this->traces = [];
+    }
+
+    public function install(string $testId): void
+    {
+        if ($this->stopped) {
+            return;
+        }
+
+        if ($this->stopBeforeTest !== '' && $testId === $this->stopBeforeTest) {
+            $this->stopped = true;
+
+            return;
+        }
+
+        $this->currentTraces = [];
 
         try {
             $container = KernelLifecycleManager::getKernel()->getContainer();
@@ -80,12 +96,37 @@ class MailEventTracer
 
     public function report(): void
     {
-        foreach ($this->allTraces as ['test' => $test, 'traces' => $traces]) {
-            echo \PHP_EOL . \sprintf('[MailEventTrace] %s dispatched %d mail.sent event(s):', $test, \count($traces)) . \PHP_EOL;
+        if ($this->allTraces === []) {
+            return;
+        }
 
-            foreach ($traces as $i => $trace) {
-                echo \sprintf('  #%d %s', $i + 1, $trace) . \PHP_EOL;
+        // Deduplicate: group by unique call stack so the same source location
+        // shared across many tests collapses into one entry with a count.
+        /** @var array<string, array{subjects: list<string>, count: int, example: string}> $groups */
+        $groups = [];
+
+        foreach ($this->allTraces as ['test' => $test, 'traces' => $traces]) {
+            foreach ($traces as $trace) {
+                [$subject, $frames] = \explode("\n", $trace, 2) + [1 => ''];
+
+                if (!isset($groups[$frames])) {
+                    $groups[$frames] = ['subjects' => [], 'count' => 0, 'example' => $test];
+                }
+
+                ++$groups[$frames]['count'];
+
+                if (!\in_array($subject, $groups[$frames]['subjects'], true)) {
+                    $groups[$frames]['subjects'][] = $subject;
+                }
             }
+        }
+
+        foreach ($groups as $frames => $group) {
+            echo \PHP_EOL . \sprintf('[MailEventTrace] %dx — e.g. %s', $group['count'], $group['example']) . \PHP_EOL;
+            foreach ($group['subjects'] as $subject) {
+                echo '  ' . $subject . \PHP_EOL;
+            }
+            echo $frames . \PHP_EOL;
         }
     }
 }

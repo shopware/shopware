@@ -7,8 +7,8 @@ use PHPUnit\Runner\Extension\Facade;
 use PHPUnit\Runner\Extension\ParameterCollection;
 use PHPUnit\TextUI\Configuration\Configuration;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\PHPUnit\Extension\MailEventTrace\Subscriber\BeforeTestMethodCalledSubscriber;
 use Shopware\Core\Test\PHPUnit\Extension\MailEventTrace\Subscriber\TestFinishedSubscriber;
+use Shopware\Core\Test\PHPUnit\Extension\MailEventTrace\Subscriber\TestPreparedSubscriber;
 use Shopware\Core\Test\PHPUnit\Extension\MailEventTrace\Subscriber\TestRunnerFinishedSubscriber;
 
 /**
@@ -22,10 +22,11 @@ class MailEventTraceExtension implements Extension
 {
     public function bootstrap(Configuration $configuration, Facade $facade, ParameterCollection $parameters): void
     {
-        $tracer = new MailEventTracer();
+        $stopBeforeTest = $parameters->has('stopBeforeTest') ? $parameters->get('stopBeforeTest') : '';
+        $tracer = new MailEventTracer($stopBeforeTest);
 
         $facade->registerSubscribers(
-            new BeforeTestMethodCalledSubscriber($tracer),
+            new TestPreparedSubscriber($tracer),
             new TestFinishedSubscriber($tracer),
             new TestRunnerFinishedSubscriber($tracer),
         );

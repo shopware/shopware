@@ -13,6 +13,11 @@
 Iframe-based Administration extensions now re-render correctly when their `locationId` changes.
 This fixes stale iframe content when switching locations in Meteor Admin SDK integrations and also prevents unnecessary full-page reloads.
 
+### Internal comments visible in the order list
+
+The Administration order list now shows internal order comments via a dedicated tooltip icon.
+This helps merchants spot internal notes directly from the list view without opening the order detail page.
+
 ## Storefront
 
 ### Order cancellation only shown for open orders

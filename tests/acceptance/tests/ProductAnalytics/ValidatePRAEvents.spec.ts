@@ -45,6 +45,7 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         await ShopAdmin.goesTo(AdminYourProfile.url('privacy-preferences'));
         await AdminYourProfile.dataSharingUsageDataCheckbox.click();
         await waitForCapturedRequests(capturedRequests, 1);
+        await ShopAdmin.expects(AdminYourProfile.dataSharingUsageDataCheckbox).toBeChecked();
     });
 
     await test.step('Navigate via link to order page from dashboard', async () => {

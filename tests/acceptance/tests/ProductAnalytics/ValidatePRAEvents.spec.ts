@@ -6,14 +6,36 @@ interface CapturedRequest {
     postData: string;
 }
 
-export interface AmplitudeEvent {
-    event_type: string;
-    event_properties: Record<string, string | number>;
-    event_id: number;
+interface ProductAnalyticsContext {
+    sw_version: string;
+    sw_app_url: string;
+    sw_browser_url: string;
+    sw_user_agent: string;
+    sw_default_language: string;
+    sw_default_currency: string;
+    sw_screen_width: number;
+    sw_screen_height: number;
+    sw_screen_orientation: string;
 }
 
-export interface AmplitudeRequestPayload {
-    events: AmplitudeEvent[];
+interface ProductAnalyticsUser {
+    shop_id: string;
+    id: string;
+}
+
+export interface ProductAnalyticsEvent {
+    name: string;
+    properties: Record<string, string | number | null>;
+    timestamp: number;
+    insert_id: string;
+    device_id: string;
+    session_id: number;
+}
+
+export interface ProductAnalyticsRequestPayload {
+    context: ProductAnalyticsContext;
+    events: ProductAnalyticsEvent[];
+    user: ProductAnalyticsUser;
 }
 
 const PRODUCT_ANALYTICS_ENDPOINT = 'httpapi';
@@ -113,46 +135,60 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
     });
 
     await test.step('Validate captured requests for product analytics', async () => {
+        const requests = parseCapturedRequests(captured);
+        expect(requests).toHaveLength(6);
 
-        const events = parseCapturedEvents(captured);
+        const events = requests.flatMap((request) => request.events);
         expect(events).toHaveLength(6);
 
-        const eventIds = events.map(e => e.event_id);
-        expect(eventIds).toEqual([1, 2, 3, 4, 5, 6]);
-
-        const eventTypes = events.map(e => e.event_type);
-        expect(eventTypes).toEqual([
-            'Link Visited',   // event_id 1
-            'Page Viewed',    // event_id 2
-            'Link Visited',   // event_id 3
-            'Page Viewed',    // event_id 4
-            'Button Click',   // event_id 5
-            'Page Viewed',    // event_id 6
+        const eventNames = events.map(e => e.name);
+        expect(eventNames).toEqual([
+            'link_visited',
+            'page_viewed',
+            'link_visited',
+            'page_viewed',
+            'button_click',
+            'page_viewed',
         ]);
 
+        requests.forEach((request) => {
+            expect(request.user.shop_id).toBeTruthy();
+            expect(request.user.id).toBeTruthy();
+            expect(request.context.sw_version).toBeTruthy();
+            expect(request.context.sw_app_url).toBeTruthy();
+            expect(request.context.sw_browser_url).toBeTruthy();
+            expect(request.context.sw_user_agent).toBeTruthy();
+            expect(request.context.sw_default_language).toBeTruthy();
+            expect(request.context.sw_default_currency).toBeTruthy();
+            expect(request.context.sw_screen_width).toBeGreaterThan(0);
+            expect(request.context.sw_screen_height).toBeGreaterThan(0);
+            expect(request.context.sw_screen_orientation).toBeTruthy();
+
+            request.events.forEach((event) => {
+                expect(event.timestamp).toBeGreaterThan(0);
+                expect(event.insert_id).toBeTruthy();
+                expect(event.device_id).toBeTruthy();
+                expect(event.session_id).toBeGreaterThan(0);
+            });
+        });
+
         const [
-            firstLinkVisited,    // event_id 1
-            pageViewed,          // event_id 2
-            linkVisited,         // event_id 3
-            pageViewedDetail,    // event_id 4
-            buttonClicked,       // event_id 5
-            pageViewedBackToDash,// event_id 6
+            firstLinkVisited,
+            pageViewed,
+            linkVisited,
+            pageViewedDetail,
+            buttonClicked,
+            pageViewedBackToDash,
         ] = events;
 
-        // ----------------------
-        // event_id = 1: first Link Visited (dashboard -> order listing)
-        // ----------------------
-        const firstLinkVisitedProps = firstLinkVisited.event_properties;
+        const firstLinkVisitedProps = firstLinkVisited.properties;
 
         expect(firstLinkVisitedProps.sw_link_href).toBe('#/sw/order/index');
         expect(firstLinkVisitedProps.sw_link_type).toBe('internal');
         expect(firstLinkVisitedProps.sw_page_path).toBe('/sw/dashboard/index');
         expect(firstLinkVisitedProps.sw_page_name).toBe('sw.dashboard.index');
 
-        // ----------------------
-        // event_id = 2: first Page Viewed (dashboard -> order listing)
-        // ----------------------
-        const pageViewEventProps = pageViewed.event_properties;
+        const pageViewEventProps = pageViewed.properties;
 
         expect(pageViewEventProps.sw_route_from_name).toBe('sw.dashboard.index');
         expect(pageViewEventProps.sw_route_from_href).toBe('/sw/dashboard/index');
@@ -162,10 +198,7 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(pageViewEventProps.sw_page_path).toBe('/sw/order/index');
         expect(pageViewEventProps.sw_page_full_path).toContain('/sw/order/index?limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false');
 
-        // ----------------------
-        // event_id = 3: Link Visited (clicking into order detail from listing)
-        // ----------------------
-        const linkVisitedProps = linkVisited.event_properties;
+        const linkVisitedProps = linkVisited.properties;
 
         expect(linkVisitedProps.sw_link_href).toContain(`#/sw/order/detail/${order.id}`);
         expect(linkVisitedProps.sw_page_full_path).toContain('/sw/order/index?limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false&grid.filter.order=null')
@@ -173,10 +206,7 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(linkVisitedProps.sw_page_path).toBe('/sw/order/index');
         expect(linkVisitedProps.sw_page_name).toBe('sw.order.index');
 
-        // ----------------------
-        // event_id = 4: Page Viewed (order detail.general)
-        // ----------------------
-        const pageViewedDetailProps = pageViewedDetail.event_properties;
+        const pageViewedDetailProps = pageViewedDetail.properties;
 
         expect(pageViewedDetailProps.sw_route_from_name).toBe('sw.order.index');
         expect(pageViewedDetailProps.sw_route_from_href).toBe('/sw/order/index');
@@ -186,20 +216,14 @@ test('As a merchant, I want to make sure admin events are sent correctly.', { ta
         expect(pageViewedDetailProps.sw_page_path).toContain('/sw/order/detail/');
         expect(pageViewedDetailProps.sw_page_full_path).toBe(`/sw/order/detail/${order.id}/general`);
 
-        // ----------------------
-        // event_id = 5: Button Click
-        // ----------------------
-        const buttonEventProps = buttonClicked.event_properties;
+        const buttonEventProps = buttonClicked.properties;
 
         expect(buttonEventProps.sw_element_id).toBe('sw-order-detail.save-edits');
         expect(buttonEventProps.sw_page_full_path).toBe(`/sw/order/detail/${order.id}/general`);
         expect(buttonEventProps.sw_page_path).toBe(`/sw/order/detail/${order.id}/general`);
         expect(buttonEventProps.sw_page_name).toBe('sw.order.detail.general');
 
-        // ----------------------
-        // event_id = 6: final Page Viewed (back to dashboard)
-        // ----------------------
-        const pageViewedBackToDashProps = pageViewedBackToDash.event_properties;
+        const pageViewedBackToDashProps = pageViewedBackToDash.properties;
 
         expect(pageViewedBackToDashProps.sw_route_from_name).toBe('sw.order.detail.general');
         expect(pageViewedBackToDashProps.sw_route_from_href).toBe(`/sw/order/detail/${order.id}/general`);
@@ -264,20 +288,20 @@ test('As a merchant, I want to make sure no admin events are sent when I do not 
     });
 });
 
-function parseCapturedEvents(captured: CapturedRequest[]): AmplitudeEvent[] {
-    const events: AmplitudeEvent[] = [];
+function parseCapturedRequests(captured: CapturedRequest[]): ProductAnalyticsRequestPayload[] {
+    const requests: ProductAnalyticsRequestPayload[] = [];
 
     for (const c of captured) {
         if (!c.postData) continue;
         try {
-            const parsed: AmplitudeRequestPayload = JSON.parse(c.postData);
-            if (Array.isArray(parsed.events)) {
-                events.push(...parsed.events);
+            const parsed: ProductAnalyticsRequestPayload = JSON.parse(c.postData);
+            if (parsed && typeof parsed.context === 'object' && Array.isArray(parsed.events)) {
+                requests.push(parsed);
             }
         } catch {
             // If not JSON, ignore for now
         }
     }
 
-    return events;
+    return requests;
 }

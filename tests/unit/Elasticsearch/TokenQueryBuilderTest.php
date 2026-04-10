@@ -18,6 +18,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -56,6 +57,7 @@ class TokenQueryBuilderTest extends TestCase
         $this->tokenQueryBuilder = new TokenQueryBuilder(
             $this->getRegistry(),
             new CustomFieldServiceMock([
+                'evolvesBool' => new BoolField('evolvesBool', 'evolvesBool'),
                 'evolvesInt' => new IntField('evolvesInt', 'evolvesInt'),
                 'evolvesFloat' => new FloatField('evolvesFloat', 'evolvesFloat'),
                 'evolvesText' => new StringField('evolvesText', 'evolvesText'),
@@ -340,6 +342,7 @@ class TokenQueryBuilderTest extends TestCase
 
         yield 'Test multiple custom fields with terms' => [
             'config' => [
+                self::config(field: 'customFields.evolvesBool', ranking: 600),
                 self::config(field: 'customFields.evolvesText', ranking: 500),
                 self::config(field: 'customFields.evolvesInt', ranking: 400),
                 self::config(field: 'customFields.evolvesFloat', ranking: 500),
@@ -456,6 +459,7 @@ class TokenQueryBuilderTest extends TestCase
 
         yield 'Test multiple custom fields with numeric term' => [
             'config' => [
+                self::config(field: 'customFields.evolvesBool', ranking: 600),
                 self::config(field: 'customFields.evolvesText', ranking: 500),
                 self::config(field: 'customFields.evolvesInt', ranking: 400),
                 self::config(field: 'customFields.evolvesFloat', ranking: 500),
@@ -487,8 +491,9 @@ class TokenQueryBuilderTest extends TestCase
             ]),
         ];
 
-        yield 'Test multiple custom fields with text term' => [
+        yield 'Test invalid boolean custom field token still matches text custom fields' => [
             'config' => [
+                self::config(field: 'customFields.evolvesBool', ranking: 600),
                 self::config(field: 'customFields.evolvesText', ranking: 500),
                 self::config(field: 'customFields.evolvesInt', ranking: 400),
                 self::config(field: 'customFields.evolvesFloat', ranking: 500),
@@ -506,6 +511,39 @@ class TokenQueryBuilderTest extends TestCase
                     self::match($prefixCfLang2 . 'evolvesText.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
                     self::prefix($prefixCfLang2 . 'evolvesText.search', 'foo', 0.4),
                 ], 400),
+            ]),
+        ];
+
+        yield 'Test boolean custom field with boolean term' => [
+            'config' => [
+                self::config(field: 'customFields.evolvesBool', ranking: 600),
+            ],
+            'term' => 'true',
+            'expected' => self::disMax([
+                self::term($prefixCfLang1 . 'evolvesBool', true, 600),
+                self::term($prefixCfLang2 . 'evolvesBool', true, 480),
+            ]),
+        ];
+
+        yield 'Test boolean custom field with numeric true term' => [
+            'config' => [
+                self::config(field: 'customFields.evolvesBool', ranking: 600),
+            ],
+            'term' => '1',
+            'expected' => self::disMax([
+                self::term($prefixCfLang1 . 'evolvesBool', true, 600),
+                self::term($prefixCfLang2 . 'evolvesBool', true, 480),
+            ]),
+        ];
+
+        yield 'Test boolean custom field with numeric false term' => [
+            'config' => [
+                self::config(field: 'customFields.evolvesBool', ranking: 600),
+            ],
+            'term' => '0',
+            'expected' => self::disMax([
+                self::term($prefixCfLang1 . 'evolvesBool', false, 600),
+                self::term($prefixCfLang2 . 'evolvesBool', false, 480),
             ]),
         ];
     }
@@ -598,9 +636,9 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return array{term: array<string, array{value: string|int|float, boost: int|float}>}
+     * @return array{term: array<string, array{value: string|int|float|bool, boost: int|float}>}
      */
-    private static function term(string $field, string|int|float $query, int|float $boost): array
+    private static function term(string $field, string|int|float|bool $query, int|float $boost): array
     {
         $normalizedBoost = ($boost === 1 || $boost === 1.0) ? 1 : (float) $boost;
 

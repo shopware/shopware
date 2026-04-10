@@ -39,6 +39,7 @@
 
         <sw-iframe-renderer
             v-if="componentSection.props?.locationId && !componentSection.props?.tabs"
+            :key="componentSection.props.locationId"
             :src="componentSection.src"
             :location-id="componentSection.props.locationId"
         />
@@ -46,6 +47,7 @@
     <div v-else-if="componentSection.component === 'div'">
         <sw-iframe-renderer
             v-if="componentSection.props?.locationId"
+            :key="componentSection.props.locationId"
             :src="componentSection.src"
             :location-id="componentSection.props.locationId"
         />

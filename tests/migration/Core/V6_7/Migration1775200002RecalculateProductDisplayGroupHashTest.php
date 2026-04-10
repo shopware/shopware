@@ -6,7 +6,9 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1775200001IncreaseProductDisplayGroupLength;
@@ -77,6 +79,7 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
 
         $migration->update($this->connection);
         $migration->update($this->connection);
+        $this->runScheduledVariantListingIndexer();
 
         $parentDisplayGroup = $this->connection->fetchOne(
             'SELECT display_group FROM product WHERE id = :id AND version_id = :versionId',
@@ -190,6 +193,7 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
 
         (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
+        $this->runScheduledVariantListingIndexer();
 
         $parentDisplayGroup = $this->connection->fetchOne(
             'SELECT display_group FROM product WHERE id = :id AND version_id = :versionId',
@@ -254,6 +258,7 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
 
         (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
+        $this->runScheduledVariantListingIndexer();
 
         $expectedHash = hash('sha256', strtoupper($parentIdHex));
         $variantDisplayGroups = $this->connection->fetchFirstColumn(
@@ -289,6 +294,7 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
 
         (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
+        $this->runScheduledVariantListingIndexer();
 
         $displayGroup = $this->connection->fetchOne(
             'SELECT display_group FROM product WHERE id = :id AND version_id = :versionId',
@@ -347,6 +353,7 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
 
         (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
+        $this->runScheduledVariantListingIndexer();
 
         $expectedHash = hash('sha256', strtoupper($parentIdHex));
         $variantDisplayGroups = $this->connection->fetchFirstColumn(
@@ -408,6 +415,7 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
 
         (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
+        $this->runScheduledVariantListingIndexer();
 
         $expectedHash = hash('sha256', strtoupper($parentIdHex));
         $variantDisplayGroups = $this->connection->fetchFirstColumn(
@@ -465,6 +473,7 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
 
         (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
+        $this->runScheduledVariantListingIndexer();
 
         $expectedHash = hash('sha256', strtoupper($parentIdHex));
         $variantDisplayGroups = $this->connection->fetchFirstColumn(
@@ -525,6 +534,7 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
 
         (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
+        $this->runScheduledVariantListingIndexer();
 
         $expectedHash = hash('sha256', strtoupper($parentIdHex));
         $variantDisplayGroups = $this->connection->fetchFirstColumn(
@@ -632,6 +642,7 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
 
         (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
+        $this->runScheduledVariantListingIndexer();
 
         $rows = $this->connection->fetchAllAssociative(
             'SELECT product_number, display_group FROM product WHERE id IN (:ids) AND version_id = :version ORDER BY product_number ASC',
@@ -650,6 +661,20 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
         );
 
         $this->cleanupListingGroupRows($groupBytes, [$optionRedBytes, $optionGreenBytes], [$variantAId, $variantBId, $parentId]);
+    }
+
+    /**
+     * Same product index subset as {@see Migration1775200002RecalculateProductDisplayGroupHash} schedules via
+     * {@see \Shopware\Core\Framework\Migration\IndexerQueuer} (variant listing / display_group only).
+     */
+    private function runScheduledVariantListingIndexer(): void
+    {
+        $registry = KernelLifecycleManager::getKernel()->getContainer()->get(EntityIndexerRegistry::class);
+        $productIndexer = $registry->getIndexer('product.indexer');
+        static::assertNotNull($productIndexer);
+
+        $skipList = \array_values(\array_diff($productIndexer->getOptions(), [ProductIndexer::VARIANT_LISTING_UPDATER]));
+        $registry->index(false, $skipList, ['product.indexer']);
     }
 
     private function cleanupByProductNumbers(): void

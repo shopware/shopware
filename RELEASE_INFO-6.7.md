@@ -10,7 +10,7 @@
 
 The `display_group` field on the `product` entity (available via the Admin API and Store API) is now computed with SHA-256 for variant listing instead of MD5. Stored values are 64 hexadecimal characters instead of 32. The database column was widened to `VARCHAR(64)`.
 
-Migrations backfill existing installations during upgrade so variant listing behaviour matches the new algorithm. If your integration or plugin assumes a 32-character `display_group`, compares against previously stored MD5 values, or relies on custom SQL with the old column width, update it to accept 64-character hashes and the new column definition.
+A migration registers the product indexer so that only the variant listing updater (`product.variant-listing`, the step that maintains `display_group`) is queued. That pass runs with the usual deferred indexing after an update or installation finishes, not inside the migration. If your integration or plugin assumes a 32-character `display_group`, compares against previously stored MD5 values, or relies on custom SQL with the old column width, update it to accept 64-character hashes and the new column definition.
 
 ## Administration
 

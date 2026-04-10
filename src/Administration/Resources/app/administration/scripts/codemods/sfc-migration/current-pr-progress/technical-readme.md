@@ -323,7 +323,7 @@ Each item below has a corresponding `.unfinished.md` file in this directory:
 | [extend-soft-blocker-inlining.unfinished.md](extend-soft-blocker-inlining.unfinished.md) | `Shopware.Component.extend()` triggers backoff with no inlining attempt |
 | [runner-tests.finished.md](runner-tests.finished.md) | ✅ 23 tests in `run-sfc-migration.spec.ts` — `findTwigFile`, `normaliseJsContent`, dry-run, write, skip, not-migratable, partial |
 | [overwrite-protection.finished.md](overwrite-protection.finished.md) | ✅ Skip existing `.vue` by default; `--force` flag to overwrite; `skippedExisting` counter |
-| [normalise-js-content-fragile.unfinished.md](normalise-js-content-fragile.unfinished.md) | `normaliseJsContent` uses fragile string replacement |
+| [normalise-js-content-fragile.finished.md](normalise-js-content-fragile.finished.md) | ✅ `normaliseJsContent` rewritten with ts-morph AST; 2 regression tests added |
 | [pr-description.unfinished.md](pr-description.unfinished.md) | PR description body is empty |
 | [pr-checklist.unfinished.md](pr-checklist.unfinished.md) | PR checklist items are all unchecked |
 | [codemod-tooling-integration.unfinished.md](codemod-tooling-integration.unfinished.md) | Not wired into the admin codemod CLI tooling |

@@ -23,6 +23,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { globSync } from 'glob';
+import { Project, ScriptKind } from 'ts-morph';
 import { mergeComponentFiles } from './generate-sfc';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -55,25 +56,32 @@ export function findTwigFile(dir: string): string | null {
  * Components in `src/app` export their options object directly via
  * `export default { … }` rather than calling `Shopware.Component.register`.
  * Wrap them so `transform-script.ts` can locate the options object via AST.
+ *
+ * Uses ts-morph AST to locate the exact text range of the export default
+ * statement, avoiding false matches on other `};` patterns in the file.
  */
 export function normaliseJsContent(jsContent: string, componentName: string): string {
-    const exportDefaultMatch = jsContent.match(/^(export\s+default\s*)\{/m);
-    if (!exportDefaultMatch) {
+    const project = new Project({
+        useInMemoryFileSystem: true,
+        compilerOptions: { allowJs: true },
+        skipAddingFilesFromTsConfig: true,
+    });
+    const sourceFile = project.createSourceFile('component.js', jsContent, { scriptKind: ScriptKind.JS });
+
+    const exportDefault = sourceFile.getExportAssignment((e) => !e.isExportEquals());
+    if (!exportDefault) {
         return jsContent;
     }
 
-    const replaced = jsContent.replace(
-        /^export\s+default\s*\{/m,
-        `Shopware.Component.register('${componentName}', {`,
+    const start = exportDefault.getStart();
+    const end = exportDefault.getEnd();
+    const objectLiteralText = exportDefault.getExpression().getText();
+
+    return (
+        jsContent.slice(0, start) +
+        `Shopware.Component.register('${componentName}', ${objectLiteralText});` +
+        jsContent.slice(end)
     );
-
-    // Close the register() call — replace the last `};` that ends the default export
-    const lastSemicolon = replaced.lastIndexOf('};');
-    if (lastSemicolon === -1) {
-        return replaced;
-    }
-
-    return replaced.slice(0, lastSemicolon) + '});' + replaced.slice(lastSemicolon + 2);
 }
 
 export function runMigration(targetDir: string, options: RunOptions): RunResult {

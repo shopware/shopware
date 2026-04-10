@@ -131,16 +131,15 @@ Test coverage is entirely fixture-based. There is no proof that the codemod work
 | `transform-template.spec.ts` | ✅ Full coverage — 4 fixtures (block, simple, twig-comments, extends-template) |
 | `generate-sfc.spec.ts` | ✅ Full coverage |
 | `transform-script.spec.ts` | ✅ Full coverage — 9 fixtures (simple, block, created, module-level, mixin, render, composables, inherit-attrs, extend) |
-| `run-sfc-migration.spec.ts` | ✅ Full coverage — 25 tests |
+| `run-sfc-migration.spec.ts` | ✅ Full coverage — 31 tests |
 
-**Total: 159 tests, all passing**
+**Total: 161 tests, all passing**
 
 ### ~~8. Overwrite Without Warning~~ ✅ Done
 Existing `.vue` files are skipped by default. Pass `--force` to overwrite. `skippedExisting` counter added to stats and summary. 6 new tests in `run-sfc-migration.spec.ts`.
 
-### 9. `normaliseJsContent` Is Fragile
-The function that wraps `export default {}` components replaces the last `};` in the file. This can produce invalid JS if the component has nested `};` patterns at the module level.  
-**Needed:** An AST-based rewrite or a more robust delimiter strategy.
+### ~~9. `normaliseJsContent` Is Fragile~~ ✅ Done
+Rewrote `normaliseJsContent` in `run-sfc-migration.ts` using ts-morph AST. The old `lastIndexOf('};')` approach would corrupt files that have a `};` pattern (e.g. a module-level const) after the export default block. The new implementation locates the `ExportAssignment` node by position and replaces only that exact range. Two new regression tests added covering the before/after cases. 161 tests, all passing.
 
 ### 10. PR Description Is Incomplete
 The "What does this change do, exactly?" section in the PR body is blank.  

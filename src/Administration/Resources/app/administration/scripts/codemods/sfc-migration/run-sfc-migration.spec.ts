@@ -70,6 +70,43 @@ describe('normaliseJsContent', () => {
         expect(result).toContain('return {\n            x: 1,\n        };');
         expect(result.endsWith('});')).toBe(true);
     });
+
+    it('does not match a module-level `};` that appears before the export default', () => {
+        const input = [
+            `const DEFAULT_CONFIG = {`,
+            `    timeout: 5000,`,
+            `};`,
+            ``,
+            `export default {`,
+            `    data() { return {}; },`,
+            `};`,
+        ].join('\n');
+        const result = normaliseJsContent(input, 'sw-config');
+        expect(result).toContain(`Shopware.Component.register('sw-config', {`);
+        expect(result).toContain('const DEFAULT_CONFIG = {');
+        expect(result).not.toContain('export default');
+    });
+
+    it('does not corrupt trailing module-level code that contains `};` after the export default', () => {
+        // This is the actual bug: the old lastIndexOf('};') would have matched the
+        // TRAILING constant's closing `};` instead of the export default's.
+        const input = [
+            `export default {`,
+            `    data() { return { x: 1 }; },`,
+            `};`,
+            ``,
+            `const TRAILING = {`,
+            `    timeout: 5000,`,
+            `};`,
+        ].join('\n');
+        const result = normaliseJsContent(input, 'sw-trailing');
+        expect(result).toContain(`Shopware.Component.register('sw-trailing', {`);
+        // trailing const must survive unchanged
+        expect(result).toContain('const TRAILING = {');
+        expect(result).toContain('    timeout: 5000,');
+        // export default keyword must be gone
+        expect(result).not.toContain('export default');
+    });
 });
 
 describe('runMigration — dry-run (default)', () => {

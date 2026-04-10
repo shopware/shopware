@@ -435,7 +435,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
                             recipient: mockOrderWithMailHeaderFooter.orderCustomer.email,
                         },
                     });
-                    expect(mailTemplateMedia.length).toBe(1);
+                    expect(mailTemplateMedia).toHaveLength(1);
                     expect(mailTemplateMedia[0]).toEqual(mockMailTemplates[0].media.first().media);
                     expect(salesChannelId).toEqual(mockOrderWithMailHeaderFooter.salesChannelId);
                     expect(testMode).toBe(false);

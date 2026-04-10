@@ -16,8 +16,8 @@
 module.exports = async (browser, context) => {
     const page = await browser.newPage();
 
-    // Navigate to page
-    await page.goto(`${context.url}`);
+    // Navigate to page (wait for document; SPA + /oauth/sso/config load afterwards)
+    await page.goto(`${context.url}`, { waitUntil: 'load' });
 
     // If this selector exists, we are already logged in
     try {
@@ -27,15 +27,21 @@ module.exports = async (browser, context) => {
         // not logged in, continue to login flow
     }
 
-    // Wait for the login form to be available
-    await page.waitForSelector('input[name="sw-field--username"]', { timeout: 30000 });
+    // Default login fields live in form.sw-login-login and only mount after loginConfig is loaded.
+    // Meteor mt-text-field may not expose name="sw-field--username" on the native input in all builds;
+    // use type + form scope (matches one username + one password field).
+    const form = 'form.sw-login-login';
+    const userField = `${form} input[type="text"]`;
+    const passField = `${form} input[type="password"]`;
 
-    // Fill in the login credentials (default Shopware admin credentials)
-    await page.type('input[name="sw-field--username"]', 'admin');
-    await page.type('input[name="sw-field--password"]', 'shopware');
+    await page.waitForSelector(userField, { timeout: 90000 });
+    await page.waitForSelector(passField, { timeout: 90000 });
 
-    // Click the login button
-    await page.click('button[type="submit"]');
+    await page.type(userField, 'admin');
+    await page.type(passField, 'shopware');
+
+    // mt-button may merge type from attrs; class is stable on the login CTA
+    await page.click(`${form} .sw-login__login-action`);
 
     // Wait for successful login - the admin should load
     // This indicates the boot process has completed

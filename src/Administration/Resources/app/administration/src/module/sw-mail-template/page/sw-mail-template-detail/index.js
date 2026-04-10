@@ -415,13 +415,13 @@ export default {
 
             this.showLanguageNotAssignedToSalesChannelWarning = false;
 
-            await this.setMailPreview();
+            const simulatedMailPreview = await this.simulateMailPreview();
 
-            if (!this.mailPreview) {
+            if (!simulatedMailPreview) {
                 return;
             }
 
-            if (this.hasPreviewErrors()) {
+            if (this.hasPreviewErrors(simulatedMailPreview)) {
                 this.createNotificationError({
                     message: this.$t('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
                 });
@@ -434,10 +434,10 @@ export default {
                     this.testerMail,
                     this.testerMail,
                     {
-                        subject: this.mailPreview.subject.content,
-                        senderName: this.mailPreview.senderName.content,
-                        contentHtml: this.mailPreview.contentHtml.content,
-                        contentPlain: this.mailPreview.contentPlain.content,
+                        subject: simulatedMailPreview.subject.content,
+                        senderName: simulatedMailPreview.senderName.content,
+                        contentHtml: simulatedMailPreview.contentHtml.content,
+                        contentPlain: simulatedMailPreview.contentPlain.content,
                     },
                     this.mailTemplateMedia,
                     this.testMailSalesChannelId,
@@ -465,9 +465,9 @@ export default {
                 });
         },
 
-        hasPreviewErrors() {
+        hasPreviewErrors(mailPreview = this.mailPreview) {
             return ['subject', 'senderName', 'contentHtml', 'contentPlain']
-                .some((key) => this.mailPreview?.[key]?.type === 'error');
+                .some((key) => mailPreview?.[key]?.type === 'error');
         },
 
         onTriggerEventChange(eventName) {
@@ -480,7 +480,7 @@ export default {
             await this.setMailPreview();
         },
 
-        async setMailPreview() {
+        async simulateMailPreview() {
             this.isLoading = true;
 
             if (!this.triggerEvent) {
@@ -489,15 +489,13 @@ export default {
                 return;
             }
 
-            const mailTemplate = this.mailPreviewContent();
-
             return this.mailService
                 .simulateMailTemplate(
                     {
-                        subject: mailTemplate.subject ?? mailTemplate.translated?.subject,
-                        senderName: mailTemplate.senderName ?? mailTemplate.translated?.senderName,
-                        contentHtml: mailTemplate.contentHtml ?? mailTemplate.translated?.contentHtml,
-                        contentPlain: mailTemplate.contentPlain ?? mailTemplate.translated?.contentPlain,
+                        subject: this.mailTemplate.subject ?? this.mailTemplate.translated?.subject,
+                        senderName: this.mailTemplate.senderName ?? this.mailTemplate.translated?.senderName,
+                        contentHtml: this.mailTemplate.contentHtml ?? this.mailTemplate.translated?.contentHtml,
+                        contentPlain: this.mailTemplate.contentPlain ?? this.mailTemplate.translated?.contentPlain,
                     },
                     this.triggerEvent.name,
                     true,
@@ -513,48 +511,18 @@ export default {
                         }
                     });
 
-                    this.mailPreview = response;
-
                     return response;
                 })
-                .catch(() => {
-                    this.mailPreview = null;
-                })
+                .catch(() => null)
                 .finally(() => {
                     this.isLoading = false;
                 });
         },
 
-        mailPreviewContent() {
-            const mailTemplate = { ...this.mailTemplate };
+        async setMailPreview() {
+            this.mailPreview = await this.simulateMailPreview() ?? null;
 
-            if (mailTemplate.contentHtml) {
-                mailTemplate.contentHtml = this.replaceContent(mailTemplate.contentHtml);
-            }
-
-            if (mailTemplate.translated?.contentHtml) {
-                mailTemplate.translated.contentHtml = this.replaceContent(mailTemplate.translated.contentHtml);
-            }
-
-            if (mailTemplate.contentPlain) {
-                mailTemplate.contentPlain = this.replaceContent(mailTemplate.contentPlain);
-            }
-
-            if (mailTemplate.translated?.contentPlain) {
-                mailTemplate.translated.contentPlain = this.replaceContent(mailTemplate.translated.contentPlain);
-            }
-
-            return mailTemplate;
-        },
-
-        replaceContent(string) {
-            // Replace .at([index]), first -> `.[index]` to suitable with mail template data
-            return string
-                .replace(/\.at\(([0-9]*)\)\./g, (matchs) => {
-                    const index = parseInt(matchs.match(/[0-9]/g).join(''), 10);
-                    return `.${index}.`;
-                })
-                .replace(/\.first\./g, '.0.');
+            return this.mailPreview;
         },
 
         onCancelShowPreview() {

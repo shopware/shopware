@@ -488,6 +488,7 @@
                         <sw-tree
                             class="sw-mail-template-detail__available-variables-sidebar-container__tree"
                             :searchable="false"
+                            :allow-create-categories="false"
                             :disable-context-menu="true"
                             :on-change-route="() => { return false; }"
                             :items="loadedAvailableVariables"

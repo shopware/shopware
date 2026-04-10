@@ -570,6 +570,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             undefined,
             '6666673yd1ssd299si1d837dy1ud628',
         );
+        expect(wrapper.vm.mailPreview).toBeNull();
     });
 
     it('should be able to send test mails when only inherited values are filled', async () => {
@@ -674,10 +675,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         });
     });
 
-    it('should replace variables in html content when send mail test', async () => {
+    it('should send the original template content to the simulator when sending a test mail', async () => {
         const wrapper = await createWrapper(['api_send_email']);
-
-        const spyMailPreviewContent = jest.spyOn(wrapper.vm, 'mailPreviewContent');
 
         await wrapper.setData({
             mailTemplate: {
@@ -700,15 +699,12 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         await sendTestMail.trigger('click');
         await flushPromises();
 
-        const contentHtmlAfterReplace =
-            '{{ order.deliveries.0.stateMachineState.translated.name }} {{ order.deliveries.1.trackingCodes.0 }},<br/><br/>';
-
-        expect(spyMailPreviewContent).toHaveBeenCalled();
         expect(wrapper.vm.mailService.simulateMailTemplate).toHaveBeenCalledWith(
             {
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 senderName: '{{ salesChannel.name }}',
-                contentHtml: contentHtmlAfterReplace,
+                contentHtml:
+                    '{{ order.deliveries.first.stateMachineState.translated.name }} {{ order.deliveries.at(1).trackingCodes.0 }},<br/><br/>',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
             },
             'checkout.order.placed',

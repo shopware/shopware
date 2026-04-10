@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 interface ProductStreamBuilderInterface
 {
     /**
+     * @deprecated tag:v6.8.0 - Will be removed, use AbstractProductStreamBuilder::enrichCriteria instead
+     *
      * @return array<int, Filter>
      */
     public function buildFilters(

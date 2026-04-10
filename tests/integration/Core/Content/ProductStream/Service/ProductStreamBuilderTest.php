@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\ProductStream\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -16,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -23,6 +26,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -173,6 +177,72 @@ class ProductStreamBuilderTest extends TestCase
         static::assertInstanceOf(MultiFilter::class, $filter);
 
         static::assertEquals($expected, $filter);
+    }
+
+    #[IgnoreDeprecations]
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testBuildFiltersTriggersDeprecation(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('product_stream.repository')->create([[
+            'id' => $ids->get('stream'),
+            'name' => 'deprecated-build-filters',
+            'filters' => [[
+                'type' => 'equals',
+                'field' => 'product.id',
+                'value' => Uuid::randomHex(),
+            ]],
+        ]], Context::createDefaultContext());
+
+        $serverTestsRunning = $_SERVER['TESTS_RUNNING'] ?? null;
+        $envTestsRunning = $_ENV['TESTS_RUNNING'] ?? null;
+        $_SERVER['TESTS_RUNNING'] = false;
+        $_ENV['TESTS_RUNNING'] = false;
+
+        try {
+            $this->expectUserDeprecationMessageMatches(
+                '/Method "Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Service\\\\ProductStreamBuilder::buildFilters\\(\\)" is deprecated and will be removed in v6\\.8\\.0\\.0\\./'
+            );
+
+            $this->service->buildFilters($ids->get('stream'), Context::createDefaultContext());
+        } finally {
+            if ($serverTestsRunning === null) {
+                unset($_SERVER['TESTS_RUNNING']);
+            } else {
+                $_SERVER['TESTS_RUNNING'] = $serverTestsRunning;
+            }
+
+            if ($envTestsRunning === null) {
+                unset($_ENV['TESTS_RUNNING']);
+            } else {
+                $_ENV['TESTS_RUNNING'] = $envTestsRunning;
+            }
+        }
+    }
+
+    public function testBuildFiltersThrowsWhenFeatureIsActive(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('product_stream.repository')->create([[
+            'id' => $ids->get('stream'),
+            'name' => 'deprecated-build-filters-throw',
+            'filters' => [[
+                'type' => 'equals',
+                'field' => 'product.id',
+                'value' => Uuid::randomHex(),
+            ]],
+        ]], Context::createDefaultContext());
+
+        $this->expectException(FeatureException::class);
+        $this->expectExceptionMessage(
+            'Tried to access deprecated functionality: Method "Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder::buildFilters()" is deprecated and will be removed in v6.8.0.0. Use "Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder::enrichCriteria" instead.'
+        );
+
+        Feature::fake(['v6.8.0.0'], function () use ($ids): void {
+            $this->service->buildFilters($ids->get('stream'), Context::createDefaultContext());
+        });
     }
 
     public function testNoFilters(): void

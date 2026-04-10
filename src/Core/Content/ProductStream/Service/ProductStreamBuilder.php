@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('inventory')]
@@ -40,10 +41,17 @@ class ProductStreamBuilder extends AbstractProductStreamBuilder implements Produ
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed, use enrichCriteria instead
+     *
      * @return array<int, Filter>
      */
     public function buildFilters(string $id, Context $context): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', AbstractProductStreamBuilder::class . '::enrichCriteria')
+        );
+
         return $this->parseFilters($this->loadStream($id, $context), $id);
     }
 

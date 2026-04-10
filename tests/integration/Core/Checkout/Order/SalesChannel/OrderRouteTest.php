@@ -720,6 +720,10 @@ class OrderRouteTest extends TestCase
     private function handleMailSentEvent(MailSentEvent $event): void
     {
         ++$this->mailSentEventCounter;
+        fwrite(STDERR, "\n=== MAIL SENT EVENT ===\n");
+        fwrite(STDERR, "Subject: " . $event->getSubject() . "\n");
+        fwrite(STDERR, "HTML (first 500): " . substr($event->getContents()['text/html'] ?? '', 0, 500) . "\n");
+        fwrite(STDERR, "=== END MAIL ===\n");
         static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
         static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
     }

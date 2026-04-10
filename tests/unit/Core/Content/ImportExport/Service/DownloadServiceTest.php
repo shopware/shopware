@@ -111,10 +111,17 @@ class DownloadServiceTest extends TestCase
         $fileSystem = $this->createFileSystem();
         $fileSystem->method('temporaryUrl')->willThrowException(new UnableToGenerateTemporaryUrl('reason', '/any/path'));
         $fileSystem->method('fileSize')->willReturn(100);
-        $tempFile = tempnam(sys_get_temp_dir(), 'import-export-download-test-');
-        static::assertNotFalse($tempFile);
-        file_put_contents($tempFile, 'test');
-        $fileSystem->method('readStream')->willReturn(fopen($tempFile, 'r'));
+
+        if ($strategy === DownloadService::X_SENDFILE_DOWNLOAD_STRATEGY) {
+            $stream = fopen('php://memory', 'r+');
+            static::assertIsResource($stream);
+            fwrite($stream, 'test');
+            rewind($stream);
+            $fileSystem->method('readStream')->willReturn($stream);
+            $expectedResponse->headers->set(DownloadService::X_SENDFILE_DOWNLOAD_STRATEGY, 'php://memory');
+        } else {
+            $fileSystem->expects($this->never())->method('readStream');
+        }
 
         $downloadService = $this->createDownloadService(
             fileSystem: $fileSystem,
@@ -125,13 +132,7 @@ class DownloadServiceTest extends TestCase
 
         $response = $downloadService->createFileResponse(Context::createDefaultContext(), $fileId, 'validAccessToken');
 
-        if ($strategy === DownloadService::X_SENDFILE_DOWNLOAD_STRATEGY) {
-            $expectedResponse->headers->set(DownloadService::X_SENDFILE_DOWNLOAD_STRATEGY, $tempFile);
-        }
-
         AssertResponseHelper::assertResponseEquals($expectedResponse, $response);
-
-        unlink($tempFile);
     }
 
     /**
@@ -381,9 +382,7 @@ class DownloadServiceTest extends TestCase
     ): DownloadService {
         $fileSystem ??= $this->createFileSystem();
         $fileRepository ??= $this->createFileRepository();
-        $logger ??= $this->createMock(LoggerInterface::class);
-
-        static::assertInstanceOf(LoggerInterface::class, $logger);
+        $logger ??= static::createStub(LoggerInterface::class);
 
         return new DownloadService(
             $fileSystem,

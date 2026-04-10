@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWi
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
@@ -142,6 +143,10 @@ class ProductEntity extends Entity implements \Stringable
 
     protected ?string $metaTitle = null;
 
+    protected ?string $ogTitle = null;
+
+    protected ?string $ogDescription = null;
+
     protected ?string $packUnit = null;
 
     protected ?string $packUnitPlural = null;
@@ -249,6 +254,10 @@ class ProductEntity extends Entity implements \Stringable
     protected ?ProductStreamCollection $streams = null;
 
     protected ?ProductDownloadCollection $downloads = null;
+
+    protected ?string $openGraphMediaId = null;
+
+    protected ?MediaEntity $openGraphMedia = null;
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed, please use type field instead.
@@ -576,6 +585,26 @@ class ProductEntity extends Entity implements \Stringable
     public function setMetaTitle(?string $metaTitle): void
     {
         $this->metaTitle = $metaTitle;
+    }
+
+    public function getOgTitle(): ?string
+    {
+        return $this->ogTitle;
+    }
+
+    public function setOgTitle(?string $ogTitle): void
+    {
+        $this->ogTitle = $ogTitle;
+    }
+
+    public function getOgDescription(): ?string
+    {
+        return $this->ogDescription;
+    }
+
+    public function setOgDescription(?string $ogDescription): void
+    {
+        $this->ogDescription = $ogDescription;
     }
 
     public function getPackUnit(): ?string
@@ -1267,5 +1296,25 @@ class ProductEntity extends Entity implements \Stringable
     public function setType(string $type): void
     {
         $this->type = $type;
+    }
+
+    public function getOpenGraphMediaId(): ?string
+    {
+        return $this->openGraphMediaId;
+    }
+
+    public function setOpenGraphMediaId(?string $openGraphMediaId): void
+    {
+        $this->openGraphMediaId = $openGraphMediaId;
+    }
+
+    public function getOpenGraphMedia(): ?MediaEntity
+    {
+        return $this->openGraphMedia;
+    }
+
+    public function setOpenGraphMedia(?MediaEntity $openGraphMedia): void
+    {
+        $this->openGraphMedia = $openGraphMedia;
     }
 }

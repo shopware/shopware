@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -116,15 +117,34 @@ class TokenQueryBuilder
             return $this->buildTextMatchQuery($token, $config);
         }
 
+        $normalizedToken = $this->normalizeToken($token, $field);
+
+        if ($normalizedToken === null) {
+            return null;
+        }
+
+        return new TermQuery($config->getField(), $normalizedToken, ['boost' => $config->getRanking()]);
+    }
+
+    private function normalizeToken(string $token, Field $field): bool|int|float|string|null
+    {
+        if ($field instanceof BoolField) {
+            return match ($token) {
+                '1', 'true' => true,
+                '0', 'false' => false,
+                default => null,
+            };
+        }
+
         if ($field instanceof IntField || $field instanceof FloatField || $field instanceof PriceField) {
             if (!\is_numeric($token)) {
                 return null;
             }
 
-            $token = $field instanceof IntField ? (int) $token : (float) $token;
+            return $field instanceof IntField ? (int) $token : (float) $token;
         }
 
-        return new TermQuery($config->getField(), $token, ['boost' => $config->getRanking()]);
+        return $token;
     }
 
     private function isTextField(Field $field): bool

@@ -1,9 +1,3 @@
-.quickview-modal {
-    .modal-dialog {
-        @extend .modal-lg;
-    }
-}
-
 .quickview-minimal-top,
 .quickview-minimal-image {
     margin-bottom: $spacer;

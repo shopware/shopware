@@ -7,7 +7,7 @@ import './sw-settings-number-range-detail.scss';
 const {
     Component,
     Mixin,
-    Data: { Criteria },
+    Data: { Criteria, EntityCollection },
 } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
@@ -36,7 +36,7 @@ export default {
         return {
             numberRangeId: undefined,
             numberRange: {},
-            salesChannels: [],
+            selectedSalesChannelsCollection: null,
             advanced: false,
             simplePossible: true,
             prefix: '',
@@ -79,7 +79,7 @@ export default {
             const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('type');
-            criteria.addAssociation('numberRangeSalesChannels');
+            criteria.addAssociation('numberRangeSalesChannels.salesChannel');
 
             return criteria;
         },
@@ -120,8 +120,6 @@ export default {
                 ]),
             );
 
-            criteria.addAssociation('numberRangeSalesChannels');
-
             return criteria;
         },
 
@@ -133,6 +131,9 @@ export default {
             return this.repositoryFactory.create('number_range_sales_channel');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use selectedSalesChannelsCollection instead
+         */
         selectedNumberRangeSalesChannels() {
             if (!this.numberRange.numberRangeSalesChannels) {
                 return [];
@@ -293,10 +294,30 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use buildSelectedSalesChannelsCollection instead
+         */
         loadSalesChannels() {
-            return this.salesChannelRepository.search(this.salesChannelCriteria).then((salesChannel) => {
-                this.salesChannels = salesChannel;
-            });
+            this.buildSelectedSalesChannelsCollection();
+        },
+
+        buildSelectedSalesChannelsCollection() {
+            const collection = new EntityCollection(
+                '/sales-channel',
+                'sales_channel',
+                Shopware.Context.api,
+                new Criteria(1, 25),
+            );
+
+            if (this.numberRange.numberRangeSalesChannels) {
+                this.numberRange.numberRangeSalesChannels.forEach((junction) => {
+                    if (junction.salesChannel) {
+                        collection.add(junction.salesChannel);
+                    }
+                });
+            }
+
+            this.selectedSalesChannelsCollection = collection;
         },
 
         onSave() {
@@ -329,6 +350,8 @@ export default {
                 .save(this.numberRange)
                 .then(() => {
                     this.isSaveSuccessful = true;
+
+                    return this.loadEntityData();
                 })
                 .catch((exception) => {
                     this.isLoading = false;
@@ -390,19 +413,10 @@ export default {
             newNumberRangeSalesChannel.numberRangeId = this.numberRange.id;
             newNumberRangeSalesChannel.numberRangeTypeId = this.numberRange.typeId;
             newNumberRangeSalesChannel.salesChannelId = salesChannel.id;
+            newNumberRangeSalesChannel.salesChannel = salesChannel;
 
             this.numberRange.numberRangeSalesChannels.push(newNumberRangeSalesChannel);
-
-            // fix select gets out of view
-            if (this.numberRange.numberRangeSalesChannels.length <= 1) {
-                this.$nextTick().then(() => {
-                    const scrollableArea = document.querySelector('.sw-card-view__content');
-
-                    if (scrollableArea) {
-                        scrollableArea.scrollTop += 78;
-                    }
-                });
-            }
+            this.buildSelectedSalesChannelsCollection();
         },
 
         removeSalesChannel(salesChannel) {
@@ -410,7 +424,11 @@ export default {
                 return nRsalesChannel.salesChannelId === salesChannel.id;
             });
 
-            this.numberRange.numberRangeSalesChannels.remove(numberRangeSalesChannelToRemove.id);
+            if (numberRangeSalesChannelToRemove) {
+                this.numberRange.numberRangeSalesChannels.remove(numberRangeSalesChannelToRemove.id);
+            }
+
+            this.buildSelectedSalesChannelsCollection();
         },
 
         noSalesChannelSelected() {

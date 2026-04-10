@@ -37,6 +37,10 @@ class ProductTranslationEntity extends TranslationEntity
      */
     protected ?array $slotConfig = null;
 
+    protected ?string $ogTitle = null;
+
+    protected ?string $ogDescription = null;
+
     /**
      * @var array<string>|null
      */
@@ -172,5 +176,25 @@ class ProductTranslationEntity extends TranslationEntity
     public function setProductVersionId(string $productVersionId): void
     {
         $this->productVersionId = $productVersionId;
+    }
+
+    public function getOgTitle(): ?string
+    {
+        return $this->ogTitle;
+    }
+
+    public function setOgTitle(?string $ogTitle): void
+    {
+        $this->ogTitle = $ogTitle;
+    }
+
+    public function getOgDescription(): ?string
+    {
+        return $this->ogDescription;
+    }
+
+    public function setOgDescription(?string $ogDescription): void
+    {
+        $this->ogDescription = $ogDescription;
     }
 }

@@ -12,6 +12,8 @@ export default class SearchWidgetPlugin extends Plugin {
         searchWidgetResultItemSelector: '.js-result',
         searchWidgetInputFieldSelector: 'input[type=search]',
         searchWidgetButtonFieldSelector: 'button[type=submit]',
+        searchWidgetResultListboxSelector: '#search-suggest-listbox',
+        searchWidgetResultInfoSelector: '#search-suggest-result-info',
         searchWidgetUrlDataAttribute: 'data-url',
         searchWidgetCollapseButtonSelector: '.js-search-toggle-btn',
         searchWidgetCollapseClass: 'collapsed',
@@ -204,6 +206,7 @@ export default class SearchWidgetPlugin extends Plugin {
                 const searchWidgetButtonField = this.el.querySelector(this.options.searchWidgetButtonFieldSelector);
                 searchWidgetButtonField.insertAdjacentHTML('afterend', content);
 
+                this._setAccessibilityAttributes();
                 this._inputField.setAttribute('aria-expanded', 'true');
 
                 const searchSuggest = document.querySelector(this.options.searchWidgetResultSelector);
@@ -234,9 +237,27 @@ export default class SearchWidgetPlugin extends Plugin {
         const results = document.querySelectorAll(this.options.searchWidgetResultSelector);
         results.forEach(result => result.remove());
 
+        this._removeAccessibilityAttributes();
         this._inputField.setAttribute('aria-expanded', 'false');
 
         this.$emitter.publish('clearSuggestResults');
+    }
+
+    _setAccessibilityAttributes() {
+        const listbox = document.querySelector(this.options.searchWidgetResultListboxSelector);
+        if (listbox) {
+            this._inputField.setAttribute('aria-controls', listbox.id);
+        }
+
+        const resultInfo = document.querySelector(this.options.searchWidgetResultInfoSelector);
+        if (resultInfo) {
+            this._inputField.setAttribute('aria-describedby', resultInfo.id);
+        }
+    }
+
+    _removeAccessibilityAttributes() {
+        this._inputField.removeAttribute('aria-controls');
+        this._inputField.removeAttribute('aria-describedby');
     }
 
     /**

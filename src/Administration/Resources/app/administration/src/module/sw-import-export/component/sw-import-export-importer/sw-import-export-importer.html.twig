@@ -7,7 +7,9 @@
             class="sw-import-export-importer__variants-warning"
         >
             {% block sw_import_export_importer_product_variants_warning_text %}
-            <span>{{ $tc('sw-import-export.importer.variantsWarning') }}</span>
+            <span
+                v-html="$sanitize($tc('sw-import-export.importer.variantsWarning'))"
+            ></span>
 
             <div class="sw-import-export-importer__variants-warning-links">
                 <mt-link

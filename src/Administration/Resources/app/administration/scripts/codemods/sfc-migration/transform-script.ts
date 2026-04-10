@@ -71,6 +71,11 @@ interface MethodProp {
     paramsText: string;
     bodyText: string;
     isAsync: boolean;
+    /**
+     * When set, the method is emitted verbatim as `const name = rawText;` after
+     * `this.` rewriting — used for property-assignment methods like `debounce(...)`.
+     */
+    rawText?: string;
 }
 
 interface LifecycleHook {
@@ -96,6 +101,7 @@ interface UsedComposables {
     needsSlots: boolean;
     needsI18n: boolean;
     needsEmit: boolean;
+    needsAttrs: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -294,19 +300,37 @@ function extractMethodProps(optionsObj: ObjectLiteralExpression): MethodProp[] {
         .getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
     if (!methodsObj) return [];
 
-    return methodsObj
-        .getProperties()
-        .filter((p) => p.isKind(SyntaxKind.MethodDeclaration))
-        .map((p) => p.asKindOrThrow(SyntaxKind.MethodDeclaration))
-        .map((method) => ({
-            name: method.getName(),
-            paramsText: method
-                .getParameters()
-                .map((p) => p.getText())
-                .join(', '),
-            bodyText: method.getBodyText() ?? '',
-            isAsync: method.isAsync(),
-        }));
+    const result: MethodProp[] = [];
+
+    for (const prop of methodsObj.getProperties()) {
+        if (prop.isKind(SyntaxKind.MethodDeclaration)) {
+            const method = prop.asKindOrThrow(SyntaxKind.MethodDeclaration);
+            result.push({
+                name: method.getName(),
+                paramsText: method
+                    .getParameters()
+                    .map((p) => p.getText())
+                    .join(', '),
+                bodyText: method.getBodyText() ?? '',
+                isAsync: method.isAsync(),
+            });
+        } else if (prop.isKind(SyntaxKind.PropertyAssignment)) {
+            // Handles patterns like `methodName: debounce(function() {...}, 300)`
+            // where the method is expressed as a property value rather than a shorthand.
+            const pa = prop.asKindOrThrow(SyntaxKind.PropertyAssignment);
+            const name = pa.getName();
+            const initializerText = pa.getInitializer()?.getText() ?? '';
+            result.push({
+                name,
+                paramsText: '',
+                bodyText: initializerText,
+                isAsync: false,
+                rawText: initializerText,
+            });
+        }
+    }
+
+    return result;
 }
 
 /**
@@ -444,6 +468,7 @@ function detectUsedComposables(bodies: string[]): UsedComposables {
         needsSlots: /\bthis\.\$slots\b/.test(combined),
         needsI18n: /\bthis\.\$tc\b|\bthis\.\$t\b/.test(combined),
         needsEmit: /\bthis\.\$emit\b/.test(combined),
+        needsAttrs: /\bthis\.\$attrs\b/.test(combined),
     };
 }
 
@@ -487,6 +512,7 @@ function rewriteThisInBody(bodyText: string, ctx: RewriteContext): string {
     result = result.replace(/\bthis\.\$nextTick\b/g, 'nextTick');
     result = result.replace(/\bthis\.\$slots\b/g, 'slots');
     result = result.replace(/\bthis\.\$props\b/g, 'props');
+    result = result.replace(/\bthis\.\$attrs\b/g, 'attrs');
     result = result.replace(/\bthis\.\$tc\b/g, 'tc');
     result = result.replace(/\bthis\.\$t\b/g, 't');
     // `this.$el` has no clean composition-API equivalent; mark for manual follow-up
@@ -598,6 +624,7 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     if (watchProps.length > 0) vueImports.push('watch');
     if (usedComposables.needsNextTick) vueImports.push('nextTick');
     if (usedComposables.needsSlots) vueImports.push('useSlots');
+    if (usedComposables.needsAttrs) vueImports.push('useAttrs');
     // Check whether we need getCurrentInstance for $el handling
     const needsGetCurrentInstance = allBodies.some((b) => /\bthis\.\$el\b/.test(b));
     if (needsGetCurrentInstance) vueImports.push('getCurrentInstance');
@@ -668,11 +695,13 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     if (usedComposables.needsRouter) lines.push(`const router = useRouter();`);
     if (usedComposables.needsRoute) lines.push(`const route = useRoute();`);
     if (usedComposables.needsSlots) lines.push(`const slots = useSlots();`);
+    if (usedComposables.needsAttrs) lines.push(`const attrs = useAttrs();`);
     if (usedComposables.needsI18n) lines.push(`const { t, tc } = useI18n();`);
     const hasComposableDeclarations =
         usedComposables.needsRouter ||
         usedComposables.needsRoute ||
         usedComposables.needsSlots ||
+        usedComposables.needsAttrs ||
         usedComposables.needsI18n;
     if (hasComposableDeclarations) {
         lines.push('');
@@ -748,12 +777,18 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     if (watchProps.length > 0) lines.push('');
 
     // ── methods ───────────────────────────────────────────────────────────────
-    methodProps.forEach(({ name, paramsText, bodyText, isAsync }) => {
-        const asyncKw = isAsync ? 'async ' : '';
-        const body = rewriteThisInBody(bodyText, ctx);
-        lines.push(`        const ${name} = ${asyncKw}(${paramsText}) => {`);
-        lines.push(indentBlock(body, 12));
-        lines.push(`        };`);
+    methodProps.forEach(({ name, paramsText, bodyText, isAsync, rawText }) => {
+        if (rawText !== undefined) {
+            // Property-assignment method (e.g. `debounce(...)`): emit verbatim after this-rewriting.
+            const rewritten = rewriteThisInBody(rawText, ctx);
+            lines.push(`        const ${name} = ${rewritten};`);
+        } else {
+            const asyncKw = isAsync ? 'async ' : '';
+            const body = rewriteThisInBody(bodyText, ctx);
+            lines.push(`        const ${name} = ${asyncKw}(${paramsText}) => {`);
+            lines.push(indentBlock(body, 12));
+            lines.push(`        };`);
+        }
     });
     if (methodProps.length > 0) lines.push('');
 

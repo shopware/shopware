@@ -40,5 +40,9 @@ Shopware.Component.register('sw-composables', {
         focusItem() {
             this.$el.querySelector('.item').focus();
         },
+
+        getAttrsClass() {
+            return this.$attrs.class ?? '';
+        },
     },
 });

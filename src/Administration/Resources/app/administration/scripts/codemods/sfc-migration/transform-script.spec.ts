@@ -410,6 +410,74 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    describe('composables-component: $attrs → attrs from useAttrs()', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('composables-component.index.js'));
+        });
+
+        it('rewrites this.$attrs → attrs in method bodies', () => {
+            expect(result.script).toContain('attrs.class');
+            expect(result.script).not.toMatch(/\bthis\.\$attrs\b/);
+        });
+
+        it('imports useAttrs from vue', () => {
+            expect(result.script).toMatch(/import\s*\{[^}]*useAttrs[^}]*\}\s*from\s*['"]vue['"]/);
+        });
+
+        it('declares const attrs = useAttrs()', () => {
+            expect(result.script).toContain('const attrs = useAttrs();');
+        });
+
+        it('does not contain any this. references', () => {
+            expect(result.script).not.toMatch(/\bthis\./);
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('debounce-component: property-assignment methods (debounce wrappers) are preserved and this-rewritten', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('debounce-component.index.js'));
+        });
+
+        it('reports status fully-migratable with no blockers', () => {
+            expect(result.status).toBe('fully-migratable');
+            expect(result.blockers).toEqual([]);
+        });
+
+        it('emits the debounced method as a const assignment preserving the debounce wrapper', () => {
+            expect(result.script).toContain('const searchDebounce = debounce(');
+        });
+
+        it('rewrites this.doSearch() inside the debounce callback', () => {
+            expect(result.script).toContain('doSearch()');
+            expect(result.script).not.toMatch(/\bthis\.doSearch\b/);
+        });
+
+        it('includes searchDebounce in the public: return', () => {
+            const publicStart = result.script.indexOf('public:');
+            expect(publicStart).toBeGreaterThan(-1);
+            expect(result.script.slice(publicStart)).toContain('searchDebounce');
+        });
+
+        it('rewrites this.searchDebounce() in the onInput method', () => {
+            expect(result.script).toContain('searchDebounce()');
+            expect(result.script).not.toMatch(/\bthis\.searchDebounce\b/);
+        });
+
+        it('does not contain any this. references', () => {
+            expect(result.script).not.toMatch(/\bthis\./);
+        });
+
+        it('matches the complete converted script snapshot', () => {
+            expect(result.script).toMatchSnapshot();
+        });
+    });
+
+    // -------------------------------------------------------------------------
     describe('extend-component: Shopware.Component.extend() triggers the partially-migratable soft blocker', () => {
         let result: ReturnType<typeof transformScript>;
 

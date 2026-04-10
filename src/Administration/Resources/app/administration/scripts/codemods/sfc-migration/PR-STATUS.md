@@ -107,9 +107,8 @@ All conversion paths now have dedicated fixtures and tests. A bug in `findOption
 
 New fixtures: `composables-component`, `inherit-attrs-component`, `extend-component`, `extends-template`. New tests: 21 across `transform-script.spec.ts` and `transform-template.spec.ts`. All 159 tests pass.
 
-### 14. No Validation Against Real Administration Components
-Test coverage is entirely fixture-based. There is no proof that the codemod works across the broad variety of real Administration component patterns.  
-**Needed:** Run the codemod against a representative sample of real components in the repo and verify the output before marking the PR ready.
+### ~~14. No Validation Against Real Administration Components~~ ✅ Done
+Codemod run against all 89 components in `base/` and `form/` directories. 71 fully migrated, 18 partially migrated (mixins), 0 not-migratable. Two real-world bugs were found and fixed: `this.$attrs` → `useAttrs()` was not handled (23 affected components), and the `method: debounce(...)` property-assignment pattern was silently dropped (13 affected components). Both fixes include tests and a new debounce fixture. Results documented in `current-pr-progress/real-component-validation-results.md`. **Total: 198 tests, all passing.**
 
 ---
 
@@ -120,10 +119,10 @@ Test coverage is entirely fixture-based. There is no proof that the codemod work
 | `analyze-component.spec.ts` | ✅ Full coverage |
 | `transform-template.spec.ts` | ✅ Full coverage — 4 fixtures (block, simple, twig-comments, extends-template) |
 | `generate-sfc.spec.ts` | ✅ Full coverage |
-| `transform-script.spec.ts` | ✅ Full coverage — 9 fixtures (simple, block, created, module-level, mixin, render, composables, inherit-attrs, extend) |
+| `transform-script.spec.ts` | ✅ Full coverage — 11 fixtures (simple, block, created, module-level, mixin, render, composables, inherit-attrs, extend, debounce; composables updated with $attrs) |
 | `run-sfc-migration.spec.ts` | ✅ Full coverage — 42 tests |
 
-**Total: 187 tests, all passing**
+**Total: 198 tests, all passing**
 
 ### ~~8. Overwrite Without Warning~~ ✅ Done
 Existing `.vue` files are skipped by default. Pass `--force` to overwrite. `skippedExisting` counter added to stats and summary. 6 new tests in `run-sfc-migration.spec.ts`.
@@ -151,3 +150,4 @@ The transformation core (template conversion, script conversion, merger, analysi
 4. ~~**Original files are never cleaned up** after migration.~~ ✅ Done — `--delete-originals` flag.
 5. ~~**Runner has no tests**.~~ ✅ Done — 23 tests in `run-sfc-migration.spec.ts`.
 6. **PR meta** (description, checklist) is unfinished.
+7. ~~**No validation against real Administration components.**~~ ✅ Done — 89 real components processed; 2 bugs found and fixed (`this.$attrs` → `useAttrs()`, `method: debounce(...)` pattern); 198 tests passing.

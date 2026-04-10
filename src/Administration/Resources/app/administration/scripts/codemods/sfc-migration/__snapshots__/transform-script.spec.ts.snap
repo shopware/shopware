@@ -99,13 +99,14 @@ exports[`scripts/codemods/sfc-migration/transform-script composables-component: 
 "const props = defineProps({});
 
 import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
-import { ref, computed, nextTick, useSlots, getCurrentInstance } from 'vue';
+import { ref, computed, nextTick, useSlots, useAttrs, getCurrentInstance } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
 const route = useRoute();
 const slots = useSlots();
+const attrs = useAttrs();
 const { t, tc } = useI18n();
 
 const {
@@ -117,6 +118,7 @@ const {
     update,
     getTitle,
     focusItem,
+    getAttrsClass,
 } = createExtendableSetup(
     {
         name: 'sw-composables',
@@ -148,6 +150,9 @@ const {
         const focusItem = () => {
             /* TODO: $el */ getCurrentInstance()?.proxy?.$el.querySelector('.item').focus();
         };
+        const getAttrsClass = () => {
+            return attrs.class ?? '';
+        };
 
         return {
             public: {
@@ -159,6 +164,7 @@ const {
                 update,
                 getTitle,
                 focusItem,
+                getAttrsClass,
             },
         };
     },
@@ -214,6 +220,50 @@ const {
                 shortcutService,
                 initialized,
                 reset,
+            },
+        };
+    },
+);"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-script debounce-component: property-assignment methods (debounce wrappers) are preserved and this-rewritten matches the complete converted script snapshot 1`] = `
+"const { debounce } = Shopware.Utils;
+
+const props = defineProps({});
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { ref } from 'vue';
+
+const {
+    query,
+    onInput,
+    doSearch,
+    searchDebounce,
+} = createExtendableSetup(
+    {
+        name: 'sw-debounce',
+        props,
+    },
+    () => {
+        const query = ref('');
+
+        const onInput = (value) => {
+            query.value = value;
+            searchDebounce();
+        };
+        const doSearch = () => {
+            query.value = query.value.trim();
+        };
+        const searchDebounce = debounce(function onSearch() {
+            doSearch();
+        }, 300);
+
+        return {
+            public: {
+                query,
+                onInput,
+                doSearch,
+                searchDebounce,
             },
         };
     },

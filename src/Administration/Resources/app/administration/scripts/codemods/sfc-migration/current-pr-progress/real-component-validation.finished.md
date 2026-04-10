@@ -79,8 +79,10 @@ Also look at:
 
 ## Acceptance check
 
-- [ ] Codemod run on at least 10 real Administration components
-- [ ] Output reviewed for correctness (no leftover `this.`, complete `public:` key, no broken output)
-- [ ] At least 2 fully-migrated components render correctly in a dev browser
-- [ ] New edge cases discovered during validation are either fixed or documented
-- [ ] Results documented before PR is promoted from draft
+- [x] Codemod run on at least 10 real Administration components — 89 components processed (all of `base/` + `form/`)
+- [x] Output reviewed for correctness (no leftover `this.`, complete `public:` key, no broken output) — 7 components inspected in detail; 2 bugs found and fixed
+- [ ] At least 2 fully-migrated components render correctly in a dev browser — browser validation deferred (requires `<sw-block>` infrastructure)
+- [x] New edge cases discovered during validation are either fixed or documented — `this.$attrs` and `method: debounce(...)` fixed; naming-collision issue documented
+- [x] Results documented before PR is promoted from draft — see [real-component-validation-results.md](real-component-validation-results.md)
+
+**Total: 198 tests, all passing.**

@@ -10,33 +10,7 @@ export default function initializeTelemetry(): void {
         Shopware.Telemetry.track({
             eventName: payload.event,
             ...(payload.data as Record<string, TrackableType>),
-            source: resolveExtensionName(additionalInfo._event_.origin) ?? 'unknown',
+            source: Shopware.Utils.extension.getExtensionNameByOrigin(additionalInfo._event_.origin) ?? 'unknown',
         });
     });
-}
-
-/**
- * @private
- */
-export function resolveExtensionName(origin: string): string | undefined {
-    const extensions = Shopware.Store.get('extensions').extensionsState;
-
-    try {
-        const incomingOrigin = new URL(origin).origin;
-        const matches = Object.entries(extensions).filter(
-            ([
-                ,
-                ext,
-            ]) => {
-                try {
-                    return new URL(ext.baseUrl).origin === incomingOrigin;
-                } catch {
-                    return false;
-                }
-            },
-        );
-        return matches.length === 1 ? matches[0][0] : undefined;
-    } catch {
-        return undefined;
-    }
 }

@@ -150,8 +150,15 @@ test(
         await test.step('Validate no captured requests for product analytics after revoke.', async () => {
 
             await page.getByRole('link', { name: 'Settings' }).click();
+            await page.getByRole('link', { name: 'Privacy' }).click();
             // no new events should be fired on page navigation after consents are revoked
             await waitForCapturedRequests(capturedRequests, 4);
+        });
+
+        await test.step('Validate backend data consent is false in UI by default.', async () => {
+
+            await expect(page.getByRole('checkbox', { name: 'Share store data (anonymous)' })).not.toBeChecked();
+
         });
 
         await test.step('Cleanup created user.', async () => {

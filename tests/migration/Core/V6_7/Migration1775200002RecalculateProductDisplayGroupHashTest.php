@@ -47,7 +47,7 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
             'parent_version_id' => null,
             'product_number' => 'migration-parent',
             'stock' => 10,
-            'display_group' => md5($parentIdHex),
+            'display_group' => $legacyHash,
         ]);
 
         $this->connection->insert('product', [
@@ -75,7 +75,6 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
         $migration = new Migration1775200002RecalculateProductDisplayGroupHash();
         static::assertSame(1775200002, $migration->getCreationTimestamp());
 
-        // make sure the migration is idempotent
         $migration->update($this->connection);
         $migration->update($this->connection);
 
@@ -191,6 +190,12 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
 
         (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
         (new Migration1775200002RecalculateProductDisplayGroupHash())->update($this->connection);
+
+        $parentDisplayGroup = $this->connection->fetchOne(
+            'SELECT display_group FROM product WHERE id = :id AND version_id = :versionId',
+            ['id' => $parentId, 'versionId' => $liveVersion]
+        );
+        static::assertNull($parentDisplayGroup);
 
         $rows = $this->connection->fetchAllAssociative(
             'SELECT product_number, display_group FROM product WHERE id IN (:ids) AND version_id = :version ORDER BY product_number ASC',

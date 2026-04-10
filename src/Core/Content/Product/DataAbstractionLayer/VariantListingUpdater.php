@@ -83,6 +83,7 @@ class VariantListingUpdater
 
             $fields = [];
             $params = ['parentId' => $parentId, 'versionId' => $versionBytes];
+            // Positional index keeps SQL aliases and Doctrine parameter names unique and stable.
             foreach ($groups as $index => $groupId) {
                 $mappingAlias = 'mapping' . $index;
                 $optionAlias = 'option' . $index;

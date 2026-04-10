@@ -4,9 +4,10 @@ namespace Shopware\Core\Migration\V6_6;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Migration\ProductDisplayGroupColumnMigrationHelper;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -36,7 +37,7 @@ class Migration1726049442UpdateVariantListingConfigInProductTable extends Migrat
             return;
         }
 
-        ProductDisplayGroupColumnMigrationHelper::widenVarchar50To64ForSha256IfNeeded($connection);
+        $this->widenDisplayGroupColumnForSha256IfNeeded($connection);
 
         $connection->executeStatement(
             'UPDATE `product` SET `variant_listing_config` = NULL, `display_group` = NULL WHERE `id` IN (:ids)',
@@ -49,5 +50,20 @@ class Migration1726049442UpdateVariantListingConfigInProductTable extends Migrat
             ['ids' => $productIds],
             ['ids' => ArrayParameterType::STRING]
         );
+    }
+
+    private function widenDisplayGroupColumnForSha256IfNeeded(Connection $connection): void
+    {
+        if (!TableHelper::columnExists($connection, ProductDefinition::ENTITY_NAME, 'display_group')) {
+            return;
+        }
+
+        $column = TableHelper::getColumnOfTable($connection, ProductDefinition::ENTITY_NAME, 'display_group');
+
+        if ($column->type !== 'string' || ($column->length !== null && $column->length >= 64)) {
+            return;
+        }
+
+        $connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(64) NULL');
     }
 }

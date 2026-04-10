@@ -5,7 +5,9 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1775200001IncreaseProductDisplayGroupLength;
 
 /**
@@ -37,18 +39,15 @@ class Migration1775200001IncreaseProductDisplayGroupLengthTest extends TestCase
         $migration = new Migration1775200001IncreaseProductDisplayGroupLength();
         static::assertSame(1775200001, $migration->getCreationTimestamp());
 
-        // make sure the migration is idempotent
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $column = $this->connection->fetchAssociative('SHOW COLUMNS FROM `product` LIKE :column', [
-            'column' => 'display_group',
-        ]);
+        $column = TableHelper::getColumnOfTable($this->connection, ProductDefinition::ENTITY_NAME, 'display_group');
 
-        static::assertIsArray($column);
-        static::assertSame('varchar(64)', strtolower((string) $column['Type']));
-        static::assertSame('YES', $column['Null']);
-        static::assertNull($column['Default']);
+        static::assertSame('string', $column->type);
+        static::assertSame(64, $column->length);
+        static::assertFalse($column->isNotNull);
+        static::assertNull($column->defaultValue);
     }
 
     private function rollback(): void

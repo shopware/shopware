@@ -572,6 +572,18 @@ jobs:
           composer update -o
           bin/console system:update:finish
 
+      - name: Reverse cartLineItemProductType for blue-green compatibility
+        env:
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+        run: |
+          php -r "
+          require 'vendor/autoload.php';
+          \$conn = \Doctrine\DBAL\DriverManager::getConnection(['url' => getenv('DATABASE_URL')]);
+          \$migration = new \Shopware\Core\Migration\V6_6\Migration1775922924ReverseLineItemProductTypeRuleCondition();
+          \$migration->update(\$conn);
+          "
+          bin/console dal:refresh:index
+
       - name: Checkout previous major version again
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
         with:

@@ -595,15 +595,39 @@ jobs:
           sed -i 's/protected function setUp(): void/protected function setUp(): void { \$this->markTestSkipped("blue-green breakpoint fields"); } protected function _origSetUp(): void/' tests/integration/Storefront/Theme/ThemeTest.php
 
           # Inject debug output into GrantDownloadAccessActionTest
+          TEST_FILE=tests/integration/Core/Content/Flow/Dispatching/Action/GrantDownloadAccessActionTest.php
+
+          # Debug BEFORE changeTransactionStateToPaid: flow/cache state
           sed -i '/$this->changeTransactionStateToPaid/i \
           $conn = static::getContainer()->get(\\Doctrine\\DBAL\\Connection::class);\
           $flow = $conn->fetchAssociative("SELECT LOWER(HEX(id)) as id, name, active, invalid, payload IS NOT NULL as has_payload FROM flow WHERE name = '"'"'Deliver ordered product downloads'"'"'");\
-          fwrite(STDERR, "\\n=== FLOW DEBUG ===\\n");\
+          fwrite(STDERR, "\\n=== FLOW DEBUG (BEFORE) ===\\n");\
           fwrite(STDERR, "Flow DB state: " . print_r($flow, true) . "\\n");\
           $cachedFlows = static::getContainer()->get(\\Shopware\\Core\\Content\\Flow\\Dispatching\\CachedFlowLoader::class)->load();\
           fwrite(STDERR, "Cached flows for paid event: " . (isset($cachedFlows["state_enter.order_transaction.state.paid"]) ? count($cachedFlows["state_enter.order_transaction.state.paid"]) . " flows" : "MISSING") . "\\n");\
           if (isset($cachedFlows["state_enter.order_transaction.state.paid"])) { foreach ($cachedFlows["state_enter.order_transaction.state.paid"] as $f) { fwrite(STDERR, "  - " . $f["name"] . " (id: " . $f["id"] . ", payload type: " . gettype($f["payload"]) . ")\\n"); } }\
-          fwrite(STDERR, "=== END DEBUG ===\\n");' tests/integration/Core/Content/Flow/Dispatching/Action/GrantDownloadAccessActionTest.php
+          fwrite(STDERR, "=== END FLOW DEBUG ===\\n");' "$TEST_FILE"
+
+          # Debug AFTER changeTransactionStateToPaid: check download access + log errors
+          sed -i '/$this->resetEventDispatcher/i \
+          fwrite(STDERR, "\\n=== POST-FLOW DEBUG ===\\n");\
+          fwrite(STDERR, "flowEvent is: " . ($flowEvent === null ? "NULL" : get_class($flowEvent)) . "\\n");\
+          fwrite(STDERR, "mailEvent is: " . ($mailEvent === null ? "NULL" : get_class($mailEvent)) . "\\n");\
+          $debugOrder = $this->orderRepository->search((new \\Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\Criteria([$orderId]))->addAssociation("lineItems.downloads"), $this->salesChannelContext->getContext())->first();\
+          if ($debugOrder) { foreach ($debugOrder->getLineItems() as $li) { if ($li->getDownloads()) { foreach ($li->getDownloads() as $dl) { fwrite(STDERR, "Download " . $dl->getId() . " accessGranted: " . ($dl->isAccessGranted() ? "YES" : "NO") . "\\n"); } } } }\
+          $testHandler = null;\
+          try { $testHandler = static::getContainer()->get("monolog.handler.main"); } catch (\\Throwable $e) {}\
+          if ($testHandler === null) { try { $testHandler = static::getContainer()->get("Monolog\\Handler\\TestHandler"); } catch (\\Throwable $e) {} }\
+          if ($testHandler && method_exists($testHandler, "getRecords")) { foreach ($testHandler->getRecords() as $r) { if (stripos($r["message"] ?? "", "flow") !== false) { fwrite(STDERR, "LOG: [" . ($r["level_name"] ?? "") . "] " . $r["message"] . "\\n"); } } }\
+          else { fwrite(STDERR, "No test log handler found\\n"); }\
+          fwrite(STDERR, "=== END POST-FLOW DEBUG ===\\n");' "$TEST_FILE"
+
+          # Debug inside onFlowSendMailActionEvent: log what sequence we get
+          sed -i '/\$sequence = \$event->getStorableFlow()->getFlowState()->currentSequence;/a \
+          fwrite(STDERR, "\\n=== onFlowSendMailActionEvent called ===\\n");\
+          fwrite(STDERR, "sequence class: " . ($sequence === null ? "NULL" : get_class($sequence)) . "\\n");\
+          if ($sequence instanceof \\Shopware\\Core\\Content\\Flow\\Dispatching\\Struct\\ActionSequence) { fwrite(STDERR, "sequence action: " . $sequence->action . "\\n"); fwrite(STDERR, "sequence flowId: " . $sequence->flowId . "\\n"); fwrite(STDERR, "sequence sequenceId: " . $sequence->sequenceId . "\\n"); }\
+          fwrite(STDERR, "=== END onFlowSendMailActionEvent ===\\n");' "$TEST_FILE"
 
       - name: Run integration tests in previous major version
         #if: inputs.nightly == 'true'

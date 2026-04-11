@@ -24,6 +24,10 @@ class Migration1773829000MigrateLineItemProductStatesRuleCondition extends Migra
 
     public function update(Connection $connection): void
     {
+    }
+
+    public function updateDestructive(Connection $connection): void
+    {
         $conditions = $connection->fetchAllAssociative(
             'SELECT `id`, `value` FROM `rule_condition` WHERE `type` = :legacyType',
             ['legacyType' => 'cartLineItemProductStates']
@@ -57,10 +61,6 @@ class Migration1773829000MigrateLineItemProductStatesRuleCondition extends Migra
         if ($migrated) {
             $this->registerIndexer($connection, 'rule.indexer');
         }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 
     private function conditionPayload(mixed $value): ?string

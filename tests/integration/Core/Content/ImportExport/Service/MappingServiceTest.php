@@ -71,13 +71,14 @@ class MappingServiceTest extends TestCase
 
         $this->profileRepository->create([$profile], Context::createDefaultContext());
 
-        if (empty($profile['mapping'])) {
+        $hasNoMapping = $profile['mapping'] === null || $profile['mapping'] === [];
+        if ($hasNoMapping) {
             $this->expectExceptionObject(ImportExportException::profileWithoutMappings($profile['id']));
         }
 
         $fileId = $this->mappingService->createTemplate(Context::createDefaultContext(), $profile['id']);
 
-        if (empty($profile['mapping'])) {
+        if ($hasNoMapping) {
             return;
         }
 

@@ -583,15 +583,56 @@ jobs:
           composer update -o
           bin/console system:generate-jwt-secret
 
+      - name: Debug theme config BEFORE refresh (6.7 state)
+        env:
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+        run: |
+          php -r "
+          echo '=== DB STATE BEFORE 6.6 theme:refresh ===' . PHP_EOL;
+          \$pdo = new PDO('mysql:host=127.0.0.1;port=3306;dbname=shopware_test', 'root', '');
+          \$rows = \$pdo->query('SELECT technical_name, JSON_KEYS(base_config) as base_keys, JSON_KEYS(JSON_EXTRACT(base_config, \"$.fields\")) as field_keys FROM theme')->fetchAll(PDO::FETCH_ASSOC);
+          foreach (\$rows as \$row) {
+            echo 'THEME: ' . \$row['technical_name'] . PHP_EOL;
+            echo '  base_keys: ' . \$row['base_keys'] . PHP_EOL;
+            echo '  field_keys: ' . \$row['field_keys'] . PHP_EOL;
+          }
+          "
+
       - name: Refresh theme in previous major version
-        if: inputs.nightly == 'true'
+        #if: inputs.nightly == 'true'
         env:
           DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: bin/console theme:refresh
 
+      - name: Debug theme config after refresh
+        env:
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+        run: |
+          php -r "
+          \$pdo = new PDO('mysql:host=127.0.0.1;port=3306;dbname=shopware_test', 'root', '');
+          \$rows = \$pdo->query('SELECT technical_name, JSON_KEYS(base_config) as base_keys, JSON_KEYS(JSON_EXTRACT(base_config, \"$.fields\")) as field_keys FROM theme')->fetchAll(PDO::FETCH_ASSOC);
+          foreach (\$rows as \$row) {
+            echo '=== THEME: ' . \$row['technical_name'] . ' ===' . PHP_EOL;
+            echo 'base_keys: ' . \$row['base_keys'] . PHP_EOL;
+            echo 'field_keys: ' . \$row['field_keys'] . PHP_EOL;
+          }
+          echo PHP_EOL . '=== theme_runtime_config ===' . PHP_EOL;
+          try {
+            \$rows2 = \$pdo->query('SELECT technical_name, JSON_KEYS(resolved_config) as rkeys, JSON_KEYS(JSON_EXTRACT(resolved_config, \"$.fields\")) as fkeys FROM theme_runtime_config')->fetchAll(PDO::FETCH_ASSOC);
+            foreach (\$rows2 as \$r) {
+              echo \$r['technical_name'] . ' rkeys: ' . \$r['rkeys'] . PHP_EOL;
+              echo \$r['technical_name'] . ' field_keys: ' . \$r['fkeys'] . PHP_EOL;
+            }
+          } catch (Exception \$e) {
+            echo 'theme_runtime_config query failed: ' . \$e->getMessage() . PHP_EOL;
+          }
+          "
+
       - name: Run integration tests in previous major version
-        if: inputs.nightly == 'true'
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
+        #if: inputs.nightly == 'true'
+        env:
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --order-by=seed:1775871670 --stop-on-error --stop-on-failure
 
       - name: Run blue-green check
         if: inputs.nightly != 'true'

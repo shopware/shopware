@@ -652,6 +652,11 @@ jobs:
                 composer update -o
                 bin/console system:update:finish
 
+          - name: Rebuild indexes after update
+            env:
+                DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+            run: bin/console dal:refresh:index
+
           - name: Refresh theme
             env:
                 DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"

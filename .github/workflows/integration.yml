@@ -593,8 +593,8 @@ jobs:
         run: php -d memory_limit=-1 vendor/bin/phpunit --filter testFlowActionRunsOnEnterState -- tests/integration/Core/Content/Flow/Dispatching/Action/GrantDownloadAccessActionTest.php
 
       - name: Run integration tests in previous major version
-        if: inputs.nightly == 'true'
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
+        #if: inputs.nightly == 'true'
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure --random-order-seed=1775871670
 
       - name: Run blue-green check
         if: inputs.nightly != 'true'

@@ -576,12 +576,7 @@ jobs:
         env:
           DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: |
-          php -r "
-          require 'vendor/autoload.php';
-          \$conn = \Doctrine\DBAL\DriverManager::getConnection(['url' => getenv('DATABASE_URL')]);
-          \$migration = new \Shopware\Core\Migration\V6_6\Migration1775922924ReverseLineItemProductTypeRuleCondition();
-          \$migration->update(\$conn);
-          "
+          php .github/bin/reverse-product-type-rule.php
           bin/console dal:refresh:index
 
       - name: Checkout previous major version again

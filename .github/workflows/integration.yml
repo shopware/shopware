@@ -632,7 +632,7 @@ jobs:
         #if: inputs.nightly == 'true'
         env:
           DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --order-by=seed:1775871670 --stop-on-error --stop-on-failure
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --random-order-seed=1775871670 --stop-on-error --stop-on-failure
 
       - name: Run blue-green check
         if: inputs.nightly != 'true'

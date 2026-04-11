@@ -597,15 +597,39 @@ jobs:
           # Inject debug output into GrantDownloadAccessActionTest
           TEST_FILE=tests/integration/Core/Content/Flow/Dispatching/Action/GrantDownloadAccessActionTest.php
 
-          # Debug BEFORE changeTransactionStateToPaid: flow/cache state
+          # Debug AFTER placeOrder: verify order line items have correct types/states
+          sed -i '/$this->assertOrderWithoutGrantedAccess/i \
+          fwrite(STDERR, "\\n=== ORDER DEBUG ===\\n");\
+          $debugConn = static::getContainer()->get(\\Doctrine\\DBAL\\Connection::class);\
+          $debugLineItems = $debugConn->fetchAllAssociative("SELECT LOWER(HEX(li.id)) as id, li.type, li.states, LOWER(HEX(li.product_id)) as product_id FROM order_line_item li JOIN `order` o ON li.order_id = o.id AND li.order_version_id = o.version_id WHERE LOWER(HEX(o.id)) = :orderId", ["orderId" => $orderId]);\
+          foreach ($debugLineItems as $li) { fwrite(STDERR, "LineItem " . $li["id"] . " type=" . $li["type"] . " states=" . $li["states"] . "\\n"); }\
+          fwrite(STDERR, "=== END ORDER DEBUG ===\\n");' "$TEST_FILE"
+
+          # Force rebuild rule payload + debug BEFORE changeTransactionStateToPaid
           sed -i '/$this->changeTransactionStateToPaid/i \
           $conn = static::getContainer()->get(\\Doctrine\\DBAL\\Connection::class);\
+          $ruleId = $conn->fetchOne("SELECT LOWER(HEX(id)) FROM rule WHERE name = '"'"'Shopping cart / Order with digital products'"'"'");\
+          fwrite(STDERR, "\\n=== RULE REBUILD ===\\n");\
+          fwrite(STDERR, "Rule ID: " . ($ruleId ?: "NOT FOUND") . "\\n");\
+          if ($ruleId) {\
+            $ruleBefore = $conn->fetchAssociative("SELECT invalid, payload IS NOT NULL as has_payload FROM rule WHERE LOWER(HEX(id)) = :id", ["id" => $ruleId]);\
+            fwrite(STDERR, "Before rebuild: " . print_r($ruleBefore, true) . "\\n");\
+            static::getContainer()->get(\\Shopware\\Core\\Content\\Rule\\DataAbstractionLayer\\RulePayloadUpdater::class)->update([$ruleId]);\
+            $ruleAfter = $conn->fetchAssociative("SELECT invalid, payload IS NOT NULL as has_payload FROM rule WHERE LOWER(HEX(id)) = :id", ["id" => $ruleId]);\
+            fwrite(STDERR, "After rebuild: " . print_r($ruleAfter, true) . "\\n");\
+          }\
+          fwrite(STDERR, "=== END RULE REBUILD ===\\n");\
           $flow = $conn->fetchAssociative("SELECT LOWER(HEX(id)) as id, name, active, invalid, payload IS NOT NULL as has_payload FROM flow WHERE name = '"'"'Deliver ordered product downloads'"'"'");\
           fwrite(STDERR, "\\n=== FLOW DEBUG (BEFORE) ===\\n");\
           fwrite(STDERR, "Flow DB state: " . print_r($flow, true) . "\\n");\
           $cachedFlows = static::getContainer()->get(\\Shopware\\Core\\Content\\Flow\\Dispatching\\CachedFlowLoader::class)->load();\
           fwrite(STDERR, "Cached flows for paid event: " . (isset($cachedFlows["state_enter.order_transaction.state.paid"]) ? count($cachedFlows["state_enter.order_transaction.state.paid"]) . " flows" : "MISSING") . "\\n");\
           if (isset($cachedFlows["state_enter.order_transaction.state.paid"])) { foreach ($cachedFlows["state_enter.order_transaction.state.paid"] as $f) { fwrite(STDERR, "  - " . $f["name"] . " (id: " . $f["id"] . ", payload type: " . gettype($f["payload"]) . ")\\n"); } }\
+          $rule = $conn->fetchAssociative("SELECT LOWER(HEX(id)) as id, name, invalid, payload IS NOT NULL as has_payload, LENGTH(payload) as payload_len FROM rule WHERE name = '"'"'Shopping cart / Order with digital products'"'"'");\
+          fwrite(STDERR, "Rule state: " . print_r($rule, true) . "\\n");\
+          if ($rule) { $rulePayload = $conn->fetchOne("SELECT payload FROM rule WHERE id = UNHEX('"'"'" . $rule["id"] . "'"'"')"); fwrite(STDERR, "Rule payload (first 500): " . substr(print_r($rulePayload, true), 0, 500) . "\\n"); }\
+          $ruleConditions = $conn->fetchAllAssociative("SELECT LOWER(HEX(id)) as id, type, value FROM rule_condition WHERE rule_id = UNHEX('"'"'" . ($rule["id"] ?? "") . "'"'"')");\
+          fwrite(STDERR, "Rule conditions: " . print_r($ruleConditions, true) . "\\n");\
           fwrite(STDERR, "=== END FLOW DEBUG ===\\n");' "$TEST_FILE"
 
           # Debug AFTER changeTransactionStateToPaid: check download access + log errors

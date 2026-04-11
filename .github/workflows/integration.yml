@@ -589,6 +589,9 @@ jobs:
           DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: bin/console theme:refresh
 
+      - name: Run GrantDownloadAccessActionTest in isolation
+        run: php -d memory_limit=-1 vendor/bin/phpunit --filter testFlowActionRunsOnEnterState -- tests/integration/Core/Content/Flow/Dispatching/Action/GrantDownloadAccessActionTest.php
+
       - name: Run integration tests in previous major version
         if: inputs.nightly == 'true'
         run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure

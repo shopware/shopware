@@ -113,25 +113,6 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $loadCmsPage = !$request->query->getBoolean(self::SKIP_CMS_PAGE);
             $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
 
-            if (
-                !$product instanceof SalesChannelProductEntity
-                && $this->shouldFallbackToBestVariant(
-                    $requestedProductId,
-                    $parentProductId,
-                    $productId,
-                    $mainVariantId,
-                    $searchVariantId
-                )
-            ) {
-                $fallbackProductId = $this->findBestVariant($requestedProductId, $context);
-                if ($fallbackProductId !== $requestedProductId && $fallbackProductId !== $productId) {
-                    $productId = $fallbackProductId;
-                    $criteria->setIds([$productId]);
-
-                    $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
-                }
-            }
-
             if (!$product instanceof SalesChannelProductEntity) {
                 throw ProductException::productNotFound($productId);
             }
@@ -312,21 +293,6 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         }
 
         return $this->findBestVariant($requestedProductId, $context);
-    }
-
-    private function shouldFallbackToBestVariant(
-        string $requestedProductId,
-        ?string $parentProductId,
-        string $productId,
-        ?string $mainVariantId,
-        ?string $searchVariantId
-    ): bool {
-        if (!$this->isParentProductRequest($requestedProductId, $parentProductId)) {
-            return false;
-        }
-
-        return $productId === $mainVariantId
-            || ($searchVariantId !== null && $productId === $searchVariantId);
     }
 
     private function isParentProductRequest(string $requestedProductId, ?string $parentProductId): bool

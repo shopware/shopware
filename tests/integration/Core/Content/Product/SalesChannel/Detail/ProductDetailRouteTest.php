@@ -196,24 +196,6 @@ class ProductDetailRouteTest extends TestCase
         static::assertSame('variant-3', $product['productNumber']);
     }
 
-    public function testLoadProductVariantFallsBackFromHiddenMainVariant(): void
-    {
-        static::getContainer()->get(SystemConfigService::class)
-            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
-
-        $this->createVariantProducts([
-            'mainVariantId' => $this->ids->get('variant-1'),
-            'displayParent' => false,
-        ]);
-
-        $this->browser->request('POST', $this->getUrl($this->ids->get('variants')));
-
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
-        static::assertSame('variant-2', $response['product']['productNumber']);
-    }
-
     public function testLoadParentSearchUsesMatchedVariantWhenFindBestVariantEnabled(): void
     {
         static::getContainer()->get(SystemConfigService::class)
@@ -240,26 +222,6 @@ class ProductDetailRouteTest extends TestCase
         ]);
 
         $this->browser->request('POST', $this->getUrl($this->ids->get('variants')) . '?search=variant-3');
-
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
-        static::assertSame('variant-2', $response['product']['productNumber']);
-    }
-
-    public function testLoadParentSearchFallsBackWhenMatchedVariantIsHidden(): void
-    {
-        static::getContainer()->get(SystemConfigService::class)
-            ->set('core.listing.findBestVariant', true);
-        static::getContainer()->get(SystemConfigService::class)
-            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
-
-        $this->createVariantProducts([
-            'mainVariantId' => $this->ids->get('variant-2'),
-            'displayParent' => false,
-        ]);
-
-        $this->browser->request('POST', $this->getUrl($this->ids->get('variants')) . '?search=variant-1');
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 

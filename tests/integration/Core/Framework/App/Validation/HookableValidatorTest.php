@@ -70,8 +70,6 @@ class HookableValidatorTest extends TestCase
         static::assertInstanceOf(MissingPermissionError::class, $validations->first());
         static::assertSame('The following permissions are missing:
 - order:read
-- customer:read
-- customer_group:read
 - product:read', $validations->first()->getMessage());
     }
 

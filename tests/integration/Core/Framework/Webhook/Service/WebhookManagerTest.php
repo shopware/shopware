@@ -174,16 +174,6 @@ class WebhookManagerTest extends TestCase
         static::assertSame([
             'data' => [
                 'payload' => [
-                    'customerId' => $customerId,
-                    'mailStruct' => [
-                        'recipients' => [
-                            'test@gmail.com' => 'Max Mustermann',
-                        ],
-                        'bcc' => null,
-                        'cc' => null,
-                    ],
-                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                    'timezone' => 'UTC',
                     'contextToken' => 'testToken',
                 ],
                 'event' => CustomerLoginEvent::EVENT_NAME,
@@ -264,13 +254,6 @@ class WebhookManagerTest extends TestCase
         static::assertSame([
             'data' => [
                 'payload' => [
-                    'mailStruct' => [
-                        'recipients' => [],
-                        'bcc' => null,
-                        'cc' => null,
-                    ],
-                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                    'timezone' => 'UTC',
                     'email' => 'test@example.com',
                 ],
                 'event' => CustomerBeforeLoginEvent::EVENT_NAME,
@@ -315,13 +298,6 @@ class WebhookManagerTest extends TestCase
                 [
                     'data' => [
                         'payload' => [
-                            'mailStruct' => [
-                                'recipients' => [],
-                                'bcc' => null,
-                                'cc' => null,
-                            ],
-                            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                            'timezone' => 'UTC',
                             'email' => 'test@example.com',
                         ],
                         'event' => CustomerBeforeLoginEvent::EVENT_NAME,
@@ -700,13 +676,6 @@ class WebhookManagerTest extends TestCase
         static::assertSame([
             'data' => [
                 'payload' => [
-                    'mailStruct' => [
-                        'recipients' => [],
-                        'bcc' => null,
-                        'cc' => null,
-                    ],
-                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                    'timezone' => 'UTC',
                     'email' => 'test@example.com',
                 ],
                 'event' => CustomerBeforeLoginEvent::EVENT_NAME,

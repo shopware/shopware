@@ -60,7 +60,11 @@ class Migration1726049442UpdateVariantListingConfigInProductTable extends Migrat
 
         $column = TableHelper::getColumnOfTable($connection, ProductDefinition::ENTITY_NAME, 'display_group');
 
-        if ($column->type !== 'string' || ($column->length !== null && $column->length >= 64)) {
+        if ($column->type !== 'string') {
+            return;
+        }
+
+        if ($column->length !== null && $column->length >= 64) {
             return;
         }
 

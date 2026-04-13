@@ -32,7 +32,11 @@ class Migration1775200001IncreaseProductDisplayGroupLength extends MigrationStep
 
         $column = TableHelper::getColumnOfTable($connection, ProductDefinition::ENTITY_NAME, 'display_group');
 
-        if ($column->type !== 'string' || ($column->length !== null && $column->length >= 64)) {
+        if ($column->type !== 'string') {
+            return;
+        }
+
+        if ($column->length !== null && $column->length >= 64) {
             return;
         }
 

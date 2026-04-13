@@ -14,10 +14,11 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  * (for example after {@see \Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent}), so migrations stay fast even on
  * large catalogs.
  *
- * To run the same pass immediately on the CLI (skip every {@see ProductIndexer::getOptions()} entry except
- * {@see ProductIndexer::VARIANT_LISTING_UPDATER}, plus {@see ProductIndexer::STATES_UPDATER} when that updater is still active):
+ * After update, {@see \Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\RegisteredIndexerSubscriber} runs the product indexer
+ * with a computed skip list ({@code array_diff} of {@see ProductIndexer::getOptions()} and the registered option names),
+ * so only the variant-listing updater executes.
  *
- * `bin/console dal:refresh:index --only=product.indexer --skip=product.inheritance,product.stock,product.child-count,product.many-to-many-id-field,product.category-denormalizer,product.cheapest-price,product.rating-average,product.stream,product.search-keyword,product.states`
+ * CLI (other entity indexers omitted): {@code bin/console dal:refresh:index --only=product.indexer}
  *
  * @internal
  */

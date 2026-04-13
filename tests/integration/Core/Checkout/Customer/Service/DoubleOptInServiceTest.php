@@ -64,12 +64,13 @@ class DoubleOptInServiceTest extends TestCase
         static::assertGreaterThan(new \DateTimeImmutable('-5 minutes'), $updatedCustomer->getDoubleOptInEmailSentDate());
     }
 
-    public function testResendDoubleOptInMailUpdatesSentDateBeforeSending(): void
+    public function testResendDoubleOptInMailUpdatesSentDateAfterSending(): void
     {
+        $originalSentDate = new \DateTime('-2 days');
         $customer = $this->createCustomer('c1', [
             'hash' => 'testhash',
             'guest' => false,
-            'doubleOptInEmailSentDate' => new \DateTime('-2 days'),
+            'doubleOptInEmailSentDate' => $originalSentDate,
         ]);
         $context = Generator::generateSalesChannelContext();
 
@@ -88,8 +89,12 @@ class DoubleOptInServiceTest extends TestCase
 
         $this->createService($eventDispatcher)->resendDoubleOptInMail($customer, $context);
 
-        static::assertNotNull($sentDateAtDispatch, 'doubleOptInEmailSentDate must be updated in DB before the event is dispatched');
-        static::assertGreaterThan(new \DateTimeImmutable('-5 minutes'), $sentDateAtDispatch);
+        static::assertNotNull($sentDateAtDispatch);
+        static::assertLessThan(new \DateTimeImmutable('-1 day'), $sentDateAtDispatch);
+
+        $updatedCustomer = $this->fetchCustomer($customerId);
+        static::assertNotNull($updatedCustomer->getDoubleOptInEmailSentDate());
+        static::assertGreaterThan(new \DateTimeImmutable('-5 minutes'), $updatedCustomer->getDoubleOptInEmailSentDate());
     }
 
     public function testResolveDomainUrlFromSystemConfig(): void

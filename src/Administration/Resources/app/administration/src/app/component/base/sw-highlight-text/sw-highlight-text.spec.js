@@ -41,7 +41,7 @@ describe('src/app/component/base/sw-highlight-text', () => {
             searchTerm: 'test',
         });
 
-        expect(wrapper.findAll('.sw-highlight-text__highlight').length).toBe(2);
+        expect(wrapper.findAll('.sw-highlight-text__highlight')).toHaveLength(2);
         expect(wrapper.findAll('.sw-highlight-text__highlight')[0].text()).toBe('test');
         expect(wrapper.findAll('.sw-highlight-text__highlight')[1].text()).toBe('Test');
     });
@@ -54,7 +54,7 @@ describe('src/app/component/base/sw-highlight-text', () => {
             searchTerm: 'order-number',
         });
 
-        expect(wrapper.findAll('.sw-highlight-text__highlight').length).toBe(2);
+        expect(wrapper.findAll('.sw-highlight-text__highlight')).toHaveLength(2);
         expect(wrapper.findAll('.sw-highlight-text__highlight')[0].text()).toBe('order-number');
         expect(wrapper.findAll('.sw-highlight-text__highlight')[1].text()).toBe('order-number');
     });

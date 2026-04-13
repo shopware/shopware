@@ -1,6 +1,6 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test.skip('Visual: Storefront CMS sliders with vertical alignment', { 
+test('Visual: Storefront CMS sliders with vertical alignment', { 
     tag: '@Visual',
     annotation: {
         type: 'issue',
@@ -24,7 +24,8 @@ test.skip('Visual: Storefront CMS sliders with vertical alignment', {
         name: 'Visual Slider Layout',
         sections: [
             {
-                type: 'full_width',
+                type: 'default',
+                sizingMode: 'full_width',
                 position: 0,
                 blocks: [
                     {

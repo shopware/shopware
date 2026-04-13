@@ -4,16 +4,16 @@ namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
+use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailDataProvider;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\AbstractProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\Locale\LocaleEntity;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -22,53 +22,134 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 #[Package('after-sales')]
 class MailDataProviderTest extends TestCase
 {
-    public function testTemplateDataWithoutFlowEventAwareClass(): void
+    public function testGetTemplateDataFiltersUnavailableEntitiesAndUsesProviderEntityName(): void
     {
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-
         $context = Context::createDefaultContext();
+        $orderEntity = new MailTemplateEntity();
+        $provider = $this->createProvider('order', $orderEntity);
 
-        $languageEntity = $this->getLanguageEntity('en-US', $context);
+        $mailDataProvider = new MailDataProvider([
+            'order' => $provider,
+        ]);
 
-        /** @var StaticEntityRepository<LanguageCollection> $languageCollection */
-        $languageCollection = new StaticEntityRepository([new LanguageCollection([$languageEntity])]);
+        $result = $mailDataProvider->getTemplateData(
+            $this->createMailTemplate(['order' => 'order']),
+            [
+                'order' => 'order-id',
+                'customer' => 'customer-id',
+            ],
+            $context
+        );
 
-        $mailDataProvider = new MailDataProvider([], $definitionInstanceRegistry, $languageCollection);
-
-        // @phpstan-ignore-next-line
-        $result = $mailDataProvider->getTemplateData($context, self::class);
-
-        static::assertSame([], $result);
+        static::assertSame(['order' => $orderEntity], $result);
+        static::assertSame(['order-id'], $provider->requestedIds);
+        static::assertSame([$context], $provider->requestedContexts);
     }
 
-    public function testTemplateDataMissingMailAware(): void
+    public function testGetTemplateDataReturnsInjectedTemplateDataWhenNoMailTemplateTypeExists(): void
     {
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $mailDataProvider = new MailDataProvider([]);
 
-        $context = Context::createDefaultContext();
+        $result = $mailDataProvider->getTemplateData(
+            new MailTemplateEntity(),
+            ['order' => 'order-id'],
+            Context::createDefaultContext(),
+            ['foo' => 'bar']
+        );
 
-        $languageEntity = $this->getLanguageEntity('en-US', $context);
-
-        /** @var StaticEntityRepository<LanguageCollection> $languageCollection */
-        $languageCollection = new StaticEntityRepository([new LanguageCollection([$languageEntity])]);
-
-        $mailDataProvider = new MailDataProvider([], $definitionInstanceRegistry, $languageCollection);
-
-        $result = $mailDataProvider->getTemplateData($context, MailErrorEvent::class);
-
-        static::assertSame([], $result);
+        static::assertSame(['foo' => 'bar'], $result);
     }
 
-    private function getLanguageEntity(string $localeCode, Context $context): LanguageEntity
+    public function testGetTemplateDataAllowsInjectedTemplateDataToOverrideProvidedEntities(): void
     {
-        $languageEntity = new LanguageEntity();
-        $languageEntity->setId($context->getLanguageId());
+        $context = Context::createDefaultContext();
+        $providerEntity = new MailTemplateEntity();
+        $provider = $this->createProvider('order', $providerEntity);
 
-        $localeEntity = new LocaleEntity();
-        $localeEntity->setId(Uuid::randomHex());
-        $localeEntity->setCode($localeCode);
-        $languageEntity->setLocale($localeEntity);
+        $mailDataProvider = new MailDataProvider([
+            'order' => $provider,
+        ]);
 
-        return $languageEntity;
+        $result = $mailDataProvider->getTemplateData(
+            $this->createMailTemplate(['order' => 'order']),
+            ['order' => 'order-id'],
+            $context,
+            ['order' => 'overridden', 'extra' => 'value']
+        );
+
+        static::assertSame(
+            [
+                'order' => 'overridden',
+                'extra' => 'value',
+            ],
+            $result
+        );
+    }
+
+    /**
+     * @param array<string, mixed>|null $availableEntities
+     */
+    private function createMailTemplate(?array $availableEntities): MailTemplateEntity
+    {
+        $mailTemplateType = new MailTemplateTypeEntity();
+        $mailTemplateType->setAvailableEntities($availableEntities);
+
+        $mailTemplate = new MailTemplateEntity();
+        $mailTemplate->setMailTemplateType($mailTemplateType);
+
+        return $mailTemplate;
+    }
+
+    private function createProvider(string $entityName, ?Entity $entity): TestMailFlowProvider
+    {
+        return new TestMailFlowProvider(
+            $entityName,
+            $entity,
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(ContainerInterface::class)
+        );
+    }
+}
+
+/**
+ * @internal
+ */
+class TestMailFlowProvider extends AbstractProvider
+{
+    /**
+     * @var list<string>
+     */
+    public array $requestedIds = [];
+
+    /**
+     * @var list<Context>
+     */
+    public array $requestedContexts = [];
+
+    public function __construct(
+        private readonly string $entityName,
+        private readonly ?Entity $entity,
+        EventDispatcherInterface $eventDispatcher,
+        ContainerInterface $container,
+    ) {
+        parent::__construct($eventDispatcher, $container);
+    }
+
+    public function getEntityName(): string
+    {
+        return $this->entityName;
+    }
+
+    public function getData(string $entityId, Context $context): ?Entity
+    {
+        $this->requestedIds[] = $entityId;
+        $this->requestedContexts[] = $context;
+
+        return $this->entity;
+    }
+
+    protected function constructCriteria(string $entityId): Criteria
+    {
+        return new Criteria([$entityId]);
     }
 }

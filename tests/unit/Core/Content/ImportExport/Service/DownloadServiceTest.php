@@ -14,6 +14,7 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFi
 use Shopware\Core\Content\ImportExport\Exception\FileNotFoundException;
 use Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException;
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
+use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -112,13 +113,13 @@ class DownloadServiceTest extends TestCase
         $fileSystem->method('temporaryUrl')->willThrowException(new UnableToGenerateTemporaryUrl('reason', '/any/path'));
         $fileSystem->method('fileSize')->willReturn(100);
 
-        if ($strategy === DownloadService::X_SENDFILE_DOWNLOAD_STRATEGY) {
+        if ($strategy === DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY) {
             $stream = fopen('php://memory', 'r+');
             static::assertIsResource($stream);
             fwrite($stream, 'test');
             rewind($stream);
             $fileSystem->method('readStream')->willReturn($stream);
-            $expectedResponse->headers->set(DownloadService::X_SENDFILE_DOWNLOAD_STRATEGY, 'php://memory');
+            $expectedResponse->headers->set(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY, 'php://memory');
         } else {
             $fileSystem->expects($this->never())->method('readStream');
         }
@@ -141,18 +142,18 @@ class DownloadServiceTest extends TestCase
     public static function dataProviderDownloadStrategies(): iterable
     {
         yield 'x-sendfile' => [
-            'strategy' => DownloadService::X_SENDFILE_DOWNLOAD_STRATEGY,
-            'expectedResponse' => self::createExpectedResponse(DownloadService::X_SENDFILE_DOWNLOAD_STRATEGY),
+            'strategy' => DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY,
+            'expectedResponse' => self::createExpectedResponse(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY),
         ];
 
         yield 'x-accel' => [
-            'strategy' => DownloadService::X_ACCEL_DOWNLOAD_STRATEGY,
-            'expectedResponse' => self::createExpectedResponse(DownloadService::X_ACCEL_REDIRECT),
+            'strategy' => DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGY,
+            'expectedResponse' => self::createExpectedResponse(DownloadResponseGenerator::X_ACCEL_REDIRECT),
         ];
 
         yield 'x-accel with prefix' => [
-            'strategy' => DownloadService::X_ACCEL_DOWNLOAD_STRATEGY,
-            'expectedResponse' => self::createExpectedResponse(DownloadService::X_ACCEL_REDIRECT, '/any/Path'),
+            'strategy' => DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGY,
+            'expectedResponse' => self::createExpectedResponse(DownloadResponseGenerator::X_ACCEL_REDIRECT, '/any/Path'),
             'localPathPrefix' => '/any/Path',
         ];
     }
@@ -349,7 +350,7 @@ class DownloadServiceTest extends TestCase
             $response = new Response(null, Response::HTTP_OK, $headers);
 
             $location = 'export/foobar.txt';
-            if ($strategy === DownloadService::X_ACCEL_REDIRECT && $localPathPrefix !== '') {
+            if ($strategy === DownloadResponseGenerator::X_ACCEL_REDIRECT && $localPathPrefix !== '') {
                 $location = $localPathPrefix . '/export/foobar.txt';
             }
 

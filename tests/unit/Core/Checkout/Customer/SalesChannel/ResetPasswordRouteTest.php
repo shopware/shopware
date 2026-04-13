@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -56,7 +57,7 @@ class ResetPasswordRouteTest extends TestCase
                 1,
                 $recoveryCollection,
                 null,
-                new \Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria(),
+                new Criteria(),
                 $this->createMock(SalesChannelContext::class)->getContext()
             ));
 

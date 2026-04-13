@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnitTypeEnum;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -219,7 +220,7 @@ class SalesChannelContext extends Struct
     public function getToken(): string
     {
         /**
-         * @see \Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute
+         * @see SwTwigFunction::getAttribute
          * Inside Twig rendering context, the token is not allowed to be accessed as it might expose sensitive information
          * when the data is dumped into outputted HTML.
          */

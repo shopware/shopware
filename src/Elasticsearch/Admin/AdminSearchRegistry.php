@@ -306,7 +306,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             ];
         }
 
-        if (\count($indices) === 0) {
+        if ($indices === []) {
             return $indices;
         }
 
@@ -349,7 +349,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             ];
         }
 
-        if (\count($entities) === 0) {
+        if ($entities === []) {
             return;
         }
 

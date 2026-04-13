@@ -130,7 +130,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        if (\count($this->indexer) === 0 || !$this->adminEsHelper->isEnabled() || !$this->isIndexedEntityWritten($event)) {
+        if ($this->indexer === [] || !$this->adminEsHelper->isEnabled() || !$this->isIndexedEntityWritten($event)) {
             return;
         }
 

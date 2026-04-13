@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -76,12 +77,37 @@ class DoubleOptInService
             return;
         }
 
+        $this->sendDoubleOptInMail($customer, $context, $this->resolveDomainUrl($context));
+
         // Update sent date as this serves as cooldown for subsequent login attempts
         $this->customerRepository->update([
             ['id' => $customer->getId(), 'doubleOptInEmailSentDate' => new \DateTimeImmutable()],
         ], $context->getContext());
+    }
 
-        $this->sendDoubleOptInMail($customer, $context, $this->resolveDomainUrl($context));
+    /**
+     * @param array<string, mixed> $customer
+     *
+     * @return array<string, mixed>
+     */
+    public function mapCustomerDoubleOptInData(array $customer, SalesChannelContext $context): array
+    {
+        $configKey = $customer['guest']
+            ? 'core.loginRegistration.doubleOptInGuestOrder'
+            : 'core.loginRegistration.doubleOptInRegistration';
+
+        $doubleOptInRequired = $this->systemConfigService
+            ->getBool($configKey, $context->getSalesChannelId());
+
+        if (!$doubleOptInRequired) {
+            return $customer;
+        }
+
+        $customer['doubleOptInRegistration'] = true;
+        $customer['doubleOptInEmailSentDate'] = new \DateTimeImmutable();
+        $customer['hash'] = Uuid::randomHex();
+
+        return $customer;
     }
 
     private function buildConfirmPath(CustomerEntity $customer, SalesChannelContext $context): string

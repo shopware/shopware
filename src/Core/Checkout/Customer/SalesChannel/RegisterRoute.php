@@ -172,7 +172,7 @@ class RegisterRoute extends AbstractRegisterRoute
             }
         }
 
-        $customer = $this->addDoubleOptInData($customer, $context);
+        $customer = $this->doubleOptInService->mapCustomerDoubleOptInData($customer, $context);
 
         $customer['boundSalesChannelId'] = $this->getBoundSalesChannelId($customer['email'], $context);
 
@@ -259,31 +259,6 @@ class RegisterRoute extends AbstractRegisterRoute
         $customerEntity->setHash('');
 
         return $response;
-    }
-
-    /**
-     * @param array<string, mixed> $customer
-     *
-     * @return array<string, mixed>
-     */
-    private function addDoubleOptInData(array $customer, SalesChannelContext $context): array
-    {
-        $configKey = $customer['guest']
-            ? 'core.loginRegistration.doubleOptInGuestOrder'
-            : 'core.loginRegistration.doubleOptInRegistration';
-
-        $doubleOptInRequired = $this->systemConfigService
-            ->get($configKey, $context->getSalesChannelId());
-
-        if (!$doubleOptInRequired) {
-            return $customer;
-        }
-
-        $customer['doubleOptInRegistration'] = true;
-        $customer['doubleOptInEmailSentDate'] = new \DateTimeImmutable();
-        $customer['hash'] = Uuid::randomHex();
-
-        return $customer;
     }
 
     private function validateRegistrationData(

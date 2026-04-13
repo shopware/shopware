@@ -68,7 +68,6 @@ class ProductListingRoute extends AbstractProductListingRoute
         $criteria->setTitle('product-listing-route::loading');
 
         $categories = $this->loadCategories($categoryId, $context);
-        /** @var PartialEntity|null $category */
         $category = $categories->get($categoryId);
         if (!$category) {
             throw ProductException::categoryNotFound($categoryId);
@@ -109,10 +108,7 @@ class ProductListingRoute extends AbstractProductListingRoute
             new ContainsFilter('path', '|' . $categoryId . '|'),
         ]));
 
-        /** @var EntityCollection<PartialEntity> $categories */
-        $categories = $this->categoryRepository->search($criteria, $context->getContext())->getEntities();
-
-        return $categories;
+        return $this->categoryRepository->search($criteria, $context->getContext())->getEntities();
     }
 
     /**

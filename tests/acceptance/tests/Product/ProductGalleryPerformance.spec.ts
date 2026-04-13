@@ -62,14 +62,15 @@ test('Product gallery should lazy-load non-visible images and constrain thumbnai
         }
     });
 
-    await test.step('Thumbnail container height should not exceed the expected maximum.', async () => {
+    await test.step('Thumbnail container should not be taller than the main gallery.', async () => {
         const thumbnailContainer = StorefrontProductDetail.page.locator(SELECTOR_THUMBNAIL_CONTAINER);
-        const isVisible = await thumbnailContainer.isVisible();
+        const galleryContainer = StorefrontProductDetail.page.locator('.gallery-slider-container');
 
-        if (isVisible) {
-            const boundingBox = await thumbnailContainer.boundingBox();
-            expect(boundingBox).not.toBeNull();
-            expect(boundingBox!.height).toBeLessThanOrEqual(500);
-        }
+        const thumbBox = await thumbnailContainer.boundingBox();
+        const galleryBox = await galleryContainer.boundingBox();
+
+        expect(thumbBox).not.toBeNull();
+        expect(galleryBox).not.toBeNull();
+        expect(thumbBox!.height).toBeLessThanOrEqual(galleryBox!.height);
     });
 });

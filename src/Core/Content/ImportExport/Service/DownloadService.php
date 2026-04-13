@@ -24,9 +24,6 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 #[Package('fundamentals@after-sales')]
 class DownloadService
 {
-    final public const X_SENDFILE_DOWNLOAD_STRATEGY = DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY;
-    final public const X_ACCEL_DOWNLOAD_STRATEGY = DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGY;
-    final public const X_ACCEL_REDIRECT = DownloadResponseGenerator::X_ACCEL_REDIRECT;
     private const EXPIRATION_TIME = '+120 minutes';
 
     /**
@@ -86,7 +83,7 @@ class DownloadService
     private function createResponse(ImportExportFileEntity $entity, string $fileId): Response
     {
         switch ($this->localDownloadStrategy) {
-            case self::X_SENDFILE_DOWNLOAD_STRATEGY:
+            case DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY:
                 $location = $entity->getPath();
 
                 $stream = $this->filesystem->readStream($location);
@@ -97,10 +94,10 @@ class DownloadService
                 $location = stream_get_meta_data($stream)['uri'] ?? $location;
 
                 $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($entity));
-                $response->headers->set(self::X_SENDFILE_DOWNLOAD_STRATEGY, $location);
+                $response->headers->set(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY, $location);
 
                 return $response;
-            case self::X_ACCEL_DOWNLOAD_STRATEGY:
+            case DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGY:
                 $location = $entity->getPath();
 
                 if ($this->localPathPrefix !== '') {
@@ -108,7 +105,7 @@ class DownloadService
                 }
 
                 $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($entity));
-                $response->headers->set(self::X_ACCEL_REDIRECT, $location);
+                $response->headers->set(DownloadResponseGenerator::X_ACCEL_REDIRECT, $location);
 
                 return $response;
             default:

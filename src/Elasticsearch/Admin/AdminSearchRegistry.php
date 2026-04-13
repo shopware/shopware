@@ -92,6 +92,10 @@ class AdminSearchRegistry implements EventSubscriberInterface
         }
 
         $indexers = $this->getIndexersArray();
+        if ($indexers === []) {
+            return;
+        }
+
         /** @var list<string> $entities */
         $entities = array_keys($indexers);
 
@@ -130,7 +134,12 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        if ($this->indexer === [] || !$this->adminEsHelper->isEnabled() || !$this->isIndexedEntityWritten($event)) {
+        if (!$this->adminEsHelper->isEnabled() || !$this->isIndexedEntityWritten($event)) {
+            return;
+        }
+
+        $indexers = $this->getIndexersArray();
+        if ($indexers === []) {
             return;
         }
 
@@ -150,7 +159,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             return;
         }
 
-        foreach ($this->indexer as $indexer) {
+        foreach ($indexers as $indexer) {
             $ids = $indexer->getUpdatedIds($event);
             $deletedIds = $event->getDeletedPrimaryKeys($indexer->getEntity());
             $ids = array_values(array_diff($ids, $deletedIds));

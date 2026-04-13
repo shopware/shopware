@@ -1,8 +1,10 @@
 import { test, expect, Page, Locator } from '@fixtures/AcceptanceTest';
-import { parseCapturedRequests, removeSymfonyToolbar, setupProductAnalyticsInterceptor, waitForCapturedRequests } from '@helpers/productanalytics-helpers';
+import { parseCapturedRequests, removeSymfonyToolbar, setupConsentRevokeInterceptor,
+    setupConsentInterceptor, setupProductAnalyticsInterceptor, waitForCapturedRequests } from '@helpers/productanalytics-helpers';
 import { createNewAdminPageContext, loginToAdministration, User } from '@shopware-ag/acceptance-test-suite';
 
 const PRODUCT_ANALYTICS_ENDPOINT = 'event';
+const CONSENTS_ENDPOINT = 'consents';
 
 test(
     'As a merchant, opening the Product Analytics consent modal, should send anonymous events.',
@@ -16,6 +18,8 @@ test(
     }) => {
 
         const { capturedRequests, handler } = setupProductAnalyticsInterceptor();
+        const { consentHandler } = setupConsentInterceptor();
+        const { consentRevokeHandler } = setupConsentRevokeInterceptor();
 
         let page: Page;
         let adminUser: User;
@@ -47,9 +51,12 @@ test(
             page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
         });
 
-        await test.step('Intercept all the API calls to product analytics', async () => {
+        await test.step('Modify product analytics API and consent API requests.', async () => {
 
             await page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}**`, handler);
+            await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
+            await page.route(`**/${CONSENTS_ENDPOINT}/revoke`, consentRevokeHandler);
+
         });
 
         await test.step('Login to shopware administration', async () => {
@@ -166,3 +173,78 @@ test(
             TestDataService.addCreatedRecord('user', adminUser.id);
         });
 });
+
+test(
+    'Existing backend-data consent is checked before rendering consent modal',
+    { tag: '@ProductAnalytics' },
+    async ({
+               IdProvider,
+               SalesChannelBaseConfig,
+               browser,
+               TestDataService,
+           }) => {
+
+        const { capturedRequests, handler } = setupProductAnalyticsInterceptor();
+        const { consentHandler } = setupConsentInterceptor({ backend_data: { status: 'accepted' } });
+
+        let page: Page;
+        let user: User;
+        let consentModal: Locator;
+
+        await test.step('Setup page object before login to shopware administration', async () => {
+
+            const { id, uuid } = IdProvider.getIdPair();
+
+            user = {
+                id: uuid,
+                username: `admin_${id}`,
+                firstName: `${id} admin`,
+                lastName: `${id} admin`,
+                localeId: SalesChannelBaseConfig.currentLocaleId,
+                email: `admin_${id}@example.com`,
+                timezone: 'Europe/Berlin',
+                password: 'shopware',
+                admin: true,
+                createdAt: '2024-01-01T00:00:00.000Z',
+            };
+
+            const userResponse = await TestDataService.AdminApiClient.post('user', { data: user });
+            expect(userResponse.ok()).toBeTruthy();
+
+            page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
+        });
+
+        await test.step('Modify product analytics API and consent API requests.', async () => {
+
+            await page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}**`, handler);
+            await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
+        });
+
+        await test.step('Login to shopware administration', async () => {
+            page = await loginToAdministration(
+                page,
+                user,
+                TestDataService.AdminApiClient,
+            );
+
+            await waitForCapturedRequests(capturedRequests, 1);
+        });
+
+        await test.step('Validate no store data consent option available.', async () => {
+
+            consentModal = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Help us to improve Shopware' }) });
+            const shareStoreDataCheckbox = consentModal.getByRole('checkbox', { name: 'Share store data (anonymous)' });
+
+            await expect(consentModal).toBeVisible();
+            await expect(shareStoreDataCheckbox).toHaveCount(0);
+
+        });
+
+        await test.step('Cleanup.', async () => {
+
+            TestDataService.addCreatedRecord('user', user.id);
+            await page.close();
+        });
+    });
+
+

@@ -182,32 +182,29 @@ class ProductListingRouteTest extends TestCase
     {
         [$parentCategoryId, $childCategoryId, $productId] = $this->createNestedManualAssignmentData();
 
-        $parentListing = $this->loadListing($parentCategoryId);
-        static::assertSame([$productId], $parentListing->getEntities()->getIds());
-
-        $childListing = $this->loadListing($childCategoryId);
-        static::assertSame([$productId], $childListing->getEntities()->getIds());
+        static::assertSame([$productId], $this->loadListingIds($parentCategoryId));
+        static::assertSame([$productId], $this->loadListingIds($childCategoryId));
     }
 
     public function testLoadsNestedProductsForMixedAssignments(): void
     {
         [$parentCategoryId, $manualChildCategoryId, $streamChildCategoryId, $manualProductId, $streamProductId] = $this->createNestedMixedAssignmentData();
 
-        $parentIds = $this->loadListing($parentCategoryId)->getEntities()->getIds();
+        $parentIds = $this->loadListingIds($parentCategoryId);
 
         static::assertEqualsCanonicalizing([$manualProductId, $streamProductId], $parentIds);
-        static::assertSame([$manualProductId], $this->loadListing($manualChildCategoryId)->getEntities()->getIds());
-        static::assertSame([$streamProductId], $this->loadListing($streamChildCategoryId)->getEntities()->getIds());
+        static::assertSame([$manualProductId], $this->loadListingIds($manualChildCategoryId));
+        static::assertSame([$streamProductId], $this->loadListingIds($streamChildCategoryId));
     }
 
     public function testLoadsNestedProductsForStreamParents(): void
     {
         [$parentCategoryId, $childCategoryId, $streamProductId, $manualProductId] = $this->createNestedStreamParentData();
 
-        $parentIds = $this->loadListing($parentCategoryId)->getEntities()->getIds();
+        $parentIds = $this->loadListingIds($parentCategoryId);
 
         static::assertEqualsCanonicalizing([$streamProductId, $manualProductId], $parentIds);
-        static::assertSame([$manualProductId], $this->loadListing($childCategoryId)->getEntities()->getIds());
+        static::assertSame([$manualProductId], $this->loadListingIds($childCategoryId));
     }
 
     /**
@@ -869,6 +866,19 @@ class ProductListingRouteTest extends TestCase
         $streamId = Uuid::randomHex();
         $streamProductNumber = 'stream-product-' . Uuid::randomHex();
 
+        $streamWrittenEvent = static::getContainer()->get('product_stream.repository')->create([
+            [
+                'id' => $streamId,
+                'name' => 'nested-stream',
+                'filters' => [[
+                    'type' => 'equals',
+                    'field' => 'productNumber',
+                    'value' => $streamProductNumber,
+                ]],
+            ],
+        ], Context::createDefaultContext());
+        $this->indexProductStreamDefinition($streamWrittenEvent);
+
         $this->categoryRepository->create([
             [
                 'id' => $parentCategoryId,
@@ -887,19 +897,6 @@ class ProductListingRouteTest extends TestCase
                 'productStreamId' => $streamId,
             ],
         ], Context::createDefaultContext());
-
-        $streamWrittenEvent = static::getContainer()->get('product_stream.repository')->create([
-            [
-                'id' => $streamId,
-                'name' => 'nested-stream',
-                'filters' => [[
-                    'type' => 'equals',
-                    'field' => 'productNumber',
-                    'value' => $streamProductNumber,
-                ]],
-            ],
-        ], Context::createDefaultContext());
-        $this->indexProductStreamDefinition($streamWrittenEvent);
 
         $this->productRepository->create([
             [
@@ -1041,5 +1038,13 @@ class ProductListingRouteTest extends TestCase
             ->get(ProductListingRoute::class)
             ->load($categoryId, new Request(), $context, new Criteria())
             ->getResult();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function loadListingIds(string $categoryId): array
+    {
+        return array_values($this->loadListing($categoryId)->getEntities()->getIds());
     }
 }

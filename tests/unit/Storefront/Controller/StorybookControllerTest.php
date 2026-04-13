@@ -15,6 +15,8 @@ use Shopware\Storefront\Storybook\StorybookService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Twig\Environment;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
 use Twig\TemplateWrapper;
 
@@ -142,7 +144,7 @@ class StorybookControllerTest extends TestCase
         $this->storybookService->method('getThemeId')->willReturn(null);
         $this->storybookService->method('resolveComponentProps')->willReturn([]);
 
-        $this->twig->renderException = new \Twig\Error\RuntimeError('Template rendering failed');
+        $this->twig->renderException = new RuntimeError('Template rendering failed');
 
         $response = $this->createController('dev')->storybook('my-button', $this->createStorybookRequest());
 
@@ -167,7 +169,7 @@ class StorybookControllerTest extends TestCase
         $this->storybookService->method('getThemeId')->willReturn(null);
         $this->storybookService->method('resolveComponentProps')->willReturn([]);
 
-        $this->twig->createTemplateException = new \Twig\Error\SyntaxError('Unexpected token');
+        $this->twig->createTemplateException = new SyntaxError('Unexpected token');
 
         $response = $this->createController('dev')->storybook('my-button', $this->createStorybookRequest());
 

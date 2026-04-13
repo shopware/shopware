@@ -273,6 +273,7 @@ export default {
                 .addAssociation('customFieldSets')
                 .addAssociation('featureSet')
                 .addAssociation('cmsPage')
+                .addAssociation('translations')
                 .addAssociation('downloads.media');
 
             criteria.getAssociation('manufacturer').addAssociation('media');

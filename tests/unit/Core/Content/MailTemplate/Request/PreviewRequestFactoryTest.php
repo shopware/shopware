@@ -87,6 +87,35 @@ class PreviewRequestFactoryTest extends TestCase
         );
     }
 
+    public function testMakeAcceptsPlainArrayValuesFromRequest(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = $this->createMailTemplate();
+        $request = $this->createMock(RequestDataBag::class);
+
+        $request->method('getString')
+            ->with('mailTemplateId')
+            ->willReturn('template-id');
+
+        $request->method('get')
+            ->willReturnMap([
+                ['entities', [], ['order' => 'order-id', 'customer' => 'customer-id']],
+                ['templateData', [], ['foo' => 'bar']],
+            ]);
+
+        $this->mailTemplateService->expects($this->once())
+            ->method('loadTemplate')
+            ->with('template-id', $context)
+            ->willReturn($mailTemplate);
+
+        $factory = new PreviewRequestFactory($this->mailTemplateService);
+
+        $result = $factory->make($request, $context);
+
+        static::assertSame(['order' => 'order-id'], $result->entityMapping);
+        static::assertSame(['foo' => 'bar'], $result->templateData);
+    }
+
     private function createMailTemplate(): MailTemplateEntity
     {
         $mailTemplateType = new MailTemplateTypeEntity();

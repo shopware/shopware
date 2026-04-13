@@ -26,9 +26,7 @@ readonly class GetDataAndSendRequestFactory
         $templateId = $request->getString('mailTemplateId');
         $mailTemplate = $this->mailTemplateService->loadTemplate($templateId, $context);
 
-        $entitiesDataBag = $request->get('entities', new DataBag());
-        \assert($entitiesDataBag instanceof DataBag);
-        $entities = $entitiesDataBag->all();
+        $entities = $this->normalizeArrayParameter($request->get('entities', []));
 
         $mailTemplateType = $mailTemplate->getMailTemplateType();
 
@@ -42,9 +40,7 @@ readonly class GetDataAndSendRequestFactory
             }
         }
 
-        $templateDataDataBag = $request->get('templateData', new DataBag());
-        \assert($templateDataDataBag instanceof DataBag);
-        $templateData = $templateDataDataBag->all();
+        $templateData = $this->normalizeArrayParameter($request->get('templateData', []));
 
         return new GetDataAndSendRequest(
             mailTemplate: $mailTemplate,
@@ -60,5 +56,21 @@ readonly class GetDataAndSendRequestFactory
                 ],
             ),
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function normalizeArrayParameter(mixed $value): array
+    {
+        if ($value instanceof DataBag) {
+            return $value->all();
+        }
+
+        if (\is_array($value)) {
+            return $value;
+        }
+
+        return [];
     }
 }

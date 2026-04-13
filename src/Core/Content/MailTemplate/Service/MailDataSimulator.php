@@ -198,7 +198,7 @@ class MailDataSimulator
             }, $dataType['data'] ?? []);
         }
 
-        if (in_array($dataType['type'], ScalarValueType::VALID_TYPES)) {
+        if (\in_array($dataType['type'], ScalarValueType::VALID_TYPES, true)) {
             switch ($dataType['type']) {
                 case ScalarValueType::TYPE_BOOL:
                     return $faker->boolean();
@@ -335,11 +335,15 @@ class MailDataSimulator
      * @param array<string, Entity> $entityCache
      */
     private function generateEntityData(
-        EntityDefinition $definition,
+        EntityDefinition|string $definition,
         array &$entityCache,
         Generator $faker,
         Context $context
     ): Entity {
+        if (\is_string($definition)) {
+            $definition = $this->definitionRegistry->getByClassOrEntityName($definition);
+        }
+
         if (\array_key_exists($definition::class, $entityCache)) {
             return $entityCache[$definition::class];
         }
@@ -562,6 +566,7 @@ class MailDataSimulator
 
                 $collection = new ($this->getCollectionClass($entity))();
                 \assert($collection instanceof EntityCollection);
+                $this->ensureEntityIdentifier($entity, $faker);
                 $collection->add($entity);
 
                 return $collection;
@@ -577,15 +582,7 @@ class MailDataSimulator
 
                 $collection = new ($this->getCollectionClass($entity))();
                 \assert($collection instanceof EntityCollection);
-                try {
-                    $entity->getUniqueIdentifier();
-                } catch (\Throwable $exception) {
-                    if ($entity->has('id')) {
-                        $entity->assign(['id' => Uuid::fromStringToHex($faker->uuid())]);
-                    } else {
-                        $entity->setUniqueIdentifier(Uuid::fromStringToHex($faker->uuid()));
-                    }
-                }
+                $this->ensureEntityIdentifier($entity, $faker);
                 $collection->add($entity);
 
                 return $collection;
@@ -605,6 +602,7 @@ class MailDataSimulator
             case $field instanceof TranslationsAssociationField:
                 $entity = $this->generateEntityData($field->getReferenceClass(), $entityCache, $faker, $context);
                 $language = $this->generateEntityData(LanguageDefinition::class, $entityCache, $faker, $context);
+                $this->ensureEntityIdentifier($language, $faker);
 
                 $entity->setUniqueIdentifier($language->getUniqueIdentifier());
 
@@ -621,6 +619,21 @@ class MailDataSimulator
         }
 
         return null;
+    }
+
+    private function ensureEntityIdentifier(Entity $entity, Generator $faker): void
+    {
+        try {
+            $entity->getUniqueIdentifier();
+        } catch (\Throwable) {
+            $identifier = Uuid::fromStringToHex($faker->uuid());
+
+            if ($entity->has('id')) {
+                $entity->assign(['id' => $identifier]);
+            }
+
+            $entity->setUniqueIdentifier($identifier);
+        }
     }
 
     private function createFaker(Context $context, ?int $seed = null): Generator

@@ -59,6 +59,10 @@ class MailActionController extends AbstractController
         }
 
         $mailTemplateData = $post->get('mailTemplateData', []);
+        if ($mailTemplateData instanceof DataBag) {
+            $mailTemplateData = $mailTemplateData->all();
+        }
+
         if (!\is_array($mailTemplateData)) {
             $mailTemplateData = [];
         }
@@ -136,10 +140,15 @@ class MailActionController extends AbstractController
     public function simulate(RequestDataBag $post, Context $context): JsonResponse
     {
         $mailTemplateContent = $post->get('mailTemplateContent');
-        if (!$mailTemplateContent instanceof DataBag) {
-            throw MailTemplateException::invalidRequestParameterType('mailTemplateContent', 'object', get_debug_type($mailTemplateContent));
+        if ($mailTemplateContent instanceof DataBag) {
+            $mailTemplateContent = $mailTemplateContent->all();
+        } elseif (!\is_array($mailTemplateContent)) {
+            throw MailTemplateException::invalidRequestParameterType(
+                'mailTemplateContent',
+                'array|object',
+                get_debug_type($mailTemplateContent)
+            );
         }
-        $mailTemplateContent = $mailTemplateContent->all();
 
         $eventName = $post->get('eventName');
         if (!\is_string($eventName)) {

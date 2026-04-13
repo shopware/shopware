@@ -109,6 +109,50 @@ class GetDataAndSendRequestFactoryTest extends TestCase
         );
     }
 
+    public function testMakeAcceptsPlainArrayValuesFromRequest(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = $this->createMailTemplate();
+        $mailPayload = new MailPayload(subject: 'payload subject');
+        $request = $this->createMock(RequestDataBag::class);
+
+        $request->method('getString')
+            ->with('mailTemplateId')
+            ->willReturn('template-id');
+
+        $request->method('get')
+            ->willReturnMap([
+                ['entities', [], ['order' => 'order-id', 'customer' => 'customer-id']],
+                ['templateData', [], ['foo' => 'bar']],
+            ]);
+
+        $this->mailTemplateService->expects($this->once())
+            ->method('loadTemplate')
+            ->with('template-id', $context)
+            ->willReturn($mailTemplate);
+
+        $this->mailPayloadFactory->expects($this->once())
+            ->method('make')
+            ->with(
+                $request,
+                [
+                    'contentHtml' => '<p>html</p>',
+                    'contentPlain' => 'plain',
+                    'subject' => 'template subject',
+                    'senderName' => 'template sender',
+                ]
+            )
+            ->willReturn($mailPayload);
+
+        $factory = new GetDataAndSendRequestFactory($this->mailTemplateService, $this->mailPayloadFactory);
+
+        $result = $factory->make($request, $context);
+
+        static::assertSame(['order' => 'order-id'], $result->entityMapping);
+        static::assertSame(['foo' => 'bar'], $result->templateData);
+        static::assertSame($mailPayload, $result->mailPayload);
+    }
+
     private function createMailTemplate(): MailTemplateEntity
     {
         $mailTemplateType = new MailTemplateTypeEntity();

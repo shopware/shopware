@@ -11,7 +11,6 @@ test('Product gallery should lazy-load non-visible images and constrain thumbnai
     ShopCustomer,
     TestDataService,
     StorefrontProductDetail,
-    DefaultSalesChannel,
 }) => {
     const product = await TestDataService.createBasicProduct();
 
@@ -29,10 +28,6 @@ test('Product gallery should lazy-load non-visible images and constrain thumbnai
         data: {
             coverId: productMediaPayload[0].id,
             media: productMediaPayload,
-            visibilities: [{
-                salesChannelId: DefaultSalesChannel.salesChannel.id,
-                visibility: 30,
-            }],
         },
     });
     expect(assignResponse.ok()).toBeTruthy();

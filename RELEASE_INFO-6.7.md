@@ -4,9 +4,32 @@
 
 ## API
 
+### Per-user and per-IP rate limiters for login and OAuth
+
+The login and OAuth token endpoints now support optional per user (`login_user`, `oauth_user`) and per IP (`login_client`, `oauth_client`) rate limiters, in addition to the existing combined user and IP limiter. These are optional and can be enabled via `shopware.api.rate_limiter` in `shopware.yaml`.
+
 ## Core
 
+### Product `display_group` values use SHA-256
+
+The `display_group` field on the `product` entity (available via the Admin API and Store API) is now computed with SHA-256 for variant listing instead of MD5. Stored values are 64 hexadecimal characters instead of 32. The database column was widened to `VARCHAR(64)`.
+
+A migration registers the product indexer so that only the variant listing updater (`product.variant-listing`, the step that maintains `display_group`) is queued. That pass runs with the usual deferred indexing after an update or installation finishes, not inside the migration. If your integration or plugin assumes a 32-character `display_group`, compares against previously stored MD5 values, or relies on custom SQL with the old column width, update it to accept 64-character hashes and the new column definition.
+### "Find best variant setting" is now applied for storefront filtering
+
+Users can now control which representative of variant products is shown in filtered listings via the Product settings "Preview best matching variant in search results and filtered listings".
+
 ## Administration
+
+### Re-render iframe integrations when location changes
+
+Iframe-based Administration extensions now re-render correctly when their `locationId` changes.
+This fixes stale iframe content when switching locations in Meteor Admin SDK integrations and also prevents unnecessary full-page reloads.
+
+### Internal comments visible in the order list
+
+The Administration order list now shows internal order comments via a dedicated tooltip icon.
+This helps merchants spot internal notes directly from the list view without opening the order detail page.
 
 ## Storefront
 
@@ -28,7 +51,7 @@ preserve the `data-quantity-selector-options` attribute with a `purchaseLimitUrl
 ### GLTF Animations
 
 User are now able to play animations from their 3D models in the Storefront.
-Simply upload a model with one or multiple animations baked into the file, bind the file to a product and display it in the Storefront.
+Simply upload a model with one or multiple animations baked into the file, bind the file to a product, and display it in the Storefront.
 
 ## App System
 
@@ -199,6 +222,11 @@ shopware:
 
 When `bin/console system:setup:staging` is executed, the configured keys are written to the database via `SystemConfigService`.
 
+### [Experimental] Agentic Commerce sales channel
+
+A new "Agentic Commerce" sales channel type is available in this release. The OpenAI Merchant Center integration is the first supported provider for AI-powered product feed exports.
+The Administration includes dedicated views for configuration, product mapping, and usage insights.
+
 ## API
 
 ### Minimum value constraints added to quantity fields in ProductPriceDefinition
@@ -329,11 +357,23 @@ public ?string $url = null;
 
 A value of `0` disables length validation entirely. This is pre-existing `StringFieldSerializer` behavior where any value below `1` is treated as unconstrained.
 
+### JSONL product export format
+
+Product exports now support `ProductExportEntity::FILE_FORMAT_JSONL` as a third file format.
+
+### [Experimental] Agentic Commerce product export provider abstraction
+
+The new `AbstractAgenticCommerceProductExportProvider` can be used to implement custom Agentic Commerce export providers.
+
 ## Administration
 
 ### CMS data mapping source for media custom fields
 
 Fixed media custom fields not being available as data mapping source for image elements in category and product CMS layouts. Shop Administrators can now reliably bind media custom fields to images in CMS pages without workarounds.
+
+### [Experimental] Agentic Commerce sales channel views and tracking entities
+
+New Agentic Commerce sales channels types can be created. These sales channels have dedicated configuration options in the administration for property mapping, and usage insights. New entities for monitoring orders and customers for Agentic Commerce sales channels are included.
 
 ## Storefront
 
@@ -439,7 +479,7 @@ Using `@extend` on generic tooling classes was causing very large combined selec
 ```scss
 .checkout-main {
     @extend .col-lg-8;
-}  
+}
 ```
 
 #### After
@@ -716,6 +756,12 @@ The same config can be set via environment variable `SHOPWARE_ADMIN_ES_INDEXING_
 This should reduce the overhead needed when running the admin index process.
 Before the admin indexing process shared the same config `elasticsearch.indexing_batch_size` (default value: 100) with the Storefront/Store API indexing, which could lead to performance issues when you had a large amount of data in your shop, as the admin indexing process is usually way faster and therefore can benefit from higher batch sizes.
 
+### Optional precision threshold for grouped OpenSearch product counts
+
+There is a new optional config option `elasticsearch.search.precision_threshold` that allows you to configure the `precision_threshold` sent for grouped Storefront product count aggregations in OpenSearch.
+When the config is not set, Shopware keeps the current OpenSearch behavior and does not send `precision_threshold`.
+This can be useful for large catalogs that use grouped product listings and need to trade higher count accuracy against additional OpenSearch memory usage.
+
 ### Deprecated HTTP cache reverse proxy configuration
 
 The following HTTP cache reverse proxy configuration options have been doing nothing since 6.7.0.0 and are therefore now deprecated. They will be removed in version 6.8.0.0:
@@ -810,7 +856,7 @@ This new component is called `sw-model-viewer`.
 The Model Editor lets you make quick adjustments to your 3D models directly in the Administration. No external software needed.
 Simply select a 3D model in the sidebar and click the Expand button on the Model Viewer.
 A modal will open where you can move, rotate, and scale the model.
-You can also use the sidebar to type in specific values for position, rotation and scale.
+You can also use the sidebar to type in specific values for position, rotation, and scale.
 Click Save, and your changes are applied instantly.
 
 ## API

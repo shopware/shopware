@@ -39,12 +39,10 @@ class Migration1768545321RevocationRequestFlowTest extends TestCase
 
     private function hasFlowEntry(): bool
     {
-        $result = $this->connection->fetchOne(
+        return (bool) $this->connection->fetchOne(
             'SELECT 1 FROM `flow` WHERE `id` = :flowId',
             ['flowId' => Uuid::fromHexToBytes(Migration1768545321RevocationRequestFlow::REVOCATION_REQUEST_FLOW_ID)]
         );
-
-        return !empty($result);
     }
 
     private function dropFlowEntry(): void

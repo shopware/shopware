@@ -69,7 +69,7 @@ class ADRValidationTest extends TestCase
                 $errors[] = 'ADR contains no keywords';
             }
 
-            if (empty($errors)) {
+            if ($errors === []) {
                 continue;
             }
 

@@ -728,7 +728,15 @@ export default {
         },
 
         onStorefrontSelectionChange(storefrontSalesChannelId) {
+            this.productExport.salesChannelDomainId = null;
+            this.productExport.salesChannelDomain = null;
+            this.loadStorefrontDomains(storefrontSalesChannelId);
+
             this.salesChannelRepository.get(storefrontSalesChannelId).then((entity) => {
+                if (!entity) {
+                    return;
+                }
+
                 this.salesChannel.languageId = entity.languageId;
                 this.salesChannel.currencyId = entity.currencyId;
                 this.salesChannel.paymentMethodId = entity.paymentMethodId;

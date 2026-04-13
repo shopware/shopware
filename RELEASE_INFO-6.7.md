@@ -4,9 +4,32 @@
 
 ## API
 
+### Per-user and per-IP rate limiters for login and OAuth
+
+The login and OAuth token endpoints now support optional per user (`login_user`, `oauth_user`) and per IP (`login_client`, `oauth_client`) rate limiters, in addition to the existing combined user and IP limiter. These are optional and can be enabled via `shopware.api.rate_limiter` in `shopware.yaml`.
+
 ## Core
 
+### Product `display_group` values use SHA-256
+
+The `display_group` field on the `product` entity (available via the Admin API and Store API) is now computed with SHA-256 for variant listing instead of MD5. Stored values are 64 hexadecimal characters instead of 32. The database column was widened to `VARCHAR(64)`.
+
+A migration registers the product indexer so that only the variant listing updater (`product.variant-listing`, the step that maintains `display_group`) is queued. That pass runs with the usual deferred indexing after an update or installation finishes, not inside the migration. If your integration or plugin assumes a 32-character `display_group`, compares against previously stored MD5 values, or relies on custom SQL with the old column width, update it to accept 64-character hashes and the new column definition.
+### "Find best variant setting" is now applied for storefront filtering
+
+Users can now control which representative of variant products is shown in filtered listings via the Product settings "Preview best matching variant in search results and filtered listings".
+
 ## Administration
+
+### Re-render iframe integrations when location changes
+
+Iframe-based Administration extensions now re-render correctly when their `locationId` changes.
+This fixes stale iframe content when switching locations in Meteor Admin SDK integrations and also prevents unnecessary full-page reloads.
+
+### Internal comments visible in the order list
+
+The Administration order list now shows internal order comments via a dedicated tooltip icon.
+This helps merchants spot internal notes directly from the list view without opening the order detail page.
 
 ## Storefront
 
@@ -28,9 +51,27 @@ preserve the `data-quantity-selector-options` attribute with a `purchaseLimitUrl
 ### GLTF Animations
 
 User are now able to play animations from their 3D models in the Storefront.
-Simply upload a model with one or multiple animations baked into the file, bind the file to a product and display it in the Storefront.
+Simply upload a model with one or multiple animations baked into the file, bind the file to a product, and display it in the Storefront.
+
+### Show child line items if available
+
+New block `component_line_item_type_product_children` added to template `storefront/component/line-item/type/product.html.twig` to display child line items if available
 
 ## App System
+
+### App requirements validation
+
+Apps can now declare requirements in their manifest via a new `<requirements>` element. Requirements are validated during app installation and updates in production. If a requirement is not met, the process fails with `FRAMEWORK__APP_REQUIREMENTS_NOT_MET` and an actionable message.
+
+The first introduced requirement, `<public-access/>`, verifies that `APP_URL` uses HTTPS, does not point to an IP or reserved/local development host, and that `/api/_info/health-check` returns HTTP 200 when called from the Shopware server. This helps catch misconfigurations before apps that rely on webhooks or other external communication fail silently.
+
+```xml
+<requirements>
+    <public-access/>
+</requirements>
+```
+
+Unknown requirements are ignored and logged as warnings.
 
 ## Hosting & Configuration
 
@@ -44,6 +85,10 @@ This is helpful for stores that do not require search keywords and want to avoid
 # 6.7.9.0
 
 ## Features
+
+### Product Open Graph fields for SEO and social sharing
+
+Merchants can now set custom Open Graph title, description, and image per product in the product SEO tab in the administration. These values are used for the storefront product detail page meta tags (`og:title`, `og:description`, `og:image`), improving how product links appear when shared on social media and in search results. The fields are stored in the database, exposed via the Admin and Store API on the product entity, and default to the product meta title, meta description, and cover image when not set.
 
 ### Default CMS page ID now persisted for categories
 
@@ -181,6 +226,11 @@ shopware:
 
 When `bin/console system:setup:staging` is executed, the configured keys are written to the database via `SystemConfigService`.
 
+### [Experimental] Agentic Commerce sales channel
+
+A new "Agentic Commerce" sales channel type is available in this release. The OpenAI Merchant Center integration is the first supported provider for AI-powered product feed exports.
+The Administration includes dedicated views for configuration, product mapping, and usage insights.
+
 ## API
 
 ### Minimum value constraints added to quantity fields in ProductPriceDefinition
@@ -300,11 +350,34 @@ Both `AwsS3v3Factory` and `PresignedUploadUrlGenerator` are wired via DI to the 
 the `shopware.filesystem.s3.client` service to provide a custom Symfony HTTP client with
 custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
 
+### `#[Field]` attribute supports custom `maxLength` for string fields
+
+The `maxLength` parameter is now available on `#[Field]` for `FieldType::STRING` and `FieldType::EMAIL` fields. Previously the max length was always 255, matching `StringField`'s default, with no way to override it. Setting `maxLength` passes the value through to the underlying `StringField` constructor and the `StringFieldSerializer` validation.
+
+```php
+#[Field(type: FieldType::STRING, maxLength: 4096)]
+public ?string $url = null;
+```
+
+A value of `0` disables length validation entirely. This is pre-existing `StringFieldSerializer` behavior where any value below `1` is treated as unconstrained.
+
+### JSONL product export format
+
+Product exports now support `ProductExportEntity::FILE_FORMAT_JSONL` as a third file format.
+
+### [Experimental] Agentic Commerce product export provider abstraction
+
+The new `AbstractAgenticCommerceProductExportProvider` can be used to implement custom Agentic Commerce export providers.
+
 ## Administration
 
 ### CMS data mapping source for media custom fields
 
 Fixed media custom fields not being available as data mapping source for image elements in category and product CMS layouts. Shop Administrators can now reliably bind media custom fields to images in CMS pages without workarounds.
+
+### [Experimental] Agentic Commerce sales channel views and tracking entities
+
+New Agentic Commerce sales channels types can be created. These sales channels have dedicated configuration options in the administration for property mapping, and usage insights. New entities for monitoring orders and customers for Agentic Commerce sales channels are included.
 
 ## Storefront
 
@@ -399,6 +472,49 @@ The webpack dev server overlay for runtime errors has been disabled in hot-reloa
 ### `HEAD`-requests do not trigger the registration double-opt-in
 
 As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
+
+
+### Avoid excessive use of @extend in Storefront SCSS
+
+We have refactored the SCSS of the checkout related routes (cart, confirm, finish, register) to use `@include` mixins instead of `@extend` to apply the Bootstrap grid layout.
+Using `@extend` on generic tooling classes was causing very large combined selectors. We are now using the grid mixins that are documented by Bootstrap.
+
+#### Before
+```scss
+.checkout-main {
+    @extend .col-lg-8;
+}
+```
+
+#### After
+```scss
+.checkout-main {
+    @include make-col-ready();
+    @include media-breakpoint-up(lg) {
+        @include make-col(8);
+    }
+}
+```
+
+In addition, we have refactored several places to use direct CSS or SCSS variables instead of `@extend`.
+
+#### Deprecate stylings that have no usage in the DOM or no visual effect
+
+* Deprecated `@extend .btn-lg` on `.btn-buy`. The current `.btn-buy` in combination with `.btn-lg` has the same dimensions as a normal button.
+    * If you need a larger buy button, you can use the Bootstrap CSS variables or the `button-size` mixin to increase the size.
+* Deprecated custom styling on class `.offcanvas-footer`. Class is not used in the DOM.
+
+#### New stylelint rule to avoid `@extend`
+
+Because of the side-effects with large combined selectors, we have added a new stylelint rule `scss/at-extend-no-missing-placeholder` that does not allow the use of `@extend` on generic selectors.
+The use of `@extend` is still allowed on SCSS placeholder selectors (`%my-selector`) that are not included in the compiled CSS.
+If you have good reasons to use `@extend` and can ensure that the combined selectors do not grow too large, the rule can still be ignored via inline comment.
+
+## App System
+
+## Hosting & Configuration
+
+## Critical Fixes
 
 # 6.7.8.1
 
@@ -644,6 +760,12 @@ The same config can be set via environment variable `SHOPWARE_ADMIN_ES_INDEXING_
 This should reduce the overhead needed when running the admin index process.
 Before the admin indexing process shared the same config `elasticsearch.indexing_batch_size` (default value: 100) with the Storefront/Store API indexing, which could lead to performance issues when you had a large amount of data in your shop, as the admin indexing process is usually way faster and therefore can benefit from higher batch sizes.
 
+### Optional precision threshold for grouped OpenSearch product counts
+
+There is a new optional config option `elasticsearch.search.precision_threshold` that allows you to configure the `precision_threshold` sent for grouped Storefront product count aggregations in OpenSearch.
+When the config is not set, Shopware keeps the current OpenSearch behavior and does not send `precision_threshold`.
+This can be useful for large catalogs that use grouped product listings and need to trade higher count accuracy against additional OpenSearch memory usage.
+
 ### Deprecated HTTP cache reverse proxy configuration
 
 The following HTTP cache reverse proxy configuration options have been doing nothing since 6.7.0.0 and are therefore now deprecated. They will be removed in version 6.8.0.0:
@@ -738,7 +860,7 @@ This new component is called `sw-model-viewer`.
 The Model Editor lets you make quick adjustments to your 3D models directly in the Administration. No external software needed.
 Simply select a 3D model in the sidebar and click the Expand button on the Model Viewer.
 A modal will open where you can move, rotate, and scale the model.
-You can also use the sidebar to type in specific values for position, rotation and scale.
+You can also use the sidebar to type in specific values for position, rotation, and scale.
 Click Save, and your changes are applied instantly.
 
 ## API
@@ -894,6 +1016,10 @@ The following deprecations apply to `sw-mail-template-index`:
 * The `listing` mixin will be removed in v6.8.0.0
 * `term` data property will be removed in v6.8.0.0
 * `onChangeLanguage` method: the if/else block will be replaced with just the if-branch logic in v6.8.0.0
+
+### Fixed `sw-entity-multi-id-select` crash when used in plugin system config with sales channel inheritance
+
+When `sw-entity-multi-id-select` was used via the `<component>` tag in a plugin's `config.xml`, switching to a non-default sales channel caused a TypeError because the inheritance system passed `null` as the value instead of an array. The component now handles `null` gracefully, aligning with the convention that components used via `<component>` in system config must accept `null` as their value.
 
 ### Admin boot loading spinner shows error instead of infinite loading
 

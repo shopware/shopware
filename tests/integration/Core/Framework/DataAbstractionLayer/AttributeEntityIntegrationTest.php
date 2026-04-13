@@ -388,6 +388,7 @@ class AttributeEntityIntegrationTest extends TestCase
             'emptyString' => '',
             'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
             'email' => 'test@example.com',
+            'longString' => null,
             'password' => $record->password,
             'tags' => ['foo', 'bar'],
             'ownMapping' => [],

@@ -14,6 +14,25 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+        <service id="shopware.webhook.guzzle" class="GuzzleHttp\Client" lazy="true">
+            <argument type="collection">
+                <argument key="timeout">20</argument>
+                <argument key="connect_timeout">10</argument>
+                <argument key="handler" type="service">
+                    <service class="GuzzleHttp\HandlerStack">
+                        <factory class="GuzzleHttp\HandlerStack" method="create" />
+                        <call method="push">
+                            <argument type="service" id="shopware.app_system.guzzle.middleware"/>
+                        </call>
+                    </service>
+                </argument>
+            </argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Service\WebhookClient">
+            <argument type="service" id="shopware.webhook.guzzle"/>
+        </service>
+
         <service lazy="true" id="Shopware\Core\Framework\Webhook\Service\WebhookManager">
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookLoader"/>
             <argument type="service" id="event_dispatcher"/>
@@ -21,7 +40,7 @@
             <argument type="service" id="Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppLocaleProvider"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
-            <argument type="service" id="shopware.app_system.guzzle"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookClient"/>
             <argument type="service" id="Symfony\Component\Messenger\MessageBusInterface"/>
             <argument type="string">%env(APP_URL)%</argument>
             <argument>%kernel.shopware_version%</argument>
@@ -70,7 +89,9 @@
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler">
-            <argument type="service" id="shopware.app_system.guzzle"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookClient"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
             <argument type="service" id="webhook_event_log.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
 

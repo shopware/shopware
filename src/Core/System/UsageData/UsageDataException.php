@@ -6,9 +6,6 @@ use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
-use Shopware\Core\System\UsageData\Exception\ConsentAlreadyAcceptedException;
-use Shopware\Core\System\UsageData\Exception\ConsentAlreadyRequestedException;
-use Shopware\Core\System\UsageData\Exception\ConsentAlreadyRevokedException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -19,9 +16,6 @@ class UsageDataException extends HttpException
 {
     public const MISSING_USER_IN_CONTEXT_SOURCE = 'SYSTEM__USAGE_DATA_MISSING_USER_IN_CONTEXT_SOURCE';
     public const INVALID_CONTEXT_SOURCE = 'SYSTEM__USAGE_DATA_INVALID_CONTEXT_SOURCE';
-    public const CONSENT_ALREADY_REQUESTED = 'SYSTEM__USAGE_DATA_CONSENT_ALREADY_REQUESTED';
-    public const CONSENT_ALREADY_ACCEPTED = 'SYSTEM__USAGE_DATA_CONSENT_ALREADY_ACCEPTED';
-    public const CONSENT_ALREADY_REVOKED = 'SYSTEM__USAGE_DATA_CONSENT_ALREADY_REVOKED';
     public const UNEXPECTED_OPERATION_IN_INITIAL_RUN = 'SYSTEM__USAGE_DATA_UNEXPECTED_OPERATION_IN_INITIAL_RUN';
     public const ENTITY_NOT_TAGGED = 'SYSTEM__USAGE_DATA_ENTITY_NOT_TAGGED';
     public const SYSTEM__USAGE_DATA_FAILED_TO_COMPRESS_ENTITY_DISPATCH_PAYLOAD = 'SYSTEM__USAGE_DATA_FAILED_TO_COMPRESS_ENTITY_DISPATCH_PAYLOAD';
@@ -58,33 +52,6 @@ class UsageDataException extends HttpException
                 'expectedContextSource' => $expectedContextSource,
                 'actualContextSource' => $actualContextSource,
             ],
-        );
-    }
-
-    public static function consentAlreadyRequested(): self
-    {
-        return new ConsentAlreadyRequestedException(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::CONSENT_ALREADY_REQUESTED,
-            'Consent has already been requested.',
-        );
-    }
-
-    public static function consentAlreadyAccepted(): self
-    {
-        return new ConsentAlreadyAcceptedException(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::CONSENT_ALREADY_ACCEPTED,
-            'Consent has already been accepted.',
-        );
-    }
-
-    public static function consentAlreadyRevoked(): self
-    {
-        return new ConsentAlreadyRevokedException(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::CONSENT_ALREADY_REVOKED,
-            'Consent has already been revoked.',
         );
     }
 

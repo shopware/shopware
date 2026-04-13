@@ -307,11 +307,11 @@ class EntityRepositoryTest extends TestCase
 
         $queue->execute();
 
-        $found = static::getContainer()
+        $foundIds = static::getContainer()
             ->get('order.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        $found = !empty($found->getIds());
+        $found = $foundIds->getIds() !== [];
 
         static::assertSame($match, $found);
     }

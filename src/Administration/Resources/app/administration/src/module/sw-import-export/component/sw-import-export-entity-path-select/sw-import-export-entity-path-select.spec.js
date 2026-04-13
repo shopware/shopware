@@ -687,6 +687,14 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 value: 'translations.DEFAULT.slotConfig',
             },
             {
+                label: 'translations.DEFAULT.ogTitle',
+                value: 'translations.DEFAULT.ogTitle',
+            },
+            {
+                label: 'translations.DEFAULT.ogDescription',
+                value: 'translations.DEFAULT.ogDescription',
+            },
+            {
                 label: 'translations.DEFAULT.customFields',
                 value: 'translations.DEFAULT.customFields',
                 relation: true,
@@ -766,6 +774,14 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             {
                 label: 'translations.DEFAULT.slotConfig',
                 value: 'translations.DEFAULT.slotConfig',
+            },
+            {
+                label: 'translations.DEFAULT.ogTitle',
+                value: 'translations.DEFAULT.ogTitle',
+            },
+            {
+                label: 'translations.DEFAULT.ogDescription',
+                value: 'translations.DEFAULT.ogDescription',
             },
             {
                 label: 'translations.DEFAULT.customFields',
@@ -849,6 +865,14 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             {
                 label: 'translations.DEFAULT.slotConfig',
                 value: 'translations.DEFAULT.slotConfig',
+            },
+            {
+                label: 'translations.DEFAULT.ogTitle',
+                value: 'translations.DEFAULT.ogTitle',
+            },
+            {
+                label: 'translations.DEFAULT.ogDescription',
+                value: 'translations.DEFAULT.ogDescription',
             },
             {
                 label: 'translations.DEFAULT.customFields',

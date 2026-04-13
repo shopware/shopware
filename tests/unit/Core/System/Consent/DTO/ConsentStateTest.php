@@ -57,4 +57,41 @@ class ConsentStateTest extends TestCase
         yield 'Returns null if initially declined' => [ConsentStatus::DECLINED, null];
         yield 'Returns updated_at when revoked later' => [ConsentStatus::REVOKED, (new \DateTimeImmutable('2026-03-02'))->format(Defaults::STORAGE_DATE_TIME_FORMAT)];
     }
+
+    public function testAcceptedRevisionIsClearedForNonAcceptedStates(): void
+    {
+        $consent = new ConsentState(
+            'test_consent',
+            'system',
+            'system',
+            ConsentStatus::REVOKED,
+            'test_user',
+            (new \DateTimeImmutable('2026-03-02'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            '2.0.0',
+            '2.0.0',
+        );
+
+        static::assertNull($consent->acceptedRevision);
+        static::assertFalse($consent->isAccepted());
+        static::assertFalse($consent->isCurrent());
+        static::assertFalse($consent->isStale());
+    }
+
+    public function testAcceptedConsentCanBeDetectedAsStale(): void
+    {
+        $consent = new ConsentState(
+            'test_consent',
+            'system',
+            'system',
+            ConsentStatus::ACCEPTED,
+            'test_user',
+            (new \DateTimeImmutable('2026-03-02'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            '1.0.0',
+            '2.0.0',
+        );
+
+        static::assertTrue($consent->isAccepted());
+        static::assertFalse($consent->isCurrent());
+        static::assertTrue($consent->isStale());
+    }
 }

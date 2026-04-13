@@ -86,6 +86,18 @@
         }
     }
 
+    .sw-product-image__context-button--cover .sw-context-button__button {
+        visibility: visible;
+        background: rgba(0, 0, 0, 55%);
+        border-color: transparent;
+
+        &:hover,
+        &.is--active {
+            background: rgba(0, 0, 0, 70%);
+            border-color: transparent;
+        }
+    }
+
     .sw-product-image__placeholder-icon {
         color: $color-gray-300;
     }

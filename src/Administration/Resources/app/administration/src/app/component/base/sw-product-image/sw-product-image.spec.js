@@ -31,6 +31,32 @@ async function createWrapper() {
 }
 
 describe('app/component/base/sw-product-image', () => {
+    it('should add a dedicated context button modifier when cover state is shown', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setProps({
+            isCover: true,
+            showCoverLabel: true,
+        });
+
+        const contextButton = wrapper.find('.sw-product-image__context-button');
+        expect(contextButton.classes()).toContain('sw-product-image__context-button--cover');
+    });
+
+    it('should not add the cover context button modifier when cover state is hidden', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setProps({
+            isCover: true,
+            showCoverLabel: false,
+        });
+
+        const contextButton = wrapper.find('.sw-product-image__context-button');
+        expect(contextButton.classes()).not.toContain('sw-product-image__context-button--cover');
+    });
+
     it('should display button to set as cover image if media is not a 3D object and is not already a cover image', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

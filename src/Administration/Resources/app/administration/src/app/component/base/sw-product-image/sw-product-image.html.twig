@@ -48,7 +48,10 @@
         {% endblock %}
 
         {% endblock %}
-        <sw-context-button class="sw-product-image__context-button">
+        <sw-context-button
+            class="sw-product-image__context-button"
+            :class="{ 'sw-product-image__context-button--cover': showCoverLabel && isCover }"
+        >
             {% block sw_product_image_context %}
             {% block sw_product_image_context_cover_action %}
             <sw-context-menu-item

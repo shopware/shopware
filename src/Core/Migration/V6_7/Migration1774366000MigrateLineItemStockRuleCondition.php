@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('after-sales')]
 class Migration1774366000MigrateLineItemStockRuleCondition extends MigrationStep
 {
     public function getCreationTimestamp(): int

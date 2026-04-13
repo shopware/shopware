@@ -17,6 +17,7 @@
         >
             <sw-iframe-renderer
                 v-if="modal.locationId"
+                :key="modal.locationId"
                 :src="modal.baseUrl"
                 :location-id="modal.locationId"
             />

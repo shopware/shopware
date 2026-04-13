@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Store\Subscriber;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEvents;
 use Shopware\Core\Framework\Log\Package;
@@ -16,7 +15,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(ExtensionChangedSubscriber::class)]
 class ExtensionChangedSubscriberTest extends TestCase
 {
     private ArrayAdapter $cache;

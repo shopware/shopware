@@ -20,7 +20,9 @@ const defaultConsents = {
         scopeName: 'user_id',
         status: 'unset',
         actor: null,
-        updated_at: null,
+        updatedAt: null,
+        acceptedRevision: null,
+        latestRevision: null,
     },
 };
 
@@ -40,11 +42,11 @@ describe('core/consent/consent.api.service', () => {
     it('accept returns updated consent', async () => {
         const { consentApiService, clientMock } = setUpService();
 
-        clientMock.onPost('/consents/accept', { consent: 'test_consent' }).reply(200, {
+        clientMock.onPost('/consents/accept', { consent: 'test_consent', revision: '2026-02-02' }).reply(200, {
             ...defaultConsents.test_consent,
         });
 
-        const { data } = await consentApiService.accept('test_consent');
+        const { data } = await consentApiService.accept('test_consent', '2026-02-02');
 
         expect(data).toEqual(defaultConsents.test_consent);
     });

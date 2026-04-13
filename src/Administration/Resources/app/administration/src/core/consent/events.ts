@@ -48,10 +48,6 @@ class ConsentEvent<N extends ConsentEventName> {
 }
 
 function dispatchConsentEvent<N extends ConsentEventName>(eventName: N, eventProperties: ConsentEvents[N]): void {
-    if (!Shopware.Feature.isActive('PRODUCT_ANALYTICS')) {
-        return;
-    }
-
     Shopware.Utils.EventBus.emit('consent', new ConsentEvent(eventName, eventProperties));
 }
 

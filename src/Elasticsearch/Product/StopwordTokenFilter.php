@@ -87,7 +87,7 @@ class StopwordTokenFilter extends AbstractTokenFilter
             LIMIT 1
         ', ['languageId' => Uuid::fromHexToBytes($languageId)]);
 
-        if (empty($config)) {
+        if ($config === false) {
             return null;
         }
 

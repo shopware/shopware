@@ -327,6 +327,27 @@ class ProductControllerTest extends TestCase
         static::assertArrayHasKey('product-page-loaded', $traces);
     }
 
+    public function testProductPageDepthMicrodataUsesDepthItemProp(): void
+    {
+        Feature::skipTestIfActive('JSON_LD_DATA', $this);
+
+        $productId = $this->createProduct(['length' => 12.0]);
+
+        $response = $this->request(
+            'GET',
+            '/my-product/' . $productId,
+            []
+        );
+
+        $this->checkStatusCode($response);
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertStringContainsString('<meta itemprop="depth"', $content);
+        static::assertStringContainsString('content="12 mm"', $content);
+        static::assertStringNotContainsString('itemprop="length"', $content);
+    }
+
     public function testProductQuickViewWidgetLoadedHookScriptsAreExecuted(): void
     {
         $productId = $this->createProduct();
@@ -389,7 +410,10 @@ class ProductControllerTest extends TestCase
         return $request;
     }
 
-    private function createProduct(): string
+    /**
+     * @param array<string, mixed> $overrides
+     */
+    private function createProduct(array $overrides = []): string
     {
         $id = Uuid::randomHex();
 
@@ -420,6 +444,8 @@ class ProductControllerTest extends TestCase
                 ],
             ],
         ];
+
+        $product = array_replace_recursive($product, $overrides);
 
         $repository = static::getContainer()->get('product.repository');
 

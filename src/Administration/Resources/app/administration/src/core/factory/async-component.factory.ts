@@ -730,16 +730,23 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         // clone the override configuration to prevent side-effects to the config
         const overrides = cloneDeep(overrideRegistry.get(componentName));
 
-        const convertedOverrides = await convertOverrides(
-            overrides!.map((c) => c.config),
-            config,
+        // Resolve all override configs in parallel, then separate by type
+        const resolvedEntries = await Promise.all(overrides!.map((overrideEntry) => overrideEntry.config()));
+
+        const standardOverrideConfigs: AwaitedComponentConfig[] = resolvedEntries.map(
+            (resolvedConfig) => () => Promise.resolve(resolvedConfig),
         );
 
-        convertedOverrides.forEach((overrideComp) => {
-            overrideComp.extends = config;
-            overrideComp._isOverride = true;
-            config = { ...overrideComp };
-        });
+        // Continue with standard Options API overrides
+        if (standardOverrideConfigs.length > 0) {
+            const convertedOverrides = await convertOverrides(standardOverrideConfigs, config);
+
+            convertedOverrides.forEach((overrideComp) => {
+                overrideComp.extends = config;
+                overrideComp._isOverride = true;
+                config = { ...overrideComp };
+            });
+        }
     }
 
     const superRegistry = buildSuperRegistry(config);

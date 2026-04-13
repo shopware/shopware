@@ -5,9 +5,8 @@ test('Merchant is able accept or decline the data sharing consent.', { tag: '@Da
     ShopAdmin,
     AdminDashboard,
     AdminDataSharing,
-    FeatureService,
 }) => {
-    test.skip(await FeatureService.isEnabled('PRODUCT_ANALYTICS'),'Skipping test because of the new Product Analytics feature.');
+    test.skip(true, 'Temporarily skipped after removing the PRODUCT_ANALYTICS feature flag.');
 
     let consentResponsePromise: Promise<Response>;
     let response: Response;

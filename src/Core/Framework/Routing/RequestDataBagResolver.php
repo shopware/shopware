@@ -11,6 +11,9 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 #[Package('framework')]
 class RequestDataBagResolver implements ValueResolverInterface
 {
+    /**
+     * @return \Generator<RequestDataBag>
+     */
     public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
         if ($argument->getType() !== RequestDataBag::class) {

@@ -33,6 +33,9 @@ class Choice extends Flag
         return $this->strict;
     }
 
+    /**
+     * @return \Generator<string, array{choices: list<string|bool|int|float>, strict: bool}>
+     */
     public function parse(): \Generator
     {
         yield 'choice' => [

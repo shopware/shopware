@@ -24,7 +24,6 @@ export default {
         'searchRankingService',
         'userConfigService',
         'ssoSettingsService',
-        'feature',
         'validationApiService',
     ],
 

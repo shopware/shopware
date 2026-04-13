@@ -42,6 +42,9 @@ class MigrationCollection
         $insertQuery->execute();
     }
 
+    /**
+     * @return \Generator<class-string<MigrationStep>>
+     */
     public function migrateInSteps(?int $until = null, ?int $limit = null): \Generator
     {
         return $this->migrationRuntime->migrate($this->migrationSource, $until, $limit);
@@ -55,6 +58,9 @@ class MigrationCollection
         return iterator_to_array($this->migrateInSteps($until, $limit));
     }
 
+    /**
+     * @return \Generator<class-string<MigrationStep>>
+     */
     public function migrateDestructiveInSteps(?int $until = null, ?int $limit = null): \Generator
     {
         return $this->migrationRuntime->migrateDestructive($this->migrationSource, $until, $limit);

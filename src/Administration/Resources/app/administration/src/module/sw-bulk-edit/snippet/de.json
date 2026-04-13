@@ -269,6 +269,7 @@
         }
       },
       "warningText": "Bitte warte, bis die Mehrfachänderung abgeschlossen ist. Dies kann einen Moment dauern. Solltest du den Browser-Tab vorzeitig schließen oder den Prozess abbrechen, werden eventuell nicht alle Änderungen übernommen. Du kannst Mehrfachänderungen jederzeit erneut durchführen.",
+      "warningTextDocumentDeletion": "Dokumente gehören zu einer Bestellung und sie können steuerlich relevant sein. Durch das Löschen kann die Nachvollziehbarkeit Deiner Buchführung beeinträchtigt werden. Prüfe bitte, ob die Löschung rechtlich zulässig ist." ,
       "messageBeforeTabLeave": "Mehrfachänderungen werden gerade durchgeführt. Wenn du den Tab schließt, werden eventuell nicht alle Änderungen übernommen."
     },
     "order": {
@@ -345,6 +346,10 @@
         "downloadDocuments": {
           "label": "Herunterladen: Dokumente",
           "helpText": "Mit dieser Option werden die aktuellsten, zur Verfügung stehenden Belege zum Download angeboten. Mehrere Belege werden in derselben Datei zusammengeführt. Der Download steht nach Abschluss der Mehrfachänderung zur Verfügung"
+        },
+        "deleteDocuments": {
+          "label": "Löschen: Dokumente",
+          "helpText": "Mit dieser Option werden alle ausgewählten Dokumenttypen gelöscht."
         },
         "forceDocumentCreation": "Erstellung von Dokumenten erzwingen",
         "forceDocumentCreationHelpText": "Das Dokument wird auch dann erzeugt, wenn die Bestellung bereits ein Dokument dieser Art beinhaltet."

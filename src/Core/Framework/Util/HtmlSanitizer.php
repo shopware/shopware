@@ -26,7 +26,7 @@ class HtmlSanitizer implements ResetInterface
     public function __construct(
         ?string $cacheDir = null,
         private readonly bool $cacheEnabled = true,
-        private array $sets = [],
+        private readonly array $sets = [],
         private readonly array $fieldSets = [],
         private readonly bool $enabled = true
     ) {
@@ -110,7 +110,7 @@ class HtmlSanitizer implements ResetInterface
         }
 
         if (!$override) {
-            $sets = $this->fieldSets[$field]['sets'] ?? ['basic'];
+            $sets = $this->fieldSets[(string) $field]['sets'] ?? ['basic'];
 
             foreach ($sets as $set) {
                 if (isset($this->sets[$set]['tags'])) {

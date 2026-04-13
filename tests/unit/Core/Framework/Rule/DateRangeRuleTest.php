@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\DateRangeRule;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Test\Assert\Serialization;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -377,9 +378,7 @@ class DateRangeRuleTest extends TestCase
             . "s:9:\"\0*\0toDate\";O:8:\"DateTime\":3:{s:4:\"date\";s:26:\"2026-01-16 23:59:59.000000\";s:13:\"timezone_type\";i:3;s:8:\"timezone\";s:3:\"UTC\";}"
             . "s:10:\"\0*\0useTime\";b:0;";
 
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $unserializedRule = \unserialize($legacySerialized . '}');
-        static::assertInstanceOf(DateRangeRule::class, $unserializedRule);
+        $unserializedRule = Serialization::assertUnserializedInstanceOf(DateRangeRule::class, $legacySerialized . '}');
 
         $timezone = (new \ReflectionProperty(DateRangeRule::class, 'timezone'))->getValue($unserializedRule);
         static::assertNull($timezone);

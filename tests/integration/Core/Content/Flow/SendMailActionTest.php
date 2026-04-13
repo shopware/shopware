@@ -37,6 +37,8 @@ use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
+use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\RevocationRequest\Event\RevocationRequestEvent;
 use Shopware\Core\Defaults;
@@ -914,6 +916,103 @@ class SendMailActionTest extends TestCase
         $sendMailAction->handleFlow($flow);
 
         static::assertCount(2, $mailService->mail->getAttachments());
+    }
+
+    public function testSendMailWithMailTemplateMediaAttachment(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $context = $salesChannelContext->getContext();
+
+        $mailTemplateId = $this->retrieveMailTemplateId();
+
+        $mediaId = Uuid::randomHex();
+        $mediaPath = __DIR__ . '/../ImportExport/fixtures/shopware-logo.png';
+
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
+        static::assertIsString($tempFile);
+
+        \copy($mediaPath, $tempFile);
+
+        $fileSize = \filesize($tempFile);
+        static::assertIsInt($fileSize);
+
+        $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
+
+        static::getContainer()->get('media.repository')->create([
+            [
+                'id' => $mediaId,
+                'fileExtension' => 'png',
+                'mimeType' => 'image/png',
+                'fileSize' => $fileSize,
+                'path' => $mediaPath,
+            ],
+        ], $context);
+
+        static::getContainer()->get('mail_template_media.repository')->create([
+            [
+                'id' => Uuid::randomHex(),
+                'mailTemplateId' => $mailTemplateId,
+                'mediaId' => $mediaId,
+                'languageId' => $context->getLanguageId(),
+                'position' => 0,
+            ],
+        ], $context);
+
+        static::getContainer()->get(FileSaver::class)->persistFileToMedia(
+            $mediaFile,
+            'test-file',
+            $mediaId,
+            $context
+        );
+
+        $transportDecorator = new MailerTransportDecorator(
+            $this->createMock(TransportInterface::class),
+            static::getContainer()->get(MailAttachmentsBuilder::class),
+            static::getContainer()->get('shopware.filesystem.public'),
+            $this->documentRepository
+        );
+
+        $mailService = new TestEmailService(
+            static::getContainer()->get(MailFactory::class),
+            $transportDecorator
+        );
+
+        $sendMailAction = new SendMailAction(
+            $mailService,
+            $this->mailTemplateRepository,
+            static::getContainer()->get('logger'),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('mail_template_type.repository'),
+            static::getContainer()->get(Translator::class),
+            $this->connection,
+            static::getContainer()->get(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(JsonEntityEncoder::class),
+            static::getContainer()->get(DefinitionInstanceRegistry::class),
+            true
+        );
+
+        $customerId = $this->createCustomer($context);
+        $orderId = $this->createOrder($customerId, $context);
+
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('transactions.stateMachineState');
+
+        $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
+        static::assertNotNull($order);
+
+        $event = new CheckoutOrderPlacedEvent($salesChannelContext, $order);
+        $flowFactory = static::getContainer()->get(FlowFactory::class);
+
+        $flow = $flowFactory->create($event);
+        $flow->setConfig([
+            'mailTemplateId' => $mailTemplateId,
+            'recipient' => ['type' => 'customer'],
+        ]);
+
+        $sendMailAction->handleFlow($flow);
+
+        static::assertInstanceOf(Email::class, $mailService->mail);
+        static::assertCount(1, $mailService->mail->getAttachments());
     }
 
     private function createCustomer(Context $context): string

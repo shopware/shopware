@@ -2,10 +2,12 @@
 
 namespace Shopware\Tests\Integration\Core\Content\LandingPage\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
+use Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -160,7 +162,7 @@ class LandingPageRouteTest extends TestCase
             [SalesChannelContextService::LANGUAGE_ID => self::LANGUAGE_IDS['de']],
         );
 
-        $response = static::getContainer()->get(\Shopware\Core\Content\LandingPage\SalesChannel\LandingPageRoute::class)->load(
+        $response = static::getContainer()->get(LandingPageRoute::class)->load(
             $landingPageId,
             new Request(),
             $salesChannelContext,
@@ -249,7 +251,7 @@ class LandingPageRouteTest extends TestCase
 
     private function getLocaleId(string $code): string
     {
-        $localeId = static::getContainer()->get(\Doctrine\DBAL\Connection::class)->fetchOne(
+        $localeId = static::getContainer()->get(Connection::class)->fetchOne(
             'SELECT LOWER(HEX(id)) FROM locale WHERE code = :code',
             ['code' => $code],
         );

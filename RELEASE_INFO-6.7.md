@@ -53,6 +53,10 @@ preserve the `data-quantity-selector-options` attribute with a `purchaseLimitUrl
 User are now able to play animations from their 3D models in the Storefront.
 Simply upload a model with one or multiple animations baked into the file, bind the file to a product, and display it in the Storefront.
 
+### Show child line items if available
+
+New block `component_line_item_type_product_children` added to template `storefront/component/line-item/type/product.html.twig` to display child line items if available
+
 ## App System
 
 ### App requirements validation

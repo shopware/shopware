@@ -253,6 +253,9 @@ class DoubleOptInServiceTest extends TestCase
         static::assertTrue(Uuid::isValid($result['hash']));
     }
 
+    /**
+     * @param array<string, mixed> $systemConfig
+     */
     private function createService(array $systemConfig = []): DoubleOptInService
     {
         return new DoubleOptInService(

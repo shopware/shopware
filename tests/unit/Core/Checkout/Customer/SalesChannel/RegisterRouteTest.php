@@ -699,6 +699,9 @@ class RegisterRouteTest extends TestCase
             ->method('create')
             ->willReturn(new DataValidationDefinition());
 
+        $doubleOptInService = $this->createMock(DoubleOptInService::class);
+        $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
+
         $registerRoute = new RegisterRoute(
             new EventDispatcher(),
             $this->createMock(NumberRangeValueGeneratorInterface::class),
@@ -714,7 +717,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
             $definitionFactory,
-            $this->createMock(DoubleOptInService::class),
+            $doubleOptInService,
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -806,6 +809,9 @@ class RegisterRouteTest extends TestCase
             ->method('create')
             ->willReturn(new DataValidationDefinition());
 
+        $doubleOptInService = $this->createMock(DoubleOptInService::class);
+        $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
+
         $registerRoute = new RegisterRoute(
             new EventDispatcher(),
             $this->createMock(NumberRangeValueGeneratorInterface::class),
@@ -821,7 +827,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
             $definitionFactory,
-            $this->createMock(DoubleOptInService::class),
+            $doubleOptInService,
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -1120,6 +1126,9 @@ class RegisterRouteTest extends TestCase
         ]);
         $customerRepository ??= $this->createCustomerRepository();
 
+        $doubleOptInService = $this->createMock(DoubleOptInService::class);
+        $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
+
         return new RegisterRoute(
             $eventDispatcher,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
@@ -1135,7 +1144,7 @@ class RegisterRouteTest extends TestCase
             $customFieldMapper,
             $salutationRepository,
             $this->createMock(DataValidationFactoryInterface::class),
-            $this->createMock(DoubleOptInService::class),
+            $doubleOptInService,
         );
     }
 

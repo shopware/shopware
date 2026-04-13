@@ -20,7 +20,7 @@ return (new Config())
         'declare_strict_types' => true,
         'fully_qualified_strict_types' => [
             'import_symbols' => true,
-            'phpdoc_tags' => [],
+            'phpdoc_tags' => ['param', 'phpstan-param', 'phpstan-return', 'phpstan-var', 'return', 'see', 'throws', 'var'],
         ],
         'fopen_flags' => false,
         'general_phpdoc_annotation_remove' => ['annotations' => ['copyright', 'category']],

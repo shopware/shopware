@@ -5,13 +5,15 @@ namespace Shopware\Storefront\Theme\Message;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask;
+use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler;
 
 /**
  * used to delay the deletion of theme files
  *
  * @deprecated tag:v6.8.0 - Will be removed. Unused theme files are now deleted with a scheduled task.
- * @see \Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask
- * @see \Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler
+ * @see DeleteThemeFilesTask
+ * @see DeleteThemeFilesTaskHandler
  */
 #[Package('framework')]
 class DeleteThemeFilesMessage implements AsyncMessageInterface

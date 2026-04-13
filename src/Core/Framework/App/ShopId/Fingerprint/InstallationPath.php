@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\ShopId\Fingerprint;
 use Shopware\Core\Framework\App\ShopId\Fingerprint;
 use Shopware\Core\Framework\App\ShopId\FingerprintCustomCompare;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Unit\Core\Framework\App\ShopId\Fingerprint\InstallationPathTest;
 
 /**
  * @internal
@@ -39,7 +40,7 @@ readonly class InstallationPath implements Fingerprint, FingerprintCustomCompare
      * A partial change at the end is low score
      * A partial change at the beginning or drastic change is a high score
      *
-     * @see \Shopware\Tests\Unit\Core\Framework\App\ShopId\Fingerprint\InstallationPathTest::testCompare for examples
+     * @see InstallationPathTest::testCompare for examples
      */
     public function compare(?string $storedStamp): int
     {

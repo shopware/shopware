@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -258,10 +259,7 @@ class CartPersisterTest extends TestCase
 
     public function testCartCanBeUnserialized(): void
     {
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $cart = \unserialize((string) file_get_contents(__DIR__ . '/fixtures/cart.blob'));
-
-        static::assertInstanceOf(Cart::class, $cart);
+        $cart = Serialization::assertUnserializedInstanceOf(Cart::class, (string) file_get_contents(__DIR__ . '/fixtures/cart.blob'));
     }
 
     public function testCartVerifyPersistEventIsFiredAndNotPersisted(): void

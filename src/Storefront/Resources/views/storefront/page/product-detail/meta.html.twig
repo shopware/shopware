@@ -71,6 +71,16 @@
     <link rel="canonical" href="{{ seoUrl('frontend.detail.page', { productId: canonicalUrl }) }}">
 {% endblock %}
 
+{% block layout_head_meta_tags_image_meta %}{% if page.product.cover and page.product.cover.media %}{{ page.product.cover.media.url }}{% else %}{{ parent() }}{% endif %}{% endblock %}
+
+{% block layout_head_meta_tags_schema_webpage %}
+    {{ parent() }}
+    {% if not feature('JSON_LD_DATA') and page.product.cover and page.product.cover.media and page.product.cover.media.url %}
+        <meta itemprop="primaryImageOfPage"
+              content="{{ page.product.cover.media.url }}">
+    {% endif %}
+{% endblock %}
+
 {% block layout_head_json_ld %}
     {% if feature('JSON_LD_DATA') %}
         {% set jsonLdWebPageType = 'ItemPage' %}

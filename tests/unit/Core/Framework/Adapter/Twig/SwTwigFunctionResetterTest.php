@@ -3,11 +3,9 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
 use Shopware\Core\Framework\Adapter\Twig\SwTwigFunctionResetter;
-use Twig\Environment;
 use Twig\Runtime\EscaperRuntime;
 
 /**
@@ -16,13 +14,6 @@ use Twig\Runtime\EscaperRuntime;
 #[CoversClass(SwTwigFunctionResetter::class)]
 class SwTwigFunctionResetterTest extends TestCase
 {
-    private MockObject&Environment $environmentMock;
-
-    protected function setUp(): void
-    {
-        $this->environmentMock = $this->createMock(Environment::class);
-    }
-
     protected function tearDown(): void
     {
         // Clean up static cache after each test
@@ -31,20 +22,29 @@ class SwTwigFunctionResetterTest extends TestCase
 
     public function testEscapeFilterCallsGetRuntimeAfterReset(): void
     {
-        $env = $this->environmentMock;
+        $escaper = new EscaperRuntime();
+        $escapeCacheProperty = new \ReflectionProperty(new SwTwigFunction(), 'escapeCache');
 
-        $env->expects($this->exactly(2))
-            ->method('getRuntime')
-            ->willReturn(new EscaperRuntime($env));
+        $cacheBefore = $escapeCacheProperty->getValue();
+        static::assertSame([], $cacheBefore);
 
         // First call to populate the cache
-        SwTwigFunction::escapeFilter($env, 'resetter_test_string', 'html', 'UTF-8');
+        SwTwigFunction::escapeFilter($escaper, 'resetter_test_string', 'html', 'UTF-8');
+        $cacheAfterFirstCall = $escapeCacheProperty->getValue();
+        static::assertCount(1, $cacheAfterFirstCall);
+        static::assertArrayHasKey('resetter_test_string', $cacheAfterFirstCall);
 
         // Reset the cache
         $resetter = new SwTwigFunctionResetter();
         $resetter->reset();
 
+        $cacheAfterReset = $escapeCacheProperty->getValue();
+        static::assertSame([], $cacheAfterReset);
+
         // After reset, getRuntime should be called again
-        SwTwigFunction::escapeFilter($env, 'resetter_test_string', 'html', 'UTF-8');
+        SwTwigFunction::escapeFilter($escaper, 'resetter_test_string', 'html', 'UTF-8');
+        $cacheAfterSecondCall = $escapeCacheProperty->getValue();
+        static::assertCount(1, $cacheAfterSecondCall);
+        static::assertArrayHasKey('resetter_test_string', $cacheAfterSecondCall);
     }
 }

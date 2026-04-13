@@ -17,7 +17,7 @@ class TwigEnvironment extends Environment
     private ?Compiler $compiler = null;
 
     /**
-     * @param array<mixed> $options
+     * @param array<string, mixed> $options
      */
     public function __construct(LoaderInterface $loader, array $options = [])
     {
@@ -27,6 +27,9 @@ class TwigEnvironment extends Environment
         parent::__construct($loader, $options);
     }
 
+    /**
+     * Overrides Twig internals with SW custom wrappers {@see SwTwigFunction}
+     */
     public function compile(Node $node): string
     {
         if ($this->compiler === null) {
@@ -37,7 +40,7 @@ class TwigEnvironment extends Environment
 
         $replaces = [
             'CoreExtension::getAttribute(' => '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute(',
-            'twig_escape_filter(' => '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::escapeFilter(',
+            '$this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\')->escape(' => '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::escapeFilter($this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\'), ',
         ];
 
         return str_replace(array_keys($replaces), array_values($replaces), $source);

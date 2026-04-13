@@ -4,12 +4,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
-use Twig\Environment;
-use Twig\Error\RuntimeError;
-use Twig\Loader\LoaderInterface;
 use Twig\Runtime\EscaperRuntime;
 
 /**
@@ -173,37 +169,33 @@ class SwEscapeFilterTest extends TestCase
 
     public function testHtmlEscapingConvertsSpecialChars(): void
     {
-        $twig = new Environment($this->createMock(LoaderInterface::class));
         foreach (self::$htmlSpecialChars as $key => $value) {
-            static::assertSame($value, SwTwigFunction::escapeFilter($twig, $key), 'Failed to escape: ' . $key);
+            static::assertSame($value, SwTwigFunction::escapeFilter(new EscaperRuntime(), $key), 'Failed to escape: ' . $key);
         }
     }
 
     public function testHtmlAttributeEscapingConvertsSpecialChars(): void
     {
-        $twig = new Environment($this->createMock(LoaderInterface::class));
         foreach (self::$htmlAttrSpecialChars as $key => $value) {
-            static::assertSame($value, SwTwigFunction::escapeFilter($twig, $key, 'html_attr'), 'Failed to escape: ' . $key);
+            static::assertSame($value, SwTwigFunction::escapeFilter(new EscaperRuntime(), $key, 'html_attr'), 'Failed to escape: ' . $key);
         }
     }
 
     public function testJavascriptEscapingConvertsSpecialChars(): void
     {
-        $twig = new Environment($this->createMock(LoaderInterface::class));
         foreach (self::$jsSpecialChars as $key => $value) {
-            static::assertSame($value, SwTwigFunction::escapeFilter($twig, $key, 'js'), 'Failed to escape: ' . $key);
+            static::assertSame($value, SwTwigFunction::escapeFilter(new EscaperRuntime(), $key, 'js'), 'Failed to escape: ' . $key);
         }
     }
 
     public function testJavascriptEscapingConvertsSpecialCharsWithInternalEncoding(): void
     {
-        $twig = new Environment($this->createMock(LoaderInterface::class));
         $previousInternalEncoding = mb_internal_encoding();
 
         try {
             mb_internal_encoding('ISO-8859-1');
             foreach (self::$jsSpecialChars as $key => $value) {
-                static::assertSame($value, SwTwigFunction::escapeFilter($twig, $key, 'js'), 'Failed to escape: ' . $key);
+                static::assertSame($value, SwTwigFunction::escapeFilter(new EscaperRuntime(), $key, 'js'), 'Failed to escape: ' . $key);
             }
         } finally {
             if ($previousInternalEncoding !== false) {
@@ -214,41 +206,35 @@ class SwEscapeFilterTest extends TestCase
 
     public function testJavascriptEscapingReturnsStringIfZeroLength(): void
     {
-        $twig = new Environment($this->createMock(LoaderInterface::class));
-        static::assertSame('', SwTwigFunction::escapeFilter($twig, '', 'js'));
+        static::assertSame('', SwTwigFunction::escapeFilter(new EscaperRuntime(), '', 'js'));
     }
 
     public function testJavascriptEscapingReturnsStringIfContainsOnlyDigits(): void
     {
-        $twig = new Environment($this->createMock(LoaderInterface::class));
-        static::assertSame('123', SwTwigFunction::escapeFilter($twig, '123', 'js'));
+        static::assertSame('123', SwTwigFunction::escapeFilter(new EscaperRuntime(), '123', 'js'));
     }
 
     public function testCssEscapingConvertsSpecialChars(): void
     {
-        $twig = new Environment($this->createMock(LoaderInterface::class));
         foreach (self::$cssSpecialChars as $key => $value) {
-            static::assertSame($value, SwTwigFunction::escapeFilter($twig, $key, 'css'), 'Failed to escape: ' . $key);
+            static::assertSame($value, SwTwigFunction::escapeFilter(new EscaperRuntime(), $key, 'css'), 'Failed to escape: ' . $key);
         }
     }
 
     public function testCssEscapingReturnsStringIfZeroLength(): void
     {
-        $twig = new Environment($this->createMock(LoaderInterface::class));
-        static::assertSame('', SwTwigFunction::escapeFilter($twig, '', 'css'));
+        static::assertSame('', SwTwigFunction::escapeFilter(new EscaperRuntime(), '', 'css'));
     }
 
     public function testCssEscapingReturnsStringIfContainsOnlyDigits(): void
     {
-        $twig = new Environment($this->createMock(LoaderInterface::class));
-        static::assertSame('123', SwTwigFunction::escapeFilter($twig, '123', 'css'));
+        static::assertSame('123', SwTwigFunction::escapeFilter(new EscaperRuntime(), '123', 'css'));
     }
 
     public function testUrlEscapingConvertsSpecialChars(): void
     {
-        $twig = new Environment($this->createMock(LoaderInterface::class));
         foreach (self::$urlSpecialChars as $key => $value) {
-            static::assertSame($value, SwTwigFunction::escapeFilter($twig, $key, 'url'), 'Failed to escape: ' . $key);
+            static::assertSame($value, SwTwigFunction::escapeFilter(new EscaperRuntime(), $key, 'url'), 'Failed to escape: ' . $key);
         }
     }
 
@@ -271,22 +257,22 @@ class SwEscapeFilterTest extends TestCase
 
     public function testJavascriptEscapingEscapesOwaspRecommendedRanges(): void
     {
-        $twig = new Environment($this->createMock(LoaderInterface::class));
+        $escaper = new EscaperRuntime();
         $immune = [',', '.', '_']; // Exceptions to escaping ranges
         for ($chr = 0; $chr < 0xFF; ++$chr) {
             if (($chr >= 0x30 && $chr <= 0x39)
                 || ($chr >= 0x41 && $chr <= 0x5A)
                 || ($chr >= 0x61 && $chr <= 0x7A)) {
                 $literal = $this->codepointToUtf8($chr);
-                static::assertSame($literal, SwTwigFunction::escapeFilter($twig, $literal, 'js'));
+                static::assertSame($literal, SwTwigFunction::escapeFilter($escaper, $literal, 'js'));
             } else {
                 $literal = $this->codepointToUtf8($chr);
                 if (\in_array($literal, $immune, true)) {
-                    static::assertSame($literal, SwTwigFunction::escapeFilter($twig, $literal, 'js'));
+                    static::assertSame($literal, SwTwigFunction::escapeFilter($escaper, $literal, 'js'));
                 } else {
                     static::assertNotSame(
                         $literal,
-                        SwTwigFunction::escapeFilter($twig, $literal, 'js'),
+                        SwTwigFunction::escapeFilter($escaper, $literal, 'js'),
                         "$literal should be escaped!"
                     );
                 }
@@ -296,22 +282,22 @@ class SwEscapeFilterTest extends TestCase
 
     public function testHtmlAttributeEscapingEscapesOwaspRecommendedRanges(): void
     {
-        $twig = new Environment($this->createMock(LoaderInterface::class));
+        $escaper = new EscaperRuntime();
         $immune = [',', '.', '-', '_']; // Exceptions to escaping ranges
         for ($chr = 0; $chr < 0xFF; ++$chr) {
             if (($chr >= 0x30 && $chr <= 0x39)
                 || ($chr >= 0x41 && $chr <= 0x5A)
                 || ($chr >= 0x61 && $chr <= 0x7A)) {
                 $literal = $this->codepointToUtf8($chr);
-                static::assertSame($literal, SwTwigFunction::escapeFilter($twig, $literal, 'html_attr'));
+                static::assertSame($literal, SwTwigFunction::escapeFilter($escaper, $literal, 'html_attr'));
             } else {
                 $literal = $this->codepointToUtf8($chr);
                 if (\in_array($literal, $immune, true)) {
-                    static::assertSame($literal, SwTwigFunction::escapeFilter($twig, $literal, 'html_attr'));
+                    static::assertSame($literal, SwTwigFunction::escapeFilter($escaper, $literal, 'html_attr'));
                 } else {
                     static::assertNotSame(
                         $literal,
-                        SwTwigFunction::escapeFilter($twig, $literal, 'html_attr'),
+                        SwTwigFunction::escapeFilter($escaper, $literal, 'html_attr'),
                         "$literal should be escaped!"
                     );
                 }
@@ -321,19 +307,19 @@ class SwEscapeFilterTest extends TestCase
 
     public function testCssEscapingEscapesOwaspRecommendedRanges(): void
     {
-        $twig = new Environment($this->createMock(LoaderInterface::class));
+        $escaper = new EscaperRuntime();
         // CSS has no exceptions to escaping ranges
         for ($chr = 0; $chr < 0xFF; ++$chr) {
             if (($chr >= 0x30 && $chr <= 0x39)
                 || ($chr >= 0x41 && $chr <= 0x5A)
                 || ($chr >= 0x61 && $chr <= 0x7A)) {
                 $literal = $this->codepointToUtf8($chr);
-                static::assertSame($literal, SwTwigFunction::escapeFilter($twig, $literal, 'css'));
+                static::assertSame($literal, SwTwigFunction::escapeFilter($escaper, $literal, 'css'));
             } else {
                 $literal = $this->codepointToUtf8($chr);
                 static::assertNotSame(
                     $literal,
-                    SwTwigFunction::escapeFilter($twig, $literal, 'css'),
+                    SwTwigFunction::escapeFilter($escaper, $literal, 'css'),
                     "$literal should be escaped!"
                 );
             }
@@ -341,15 +327,12 @@ class SwEscapeFilterTest extends TestCase
     }
 
     #[DataProvider('provideCustomEscaperCases')]
-    #[RunInSeparateProcess]
     public function testCustomEscaper(string $expected, int|string|null $string, string $strategy): void
     {
-        $twig = new Environment($this->createMock(LoaderInterface::class));
-
-        $escapeRuntime = $twig->getRuntime(EscaperRuntime::class);
+        $escapeRuntime = new EscaperRuntime();
         $escapeRuntime->setEscaper('foo', foo_escaper_for_test(...));
 
-        static::assertSame($expected, SwTwigFunction::escapeFilter($twig, $string, $strategy));
+        static::assertSame($expected, SwTwigFunction::escapeFilter($escapeRuntime, $string, $strategy));
     }
 
     /**
@@ -366,12 +349,9 @@ class SwEscapeFilterTest extends TestCase
         ];
     }
 
-    #[RunInSeparateProcess]
     public function testUnknownCustomEscaper(): void
     {
-        $this->expectException(RuntimeError::class);
-
-        SwTwigFunction::escapeFilter(new Environment($this->createMock(LoaderInterface::class)), 'foo', 'bar');
+        static::assertSame('foo', SwTwigFunction::escapeFilter(new EscaperRuntime(), 'foo', 'bar'));
     }
 
     /**
@@ -381,13 +361,11 @@ class SwEscapeFilterTest extends TestCase
     public function testObjectEscaping(string $escapedHtml, string $escapedJs, array $safeClasses): void
     {
         $obj = new Extension_TestClass();
-        $twig = new Environment($this->createMock(LoaderInterface::class));
-
-        $escapeRuntime = $twig->getRuntime(EscaperRuntime::class);
+        $escapeRuntime = new EscaperRuntime();
         $escapeRuntime->setSafeClasses($safeClasses);
 
-        static::assertSame($escapedHtml, SwTwigFunction::escapeFilter($twig, $obj, 'html', null, true));
-        static::assertSame($escapedJs, SwTwigFunction::escapeFilter($twig, $obj, 'js', null, true));
+        static::assertSame($escapedHtml, SwTwigFunction::escapeFilter($escapeRuntime, $obj, 'html', null, true));
+        static::assertSame($escapedJs, SwTwigFunction::escapeFilter($escapeRuntime, $obj, 'js', null, true));
     }
 
     /**

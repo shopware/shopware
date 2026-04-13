@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Extension\CoreExtension;
@@ -14,62 +15,67 @@ use Twig\Runtime\EscaperRuntime;
 use Twig\Source;
 use Twig\Template;
 
-#[Package('framework')]
 /**
  * @internal
+ * The here defined methods are set into the compiled Twig templates in the Twig Enviornment override in {@see TwigEnvironment::compile()}
  */
+#[Package('framework')]
 class SwTwigFunction
 {
+    /**
+     * Used in {@see MacroOverrideNode::compile()}
+     */
     public static mixed $macroResult = null;
 
     /**
      * Cache for escaped strings to avoid repeated escaping of the same content.
-     * Reset between requests via SwTwigFunctionResetter for long runner compatibility.
+     * Reset between requests via {@see SwTwigFunctionResetter} for long runner compatibility.
      *
-     * @var array<string, array<string, string>>
+     * @var array<string, array<string, string|Markup>>
      */
     private static array $escapeCache = [];
 
     /**
-     * Returns the attribute value for a given array/object.
+     * Wrapper around {@see CoreExtension::getAttribute()}
+     * Implements a shortcut for recieving property values from the Shopware specific `Struct` class.
      *
-     * @param mixed $object The object or array from where to get the item
-     * @param mixed $item The item to get from the array or object
-     * @param array<int|mixed> $arguments An array of arguments to pass if the item is an object method
-     * @param string $type The type of attribute (@see \Twig\Template constants)
-     * @param bool $isDefinedTest Whether this is only a defined check
-     * @param bool $ignoreStrictCheck Whether to ignore the strict attribute check or not
-     * @param int $lineno The template line where the attribute was called
-     *
-     * @throws RuntimeError if the attribute does not exist and Twig is running in strict mode and $isDefinedTest is false
-     *
-     * @return mixed The attribute value, or a Boolean when $isDefinedTest is true, or null when the attribute is not set and $ignoreStrictCheck is true
-     *
-     * @internal
+     * @param list<mixed> $arguments
      */
-    public static function getAttribute(Environment $env, Source $source, mixed $object, mixed $item, array $arguments = [], $type = /* Template::ANY_CALL */ 'any', $isDefinedTest = false, $ignoreStrictCheck = false, bool $sandboxed = false, int $lineno = -1)
-    {
+    public static function getAttribute(
+        Environment $env,
+        Source $source,
+        mixed $object,
+        mixed $item,
+        array $arguments = [],
+        string $type = Template::ANY_CALL,
+        bool $isDefinedTest = false,
+        bool $ignoreStrictCheck = false,
+        bool $sandboxed = false,
+        int $lineno = -1
+    ): mixed {
         try {
             if ($object instanceof Struct) {
                 FieldVisibility::$isInTwigRenderingContext = true;
                 if ($type === Template::METHOD_CALL) {
-                    // @phpstan-ignore-next-line
+                    /** @phpstan-ignore method.dynamicName */
                     return $object->$item(...$arguments);
                 }
 
-                $getter = 'get' . (string) $item;
-                $isGetter = 'is' . (string) $item;
-
-                if (method_exists($object, $getter)) { // @phpstan-ignore-next-line
-                    return $object->$getter();
-                }
-
-                if (method_exists($object, $isGetter)) { // @phpstan-ignore-next-line
-                    return $object->$isGetter();
-                }
-
-                if (method_exists($object, $item)) { // @phpstan-ignore-next-line
-                    return $object->$item();    // property()
+                /** @see DefinitionValidator::validateStruct() */
+                $getterMethods = [
+                    'get' . $item,
+                    'is' . $item,
+                    'has' . $item,
+                    'was' . $item,
+                    (string) $item, // property()
+                    'has' . preg_replace('/^has/', '', $item),
+                    'has' . preg_replace('/^was/', '', $item),
+                ];
+                foreach ($getterMethods as $getterMethod) {
+                    if (method_exists($object, $getterMethod)) {
+                        /** @phpstan-ignore method.dynamicName */
+                        return $object->$getterMethod();
+                    }
                 }
             }
 
@@ -82,32 +88,43 @@ class SwTwigFunction
     }
 
     /**
-     * Escapes a string.
-     *
-     * @param mixed $string The value to be escaped
-     * @param string $strategy The escaping strategy
-     * @param ?string $charset The charset
-     * @param bool $autoescape Whether the function is called by the auto-escaping feature (true) or by the developer (false)
-     *
-     * @return string|Markup
+     * Wrapper around {@see EscaperRuntime::escape}
+     * Caches the escaped value to increase the performance
      */
-    public static function escapeFilter(Environment $env, mixed $string, string $strategy = 'html', $charset = null, $autoescape = false)
-    {
+    public static function escapeFilter(
+        EscaperRuntime $escaperRuntime,
+        mixed $string,
+        string $strategy = 'html',
+        ?string $charset = null,
+        bool $autoescape = false,
+    ): string|Markup {
         if ($string === null) {
             $string = '';
         }
 
-        if (\is_int($string)) {
+        if (\is_scalar($string)) {
             $string = (string) $string;
         }
 
         $isString = \is_string($string);
 
-        if ($isString && isset(self::$escapeCache[$string][$strategy])) {
-            return self::$escapeCache[$string][$strategy];
+        if ($isString) {
+            if (isset(self::$escapeCache[$string][$strategy])) {
+                return self::$escapeCache[$string][$strategy];
+            }
+
+            if (Uuid::isValid($string)) {
+                self::$escapeCache[$string][$strategy] = $string;
+
+                return $string;
+            }
         }
 
-        $result = $env->getRuntime(EscaperRuntime::class)->escape($string, $strategy, $charset, $autoescape);
+        try {
+            $result = $escaperRuntime->escape($string, $strategy, $charset, $autoescape);
+        } catch (RuntimeError) {
+            return $string;
+        }
 
         if (!$isString) {
             return $result;
@@ -121,7 +138,7 @@ class SwTwigFunction
     /**
      * Resets the escape filter cache.
      *
-     * This method is called by SwTwigFunctionResetter between requests
+     * This method is called by {@see SwTwigFunctionResetter} between requests
      * in long runner environments (RoadRunner, FrankenPHP, Swoole) to prevent
      * memory leaks from unbounded cache growth.
      */

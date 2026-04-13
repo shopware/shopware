@@ -195,16 +195,18 @@ class ProductListingLoaderTest extends TestCase
         static::assertSame(['variant-a', 'variant-b'], array_values($result->getIds()));
     }
 
-    public function testLoadSkipsPreviewOnSearchRouteWithOptionPostFilter(): void
+    public function testLoadResolvesPreviewOnSearchRouteWithOptionPostFilterWhenFindBestVariantIsDisabled(): void
     {
         $previewLoaded = false;
         $resolvePreviewEventSeen = false;
+        $configKeys = [];
 
         $this->systemConfigService
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(3))
             ->method('getBool')
-            ->willReturnCallback(function (string $key, string $salesChannelId): bool {
+            ->willReturnCallback(function (string $key, string $salesChannelId) use (&$configKeys): bool {
                 static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);
+                $configKeys[] = $key;
 
                 return match ($key) {
                     'core.listing.hideCloseoutProductsWhenOutOfStock' => false,
@@ -245,7 +247,7 @@ class ProductListingLoaderTest extends TestCase
             static function (ProductListingResolvePreviewEvent $event) use (&$resolvePreviewEventSeen): void {
                 $resolvePreviewEventSeen = true;
                 static::assertTrue($event->hasOptionFilter());
-                static::assertSame(['variant-id' => 'variant-id'], $event->getMapping());
+                static::assertSame(['variant-id' => 'preview-id'], $event->getMapping());
             }
         );
 
@@ -253,10 +255,10 @@ class ProductListingLoaderTest extends TestCase
             ->expects($this->once())
             ->method('search')
             ->willReturnCallback(function (Criteria $criteria): EntitySearchResult {
-                static::assertSame(['variant-id'], $criteria->getIds());
+                static::assertSame(['preview-id'], $criteria->getIds());
                 static::assertTrue($criteria->hasAssociation('options'));
 
-                return $this->createProductSearchResult($criteria, ['variant-id']);
+                return $this->createProductSearchResult($criteria, ['preview-id']);
             });
 
         $criteria = new Criteria();
@@ -265,9 +267,14 @@ class ProductListingLoaderTest extends TestCase
 
         $result = $this->createLoader()->load($criteria, $this->salesChannelContext);
 
-        static::assertFalse($previewLoaded);
+        static::assertTrue($previewLoaded);
         static::assertTrue($resolvePreviewEventSeen);
-        static::assertSame(['variant-id'], array_values($result->getIds()));
+        static::assertSame([
+            'core.listing.findBestVariant',
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            'core.listing.findBestVariant',
+        ], $configKeys);
+        static::assertSame(['preview-id'], array_values($result->getIds()));
     }
 
     public function testLoadSkipsPreviewOnSearchRouteWhenFindBestVariantIsEnabled(): void

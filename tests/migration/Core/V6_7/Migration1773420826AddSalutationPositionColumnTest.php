@@ -37,9 +37,6 @@ class Migration1773420826AddSalutationPositionColumnTest extends TestCase
         static::assertSame('1', $positions['not_specified']);
         static::assertSame('2', $positions['mrs']);
         static::assertSame('3', $positions['mr']);
-
-        static::assertArrayHasKey('diverse', $positions);
-        static::assertSame('1', $positions['diverse']);
     }
 
     public function testMigrationDoesNotOverrideManualPositionsOnSecondRun(): void

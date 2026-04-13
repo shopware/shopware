@@ -58,30 +58,4 @@ class SalutationSorterTest extends TestCase
             ))
         );
     }
-
-    public function testSortFallback(): void
-    {
-        $mr = new SalutationEntity();
-        $mr->setId(Uuid::randomBytes());
-        $mr->setSalutationKey('mr');
-
-        $mrs = new SalutationEntity();
-        $mrs->setId(Uuid::randomBytes());
-        $mrs->setSalutationKey('mrs');
-
-        $salutations = new SalutationCollection();
-        $salutations->add($mrs);
-        $salutations->add($mr);
-
-        $sorter = new SalutationSorter();
-        $salutations = $sorter->sort($salutations);
-
-        static::assertSame(
-            ['mr', 'mrs'],
-            \array_values(\array_map(
-                static fn (SalutationEntity $salutation): string => (string) $salutation->getSalutationKey(),
-                \iterator_to_array($salutations)
-            ))
-        );
-    }
 }

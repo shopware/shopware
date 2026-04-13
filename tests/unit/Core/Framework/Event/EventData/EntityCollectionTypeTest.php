@@ -16,7 +16,6 @@ class EntityCollectionTypeTest extends TestCase
     public function testToArray(): void
     {
         $expected = [
-            'nullable' => false,
             'type' => 'collection',
             'entityClass' => CustomerDefinition::class,
         ];

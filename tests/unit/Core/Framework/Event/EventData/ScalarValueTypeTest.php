@@ -17,7 +17,6 @@ class ScalarValueTypeTest extends TestCase
     public function testToArray(): void
     {
         $expected = [
-            'nullable' => false,
             'type' => 'float',
         ];
 

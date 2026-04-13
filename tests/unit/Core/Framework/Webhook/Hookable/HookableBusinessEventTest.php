@@ -25,7 +25,6 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableBusinessEvent;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -41,7 +40,6 @@ class HookableBusinessEventTest extends TestCase
             new BusinessEventEncoder(
                 $this->createMock(JsonEntityEncoder::class),
                 $this->createMock(DefinitionInstanceRegistry::class),
-                $this->createMock(RequestStack::class)
             )
         );
 

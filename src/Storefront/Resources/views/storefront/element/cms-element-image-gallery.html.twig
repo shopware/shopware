@@ -74,8 +74,6 @@
     {% set maxItemsToShowMobileNav = 5 %}
     {% set maxItemsToShowNav = 8 %}
 
-    {% set visibleThumbnails = (galleryPosition == "underneath") ? 6 : 5 %}
-
     {% set magnifierOptions = [] %}
 
     {% if magnifierOverGallery %}
@@ -595,9 +593,7 @@
                                                                                 alt: (image.translated.alt ?: false)
                                                                             }) %}
 
-                                                                            {% if loop.index > visibleThumbnails %}
-                                                                                {% set attributes = attributes|merge({ loading: 'lazy' }) %}
-                                                                            {% endif %}
+                                                                            {% set attributes = attributes|merge({ loading: 'lazy' }) %}
 
                                                                             {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                                                                             {% if not feature('JSON_LD_DATA') and isProduct %}

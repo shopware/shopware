@@ -52,7 +52,7 @@ abstract class AbstractFileWriter extends AbstractWriter
         $this->flush($config, $targetPath);
 
         if (\is_resource($this->tempFile)) {
-             fclose($this->tempFile);
+            fclose($this->tempFile);
         }
         unlink($this->tempPath);
     }

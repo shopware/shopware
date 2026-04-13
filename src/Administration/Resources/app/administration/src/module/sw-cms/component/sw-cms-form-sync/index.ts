@@ -65,6 +65,16 @@ export default Shopware.Component.wrapComponentConfig({
         },
         fieldChangeHandler(key: string, config: FieldConfig) {
             const path = `slotConfig.${this.element.id}.${key}`;
+            const inheritedConfig = this.inheritedSlotConfig?.[this.element.id]?.[key];
+            const baseConfig = get(this.element, `translated.config.${key}`);
+
+            if (
+                !get(this.contentEntity, path) &&
+                ((inheritedConfig && isEmpty(getObjectDiff(inheritedConfig, config))) ||
+                    (baseConfig && isEmpty(getObjectDiff(baseConfig, config))))
+            ) {
+                return;
+            }
 
             if (isEmpty(getObjectDiff(get(this.contentEntity, path, {}), config))) {
                 return;

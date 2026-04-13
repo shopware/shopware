@@ -15,7 +15,9 @@ use Shopware\Storefront\Page\Robots\RobotsPage;
 use Shopware\Storefront\Page\Robots\RobotsPageLoadedEvent;
 use Shopware\Storefront\Page\Robots\RobotsPageLoader;
 use Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct;
+use Shopware\Storefront\Page\Robots\Struct\RobotsDirective;
 use Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType;
+use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -583,7 +585,7 @@ class RobotsPageLoaderTest extends TestCase
     /**
      * Helper to assert that User-agent blocks have correct directive types
      *
-     * @param array<\Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock> $globalBlocks
+     * @param array<RobotsUserAgentBlock> $globalBlocks
      */
     private function assertUserAgentBlocksHaveCorrectDirectiveTypes(array $globalBlocks): void
     {
@@ -614,7 +616,7 @@ class RobotsPageLoaderTest extends TestCase
     /**
      * Collects and sorts all directive types from given blocks
      *
-     * @param array<\Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock> $blocks
+     * @param array<RobotsUserAgentBlock> $blocks
      *
      * @return list<RobotsDirectiveType>
      */
@@ -635,7 +637,7 @@ class RobotsPageLoaderTest extends TestCase
     /**
      * Asserts that directives contain specific paths for a given directive type
      *
-     * @param array<\Shopware\Storefront\Page\Robots\Struct\RobotsDirective> $directives
+     * @param array<RobotsDirective> $directives
      * @param list<string> $expectedPaths
      */
     private function assertDirectivePaths(array $directives, RobotsDirectiveType $type, array $expectedPaths): void

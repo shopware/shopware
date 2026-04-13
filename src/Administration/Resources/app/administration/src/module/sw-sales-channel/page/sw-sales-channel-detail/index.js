@@ -48,6 +48,7 @@ export default {
                 templateOptions: [],
                 templates: null,
                 templateName: null,
+                previousTemplateName: null,
                 showTemplateModal: false,
                 selectedTemplate: null,
             },
@@ -235,6 +236,7 @@ export default {
 
                     this.generateAccessUrl();
                     this.loadAgenticCommerceExportConfig();
+                    this.detectCurrentTemplate();
 
                     this.isLoading = false;
                 });
@@ -276,15 +278,19 @@ export default {
             });
 
             if (!contentChanged) {
+                this.productComparison.templateName = templateName;
                 return;
             }
 
+            this.productComparison.previousTemplateName = this.productComparison.templateName;
+            this.productComparison.templateName = templateName;
             this.productComparison.showTemplateModal = true;
         },
 
         onTemplateModalClose() {
             this.productComparison.selectedTemplate = null;
-            this.productComparison.templateName = null;
+            this.productComparison.templateName = this.productComparison.previousTemplateName ?? null;
+            this.productComparison.previousTemplateName = null;
             this.productComparison.showTemplateModal = false;
         },
 
@@ -300,7 +306,9 @@ export default {
                 this.productExport[key] = selectedTemplate[key];
             });
 
-            this.onTemplateModalClose();
+            this.productComparison.selectedTemplate = null;
+            this.productComparison.previousTemplateName = null;
+            this.productComparison.showTemplateModal = false;
 
             this.createNotificationInfo({
                 message: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-message'),
@@ -333,6 +341,20 @@ export default {
                 this.exportTemplateService.getProductExportTemplateRegistry(),
             );
             this.productComparison.templates = this.exportTemplateService.getProductExportTemplateRegistry();
+        },
+
+        detectCurrentTemplate() {
+            if (!this.productComparison.templates || !this.productExport) {
+                return;
+            }
+
+            const matchedTemplate = this.productComparison.templateOptions.find((template) => {
+                return template.bodyTemplate !== undefined && template.bodyTemplate === this.productExport.bodyTemplate;
+            });
+
+            if (matchedTemplate) {
+                this.productComparison.templateName = matchedTemplate.name;
+            }
         },
 
         saveFinish() {

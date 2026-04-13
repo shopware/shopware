@@ -8,9 +8,9 @@ use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportExportHa
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Message\ImportExportMessage;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -18,16 +18,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(ImportExportExceptionImportExportHandlerEvent::class)]
 class ImportExportExceptionImportExportHandlerEventTest extends TestCase
 {
-    public function testConstructorRequiresContextWhenFeatureActive(): void
-    {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
-        $message = new ImportExportMessage(Context::createDefaultContext(), Uuid::randomHex(), 'import');
-
-        $this->expectException(FeatureException::class);
-        new ImportExportExceptionImportExportHandlerEvent(new \RuntimeException('test'), $message);
-    }
-
     public function testClearExceptionRemovesException(): void
     {
         $message = new ImportExportMessage(Context::createDefaultContext(), Uuid::randomHex(), 'import');
@@ -74,10 +64,47 @@ class ImportExportExceptionImportExportHandlerEventTest extends TestCase
         static::assertNull($event->getException());
     }
 
+    public function testGetContextReturnsPassedContext(): void
+    {
+        $message = new ImportExportMessage(Context::createDefaultContext(), Uuid::randomHex(), 'import');
+        $context = Context::createDefaultContext();
+        $event = new ImportExportExceptionImportExportHandlerEvent(new \RuntimeException('test'), $message, $context);
+
+        static::assertSame($context, $event->getContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetNullableContextReturnsContextWhenFeatureInactiveAndContextProvided(): void
+    {
+        $message = new ImportExportMessage(Context::createDefaultContext(), Uuid::randomHex(), 'import');
+        $context = Context::createDefaultContext();
+        $event = new ImportExportExceptionImportExportHandlerEvent(new \RuntimeException('test'), $message, $context);
+
+        static::assertSame($context, $event->getNullableContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetNullableContextReturnsNullWithoutContext(): void
+    {
+        $message = new ImportExportMessage(Context::createDefaultContext(), Uuid::randomHex(), 'import');
+        $event = new ImportExportExceptionImportExportHandlerEvent(new \RuntimeException('test'), $message);
+
+        static::assertNull($event->getNullableContext());
+    }
+
+    public function testConstructorRequiresContextWhenFeatureActive(): void
+    {
+        $message = new ImportExportMessage(Context::createDefaultContext(), Uuid::randomHex(), 'import');
+
+        $this->expectExceptionObject(FeatureException::error(
+            'Tried to access deprecated functionality: Not passing $context to ' . ImportExportExceptionImportExportHandlerEvent::class . ' is deprecated and will be required in v6.8.0.'
+        ));
+        new ImportExportExceptionImportExportHandlerEvent(new \RuntimeException('test'), $message);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetContextThrowsWithoutContext(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $message = new ImportExportMessage(Context::createDefaultContext(), Uuid::randomHex(), 'import');
         $event = new ImportExportExceptionImportExportHandlerEvent(new \RuntimeException('test'), $message);
 
@@ -85,13 +112,12 @@ class ImportExportExceptionImportExportHandlerEventTest extends TestCase
         $event->getContext();
     }
 
-    public function testGetNullableContextReturnsNullWithoutContext(): void
+    public function testGetNullableContextThrowsWhenFeatureActive(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $message = new ImportExportMessage(Context::createDefaultContext(), Uuid::randomHex(), 'import');
-        $event = new ImportExportExceptionImportExportHandlerEvent(new \RuntimeException('test'), $message);
+        $event = new ImportExportExceptionImportExportHandlerEvent(new \RuntimeException('test'), $message, Context::createDefaultContext());
 
-        static::assertNull($event->getNullableContext());
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: getNullableContext() is deprecated, use getContext() instead.'));
+        $event->getNullableContext();
     }
 }

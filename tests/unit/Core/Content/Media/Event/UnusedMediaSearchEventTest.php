@@ -8,8 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -17,14 +17,6 @@ use Shopware\Core\Framework\Feature\FeatureException;
 #[CoversClass(UnusedMediaSearchEvent::class)]
 class UnusedMediaSearchEventTest extends TestCase
 {
-    public function testConstructorRequiresContextWhenFeatureActive(): void
-    {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
-        $this->expectException(FeatureException::class);
-        new UnusedMediaSearchEvent(['1', '2', '3']);
-    }
-
     /**
      * @param array<string> $idsToRemove
      * @param array<string> $expectedIds
@@ -37,23 +29,54 @@ class UnusedMediaSearchEventTest extends TestCase
         static::assertSame($expectedIds, $event->getUnusedIds());
     }
 
+    public function testGetContextReturnsPassedContext(): void
+    {
+        $context = Context::createDefaultContext();
+        $event = new UnusedMediaSearchEvent(['1', '2', '3'], $context);
+
+        static::assertSame($context, $event->getContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetNullableContextReturnsContextWhenFeatureInactiveAndContextProvided(): void
+    {
+        $context = Context::createDefaultContext();
+        $event = new UnusedMediaSearchEvent(['1', '2', '3'], $context);
+
+        static::assertSame($context, $event->getNullableContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetNullableContextReturnsNullWithoutContext(): void
+    {
+        $event = new UnusedMediaSearchEvent(['1', '2', '3']);
+
+        static::assertNull($event->getNullableContext());
+    }
+
+    public function testConstructorRequiresContextWhenFeatureActive(): void
+    {
+        $this->expectExceptionObject(FeatureException::error(
+            'Tried to access deprecated functionality: Not passing $context to ' . UnusedMediaSearchEvent::class . ' is deprecated and will be required in v6.8.0.'
+        ));
+        new UnusedMediaSearchEvent(['1', '2', '3']);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetContextThrowsWithoutContext(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $event = new UnusedMediaSearchEvent(['1', '2', '3']);
 
         $this->expectExceptionObject(MediaException::invalidEventData('No context provided. Pass $context to the constructor of ' . UnusedMediaSearchEvent::class));
         $event->getContext();
     }
 
-    public function testGetNullableContextReturnsNullWithoutContext(): void
+    public function testGetNullableContextThrowsWhenFeatureActive(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
+        $event = new UnusedMediaSearchEvent(['1', '2', '3'], Context::createDefaultContext());
 
-        $event = new UnusedMediaSearchEvent(['1', '2', '3']);
-
-        static::assertNull($event->getNullableContext());
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: getNullableContext() is deprecated, use getContext() instead.'));
+        $event->getNullableContext();
     }
 
     /**

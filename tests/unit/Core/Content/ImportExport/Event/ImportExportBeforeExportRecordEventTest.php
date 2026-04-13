@@ -8,8 +8,8 @@ use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -17,18 +17,6 @@ use Shopware\Core\Framework\Feature\FeatureException;
 #[CoversClass(ImportExportBeforeExportRecordEvent::class)]
 class ImportExportBeforeExportRecordEventTest extends TestCase
 {
-    public function testConstructorRequiresContextWhenFeatureActive(): void
-    {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
-        $this->expectException(FeatureException::class);
-        new ImportExportBeforeExportRecordEvent(
-            new Config([], [], []),
-            ['key' => 'value'],
-            ['key' => 'original']
-        );
-    }
-
     public function testSetRecordDoesNotMutateOriginalRecord(): void
     {
         $originalRecord = ['key' => 'original'];
@@ -44,10 +32,60 @@ class ImportExportBeforeExportRecordEventTest extends TestCase
         static::assertSame($originalRecord, $event->getOriginalRecord());
     }
 
+    public function testGetContextReturnsPassedContext(): void
+    {
+        $context = Context::createDefaultContext();
+        $event = new ImportExportBeforeExportRecordEvent(
+            new Config([], [], []),
+            ['key' => 'value'],
+            ['key' => 'original'],
+            $context
+        );
+
+        static::assertSame($context, $event->getContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetNullableContextReturnsContextWhenFeatureInactiveAndContextProvided(): void
+    {
+        $context = Context::createDefaultContext();
+        $event = new ImportExportBeforeExportRecordEvent(
+            new Config([], [], []),
+            ['key' => 'value'],
+            ['key' => 'original'],
+            $context
+        );
+
+        static::assertSame($context, $event->getNullableContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetNullableContextReturnsNullWithoutContext(): void
+    {
+        $event = new ImportExportBeforeExportRecordEvent(
+            new Config([], [], []),
+            ['key' => 'value'],
+            ['key' => 'original']
+        );
+
+        static::assertNull($event->getNullableContext());
+    }
+
+    public function testConstructorRequiresContextWhenFeatureActive(): void
+    {
+        $this->expectExceptionObject(FeatureException::error(
+            'Tried to access deprecated functionality: Not passing $context to ' . ImportExportBeforeExportRecordEvent::class . ' is deprecated and will be required in v6.8.0.'
+        ));
+        new ImportExportBeforeExportRecordEvent(
+            new Config([], [], []),
+            ['key' => 'value'],
+            ['key' => 'original']
+        );
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetContextThrowsWithoutContext(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $event = new ImportExportBeforeExportRecordEvent(
             new Config([], [], []),
             ['key' => 'value'],
@@ -58,16 +96,16 @@ class ImportExportBeforeExportRecordEventTest extends TestCase
         $event->getContext();
     }
 
-    public function testGetNullableContextReturnsNullWithoutContext(): void
+    public function testGetNullableContextThrowsWhenFeatureActive(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $event = new ImportExportBeforeExportRecordEvent(
             new Config([], [], []),
             ['key' => 'value'],
-            ['key' => 'original']
+            ['key' => 'original'],
+            Context::createDefaultContext()
         );
 
-        static::assertNull($event->getNullableContext());
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: getNullableContext() is deprecated, use getContext() instead.'));
+        $event->getNullableContext();
     }
 }

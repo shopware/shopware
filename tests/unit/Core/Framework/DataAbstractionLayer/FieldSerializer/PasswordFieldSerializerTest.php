@@ -57,7 +57,7 @@ class PasswordFieldSerializerTest extends TestCase
 
     public function testEncodeNotPasswordField(): void
     {
-        static::expectException(DataAbstractionLayerException::class);
+        $this->expectException(DataAbstractionLayerException::class);
 
         $existence = new EntityExistence('product', [], false, false, false, []);
         $field = new StringField('password', 'password');
@@ -78,8 +78,8 @@ class PasswordFieldSerializerTest extends TestCase
         $constraintViolations = new ConstraintViolationList();
         if ($shouldThrowViolationException) {
             $constraintViolations->add(new ConstraintViolation('test', 'test', [], '', '', ''));
-            static::expectException(WriteConstraintViolationException::class);
-            static::expectExceptionMessage(\sprintf('Caught %d constraint violation errors.', \count($constraints)));
+            $this->expectException(WriteConstraintViolationException::class);
+            $this->expectExceptionMessage(\sprintf('Caught %d constraint violation errors.', \count($constraints)));
         }
 
         $existence = new EntityExistence('product', [], false, false, false, []);
@@ -90,7 +90,7 @@ class PasswordFieldSerializerTest extends TestCase
 
         $params = new WriteParameterBag(new ProductDefinition(), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue());
 
-        if (\in_array($for, array_keys(PasswordFieldSerializer::CONFIG_MIN_LENGTH_FOR), true)) {
+        if (\array_key_exists($for, PasswordFieldSerializer::CONFIG_MIN_LENGTH_FOR)) {
             $this->systemConfigService->expects($this->once())->method('getInt')->willReturn($minPasswordValue);
         } else {
             $this->systemConfigService->expects($this->never())->method('getInt');
@@ -103,9 +103,7 @@ class PasswordFieldSerializerTest extends TestCase
         $result = $this->serializer->encode($field, $existence, $kv, $params)->current();
 
         if ($inputPassword) {
-            $inputPasswordHashed = !empty(password_get_info($inputPassword)['algo']);
-
-            if ($inputPasswordHashed) {
+            if (password_get_info($inputPassword)['algo'] !== null) {
                 static::assertSame($inputPassword, $result);
             } else {
                 static::assertTrue(password_verify($inputPassword, $result));

@@ -98,8 +98,18 @@ async function createWrapper(props = {}, options = {}, route = categoryDetailCms
 }
 
 describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
+    let initialLanguageId;
+    let initialLanguage;
+
     beforeEach(() => {
+        initialLanguageId = Shopware.Store.get('context').api.languageId;
+        initialLanguage = Shopware.Store.get('context').api.language;
         Shopware.Store.get('swCategoryDetail').$reset();
+    });
+
+    afterEach(() => {
+        Shopware.Store.get('context').api.languageId = initialLanguageId;
+        Shopware.Store.get('context').api.language = initialLanguage;
     });
 
     describe('computed properties', () => {
@@ -563,6 +573,47 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
 
             expect(wrapper.emitted('inheritance:restore')).toBeTruthy();
             expect(wrapper.emitted('inheritance:restore')).toHaveLength(1);
+        });
+
+        it('should restore inherited parent entity override instead of the base CMS config', async () => {
+            Shopware.Store.get('swCategoryDetail').category = {
+                slotConfig: {
+                    'test-slot-id': {
+                        testField: { value: 'child override' },
+                    },
+                },
+                translations: [
+                    {
+                        languageId: 'parent-language-id',
+                        slotConfig: {
+                            'test-slot-id': {
+                                testField: { value: 'parent override' },
+                            },
+                        },
+                    },
+                ],
+            };
+            Shopware.Store.get('context').api.languageId = 'child-language-id';
+            Shopware.Store.get('context').api.language = { parentId: 'parent-language-id' };
+
+            const wrapper = await createWrapper({
+                element: new Entity('test-slot-id', 'cms_slot', {
+                    type: 'text',
+                    config: {
+                        testField: { value: 'child override' },
+                    },
+                    translated: {
+                        config: {
+                            testField: { value: 'base-value' },
+                        },
+                    },
+                }),
+            });
+
+            await wrapper.vm.onInheritanceRestore();
+
+            expect(wrapper.vm.runtimeConfig.testField.value).toBe('parent override');
+            expect(wrapper.vm.isInherited).toBe(true);
         });
     });
 

@@ -1135,6 +1135,7 @@ export default {
         onProcessData() {
             let hasListPrice = false;
             let hasRegulationPrice = false;
+            let hasPriceChange = false;
 
             Object.keys(this.bulkEditProduct).forEach((key) => {
                 const bulkEditField = cloneDeep(this.bulkEditProduct[key]);
@@ -1144,14 +1145,25 @@ export default {
 
                 if (key === 'listPrice') {
                     hasListPrice = true;
+                    hasPriceChange = true;
 
                     return;
                 }
 
                 if (key === 'regulationPrice') {
                     hasRegulationPrice = true;
+                    hasPriceChange = true;
 
                     return;
+                }
+
+                if (
+                    [
+                        'price',
+                        'purchasePrices',
+                    ].includes(key)
+                ) {
+                    hasPriceChange = true;
                 }
 
                 let bulkEditValue = this.product[key];
@@ -1197,6 +1209,14 @@ export default {
 
                 this.bulkEditSelected.push(change);
             });
+
+            if (hasPriceChange && !this.bulkEditProduct.taxId?.isChanged && this.taxRate?.id) {
+                this.bulkEditSelected.push({
+                    field: 'taxId',
+                    type: 'overwrite',
+                    value: this.taxRate.id,
+                });
+            }
 
             if (hasListPrice) {
                 this.processListPrice();

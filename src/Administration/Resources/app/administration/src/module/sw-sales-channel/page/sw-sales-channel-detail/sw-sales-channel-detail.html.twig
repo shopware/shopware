@@ -64,6 +64,16 @@
                 </sw-tabs-item>
                 {% endblock %}
 
+                {% block sw_sales_channel_detail_content_tab_product_export_insights %}
+                <sw-tabs-item
+                    v-if="isAgenticCommerce && !isLoading"
+                    :route="{ name: 'sw.sales.channel.detail.productExportInsights', params: { id: $route.params.id } }"
+                    :title="$t('sw-sales-channel.detail.productExport.tabInsights')"
+                >
+                    {{ $t('sw-sales-channel.detail.productExport.tabInsights') }}
+                </sw-tabs-item>
+                {% endblock %}
+
                 {% block sw_sales_channel_detail_content_tab_products %}
                 <sw-tabs-item
                     v-if="isHeadless || isStorefront"
@@ -97,16 +107,6 @@
                     {{ $tc('sw-sales-channel.detail.tabProductComparison') }}
                 </sw-tabs-item>
                 {% endblock %}
-                {% endblock %}
-
-                {% block sw_sales_channel_detail_content_tab_product_export_insights %}
-                <sw-tabs-item
-                    v-if="isAgenticCommerce && !isLoading"
-                    :route="{ name: 'sw.sales.channel.detail.productExportInsights', params: { id: $route.params.id } }"
-                    :title="$tc('sw-sales-channel.detail.productExport.tabInsights')"
-                >
-                    {{ $tc('sw-sales-channel.detail.productExport.tabInsights') }}
-                </sw-tabs-item>
                 {% endblock %}
 
                 {%  block sw_sales_channel_detail_content_tab_analytics %}

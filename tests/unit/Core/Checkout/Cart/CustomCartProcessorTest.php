@@ -15,7 +15,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 
@@ -67,7 +69,11 @@ class CustomCartProcessorTest extends TestCase
         $original = $this->getCart();
         $item1 = new LineItem('custom-3', 'custom', 'custom-1', 1);
         $item1->setPriceDefinition(new QuantityPriceDefinition(5.0, new TaxRuleCollection(), 1));
-        $item1->setStates([State::IS_DOWNLOAD]);
+        $item1->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $item1->setStates([State::IS_DOWNLOAD]);
+        }
         $original->add($item1);
 
         $toCalculate = new Cart('toCalculate');
@@ -88,11 +94,15 @@ class CustomCartProcessorTest extends TestCase
         $processor->process($data, $original, $toCalculate, $context, $behavior);
 
         static::assertCount(2, $toCalculate->getLineItems());
-        static::assertEquals(5.0, $toCalculate->getLineItems()->get('custom-1')?->getPrice()?->getTotalPrice());
-        static::assertTrue($toCalculate->getLineItems()->get('custom-1')?->isShippingCostAware());
+        $custom1 = $toCalculate->getLineItems()->get('custom-1');
+        static::assertNotNull($custom1);
+        static::assertSame(5.0, $custom1->getPrice()?->getTotalPrice());
+        static::assertTrue($custom1->isShippingCostAware());
 
-        static::assertEquals(5.0, $toCalculate->getLineItems()->get('custom-3')?->getPrice()?->getTotalPrice());
-        static::assertFalse($toCalculate->getLineItems()->get('custom-3')?->isShippingCostAware());
+        $custom3 = $toCalculate->getLineItems()->get('custom-3');
+        static::assertNotNull($custom3);
+        static::assertSame(5.0, $custom3->getPrice()?->getTotalPrice());
+        static::assertFalse($custom3->isShippingCostAware());
     }
 
     private function getCart(): Cart

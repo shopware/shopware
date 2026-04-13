@@ -3,7 +3,7 @@
  */
 import './acl';
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-number-range-list', () => import('./page/sw-settings-number-range-list'));
 Shopware.Component.register('sw-settings-number-range-detail', () => import('./page/sw-settings-number-range-detail'));
 Shopware.Component.extend(
@@ -11,7 +11,7 @@ Shopware.Component.extend(
     'sw-settings-number-range-detail',
     () => import('./page/sw-settings-number-range-create'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 
@@ -22,7 +22,7 @@ Module.register('sw-settings-number-range', {
     title: 'sw-settings-number-range.general.mainMenuItemGeneral',
     description: 'Number Range section in the settings module',
     color: '#9AA8B5',
-    icon: 'regular-cog',
+    icon: 'solid-cog',
     favicon: 'icon-module-settings.png',
     entity: 'number_range',
 

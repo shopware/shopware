@@ -1,0 +1,67 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ProductMeasurements": {
+                "type": "object",
+                "description": "Runtime field, cannot be used as part of the criteria. Measurements of a product, including dimensions and weight.",
+                "properties": {
+                    "width": {
+                        "type": "object",
+                        "properties": {
+                            "unit": {
+                                "type": "string",
+                                "enum": ["mm", "cm", "m", "in", "ft"],
+                                "default": "mm"
+                            },
+                            "value": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    "height": {
+                        "type": "object",
+                        "properties": {
+                            "unit": {
+                                "type": "string",
+                                "enum": ["mm", "cm", "m", "in", "ft"],
+                                "default": "mm"
+                            },
+                            "value": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    "length": {
+                        "type": "object",
+                        "properties": {
+                            "unit": {
+                                "type": "string",
+                                "enum": ["mm", "cm", "m", "in", "ft"],
+                                "default": "mm"
+                            },
+                            "value": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    "weight": {
+                        "type": "object",
+                        "properties": {
+                            "unit": {
+                                "type": "string",
+                                "enum": ["g", "kg", "oz", "lb"],
+                                "default": "kg"
+                            },
+                            "value": {
+                                "type": "number"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

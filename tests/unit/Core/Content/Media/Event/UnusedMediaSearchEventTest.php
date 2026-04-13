@@ -18,7 +18,7 @@ class UnusedMediaSearchEventTest extends TestCase
     public function testGetIds(): void
     {
         $event = new UnusedMediaSearchEvent(['1', '2', '3']);
-        static::assertEquals(['1', '2', '3'], $event->getUnusedIds());
+        static::assertSame(['1', '2', '3'], $event->getUnusedIds());
     }
 
     /**
@@ -30,7 +30,7 @@ class UnusedMediaSearchEventTest extends TestCase
     {
         $event = new UnusedMediaSearchEvent(['1', '2', '3']);
         $event->markAsUsed($idsToRemove);
-        static::assertEquals($expectedIds, $event->getUnusedIds());
+        static::assertSame($expectedIds, $event->getUnusedIds());
     }
 
     /**

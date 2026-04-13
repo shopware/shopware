@@ -32,7 +32,7 @@ class CmsControllerTest extends TestCase
     public function testCmsPageLoadedHookScriptsAreExecuted(): void
     {
         $response = $this->request('GET', '/widgets/cms/' . $this->ids->get('page'), []);
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -42,7 +42,7 @@ class CmsControllerTest extends TestCase
     public function testCmsPageLoadedHookScriptsAreExecutedForFullPage(): void
     {
         $response = $this->request('GET', '/page/cms/' . $this->ids->get('page'), []);
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -52,7 +52,7 @@ class CmsControllerTest extends TestCase
     public function testCmsPageLoadedHookScriptsAreExecutedForCategory(): void
     {
         $response = $this->request('GET', '/widgets/cms/navigation/' . $this->ids->get('category'), []);
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 

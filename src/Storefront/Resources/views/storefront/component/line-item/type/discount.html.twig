@@ -83,6 +83,10 @@
                     {% else %}
                         {% block component_line_item_type_discount_col_unit_price %}
                             <div class="line-item-unit-price">
+                                {# Otherwise no discount value will be shown #}
+                                {% if not showSubtotal %}
+                                    {% sw_include '@Storefront/storefront/component/line-item/element/unit-price.html.twig' %}
+                                {% endif %}
                             </div>
                         {% endblock %}
                     {% endif %}

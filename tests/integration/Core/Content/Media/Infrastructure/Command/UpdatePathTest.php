@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Command;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
@@ -23,7 +22,6 @@ use Symfony\Component\Console\Output\NullOutput;
 /**
  * @internal
  */
-#[CoversClass(UpdatePathCommand::class)]
 class UpdatePathTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -32,10 +30,11 @@ class UpdatePathTest extends TestCase
     /**
      * @param array<mixed> $media
      * @param array<mixed> $thumbnail
+     * @param array<mixed> $mediaThumbnailSize
      * @param array<string, string> $expected
      */
     #[DataProvider('commandProvider')]
-    public function testCommand(array $media, array $thumbnail, ArrayInput $input, array $expected): void
+    public function testCommand(array $media, array $thumbnail, array $mediaThumbnailSize, ArrayInput $input, array $expected): void
     {
         $ids = new IdsCollection();
 
@@ -44,8 +43,12 @@ class UpdatePathTest extends TestCase
         $media['id'] = $ids->getBytes('media');
         $queue->addInsert('media', $media);
 
+        $mediaThumbnailSize['id'] = $ids->getBytes('media_thumbnail_size');
+        $queue->addInsert('media_thumbnail_size', $mediaThumbnailSize);
+
         $thumbnail['id'] = $ids->getBytes('media_thumbnail');
         $thumbnail['media_id'] = $ids->getBytes('media');
+        $thumbnail['media_thumbnail_size_id'] = $ids->getBytes('media_thumbnail_size');
         $queue->addInsert('media_thumbnail', $thumbnail);
 
         $queue->execute();
@@ -97,6 +100,11 @@ class UpdatePathTest extends TestCase
                 'height' => 100,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
+            [
+                'width' => 100,
+                'height' => 100,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ],
             new ArrayInput([]),
             [
                 'media' => 'media/test.png',
@@ -117,6 +125,11 @@ class UpdatePathTest extends TestCase
                 'path' => 'foo/test_100x100.png',
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
+            [
+                'width' => 100,
+                'height' => 100,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ],
             new ArrayInput([]),
             [
                 'media' => 'foo/test.png',
@@ -135,6 +148,11 @@ class UpdatePathTest extends TestCase
                 'width' => 100,
                 'height' => 100,
                 'path' => 'foo/test_100x100.png',
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ],
+            [
+                'width' => 100,
+                'height' => 100,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
             new ArrayInput(['--force' => true]),

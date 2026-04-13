@@ -1,8 +1,32 @@
+.sw-sidebar-renderer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 30%);
+    z-index: 999;
+    cursor: pointer;
+    animation: fadeIn 0.3s ease-in-out;
+
+    &.is-resizing {
+        cursor: col-resize;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+}
+
 .sw-sidebar-renderer {
-    width: 480px;
-    flex-direction: column;
-    border-left: 1px solid var(--color-border-primary-default);
     background: var(--color-elevation-surface-raised);
+    transition: all 0.3s ease-in-out;
+    will-change: width;
+    display: none;
+    z-index: 1000;
 
     iframe {
         width: 100%;
@@ -10,10 +34,80 @@
         border: none;
     }
 
+    &.is-resizing {
+        transition: none;
+
+        * {
+            transition: none;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        iframe {
+            pointer-events: none;
+        }
+    }
+
+    &.is-active {
+        display: block;
+    }
+
+    &__overlay {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        border-left: 1px solid var(--color-border-primary-default);
+        height: 100%;
+        max-width: 90vw;
+        transition: all 0.3s ease-in-out;
+        overflow: hidden;
+
+        &-resizable {
+            position: fixed;
+        }
+    }
+
+    &.is-overlay .sw-sidebar-renderer__overlay {
+        box-shadow: -4px 0 16px rgba(0, 0, 0, 15%);
+        border-left: 1px solid var(--color-border-primary-default);
+        border-radius: 8px 0 0 8px;
+    }
+
+    &__resize-handle {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        cursor: col-resize;
+        background: transparent;
+        z-index: 10;
+
+        &:hover {
+            background: var(--color-interaction-primary-default);
+            opacity: 0.3;
+        }
+
+        &:active {
+            background: var(--color-interaction-primary-default);
+            opacity: 0.5;
+        }
+
+        &::before {
+            content: "";
+            position: absolute;
+            left: -3px;
+            right: -3px;
+            top: 0;
+            bottom: 0;
+        }
+    }
+
     &__header {
         display: flex;
-
-        // This value seems odd but is caused by the header of the page. 80px container plus 1px border seperator.
         height: 81px;
         padding: 0 24px;
         justify-content: space-between;
@@ -23,6 +117,13 @@
         align-self: stretch;
         border-bottom: 1px solid var(--color-border-primary-default);
         background: var(--color-elevation-surface-raised);
+        position: relative;
+
+        &-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
     }
 
     .sw-iframe-renderer {

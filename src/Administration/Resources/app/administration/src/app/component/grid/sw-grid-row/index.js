@@ -1,7 +1,6 @@
 import template from './sw-grid-row.html.twig';
 import './sw-grid-row.scss';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -9,7 +8,7 @@ const utils = Shopware.Utils;
  *
  * @private
  */
-Component.register('sw-grid-row', {
+export default {
     template,
 
     inject: {
@@ -60,7 +59,6 @@ Component.register('sw-grid-row', {
         allowInlineEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -141,4 +139,4 @@ Component.register('sw-grid-row', {
             this.onInlineEditStart();
         },
     },
-});
+};

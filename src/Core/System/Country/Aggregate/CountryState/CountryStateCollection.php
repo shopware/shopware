@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Country\Aggregate\CountryState;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -16,16 +17,21 @@ class CountryStateCollection extends EntityCollection
      */
     public function getCountryIds(): array
     {
-        return $this->fmap(fn (CountryStateEntity $countryState) => $countryState->getCountryId());
+        return $this->fmap(static fn (CountryStateEntity $countryState) => $countryState->getCountryId());
     }
 
     public function filterByCountryId(string $id): self
     {
-        return $this->filter(fn (CountryStateEntity $countryState) => $countryState->getCountryId() === $id);
+        return $this->filter(static fn (CountryStateEntity $countryState) => $countryState->getCountryId() === $id);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed, use sorting via SQL instead
+     */
     public function sortByPositionAndName(): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Use sorting via SQL instead of this method.');
+
         uasort($this->elements, static function (CountryStateEntity $a, CountryStateEntity $b) {
             $aPosition = $a->getPosition();
             $bPosition = $b->getPosition();

@@ -4,14 +4,12 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\State;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1654839361ProductDownload extends MigrationStep
@@ -23,7 +21,7 @@ class Migration1654839361ProductDownload extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!EntityDefinitionQueryHelper::columnExists($connection, 'product', 'states')) {
+        if (!TableHelper::columnExists($connection, 'product', 'states')) {
             $connection->executeStatement('
                 ALTER TABLE `product`
                 ADD COLUMN `states` JSON NULL,

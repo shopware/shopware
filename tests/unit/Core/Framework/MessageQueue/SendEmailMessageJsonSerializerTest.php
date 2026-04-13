@@ -38,7 +38,7 @@ class SendEmailMessageJsonSerializerTest extends TestCase
         $our = $serializer->serialize($sendMail, 'json');
         $their = $withoutSerializer->serialize($sendMail, 'json');
 
-        static::assertNotEquals($our, $their);
+        static::assertNotSame($our, $their);
     }
 
     #[DoesNotPerformAssertions]

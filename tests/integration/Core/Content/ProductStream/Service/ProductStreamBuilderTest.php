@@ -275,7 +275,9 @@ class ProductStreamBuilderTest extends TestCase
         }
 
         static::getContainer()->get('product.repository')->create($products, $this->context);
-        $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
+        $lastProduct = end($products);
+        static::assertIsArray($lastProduct);
+        $this->addTaxDataToSalesChannel($this->salesChannelContext, $lastProduct['tax']);
 
         return $products;
     }

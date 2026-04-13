@@ -8,6 +8,8 @@
 
         <service id="Shopware\Core\DevOps\System\Command\SyncComposerVersionCommand">
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+
             <tag name="console.command"/>
         </service>
 
@@ -21,6 +23,13 @@
 
         <service id="Shopware\Core\DevOps\Docs\Script\ScriptReferenceGeneratorCommand">
             <argument type="tagged_iterator" tag="shopware.scripts_reference.generator"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\DevOps\Docs\Script\TriggerReferenceGeneratorCommand">
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
 
             <tag name="console.command"/>
         </service>

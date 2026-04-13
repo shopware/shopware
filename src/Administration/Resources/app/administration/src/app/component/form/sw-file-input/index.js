@@ -1,8 +1,7 @@
-/* eslint-disable vue/require-default-prop */
 import template from './sw-file-input.html.twig';
 import './sw-file-input.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { fileSize } = Shopware.Utils.format;
 const utils = Shopware.Utils;
 
@@ -20,7 +19,7 @@ const utils = Shopware.Utils;
  *     :maxFileSize="8*1024*1024">
  * </sw-file-input>
  */
-Component.register('sw-file-input', {
+export default {
     template,
 
     inject: ['feature'],
@@ -44,13 +43,18 @@ Component.register('sw-file-input', {
             default: null,
         },
 
+        allowedFileExtensions: {
+            type: Array,
+            required: false,
+            default: null,
+        },
+
         label: {
             type: String,
             required: false,
             default: null,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: false,
         },
@@ -86,6 +90,10 @@ Component.register('sw-file-input', {
         this.mountedComponent();
     },
 
+    beforeUnmount() {
+        this.beforeUnmountComponent();
+    },
+
     methods: {
         mountedComponent() {
             if (this.$refs.dropzone) {
@@ -102,6 +110,21 @@ Component.register('sw-file-input', {
             }
         },
 
+        beforeUnmountComponent() {
+            if (this.$refs.dropzone) {
+                [
+                    'dragover',
+                    'drop',
+                ].forEach((event) => {
+                    window.removeEventListener(event, this.stopEventPropagation, false);
+                });
+                this.$refs.dropzone.removeEventListener('drop', this.onDrop);
+
+                window.removeEventListener('dragenter', this.onDragEnter);
+                window.removeEventListener('dragleave', this.onDragLeave);
+            }
+        },
+
         onChooseButtonClick() {
             this.$refs.fileInput.click();
         },
@@ -115,7 +138,7 @@ Component.register('sw-file-input', {
 
             if (newFiles.length) {
                 const newFile = newFiles[0];
-                if (this.checkFileSize(newFile) && this.checkFileType(newFile)) {
+                if (this.checkFileSize(newFile) && this.checkFileExtension(newFile) && this.checkFileType(newFile)) {
                     this.setSelectedFile(newFile);
                 }
             }
@@ -134,15 +157,11 @@ Component.register('sw-file-input', {
             }
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
-                message: this.$tc(
-                    'global.sw-file-input.notification.invalidFileSize.message',
-                    {
-                        name: file.name,
-                        limit: fileSize(this.maxFileSize),
-                    },
-                    0,
-                ),
+                title: this.$t('global.default.error'),
+                message: this.$t('global.sw-file-input.notification.invalidFileSize.message', {
+                    name: file.name,
+                    limit: fileSize(this.maxFileSize),
+                }),
             });
             return false;
         },
@@ -153,16 +172,33 @@ Component.register('sw-file-input', {
             }
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
-                message: this.$tc(
-                    'global.sw-file-input.notification.invalidFileType.message',
-                    {
-                        name: file.name,
-                        supportedTypes: this.allowedMimeTypes.join(', '),
-                    },
-                    0,
-                ),
+                title: this.$t('global.default.error'),
+                message: this.$t('global.sw-file-input.notification.invalidFileType.message', {
+                    name: file.name,
+                    supportedTypes: this.allowedMimeTypes.join(', '),
+                }),
             });
+            return false;
+        },
+
+        checkFileExtension(file) {
+            const extension = file.name.toLowerCase().split('.').pop();
+            if (
+                !this.allowedFileExtensions ||
+                !this.allowedFileExtensions.length ||
+                this.allowedFileExtensions.includes(extension)
+            ) {
+                return true;
+            }
+
+            this.createNotificationError({
+                title: this.$t('global.default.error'),
+                message: this.$t('global.sw-file-input.notification.invalidFileExtension.message', {
+                    name: file.name,
+                    supportedExtensions: this.allowedFileExtensions.join(', '),
+                }),
+            });
+
             return false;
         },
 
@@ -208,11 +244,11 @@ Component.register('sw-file-input', {
 
             const newFile = newFiles[0];
 
-            if (this.checkFileSize(newFile) && this.checkFileType(newFile)) {
+            if (this.checkFileSize(newFile) && this.checkFileExtension(newFile) && this.checkFileType(newFile)) {
                 this.setSelectedFile(newFile);
             }
 
             this.$refs.fileForm.reset();
         },
     },
-});
+};

@@ -51,6 +51,8 @@ export default {
             liveSearchTerm: '',
             salesChannels: [],
             salesChannelId: this.currentSalesChannelId,
+            productSortings: [],
+            productSortingKey: null,
             liveSearchResults: null,
             searchInProgress: false,
             showExampleModal: false,
@@ -60,6 +62,10 @@ export default {
     computed: {
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
+        },
+
+        productSortingRepository() {
+            return this.repositoryFactory.create('product_sorting');
         },
 
         isSearchEnable() {
@@ -84,6 +90,26 @@ export default {
         products() {
             return this.liveSearchResults && this.liveSearchResults.elements;
         },
+
+        productSortingCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addFilter(Criteria.equals('active', true));
+            criteria.addSorting(Criteria.sort('priority', 'DESC'));
+            return criteria;
+        },
+
+        searchParams() {
+            const params = {
+                salesChannelId: this.salesChannelId,
+                search: this.liveSearchTerm,
+            };
+
+            if (this.productSortingKey) {
+                params.order = this.productSortingKey;
+            }
+
+            return params;
+        },
     },
 
     created() {
@@ -93,6 +119,7 @@ export default {
     methods: {
         createdComponent() {
             this.fetchSalesChannels();
+            this.fetchProductSortings();
             this.liveSearchTerm = this.searchTerms;
             this.liveSearchResults = this.searchResults;
         },
@@ -103,16 +130,9 @@ export default {
             }
 
             this.searchInProgress = true;
+
             this.liveSearchService
-                .search(
-                    {
-                        salesChannelId: this.salesChannelId,
-                        search: this.liveSearchTerm,
-                    },
-                    {},
-                    {},
-                    { 'sw-language-id': Shopware.Context.api.languageId },
-                )
+                .search(this.searchParams, {}, {}, { 'sw-language-id': Shopware.Context.api.languageId })
                 .then((data) => {
                     this.liveSearchResults = data.data;
                     this.searchInProgress = false;
@@ -139,6 +159,17 @@ export default {
         fetchSalesChannels() {
             this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
                 this.salesChannels = response;
+            });
+        },
+
+        fetchProductSortings() {
+            this.productSortingRepository.search(this.productSortingCriteria).then((response) => {
+                this.productSortings = response;
+                const topSearchSorting = this.productSortings.find((entry) => entry.key === 'score');
+
+                if (topSearchSorting) {
+                    this.productSortingKey = topSearchSorting.key;
+                }
             });
         },
 

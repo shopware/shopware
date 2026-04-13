@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\UserAware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryCollection;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -27,6 +28,9 @@ class UserStorerTest extends TestCase
 {
     private UserStorer $storer;
 
+    /**
+     * @var MockObject&EntityRepository<UserRecoveryCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private MockObject&EventDispatcherInterface $dispatcher;
@@ -77,27 +81,27 @@ class UserStorerTest extends TestCase
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['userRecoveryId' => 'id'], []);
         $this->storer->restore($storable);
         $entity = new UserRecoveryEntity();
+        $entity->setId('id');
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())->method('get')->willReturn($entity);
+        $result->expects($this->once())->method('getEntities')->willReturn(new UserRecoveryCollection([$entity]));
 
         $this->repository->expects($this->once())->method('search')->willReturn($result);
         $res = $storable->getData('userRecovery');
 
-        static::assertEquals($res, $entity);
+        static::assertSame($res, $entity);
     }
 
     public function testLazyLoadNullEntity(): void
     {
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['userRecoveryId' => 'id'], []);
         $this->storer->restore($storable);
-        $entity = null;
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects($this->once())->method('get')->willReturn($entity);
+        $result->expects($this->once())->method('getEntities')->willReturn(new UserRecoveryCollection());
 
         $this->repository->expects($this->once())->method('search')->willReturn($result);
         $res = $storable->getData('userRecovery');
 
-        static::assertEquals($res, $entity);
+        static::assertNull($res);
     }
 
     public function testLazyLoadNullId(): void

@@ -13,6 +13,10 @@ on:
         type: string
         default: ""
 
+permissions:
+    contents: read
+    id-token: write
+
 jobs:
   acceptance:
     runs-on: ubuntu-24.04
@@ -22,7 +26,7 @@ jobs:
         name:
           - "Platform"
         php-version:
-          - "8.4"
+          - "8.2"
         shard:
           - '1'
           - '2'
@@ -33,9 +37,11 @@ jobs:
           # TODO: enable them in nightly/queue again with help of shopware/github-actions#67
           # - name: "Platform"
           #   major: "major"
+          #   no-currents: true
           #   php-version: 8.2
           # - name: "Platform"
           #   major: "major"
+          #   no-currents: true
           #   php-version: 8.4
           - name: "Install"
             major: ''
@@ -44,7 +50,7 @@ jobs:
             shard-count: 1
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
       - uses: ./.github/actions/ats
         with:
           project: ${{ matrix.name }}
@@ -54,9 +60,41 @@ jobs:
           workers: 1
           install: ${{ matrix.name != 'Install' && 'true' || 'false' }}
           extra-options: ${{ matrix.name != 'Install' && '' || '--trace=on' }}
-          use-currents: ${{ inputs.nightly == 'true' && matrix.php-version == '8.4' && !matrix.major && 'true' || '' }}
+          use-currents: ${{ inputs.nightly == 'true' && github.event_name == 'schedule' && matrix.no-currents != 'true' || '' }}
           currents-project-id: ${{ secrets.CURRENTS_PROJECT_ID }}
           currents-record-key: ${{ secrets.CURRENTS_RECORD_KEY }}
+          playwright-role-arn: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
+          playwright-traces-domain: ${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}
+          s3-bucket: shopware-ci-playwright-traces
+          report-prefix: playwright-reports
+
+  acceptance-tests-changed:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+        with:
+          fetch-depth: 0 # Fetch full history in order to see what's changed
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@8cba46e29c11878d930bca7870bb54394d3e8b21 # v46
+        with:
+          files: |
+            tests/acceptance/tests/**/*.spec.ts
+
+      - name: Execute acceptance tests
+        if: ${{ steps.changed-files.outputs.any_changed == 'true' }}
+        uses: ./.github/actions/ats
+        #env:
+        #  ATS_SKIP_CLEANUP: true
+        with:
+          project: "Platform"
+          install: true
+          extra-options: >-
+            --repeat-each="10"
+            -- ${{ format(' {0}', steps.changed-files.outputs.all_changed_files) }}
+          artifact-prefix: "ats-changed"
 
   phpunit-matrix:
     runs-on: ubuntu-24.04
@@ -64,7 +102,7 @@ jobs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
       - id: generate-matrix
         run: |
           MATRIX=$(php .github/bin/generate-phpunit-matrix.php "${{ inputs.nightly }}")
@@ -74,7 +112,7 @@ jobs:
           echo 'EOF' >> $GITHUB_OUTPUT
 
   phpunit:
-    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }}"
+    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }} ${{ matrix.opensearch != 'opensearchproject/opensearch:3' && matrix.opensearch || '' }}"
     needs:
       - phpunit-matrix
     runs-on: ubuntu-24.04
@@ -93,10 +131,11 @@ jobs:
 
     services:
       elasticsearch:
-        image: ${{ matrix.test.path != '' && 'opensearchproject/opensearch:1' || 'alpine' }}
+        image: ${{ matrix.test.path != '' &&  matrix.opensearch || 'alpine' }}
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
+          OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
         ports:
           - "9200:9200"
       database:
@@ -120,6 +159,23 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
 
+      - name: Wait for OpenSearch/Elasticsearch
+        if: ${{ contains(matrix.test.path, 'Elasticsearch') }}
+        run: |
+            # Wait for OpenSearch/Elasticsearch to be alive
+            max_tries=30
+            tries=0
+            until curl -s http://localhost:9200/_cluster/health | grep -q '"status":"green"\|"status":"yellow"'; do
+                if [ $tries -ge $max_tries ]; then
+                    echo "Max tries waiting for OpenSearch/Elasticsearch to be ready exceeded."
+                    exit 1
+                fi
+
+                echo "Waiting for OpenSearch/Elasticsearch to be ready..."
+                sleep 2
+                tries=$((tries + 1))
+            done
+
       - name: Start Webserver
         run: symfony server:start -d
 
@@ -136,7 +192,7 @@ jobs:
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@f2dba722c67b86c6caa034178c6e4d35335f6706 # 1
+        uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # 1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -151,7 +207,7 @@ jobs:
         run: git config --system core.longpaths true
 
       - name: Clone platform
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
   php-security:
     runs-on: ubuntu-24.04
     name: "Composer dependencies"
@@ -159,7 +215,7 @@ jobs:
       COMPOSER_ROOT_VERSION: 6.7.9999999-dev
     steps:
       - name: Clone platform
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@6c489b2fc701c5f9ed70ccebe221b567bee578c0 # 2
@@ -185,24 +241,26 @@ jobs:
       fail-fast: false
       matrix:
         language: [ "javascript" ]
-
+    permissions:
+        contents: read
+        security-events: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
         with:
           fetch-depth: 2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@6bb031afdd8eb862ea3fc1848194185e076637e5 #  v3.28.11
+        uses: github/codeql-action/init@9e907b5e64f6b83e7804b09294d44122997950d6 #  v4.32.3
 
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@6bb031afdd8eb862ea3fc1848194185e076637e5 #  v3.28.11
+        uses: github/codeql-action/autobuild@9e907b5e64f6b83e7804b09294d44122997950d6 #  v4.32.3
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@6bb031afdd8eb862ea3fc1848194185e076637e5 #  v3.28.11
+        uses: github/codeql-action/analyze@9e907b5e64f6b83e7804b09294d44122997950d6 #  v4.32.3
 
   tested-update-versions:
     name: tested-versions
@@ -225,8 +283,11 @@ jobs:
       matrix:
         update:
           - version: ${{ needs.tested-update-versions.outputs.lts-latest-version }}
+            type: lts-latest
           - version: ${{ needs.tested-update-versions.outputs.first-version }}
+            type: first
           - version: ${{ needs.tested-update-versions.outputs.latest-version }}
+            type: latest
     env:
       SHOPWARE_HTTP_CACHE_ENABLED: 0
       BLUE_GREEN_DEPLOYMENT: 1
@@ -235,6 +296,9 @@ jobs:
       SW_RECOVERY_NEXT_VERSION: "6.7.9999999.9999999"
       SW_RECOVERY_NEXT_BRANCH: "6.7.9999999.9999999"
       SW_RECOVERY_REPOSITORY: '{"type": "path", "url": "${{ github.workspace }}/new-shopware/src/*", "options": { "symlink": true } }'
+      S3_BUCKET: "shopware-ci-playwright-traces"
+      REPORT_PREFIX: "playwright-reports"
+      DO_NOT_TRACK: 1
     steps:
       - name: Create shopware dirs
         run: mkdir -p old-shopware new-shopware
@@ -249,6 +313,14 @@ jobs:
           env: dev
           path: new-shopware
 
+      - name: Cache Storefront npm packages
+        uses: actions/cache@v5
+        with:
+          path: new-shopware/src/Storefront/Resources/app/storefront/node_modules
+          key: ${{ runner.os }}-storefront-${{ hashFiles('new-shopware/src/Storefront/Resources/app/storefront/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-storefront-
+
       - name: Build new shopware
         working-directory: new-shopware
         run: |
@@ -261,15 +333,8 @@ jobs:
           composer -d src/Storefront config version ${SW_RECOVERY_NEXT_VERSION}
           composer -d src/Elasticsearch config version ${SW_RECOVERY_NEXT_VERSION}
 
-      - name: Build updater
-        working-directory: new-shopware/src/WebInstaller
-        run: |
-          composer config platform.php 8.2
-          composer install
-          composer build-phar
-
       - name: Checkout template
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
         with:
           repository: shopware/production
           path: old-shopware
@@ -280,7 +345,12 @@ jobs:
 
       - name: Require shopware
         working-directory: old-shopware
-        run: composer require shopware/core:${{ matrix.update.version }}
+        run: |
+          # Note: We expect to see vulnerabilities in the older versions we're using here.
+          jq '.config.audit = { "block-insecure": false }' composer.json > composer.json.new
+          mv composer.json.new composer.json
+
+          composer require shopware/core:${{ matrix.update.version }}
 
       - name: Install
         working-directory: old-shopware
@@ -288,37 +358,108 @@ jobs:
           sed -i -e "s/shopware.store.frw: '1'/shopware.store.frw: '0'"/ config/services.yaml
           bin/console system:install --basic-setup --drop-database --create-database
 
-      - name: Copy WebInstaller
-        run: cp new-shopware/src/WebInstaller/shopware-installer.phar.php old-shopware/public/shopware-installer.phar.php
+      - name: Download latest WebInstaller
+        run: |
+          curl -L https://github.com/shopware/web-installer/releases/latest/download/shopware-installer.phar.php -o old-shopware/public/shopware-installer.phar.php
 
       - name: Start web server
         working-directory: old-shopware
         run: symfony server:start -d
 
-      - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # 4
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
         with:
-          node-version: 20
+          node-version: 22
+
       - name: Install dependencies
         working-directory: new-shopware/tests/acceptance
         run: npm ci
+
+      - name: Refresh Package List
+        run: sudo apt-get update --allow-releaseinfo-change
+
       - name: Install Playwright Browsers
         working-directory: new-shopware/tests/acceptance
         run: npx playwright install --with-deps chromium
       - name: Run update tests with reporting
-        if: inputs.nightly == 'true'
+        if: ${{ (inputs.nightly == 'true' && github.event_name == 'schedule') && 'true' || '' }}
         working-directory: new-shopware/tests/acceptance
         run: npx pwc --project-id ${{ secrets.CURRENTS_PROJECT_ID }} --key ${{ secrets.CURRENTS_RECORD_KEY }} -- --project=Update --trace=on
       - name: Run update tests
-        if: inputs.nightly != 'true'
+        if: ${{ (inputs.nightly != 'true' || github.event_name != 'schedule') && 'true' || '' }}
         working-directory: new-shopware/tests/acceptance
         run: npx playwright test --project=Update --trace=on
 
-      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # 4
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # 6.0.0
         if: always()
         with:
-          name: playwright-report-update-${{ matrix.update.version }}
+          name: playwright-report-update-${{ matrix.update.type }}-${{ matrix.update.version }}
           path: new-shopware/tests/acceptance/test-results/
           retention-days: 3
+
+      - name: Check if this run should attempt AWS operations
+        id: check-aws-allowed
+        if: ${{ github.repository_owner == 'shopware' &&
+              (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+        shell: bash
+        run: |
+              if [ -z "${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}" ]; then
+                echo "has_role_arn=false" >> "$GITHUB_OUTPUT"
+                echo "Secret PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN is empty or unavailable (likely a fork)." >&2
+              else
+                echo "has_role_arn=true" >> "$GITHUB_OUTPUT"
+              fi
+
+      - name: Configure AWS credentials (OIDC)
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+           aws-region: eu-central-1
+           role-session-name: gha-playwright-${{ github.run_id }}-${{ github.run_attempt }}
+           role-to-assume: ${{ secrets.PLAYWRIGHT_TRACES_UPLOAD_ROLE_ARN }}
+
+      - name: Upload Playwright HTML report to S3
+        working-directory: new-shopware/tests/acceptance
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
+        shell: bash
+        run: |
+            set -euo pipefail
+            RANDOM_STR=$(openssl rand -hex 6)
+
+            # build the destination prefix and export it for subsequent steps
+            REPORT_DEST="${REPORT_PREFIX}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${RANDOM_STR}"
+
+            if [ ! -f "playwright-report/index.html" ]; then
+            echo "No Playwright report found, skipping upload."
+            exit 0
+            fi
+
+            aws s3 cp "playwright-report" "s3://${S3_BUCKET}/${REPORT_DEST}/" --recursive
+            echo "REPORT_DEST=${REPORT_DEST}" >> "$GITHUB_ENV"
+            echo "Uploaded to s3://${S3_BUCKET}/${REPORT_DEST}/"
+
+      - name: Publish S3 Static Website URL
+        if: ${{ steps.check-aws-allowed.outputs.has_role_arn == 'true' }}
+        shell: bash
+        run: |
+            set -euo pipefail
+
+            if [ -z "${REPORT_DEST:-}" ]; then
+            echo "REPORT_DEST not set (upload skipped or failed); skipping publish." >&2
+            exit 0
+            fi
+
+            if ! aws s3 ls "s3://${S3_BUCKET}/${REPORT_DEST}/index.html" >/dev/null 2>&1; then
+            echo "Index file not found ... skipping publish." >&2
+            exit 0
+            fi
+
+            DOMAIN="${{ vars.PLAYWRIGHT_TRACES_DOMAIN }}"
+            URL="https://${DOMAIN}/${REPORT_DEST}/index.html"
+            echo "${URL}"
+
+            echo "### Playwright HTML Report" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "- ${URL}" >> "$GITHUB_STEP_SUMMARY"
 
   blue-green-67-68:
     name: "PHP blue green 6.7 -> 6.8 -> 6.7"
@@ -331,13 +472,15 @@ jobs:
       ADMIN_OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      DO_NOT_TRACK: 1
 
     services:
       elasticsearch:
-        image: "opensearchproject/opensearch:1"
+        image: "opensearchproject/opensearch:3"
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
+          OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
         ports:
           - "9200:9200"
 
@@ -384,16 +527,19 @@ jobs:
       APP_URL: http://localhost:8000
       APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
       OPENSEARCH_URL: 127.0.0.1:9200
+      ADMIN_OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
       PREVIOUS_MAJOR_VERSION_BRANCH: "6.6.x"
+      DO_NOT_TRACK: 1
 
     services:
       elasticsearch:
-        image: "opensearchproject/opensearch:1"
+        image: "opensearchproject/opensearch:3"
         env:
           discovery.type: single-node
           plugins.security.disabled: "true"
+          OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
         ports:
           - "9200:9200"
 
@@ -412,7 +558,7 @@ jobs:
         run: composer init:testdb
 
       - name: Checkout current major version
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
         with:
           ref: ${{ github.ref }}
 
@@ -427,7 +573,7 @@ jobs:
           bin/console system:update:finish
 
       - name: Checkout previous major version again
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
         with:
           ref: ${{ env.PREVIOUS_MAJOR_VERSION_BRANCH }}
 
@@ -453,6 +599,68 @@ jobs:
           DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: php .github/bin/blue-green-check.php
 
+  update-66-67:
+      name: "PHP update 6.6 -> 6.7"
+      runs-on: ubuntu-24.04
+      if: inputs.nightly == 'true'
+      env:
+          APP_ENV: test
+          APP_URL: http://localhost:8000
+          APP_SECRET: def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48
+          OPENSEARCH_URL: 127.0.0.1:9200
+          ADMIN_OPENSEARCH_URL: 127.0.0.1:9200
+          BLUE_GREEN_DEPLOYMENT: 1
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+          PREVIOUS_MAJOR_VERSION_BRANCH: "6.6.x"
+          DO_NOT_TRACK: 1
+
+      services:
+          elasticsearch:
+              image: "opensearchproject/opensearch:3"
+              env:
+                  discovery.type: single-node
+                  plugins.security.disabled: "true"
+                  OPENSEARCH_INITIAL_ADMIN_PASSWORD: "yourStrongPassword123!"
+              ports:
+                  - "9200:9200"
+
+      steps:
+          - name: Setup previous major version
+            uses: shopware/setup-shopware@main
+            with:
+                install: "false"
+                shopware-version: ${{ env.PREVIOUS_MAJOR_VERSION_BRANCH }}
+                shopware-repository: ${{ github.repository }}
+
+          - name: Start Webserver
+            run: symfony server:start -d
+
+          - name: Install Shopware in previous major version on test DB
+            run: composer init:testdb
+
+          - name: Checkout current major version
+            uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+            with:
+                ref: ${{ github.ref }}
+
+          - name: Update to current major version
+            env:
+                COMPOSER_ROOT_VERSION: "6.7.9999999-dev"
+                DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+            run: |
+                rm -rf vendor-bin
+                rm -rf vendor
+                composer update -o
+                bin/console system:update:finish
+
+          - name: Refresh theme
+            env:
+                DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+            run: bin/console theme:refresh
+
+          - name: Run integration tests
+            run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
+
   # this allows us to specifiy just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations
   check:
@@ -463,7 +671,9 @@ jobs:
       - win-checkout
       - code-ql
       - acceptance-update
+      - php-security
       - blue-green-66-67
+      - blue-green-67-68
 
     runs-on: Ubuntu-latest
     steps:

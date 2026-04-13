@@ -24,7 +24,7 @@ class ClientProfilerTest extends TestCase
     public function testSearching(string|array $index, string $expectedUrl): void
     {
         $builder = new ClientBuilder();
-        $builder->setHandler(fn () => new FutureArray(resolve([
+        $builder->setHandler(static fn () => new FutureArray(resolve([
             'status' => 200,
             'body' => fopen('php://memory', 'r'),
             'transfer_stats' => [
@@ -41,7 +41,7 @@ class ClientProfilerTest extends TestCase
         static::assertCount(1, $profiler->getCalledRequests());
         $requests = $profiler->getCalledRequests();
         static::assertSame($expectedUrl, $requests[0]['url']);
-        static::assertEquals($request, $requests[0]['request']);
+        static::assertSame($request, $requests[0]['request']);
 
         $profiler->resetRequests();
         static::assertCount(0, $profiler->getCalledRequests());
@@ -54,7 +54,7 @@ class ClientProfilerTest extends TestCase
     public function testMSearching(string|array $index, string $expectedUrl): void
     {
         $builder = new ClientBuilder();
-        $builder->setHandler(fn () => new FutureArray(resolve([
+        $builder->setHandler(static fn () => new FutureArray(resolve([
             'status' => 200,
             'body' => fopen('php://memory', 'r'),
             'transfer_stats' => [
@@ -71,7 +71,7 @@ class ClientProfilerTest extends TestCase
         static::assertCount(1, $profiler->getCalledRequests());
         $requests = $profiler->getCalledRequests();
         static::assertSame($expectedUrl, $requests[0]['url']);
-        static::assertEquals($request, $requests[0]['request']);
+        static::assertSame($request, $requests[0]['request']);
 
         $profiler->resetRequests();
         static::assertCount(0, $profiler->getCalledRequests());
@@ -81,7 +81,7 @@ class ClientProfilerTest extends TestCase
     {
         $index = 'testIndex';
         $builder = new ClientBuilder();
-        $builder->setHandler(fn () => new FutureArray(resolve([
+        $builder->setHandler(static fn () => new FutureArray(resolve([
             'status' => 200,
             'body' => fopen('php://memory', 'r'),
             'transfer_stats' => [
@@ -98,7 +98,7 @@ class ClientProfilerTest extends TestCase
         static::assertCount(1, $profiler->getCalledRequests());
         $requests = $profiler->getCalledRequests();
         static::assertSame('http://localhost:9200/_bulk', $requests[0]['url']);
-        static::assertEquals($request, $requests[0]['request']);
+        static::assertSame($request, $requests[0]['request']);
 
         $profiler->resetRequests();
         static::assertCount(0, $profiler->getCalledRequests());
@@ -107,7 +107,7 @@ class ClientProfilerTest extends TestCase
     public function testPutScript(): void
     {
         $builder = new ClientBuilder();
-        $builder->setHandler(fn () => new FutureArray(resolve([
+        $builder->setHandler(static fn () => new FutureArray(resolve([
             'status' => 200,
             'body' => fopen('php://memory', 'r'),
             'transfer_stats' => [
@@ -124,7 +124,7 @@ class ClientProfilerTest extends TestCase
         static::assertCount(1, $profiler->getCalledRequests());
         $requests = $profiler->getCalledRequests();
         static::assertSame('http://localhost:9200/_scripts/numeric_translated_field_sorting', $requests[0]['url']);
-        static::assertEquals($params, $requests[0]['request']);
+        static::assertSame($params, $requests[0]['request']);
 
         $profiler->resetRequests();
         static::assertCount(0, $profiler->getCalledRequests());

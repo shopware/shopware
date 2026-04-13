@@ -7,9 +7,6 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Exception\InvalidExtensionRatingValueException;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class ReviewStruct extends StoreStruct
 {
@@ -24,7 +21,7 @@ class ReviewStruct extends StoreStruct
 
     protected int $rating;
 
-    protected ?string $text;
+    protected ?string $text = null;
 
     protected \DateTimeImmutable $lastChangeDate;
 

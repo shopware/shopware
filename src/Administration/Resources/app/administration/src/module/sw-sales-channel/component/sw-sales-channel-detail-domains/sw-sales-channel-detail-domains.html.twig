@@ -54,7 +54,7 @@
 
             {% block sw_sales_channel_detail_domains_column_language_id %}
             <template
-                #column-languageId="{ item, isInlineEdit}"
+                #column-languageId="{ item, isInlineEdit }"
             >
                 {{ item.language.name }}
             </template>
@@ -62,15 +62,23 @@
 
             {% block sw_sales_channel_detail_domains_column_currency_id %}
             <template
-                #column-currencyId="{ item, isInlineEdit}"
+                #column-currencyId="{ item, isInlineEdit }"
             >
                 {{ item.currency.translated.name }}
             </template>
             {% endblock %}
 
+            {% block sw_sales_channel_detail_domains_column_measurement_system_name %}
+            <template
+                #column-measurementSystemName="{ item, isInlineEdit }"
+            >
+                {{ getMeasurementName(item.measurementUnits.system) }}
+            </template>
+            {% endblock %}
+
             {% block sw_sales_channel_detail_domains_column_snippet_set_id %}
             <template
-                #column-snippetSetId="{ item, isInlineEdit}"
+                #column-snippetSetId="{ item, isInlineEdit }"
             >
                 {{ item.snippetSet.name }}
             </template>
@@ -172,6 +180,13 @@
             />
             {% endblock %}
         </sw-container>
+
+        <sw-sales-channel-measurement
+            :sales-channel="currentDomain"
+            :label-unit-system="$tc('sw-sales-channel.detail.measurementSystem.labelUnitSystem')"
+            :label-length-unit="$tc('sw-sales-channel.detail.measurementSystem.labelLengthUnit')"
+            :label-weight-unit="$tc('sw-sales-channel.detail.measurementSystem.labelWeightUnit')"
+        />
 
         {% block sw_sales_channel_detail_domains_hreflang %}
         <sw-radio-field

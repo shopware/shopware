@@ -39,6 +39,14 @@ class DatabaseTransactionBehaviourTest extends TestCase
         }
     }
 
+    public function testNoAssertionIsPerformedInTheTrait(): void
+    {
+        // This test is to ensure that the DatabaseTransactionBehaviour trait does not perform any assertions
+        // during its execution, which could interfere with testing behaviour, as test suites consuming this trait
+        // may hide risky tests.
+        static::expectNotToPerformAssertions();
+    }
+
     public function testInTransaction(): void
     {
         $connection = KernelLifecycleManager::getKernel()
@@ -55,7 +63,7 @@ class DatabaseTransactionBehaviourTest extends TestCase
 
     public function testLastTestCaseIsSet(): void
     {
-        static::assertEquals($this->nameWithDataSet(), static::$lastTestCase);
+        static::assertSame($this->nameWithDataSet(), static::$lastTestCase);
     }
 
     public function testTransactionOpenWithoutClose(): void

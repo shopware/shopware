@@ -4,7 +4,10 @@
     "paths": {
         "/currency": {
             "post": {
-                "tags": ["System & Context", "Endpoints supporting Criteria "],
+                "tags": [
+                    "System & Context",
+                    "Endpoints supporting Criteria "
+                ],
                 "summary": "Fetch currencies",
                 "description": "Perform a filtered search for currencies.",
                 "operationId": "readCurrency",
@@ -18,6 +21,20 @@
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
                         }
+                    },
+                    {
+                        "name": "sw-include-search-info",
+                        "in": "header",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
+                        }
                     }
                 ],
                 "requestBody": {
@@ -27,7 +44,7 @@
                             "schema": {
                                 "allOf": [
                                     {
-                                        "$ref": "#/components/schemas/Criteria"
+                                        "$ref": "#/components/schemas/NoneFieldsCriteria"
                                     }
                                 ]
                             }
@@ -36,17 +53,41 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Entity search result containing currencies.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Currency"
-                                    }
-                                }
-                            }
+                        "$ref": "#/components/responses/CurrencyListResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "System & Context",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch currencies",
+                "description": "Perform a filtered search for currencies.",
+                "operationId": "readCurrencyGet",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
                         }
+                    },
+                    {
+                        "x-parameter-group": "noneFieldsCriteria"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/CurrencyListResponse"
                     }
                 },
                 "security": [

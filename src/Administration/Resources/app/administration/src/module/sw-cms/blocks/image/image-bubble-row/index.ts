@@ -1,5 +1,3 @@
-import CMS from '../../../constant/sw-cms.constant';
-
 /**
  * @private
  * @sw-package discovery
@@ -38,7 +36,7 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        value: CMS.MEDIA.previewCamera,
+                        value: Shopware.Constants.CMS.MEDIA.previewCamera,
                         source: 'default',
                     },
                 },
@@ -53,7 +51,7 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        value: CMS.MEDIA.previewPlant,
+                        value: Shopware.Constants.CMS.MEDIA.previewPlant,
                         source: 'default',
                     },
                 },
@@ -68,7 +66,7 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        value: CMS.MEDIA.previewGlasses,
+                        value: Shopware.Constants.CMS.MEDIA.previewGlasses,
                         source: 'default',
                     },
                 },

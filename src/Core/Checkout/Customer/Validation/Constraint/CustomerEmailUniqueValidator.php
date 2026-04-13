@@ -30,7 +30,7 @@ class CustomerEmailUniqueValidator extends ConstraintValidator
 
         $query = $this->connection->createQueryBuilder();
 
-        /** @var array{email: string, guest: int, bound_sales_channel_id: string|null}[] $results */
+        /** @var list<array{email: string, guest: int, bound_sales_channel_id: string|null}> $results */
         $results = $query
             ->select('email', 'guest', 'LOWER(HEX(bound_sales_channel_id)) as bound_sales_channel_id')
             ->from('customer')
@@ -60,7 +60,7 @@ class CustomerEmailUniqueValidator extends ConstraintValidator
             return;
         }
 
-        $this->context->buildViolation($constraint->message)
+        $this->context->buildViolation($constraint->getMessage())
             ->setParameter('{{ email }}', $this->formatValue($value))
             ->setCode(CustomerEmailUnique::CUSTOMER_EMAIL_NOT_UNIQUE)
             ->addViolation();

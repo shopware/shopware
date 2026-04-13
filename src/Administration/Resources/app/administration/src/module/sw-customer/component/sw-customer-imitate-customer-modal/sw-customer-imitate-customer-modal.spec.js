@@ -17,7 +17,9 @@ responses.addResponse({
                     id: 'sales-channel-domain-id',
                     salesChannelId: 'sales-channel-id',
                     salesChannel: {
-                        name: 'Test sales channel',
+                        translated: {
+                            name: 'Test sales channel',
+                        },
                     },
                     url: 'http://localhost:8000',
                 },
@@ -72,11 +74,6 @@ async function createWrapper() {
 
 describe('module/sw-customer-imitate-customer-modal', () => {
     let wrapper;
-
-    it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
 
     it('should fetch all sales channel domains', async () => {
         wrapper = await createWrapper();

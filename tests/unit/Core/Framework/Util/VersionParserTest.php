@@ -19,12 +19,12 @@ class VersionParserTest extends TestCase
     {
         $version = VersionParser::parseShopwareVersion($unparsedVersion);
 
-        static::assertEquals($parsedVersion, $version['version']);
-        static::assertEquals($parsedRevision, $version['revision']);
+        static::assertSame($parsedVersion, $version['version']);
+        static::assertSame($parsedRevision, $version['revision']);
     }
 
     /**
-     * @return string[][]
+     * @return list<array{string, string, string}>
      */
     public static function provideVersions(): array
     {

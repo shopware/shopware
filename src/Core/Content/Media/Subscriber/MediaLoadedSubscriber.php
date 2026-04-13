@@ -17,7 +17,8 @@ class MediaLoadedSubscriber
     {
         foreach ($event->getEntities() as $media) {
             if ($media->getMediaTypeRaw()) {
-                $media->setMediaType(unserialize($media->getMediaTypeRaw()));
+                /** @phpstan-ignore shopware.unserializeUsage */
+                $media->setMediaType(\unserialize($media->getMediaTypeRaw()));
             }
 
             if ($media->getThumbnails() !== null) {
@@ -25,7 +26,8 @@ class MediaLoadedSubscriber
             }
 
             $thumbnails = match (true) {
-                $media->getThumbnailsRo() !== null => unserialize($media->getThumbnailsRo()),
+                /** @phpstan-ignore shopware.unserializeUsage */
+                $media->getThumbnailsRo() !== null => \unserialize($media->getThumbnailsRo()),
                 default => new MediaThumbnailCollection(),
             };
 

@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-section.html.twig';
 import './sw-cms-section.scss';
 import type CmsVisibility from '../../shared/CmsVisibility';
@@ -76,6 +75,9 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             isCollapsed: true,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed, is not used anymore
+             */
             pageSlotconfigError: null as SlotConfigErrorObject | null,
         };
     },
@@ -287,7 +289,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         hasSlotConfigErrors(block: Entity<'cms_block'>) {
-            const errorElements = (this.pageSlotconfigError as SlotConfigErrorObject)?.parameters?.elements;
+            const errorElements = (this.pageSlotConfigError as SlotConfigErrorObject)?.parameters?.elements;
 
             if (!errorElements) {
                 return false;
@@ -298,6 +300,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         toggleVisibility() {
             this.isCollapsed = !this.isCollapsed;
+        },
+
+        getBlockComponent(type: string) {
+            return this.cmsService.getCmsBlockConfigByName(type)?.component ?? `sw-cms-block-${type}`;
         },
     },
 });

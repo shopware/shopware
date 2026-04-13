@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\Service;
 
 use League\Flysystem\FilesystemOperator;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
@@ -25,7 +24,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[CoversClass(MappingService::class)]
 class MappingServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -73,13 +71,14 @@ class MappingServiceTest extends TestCase
 
         $this->profileRepository->create([$profile], Context::createDefaultContext());
 
-        if (empty($profile['mapping'])) {
+        $hasNoMapping = $profile['mapping'] === null || $profile['mapping'] === [];
+        if ($hasNoMapping) {
             $this->expectExceptionObject(ImportExportException::profileWithoutMappings($profile['id']));
         }
 
         $fileId = $this->mappingService->createTemplate(Context::createDefaultContext(), $profile['id']);
 
-        if (empty($profile['mapping'])) {
+        if ($hasNoMapping) {
             return;
         }
 
@@ -161,7 +160,7 @@ class MappingServiceTest extends TestCase
             static::assertSame($key, $mapping->getKey(), $testCase);
         }
 
-        if (file_exists($filePath)) {
+        if (\is_file($filePath)) {
             unlink($filePath);
         }
     }

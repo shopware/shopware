@@ -9,6 +9,9 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 use Shopware\Core\System\Tax\TaxEntity;
 
+/**
+ * @phpstan-type TaxRuleData array{states?: list<string>, zipCode?: string, fromZipCode?: string, toZipCode?: string}
+ */
 #[Package('checkout')]
 class TaxRuleEntity extends Entity
 {
@@ -24,10 +27,13 @@ class TaxRuleEntity extends Entity
 
     protected string $taxRuleTypeId;
 
-    protected TaxRuleTypeEntity $type;
+    protected ?TaxRuleTypeEntity $type = null;
 
     protected float $taxRate;
 
+    /**
+     * @var TaxRuleData|null
+     */
     protected ?array $data = null;
 
     protected ?\DateTimeInterface $activeFrom = null;
@@ -82,8 +88,15 @@ class TaxRuleEntity extends Entity
         $this->taxRuleTypeId = $taxRuleTypeId;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
+     */
     public function getType(): TaxRuleTypeEntity
     {
+        if ($this->type === null) {
+            return new TaxRuleTypeEntity();
+        }
+
         return $this->type;
     }
 
@@ -105,11 +118,17 @@ class TaxRuleEntity extends Entity
         $this->taxRate = $taxRate;
     }
 
+    /**
+     * @return TaxRuleData|null
+     */
     public function getData(): ?array
     {
         return $this->data;
     }
 
+    /**
+     * @param TaxRuleData|null $data
+     */
     public function setData(?array $data): void
     {
         $this->data = $data;

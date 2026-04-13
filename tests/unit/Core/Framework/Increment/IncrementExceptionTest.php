@@ -23,6 +23,13 @@ class IncrementExceptionTest extends TestCase
         static::assertSame('Parameter "key" is missing.', $exception->getMessage());
     }
 
+    public function testInvalidKeysParameter(): void
+    {
+        $exception = IncrementException::invalidKeysParameter();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('Parameter "keys" must be an array.', $exception->getMessage());
+    }
+
     public function testClusterParameterIsMissing(): void
     {
         $exception = IncrementException::clusterParameterIsMissing();

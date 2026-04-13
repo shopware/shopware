@@ -14,10 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
@@ -48,11 +46,11 @@ class ResponseTypeRegistryTest extends TestCase
         $context = $this->getAdminContext();
         $response = $this->getDetailResponse($context, $id, '/api/category/' . $id, $accept, false);
 
-        static::assertEquals($accept, $response->headers->get('content-type'));
+        static::assertSame($accept, $response->headers->get('content-type'));
         $content = $response->getContent();
         static::assertIsString($content);
         $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals($id, $content['data']['name']);
+        static::assertSame($id, $content['data']['name']);
     }
 
     public function testAdminJsonApi(): void
@@ -63,15 +61,15 @@ class ResponseTypeRegistryTest extends TestCase
         $context = $this->getAdminContext();
         $response = $this->getDetailResponse($context, $id, $self, $accept, false);
 
-        static::assertEquals($accept, $response->headers->get('content-type'));
+        static::assertSame($accept, $response->headers->get('content-type'));
         $content = $response->getContent();
         static::assertIsString($content);
         $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertDetailJsonApiStructure($content);
-        static::assertEquals($id, $content['data']['attributes']['name']);
-        static::assertEquals($self, $content['links']['self']);
-        static::assertEquals($self, $content['data']['links']['self']);
+        static::assertSame($id, $content['data']['attributes']['name']);
+        static::assertSame($self, $content['links']['self']);
+        static::assertSame($self, $content['data']['links']['self']);
     }
 
     public function testAdminJsonApiDefault(): void
@@ -82,15 +80,15 @@ class ResponseTypeRegistryTest extends TestCase
         $context = $this->getAdminContext();
         $response = $this->getDetailResponse($context, $id, $self, $accept, false);
 
-        static::assertEquals('application/vnd.api+json', $response->headers->get('content-type'));
+        static::assertSame('application/vnd.api+json', $response->headers->get('content-type'));
         $content = $response->getContent();
         static::assertIsString($content);
         $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertDetailJsonApiStructure($content);
-        static::assertEquals($id, $content['data']['attributes']['name']);
-        static::assertEquals($self, $content['links']['self']);
-        static::assertEquals($self, $content['data']['links']['self']);
+        static::assertSame($id, $content['data']['attributes']['name']);
+        static::assertSame($self, $content['links']['self']);
+        static::assertSame($self, $content['data']['links']['self']);
     }
 
     public function testAdminApiUnsupportedContentType(): void
@@ -111,16 +109,16 @@ class ResponseTypeRegistryTest extends TestCase
         $context = $this->getAdminContext();
         $response = $this->getListResponse($context, $id, $self, $accept);
 
-        static::assertEquals($accept, $response->headers->get('content-type'));
+        static::assertSame($accept, $response->headers->get('content-type'));
         $content = $response->getContent();
         static::assertIsString($content);
         $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertDetailJsonApiStructure($content);
         static::assertNotEmpty($content['data']);
-        static::assertEquals($id, $content['data'][0]['attributes']['name']);
-        static::assertEquals($self, $content['links']['self']);
-        static::assertEquals($self . '/' . $id, $content['data'][0]['links']['self']);
+        static::assertSame($id, $content['data'][0]['attributes']['name']);
+        static::assertSame($self, $content['links']['self']);
+        static::assertSame($self . '/' . $id, $content['data'][0]['links']['self']);
     }
 
     /**
@@ -139,7 +137,7 @@ class ResponseTypeRegistryTest extends TestCase
 
         $definition = static::getContainer()->get(CategoryDefinition::class);
         $request = Request::create($path, 'GET', [], [], [], ['HTTP_ACCEPT' => $accept]);
-        $this->setOrigin($request, $context);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
 
         return $this->getFactory($request)->createDetailResponse(new Criteria(), $category, $definition, $request, $context, $setLocationHeader);
     }
@@ -150,11 +148,12 @@ class ResponseTypeRegistryTest extends TestCase
 
         $col = new CategoryCollection([$category]);
         $criteria = new Criteria();
-        $searchResult = new EntitySearchResult('product', 1, $col, null, $criteria, $context);
+        /** @var EntitySearchResult<CategoryCollection> */
+        $searchResult = new EntitySearchResult('category', 1, $col, null, $criteria, $context);
 
         $definition = static::getContainer()->get(CategoryDefinition::class);
         $request = Request::create($path, 'GET', [], [], [], ['HTTP_ACCEPT' => $accept]);
-        $this->setOrigin($request, $context);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
 
         return $this->getFactory($request)->createListingResponse($criteria, $searchResult, $definition, $request, $context);
     }
@@ -167,13 +166,6 @@ class ResponseTypeRegistryTest extends TestCase
         $category->internalSetEntityData('category', new FieldVisibility([]));
 
         return $category;
-    }
-
-    private function setOrigin(Request $request, Context $context): void
-    {
-        /** @var ParameterBag $attributes */
-        $attributes = ReflectionHelper::getPropertyValue($request, 'attributes');
-        $attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
     }
 
     private function getFactory(Request $request): ResponseFactoryInterface

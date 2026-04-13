@@ -146,8 +146,8 @@ class MetadataLoaderTest extends TestCase
     }
 
     /**
-     * @param array<string, string>|null $expected
-     * @param array<string, string>|null $extractMetadata
+     * @param array<string, string|int>|null $expected
+     * @param array<string, string|int>|null $extractMetadata
      */
     #[DataProvider('fileTypeDataProvider')]
     public function testLoadFromFile(
@@ -172,6 +172,6 @@ class MetadataLoaderTest extends TestCase
 
         $metadata = $metadataLoader->loadFromFile($file, $type);
 
-        static::assertEquals($expected, $metadata);
+        static::assertSame($expected, $metadata);
     }
 }

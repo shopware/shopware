@@ -82,7 +82,7 @@ class VersionManagerTest extends TestCase
         ]);
 
         $writeContextMockWithVersionId->expects($this->once())->method('scope')
-            ->with(static::equalTo(Context::SYSTEM_SCOPE), static::callback(function (callable $closure) use ($writeContextMockWithVersionId) {
+            ->with(static::equalTo(Context::SYSTEM_SCOPE), static::callback(static function (callable $closure) use ($writeContextMockWithVersionId) {
                 /** @var callable(MockObject&WriteContext): void $closure */
                 $closure($writeContextMockWithVersionId);
 

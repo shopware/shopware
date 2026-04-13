@@ -33,12 +33,12 @@ class ProductPricingHookTest extends TestCase
         );
         $productPricingHook = new ProductPricingHook([$productProxy], $salesChannelContext);
 
-        static::assertEquals([$productProxy], $productPricingHook->getProducts());
+        static::assertSame([$productProxy], $productPricingHook->getProducts());
     }
 
     public function testGetServiceIds(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [
                 RepositoryFacadeHookFactory::class,
                 PriceFactoryFactory::class,
@@ -53,7 +53,7 @@ class ProductPricingHookTest extends TestCase
     {
         $productPricingHook = new ProductPricingHook([], static::createMock(SalesChannelContext::class));
 
-        static::assertEquals('product-pricing', $productPricingHook->getName());
+        static::assertSame('product-pricing', $productPricingHook->getName());
     }
 
     public function testGetSalesChannelContext(): void
@@ -61,6 +61,6 @@ class ProductPricingHookTest extends TestCase
         $salesChannelContext = static::createMock(SalesChannelContext::class);
         $productPricingHook = new ProductPricingHook([], $salesChannelContext);
 
-        static::assertEquals($salesChannelContext, $productPricingHook->getSalesChannelContext());
+        static::assertSame($salesChannelContext, $productPricingHook->getSalesChannelContext());
     }
 }

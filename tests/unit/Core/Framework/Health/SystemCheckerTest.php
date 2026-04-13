@@ -62,7 +62,7 @@ class SystemCheckerTest extends TestCase
 
         $results = $checker->check($context);
         static::assertCount(2, $results);
-        static::assertSame($resultForRunningTest, $results[0]);
+        static::assertEquals($resultForRunningTest, $results[0]);
         static::assertEquals($skippedResult, $results[1]);
     }
 

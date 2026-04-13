@@ -18,7 +18,7 @@ class UpdateSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [
                 UpdatePostFinishEvent::class => [
                     ['updateFinishedDone', -9999],
@@ -37,8 +37,8 @@ class UpdateSubscriberTest extends TestCase
         $notificationServiceMock
             ->expects($this->once())
             ->method('createNotification')
-            ->willReturnCallback(function ($data): void {
-                static::assertEquals('something to inform' . \PHP_EOL, $data['message']);
+            ->willReturnCallback(static function ($data): void {
+                static::assertSame('something to inform' . \PHP_EOL, $data['message']);
             });
 
         $event = new UpdatePostFinishEvent($context, $version, $version);

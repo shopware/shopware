@@ -38,8 +38,8 @@ class MailBeforeValidateEventTest extends TestCase
 
         static::assertArrayHasKey('data', $flow->data());
         static::assertArrayHasKey('templateData', $flow->data());
-        static::assertEquals(['foo' => 'bar'], $flow->data()['data']);
-        static::assertEquals(['template' => 'data'], $flow->data()['templateData']);
+        static::assertSame(['foo' => 'bar'], $flow->data()['data']);
+        static::assertSame(['template' => 'data'], $flow->data()['templateData']);
     }
 
     public function testInstantiate(): void

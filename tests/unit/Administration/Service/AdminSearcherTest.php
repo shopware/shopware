@@ -85,6 +85,6 @@ class AdminSearcherTest extends TestCase
         $productResult = $result['product'];
         static::assertArrayHasKey('data', $productResult);
         static::assertArrayHasKey('total', $productResult);
-        static::assertEquals(0, $productResult['total']);
+        static::assertSame(0, $productResult['total']);
     }
 }

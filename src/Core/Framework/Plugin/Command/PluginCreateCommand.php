@@ -7,11 +7,13 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGene
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -70,7 +72,11 @@ class PluginCreateCommand extends Command
             $staticPrefix = $input->getOption('static') ? 'static-' : '';
 
             if (!$pluginName) {
-                $pluginName = $this->askPascalCaseString('Please enter a plugin name (PascalCase)', $io);
+                $pluginName = $this->askPascalCaseString(
+                    input: $input,
+                    questionText: 'Please enter a plugin name (PascalCase)',
+                    io: $io
+                );
             }
 
             $directory = \sprintf('%s/custom/%splugins/%s', $this->projectDir, $staticPrefix, $pluginName);
@@ -84,7 +90,11 @@ class PluginCreateCommand extends Command
             $namespace = $input->getArgument('plugin-namespace');
 
             if (!$namespace) {
-                $namespace = $this->askPascalCaseString('Please enter a plugin namespace (PascalCase)', $io);
+                $namespace = $this->askPascalCaseString(
+                    input: $input,
+                    questionText: 'Please enter a plugin namespace (PascalCase)',
+                    io: $io
+                );
             }
 
             $configuration = new PluginScaffoldConfiguration(
@@ -117,22 +127,28 @@ class PluginCreateCommand extends Command
         }
     }
 
-    private function askPascalCaseString(string $question, SymfonyStyle $io): string
-    {
-        $answer = $io->ask($question);
-
-        if (empty($answer)) {
-            $io->error('Answer cannot be empty');
-
-            return $this->askPascalCaseString($question, $io);
+    private function askPascalCaseString(
+        InputInterface $input,
+        string $questionText,
+        SymfonyStyle $io
+    ): string {
+        if (!$input->isInteractive()) {
+            throw PluginException::invalidPluginCreationInputError('This command requires interactive mode or the argument must be provided.');
         }
 
-        if (!ctype_upper((string) $answer[0])) {
-            $io->error('The name must start with an uppercase character');
+        $question = new Question($questionText);
+        $question->setValidator(static function (?string $answer) {
+            if ($answer === null || $answer === '') {
+                throw PluginException::invalidPluginCreationInputError('Answer cannot be empty');
+            }
 
-            return $this->askPascalCaseString($question, $io);
-        }
+            if (!ctype_upper($answer[0])) {
+                throw PluginException::invalidPluginCreationInputError('The name must start with an uppercase character');
+            }
 
-        return $answer;
+            return $answer;
+        });
+
+        return $io->askQuestion($question);
     }
 }

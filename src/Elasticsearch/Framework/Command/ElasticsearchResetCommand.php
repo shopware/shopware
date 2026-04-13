@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Framework\Command;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -44,10 +45,10 @@ class ElasticsearchResetCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $answer = $io->ask('Are you sure you want to reset the Elasticsearch indexing?', 'yes');
+        $confirm = $io->confirm('Are you sure you want to reset the Elasticsearch indexing?');
 
-        if ($answer !== 'yes') {
-            $io->error('Canceled clearing indexing process');
+        if (!$confirm) {
+            $io->caution('Canceled clearing indexing process');
 
             return self::SUCCESS;
         }
@@ -60,11 +61,13 @@ class ElasticsearchResetCommand extends Command
 
         $this->connection->executeStatement('TRUNCATE elasticsearch_index_task');
 
-        try {
-            $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
-            $gateway->reset('message_queue_stats', ElasticsearchIndexingMessage::class);
-        } catch (IncrementGatewayNotFoundException) {
-            // In case message_queue pool is disabled
+        if (!Feature::isActive('v6.8.0.0')) {
+            try {
+                $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+                $gateway->reset('message_queue_stats', ElasticsearchIndexingMessage::class);
+            } catch (IncrementGatewayNotFoundException) {
+                // In case message_queue pool is disabled
+            }
         }
 
         $this->connection->executeStatement('DELETE FROM `messenger_messages` WHERE `headers` LIKE "%ElasticsearchIndexingMessage%"');

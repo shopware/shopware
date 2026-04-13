@@ -20,6 +20,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKe
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordEntity;
 use Shopware\Core\Content\Product\Exception\DuplicateProductNumberException;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
@@ -393,6 +394,40 @@ class ProductRepositoryTest extends TestCase
         static::assertNotContains('default', $keywords);
         static::assertNotContains('name', $keywords);
         static::assertContains('updated', $keywords);
+    }
+
+    #[DataProvider('dataProviderProductWrite')]
+    public function testWriteProductType(?string $type, string $expectedType): void
+    {
+        $id = Uuid::randomHex();
+
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'name' => 'Default name',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+            'type' => $type,
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        if ($type === 'unset') {
+            unset($data['type']);
+        }
+
+        $this->repository->create([$data], $this->context);
+
+        $criteria = new Criteria([$id]);
+        $product = $this->repository->search($criteria, $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertSame($expectedType, $product->getType());
+    }
+
+    public static function dataProviderProductWrite(): \Generator
+    {
+        yield 'no type provided' => ['unset', ProductDefinition::TYPE_PHYSICAL];
+        yield 'default product type provided' => [ProductDefinition::TYPE_PHYSICAL, ProductDefinition::TYPE_PHYSICAL];
+        yield 'digital product type provided' => [ProductDefinition::TYPE_DIGITAL, ProductDefinition::TYPE_DIGITAL];
     }
 
     public function testWriteCategories(): void
@@ -1424,10 +1459,10 @@ class ProductRepositoryTest extends TestCase
         $productMedia = $product->getMedia();
         static::assertNotNull($productMedia);
 
-        $ids = $productMedia->map(fn (ProductMediaEntity $a) => $a->getId());
+        $ids = $productMedia->map(static fn (ProductMediaEntity $a) => $a->getId());
 
         $order = [$a, $b, $c];
-        static::assertEquals($order, array_values($ids));
+        static::assertSame($order, array_values($ids));
 
         $criteria = new Criteria([$id]);
         $criteria->getAssociation('media')
@@ -1439,10 +1474,10 @@ class ProductRepositoryTest extends TestCase
         $productMedia = $product->getMedia();
         static::assertNotNull($productMedia);
 
-        $ids = $productMedia->map(fn (ProductMediaEntity $a) => $a->getId());
+        $ids = $productMedia->map(static fn (ProductMediaEntity $a) => $a->getId());
 
         $order = [$d, $c, $b];
-        static::assertEquals($order, array_values($ids));
+        static::assertSame($order, array_values($ids));
     }
 
     public function testVariantInheritanceWithMedia(): void
@@ -2601,7 +2636,7 @@ class ProductRepositoryTest extends TestCase
 
         $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(
+        static::assertSame(
             array_values($ids->getList(['d', 'b', 'c', 'a'])),
             $result->getIds()
         );
@@ -2611,7 +2646,7 @@ class ProductRepositoryTest extends TestCase
 
         $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(
+        static::assertSame(
             array_values($ids->getList(['a', 'c', 'b', 'd'])),
             $result->getIds()
         );
@@ -2657,7 +2692,7 @@ class ProductRepositoryTest extends TestCase
 
             $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
-            static::assertEquals(
+            static::assertSame(
                 array_values($ids->getList(['a', 'd', 'b', 'e', 'c'])),
                 $result->getIds()
             );
@@ -2667,7 +2702,7 @@ class ProductRepositoryTest extends TestCase
 
             $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
 
-            static::assertEquals(
+            static::assertSame(
                 array_values($ids->getList(['c', 'e', 'b', 'd', 'a'])),
                 $result->getIds()
             );
@@ -2681,7 +2716,7 @@ class ProductRepositoryTest extends TestCase
 
         $result = $this->repository->searchIds($criteria, $context);
 
-        static::assertEquals(
+        static::assertSame(
             array_values($ids->getList(['a', 'd', 'b', 'e', 'c'])),
             $result->getIds()
         );
@@ -3292,8 +3327,8 @@ class ProductRepositoryTest extends TestCase
         static::assertIsArray($variantBProperties);
         sort($variantBProperties);
 
-        static::assertEquals($productProperties, $variantAProperties);
-        static::assertEquals($productProperties, $variantBProperties);
+        static::assertSame($productProperties, $variantAProperties);
+        static::assertSame($productProperties, $variantBProperties);
 
         $data = [
             'properties' => [
@@ -3331,8 +3366,8 @@ class ProductRepositoryTest extends TestCase
         static::assertIsArray($variantBProperties);
         sort($variantBProperties);
 
-        static::assertEquals($productProperties, $variantAProperties);
-        static::assertEquals($productProperties, $variantBProperties);
+        static::assertSame($productProperties, $variantAProperties);
+        static::assertSame($productProperties, $variantBProperties);
     }
 
     public function testInheritanceUpdateOnDeleteRelation(): void
@@ -3353,7 +3388,7 @@ class ProductRepositoryTest extends TestCase
 
         foreach ($expected as $key => $value) {
             static::assertArrayHasKey($key, $event->getList());
-            static::assertEquals($value, $event->getList()[$key]);
+            static::assertSame($value, $event->getList()[$key]);
         }
     }
 
@@ -3408,6 +3443,7 @@ class ProductRepositoryTest extends TestCase
                     'name' => \sprintf('name-%s', $id),
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'parentId' => $parentId,
+                    'active' => true,
                     'translationCode' => [
                         'id' => self::TEST_LOCALE_ID,
                         'code' => self::TEST_LANGUAGE_LOCALE_CODE,

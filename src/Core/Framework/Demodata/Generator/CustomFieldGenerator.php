@@ -7,9 +7,11 @@ use Faker\Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Demodata\DemodataContext;
+use Shopware\Core\Framework\Demodata\DemodataException;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
@@ -26,6 +28,8 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomFieldSetCollection> $attributeSetRepository
      */
     public function __construct(
         private readonly EntityRepository $attributeSetRepository,
@@ -80,6 +84,10 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
      */
     private function getRandomSet(): array
     {
+        if ($this->attributeSets === []) {
+            throw DemodataException::wrongExecutionOrder();
+        }
+
         return $this->attributeSets[array_rand($this->attributeSets)];
     }
 

@@ -19,8 +19,8 @@ class ComparatorExceptionTest extends TestCase
     {
         $e = ComparatorException::operatorNotSupported('test');
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals('CONTENT__OPERATOR_NOT_SUPPORTED', $e->getErrorCode());
-        static::assertEquals('Operator "test" is not supported.', $e->getMessage());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('CONTENT__OPERATOR_NOT_SUPPORTED', $e->getErrorCode());
+        static::assertSame('Operator "test" is not supported.', $e->getMessage());
     }
 }

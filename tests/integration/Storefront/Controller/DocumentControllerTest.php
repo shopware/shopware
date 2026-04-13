@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -13,11 +14,15 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -31,6 +36,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -42,13 +48,21 @@ class DocumentControllerTest extends TestCase
     use StorefrontControllerTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
+    private const CUSTOMER_EMAIL_ADDRESS = 'customer@example.com';
+
+    private const INVALID_FILE_TYPE = 'invalid';
+
     private SalesChannelContext $salesChannelContext;
 
     private Context $context;
 
+    private DocumentGenerator $documentGenerator;
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
 
         $this->context = Context::createDefaultContext();
 
@@ -86,7 +100,7 @@ class DocumentControllerTest extends TestCase
 
         $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, [], null, true);
 
-        $document = static::getContainer()->get(DocumentGenerator::class)->generate(
+        $document = $this->documentGenerator->generate(
             InvoiceRenderer::TYPE,
             [$operation->getOrderId() => $operation],
             $context,
@@ -105,13 +119,13 @@ class DocumentControllerTest extends TestCase
 
         $request->query->set('extension', 'pdf');
 
-        $documentIdStruct = static::getContainer()->get(DocumentGenerator::class)->upload(
+        $documentIdStruct = $this->documentGenerator->upload(
             $document->getId(),
             $context,
             $request
         );
 
-        $browser = $this->login('customer@example.com');
+        $browser = $this->login(self::CUSTOMER_EMAIL_ADDRESS);
 
         $browser->request(
             'GET',
@@ -121,9 +135,9 @@ class DocumentControllerTest extends TestCase
 
         $response = $browser->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode());
-        static::assertEquals($expectedFileContent, $response->getContent());
-        static::assertEquals($expectedContentType, $response->headers->get('content-type'));
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame($expectedFileContent, $response->getContent());
+        static::assertSame($expectedContentType, $response->headers->get('content-type'));
 
         // Customer are unable to view the document without valid deepLinkCode
         $browser->request(
@@ -132,7 +146,163 @@ class DocumentControllerTest extends TestCase
             $this->tokenize('frontend.account.order.single.document', [])
         );
 
-        static::assertEquals(404, $browser->getResponse()->getStatusCode());
+        static::assertSame(404, $browser->getResponse()->getStatusCode());
+    }
+
+    /**
+     * @param array<string, string> $operationConfig
+     */
+    #[DataProvider('provideFileTypeParams')]
+    public function testDownloadDocument(
+        string $documentType,
+        string $expectedFileType,
+        string $expectedContentType,
+        ?string $pathParameter,
+        ?string $queryParameter,
+        ?string $acceptHeader = null,
+        array $operationConfig = [],
+    ): void {
+        $context = Context::createDefaultContext();
+
+        $cart = $this->generateDemoCart(1);
+        $orderId = $this->persistCart($cart);
+
+        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, $operationConfig);
+
+        $result = $this->documentGenerator->generate(
+            $documentType,
+            [$operation->getOrderId() => $operation],
+            $context,
+        );
+
+        $document = $result->getSuccess()->first();
+
+        static::assertNotNull($document, implode(', ', array_map(
+            static fn (\Throwable $e) => $e->getMessage(),
+            $result->getErrors(),
+        )));
+
+        $browser = $this->login(self::CUSTOMER_EMAIL_ADDRESS);
+
+        $browser->request(
+            'GET',
+            '/account/order/document/' . $document->getId() . '/' . $document->getDeepLinkCode()
+            . ($pathParameter ? '/' . $pathParameter : '')
+            . ($queryParameter ? '?fileType=' . $queryParameter : ''),
+            [],
+            [],
+            $acceptHeader ? ['HTTP_ACCEPT' => 'application/pdf'] : [],
+        );
+
+        $response = $browser->getResponse();
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertNotEmpty($response->getContent());
+        static::assertSame(
+            'inline; filename=invoice_1000.' . $expectedFileType,
+            $response->headers->get('content-disposition')
+        );
+        static::assertStringContainsString(
+            $expectedContentType,
+            (string) $response->headers->get('content-type')
+        );
+    }
+
+    public static function provideFileTypeParams(): \Generator
+    {
+        yield 'with path param pdf' => [
+            'documentType' => InvoiceRenderer::TYPE,
+            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
+            'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
+            'pathParameter' => PdfRenderer::FILE_EXTENSION,
+            'queryParameter' => null,
+        ];
+
+        yield 'with query param html' => [
+            'documentType' => InvoiceRenderer::TYPE,
+            'expectedFileType' => HtmlRenderer::FILE_EXTENSION,
+            'expectedContentType' => HtmlRenderer::FILE_CONTENT_TYPE,
+            'pathParameter' => null,
+            'queryParameter' => HtmlRenderer::FILE_EXTENSION,
+        ];
+
+        yield 'with path param xml' => [
+            'documentType' => ZugferdRenderer::TYPE,
+            'expectedFileType' => ZugferdRenderer::FILE_EXTENSION,
+            'expectedContentType' => ZugferdRenderer::FILE_CONTENT_TYPE,
+            'pathParameter' => ZugferdRenderer::FILE_EXTENSION,
+            'queryParameter' => null,
+            'acceptHeader' => null,
+            'operationConfig' => [
+                'vatId' => 'DE123456789',
+                'bankBic' => 'DEUTDEDBFRA',
+                'bankIban' => 'DE89370400440532013000',
+                'bankName' => 'Deutsche Bank',
+                'taxOffice' => 'Finanzamt Musterstadt',
+                'companyUrl' => 'https://www.shopware.com',
+                'companyName' => 'Example Company',
+                'companyEmail' => 'mail@shopware.com',
+                'companyPhone' => '+49 123 4567890',
+                'paymentDueDate' => '+30 days',
+                'executiveDirector' => 'Max Mustermann',
+                'placeOfFulfillment' => 'Musterstadt',
+                'placeOfJurisdiction' => 'Musterstadt',
+            ],
+        ];
+
+        yield 'without params pdf should be returned' => [
+            'documentType' => InvoiceRenderer::TYPE,
+            'expectedFileType' => PdfRenderer::FILE_EXTENSION,
+            'expectedContentType' => PdfRenderer::FILE_CONTENT_TYPE,
+            'pathParameter' => null,
+            'queryParameter' => null,
+        ];
+
+        yield 'Accept header should be ignored and HTML should be returned' => [
+            'documentType' => InvoiceRenderer::TYPE,
+            'expectedFileType' => HtmlRenderer::FILE_EXTENSION,
+            'expectedContentType' => HtmlRenderer::FILE_CONTENT_TYPE,
+            'pathParameter' => HtmlRenderer::FILE_EXTENSION,
+            'queryParameter' => null,
+            'acceptHeader' => 'application/' . PdfRenderer::FILE_EXTENSION,
+        ];
+    }
+
+    public function testDownloadDocumentShouldThrowExceptionWithInvalidFileTypeParameter(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $cart = $this->generateDemoCart(1);
+        $orderId = $this->persistCart($cart);
+
+        $operation = new DocumentGenerateOperation($orderId);
+
+        $document = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$operation->getOrderId() => $operation],
+            $context,
+        )->getSuccess()->first();
+
+        static::assertNotNull($document);
+
+        $browser = $this->login(self::CUSTOMER_EMAIL_ADDRESS);
+
+        $browser->request(
+            'GET',
+            '/account/order/document/'
+            . $document->getId() . '/'
+            . $document->getDeepLinkCode() . '/'
+            . self::INVALID_FILE_TYPE,
+        );
+
+        $response = $browser->getResponse();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        } else {
+            static::assertSame(Response::HTTP_NOT_ACCEPTABLE, $response->getStatusCode());
+            static::assertStringContainsString(\sprintf('The requested file type is not supported: %s. (406 Not Acceptable)', self::INVALID_FILE_TYPE), (string) $response->getContent());
+        }
     }
 
     private function login(string $email): KernelBrowser
@@ -222,7 +392,7 @@ class DocumentControllerTest extends TestCase
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
             'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'email' => 'customer@example.com',
+            'email' => self::CUSTOMER_EMAIL_ADDRESS,
             'password' => TestDefaults::HASHED_PASSWORD,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,

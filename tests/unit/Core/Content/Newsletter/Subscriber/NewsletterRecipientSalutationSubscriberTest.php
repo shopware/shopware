@@ -34,7 +34,7 @@ class NewsletterRecipientSalutationSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             NewsletterEvents::NEWSLETTER_RECIPIENT_WRITTEN_EVENT => 'setDefaultSalutation',
         ], $this->salutationSubscriber->getSubscribedEvents());
     }
@@ -77,7 +77,7 @@ class NewsletterRecipientSalutationSubscriberTest extends TestCase
 
         $this->connection->expects($this->once())
             ->method('executeStatement')
-            ->willReturnCallback(function ($sql, $params) use ($newsletterRecipientId): int {
+            ->willReturnCallback(static function ($sql, $params) use ($newsletterRecipientId): int {
                 static::assertSame($params, [
                     'id' => Uuid::fromHexToBytes($newsletterRecipientId),
                     'notSpecified' => 'not_specified',

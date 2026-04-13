@@ -16,6 +16,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
@@ -49,7 +51,6 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayer
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -84,8 +85,14 @@ class VersioningTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     private EntityRepository $orderRepository;
 
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;
@@ -734,7 +741,7 @@ class VersioningTest extends TestCase
         $products = $this->connection->fetchAllAssociative('SELECT * FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
         static::assertCount(2, $products);
 
-        $versions = array_map(fn ($item) => Uuid::fromBytesToHex($item['version_id']), $products);
+        $versions = array_map(static fn ($item) => Uuid::fromBytesToHex($item['version_id']), $products);
 
         static::assertContains(Defaults::LIVE_VERSION, $versions);
         static::assertContains($versionId, $versions);
@@ -742,7 +749,7 @@ class VersioningTest extends TestCase
         $prices = $this->connection->fetchAllAssociative('SELECT * FROM product_price WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
         static::assertCount(4, $prices);
 
-        $versionPrices = array_filter($prices, function (array $price) use ($versionId) {
+        $versionPrices = array_filter($prices, static function (array $price) use ($versionId) {
             $version = Uuid::fromBytesToHex($price['version_id']);
 
             return $version === $versionId;
@@ -788,7 +795,7 @@ class VersioningTest extends TestCase
         );
         static::assertCount(2, $products);
 
-        $versions = array_map(fn ($item) => Uuid::fromBytesToHex($item['version_id']), $products);
+        $versions = array_map(static fn ($item) => Uuid::fromBytesToHex($item['version_id']), $products);
 
         static::assertContains(Defaults::LIVE_VERSION, $versions);
         static::assertContains($versionId, $versions);
@@ -1935,10 +1942,22 @@ class VersioningTest extends TestCase
         $update = (new ProductBuilder($ids, 'p1'))
             ->manufacturer('manufacturer');
 
-        $this->productRepository->update([$update->build()], $version);
+        $product = $update->build();
+        unset($product['type']);
 
-        // when the version is merged - the manufacturer should be created first
-        static::getContainer()->get('product.repository')->merge($versionId, $live);
+        $this->productRepository->update([$product], $version);
+
+        $error = null;
+        $message = '';
+
+        try {
+            // when the version is merged - the manufacturer should be created first
+            static::getContainer()->get('product.repository')->merge($versionId, $live);
+        } catch (\Throwable $e) {
+            $error = $e;
+            $message = \sprintf('No error expected, got "%s" with: %s', $error->getMessage(), $error->getTraceAsString());
+        }
+        static::assertNull($error, $message);
     }
 
     private function getReviewCount(string $productId, string $versionId): int
@@ -2045,7 +2064,7 @@ class VersioningTest extends TestCase
             ]
         );
 
-        return array_map(function (array $row) {
+        return array_map(static function (array $row) {
             $row['entity_id'] = json_decode((string) $row['entity_id'], true, 512, \JSON_THROW_ON_ERROR);
             $row['payload'] = json_decode((string) $row['payload'], true, 512, \JSON_THROW_ON_ERROR);
 
@@ -2074,7 +2093,7 @@ class VersioningTest extends TestCase
             ]
         );
 
-        return array_map(function (array $row) {
+        return array_map(static function (array $row) {
             $row['entity_id'] = json_decode((string) $row['entity_id'], true, 512, \JSON_THROW_ON_ERROR);
             $row['payload'] = json_decode((string) $row['payload'], true, 512, \JSON_THROW_ON_ERROR);
 
@@ -2103,7 +2122,7 @@ class VersioningTest extends TestCase
             ]
         );
 
-        return array_map(function (array $row) {
+        return array_map(static function (array $row) {
             $row['entity_id'] = json_decode((string) $row['entity_id'], true, 512, \JSON_THROW_ON_ERROR);
             $row['payload'] = json_decode((string) $row['payload'], true, 512, \JSON_THROW_ON_ERROR);
 
@@ -2117,7 +2136,7 @@ class VersioningTest extends TestCase
         $repository = static::getContainer()->get('payment_method.repository');
 
         $ruleRegistry = static::getContainer()->get(RuleConditionRegistry::class);
-        $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
+        $prop = new \ReflectionProperty(RuleConditionRegistry::class, 'rules');
         $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
 
         $data = [

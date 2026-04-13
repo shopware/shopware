@@ -102,6 +102,7 @@ export default {
             criteria.addFilter(Criteria.equals('referencedId', this.entity.id));
             criteria.addFilter(Criteria.equals('entityName', this.entityName));
             criteria.addAssociation('user');
+            criteria.addAssociation('integration');
             criteria.addSorting({ field: 'createdAt', order: 'DESC' });
 
             return criteria;
@@ -141,6 +142,18 @@ export default {
             }
 
             return `sw-order-details-state-${this.position}`;
+        },
+
+        lastChangeAuthorLabel() {
+            if (this.lastStateChange?.user) {
+                return `${this.lastStateChange.user.firstName} ${this.lastStateChange.user.lastName}`;
+            }
+            if (this.lastStateChange?.integration) {
+                const integrationLabel = this.lastStateChange.integration.label;
+                return `${integrationLabel} (${this.$t('sw-order.stateCard.labelIntegration')})`;
+            }
+
+            return this.$t('sw-order.stateCard.labelSystemUser');
         },
     },
 
@@ -223,12 +236,13 @@ export default {
             this.showStateChangeModal = false;
         },
 
-        onLeaveModalConfirm(docIds, sendMail = true) {
+        onLeaveModalConfirm(docIds, sendMail = true, internalComment = null) {
             this.showStateChangeModal = false;
 
             this.stateTransitionMethod(this.entity.id, this.currentActionName, {
                 documentIds: docIds,
                 sendMail,
+                internalComment,
             })
                 .then(() => {
                     this.getLastChange();

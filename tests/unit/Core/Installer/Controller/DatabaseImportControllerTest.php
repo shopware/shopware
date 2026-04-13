@@ -89,7 +89,6 @@ class DatabaseImportControllerTest extends TestCase
             ->with(
                 '@Installer/installer/database-import.html.twig',
                 array_merge($this->getDefaultViewParams(), [
-                    'supportedLanguages' => [],
                     'error' => null,
                 ])
             )

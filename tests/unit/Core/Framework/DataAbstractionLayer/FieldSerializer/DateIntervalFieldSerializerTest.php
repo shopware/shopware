@@ -66,7 +66,7 @@ class DateIntervalFieldSerializerTest extends TestCase
 
         static::assertIsString($dateIntervalString);
         static::assertMatchesRegularExpression(self::REGEX_DATE_INTERVAL_VALIDATION, $dateIntervalString);
-        static::assertEquals('P2Y0M5DT0H0M0S', $dateIntervalString);
+        static::assertSame('P2Y0M5DT0H0M0S', $dateIntervalString);
     }
 
     public function testEncodeMethodWithIncorrectFieldParameterTypeWillThrowInvalidSerializerException(): void
@@ -132,7 +132,7 @@ class DateIntervalFieldSerializerTest extends TestCase
 
         static::assertIsString($dateIntervalString);
         static::assertMatchesRegularExpression(self::REGEX_DATE_INTERVAL_VALIDATION, $dateIntervalString);
-        static::assertEquals('P2Y0M5DT0H0M2S', $dateIntervalString);
+        static::assertSame('P2Y0M5DT0H0M2S', $dateIntervalString);
     }
 
     public function testEncodeMethodWithIncorrectStringWillThrowInvalidDateIntervalFormatException(): void

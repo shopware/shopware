@@ -23,12 +23,6 @@ async function createWrapper(customOptions = {}) {
 }
 
 describe('src/app/component/context-menu/sw-context-button', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should open the context menu on click', async () => {
         const wrapper = await createWrapper();
 

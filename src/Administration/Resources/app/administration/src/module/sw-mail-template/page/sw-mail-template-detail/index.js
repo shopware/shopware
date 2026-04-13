@@ -162,6 +162,10 @@ export default {
             };
         },
 
+        previewAllowed() {
+            return !this.isLoading && !this.showPreview && this.hasTemplateData && this.acl.can('mail_templates.editor');
+        },
+
         showPreview() {
             if (
                 this.mailTemplate.contentHtml === undefined ||
@@ -234,7 +238,7 @@ export default {
                 scope: this,
             });
             if (this.$route.params.id) {
-                this.mailTemplateId = this.$route.params.id;
+                this.mailTemplateId = this.$route.params.id.toLowerCase();
                 this.loadEntityData();
             }
         },

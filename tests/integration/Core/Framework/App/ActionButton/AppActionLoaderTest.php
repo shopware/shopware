@@ -62,6 +62,6 @@ class AppActionLoaderTest extends TestCase
         ];
 
         static::assertEquals($expected, $result->asPayload());
-        static::assertEquals($action->getUrl(), $result->getTargetUrl());
+        static::assertSame($action->getUrl(), $result->getTargetUrl());
     }
 }

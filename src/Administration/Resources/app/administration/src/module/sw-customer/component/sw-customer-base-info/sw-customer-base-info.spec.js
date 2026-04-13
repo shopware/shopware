@@ -46,6 +46,7 @@ async function createWrapper() {
                 'sw-help-text': true,
                 'sw-datepicker': true,
                 'sw-text-field': true,
+                'sw-time-ago': await wrapTestComponent('sw-time-ago', { sync: true }),
             },
             provide: {
                 repositoryFactory: {
@@ -86,12 +87,8 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display the birthday', async () => {
-        expect(wrapper.find('.sw-customer-base__label-birthday').text()).toBe('22 December 1992');
+        expect(wrapper.find('.sw-customer-base__label-birthday').text()).toBe('22/12/1992');
     });
 
     it('should display the empty birthday snippet placeholder', async () => {
@@ -107,7 +104,7 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
     });
 
     it('should display the last login date', async () => {
-        expect(wrapper.find('.sw-customer-base__label-last-login').text()).toBe('14 October 2021 at 11:23');
+        expect(wrapper.find('.sw-customer-base__label-last-login').text()).toBe('14/10/2021, 11:23');
     });
 
     it('should display the last login snippet placeholder', async () => {

@@ -9,8 +9,8 @@ use Shopware\Core\Framework\Log\Package;
 class CronIntervalField extends Field implements StorageAware
 {
     public function __construct(
-        private string $storageName,
-        string $propertyName
+        private readonly string $storageName,
+        string $propertyName,
     ) {
         parent::__construct($propertyName);
     }

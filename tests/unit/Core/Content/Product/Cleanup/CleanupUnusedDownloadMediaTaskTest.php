@@ -14,11 +14,11 @@ class CleanupUnusedDownloadMediaTaskTest extends TestCase
 {
     public function testGetTaskName(): void
     {
-        static::assertEquals('product_download.media.cleanup', CleanupUnusedDownloadMediaTask::getTaskName());
+        static::assertSame('product_download.media.cleanup', CleanupUnusedDownloadMediaTask::getTaskName());
     }
 
     public function testGetDefaultInterval(): void
     {
-        static::assertEquals(2628000, CleanupUnusedDownloadMediaTask::getDefaultInterval());
+        static::assertSame(2628000, CleanupUnusedDownloadMediaTask::getDefaultInterval());
     }
 }

@@ -18,8 +18,8 @@ use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Api\FirstRunWizardController;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
-use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\PluginRecommendationCollection;
 use Shopware\Core\Framework\Store\Struct\PluginRegionCollection;
 use Shopware\Core\Framework\Store\Struct\StorePluginStruct;
@@ -50,11 +50,7 @@ class FirstRunWizardControllerTest extends TestCase
         $this->firstRunWizardService->expects($this->once())
             ->method('startFrw');
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
         $response = $frwController->frwStart($this->createContext());
 
@@ -68,11 +64,7 @@ class FirstRunWizardControllerTest extends TestCase
             ->method('startFrw')
             ->willThrowException($this->createClientException($exceptionMessage));
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
         static::expectException(StoreApiException::class);
         static::expectExceptionMessage($exceptionMessage);
@@ -84,12 +76,14 @@ class FirstRunWizardControllerTest extends TestCase
         $context = $this->createContext();
         $plugin1Name = 'SwagTest1';
 
+        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([
             $this->createPluginSearchResult($context, [
                 ['name' => $plugin1Name],
             ]),
         ]);
 
+        /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 AppEntity::class,
@@ -124,12 +118,14 @@ class FirstRunWizardControllerTest extends TestCase
     {
         $context = $this->createContext();
 
+        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([
             $this->createPluginSearchResult($context, [
                 ['name' => 'SwagTest1'],
             ]),
         ]);
 
+        /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 AppEntity::class,
@@ -162,12 +158,14 @@ class FirstRunWizardControllerTest extends TestCase
         $context = $this->createContext();
         $plugin1Name = 'SwagTest1';
 
+        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([
             $this->createPluginSearchResult($context, [
                 ['name' => $plugin1Name],
             ]),
         ]);
 
+        /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 AppEntity::class,
@@ -202,12 +200,14 @@ class FirstRunWizardControllerTest extends TestCase
     {
         $context = $this->createContext();
 
+        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([
             $this->createPluginSearchResult($context, [
                 ['name' => 'SwagTest1'],
             ]),
         ]);
 
+        /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 AppEntity::class,
@@ -241,11 +241,7 @@ class FirstRunWizardControllerTest extends TestCase
             ->method('getRecommendationRegions')
             ->willReturn(new PluginRegionCollection([]));
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
         $response = $frwController->getRecommendationRegions($this->createContext());
         $responseData = $this->decodeJsonResponse($response);
@@ -261,11 +257,7 @@ class FirstRunWizardControllerTest extends TestCase
             ->method('getRecommendationRegions')
             ->willThrowException($this->createClientException($exceptionMessage));
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
         static::expectException(StoreApiException::class);
         static::expectExceptionMessage($exceptionMessage);
@@ -277,12 +269,14 @@ class FirstRunWizardControllerTest extends TestCase
         $context = $this->createContext();
         $plugin1Name = 'SwagTest1';
 
+        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([
             $this->createPluginSearchResult($context, [
                 ['name' => $plugin1Name],
             ]),
         ]);
 
+        /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 AppEntity::class,
@@ -317,12 +311,14 @@ class FirstRunWizardControllerTest extends TestCase
     {
         $context = $this->createContext();
 
+        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([
             $this->createPluginSearchResult($context, [
                 ['name' => 'SwagTest1'],
             ]),
         ]);
 
+        /** @var StaticEntityRepository<AppCollection> */
         $appRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 AppEntity::class,
@@ -360,11 +356,7 @@ class FirstRunWizardControllerTest extends TestCase
         $this->firstRunWizardService->expects($this->once())
             ->method('frwLogin');
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
         $response = $frwController->frwLogin($requestDataBag, $this->createContext());
 
@@ -380,13 +372,9 @@ class FirstRunWizardControllerTest extends TestCase
         $this->firstRunWizardService->expects($this->never())
             ->method('frwLogin');
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
-        static::expectException(StoreInvalidCredentialsException::class);
+        static::expectExceptionObject(StoreException::invalidCredentials());
         $frwController->frwLogin($requestDataBag, $this->createContext());
     }
 
@@ -399,13 +387,9 @@ class FirstRunWizardControllerTest extends TestCase
         $this->firstRunWizardService->expects($this->never())
             ->method('frwLogin');
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
-        static::expectException(StoreInvalidCredentialsException::class);
+        static::expectExceptionObject(StoreException::invalidCredentials());
         $frwController->frwLogin($requestDataBag, $this->createContext());
     }
 
@@ -421,11 +405,7 @@ class FirstRunWizardControllerTest extends TestCase
             ->method('frwLogin')
             ->willThrowException($this->createClientException($exceptionMessage));
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
         static::expectException(StoreApiException::class);
         static::expectExceptionMessage($exceptionMessage);
@@ -437,11 +417,7 @@ class FirstRunWizardControllerTest extends TestCase
         $this->firstRunWizardService->expects($this->once())
             ->method('getLicenseDomains');
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
         $response = $frwController->getDomainList($this->createContext());
         $responseData = $this->decodeJsonResponse($response);
@@ -457,11 +433,7 @@ class FirstRunWizardControllerTest extends TestCase
             ->method('getLicenseDomains')
             ->willThrowException($this->createClientException($exceptionMessage));
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
         static::expectException(StoreApiException::class);
         static::expectExceptionMessage($exceptionMessage);
@@ -473,11 +445,7 @@ class FirstRunWizardControllerTest extends TestCase
         $this->firstRunWizardService->expects($this->once())
             ->method('verifyLicenseDomain');
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
         $response = $frwController->verifyDomain(new QueryDataBag([
             'domain' => 'test-domain.com',
@@ -493,11 +461,7 @@ class FirstRunWizardControllerTest extends TestCase
         $this->firstRunWizardService->expects($this->once())
             ->method('verifyLicenseDomain');
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
         $response = $frwController->verifyDomain(
             new QueryDataBag(['testEnvironment' => 'false']),
@@ -513,11 +477,7 @@ class FirstRunWizardControllerTest extends TestCase
         $this->firstRunWizardService->expects($this->once())
             ->method('verifyLicenseDomain');
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
         $response = $frwController->verifyDomain(
             new QueryDataBag(['domain' => 'test-domain.com']),
@@ -533,11 +493,7 @@ class FirstRunWizardControllerTest extends TestCase
         $this->firstRunWizardService->expects($this->once())
             ->method('verifyLicenseDomain');
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
         $response = $frwController->verifyDomain(new QueryDataBag([
             'domain' => 'test-domain.com',
@@ -555,11 +511,7 @@ class FirstRunWizardControllerTest extends TestCase
             ->method('verifyLicenseDomain')
             ->willThrowException($this->createClientException($exceptionMessage));
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
         static::expectException(StoreApiException::class);
         static::expectExceptionMessage($exceptionMessage);
@@ -576,15 +528,11 @@ class FirstRunWizardControllerTest extends TestCase
         $this->firstRunWizardService->expects($this->once())
             ->method('upgradeAccessToken');
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
         $response = $frwController->frwFinish(new QueryDataBag(['failed' => 'true']), $this->createContext());
 
-        static::assertEquals(SymfonyResponse::HTTP_OK, $response->getStatusCode());
+        static::assertSame(SymfonyResponse::HTTP_OK, $response->getStatusCode());
     }
 
     public function testFinishFrwWithoutFailedParam(): void
@@ -594,15 +542,11 @@ class FirstRunWizardControllerTest extends TestCase
         $this->firstRunWizardService->expects($this->once())
             ->method('upgradeAccessToken');
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
         $response = $frwController->frwFinish(new QueryDataBag([]), $this->createContext());
 
-        static::assertEquals(SymfonyResponse::HTTP_OK, $response->getStatusCode());
+        static::assertSame(SymfonyResponse::HTTP_OK, $response->getStatusCode());
     }
 
     public function testFinishFrwButUpgradingAccessTokenFails(): void
@@ -614,15 +558,11 @@ class FirstRunWizardControllerTest extends TestCase
             ->method('upgradeAccessToken')
             ->willThrowException(new \Exception($exceptionMessage));
 
-        $frwController = new FirstRunWizardController(
-            $this->firstRunWizardService,
-            new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
-        );
+        $frwController = $this->createFirstRunWizardController();
 
         $response = $frwController->frwFinish(new QueryDataBag(['failed' => 'false']), $this->createContext());
 
-        static::assertEquals(SymfonyResponse::HTTP_OK, $response->getStatusCode());
+        static::assertSame(SymfonyResponse::HTTP_OK, $response->getStatusCode());
     }
 
     private function decodeJsonResponse(JsonResponse $response): mixed
@@ -674,6 +614,21 @@ class FirstRunWizardControllerTest extends TestCase
             null,
             new Criteria(),
             $context
+        );
+    }
+
+    private function createFirstRunWizardController(): FirstRunWizardController
+    {
+        /** @var StaticEntityRepository<PluginCollection> */
+        $pluginRepository = new StaticEntityRepository([]);
+
+        /** @var StaticEntityRepository<AppCollection> */
+        $appRepository = new StaticEntityRepository([]);
+
+        return new FirstRunWizardController(
+            $this->firstRunWizardService,
+            $pluginRepository,
+            $appRepository,
         );
     }
 }

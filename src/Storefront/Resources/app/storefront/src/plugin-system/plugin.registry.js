@@ -24,7 +24,7 @@ export default class PluginRegistry {
         }
 
         if (!this._registry.has(name)) {
-            this._registry.set(name, new Map());
+            return false;
         }
 
         const pluginMap = this._registry.get(name);
@@ -81,7 +81,7 @@ export default class PluginRegistry {
      * @param {string} name
      * @param {string} selector
      *
-     * @returns {PluginRegistry}
+     * @returns {PluginRegistry|boolean}
      */
     delete(name, selector) {
         if (!selector) {

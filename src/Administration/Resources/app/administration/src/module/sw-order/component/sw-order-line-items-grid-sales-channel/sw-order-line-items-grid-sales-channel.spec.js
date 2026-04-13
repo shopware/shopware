@@ -161,7 +161,6 @@ async function createWrapper() {
                     },
                 },
                 stubs: {
-                    'sw-container': await wrapTestComponent('sw-container'),
                     'sw-button-group': {
                         template: '<div class="sw-button-group"><slot></slot></div>',
                     },
@@ -175,7 +174,6 @@ async function createWrapper() {
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'mt-number-field': {
-                        // eslint-disable-next-line max-len
                         template:
                             '<input class="mt-number-field" type="number" :value="value" @input="$emit(\'change\', Number($event.target.value))" />',
                         props: {
@@ -183,7 +181,9 @@ async function createWrapper() {
                             size: 'default',
                         },
                     },
-                    'sw-card-filter': true,
+                    'sw-card-filter': {
+                        template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
+                    },
                     'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                         sync: true,
                     }),
@@ -203,7 +203,6 @@ async function createWrapper() {
                         template: '<a class="router-link" href="#"><slot></slot></a>',
                         props: ['to'],
                     },
-                    'sw-empty-state': true,
                     'sw-loader': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-inline-edit': true,
@@ -232,8 +231,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
     it('should show empty state when there is not item', async () => {
         const wrapper = await createWrapper({});
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-        expect(emptyState.exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
     it('only product item should have redirect link', async () => {

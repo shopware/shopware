@@ -8,6 +8,9 @@ const { Store, Utils, Data, Service, Mixin } = Shopware;
 const { Criteria } = Data;
 const { get, format, array } = Utils;
 
+/**
+ * @deprecated tag:v6.8.0 - will be removed, is not used anymore
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

@@ -34,7 +34,11 @@ async function createWrapper() {
                             },
                         }),
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
 
                 stubs: {
@@ -70,13 +74,6 @@ async function createWrapper() {
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content-general', () => {
     beforeEach(async () => {
         global.activeAclRoles = [];
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render empty state when isEmpty variable is true', async () => {

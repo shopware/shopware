@@ -1,8 +1,5 @@
-/* eslint-disable indent */
 import template from './sw-meteor-card.html.twig';
 import './sw-meteor-card.scss';
-
-const { Component } = Shopware;
 
 /**
  * @sw-package framework
@@ -26,11 +23,10 @@ const { Component } = Shopware;
  *     </template>
  * </sw-meteor-card>
  */
-Component.register('sw-meteor-card', {
+export default {
     template,
 
     props: {
-        // eslint-disable-next-line vue/require-default-prop
         title: {
             type: String,
             required: false,
@@ -114,4 +110,4 @@ Component.register('sw-meteor-card', {
             this.activeTab = name;
         },
     },
-});
+};

@@ -13,7 +13,39 @@ import type ApplicationBootstrapper from 'src/core/application';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type { ComponentPublicInstance } from '@vue/runtime-core';
 
-import * as MeteorImport from '@shopware-ag/meteor-component-library';
+import MtBanner from '@shopware-ag/meteor-component-library/dist/esm/MtBanner';
+import MtLoader from '@shopware-ag/meteor-component-library/dist/esm/MtLoader';
+import MtProgressBar from '@shopware-ag/meteor-component-library/dist/esm/MtProgressBar';
+import MtButton from '@shopware-ag/meteor-component-library/dist/esm/MtButton';
+import MtCheckbox from '@shopware-ag/meteor-component-library/dist/esm/MtCheckbox';
+import MtEmailField from '@shopware-ag/meteor-component-library/dist/esm/MtEmailField';
+import MtEmptyState from '@shopware-ag/meteor-component-library/dist/esm/MtEmptyState';
+import MtNumberField from '@shopware-ag/meteor-component-library/dist/esm/MtNumberField';
+import MtPasswordField from '@shopware-ag/meteor-component-library/dist/esm/MtPasswordField';
+import MtSelect from '@shopware-ag/meteor-component-library/dist/esm/MtSelect';
+import MtSlider from '@shopware-ag/meteor-component-library/dist/esm/MtSlider';
+import MtSwitch from '@shopware-ag/meteor-component-library/dist/esm/MtSwitch';
+import MtTextField from '@shopware-ag/meteor-component-library/dist/esm/MtTextField';
+import MtTextarea from '@shopware-ag/meteor-component-library/dist/esm/MtTextarea';
+import MtIcon from '@shopware-ag/meteor-component-library/dist/esm/MtIcon';
+import MtPagination from '@shopware-ag/meteor-component-library/dist/esm/MtPagination';
+import MtSkeletonBar from '@shopware-ag/meteor-component-library/dist/esm/MtSkeletonBar';
+import MtToast from '@shopware-ag/meteor-component-library/dist/esm/MtToast';
+import MtFloatingUi from '@shopware-ag/meteor-component-library/dist/esm/MtFloatingUi';
+import MtTextEditorToolbarButton from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbarButton';
+import MtModal from '@shopware-ag/meteor-component-library/dist/esm/MtModal';
+import MtModalRoot from '@shopware-ag/meteor-component-library/dist/esm/MtModalRoot';
+import MtModalClose from '@shopware-ag/meteor-component-library/dist/esm/MtModalClose';
+import MtModalTrigger from '@shopware-ag/meteor-component-library/dist/esm/MtModalTrigger';
+import MtModalAction from '@shopware-ag/meteor-component-library/dist/esm/MtModalAction';
+import MtUrlField from '@shopware-ag/meteor-component-library/dist/esm/MtUrlField';
+import MtSearch from '@shopware-ag/meteor-component-library/dist/esm/MtSearch';
+import MtLink from '@shopware-ag/meteor-component-library/dist/esm/MtLink';
+import MtUnitField from '@shopware-ag/meteor-component-library/dist/esm/MtUnitField';
+import MtSnackbar from '@shopware-ag/meteor-component-library/dist/esm/MtSnackbar';
+import MtBadge from '@shopware-ag/meteor-component-library/dist/esm/MtBadge';
+import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromoBadge';
+
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useSystem from '../../composables/use-system';
 import useSession from '../../composables/use-session';
@@ -41,9 +73,11 @@ export default class VueAdapter extends ViewAdapter {
         this.i18n = undefined;
         this.resolvedComponentConfigs = new Map();
         this.vueComponents = {};
+
         this.app = createApp({
             name: 'ShopwareAdministration',
             template: '<sw-admin />',
+            mounted: () => window.removePageLoadingIndicator(),
         });
     }
 
@@ -60,7 +94,6 @@ export default class VueAdapter extends ViewAdapter {
         this.initDirectives();
 
         const vuexRoot = State._store;
-        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
         const i18n = this.initLocales();
 
         // add router to View
@@ -72,10 +105,42 @@ export default class VueAdapter extends ViewAdapter {
             throw new Error('Vue app is not initialized yet');
         }
 
+        function fixI18NParametersOrder(args: Parameters<typeof i18n.global.t>): Parameters<typeof i18n.global.t> {
+            if (args.length === 3 && typeof args[1] === 'number' && typeof args[2] === 'object') {
+                console.warn(
+                    'the order of the parameters for $t has changed in the latest version.',
+                    'Please, check Vue I18n documentation for more details:',
+                    'https://vue-i18n.intlify.dev/guide/migration/breaking10#tc-key-key-resourcekeys-choice-number-named-record-string-unknown-translateresult',
+                );
+                // This is a workaround to avoid breaking changes for the $tc function which that swap the second and
+                // third parameters in the latest version.
+                return [
+                    args[0],
+                    args[1],
+                    args[2],
+                ];
+            }
+            return args;
+        }
+
         this.app.config.compilerOptions.whitespace = 'preserve';
         this.app.config.performance = process.env.NODE_ENV !== 'production';
-        this.app.config.globalProperties.$t = i18n.global.t;
-        this.app.config.globalProperties.$tc = i18n.global.t;
+        this.app.config.globalProperties.$t = function (...args: Parameters<typeof i18n.global.t>) {
+            return i18n.global.t(...fixI18NParametersOrder(args));
+        } as typeof i18n.global.t;
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use $t instead.
+         */
+        this.app.config.globalProperties.$tc = function (...args: Parameters<typeof i18n.global.t>) {
+            if (window._features_.V6_8_0_0) {
+                console.warn(
+                    'Deprecation Warning',
+                    'The $tc function is deprecated and will be removed in future versions. Please use $t instead.',
+                );
+            }
+            return i18n.global.t(...fixI18NParametersOrder(args));
+        } as typeof i18n.global.t;
+
         this.app.config.warnHandler = (msg: string, instance: unknown, trace: string) => {
             const warnArgs = [
                 `[Vue warn]: ${msg}`,
@@ -111,12 +176,10 @@ export default class VueAdapter extends ViewAdapter {
          * So we should convert from provide/inject to Shopware.Service
          */
         Object.keys(providers).forEach((provideKey) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             Object.defineProperty(this.app._context.provides, provideKey, {
                 get: () => providers[provideKey],
                 enumerable: true,
                 configurable: true,
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
                 set() {},
             });
         });
@@ -136,15 +199,11 @@ export default class VueAdapter extends ViewAdapter {
         });
 
         // Add global properties to root view instance
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         this.app.$tc = i18n.global.t;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         this.app.$t = i18n.global.t;
 
         this.initTitle(this.app);
-        /* eslint-enable max-len */
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         this.app.mount(renderElement);
 
         if (process.env.NODE_ENV === 'development') {
@@ -161,7 +220,7 @@ export default class VueAdapter extends ViewAdapter {
         const initContainer = this.Application.getContainer('init');
 
         // make specific components synchronous
-        [
+        const syncComponents = [
             'sw-admin',
             'sw-admin-menu',
             'sw-button',
@@ -209,7 +268,11 @@ export default class VueAdapter extends ViewAdapter {
             'sw-settings-product-feature-sets-detail',
             'sw-system-config',
             'sw-settings-search-searchable-content',
-        ].forEach((componentName) => {
+            // base
+            'sw-icon',
+        ];
+
+        syncComponents.forEach((componentName) => {
             Component.markComponentAsSync(componentName);
         });
 
@@ -230,6 +293,32 @@ export default class VueAdapter extends ViewAdapter {
     }
 
     /**
+     * Registers an async component with a hidden loading component.
+     *
+     * @private
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private registerAsyncComponent(componentName: string, importMethod: () => Promise<any>) {
+        this.app.component(
+            componentName,
+            defineAsyncComponent({
+                loader: importMethod,
+                // Delay before showing the loading component. Default: 200ms.
+                delay: 0,
+                loadingComponent: {
+                    name: 'async-loading-component',
+                    inheritAttrs: false,
+                    render() {
+                        return h('div', {
+                            style: { display: 'none' },
+                        });
+                    },
+                },
+            }),
+        );
+    }
+
+    /**
      * Initializes all core components as Vue components.
      */
     async initComponents() {
@@ -245,41 +334,67 @@ export default class VueAdapter extends ViewAdapter {
         /**
          * Initialize all meteor components
          */
-        const meteorComponents: (keyof typeof MeteorImport)[] = [
-            'MtBanner',
-            'MtLoader',
-            'MtProgressBar',
-            'MtButton',
-            'MtCheckbox',
-            'MtColorpicker',
-            'MtEmailField',
-            'MtNumberField',
-            'MtPasswordField',
-            'MtSelect',
-            'MtSlider',
-            'MtSwitch',
-            'MtTextField',
-            'MtTextarea',
-            'MtIcon',
-            'MtDataTable',
-            'MtPagination',
-            'MtSkeletonBar',
-            'MtToast',
-            'MtFloatingUi',
-            'MtPopover',
-            'MtTextEditorToolbarButton',
-            'MtModal',
-            'MtModalRoot',
-            'MtModalClose',
-            'MtUrlField',
-            'MtSearch',
-            'MtLink',
-        ];
+        const meteorComponents = {
+            MtBanner,
+            MtLoader,
+            MtProgressBar,
+            MtButton,
+            MtCheckbox,
+            MtEmailField,
+            MtEmptyState,
+            MtNumberField,
+            MtPasswordField,
+            MtSelect,
+            MtSlider,
+            MtSwitch,
+            MtTextField,
+            MtTextarea,
+            MtIcon,
+            MtPagination,
+            MtSkeletonBar,
+            MtToast,
+            MtFloatingUi,
+            MtTextEditorToolbarButton,
+            MtModal,
+            MtModalRoot,
+            MtModalClose,
+            MtModalTrigger,
+            MtModalAction,
+            MtUrlField,
+            MtSearch,
+            MtLink,
+            MtUnitField,
+            MtSnackbar,
+            MtBadge,
+            MtPromoBadge,
+        } as const;
 
-        meteorComponents.forEach((componentName) => {
-            const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
-            this.app.component(componentNameAsKebabCase, MeteorImport[componentName]);
-        });
+        const lazyMeteorComponents = {
+            MtDataTable: () => import('@shopware-ag/meteor-component-library/dist/esm/MtDataTable'),
+            MtColorpicker: () => import('@shopware-ag/meteor-component-library/dist/esm/MtColorpicker'),
+            MtPopover: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopover'),
+            MtPopoverItem: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopoverItem'),
+        };
+
+        Object.entries(meteorComponents).forEach(
+            ([
+                componentName,
+                component,
+            ]) => {
+                const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
+                this.app.component(componentNameAsKebabCase, component as VueComponent);
+            },
+        );
+
+        Object.entries(lazyMeteorComponents).forEach(
+            ([
+                componentName,
+                importMethod,
+            ]) => {
+                const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
+                this.registerAsyncComponent(componentNameAsKebabCase, importMethod);
+            },
+        );
 
         return this.vueComponents;
     }
@@ -321,7 +436,6 @@ export default class VueAdapter extends ViewAdapter {
                     let vueComponent;
 
                     if (typeof component !== 'boolean') {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                         this.app?.component(componentName, component);
                         vueComponent = this.app?.component(componentName);
                     }
@@ -334,29 +448,12 @@ export default class VueAdapter extends ViewAdapter {
                 return;
             }
 
-            // load async components
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            this.app?.component(
+            this.registerAsyncComponent(
                 componentName,
-                defineAsyncComponent({
-                    // the loader function
-                    // @ts-expect-error - resolved config does not match completely a standard vue component
-                    loader: () => this.componentResolver(componentName),
-                    // Delay before showing the loading component. Default: 200ms.
-                    delay: 0,
-                    loadingComponent: {
-                        name: 'async-loading-component',
-                        inheritAttrs: false,
-                        render() {
-                            return h('div', {
-                                style: { display: 'none' },
-                            });
-                        },
-                    },
-                }),
+                // @ts-expect-error - resolved config does not match completely a standard vue component
+                () => this.componentResolver(componentName),
             );
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
             const vueComponent = this.app?.component(componentName);
 
             // @ts-expect-error - resolved config does not match completely a standard vue component
@@ -398,7 +495,6 @@ export default class VueAdapter extends ViewAdapter {
         const componentName = componentConfig.name;
         this.resolveMixins(componentConfig);
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         this.app?.component(componentName, componentConfig);
         const vueComponent = this.app?.component(componentName);
 
@@ -486,7 +582,7 @@ export default class VueAdapter extends ViewAdapter {
                 return;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this.app?.use(plugin);
         });
 
@@ -512,6 +608,11 @@ export default class VueAdapter extends ViewAdapter {
      * Initialises the standard locales.
      */
     initLocales() {
+        /**
+         * Snippet registration should be done with
+         * reactivity in mind. So that updates later
+         * from the locale factory are reflected in the i18n instance.
+         */
         const registry = this.localeFactory.getLocaleRegistry();
         const messages = {};
         const fallbackLocale = Shopware.Context.app.fallbackLocale as FallbackLocale;
@@ -536,7 +637,6 @@ export default class VueAdapter extends ViewAdapter {
             allowComposition: true,
         } as const;
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const i18n = createI18n(options);
 
         Shopware.Vue.watch(
@@ -602,14 +702,12 @@ export default class VueAdapter extends ViewAdapter {
             const moduleTitle = this.$route.meta.$module?.title as string;
             const pageTitle = this.$root.$tc(moduleTitle);
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const params = [
                 baseTitle,
                 pageTitle,
                 identifier,
                 ...additionalParams,
             ].filter((item) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
                 return item !== null && item.trim() !== '';
             });
 
@@ -624,10 +722,7 @@ export default class VueAdapter extends ViewAdapter {
      */
     resolveMixins(componentConfig: ComponentConfig) {
         // If the mixin is a string, use our mixin registry
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (componentConfig.mixins?.length) {
-            // eslint-disable-next-line max-len
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
             componentConfig.mixins = componentConfig.mixins.map((mixin) => {
                 if (typeof mixin === 'string') {
                     // @ts-expect-error

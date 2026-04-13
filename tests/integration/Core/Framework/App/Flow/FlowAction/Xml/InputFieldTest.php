@@ -23,15 +23,15 @@ class InputFieldTest extends TestCase
 
         static::assertSame('textField', $firstInputField->getName());
         static::assertSame('text', $firstInputField->getType());
-        static::assertEquals([
+        static::assertSame([
             'en-GB' => 'To',
             'de-DE' => 'To DE',
         ], $firstInputField->getLabel());
-        static::assertEquals([
+        static::assertSame([
             'en-GB' => 'Enter to...',
             'de-DE' => 'Enter to DE...',
         ], $firstInputField->getPlaceHolder());
-        static::assertEquals([
+        static::assertSame([
             'en-GB' => 'Help text',
             'de-DE' => 'Help text DE',
         ], $firstInputField->getHelpText());

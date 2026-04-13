@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute;
@@ -79,13 +80,37 @@ class CartItemAddRouteTest extends TestCase
         );
     }
 
-    private function createCartItemAddRoute(?string $expectedCacheKey): CartItemAddRoute
+    public function testRouteUsesLock(): void
+    {
+        $cartLocker = $this->createMock(CartLocker::class);
+        $cartLocker
+            ->expects($this->once())
+            ->method('locked')
+            ->willReturnCallback(static fn (SalesChannelContext $context, \Closure $closure) => $closure());
+
+        $cartItemAddRoute = $this->createCartItemAddRoute(null, $cartLocker);
+
+        $item = [
+            'id' => 'line-item-id',
+            'type' => 'line-item-type',
+            'quantity' => 1,
+        ];
+
+        $cartItemAddRoute->add(
+            $this->createRequest($item, null),
+            new Cart(Uuid::randomHex()),
+            $this->createMock(SalesChannelContext::class),
+            null
+        );
+    }
+
+    private function createCartItemAddRoute(?string $expectedCacheKey, ?CartLocker $cartLocker = null): CartItemAddRoute
     {
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter
             ->expects($this->exactly($expectedCacheKey === null ? 0 : 1))
             ->method('ensureAccepted')
-            ->willReturnCallback(function (string $route, string $key) use ($expectedCacheKey): void {
+            ->willReturnCallback(static function (string $route, string $key) use ($expectedCacheKey): void {
                 static::assertSame($route, RateLimiter::CART_ADD_LINE_ITEM);
                 static::assertSame($expectedCacheKey, $key);
             });
@@ -95,15 +120,21 @@ class CartItemAddRouteTest extends TestCase
             ->expects($this->atLeastOnce())
             ->method('create')
             ->willReturnCallback(
-                fn ($dataBag): LineItem => new LineItem($dataBag['id'], $dataBag['type'], $dataBag['referencedId'] ?? null, $dataBag['quantity'])
+                static fn ($dataBag): LineItem => new LineItem($dataBag['id'], $dataBag['type'], $dataBag['referencedId'] ?? null, $dataBag['quantity'])
             );
+
+        if ($cartLocker === null) {
+            $cartLocker = $this->createMock(CartLocker::class);
+            $cartLocker->method('locked')->willReturnCallback(static fn (SalesChannelContext $context, \Closure $closure) => $closure());
+        }
 
         return new CartItemAddRoute(
             $this->createMock(CartCalculator::class),
             $this->createMock(AbstractCartPersister::class),
             $this->createMock(EventDispatcherInterface::class),
             $lineItemFactory,
-            $rateLimiter
+            $rateLimiter,
+            $cartLocker
         );
     }
 

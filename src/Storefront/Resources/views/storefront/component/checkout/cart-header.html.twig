@@ -16,6 +16,9 @@
         {% set infoColumnSize = infoColumnSize - 1 %}
     {% endif %}
 
+    {# @deprecated tag:v6.8.0 - Will be removed, use infoColumnSize with a prefix instead. #}
+    {% set infoColumnClass = 'col-' ~ infoColumnSize %}
+
     {% block component_checkout_cart_header_element %}
         <li class="card-title cart-table-header" aria-hidden="true">
 

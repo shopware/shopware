@@ -24,6 +24,7 @@
     <mt-card
         class="sw-order-detail-general__line-item-grid-card"
         position-identifier="sw-order-detail-general-line-items"
+        :is-loading="loading.recalculation"
         :title="$tc('sw-order.detailBase.cardTitleLineItems')"
     >
 
@@ -78,6 +79,7 @@
                                     type="number"
                                     :editable="acl.can('order.editor')"
                                     :step="1"
+                                    :min="0"
                                     :value="delivery.shippingCosts.totalPrice"
                                     @value-change="onShippingChargeEdited"
                                     @update:value="onShippingChargeUpdated"
@@ -158,6 +160,7 @@
         position-identifier="sw-order-detail-general-promotions"
         :title="$tc('sw-order.detailBase.cardTitlePromotions')"
     >
+        {# @deprecated tag:v6.8.0 - remove `@loading-change` #}
         <sw-order-promotion-field
             class="sw-order-detail-general__promotions"
             @loading-change="updateLoading"

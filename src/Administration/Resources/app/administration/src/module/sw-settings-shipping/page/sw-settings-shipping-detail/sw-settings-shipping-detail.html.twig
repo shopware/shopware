@@ -72,7 +72,7 @@
                     :is-loading="isLoading"
                 >
                     <sw-container
-                        columns="3fr 3fr 1fr"
+                        columns="3fr 3fr"
                         gap="0px 30px"
                     >
                         {% block sw_settings_shipping_detail_base_content_field_name %}
@@ -108,6 +108,7 @@
                             v-model="shippingMethod.position"
                             name="sw-field--shippingMethod-position"
                             class="sw-settings-shipping-detail__field-position"
+                            :step="1"
                             :disabled="!acl.can('shipping.editor') || undefined"
                             :label="$tc('sw-settings-shipping.detail.labelPosition')"
                             :placeholder="$tc('sw-settings-shipping.detail.placeholderPosition')"
@@ -215,6 +216,7 @@
                         :disabled="!acl.can('shipping.editor') || undefined"
                         :error="shippingMethodAvailabilityRuleIdError"
                         :label="$tc('sw-settings-shipping.detail.topRule')"
+                        :placeholder="$tc('sw-settings-shipping.detail.placeholderTopRule')"
                         class="sw-settings-shipping-detail__top-rule"
                         rule-aware-group-key="shippingMethods"
                         @save-rule="onSaveRule"

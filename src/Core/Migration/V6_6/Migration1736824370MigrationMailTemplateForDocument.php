@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -80,22 +81,24 @@ class Migration1736824370MigrationMailTemplateForDocument extends MigrationStep
      */
     private function getTemplateMapping(): array
     {
-        $invoiceEnHtml = \file_get_contents(__DIR__ . '/../Fixtures/mails/invoice_mail/en-html.html.twig');
-        $invoiceEnPlain = \file_get_contents(__DIR__ . '/../Fixtures/mails/invoice_mail/en-plain.html.twig');
-        $invoiceDeHtml = \file_get_contents(__DIR__ . '/../Fixtures/mails/invoice_mail/de-html.html.twig');
-        $invoiceDePlain = \file_get_contents(__DIR__ . '/../Fixtures/mails/invoice_mail/de-plain.html.twig');
-        $deliveryNoteEnHtml = \file_get_contents(__DIR__ . '/../Fixtures/mails/delivery_mail/en-html.html.twig');
-        $deliveryNoteEnPlain = \file_get_contents(__DIR__ . '/../Fixtures/mails/delivery_mail/en-plain.html.twig');
-        $deliveryNoteDeHtml = \file_get_contents(__DIR__ . '/../Fixtures/mails/delivery_mail/de-html.html.twig');
-        $deliveryNoteDePlain = \file_get_contents(__DIR__ . '/../Fixtures/mails/delivery_mail/de-plain.html.twig');
-        $creditNoteEnHtml = \file_get_contents(__DIR__ . '/../Fixtures/mails/credit_note_mail/en-html.html.twig');
-        $creditNoteEnPlain = \file_get_contents(__DIR__ . '/../Fixtures/mails/credit_note_mail/en-plain.html.twig');
-        $creditNoteDeHtml = \file_get_contents(__DIR__ . '/../Fixtures/mails/credit_note_mail/de-html.html.twig');
-        $creditNoteDePlain = \file_get_contents(__DIR__ . '/../Fixtures/mails/credit_note_mail/de-plain.html.twig');
-        $cancellationInvoiceEnHtml = \file_get_contents(__DIR__ . '/../Fixtures/mails/cancellation_mail/en-html.html.twig');
-        $cancellationInvoiceEnPlain = \file_get_contents(__DIR__ . '/../Fixtures/mails/cancellation_mail/en-plain.html.twig');
-        $cancellationInvoiceDeHtml = \file_get_contents(__DIR__ . '/../Fixtures/mails/cancellation_mail/de-html.html.twig');
-        $cancellationInvoiceDePlain = \file_get_contents(__DIR__ . '/../Fixtures/mails/cancellation_mail/de-plain.html.twig');
+        $filesystem = new Filesystem();
+
+        $invoiceEnHtml = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/invoice_mail/en-html.html.twig');
+        $invoiceEnPlain = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/invoice_mail/en-plain.html.twig');
+        $invoiceDeHtml = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/invoice_mail/de-html.html.twig');
+        $invoiceDePlain = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/invoice_mail/de-plain.html.twig');
+        $deliveryNoteEnHtml = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/delivery_mail/en-html.html.twig');
+        $deliveryNoteEnPlain = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/delivery_mail/en-plain.html.twig');
+        $deliveryNoteDeHtml = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/delivery_mail/de-html.html.twig');
+        $deliveryNoteDePlain = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/delivery_mail/de-plain.html.twig');
+        $creditNoteEnHtml = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/credit_note_mail/en-html.html.twig');
+        $creditNoteEnPlain = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/credit_note_mail/en-plain.html.twig');
+        $creditNoteDeHtml = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/credit_note_mail/de-html.html.twig');
+        $creditNoteDePlain = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/credit_note_mail/de-plain.html.twig');
+        $cancellationInvoiceEnHtml = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/cancellation_mail/en-html.html.twig');
+        $cancellationInvoiceEnPlain = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/cancellation_mail/en-plain.html.twig');
+        $cancellationInvoiceDeHtml = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/cancellation_mail/de-html.html.twig');
+        $cancellationInvoiceDePlain = $filesystem->readFile(__DIR__ . '/../Fixtures/mails/cancellation_mail/de-plain.html.twig');
 
         return [
             MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE => [

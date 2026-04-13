@@ -443,4 +443,69 @@ describe('Form country state select plugin', () => {
         expect(vatIdInput.hasAttribute('aria-required')).toBe(false);
         expect(vatIdFieldLabel.innerHTML.includes('form-required-label')).toBe(false);
     });
+
+    it('should call update field/select methods with booleans for required parameters', async () => {
+        template = `
+            <form id="registerForm" class="register-shipping" action="/register" method="post">
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="vatIds">VAT Reg.No.</label>
+                    <input type="text" name="vatIds[]" id="vatIds" class="form-name">
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="addressCountry">Country</label>
+                    <select class="country-select" id="addressCountry" data-initial-country-id="NE">
+                        <option data-placeholder-option="true" disabled="disabled" value="">Select country...</option>
+                        <option selected="selected" value="NE" data-vat-id-required="1" data-state-required="1" data-zipcode-required="1">Netherlands</option>
+                        <option value="DE" data-vat-id-required data-state-required data-zipcode-required>Germany</option>
+                    </select>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label class="form-label" for="addressCountryState">State</label>
+                    <select class="country-state-select" id="addressCountryState" data-initial-country-state-id="">
+                        <option data-placeholder-option="true">Select state..</option>
+                    </select>
+                </div>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+
+        const plugin = createPlugin();
+
+        const updateStateSelectSpy = jest.spyOn(plugin, '_updateStateSelect');
+        const updateZipcodeFieldsSpy = jest.spyOn(plugin, '_updateZipcodeFields');
+        const updateVatIdFieldSpy = jest.spyOn(plugin, '_updateVatIdField');
+
+        plugin.initSelects();
+
+        await new Promise(process.nextTick);
+
+        expect(updateStateSelectSpy).toHaveBeenCalledWith(expect.anything(), true, expect.anything());
+        expect(updateZipcodeFieldsSpy).toHaveBeenCalledWith(expect.anything(), true);
+        expect(updateVatIdFieldSpy).toHaveBeenCalledWith(expect.anything(), true);
+
+        updateStateSelectSpy.mockClear();
+        updateZipcodeFieldsSpy.mockClear();
+        updateVatIdFieldSpy.mockClear();
+
+        const countrySelect = document.querySelector('.country-select');
+
+        countrySelect.value = 'DE';
+        countrySelect.dispatchEvent(new Event('change'));
+
+        await new Promise(process.nextTick);
+
+        expect(updateStateSelectSpy).toHaveBeenCalledWith(expect.anything(), false, null);
+        expect(updateZipcodeFieldsSpy).toHaveBeenCalledWith(expect.anything(), false);
+        expect(updateVatIdFieldSpy).toHaveBeenCalledWith(expect.anything(), false);
+
+        updateVatIdFieldSpy.mockClear();
+
+        plugin._onFormFieldToggleChange({ target: { checked: true } });
+
+        expect(updateVatIdFieldSpy).toHaveBeenCalledWith(expect.anything(), false);
+    });
 });

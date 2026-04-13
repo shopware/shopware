@@ -85,7 +85,7 @@
                                     class="associations-grid__count"
                                 >
                                     {{ getCount(item.assignment) }}
-                                    {{ $tc('sw-settings-tag.detail.assignments.assignments', getCount(item.assignment)) }}
+                                    {{ $tc('sw-settings-tag.detail.assignments.assignments', {}, getCount(item.assignment)) }}
                                 </span>
                             </mt-button>
                             {% endblock %}
@@ -101,7 +101,7 @@
                     <sw-entity-listing
                         :key="entitiesGridKey"
                         class="sw-settings-tag-detail-assignments__entities-grid"
-                        :items="entities"
+                        :data-source="entities"
                         :columns="entitiesColumns"
                         :repository="entityRepository"
                         :plain-appearance="true"

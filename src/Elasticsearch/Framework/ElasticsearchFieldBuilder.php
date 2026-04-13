@@ -5,7 +5,7 @@ namespace Shopware\Elasticsearch\Framework;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
-use Shopware\Elasticsearch\Product\CustomFieldUpdater;
+use Shopware\Elasticsearch\Product\ElasticsearchCustomFieldsMappingHelper;
 
 #[Package('inventory')]
 class ElasticsearchFieldBuilder
@@ -42,7 +42,7 @@ class ElasticsearchFieldBuilder
 
             $languageFields[$languageId] = $fieldConfig;
 
-            if (\array_key_exists($locale, $this->languageAnalyzerMapping)) {
+            if (\array_key_exists($locale, $this->languageAnalyzerMapping) && isset($languageFields[$languageId]['fields']['search']['analyzer'])) {
                 $languageFields[$languageId]['fields']['search']['analyzer'] = $this->languageAnalyzerMapping[$locale];
             }
         }
@@ -79,7 +79,7 @@ class ElasticsearchFieldBuilder
     {
         return array_merge([
             'type' => 'date',
-            'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+            'format' => 'yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time||epoch_millis',
             'ignore_malformed' => true,
         ], $override);
     }
@@ -116,10 +116,13 @@ class ElasticsearchFieldBuilder
         ];
 
         foreach ($fieldMapping as $name => $type) {
-            /** @var array<mixed> $esType */
-            $esType = CustomFieldUpdater::getTypeFromCustomFieldType($type);
+            $esType = ElasticsearchCustomFieldsMappingHelper::getTypeFromCustomFieldType($type);
 
             $mapping['properties'][$name] = $esType;
+        }
+
+        if ($mapping['properties'] === []) {
+            unset($mapping['properties']);
         }
 
         return $mapping;

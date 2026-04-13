@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Payment;
 
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -14,6 +15,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class PaymentMethodStateService
 {
+    /**
+     * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
+     */
     public function __construct(private readonly EntityRepository $paymentMethodRepository)
     {
     }
@@ -34,10 +38,9 @@ class PaymentMethodStateService
         $criteria->addFilter(new EqualsFilter('appPaymentMethod.appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', $currentActiveState));
 
-        /** @var array<string> $templates */
         $templates = $this->paymentMethodRepository->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => $newActiveState], $templates);
+        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => $newActiveState], $templates);
 
         $this->paymentMethodRepository->update($updateSet, $context);
     }

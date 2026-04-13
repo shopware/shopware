@@ -7,11 +7,12 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('after-sales')]
 class Migration1727768690UpdateDefaultEnglishPlainMailFooter extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -21,11 +22,12 @@ class Migration1727768690UpdateDefaultEnglishPlainMailFooter extends MigrationSt
 
     public function update(Connection $connection): void
     {
+        $filesystem = new Filesystem();
+
         $defaultLanguageId = $this->fetchDefaultLanguageId($connection);
 
         $enPlainFooterFilePath = __DIR__ . '/../Fixtures/mails/defaultMailFooter/en-plain.twig';
-        $enPlainFooter = \file_get_contents($enPlainFooterFilePath);
-        \assert($enPlainFooter !== false);
+        $enPlainFooter = $filesystem->readFile($enPlainFooterFilePath);
 
         $systemDefaultMailHeaderFooterId = $connection->fetchOne('SELECT `id` FROM `mail_header_footer` WHERE `system_default` = 1');
 

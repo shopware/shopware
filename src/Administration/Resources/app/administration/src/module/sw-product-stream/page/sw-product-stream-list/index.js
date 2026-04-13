@@ -46,6 +46,9 @@ export default {
             return this.repositoryFactory.create('product_stream');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -76,6 +79,7 @@ export default {
 
             let criteria = new Criteria(this.page, this.limit);
 
+            criteria.addFilter(Criteria.equals('internal', false));
             criteria.setTerm(this.term);
             if (this.acl.can('category:read')) {
                 criteria.addAggregation(
@@ -187,7 +191,7 @@ export default {
             }
 
             this.createNotificationError({
-                message: this.$tc('sw-product-stream.general.errorCategory', count, { name, count }),
+                message: this.$tc('sw-product-stream.general.errorCategory', { name, count }, count),
             });
         },
 

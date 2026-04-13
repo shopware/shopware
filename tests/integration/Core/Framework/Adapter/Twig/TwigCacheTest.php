@@ -49,7 +49,7 @@ class TwigCacheTest extends TestCase
         static::assertInstanceOf(CacheInterface::class, $cache);
         $secondCacheKey = $cache->generateKey($templateName, static::class);
 
-        static::assertNotEquals($firstCacheKey, $secondCacheKey);
+        static::assertNotSame($firstCacheKey, $secondCacheKey);
     }
 
     /**

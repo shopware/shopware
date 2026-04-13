@@ -14,10 +14,9 @@ trait ExtensionBehaviour
         $appRepository = static::getContainer()->get('app.repository');
         $idResult = $appRepository->searchIds(new Criteria(), Context::createDefaultContext());
 
-        /** @var array<string> $ids */
         $ids = $idResult->getIds();
         if (\count($ids)) {
-            $appRepository->delete(array_map(fn (string $id) => ['id' => $id], $ids), Context::createDefaultContext());
+            $appRepository->delete(array_map(static fn (string $id) => ['id' => $id], $ids), Context::createDefaultContext());
         }
 
         $fs = new Filesystem();

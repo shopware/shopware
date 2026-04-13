@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Tests\Unit\Core\Content\Cms\DataResolver;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -14,6 +15,8 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -101,6 +104,9 @@ class CmsSlotsMultiDataResolverTest extends TestCase
         return new MultiCmsElementResolver($type, $definition);
     }
 
+    /**
+     * @return SalesChannelRepository<covariant EntityCollection<covariant Entity>>&Stub
+     */
     private function createRepositoryMock(EntityDefinition $definition): SalesChannelRepository
     {
         $repository = static::createStub(SalesChannelRepository::class);

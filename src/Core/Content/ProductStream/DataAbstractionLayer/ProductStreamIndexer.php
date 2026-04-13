@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Event\ProductStreamIndexerEvent;
+use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -28,6 +29,8 @@ class ProductStreamIndexer extends EntityIndexer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductStreamCollection> $repository
      */
     public function __construct(
         private readonly Connection $connection,
@@ -36,7 +39,6 @@ class ProductStreamIndexer extends EntityIndexer
         private readonly SerializerInterface $serializer,
         private readonly ProductDefinition $productDefinition,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly bool $indexingEnabled,
     ) {
     }
 
@@ -50,15 +52,11 @@ class ProductStreamIndexer extends EntityIndexer
      */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {
-        if (!$this->indexingEnabled) {
-            return null;
-        }
-
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -67,10 +65,6 @@ class ProductStreamIndexer extends EntityIndexer
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
-        if (!$this->indexingEnabled) {
-            return null;
-        }
-
         $updates = $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME);
 
         if (!$updates) {
@@ -88,7 +82,7 @@ class ProductStreamIndexer extends EntityIndexer
         }
 
         $ids = array_unique(array_filter($ids));
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -103,8 +97,9 @@ class ProductStreamIndexer extends EntityIndexer
             ['ids' => ArrayParameterType::BINARY]
         );
 
+        /** @var array<string, list<array<string, string>>> */
         $filters = FetchModeHelper::group($filters);
-        /** @var array<string, array<string, array<string, mixed>>> $filters */
+
         $update = new RetryableQuery(
             $this->connection,
             $this->connection->prepare('UPDATE product_stream SET api_filter = :serialized, invalid = :invalid WHERE id = :id')
@@ -142,7 +137,7 @@ class ProductStreamIndexer extends EntityIndexer
     }
 
     /**
-     * @param array<string, array<string, mixed>> $filter
+     * @param list<array<string, string>> $filter
      */
     private function buildPayload(array $filter): string
     {
@@ -166,9 +161,9 @@ class ProductStreamIndexer extends EntityIndexer
     }
 
     /**
-     * @param list<array<string, mixed>> $entities
+     * @param list<array<string, string>> $entities
      *
-     * @return list<array<string, mixed>>
+     * @return list<array<string, string>>
      */
     private function buildNested(array $entities, ?string $parentId, ?string $parentType = null): array
     {

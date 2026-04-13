@@ -18,14 +18,14 @@ class ManifestTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
 
-        static::assertEquals(__DIR__ . '/_fixtures/test', $manifest->getPath());
+        static::assertSame(__DIR__ . '/_fixtures/test', $manifest->getPath());
     }
 
     public function testCreateFromXml(): void
     {
         $manifest = Manifest::createFromXml((string) file_get_contents(__DIR__ . '/_fixtures/test/manifest.xml'));
 
-        static::assertEquals('test', $manifest->getMetadata()->getName());
+        static::assertSame('test', $manifest->getMetadata()->getName());
     }
 
     public function testSetPath(): void
@@ -33,7 +33,7 @@ class ManifestTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
 
         $manifest->setPath('test');
-        static::assertEquals('test', $manifest->getPath());
+        static::assertSame('test', $manifest->getPath());
     }
 
     public function testCreateFromXmlFileThrowsXmlParsingExceptionIfInvalidWebhookEventNames(): void
@@ -68,7 +68,7 @@ class ManifestTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
 
-        static::assertEquals([
+        static::assertSame([
             'my.app.com',
             'test.com',
             'base-url.com',
@@ -84,14 +84,14 @@ class ManifestTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
 
-        static::assertEquals('>=6.4.0', $manifest->getMetadata()->getCompatibility()->getPrettyString());
+        static::assertSame('>=6.4.0', $manifest->getMetadata()->getCompatibility()->getPrettyString());
     }
 
     public function testFilledConstraint(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/compatibility/manifest.xml');
 
-        static::assertEquals('~6.5.0', $manifest->getMetadata()->getCompatibility()->getPrettyString());
+        static::assertSame('~6.5.0', $manifest->getMetadata()->getCompatibility()->getPrettyString());
     }
 
     public function testGetShippingMethods(): void
@@ -134,7 +134,7 @@ class ManifestTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
         $manifest->setSourceType('test');
 
-        static::assertEquals('test', $manifest->getSourceType());
+        static::assertSame('test', $manifest->getSourceType());
     }
 
     public function testSourceConfig(): void
@@ -142,6 +142,40 @@ class ManifestTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
         $manifest->setSourceConfig(['test' => 'test']);
 
-        static::assertEquals(['test' => 'test'], $manifest->getSourceConfig());
+        static::assertSame(['test' => 'test'], $manifest->getSourceConfig());
+    }
+
+    public function testDuplicateCustomFieldSetNamesAreNotAllowed(): void
+    {
+        $file = __DIR__ . '/_fixtures/duplicate-custom-field-set-name.xml';
+        $fileContent = file_get_contents($file);
+        static::assertIsString($fileContent);
+
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessageMatches("/Element \'custom-field-set\'\: Duplicate key-sequence \[\'duplicated_custom_field_set\'\] in unique identity-constraint \'uniqueCustomFieldSetName\'/");
+
+        Manifest::validate($fileContent, $file);
+    }
+
+    public function testDoesNotValidatePermissionsBackwardsCompatible(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
+
+        static::assertFalse($manifest->validatesPermissions());
+    }
+
+    public function testValidatesPermissions(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/manifestValidatesPermissions.xml');
+
+        static::assertTrue($manifest->validatesPermissions());
+    }
+
+    public function testDoesNotValidatePermissions(): void
+    {
+        $manifestXml = str_replace('validates-permissions="true"', 'validates-permissions="false"', (string) file_get_contents(__DIR__ . '/_fixtures/manifestValidatesPermissions.xml'));
+        $manifest = Manifest::createFromXml($manifestXml);
+
+        static::assertFalse($manifest->validatesPermissions());
     }
 }

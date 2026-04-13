@@ -52,6 +52,7 @@ class ContextControllerContextTest extends TestCase
                 'language' => [
                     'id' => $this->languageId,
                     'name' => 'Test',
+                    'active' => true,
                     'locale' => [
                         'id' => $localeId,
                         'name' => 'Test',

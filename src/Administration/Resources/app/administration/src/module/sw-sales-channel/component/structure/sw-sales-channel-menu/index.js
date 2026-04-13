@@ -5,14 +5,13 @@
 import template from './sw-sales-channel-menu.html.twig';
 import './sw-sales-channel-menu.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const FlatTree = Shopware.Helper.FlatTreeHelper;
 
 /**
  * @private
  */
-Component.register('sw-sales-channel-menu', {
+export default {
     template,
 
     inject: [
@@ -179,4 +178,4 @@ Component.register('sw-sales-channel-menu', {
             window.open(storeFrontLink, '_blank');
         },
     },
-});
+};

@@ -5,13 +5,12 @@
 import template from './sw-range-filter.html.twig';
 import './sw-range-filter.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-range-filter', {
+export default {
     template,
 
     inject: ['feature'],
@@ -32,7 +31,6 @@ Component.register('sw-range-filter', {
         isShowDivider: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -51,12 +49,12 @@ Component.register('sw-range-filter', {
     methods: {
         updateFilter(range) {
             const params = {
-                ...(range.from ? { gte: range.from } : {}),
-                ...(range.to ? { lte: range.to } : {}),
+                ...(range.from != null ? { gte: range.from } : {}),
+                ...(range.to != null ? { lte: range.to } : {}),
             };
 
             const filterCriteria = [Criteria.range(this.property, params)];
             this.$emit('filter-update', filterCriteria);
         },
     },
-});
+};

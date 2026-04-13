@@ -152,10 +152,6 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should create a product sorting entity', async () => {
         const productSortingEntity = wrapper.vm.productSortingEntity;
 

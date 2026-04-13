@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -31,7 +30,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[CoversClass(VersionManager::class)]
 class VersionManagerTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour {
@@ -104,7 +102,7 @@ class VersionManagerTest extends TestCase
         $extension = $product->getExtension('manyToOne');
 
         static::assertInstanceOf(ArrayEntity::class, $extension);
-        static::assertEquals($extendableId, $extension->get('id'));
+        static::assertSame($extendableId, $extension->get('id'));
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('manyToOne.id', $extendableId));
 
@@ -146,7 +144,7 @@ class VersionManagerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             PreWriteValidationEvent::class,
-            function (PreWriteValidationEvent $event) use (&$called): void {
+            static function (PreWriteValidationEvent $event) use (&$called): void {
                 // we also get a validation event for the version tables
                 if (!$event->getPrimaryKeys('product')) {
                     return;

@@ -13,20 +13,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class CmsPageLoaderCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    protected Request $request;
-
-    protected Criteria $criteria;
-
-    protected SalesChannelContext $salesChannelContext;
-
     public function __construct(
-        Request $request,
-        Criteria $criteria,
-        SalesChannelContext $salesChannelContext
+        protected Request $request,
+        protected Criteria $criteria,
+        protected SalesChannelContext $salesChannelContext,
     ) {
-        $this->request = $request;
-        $this->criteria = $criteria;
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getRequest(): Request

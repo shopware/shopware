@@ -9,7 +9,7 @@ import convertUnit, { baseUnits } from '../../../../module/sw-settings-rule/util
 /**
  * @private
  */
-Shopware.Component.register('sw-condition-unit-menu', {
+export default {
     template,
 
     emits: [
@@ -233,4 +233,4 @@ Shopware.Component.register('sw-condition-unit-menu', {
             return this.selectedUnit === unit;
         },
     },
-});
+};

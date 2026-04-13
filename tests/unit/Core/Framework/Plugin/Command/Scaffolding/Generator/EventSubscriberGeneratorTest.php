@@ -43,7 +43,7 @@ class EventSubscriberGeneratorTest extends TestCase
         (new EventSubscriberGenerator())
             ->addScaffoldConfig($configuration, $input, $io);
 
-        static::assertEquals($expectedHasOption, $configuration->hasOption(EventSubscriberGenerator::OPTION_NAME));
+        static::assertSame($expectedHasOption, $configuration->hasOption(EventSubscriberGenerator::OPTION_NAME));
     }
 
     public static function addScaffoldConfigProvider(): \Generator

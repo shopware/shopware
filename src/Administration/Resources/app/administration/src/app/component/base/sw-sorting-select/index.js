@@ -5,12 +5,10 @@
 import template from './sw-sorting-select.html.twig';
 import './sw-sorting-select.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-sorting-select', {
+export default {
     template,
 
     emits: ['sorting-changed'],
@@ -90,4 +88,4 @@ Component.register('sw-sorting-select', {
             this.$emit('sorting-changed', { sortBy, sortDirection });
         },
     },
-});
+};

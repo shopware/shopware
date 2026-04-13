@@ -82,13 +82,13 @@ class UpdateSubscriber implements EventSubscriberInterface
 
                 try {
                     $alreadyCompiled += $this->themeService->compileThemeById($theme->getId(), $context);
-                } catch (ThemeCompileException $e) {
+                } catch (ThemeCompileException) {
                     $failedThemes[] = $theme->getName();
                     $alreadyCompiled[] = $theme->getId();
                 }
             }
 
-            if (!empty($failedThemes)) {
+            if ($failedThemes !== []) {
                 $event->appendPostUpdateMessage('Theme(s): ' . implode(', ', $failedThemes) . ' could not be recompiled.');
             }
         }

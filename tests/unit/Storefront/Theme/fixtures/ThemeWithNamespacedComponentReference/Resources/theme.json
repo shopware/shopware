@@ -1,0 +1,7 @@
+{
+  "name": "Theme with namespaced component reference",
+  "author": "Shopware AG",
+  "style": [
+    "@Components:MyPlugin/Custom/Test/index.scss"
+  ]
+}

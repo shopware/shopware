@@ -22,11 +22,11 @@ class ShippingMethodCollection extends EntityCollection
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', RuleIdMatcher::class)
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', RuleIdMatcher::class)
         );
 
         return $this->filter(
-            function (ShippingMethodEntity $shippingMethod) use ($salesChannelContext) {
+            static function (ShippingMethodEntity $shippingMethod) use ($salesChannelContext) {
                 if ($shippingMethod->getAvailabilityRuleId() === null) {
                     return true;
                 }

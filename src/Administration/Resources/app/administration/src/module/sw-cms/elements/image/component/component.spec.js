@@ -2,7 +2,7 @@
  * @sw-package discovery
  */
 
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 const mediaDataMock = {
@@ -19,10 +19,16 @@ async function createWrapper() {
             global: {
                 provide: {
                     cmsService: Shopware.Service('cmsService'),
+                    repositoryFactory: {
+                        create: () => ({
+                            get: jest.fn().mockResolvedValue(mediaDataMock),
+                        }),
+                    },
                 },
             },
             props: {
                 element: {
+                    type: 'image',
                     config: {},
                     data: {},
                 },
@@ -76,7 +82,7 @@ describe('src/module/sw-cms/elements/image/component', () => {
 
         const img = wrapper.find('img');
         expect(img.attributes('src')).toBe(
-            wrapper.vm.assetFilter('administration/administration/static/img/cms/preview_mountain_large.jpg'),
+            wrapper.vm.assetFilter('administration/administration/static/img/cms/preview_mountain_large.webp'),
         );
     });
 
@@ -85,6 +91,7 @@ describe('src/module/sw-cms/elements/image/component', () => {
 
         await wrapper.setProps({
             element: {
+                type: 'image',
                 config: {
                     ...wrapper.props().element.config,
                     media: {
@@ -107,6 +114,7 @@ describe('src/module/sw-cms/elements/image/component', () => {
 
         await wrapper.setProps({
             element: {
+                type: 'image',
                 config: {
                     ...wrapper.props().element.config,
                     media: {
@@ -120,7 +128,36 @@ describe('src/module/sw-cms/elements/image/component', () => {
 
         const img = wrapper.find('img');
         expect(img.attributes('src')).toBe(
-            wrapper.vm.assetFilter('administration/administration/static/img/cms/preview_mountain_large.jpg'),
+            wrapper.vm.assetFilter('administration/administration/static/img/cms/preview_mountain_large.webp'),
         );
+    });
+
+    it('should resolve mapped media ids from custom fields', async () => {
+        Shopware.Store.get('cmsPage').setCurrentDemoEntity({
+            customFields: {
+                heroImage: '1',
+            },
+        });
+
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            element: {
+                type: 'image',
+                config: {
+                    ...wrapper.props().element.config,
+                    media: {
+                        source: 'mapped',
+                        value: 'category.customFields.heroImage',
+                    },
+                },
+                data: {},
+            },
+        });
+
+        await flushPromises();
+
+        const img = wrapper.find('img');
+        expect(img.attributes('src')).toContain(mediaDataMock.url);
     });
 });

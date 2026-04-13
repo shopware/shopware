@@ -59,15 +59,15 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         $customerRepository->create([$customer->build()], $context);
 
-        static::assertEquals(1, $this->service->countUnusedCustomers($context));
+        static::assertSame(1, $this->service->countUnusedCustomers($context));
 
         $this->service->deleteUnusedCustomers($context);
 
-        static::assertEquals(0, $this->service->countUnusedCustomers($context));
+        static::assertSame(0, $this->service->countUnusedCustomers($context));
 
         $result = $customerRepository->search(new Criteria([$this->ids->get('10000')]), $context);
 
-        static::assertEquals(0, $result->getTotal());
+        static::assertSame(0, $result->getTotal());
     }
 
     public function testItDoesOnlyDeleteGuestCustomers(): void
@@ -88,24 +88,24 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
             $guestCustomer->build(),
         ], $context);
 
-        static::assertEquals(1, $this->service->countUnusedCustomers($context));
+        static::assertSame(1, $this->service->countUnusedCustomers($context));
 
         $this->service->deleteUnusedCustomers($context);
 
-        static::assertEquals(0, $this->service->countUnusedCustomers($context));
+        static::assertSame(0, $this->service->countUnusedCustomers($context));
 
         $result = $customerRepository->search(new Criteria([
             $this->ids->get('10000'),
             $this->ids->get('10001'),
         ]), $context);
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
 
         /** @var CustomerEntity $entity */
         $entity = $result->first();
 
         // expect the non-guest customer to still exist
-        static::assertEquals('10000', $entity->getCustomerNumber());
+        static::assertSame('10000', $entity->getCustomerNumber());
     }
 
     public function testItDeletesOnlyExpiredCustomerAccounts(): void
@@ -127,24 +127,24 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
             $expiredCustomer->build(),
         ], $context);
 
-        static::assertEquals(1, $this->service->countUnusedCustomers($context));
+        static::assertSame(1, $this->service->countUnusedCustomers($context));
 
         $this->service->deleteUnusedCustomers($context);
 
-        static::assertEquals(0, $this->service->countUnusedCustomers($context));
+        static::assertSame(0, $this->service->countUnusedCustomers($context));
 
         $result = $customerRepository->search(new Criteria([
             $this->ids->get('10000'),
             $this->ids->get('10001'),
         ]), $context);
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
 
         /** @var CustomerEntity $entity */
         $entity = $result->first();
 
         // expect the non expired customer to still exist
-        static::assertEquals('10000', $entity->getCustomerNumber());
+        static::assertSame('10000', $entity->getCustomerNumber());
     }
 
     public function testItDoesOnlyDeleteCustomersWithoutOrders(): void
@@ -167,24 +167,24 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         $this->createOrderForCustomer($customerWithOrder->build());
 
-        static::assertEquals(1, $this->service->countUnusedCustomers($context));
+        static::assertSame(1, $this->service->countUnusedCustomers($context));
 
         $this->service->deleteUnusedCustomers($context);
 
-        static::assertEquals(0, $this->service->countUnusedCustomers($context));
+        static::assertSame(0, $this->service->countUnusedCustomers($context));
 
         $result = $customerRepository->search(new Criteria([
             $this->ids->get('10000'),
             $this->ids->get('10001'),
         ]), $context);
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
 
         /** @var CustomerEntity $entity */
         $entity = $result->first();
 
         // expect the customer with an order to still exist
-        static::assertEquals('10000', $entity->getCustomerNumber());
+        static::assertSame('10000', $entity->getCustomerNumber());
     }
 
     public function testItCancelsWhenMaxLifeTimeIsZero(): void
@@ -202,21 +202,21 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         $customerRepository->create([$customer->build()], $context);
 
-        static::assertEquals(0, $this->service->countUnusedCustomers($context));
+        static::assertSame(0, $this->service->countUnusedCustomers($context));
 
         $this->service->deleteUnusedCustomers($context);
 
-        static::assertEquals(0, $this->service->countUnusedCustomers($context));
+        static::assertSame(0, $this->service->countUnusedCustomers($context));
 
         $result = $customerRepository->search(new Criteria([$this->ids->get('10000')]), $context);
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
 
         /** @var CustomerEntity $entity */
         $entity = $result->first();
 
         // expect the customer to still exist
-        static::assertEquals('10000', $entity->getCustomerNumber());
+        static::assertSame('10000', $entity->getCustomerNumber());
     }
 
     public function testItCancelsWhenMaxLifeTimeIsNull(): void
@@ -234,21 +234,21 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
 
         $customerRepository->create([$customer->build()], $context);
 
-        static::assertEquals(0, $this->service->countUnusedCustomers($context));
+        static::assertSame(0, $this->service->countUnusedCustomers($context));
 
         $this->service->deleteUnusedCustomers($context);
 
-        static::assertEquals(0, $this->service->countUnusedCustomers($context));
+        static::assertSame(0, $this->service->countUnusedCustomers($context));
 
         $result = $customerRepository->search(new Criteria([$this->ids->get('10000')]), $context);
 
-        static::assertEquals(1, $result->getTotal());
+        static::assertSame(1, $result->getTotal());
 
         /** @var CustomerEntity $entity */
         $entity = $result->first();
 
         // expect the customer to still exist
-        static::assertEquals('10000', $entity->getCustomerNumber());
+        static::assertSame('10000', $entity->getCustomerNumber());
     }
 
     /**

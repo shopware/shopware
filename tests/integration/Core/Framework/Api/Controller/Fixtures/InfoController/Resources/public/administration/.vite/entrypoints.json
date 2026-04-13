@@ -1,12 +1,12 @@
 {
-  "base": "/bundles/some-functionality-bundle/administration/",
+  "base": "/bundles/some-functionality/administration/",
   "entryPoints": {
     "some-functionality-bundle": {
       "css": [
       ],
       "dynamic": [],
       "js": [
-        "/bundles/somefunctionalitybundle/administration/js/some-functionality-bundle.js"
+        "/bundles/somefunctionality/administration/js/some-functionality-bundle.js"
       ],
       "legacy": false,
       "preload": []

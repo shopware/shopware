@@ -1,5 +1,3 @@
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  * @deprecated tag:v6.8.0 - Will be removed, use mt-select instead.
@@ -17,7 +15,7 @@ const { Component } = Shopware;
  *     <option value="5">Label #5</option>
  * </sw-select-number-field>
  */
-Component.extend('sw-select-number-field', 'sw-select-field-deprecated', {
+export default {
     inheritAttrs: false,
 
     inject: ['feature'],
@@ -55,4 +53,4 @@ Component.extend('sw-select-number-field', 'sw-select-field-deprecated', {
             this.$emit('update:value', this.currentValue);
         },
     },
-});
+};

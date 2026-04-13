@@ -181,8 +181,8 @@ class ProductListingTest extends TestCase
         static::assertSame(3, $listing->getTotal());
         $firstFilter = $listing->getCriteria()->getFilters()[0];
         static::assertInstanceOf(ContainsFilter::class, $firstFilter);
-        static::assertEquals('name', $firstFilter->getField());
-        static::assertEquals('Foo Bar', $firstFilter->getValue());
+        static::assertSame('name', $firstFilter->getField());
+        static::assertSame('Foo Bar', $firstFilter->getValue());
     }
 
     public function testNotFilterableProperty(): void
@@ -335,7 +335,7 @@ class ProductListingTest extends TestCase
             ],
         ];
 
-        if (!empty($options)) {
+        if ($options !== []) {
             foreach ($this->combos($options) as $index => $combination) {
                 $variantKey = $key . '-' . implode('-', $this->testData->getKeyList($combination));
 

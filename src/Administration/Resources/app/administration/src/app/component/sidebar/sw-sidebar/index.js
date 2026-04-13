@@ -1,8 +1,6 @@
 import template from './sw-sidebar.html.twig';
 import './sw-sidebar.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -15,7 +13,7 @@ const { Component } = Shopware;
  * </sw-sidebar>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sidebar', {
+export default {
     template,
 
     provide() {
@@ -43,7 +41,6 @@ Component.register('sw-sidebar', {
         return {
             items: [],
             isOpened: false,
-            // eslint-disable-next-line vue/no-reserved-keys
             _parent: this.$parent,
         };
     },
@@ -153,4 +150,4 @@ Component.register('sw-sidebar', {
             }
         },
     },
-});
+};

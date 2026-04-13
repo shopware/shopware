@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -59,8 +60,10 @@ class ThemeAppLifecycleHandlerTest extends TestCase
         $this->eventDispatcher->dispatch(
             new AppUpdatedEvent(
                 (new AppEntity())->assign([
+                    'id' => Uuid::randomHex(),
                     'active' => false,
                     'name' => 'SwagTheme',
+                    'version' => '1.0.0',
                     'path' => str_replace(
                         static::getContainer()->getParameter('kernel.project_dir') . '/',
                         '',

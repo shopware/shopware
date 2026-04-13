@@ -46,7 +46,6 @@ const createWrapper = async () => {
         {
             global: {
                 stubs: {
-                    'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
                     'sw-field': true,
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
@@ -116,12 +115,8 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render empty state when no filter is set', async () => {
-        expect(wrapper.find('.sw-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
     it('should load products with correct criteria when filters are being set', async () => {

@@ -2,7 +2,6 @@
  * @sw-package fundamentals@framework
  */
 
-/* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
@@ -23,12 +22,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-settings-currency/component/sw-settings-price-rounding', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show info message when total rounding or item rounding interval is unequal to 0.01 or decimals are unequal', async () => {
         const wrapper = await createWrapper();
 

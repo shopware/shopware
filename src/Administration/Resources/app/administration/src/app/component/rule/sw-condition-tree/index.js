@@ -3,14 +3,13 @@ import { computed } from 'vue';
 import template from './sw-condition-tree.html.twig';
 import './sw-condition-tree.scss';
 
-const { Component } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
 /**
  * @private
  * @sw-package fundamentals@after-sales
  */
-Component.register('sw-condition-tree', {
+export default {
     template,
 
     inject: [
@@ -214,7 +213,6 @@ Component.register('sw-condition-tree', {
             if (this.needsRootOrContainer(rootConditions)) {
                 const newRoot = this.applyRoot(rootConditions);
 
-                // eslint-disable-next-line vue/no-mutating-props
                 this.initialConditions.push(newRoot);
                 rootConditions = [newRoot];
             }
@@ -357,4 +355,4 @@ Component.register('sw-condition-tree', {
             });
         },
     },
-});
+};

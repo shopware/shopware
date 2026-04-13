@@ -3,22 +3,37 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventCollection;
 use Shopware\Core\Framework\App\Flow\Event\Event;
+use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @internal
+ * @internal only for use by the app-system
  */
 #[Package('framework')]
-class FlowEventPersister
+class FlowEventPersister implements PersisterInterface
 {
+    /**
+     * @param EntityRepository<AppFlowEventCollection> $flowEventsRepository
+     */
     public function __construct(
         private readonly EntityRepository $flowEventsRepository,
         private readonly Connection $connection
     ) {
+    }
+
+    public function persist(AppLifecycleContext $context): void
+    {
+        $flowEvents = $this->getFlowEvents($context->appFilesystem);
+
+        if ($flowEvents) {
+            $this->updateEvents($flowEvents, $context->app->getId(), $context->context, $context->defaultLocale);
+        }
     }
 
     public function updateEvents(Event $flowEvent, string $appId, Context $context, string $defaultLocale): void
@@ -43,7 +58,7 @@ class FlowEventPersister
             $upserts[] = $payload;
         }
 
-        if (!empty($upserts)) {
+        if ($upserts !== []) {
             $this->flowEventsRepository->upsert($upserts, $context);
         }
 
@@ -60,6 +75,15 @@ class FlowEventPersister
         );
     }
 
+    private function getFlowEvents(Filesystem $fs): ?Event
+    {
+        if (!$fs->has('Resources/flow.xml')) {
+            return null;
+        }
+
+        return Event::createFromXmlFile($fs->path('Resources/flow.xml'));
+    }
+
     /**
      * @param array<int|string, mixed> $toBeRemoved
      */
@@ -67,7 +91,7 @@ class FlowEventPersister
     {
         $ids = array_values($toBeRemoved);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

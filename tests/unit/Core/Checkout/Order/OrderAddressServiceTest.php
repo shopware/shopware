@@ -28,7 +28,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 class OrderAddressServiceTest extends TestCase
 {
     /**
-     * @param array<int, array{customerAddressId: string, type: string, deliveryId?: string}> $mappings
+     * @param list<array{customerAddressId?: string, type?: string, deliveryId?: string}> $mappings
      */
     #[DataProvider('provideInvalidMappings')]
     public function testValidateInvalidMapping(array $mappings): void
@@ -42,6 +42,7 @@ class OrderAddressServiceTest extends TestCase
 
         $this->expectException(OrderException::class);
 
+        /** @phpstan-ignore argument.type (Intentionally wrong array shape for test purpose) */
         $orderAddressService->updateOrderAddresses(Uuid::randomHex(), $mappings, Context::createDefaultContext());
     }
 
@@ -97,7 +98,7 @@ class OrderAddressServiceTest extends TestCase
 
     public function testMissingOrder(): void
     {
-        /** @var StaticEntityRepository<OrderCollection> */
+        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
         $orderRepository = new StaticEntityRepository([new OrderCollection([])]);
 
         $orderAddressService = new OrderAddressService(
@@ -155,7 +156,7 @@ class OrderAddressServiceTest extends TestCase
                 return $this->createMock(EntityWrittenContainerEvent::class);
             });
 
-        /** @var StaticEntityRepository<CustomerAddressCollection> */
+        /** @var StaticEntityRepository<CustomerAddressCollection> $customerAddressRepository */
         $customerAddressRepository = new StaticEntityRepository([new CustomerAddressCollection([$customerAddress]), new CustomerAddressCollection([$customerAddress])]);
 
         $orderDeliveryRepository = $this->createMock(EntityRepository::class);
@@ -165,7 +166,7 @@ class OrderAddressServiceTest extends TestCase
 
         $order = $this->createOrderEntity();
 
-        /** @var StaticEntityRepository<OrderCollection> */
+        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
         $orderRepository = new StaticEntityRepository([new OrderCollection([$order])]);
 
         $orderAddressService = new OrderAddressService(

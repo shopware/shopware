@@ -57,7 +57,7 @@ class DeliveryTransformerTest extends TestCase
 
         static::assertCount(1, $result);
         static::assertInstanceOf(Delivery::class, $delivery);
-        static::assertEquals(
+        static::assertSame(
             DeliveryTransformer::transform($delivery, $lineItems, $stateId, $context, $addresses),
             $result[0]
         );
@@ -95,7 +95,7 @@ class DeliveryTransformerTest extends TestCase
         );
 
         static::assertCount(1, $result);
-        static::assertEquals(
+        static::assertSame(
             DeliveryTransformer::transform($delivery, $lineItems, $stateId, $context, $addresses),
             $result[0]
         );
@@ -135,7 +135,7 @@ class DeliveryTransformerTest extends TestCase
         );
 
         static::assertCount(1, $result);
-        static::assertEquals(
+        static::assertSame(
             DeliveryTransformer::transform($delivery, $lineItems, $stateId, $context, $addresses),
             $result[0]
         );

@@ -37,7 +37,7 @@ class CreateEntitiesCommand extends Command
         $io = new ShopwareStyle($input, $output);
         $io->title('DAL generate schema');
 
-        if (!file_exists($this->dir)) {
+        if (!\is_dir($this->dir)) {
             mkdir($this->dir);
         }
 
@@ -54,11 +54,11 @@ class CreateEntitiesCommand extends Command
 
         foreach ($classes as $domain => $domainClasses) {
             foreach ($domainClasses as $entityClasses) {
-                if (empty($entityClasses)) {
+                if ($entityClasses === null || $entityClasses === []) {
                     continue;
                 }
 
-                if (!file_exists($this->dir . '/' . $domain)) {
+                if (!\is_dir($this->dir . '/' . $domain)) {
                     mkdir($this->dir . '/' . $domain);
                 }
 

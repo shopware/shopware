@@ -8,10 +8,11 @@ use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexingMessage;
+use Shopware\Core\Content\ProductStream\ProductStreamCollection;
+use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
@@ -46,7 +47,7 @@ class ProductStreamIndexerTest extends TestCase
     private MockObject&EventDispatcherInterface $dispatcher;
 
     /**
-     * @var StaticEntityRepository<ProductCollection>
+     * @var StaticEntityRepository<ProductStreamCollection>
      */
     private StaticEntityRepository $repository;
 
@@ -55,7 +56,7 @@ class ProductStreamIndexerTest extends TestCase
         $this->connection = $this->createMock(Connection::class);
         $this->iteratorFactory = $this->createMock(IteratorFactory::class);
         $this->productDefinition = $this->createMock(ProductDefinition::class);
-        $this->repository = new StaticEntityRepository([], $this->productDefinition);
+        $this->repository = new StaticEntityRepository([], new ProductStreamDefinition());
         $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $this->indexer = new ProductStreamIndexer(
@@ -64,8 +65,7 @@ class ProductStreamIndexerTest extends TestCase
             $this->repository,
             new Serializer([], [new JsonEncoder()]),
             $this->productDefinition,
-            $this->dispatcher,
-            true
+            $this->dispatcher
         );
     }
 
@@ -86,24 +86,6 @@ class ProductStreamIndexerTest extends TestCase
 
         $message = $this->indexer->iterate(['offset' => 10]);
         static::assertInstanceOf(ProductStreamIndexingMessage::class, $message);
-    }
-
-    public function testIterateDisabledDoesNothing(): void
-    {
-        $indexer = new ProductStreamIndexer(
-            $this->connection,
-            $this->iteratorFactory,
-            $this->repository,
-            new Serializer([], [new JsonEncoder()]),
-            $this->productDefinition,
-            $this->dispatcher,
-            false
-        );
-
-        static::assertNull($indexer->iterate(['offset' => 10]));
-
-        $event = $this->createMock(EntityWrittenContainerEvent::class);
-        static::assertNull($indexer->update($event));
     }
 
     public function testUpdateReturnNull(): void
@@ -200,7 +182,7 @@ class ProductStreamIndexerTest extends TestCase
         $matcher = $this->exactly(\count($params));
         $statement->expects($matcher)
             ->method('bindValue')
-            ->willReturnCallback(function (string $key, $value) use ($matcher, $params): void {
+            ->willReturnCallback(static function (string $key, $value) use ($matcher, $params): void {
                 self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
                 self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
             });
@@ -225,6 +207,6 @@ class ProductStreamIndexerTest extends TestCase
         $this->iteratorFactory->expects($this->once())->method('createIterator')->willReturn(new OffsetQuery($queryBuilder));
 
         $total = $this->indexer->getTotal();
-        static::assertEquals(1, $total);
+        static::assertSame(1, $total);
     }
 }

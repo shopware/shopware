@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
@@ -17,7 +18,6 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,14 +40,14 @@ class ProductSuggestRouteTest extends TestCase
 
     public function testGetDecoratedShouldThrowException(): void
     {
-        static::expectException(DecorationPatternException::class);
+        $this->expectExceptionObject(new DecorationPatternException(ProductSuggestRoute::class));
 
         $this->getProductSuggestRoute()->getDecorated();
     }
 
     public function testLoadThrowsExceptionForMissingSearchParameter(): void
     {
-        static::expectException(RoutingException::class);
+        $this->expectExceptionObject(ProductException::missingRequestParameter('search'));
 
         $route = new ResolvedCriteriaProductSuggestRoute(
             $this->createMock(ProductSearchBuilderInterface::class),

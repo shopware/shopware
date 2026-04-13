@@ -43,7 +43,7 @@ class PluginLifecycleSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [
                 PluginPostActivateEvent::class => 'pluginPostActivate',
                 PluginPreUpdateEvent::class => 'pluginUpdate',

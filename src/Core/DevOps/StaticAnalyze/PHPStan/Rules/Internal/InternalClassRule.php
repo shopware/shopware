@@ -195,6 +195,7 @@ class InternalClassRule implements Rule
             return false;
         }
 
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (only class constant is used) */
         return $class->getParentClass()->getName() === StorefrontController::class;
     }
 

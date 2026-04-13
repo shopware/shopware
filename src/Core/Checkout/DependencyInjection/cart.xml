@@ -52,6 +52,10 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCompressor"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\CartLocker">
+            <argument type="service" id="lock.factory"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\CartSerializationCleaner">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
@@ -86,6 +90,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartLocker"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute" public="true">
@@ -98,12 +103,14 @@
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartDeleteRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartLocker"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemRemoveRoute" public="true">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartLocker"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute" public="true">
@@ -112,6 +119,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
             <argument type="service" id="shopware.rate_limiter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartLocker"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute" public="true">
@@ -124,6 +132,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor"/>
             <argument type="service" id="Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartContextHasher"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartLocker"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator">
@@ -205,7 +215,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
             <argument type="service" id="Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway"/>
-            <argument type="service" id="Shopware\Core\Framework\Rule\RuleIdMatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Gateway\Command\Registry\CheckoutGatewayCommandRegistry">
@@ -327,6 +336,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductTypeRegistry"/>
 
             <tag name="shopware.cart.processor" priority="5000"/>
             <tag name="shopware.cart.collector" priority="5000"/>
@@ -379,6 +389,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>
@@ -440,6 +452,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\AbstractProductLineItemProvider"/>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry">
@@ -510,6 +524,7 @@
         <service id="Shopware\Core\Checkout\Cart\CartCompressor">
             <argument>%shopware.cart.compress%</argument>
             <argument>%shopware.cart.compression_method%</argument>
+            <argument>%shopware.cart.serialization_max_mb_size%</argument>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\RedisCartPersister">
@@ -532,6 +547,13 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCompressor"/>
             <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Subscriber\CartOrderEventSubscriber">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

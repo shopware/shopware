@@ -82,7 +82,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -125,7 +125,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -166,7 +166,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -175,7 +175,7 @@ class FileSaverTest extends TestCase
 
         $path = $media->getPath();
 
-        static::assertNotEquals($oldMediaFilePath, $path);
+        static::assertNotSame($oldMediaFilePath, $path);
         static::assertTrue($this->getPublicFilesystem()->has($path));
     }
 
@@ -210,7 +210,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -254,7 +254,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -302,7 +302,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -342,7 +342,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -532,6 +532,10 @@ class FileSaverTest extends TestCase
                     'width' => 100,
                     'height' => 100,
                     'highDpi' => false,
+                    'mediaThumbnailSize' => [
+                        'width' => 100,
+                        'height' => 100,
+                    ],
                 ],
             ],
         ]], $context);
@@ -663,7 +667,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }
@@ -674,7 +678,7 @@ class FileSaverTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
-        $listenerClosure = function () use (&$eventDidRun): void {
+        $listenerClosure = static function () use (&$eventDidRun): void {
             $eventDidRun = true;
         };
 
@@ -709,7 +713,7 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
+            if (\is_file($tempFile)) {
                 unlink($tempFile);
             }
         }

@@ -65,11 +65,16 @@ class GenerateThumbnailsHandlerTest extends TestCase
                 'mediaId' => $media->getId(),
                 'width' => 987,
                 'height' => 987,
+                'mediaThumbnailSize' => [
+                    'width' => 987,
+                    'height' => 987,
+                ],
             ],
             [
                 'mediaId' => $media->getId(),
                 'width' => 150,
                 'height' => 150,
+                'mediaThumbnailSizeId' => $this->thumbnailSize150Id,
             ],
         ], $this->context);
 
@@ -94,12 +99,13 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         $mediaThumbnailCollection = $media->getThumbnails();
         static::assertNotNull($mediaThumbnailCollection);
-        static::assertEquals(2, $mediaThumbnailCollection->count());
+        static::assertCount(2, $mediaThumbnailCollection);
 
         foreach ($mediaThumbnailCollection as $thumbnail) {
+            // Keep aspect ratio is true so the width and height can differ from the media thumbnail size configuration
             static::assertTrue(
-                ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
-                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
+                ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 160)
+                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 80)
             );
 
             $path = $thumbnail->getPath();
@@ -124,6 +130,10 @@ class GenerateThumbnailsHandlerTest extends TestCase
                 'mediaId' => $media->getId(),
                 'width' => 987,
                 'height' => 987,
+                'mediaThumbnailSize' => [
+                    'width' => 987,
+                    'height' => 987,
+                ],
             ],
         ], $this->context);
 
@@ -151,12 +161,13 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
         $mediaThumbnailCollection = $media->getThumbnails();
         static::assertNotNull($mediaThumbnailCollection);
-        static::assertEquals(2, $mediaThumbnailCollection->count());
+        static::assertCount(2, $mediaThumbnailCollection);
 
         foreach ($mediaThumbnailCollection as $thumbnail) {
+            // Keep aspect ratio is true so the width and height can differ from the media thumbnail size configuration
             static::assertTrue(
-                ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
-                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
+                ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 160)
+                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 80)
             );
 
             $path = $thumbnail->getPath();
@@ -217,7 +228,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $thumbnailServiceMock->expects($this->exactly($testEntities2->count() + $testEntities3->count()))
             ->method('updateThumbnails')
-            ->willReturnCallback(function (...$params) use (&$parameters): void {
+            ->willReturnCallback(static function (...$params) use (&$parameters): void {
                 $parameters[] = $params;
             });
 
@@ -225,6 +236,6 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $handler->__invoke($updateMessage1);
         $handler->__invoke($updateMessage2);
 
-        static::assertEquals($consecutiveUpdateMessageParams, $parameters);
+        static::assertSame($consecutiveUpdateMessageParams, $parameters);
     }
 }

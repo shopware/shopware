@@ -9,7 +9,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class UnusedMediaSearchEvent extends Event
 {
     /**
-     * @param array<string> $ids
+     * @param list<string> $ids
      */
     public function __construct(private array $ids)
     {
@@ -26,7 +26,7 @@ class UnusedMediaSearchEvent extends Event
     }
 
     /**
-     * @return array<string> $ids
+     * @return list<string> $ids
      */
     public function getUnusedIds(): array
     {

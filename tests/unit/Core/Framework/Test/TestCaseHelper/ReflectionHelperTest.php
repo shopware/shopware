@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Test\TestCaseHelper;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 /**
@@ -12,6 +13,11 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 #[CoversClass(ReflectionHelper::class)]
 class ReflectionHelperTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+    }
+
     public function testGetMethodFromProtectedScope(): void
     {
         $class = new FakeClassForHelper();
@@ -27,7 +33,7 @@ class ReflectionHelperTest extends TestCase
 
         $method = ReflectionHelper::getMethod(FakeClassForHelper::class, 'myPrivateMethod');
 
-        static::assertEquals(['one', 'none'], $method->invoke($class));
+        static::assertSame(['one', 'none'], $method->invoke($class));
     }
 
     public function testGetPropertyValueFromPrivateScope(): void
@@ -87,7 +93,7 @@ class ReflectionHelperTest extends TestCase
 /**
  * @internal
  */
-final class FakeClassForHelper
+class FakeClassForHelper
 {
     protected string $protectedProperty = 'this is it';
 
@@ -107,13 +113,13 @@ final class FakeClassForHelper
         }
     }
 
-    protected function myProtectedMethod(): bool
+    protected function myProtectedMethod(): true
     {
         return true;
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     protected function myPrivateMethod(): array
     {

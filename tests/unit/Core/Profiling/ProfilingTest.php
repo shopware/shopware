@@ -16,6 +16,6 @@ class ProfilingTest extends TestCase
     {
         $profiling = new Profiling();
 
-        static::assertEquals(-2, $profiling->getTemplatePriority());
+        static::assertSame(-2, $profiling->getTemplatePriority());
     }
 }

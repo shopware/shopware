@@ -54,8 +54,8 @@ class RequestTransformerTest extends TestCase
     }
 
     /**
-     * @param array<string, string|array<string, string>> $salesChannels
-     * @param ExpectedRequest[] $requests
+     * @param list<SalesChannel> $salesChannels
+     * @param list<ExpectedRequest> $requests
      */
     #[DataProvider('domainProvider')]
     public function testDomainResolving(array $salesChannels, array $requests): void
@@ -93,7 +93,7 @@ class RequestTransformerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: SalesChannel[], 1: ExpectedRequest[]}>
+     * @return array<string, array{0: list<SalesChannel>, 1: list<ExpectedRequest>}>
      */
     public static function domainProvider(): array
     {
@@ -292,9 +292,7 @@ class RequestTransformerTest extends TestCase
 
         $request = Request::create('http://base.test' . $virtualUrl . '/detail/87a78cf58f114d5587ae23c140825694');
         $ref = new \ReflectionClass($request);
-        $prob = $ref->getProperty('baseUrl');
-        $prob->setAccessible(true);
-        $prob->setValue($request, $baseUrl);
+        $ref->getProperty('baseUrl')->setValue($request, $baseUrl);
 
         $resolved = $this->requestTransformer->transform($request);
 
@@ -302,7 +300,7 @@ class RequestTransformerTest extends TestCase
     }
 
     /**
-     * @return array<string, string[]>
+     * @return iterable<string, string[]>
      */
     public static function seoRedirectProvider(): iterable
     {

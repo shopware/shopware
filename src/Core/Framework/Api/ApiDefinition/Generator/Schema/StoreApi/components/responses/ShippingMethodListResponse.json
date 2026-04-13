@@ -1,0 +1,45 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "responses": {
+            "ShippingMethodListResponse": {
+                "description": "Entity search result containing shipping methods.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "required": [
+                                        "elements"
+                                    ],
+                                    "properties": {
+                                        "total": {
+                                            "description": "Total amount",
+                                            "type": "integer"
+                                        },
+                                        "aggregations": {
+                                            "description": "aggregation result",
+                                            "type": "object"
+                                        },
+                                        "elements": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ShippingMethod"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/EntitySearchResult"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+} 

@@ -93,9 +93,8 @@ class RefreshAppCommand extends Command
             }
         }
 
-        // in the future: if it was forced then it counts as not accepted, eg: $input->getOption('force') === false
         $fails = $this->appService->doRefreshApps(
-            new AppInstallParameters(activate: $input->getOption('activate')),
+            new AppInstallParameters(activate: $input->getOption('activate'), acceptPermissions: true),
             $context,
             $refreshableApps->getAppNames()
         );
@@ -123,7 +122,7 @@ class RefreshAppCommand extends Command
             }
         }
 
-        if (\count($invalids) > 0) {
+        if ($invalids !== []) {
             foreach ($invalids as $invalid) {
                 $io->error($invalid);
             }
@@ -139,7 +138,7 @@ class RefreshAppCommand extends Command
     private function grantPermissions(RefreshableAppDryRun $refreshableApps, ShopwareStyle $io): void
     {
         $default = true;
-        if (!empty($refreshableApps->getToBeDeleted())) {
+        if ($refreshableApps->getToBeDeleted() !== []) {
             $default = false;
         }
 

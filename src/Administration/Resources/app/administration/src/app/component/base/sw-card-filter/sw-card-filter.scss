@@ -1,6 +1,5 @@
 .sw-card-filter {
     display: flex;
-    height: 30px;
 
     .sw-card-filter-container {
         flex: 1;
@@ -8,15 +7,5 @@
         &.hasFilter {
             padding-right: 20px;
         }
-
-        .sw-simple-search-field__input {
-            input {
-                height: 32px;
-            }
-        }
     }
-}
-
-.mt-card__toolbar .sw-card-filter {
-    width: 100%;
 }

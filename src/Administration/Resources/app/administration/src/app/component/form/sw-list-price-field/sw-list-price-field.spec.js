@@ -72,12 +72,6 @@ const setup = async (propOverride) => {
 };
 
 describe('components/form/sw-list-price-field', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await setup();
-        await flushPromises();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should set listPrice null when the gross value is NaN', async () => {
         const wrapper = await setup();
         const listPrice = {

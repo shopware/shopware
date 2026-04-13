@@ -174,13 +174,6 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         Shopware.Store.get('session').setCurrentUser({});
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be render tab', async () => {
         const wrapper = await createWrapper([
             'country.editor',

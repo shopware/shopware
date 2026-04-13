@@ -209,6 +209,7 @@ async function createWrapper(props = defaultProps, sendingSucceds = true, mailTe
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-field-error': true,
+                'sw-time-ago': await wrapTestComponent('sw-time-ago'),
             },
             provide: {
                 repositoryFactory: {
@@ -237,7 +238,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         const descriptionListElements = wrapper.findAll('.sw-description-list > dd');
         expect(descriptionListElements[0].text()).toBe(String(mockDocuments[0].documentNumber));
         expect(descriptionListElements[1].text()).toBe(String(mockDocuments[0].documentType.name));
-        expect(descriptionListElements[2].text()).toBe('23 January 2024 at 14:00');
+        expect(descriptionListElements[2].text()).toBe('23/01/2024, 14:00');
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe(
             mockMailTemplates[0].mailTemplateType.name,

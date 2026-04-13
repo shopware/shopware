@@ -23,6 +23,12 @@ export default {
             required: false,
             default: null,
         },
+
+        product: {
+            type: Object,
+            required: false,
+            default: null,
+        },
     },
 
     methods: {

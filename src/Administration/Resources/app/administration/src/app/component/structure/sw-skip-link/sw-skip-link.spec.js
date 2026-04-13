@@ -40,10 +40,6 @@ describe('src/app/component/structure/sw-skip-link/index.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should handle focus class on focus and blur events', async () => {
         const skipLink = wrapper.find('.sw-skip-link');
 

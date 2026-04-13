@@ -5,8 +5,6 @@
 import template from './sw-rating-stars.html.twig';
 import './sw-rating-stars.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @description Renders rating stars
@@ -15,7 +13,7 @@ const { Component } = Shopware;
  * @component-example
  * <sw-rating-stars v-model='actualStars' :maxStars='5' :iconSize='16' :displayFractions='4'></sw-rating-stars>
  */
-Component.register('sw-rating-stars', {
+export default {
     template,
 
     props: {
@@ -83,4 +81,4 @@ Component.register('sw-rating-stars', {
             return `width: ${this.maxStars * this.iconSize + this.maxStars - 1}px;`;
         },
     },
-});
+};

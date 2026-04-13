@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
@@ -33,10 +34,12 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class AddressControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -175,7 +178,7 @@ class AddressControllerTest extends TestCase
         $dataBag->set('type', 'shipping');
         $dataBag->set('id', $newDefaultShippingAddress);
 
-        $controller->checkoutSwitchDefaultAddress($dataBag, $context, $customer);
+        $controller->checkoutSwitchDefaultAddress($request, $dataBag, $context, $customer);
 
         /** @var EntityRepository<CustomerCollection> $repo */
         $repo = static::getContainer()->get('customer.repository');
@@ -236,7 +239,7 @@ class AddressControllerTest extends TestCase
         static::getContainer()->get('request_stack')->push($request);
 
         /** @var RedirectResponse $response */
-        $response = $controller->saveAddress($dataBag, $context, $customer);
+        $response = $controller->saveAddress($dataBag, $context, $customer, new Request());
 
         $criteria = new Criteria([$id1]);
         $criteria->addAssociation('addresses');
@@ -245,9 +248,9 @@ class AddressControllerTest extends TestCase
             ->getEntities()
             ->first();
 
+        static::assertInstanceOf(FlashBagAwareSessionInterface::class, $this->getSession());
         static::assertSame(
             ['success' => [static::getContainer()->get('translator')->trans('account.addressSaved')]],
-            // @phpstan-ignore method.notFound
             $this->getSession()->getFlashBag()->all()
         );
         static::assertTrue($response->isRedirect(), (string) $response->getContent());
@@ -282,7 +285,7 @@ class AddressControllerTest extends TestCase
         $dataBag->set('type', 'billing');
         $dataBag->set('id', $newDefaultBillingAddress);
 
-        $controller->checkoutSwitchDefaultAddress($dataBag, $context, $customer);
+        $controller->checkoutSwitchDefaultAddress($request, $dataBag, $context, $customer);
 
         /** @var EntityRepository<CustomerCollection> $repo */
         $repo = static::getContainer()->get('customer.repository');
@@ -320,7 +323,7 @@ class AddressControllerTest extends TestCase
 
         static::expectException(RoutingException::class);
 
-        $controller->checkoutSwitchDefaultAddress($dataBag, $context, $customer);
+        $controller->checkoutSwitchDefaultAddress($request, $dataBag, $context, $customer);
     }
 
     public function testSwitchDefaultAddressWithInvalidUuid(): void
@@ -371,9 +374,9 @@ class AddressControllerTest extends TestCase
         /** @var RedirectResponse $response */
         $response = $controller->switchDefaultAddress('foo', $customer->getDefaultBillingAddressId(), $context, $customer);
 
+        static::assertInstanceOf(FlashBagAwareSessionInterface::class, $this->getSession());
         static::assertSame(
             ['danger' => [static::getContainer()->get('translator')->trans('account.addressDefaultNotChanged')]],
-            // @phpstan-ignore method.notFound
             $this->getSession()->getFlashBag()->all()
         );
         static::assertTrue($response->isRedirect(), (string) $response->getContent());
@@ -414,9 +417,9 @@ class AddressControllerTest extends TestCase
         static::assertNotNull($customer);
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertTrue($response->isRedirect(), (string) $response->getContent());
+        static::assertInstanceOf(FlashBagAwareSessionInterface::class, $this->getSession());
         static::assertSame(
             ['success' => [static::getContainer()->get('translator')->trans('account.addressDefaultChanged')]],
-            // @phpstan-ignore method.notFound
             $this->getSession()->getFlashBag()->all()
         );
         static::assertSame($newDefaultShippingAddress, $customer->getDefaultShippingAddressId());
@@ -456,9 +459,10 @@ class AddressControllerTest extends TestCase
 
         static::assertNotNull($customer);
         static::assertInstanceOf(CustomerEntity::class, $customer);
+
+        static::assertInstanceOf(FlashBagAwareSessionInterface::class, $this->getSession());
         static::assertSame(
             ['success' => [static::getContainer()->get('translator')->trans('account.addressDefaultChanged')]],
-            // @phpstan-ignore method.notFound
             $this->getSession()->getFlashBag()->all()
         );
         static::assertTrue($response->isRedirect(), (string) $response->getContent());
@@ -486,11 +490,9 @@ class AddressControllerTest extends TestCase
         static::getContainer()->get('request_stack')->push($request);
 
         $newActiveAddress = $this->createCustomerAddress($id1);
+        $request->request->set(SalesChannelContextService::SHIPPING_ADDRESS_ID, $newActiveAddress);
 
-        $dataBag = new RequestDataBag();
-        $dataBag->set(SalesChannelContextService::SHIPPING_ADDRESS_ID, $newActiveAddress);
-
-        $controller->addressManagerSwitch($dataBag, $context);
+        $controller->addressManagerSwitch($request, $context);
 
         $newContext = static::getContainer()->get(SalesChannelContextPersister::class)->load($context->getToken(), TestDefaults::SALES_CHANNEL);
 
@@ -520,11 +522,9 @@ class AddressControllerTest extends TestCase
         static::getContainer()->get('request_stack')->push($request);
 
         $newActiveAddress = $this->createCustomerAddress($id1);
+        $request->request->set(SalesChannelContextService::BILLING_ADDRESS_ID, $newActiveAddress);
 
-        $dataBag = new RequestDataBag();
-        $dataBag->set(SalesChannelContextService::BILLING_ADDRESS_ID, $newActiveAddress);
-
-        $controller->addressManagerSwitch($dataBag, $context);
+        $controller->addressManagerSwitch($request, $context);
 
         $newContext = static::getContainer()->get(SalesChannelContextPersister::class)->load($context->getToken(), TestDefaults::SALES_CHANNEL);
 
@@ -571,7 +571,7 @@ class AddressControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event): void {
+            static function (StorefrontRenderEvent $event): void {
                 $data = $event->getParameters();
 
                 static::assertArrayHasKey('formViolations', $data);

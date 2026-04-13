@@ -52,9 +52,9 @@ class AbsolutePriceCalculatorTest extends TestCase
 
         static::assertEquals($calculation->getExpected()->getCalculatedTaxes(), $calculatedPrice->getCalculatedTaxes());
         static::assertEquals($calculation->getExpected()->getTaxRules(), $calculatedPrice->getTaxRules());
-        static::assertEquals($calculation->getExpected()->getTotalPrice(), $calculatedPrice->getTotalPrice());
-        static::assertEquals($calculation->getExpected()->getUnitPrice(), $calculatedPrice->getUnitPrice());
-        static::assertEquals($calculation->getExpected()->getQuantity(), $calculatedPrice->getQuantity());
+        static::assertSame($calculation->getExpected()->getTotalPrice(), $calculatedPrice->getTotalPrice());
+        static::assertSame($calculation->getExpected()->getUnitPrice(), $calculatedPrice->getUnitPrice());
+        static::assertSame($calculation->getExpected()->getQuantity(), $calculatedPrice->getQuantity());
     }
 
     /**

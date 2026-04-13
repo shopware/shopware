@@ -47,7 +47,7 @@ class LockValidator implements EventSubscriberInterface
         $writeCommands = $event->getCommands();
         $lockedEntities = $this->containsLockedEntities($writeCommands);
 
-        if (empty($lockedEntities)) {
+        if ($lockedEntities === []) {
             return;
         }
 

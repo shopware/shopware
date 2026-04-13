@@ -14,11 +14,15 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
@@ -33,6 +37,9 @@ use Shopware\Core\Test\Generator;
 #[Package('checkout')]
 class AddressValidatorTest extends TestCase
 {
+    /**
+     * @var MockObject&EntityRepository<EntityCollection<Entity>>
+     */
     private MockObject&EntityRepository $repository;
 
     private AddressValidator $validator;
@@ -46,7 +53,14 @@ class AddressValidatorTest extends TestCase
     public function testValidateShippingAddressWithMixedItems(): void
     {
         $cart = new Cart('test');
-        $cart->add((new LineItem('a', 'test'))->setStates([State::IS_DOWNLOAD]));
+
+        $lineItem = (new LineItem('a', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_DOWNLOAD]);
+        }
+
+        $cart->add($lineItem);
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
@@ -57,7 +71,7 @@ class AddressValidatorTest extends TestCase
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );
@@ -66,20 +80,33 @@ class AddressValidatorTest extends TestCase
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
 
-        static::assertEquals(0, $errorCollection->count());
+        static::assertCount(0, $errorCollection);
 
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
+        $lineItem = (new LineItem('b', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_PHYSICAL]);
+        }
+
+        $cart->add($lineItem);
 
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
 
-        static::assertEquals(1, $errorCollection->count());
+        static::assertCount(1, $errorCollection);
     }
 
     public function testValidateShippingAddressWithOnlyPhysicalItems(): void
     {
         $cart = new Cart('test');
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
+
+        $lineItem = (new LineItem('a', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_PHYSICAL]);
+        }
+
+        $cart->add($lineItem);
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
@@ -90,7 +117,7 @@ class AddressValidatorTest extends TestCase
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );
@@ -99,13 +126,20 @@ class AddressValidatorTest extends TestCase
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
 
-        static::assertEquals(0, $errorCollection->count());
+        static::assertCount(0, $errorCollection);
     }
 
     public function testValidateShippingAddressWithOnlyDownloadItems(): void
     {
         $cart = new Cart('test');
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_DOWNLOAD]));
+
+        $lineItem = (new LineItem('a', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_DOWNLOAD]);
+        }
+
+        $cart->add($lineItem);
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
@@ -116,7 +150,7 @@ class AddressValidatorTest extends TestCase
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );
@@ -125,13 +159,19 @@ class AddressValidatorTest extends TestCase
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
 
-        static::assertEquals(0, $errorCollection->count());
+        static::assertCount(0, $errorCollection);
     }
 
     public function testValidateShippingAddressWithoutSalutation(): void
     {
         $cart = new Cart('test');
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
+        $lineItem = (new LineItem('b', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_PHYSICAL]);
+        }
+
+        $cart->add($lineItem);
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
@@ -164,11 +204,11 @@ class AddressValidatorTest extends TestCase
         $customer->setActiveBillingAddress($customerAddress);
         $customer->setActiveShippingAddress($customerAddress);
 
-        $context = Generator::generateSalesChannelContext(country: $country, countryState: $countryState, customer: $customer);
+        $context = Generator::generateSalesChannelContext(customer: $customer, country: $country, countryState: $countryState);
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );
@@ -177,15 +217,20 @@ class AddressValidatorTest extends TestCase
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
 
-        static::assertEquals(1, $errorCollection->count());
-        // @phpstan-ignore-next-line > Object will not be null since there is an object in the collection
-        static::assertEquals(BillingAddressSalutationMissingError::class, \get_class($errorCollection->first()));
+        static::assertCount(1, $errorCollection);
+        static::assertInstanceOf(BillingAddressSalutationMissingError::class, $errorCollection->first());
     }
 
     public function testValidateAddressWithoutState(): void
     {
         $cart = new Cart('test');
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
+        $lineItem = (new LineItem('b', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_PHYSICAL]);
+        }
+
+        $cart->add($lineItem);
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
@@ -220,11 +265,11 @@ class AddressValidatorTest extends TestCase
         $customer->setActiveBillingAddress($customerAddress);
         $customer->setActiveShippingAddress($customerAddress);
 
-        $context = Generator::generateSalesChannelContext(country: $country, countryState: $countryState, customer: $customer);
+        $context = Generator::generateSalesChannelContext(customer: $customer, country: $country, countryState: $countryState);
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );
@@ -233,17 +278,22 @@ class AddressValidatorTest extends TestCase
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
 
-        static::assertEquals(2, $errorCollection->count());
-        // @phpstan-ignore-next-line > Object will not be null since there are 2 objects in the collection
-        static::assertEquals(BillingAddressCountryRegionMissingError::class, \get_class($errorCollection->first()));
-        // @phpstan-ignore-next-line > Object will not be null since there are 2 objects in the collection
-        static::assertEquals(ShippingAddressCountryRegionMissingError::class, \get_class($errorCollection->last()));
+        static::assertCount(2, $errorCollection);
+        static::assertInstanceOf(BillingAddressCountryRegionMissingError::class, $errorCollection->first());
+        static::assertInstanceOf(ShippingAddressCountryRegionMissingError::class, $errorCollection->last());
     }
 
     public function testValidateAddressWithState(): void
     {
         $cart = new Cart('test');
-        $cart->add((new LineItem('b', 'test'))->setStates([State::IS_PHYSICAL]));
+
+        $lineItem = (new LineItem('b', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItem->setStates([State::IS_PHYSICAL]);
+        }
+
+        $cart->add($lineItem);
 
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
@@ -279,11 +329,11 @@ class AddressValidatorTest extends TestCase
         $customer->setActiveBillingAddress($customerAddress);
         $customer->setActiveShippingAddress($customerAddress);
 
-        $context = Generator::generateSalesChannelContext(country: $country, countryState: $countryState, customer: $customer);
+        $context = Generator::generateSalesChannelContext(customer: $customer, country: $country, countryState: $countryState);
 
         $idSearchResult = new IdSearchResult(
             1,
-            [['data' => $country->getId(), 'primaryKey' => $country->getId()]],
+            [$country->getId() => ['data' => [], 'primaryKey' => $country->getId()]],
             new Criteria(),
             Context::createDefaultContext()
         );
@@ -292,6 +342,6 @@ class AddressValidatorTest extends TestCase
         $errorCollection = new ErrorCollection();
         $this->validator->validate($cart, $errorCollection, $context);
 
-        static::assertEquals(0, $errorCollection->count());
+        static::assertCount(0, $errorCollection);
     }
 }

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
@@ -16,6 +17,7 @@ use Shopware\Storefront\Theme\ThemeFileResolver;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -78,6 +80,9 @@ class ThemeDumpCommand extends Command
 
             if ($input->isInteractive() && \count($choices) > 1) {
                 $helper = $this->getHelper('question');
+                \assert($helper instanceof QuestionHelper);
+
+                $this->io->note($this->getThemeAssignmentInfos());
                 $question = new ChoiceQuestion('Please select a theme:', $choices);
                 $themeName = $helper->ask($input, $output, $question);
 
@@ -88,7 +93,7 @@ class ThemeDumpCommand extends Command
         }
 
         $themeEntity = $this->themeRepository->search($criteria, $this->context)->getEntities()->first();
-        if (!$themeEntity) {
+        if (!$themeEntity instanceof ThemeEntity) {
             $this->io->error('No theme found which is connected to a storefront sales channel');
 
             return self::FAILURE;
@@ -114,14 +119,15 @@ class ThemeDumpCommand extends Command
             true
         );
 
-        $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($themeConfig);
+        $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($themeConfig);
 
+        $themeName = $themeEntity->getTechnicalName() ?? $themeEntity->getId();
         $domainUrl = $input->getArgument('domain-url');
         if ($input->isInteractive()) {
-            $domainUrl = $domainUrl ?? $this->askForDomainUrlIfMoreThanOneExists($themeEntity, $input, $output);
+            $domainUrl ??= $this->askForDomainUrlIfMoreThanOneExists($themeEntity, $input, $output);
 
             if ($domainUrl === null) {
-                $this->io->error(\sprintf('No domain URL for theme %s found', $themeEntity->getTechnicalName()));
+                $this->io->error(\sprintf('No domain URL for theme %s found', $themeName));
 
                 return self::FAILURE;
             }
@@ -135,7 +141,7 @@ class ThemeDumpCommand extends Command
 
         $this->staticFileConfigDumper->dumpConfig($this->context);
 
-        $this->io->writeln(\sprintf('Theme `%s` config dumped to file: %s', $themeEntity->getTechnicalName(), 'theme-files.json'));
+        $this->io->writeln(\sprintf('Theme `%s` config dumped to file: %s', $themeName, 'theme-files.json'));
 
         return self::SUCCESS;
     }
@@ -151,6 +157,37 @@ class ThemeDumpCommand extends Command
 
         foreach ($themes as $theme) {
             $choices[] = $theme->getName();
+        }
+
+        return $choices;
+    }
+
+    private function getThemeAssignmentInfos(): string
+    {
+        $choices = 'Theme assignment:' . \PHP_EOL;
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('salesChannels');
+        $themes = $this->themeRepository->search($criteria, $this->context)->getEntities();
+
+        foreach ($themes as $theme) {
+            $themeName = $theme->getName();
+            $salesChannels = $theme->getSalesChannels()?->filterByTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
+            $channelCount = $salesChannels ? $salesChannels->count() : 0;
+
+            if ($channelCount > 0) {
+                $choices .=
+                    \sprintf(
+                        '%s || Assigned to: %s',
+                        $themeName,
+                        $salesChannels ? implode(', ', $salesChannels->map(static fn (SalesChannelEntity $channel) => $channel->getName())) : ''
+                    );
+                $choices .= \PHP_EOL;
+                continue;
+            }
+
+            $choices .= \sprintf('%s || Not assigned to any storefront channel', $themeName);
+            $choices .= \PHP_EOL;
         }
 
         return $choices;
@@ -178,6 +215,7 @@ class ThemeDumpCommand extends Command
 
         if (\count($domainUrls) > 1) {
             $helper = $this->getHelper('question');
+            \assert($helper instanceof QuestionHelper);
 
             $question = new ChoiceQuestion('Please select a domain url:', $domainUrls);
             $domainUrl = $helper->ask($input, $output, $question);

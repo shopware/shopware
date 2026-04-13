@@ -58,7 +58,7 @@ class PluginZipDetectorTest extends TestCase
     #[DataProvider('archiveProvider')]
     public function testDetect(string $archiveName, string $expectedType): void
     {
-        static::assertEquals(
+        static::assertSame(
             $expectedType,
             $this->zipDetector->detect($this->fixturePath . $archiveName),
         );

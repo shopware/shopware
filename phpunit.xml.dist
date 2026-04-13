@@ -2,17 +2,29 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
          bootstrap="src/Core/TestBootstrap.php"
+         cacheDirectory=".phpunit.cache"
          cacheResult="false"
-         executionOrder="random"
          displayDetailsOnPhpunitDeprecations="true"
          displayDetailsOnTestsThatTriggerWarnings="true"
-         cacheDirectory=".phpunit.cache">
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         executionOrder="random"
+         failOnRisky="true">
     <coverage includeUncoveredFiles="true"/>
-    <source>
+    <source ignoreSuppressionOfDeprecations="true"
+            ignoreIndirectDeprecations="true"
+            restrictNotices="true"
+            restrictWarnings="true">
+        <deprecationTrigger>
+            <function>trigger_deprecation</function>
+            <method>Doctrine\Deprecations\Deprecation::trigger</method>
+            <method>Doctrine\Deprecations\Deprecation::delegateTriggerToBackend</method>
+        </deprecationTrigger>
         <include>
             <directory suffix=".php">src</directory>
         </include>
         <exclude>
+            <directory suffix="Exception.php">src</directory>
+
             <file>src/Administration/Events/PreResetExcludedSearchTermEvent.php</file>
             <directory suffix="Definition.php">src/Administration/Notification/</directory>
             <directory suffix="Entity.php">src/Administration/Notification/</directory>
@@ -28,27 +40,17 @@
             <directory suffix="Struct.php">src/Administration/Snippet/</directory>
             <directory suffix="Collection.php">src/Administration/Snippet/</directory>
 
-
-            <file>src/Core/Framework/Adapter/Twig/functions.php</file>
-            <directory suffix=".php">src/Core/Test/Integration/Builder</directory>
-            <directory suffix=".php">src/Core/Framework/Test</directory>
-            <directory suffix=".php">src/Core/Framework/Telemetry/Metrics/Metric</directory>
-            <directory suffix=".php">src/Core/Content/Test</directory>
-            <directory suffix=".php">src/Core/Content/Cms/DataResolver/ResolverContext/</directory>
-            <directory suffix=".php">src/Core/Content/Cms/Extension/</directory>
-            <directory suffix=".php">src/Core/DevOps/StaticAnalyze</directory>
-            <directory suffix=".php">src/Core/DevOps/Test/Command/stubs</directory>
-            <directory suffix=".php">src/Core/DevOps/Test/Environment</directory>
-            <directory suffix=".php">src/Core/Migration/Test</directory>
-            <directory suffix=".php">src/Elasticsearch/Test</directory>
-            <directory suffix=".php">src/Storefront/Test</directory>
-
             <directory suffix="Definition.php">src/Core/</directory>
             <directory suffix="Entity.php">src/Core/</directory>
             <directory suffix="Event.php">src/Core/</directory>
             <directory suffix="Field.php">src/Core/</directory>
             <directory suffix="Struct.php">src/Core/</directory>
             <directory suffix="Collection.php">src/Core/</directory>
+
+            <directory suffix=".php">src/Core/Content/Cms/DataResolver/ResolverContext/</directory>
+            <directory suffix=".php">src/Core/Content/Cms/Extension/</directory>
+            <directory suffix=".php">src/Core/DevOps/StaticAnalyze</directory>
+            <directory suffix=".php">src/Core/Framework/Telemetry/Metrics/Metric</directory>
 
             <directory suffix="Definition.php">src/Storefront/Checkout</directory>
             <directory suffix="Entity.php">src/Storefront/Checkout</directory>
@@ -85,12 +87,36 @@
             <directory suffix="Field.php">src/Storefront/Theme</directory>
             <directory suffix="Struct.php">src/Storefront/Theme</directory>
             <directory suffix="Collection.php">src/Storefront/Theme</directory>
+
+            <!-- All fixtures, stubs, traits used for tests -->
+            <directory suffix=".php">src/Core/Content/Test</directory>
+            <directory suffix=".php">src/Core/DevOps/Test</directory>
+            <directory suffix=".php">src/Core/Framework/Test</directory>
+            <directory suffix=".php">src/Core/Migration/Test</directory>
+            <directory suffix=".php">src/Core/Migration/Traits</directory>
+            <directory suffix=".php">src/Core/Test</directory>
+            <directory suffix=".php">src/Elasticsearch/Test</directory>
+            <directory suffix=".php">src/Storefront/Test</directory>
+
+            <!-- All former migrations -->
+            <directory suffix=".php">src/Administration/Migration/V6_4</directory>
+            <directory suffix=".php">src/Core/Migration/V6_3</directory>
+            <directory suffix=".php">src/Core/Migration/V6_4</directory>
+            <directory suffix=".php">src/Core/Migration/V6_5</directory>
+            <directory suffix=".php">src/Elasticsearch/Migration/V6_5</directory>
+            <directory suffix=".php">src/Storefront/Migration/V6_3</directory>
+            <directory suffix=".php">src/Storefront/Migration/V6_4</directory>
+            <directory suffix=".php">src/Storefront/Migration/V6_5</directory>
+
+            <!-- Helper class and its output DTOs and exception, which could not be unit tested -->
+            <directory suffix=".php">src/Core/Framework/Util/Database</directory>
         </exclude>
     </source>
     <php>
         <ini name="error_reporting" value="-1"/>
         <ini name="memory_limit" value="-1"/>
         <server name="KERNEL_CLASS" value="Shopware\Core\Kernel"/>
+        <server name="APP_ENV" value="test"/>
         <env name="APP_ENV" value="test"/>
         <env name="APP_DEBUG" value="1"/>
         <env name="APP_SECRET" value="def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48"/>
@@ -99,9 +125,6 @@
         <server name="TESTS_RUNNING" value="1"/>
         <server name="MAILER_URL" value="null://localhost"/>
         <server name="HTTPS" value="off"/>
-        <!--To see the full stackTrace of a Deprecation set the value to a regex matching the deprecation warning-->
-        <!--https://symfony.com/doc/current/components/phpunit_bridge.html#display-the-full-stack-trace-->
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[self]=0&amp;ignoreFile=./deprecation.ignore" />
     </php>
     <testsuites>
         <testsuite name="unit">
@@ -116,13 +139,11 @@
             <file>tests/integration/Core/Framework/AdditionalPermissionValidationTest.php</file>
             <file>tests/integration/Core/Framework/ApiRoutesHaveASchemaTest.php</file>
             <file>tests/integration/Core/Framework/KernelTest.php</file>
-            <file>tests/integration/Core/Framework/ServiceDefinitionTest.php</file>
             <directory>tests/integration/Core/Framework/Adapter</directory>
             <directory>tests/integration/Core/Framework/Api</directory>
             <directory>tests/integration/Core/Framework/App</directory>
-            <directory>tests/integration/Core/Framework/Cache</directory>
-            <directory>tests/integration/Core/Framework/Changelog</directory>
             <directory>tests/integration/Core/Framework/CustomField</directory>
+            <directory>tests/integration/Core/Framework/Validation</directory>
         </testsuite>
 
         <testsuite name="core-framework-batch2">
@@ -135,6 +156,7 @@
             <directory>tests/integration/Core/Framework/Log</directory>
             <directory>tests/integration/Core/Framework/MessageQueue</directory>
             <directory>tests/integration/Core/Framework/Migration</directory>
+            <directory>tests/integration/Core/Framework/Notification</directory>
         </testsuite>
 
         <testsuite name="core-framework-batch3">
@@ -144,6 +166,7 @@
             <directory>tests/integration/Core/Framework/Rule</directory>
             <directory>tests/integration/Core/Framework/Script</directory>
             <directory>tests/integration/Core/Framework/Seo</directory>
+            <directory>tests/integration/Core/Framework/Sso</directory>
             <directory>tests/integration/Core/Framework/Store</directory>
             <directory>tests/integration/Core/Framework/Telemetry</directory>
             <directory>tests/integration/Core/Framework/TestCaseBase</directory>

@@ -46,10 +46,17 @@ responses.addResponse({
 async function createWrapper(condition = {}) {
     condition.getEntityName = () => 'rule_condition';
 
+    const conditionDataProviderService = new ConditionDataProviderService();
+    conditionDataProviderService.addCondition(condition.type, {
+        ...condition,
+        component: 'sw-condition-generic',
+    });
+
     return mount(await wrapTestComponent('sw-condition-generic', { sync: true }), {
         attachTo: document.body,
         props: {
             condition,
+            isDisabled: false,
         },
         global: {
             renderStubDefaultSlot: true,
@@ -92,7 +99,7 @@ async function createWrapper(condition = {}) {
                 'sw-field-copyable': true,
             },
             provide: {
-                conditionDataProviderService: new ConditionDataProviderService(),
+                conditionDataProviderService,
                 ruleConditionsConfigApiService: {
                     load: () => Promise.resolve(),
                 },
@@ -178,16 +185,16 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
 
         expect(wrapper.vm.condition.value.isDifferent).toBeUndefined();
 
-        await wrapper.get('.sw-single-select .sw-select__selection').trigger('click');
+        await wrapper.get('.mt-select .mt-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.get('.sw-select-option--0').trigger('click');
+        await wrapper.get('.mt-select-option--0').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.condition.value.isDifferent).toBeTruthy();
 
-        await wrapper.get('.sw-single-select .sw-select__selection').trigger('click');
-        await wrapper.get('.sw-select-option--1').trigger('click');
+        await wrapper.get('.mt-select .mt-select__selection').trigger('click');
+        await wrapper.get('.mt-select-option--1').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.condition.value.isDifferent).toBeFalsy();
@@ -201,16 +208,16 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
 
         expect(wrapper.vm.condition.value.taxDisplay).toBeUndefined();
 
-        await wrapper.get('.sw-single-select .sw-select__selection').trigger('click');
+        await wrapper.get('.mt-select .mt-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.get('.sw-select-option--0').trigger('click');
+        await wrapper.get('.mt-select-option--0').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.condition.value.taxDisplay).toBe('gross');
 
-        await wrapper.get('.sw-single-select .sw-select__selection').trigger('click');
-        await wrapper.get('.sw-select-option--1').trigger('click');
+        await wrapper.get('.mt-select .mt-select__selection').trigger('click');
+        await wrapper.get('.mt-select-option--1').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.condition.value.taxDisplay).toBe('net');

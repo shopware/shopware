@@ -81,7 +81,7 @@ class ManyToManyAssociationServiceTest extends TestCase
             $this->createMock(EntityWriteGatewayInterface::class)
         );
 
-        /** @phpstan-ignore-next-line We want to mock this */
+        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
         $associationField = $this->createMock(ManyToManyAssociationField::class);
         $associationField->method('getPropertyName')
             ->willReturn('propertyName');
@@ -102,7 +102,7 @@ class ManyToManyAssociationServiceTest extends TestCase
             'primaryKeyName'
         );
 
-        static::assertEquals([
+        static::assertSame([
             'propertyName' => [
                 Uuid::fromHexToBytes($ids->get('1')) => [
                     $ids->get('referenceColumn-1'),

@@ -12,6 +12,8 @@ const CURRENCY_ID = {
     POUND: 'fce3465831e8639bb2ea165d0fcf1e8b',
 };
 
+let lastProductSearchCriteria = null;
+
 function mockContext() {
     return {
         apiPath: 'http://shopware.local/api',
@@ -63,7 +65,7 @@ function mockCriteria() {
 }
 
 function getProductData(criteria) {
-    const products = [
+    let products = [
         {
             active: true,
             stock: 333,
@@ -120,7 +122,7 @@ function getProductData(criteria) {
     ];
 
     // check if grid is sorting for currency
-    const sortingForCurrency = criteria.sortings.some((sortAttr) => sortAttr.field.startsWith('price'));
+    const sortingForCurrency = criteria.sortings?.some((sortAttr) => sortAttr.field.startsWith('price'));
 
     if (sortingForCurrency) {
         const sortBy = criteria.sortings[0].field;
@@ -141,7 +143,7 @@ function getProductData(criteria) {
     }
 
     // check if grid is sorting for name
-    const sortingForName = criteria.sortings.some((sortAttr) => sortAttr.field.startsWith('name'));
+    const sortingForName = criteria.sortings?.some((sortAttr) => sortAttr.field.startsWith('name'));
 
     if (sortingForName) {
         const sortDirection = criteria.sortings[0].order;
@@ -158,7 +160,7 @@ function getProductData(criteria) {
     }
 
     // check if grid is sorting for manufacturer name
-    const sortingForManufacturer = criteria.sortings.some((sortAttr) => sortAttr.field.startsWith('manufacturer'));
+    const sortingForManufacturer = criteria.sortings?.some((sortAttr) => sortAttr.field.startsWith('manufacturer'));
 
     if (sortingForManufacturer) {
         const sortDirection = criteria.sortings[0].order;
@@ -172,6 +174,12 @@ function getProductData(criteria) {
 
             return nameA < nameB ? -1 : 1;
         });
+    }
+
+    const filterProductNumber = criteria.filters?.find((filter) => filter.field === 'productNumber');
+    if (filterProductNumber) {
+        const productNumber = filterProductNumber.value;
+        products = products.filter((product) => product.productNumber.includes(productNumber));
     }
 
     products.sortings = [];
@@ -226,6 +234,7 @@ async function createWrapper() {
                 meta: {
                     $module: {
                         entity: 'product',
+                        icon: 'solid-content',
                     },
                 },
             },
@@ -248,6 +257,7 @@ async function createWrapper() {
                             if (name === 'product') {
                                 return {
                                     search: (criteria) => {
+                                        lastProductSearchCriteria = criteria;
                                         const productData = getProductData(criteria);
 
                                         return Promise.resolve(productData);
@@ -274,6 +284,9 @@ async function createWrapper() {
                         buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                             return criteria;
                         },
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
                     },
                     filterFactory: {
                         create: () => [],
@@ -295,9 +308,6 @@ async function createWrapper() {
                     },
                     'sw-data-grid-settings': {
                         template: '<div></div>',
-                    },
-                    'sw-empty-state': {
-                        template: '<div class="sw-empty-state"></div>',
                     },
                     'sw-pagination': {
                         template: '<div></div>',
@@ -347,6 +357,7 @@ async function createWrapper() {
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
                     'sw-provide': { template: '<slot/>', inheritAttrs: false },
+                    'sw-time-ago': true,
                 },
             },
         }),
@@ -362,19 +373,11 @@ Shopware.Service().register('filterService', () => {
 
 describe('module/sw-product/page/sw-product-list', () => {
     let wrapper;
-    let router;
 
     beforeEach(async () => {
+        lastProductSearchCriteria = null;
         const data = await createWrapper();
         wrapper = data.wrapper;
-        router = data.router;
-    });
-
-    it('should be a Vue.JS component', async () => {
-        await router.push({
-            name: 'sw.product.list',
-        });
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should sort grid when sorting for price', async () => {
@@ -653,11 +656,9 @@ describe('module/sw-product/page/sw-product-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('.sw-empty-state');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 
@@ -668,7 +669,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         wrapper.vm.$router.push = jest.fn();
         await wrapper.setData({
             selection: {
-                foo: { states: ['is-download'] },
+                foo: { type: 'digital' },
             },
         });
 
@@ -689,7 +690,10 @@ describe('module/sw-product/page/sw-product-list', () => {
     it('should return filters from filter registry', async () => {
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
         expect(wrapper.vm.currencyFilter).toEqual(expect.any(Function));
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
         expect(wrapper.vm.stockColorVariantFilter).toEqual(expect.any(Function));
     });
 
@@ -704,5 +708,76 @@ describe('module/sw-product/page/sw-product-list', () => {
                 (association) => association.association === 'configuratorSettings',
             ),
         ).toBeFalsy();
+    });
+
+    it('should filter products by product number filter input', async () => {
+        wrapper.vm.filterCriteria.push(Criteria.equals('productNumber', 'SW10001'));
+
+        const productCriteria = wrapper.vm.productCriteria;
+        const products = getProductData(productCriteria);
+
+        expect(products).toHaveLength(1);
+        expect(products[0].productNumber).toBe('SW10001');
+    });
+
+    it('should consider criteria filters via updateCriteria', async () => {
+        await wrapper.vm.getList();
+        await flushPromises();
+
+        const filter = Criteria.equals('foo', 'bar');
+        wrapper.vm.updateCriteria([filter]);
+        await flushPromises();
+
+        expect(wrapper.vm.filterCriteria).toContainEqual(filter);
+    });
+
+    it('should extend category equals filters via updateCriteria', async () => {
+        await wrapper.vm.getList();
+        await flushPromises();
+
+        const filter = Criteria.equals('categories.id', 'category-1');
+        wrapper.vm.updateCriteria([filter]);
+        await flushPromises();
+
+        expect(wrapper.vm.filterCriteria).toStrictEqual([
+            Criteria.multi('OR', [
+                filter,
+                Criteria.equalsAny('product.streams.categories.id', [
+                    'category-1',
+                ]),
+            ]),
+        ]);
+    });
+
+    it('should normalize merged category filters before searching products', async () => {
+        const filterService = Shopware.Service('filterService');
+        filterService.mergeWithStoredFilters = jest.fn(() => {
+            const mergedCriteria = new Criteria(1, 25);
+            mergedCriteria.addFilter(
+                Criteria.equalsAny('categories.id', [
+                    'category-1',
+                    'category-2',
+                ]),
+            );
+
+            return mergedCriteria;
+        });
+
+        await wrapper.vm.getList();
+        await flushPromises();
+
+        expect(lastProductSearchCriteria.parse().filter).toEqual([
+            Criteria.multi('OR', [
+                Criteria.equalsAny('categories.id', [
+                    'category-1',
+                    'category-2',
+                ]),
+                Criteria.equalsAny('product.streams.categories.id', [
+                    'category-1',
+                    'category-2',
+                ]),
+            ]),
+            Criteria.equals('product.parentId', null),
+        ]);
     });
 });

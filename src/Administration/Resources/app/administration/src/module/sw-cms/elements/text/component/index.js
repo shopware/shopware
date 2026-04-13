@@ -1,6 +1,5 @@
 import template from './sw-cms-el-text.html.twig';
 import './sw-cms-el-text.scss';
-// eslint-disable-next-line max-len
 import SwTextEditorToolbarButtonCmsDataMappingButton from '../../../../../app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
 
 const { Mixin } = Shopware;
@@ -13,6 +12,8 @@ export default {
     template,
 
     emits: ['element-update'],
+
+    inject: ['feature'],
 
     mixins: [
         Mixin.getByName('cms-element'),
@@ -73,11 +74,14 @@ export default {
     methods: {
         createdComponent() {
             this.initElementConfig('text');
+            this.updateDemoValue();
         },
 
         updateDemoValue() {
             if (this.element.config.content.source === 'mapped') {
-                this.demoValue = this.getDemoValue(this.element.config.content.value);
+                const label = `<strong>${this.element.config.content.value}</strong>`;
+                const fallbackLabel = `${this.$t('sw-cms.detail.label.mappingPreview')} ${label}`;
+                this.demoValue = this.getDemoValue(this.element.config.content.value) || fallbackLabel;
             }
         },
 

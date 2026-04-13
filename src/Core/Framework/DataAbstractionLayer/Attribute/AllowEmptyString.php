@@ -8,7 +8,4 @@ use Shopware\Core\Framework\Log\Package;
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class AllowEmptyString
 {
-    public function __construct()
-    {
-    }
 }

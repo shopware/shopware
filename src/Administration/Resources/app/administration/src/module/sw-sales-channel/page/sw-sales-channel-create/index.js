@@ -4,6 +4,7 @@
 
 import template from './sw-sales-channel-create.html.twig';
 
+const { Context } = Shopware;
 const utils = Shopware.Utils;
 
 const insertIdIntoRoute = (to, from, next) => {
@@ -21,6 +22,8 @@ export default {
     beforeRouteEnter: insertIdIntoRoute,
 
     beforeRouteUpdate: insertIdIntoRoute,
+
+    inject: ['systemConfigApiService'],
 
     computed: {
         allowSaving() {
@@ -42,7 +45,32 @@ export default {
             this.salesChannel.typeId = this.$route.params.typeId;
             this.salesChannel.active = false;
 
-            this.$super('createdComponent');
+            // Set default language from admin context
+            const defaultLanguageId = Shopware.Store.get('context').api.languageId;
+            this.salesChannel.languageId = defaultLanguageId;
+            this.ensureDefaultLanguageInCollection(defaultLanguageId);
+
+            this.setMeasurementUnits()
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-sales-channel.detail.messageMeasurementUnitsSetError'),
+                    });
+                })
+                .finally(() => {
+                    this.$super('createdComponent');
+                });
+        },
+
+        async setMeasurementUnits() {
+            const measurementUnits = await this.getMeasurementUnits();
+
+            this.salesChannel.measurementUnits = {
+                system: measurementUnits['core.measurementUnits.system'],
+                units: {
+                    length: measurementUnits['core.measurementUnits.length'],
+                    weight: measurementUnits['core.measurementUnits.weight'],
+                },
+            };
         },
 
         saveFinish() {
@@ -55,6 +83,34 @@ export default {
 
         onSave() {
             this.$super('onSave');
+        },
+
+        getMeasurementUnits() {
+            return this.systemConfigApiService.getValues('core.measurementUnits');
+        },
+
+        ensureDefaultLanguageInCollection(languageId) {
+            if (!languageId || !this.salesChannel?.languages) {
+                return;
+            }
+
+            if (this.salesChannel.languages.has(languageId)) {
+                return;
+            }
+
+            const languageRepository = this.repositoryFactory.create('language');
+            languageRepository.get(languageId, Context.api).then((language) => {
+                if (!language || this.salesChannel.languages.has(languageId)) {
+                    return;
+                }
+
+                if (typeof this.salesChannel.languages.add === 'function') {
+                    this.salesChannel.languages.add(language);
+                    return;
+                }
+
+                this.salesChannel.languages = this.salesChannel.languages.concat([language]);
+            });
         },
     },
 };

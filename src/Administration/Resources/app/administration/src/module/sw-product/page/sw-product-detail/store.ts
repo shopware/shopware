@@ -17,6 +17,9 @@ type LoadingProperties =
     | 'rules'
     | 'variants'
     | 'defaultFeatureSet'
+    /**
+     * @deprecated tag:v6.8.0 - Remove "advancedMode" from the list.
+     */
     | 'advancedMode';
 
 const swProductDetail = Shopware.Store.register({
@@ -44,9 +47,15 @@ const swProductDetail = Shopware.Store.register({
                 rules: false,
                 variants: false,
                 defaultFeatureSet: false,
+                /**
+                 * @deprecated tag:v6.8.0 - will be removed without replacement
+                 */
                 advancedMode: false,
             },
             localMode: false,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
             advancedModeSetting: {} as { value?: { advancedMode: { enabled: boolean } } },
             modeSettings: [
                 'general_information',
@@ -55,13 +64,20 @@ const swProductDetail = Shopware.Store.register({
                 'visibility_structure',
                 'media',
                 'labelling',
-                'measures_packaging',
+                'measurement',
+                'selling_packaging',
                 'properties',
                 'essential_characteristics',
                 'custom_fields',
             ],
-            /* Product "types" provided by the split button for creating a new product through a router parameter */
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed, use `creationType` instead.
+             */
             creationStates: [] as string[],
+            /* Product "types" provided by the split button for creating a new product through a router parameter */
+            creationType: 'physical' as string,
+            lengthUnit: 'mm',
+            weightUnit: 'kg',
         };
     },
 
@@ -133,14 +149,35 @@ const swProductDetail = Shopware.Store.register({
             return !!state.product?.parentId;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         showModeSetting(state): boolean {
             return !!state.product?.parentId || this.advanceModeEnabled;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         advanceModeEnabled(state): boolean {
             return !!state.advancedModeSetting.value?.advancedMode.enabled;
         },
 
+        productType(state): string {
+            if (state.product.isNew?.() && state.creationType) {
+                return state.creationType;
+            }
+
+            if (state.product.type) {
+                return state.product.type;
+            }
+
+            return 'physical';
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `productType` instead.
+         */
         productStates(state): string[] {
             if (state.product.isNew?.() && state.creationStates) {
                 return state.creationStates;
@@ -213,13 +250,22 @@ const swProductDetail = Shopware.Store.register({
         setTaxes(newTaxes: EntitySchema.tax[]) {
             this.taxes = newTaxes;
 
-            if (this.product && this.product.taxId === null && !this.parentProduct.id) {
+            // if product has no tax id and is not a child product, set the first tax id
+            if (this.product && this.product.taxId === null && !this.isChild) {
                 this.product.taxId = this.taxes[0]?.id;
             }
         },
 
         setDefaultFeatureSet(newDefaultFeatureSet: EntitySchema.product_feature_set) {
             this.defaultFeatureSet = newDefaultFeatureSet;
+        },
+
+        setLengthUnit(unit: string) {
+            this.lengthUnit = unit;
+        },
+
+        setWeightUnit(unit: string) {
+            this.weightUnit = unit;
         },
     },
 });

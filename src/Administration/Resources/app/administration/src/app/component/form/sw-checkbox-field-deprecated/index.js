@@ -2,7 +2,7 @@ import { inject } from 'vue';
 import template from './sw-checkbox-field-deprecated.html.twig';
 import './sw-checkbox-field.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -15,7 +15,7 @@ const utils = Shopware.Utils;
  * @component-example
  * <sw-checkbox-field v-model="aBooleanProperty" label="Name"></sw-checkbox-field>
  */
-Component.register('sw-checkbox-field-deprecated', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -55,21 +55,18 @@ Component.register('sw-checkbox-field-deprecated', {
         value: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: null,
         },
 
         inheritedValue: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: null,
         },
 
         ghostValue: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: null,
         },
 
@@ -189,4 +186,4 @@ Component.register('sw-checkbox-field-deprecated', {
             this.$emit('update:value', changeEvent.target.checked);
         },
     },
-});
+};

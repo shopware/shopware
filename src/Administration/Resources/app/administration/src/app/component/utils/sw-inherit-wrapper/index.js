@@ -1,8 +1,6 @@
 import './sw-inherit-wrapper.scss';
 import template from './sw-inherit-wrapper.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -36,7 +34,7 @@ const { Component } = Shopware;
  * </sw-inherit-wrapper>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-inherit-wrapper', {
+export default {
     template,
 
     inject: ['feature'],
@@ -48,12 +46,10 @@ Component.register('sw-inherit-wrapper', {
     ],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         inheritedValue: {
             required: true,
         },
@@ -85,7 +81,6 @@ Component.register('sw-inherit-wrapper', {
         hasParent: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
 
@@ -259,4 +254,4 @@ Component.register('sw-inherit-wrapper', {
             this.$emit('update:value', newValue);
         },
     },
-});
+};

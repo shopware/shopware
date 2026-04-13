@@ -4,8 +4,11 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
+use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
@@ -19,7 +22,8 @@ class CheapestPriceUpdater
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly AbstractCheapestPriceQuantitySelector $quantitySelector
+        private readonly AbstractCheapestPriceQuantitySelector $quantitySelector,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
@@ -30,7 +34,7 @@ class CheapestPriceUpdater
     {
         $parentIds = array_unique(array_filter($parentIds));
 
-        if (empty($parentIds)) {
+        if ($parentIds === []) {
             return;
         }
 
@@ -47,6 +51,8 @@ class CheapestPriceUpdater
             $this->connection,
             $this->connection->prepare('UPDATE product SET cheapest_price_accessor = :accessor WHERE id = :id AND version_id = :version')
         );
+
+        $variantIdsUpdated = [];
 
         foreach ($all as $productId => $prices) {
             $container = new CheapestPriceContainer($prices);
@@ -75,12 +81,20 @@ class CheapestPriceUpdater
                     continue;
                 }
 
+                if ($variantId !== $productId) {
+                    $variantIdsUpdated[] = $variantId;
+                }
+
                 $accessorQuery->execute([
                     'accessor' => $accessor,
                     'id' => Uuid::fromHexToBytes($variantId),
                     'version' => $versionId,
                 ]);
             }
+        }
+
+        if ($variantIdsUpdated !== []) {
+            $this->dispatcher->dispatch(new ProductIndexerEvent($variantIdsUpdated, $context, ['product.seo-url']));
         }
     }
 
@@ -119,7 +133,7 @@ class CheapestPriceUpdater
      */
     private function getCheapest(?string $ruleId, array $prices, ?array $default): ?array
     {
-        if (isset($prices[$ruleId])) {
+        if ($ruleId !== null && isset($prices[$ruleId])) {
             return $prices[$ruleId];
         }
 
@@ -186,18 +200,13 @@ class CheapestPriceUpdater
 
         $this->quantitySelector->add($query);
 
-        $ids = Uuid::fromHexToBytesList($ids);
+        $idsBytes = Uuid::fromHexToBytesList($ids);
+        $versionBytes = Uuid::fromHexToBytes($context->getVersionId());
 
-        $query->setParameter('ids', $ids, ArrayParameterType::BINARY);
-        $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
+        $query->setParameter('ids', $idsBytes, ArrayParameterType::BINARY);
+        $query->setParameter('version', $versionBytes);
 
         $data = $query->executeQuery()->fetchAllAssociative();
-
-        $grouped = [];
-        foreach ($data as $row) {
-            $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
-            $grouped[(string) $row['parent_id']][(string) $row['variant_id']][(string) $row['rule_id']] = $row;
-        }
 
         $query = $this->connection->createQueryBuilder();
         $query->select(
@@ -218,11 +227,27 @@ class CheapestPriceUpdater
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('product.version_id = :version');
         $query->andWhere('IFNULL(product.active, parent.active) = 1 OR product.child_count > 0'); // always load parent products
-
-        $query->setParameter('ids', $ids, ArrayParameterType::BINARY);
-        $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
+        $query->setParameter('ids', $idsBytes, ArrayParameterType::BINARY);
+        $query->setParameter('version', $versionBytes);
 
         $defaults = $query->executeQuery()->fetchAllAssociative();
+
+        // Collect all unique product IDs from both queries
+        $productIds = [];
+        $rows = [...$data, ...$defaults];
+        foreach ($rows as $row) {
+            $productIds[$row['variant_id']] = true;
+        }
+
+        // Fetch visibility once for all products
+        $visibilityMap = $this->fetchVisibilityMap(array_keys($productIds), $context);
+
+        $grouped = [];
+        foreach ($data as $row) {
+            $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
+            $row['sales_channel_ids'] = $visibilityMap[$row['variant_id']] ?? $visibilityMap[$row['parent_id']] ?? [];
+            $grouped[(string) $row['parent_id']][(string) $row['variant_id']][(string) $row['rule_id']] = $row;
+        }
 
         foreach ($defaults as $row) {
             if ($row['price'] === null) {
@@ -233,6 +258,8 @@ class CheapestPriceUpdater
 
             $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
             $row['price'] = $this->normalizePrices($row['price']);
+            $row['sales_channel_ids'] = $visibilityMap[$row['variant_id']] ?? $visibilityMap[$row['parent_id']] ?? [];
+
             if ($row['child_count'] > 0) {
                 $grouped[(string) $row['parent_id']]['default'] = $row;
 
@@ -243,6 +270,34 @@ class CheapestPriceUpdater
         }
 
         return $grouped;
+    }
+
+    /**
+     * @param array<string> $productIds
+     *
+     * @return array<string, array<string>> Map of product_id => [sales_channel_ids]
+     */
+    private function fetchVisibilityMap(array $productIds, Context $context): array
+    {
+        if ($productIds === []) {
+            return [];
+        }
+
+        $results = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(product_id)) as product_id, LOWER(HEX(sales_channel_id)) as sales_channel_id
+             FROM product_visibility
+             WHERE product_id IN (:ids)
+             AND product_version_id = :version',
+            [
+                'ids' => Uuid::fromHexToBytesList($productIds),
+                'version' => Uuid::fromHexToBytes($context->getVersionId()),
+            ],
+            [
+                'ids' => ArrayParameterType::BINARY,
+            ]
+        );
+
+        return FetchModeHelper::group($results, static fn ($row): string => (string) $row['sales_channel_id']);
     }
 
     /**

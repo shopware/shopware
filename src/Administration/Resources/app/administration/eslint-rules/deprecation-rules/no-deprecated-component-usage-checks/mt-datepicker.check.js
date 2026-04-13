@@ -42,11 +42,11 @@ const handleMtDatepicker = (context, node) => {
     if (valueAttribute) {
         context.report({
             node: valueAttribute,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "model-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(valueAttribute.key, 'modelValue');
+                yield fixer.replaceText(valueAttribute.key, 'model-value');
             }
         });
     }
@@ -54,11 +54,11 @@ const handleMtDatepicker = (context, node) => {
     if (valueAttributeExpression) {
         context.report({
             node: valueAttributeExpression,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "model-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(valueAttributeExpression.key.argument, 'modelValue');
+                yield fixer.replaceText(valueAttributeExpression.key.argument, 'model-value');
             }
         });
     }
@@ -78,11 +78,11 @@ const handleMtDatepicker = (context, node) => {
     if (updateValueEvent) {
         context.report({
             node: updateValueEvent,
-            message: `[${mtComponentName}] The "update:value" event is deprecated. Use "update:modelValue" instead.`,
+            message: `[${mtComponentName}] The "update:value" event is deprecated. Use "update:mode-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(updateValueEvent.key.argument, 'update:modelValue');
+                yield fixer.replaceText(updateValueEvent.key.argument, 'update:model-value');
             }
         });
     }
@@ -134,7 +134,7 @@ const mtDatepickerValidTests = [
 
 const mtDatepickerInvalidTests = [
     {
-        name: '"mt-datepicker" wrong "value" prop usage should be replaced with "modelValue"',
+        name: '"mt-datepicker" wrong "value" prop usage should be replaced with "model-value"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -142,14 +142,14 @@ const mtDatepickerInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-datepicker modelValue="yes" />
+                <mt-datepicker model-value="yes" />
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-datepicker] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-datepicker" wrong "value" prop usage should be replaced with "modelValue" [disableFix]',
+        name: '"mt-datepicker" wrong "value" prop usage should be replaced with "model-value" [disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -157,11 +157,11 @@ const mtDatepickerInvalidTests = [
                 <mt-datepicker value="yes" />
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-datepicker] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-datepicker" wrong "value" prop usage should be replaced with "modelValue" [expression]',
+        name: '"mt-datepicker" wrong "value" prop usage should be replaced with "model-value" [expression]',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -169,14 +169,14 @@ const mtDatepickerInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-datepicker :modelValue="myValue" />
+                <mt-datepicker :model-value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-datepicker] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-datepicker" wrong "value" prop usage should be replaced with "modelValue" [expression, disableFix]',
+        name: '"mt-datepicker" wrong "value" prop usage should be replaced with "model-value" [expression, disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -184,7 +184,7 @@ const mtDatepickerInvalidTests = [
                 <mt-datepicker :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-datepicker] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -215,7 +215,7 @@ const mtDatepickerInvalidTests = [
         }]
     },
     {
-        name: '"mt-datepicker" wrong "update:value" event usage should be replaced with "update:modelValue"',
+        name: '"mt-datepicker" wrong "update:value" event usage should be replaced with "update:mode-value"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -223,14 +223,14 @@ const mtDatepickerInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-datepicker @update:modelValue="updateValue" />
+                <mt-datepicker @update:model-value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "update:value" event is deprecated. Use "update:modelValue" instead.',
+            message: '[mt-datepicker] The "update:value" event is deprecated. Use "update:mode-value" instead.',
         }],
     },
     {
-        name: '"mt-datepicker" wrong "update:value" event usage should be replaced with "update:modelValue" [disableFix]',
+        name: '"mt-datepicker" wrong "update:value" event usage should be replaced with "update:mode-value" [disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -238,7 +238,7 @@ const mtDatepickerInvalidTests = [
                 <mt-datepicker @update:value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-datepicker] The "update:value" event is deprecated. Use "update:modelValue" instead.',
+            message: '[mt-datepicker] The "update:value" event is deprecated. Use "update:mode-value" instead.',
         }],
     },
     {

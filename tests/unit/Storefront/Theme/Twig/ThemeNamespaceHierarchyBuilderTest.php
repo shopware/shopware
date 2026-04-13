@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
@@ -40,7 +39,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
     {
         $events = $this->builder->getSubscribedEvents();
 
-        static::assertEquals([
+        static::assertSame([
             KernelEvents::REQUEST,
             KernelEvents::EXCEPTION,
             DocumentTemplateRendererParameterEvent::class,
@@ -74,14 +73,14 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
      * @param array<string, bool> $expectedThemes
      */
     #[DataProvider('onRenderingDocumentProvider')]
-    public function testOnRenderingDocument(array $parameters, array $expectedThemes, ?string $usingTheme): void
+    public function testOnRenderingDocument(array $parameters, array $expectedThemes, ?string $usingTheme, ?string $usingParentTheme = null): void
     {
         $request = Request::createFromGlobals();
         $event = new DocumentTemplateRendererParameterEvent($parameters);
 
         $expectedDB = [
             'themeName' => $usingTheme,
-            'parentThemeName' => null,
+            'parentThemeName' => $usingParentTheme,
             'themeId' => Uuid::randomHex(),
         ];
         $connectionMock = $this->createMock(Connection::class);
@@ -145,16 +144,16 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
 
     public function testItReturnsItsInputIfNoThemesAreSet(): void
     {
-        $bundles = ['a', 'b'];
+        $bundles = ['a' => 1, 'b' => 2];
 
-        $hierarchy = $this->builder->buildNamespaceHierarchy(['a', 'b']);
+        $hierarchy = $this->builder->buildNamespaceHierarchy(['a' => 1, 'b' => 2]);
 
-        static::assertEquals($bundles, $hierarchy);
+        static::assertSame($bundles, $hierarchy);
     }
 
     public function testItPassesBundlesAndThemesToBuilder(): void
     {
-        $bundles = ['a', 'b'];
+        $bundles = ['a' => 1, 'b' => 2];
 
         $request = Request::createFromGlobals();
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'TestTheme');
@@ -164,8 +163,8 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
         $hierarchy = $this->builder->buildNamespaceHierarchy($bundles);
 
         static::assertEquals([
-            'Storefront' => true,
-            'TestTheme' => true,
+            'Storefront' => 1,
+            'TestTheme' => 1,
         ], $hierarchy);
     }
 
@@ -180,7 +179,9 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
             [
                 'context' => $context,
             ],
-            [],
+            [
+                'Storefront' => true,
+            ],
             null,
         ];
 
@@ -200,6 +201,18 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
             ],
             'SwagTheme',
         ];
+
+        yield 'missing direct theme name uses parent theme' => [
+            [
+                'context' => $context,
+            ],
+            [
+                'SwagTheme' => true,
+                'Storefront' => true,
+            ],
+            null,
+            'SwagTheme',
+        ];
     }
 
     /**
@@ -207,7 +220,7 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
      */
     private function assertThemes(array $expectation, ThemeNamespaceHierarchyBuilder $builder): void
     {
-        $refProperty = ReflectionHelper::getPropertyValue($builder, 'themes');
+        $refProperty = (new \ReflectionProperty(ThemeNamespaceHierarchyBuilder::class, 'themes'))->getValue($builder);
 
         static::assertEquals($expectation, $refProperty);
     }
@@ -219,13 +232,19 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
 class TestInheritanceBuilder implements ThemeInheritanceBuilderInterface
 {
     /**
-     * @param array<string> $bundles
-     * @param array<string> $themes
+     * @param array<string, int> $bundles
+     * @param array<int|string, bool> $themes
      *
-     * @return array<string>
+     * @return array<string, int>
      */
     public function build(array $bundles, array $themes): array
     {
-        return $themes;
+        // Convert boolean theme values to integer priorities for test purposes
+        $result = [];
+        foreach ($themes as $key => $value) {
+            $result[(string) $key] = $value === true ? 1 : 0;
+        }
+
+        return $result;
     }
 }

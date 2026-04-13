@@ -39,6 +39,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -68,7 +69,7 @@ class RecalculationServiceTest extends TestCase
         $this->orderConverter = $this->createMock(OrderConverter::class);
         $this->orderConverter
             ->method('assembleSalesChannelContext')
-            ->willReturnCallback(function (OrderEntity $order, Context $context) {
+            ->willReturnCallback(static function (OrderEntity $order, Context $context) {
                 static::assertNotNull($order->getTaxStatus());
                 $context->setTaxState($order->getTaxStatus());
 
@@ -102,11 +103,15 @@ class RecalculationServiceTest extends TestCase
         $entityRepository
             ->expects($this->once())
             ->method('upsert')
-            ->willReturnCallback(function (array $data, Context $context) use ($orderEntity) {
+            ->willReturnCallback(static function (array $data, Context $context) use ($orderEntity) {
                 static::assertSame($data[0]['stateId'], $orderEntity->getStateId());
                 static::assertNotNull($data[0]['deliveries']);
                 static::assertNotNull($data[0]['deliveries'][0]);
-                static::assertSame($data[0]['deliveries'][0]['stateId'], $orderEntity->getDeliveries()?->first()?->getStateId());
+                if (Feature::isActive('v6.8.0.0')) {
+                    static::assertSame($data[0]['deliveries'][0]['stateId'], $orderEntity->getPrimaryOrderDelivery()?->getStateId());
+                } else {
+                    static::assertSame($data[0]['deliveries'][0]['stateId'], $orderEntity->getDeliveries()?->first()?->getStateId());
+                }
 
                 static::assertSame($context->getTaxState(), CartPrice::TAX_STATE_FREE);
 
@@ -123,7 +128,7 @@ class RecalculationServiceTest extends TestCase
         $this->orderConverter
             ->expects($this->once())
             ->method('convertToCart')
-            ->willReturnCallback(function (OrderEntity $order, Context $context) use ($cart) {
+            ->willReturnCallback(static function (OrderEntity $order, Context $context) use ($cart) {
                 static::assertSame($order->getTaxStatus(), CartPrice::TAX_STATE_FREE);
                 static::assertSame($context->getTaxState(), CartPrice::TAX_STATE_FREE);
 
@@ -142,7 +147,7 @@ class RecalculationServiceTest extends TestCase
                     $cart,
                     $salesChannelContext,
                     '',
-                    $conversionContext->shouldIncludeOrderDate()
+                    $conversionContext->shouldIncludePersistentData(),
                 );
 
                 // add empty delivery to trigger settings the state id
@@ -186,8 +191,12 @@ class RecalculationServiceTest extends TestCase
 
     public function testAddProductToOrder(): void
     {
+        $delivery = $this->orderDeliveryEntity();
+
         $order = $this->orderEntity();
-        $order->setDeliveries(new OrderDeliveryCollection([$this->orderDeliveryEntity()]));
+        $order->setDeliveries(new OrderDeliveryCollection([$delivery]));
+        $order->setPrimaryOrderDeliveryId($delivery->getId());
+        $order->setPrimaryOrderDelivery($delivery);
 
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->method('search')->willReturnOnConsecutiveCalls(
@@ -275,14 +284,8 @@ class RecalculationServiceTest extends TestCase
 
     public function testAssertProcessorsCalledWithLiveVersion(): void
     {
-        $deliveryEntity = new OrderDeliveryEntity();
-        $deliveryEntity->setId(Uuid::randomHex());
-        $deliveryEntity->setStateId(Uuid::randomHex());
-
-        $deliveries = new OrderDeliveryCollection([$deliveryEntity]);
-
         $order = $this->orderEntity();
-        $order->setDeliveries($deliveries);
+        $order->setDeliveries(new OrderDeliveryCollection([$this->orderDeliveryEntity()]));
 
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->method('search')->willReturnOnConsecutiveCalls(
@@ -396,12 +399,12 @@ class RecalculationServiceTest extends TestCase
             ->with(static::anything(), static::anything(), static::callback(static function (OrderConversionContext $context) {
                 return $context->shouldIncludeDeliveries();
             }))
-            ->willReturnCallback(function (Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext) {
+            ->willReturnCallback(static function (Cart $cart, SalesChannelContext $context, OrderConversionContext $conversionContext) {
                 return CartTransformer::transform(
                     $cart,
                     $context,
                     '',
-                    $conversionContext->shouldIncludeOrderDate()
+                    $conversionContext->shouldIncludePersistentData(),
                 );
             });
 
@@ -434,7 +437,7 @@ class RecalculationServiceTest extends TestCase
         $entityRepository
             ->expects($this->once())
             ->method('upsert')
-            ->willReturnCallback(function (array $data) {
+            ->willReturnCallback(static function (array $data) {
                 static::assertNotNull($data[0]);
                 static::assertEmpty($data[0]['deliveries']);
 
@@ -455,7 +458,7 @@ class RecalculationServiceTest extends TestCase
                     $cart,
                     $salesChannelContext,
                     '',
-                    $conversionContext->shouldIncludeOrderDate()
+                    $conversionContext->shouldIncludePersistentData(),
                 );
             });
 
@@ -545,6 +548,16 @@ class RecalculationServiceTest extends TestCase
         $order->setSalesChannelId(Uuid::randomHex());
         $order->setTaxStatus(CartPrice::TAX_STATE_FREE);
         $order->setStateId(Uuid::randomHex());
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $deliveryId = Uuid::randomHex();
+            $deliveryEntity = new OrderDeliveryEntity();
+            $deliveryEntity->setId($deliveryId);
+            $deliveryEntity->setStateId(Uuid::randomHex());
+
+            $order->setPrimaryOrderDeliveryId($deliveryId);
+            $order->setPrimaryOrderDelivery($deliveryEntity);
+        }
 
         return $order;
     }

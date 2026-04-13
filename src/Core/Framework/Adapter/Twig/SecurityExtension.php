@@ -45,6 +45,11 @@ class SecurityExtension extends AbstractExtension
             return null;
         }
 
+        if (\is_array($function)) {
+            $function = implode('::', $function);
+            \assert(\is_callable($function));
+        }
+
         if (\is_string($function) && !\in_array($function, $this->allowedPHPFunctions, true)) {
             throw AdapterException::securityFunctionNotAllowed($function);
         }
@@ -53,10 +58,8 @@ class SecurityExtension extends AbstractExtension
         foreach ($array as $key => $value) {
             if (\is_string($function)) {
                 // Custom functions
-                // @phpstan-ignore-next-line (Dynamic function name allowed)
                 $result[$key] = $function($value);
             } else {
-                // @phpstan-ignore-next-line (Dynamic function name allowed)
                 $result[$key] = $function($value, $key);
             }
         }

@@ -8,10 +8,14 @@ use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.8.0 - will be removed, use `PaymentTokenGenerator` and `PaymentTokenLifecycle` instead
+ */
 #[Package('checkout')]
 class JWTFactoryV2 implements TokenFactoryInterfaceV2
 {
@@ -19,13 +23,15 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
      * @internal
      */
     public function __construct(
-        private Configuration $configuration,
-        private readonly Connection $connection
+        private readonly Configuration $configuration,
+        private readonly Connection $connection,
     ) {
     }
 
     public function generateToken(TokenStruct $tokenStruct): string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(static::class, 'v6.8.0.0', PaymentTokenGenerator::class));
+
         $expires = new \DateTimeImmutable('@' . time());
 
         // @see https://github.com/php/php-src/issues/9950
@@ -67,6 +73,8 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
      */
     public function parseToken(string $token): TokenStruct
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(static::class, 'v6.8.0.0', PaymentTokenGenerator::class));
+
         try {
             /** @var UnencryptedToken $jwtToken */
             $jwtToken = $this->configuration->parser()->parse($token);
@@ -75,13 +83,13 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
         }
 
         // Remove LooseValidAt constraint, as we want to check it manually and throw a more specific exception
-        $constraints = array_filter($this->configuration->validationConstraints(), fn ($constraint) => !$constraint instanceof LooseValidAt);
+        $constraints = array_filter($this->configuration->validationConstraints(), static fn ($constraint) => !$constraint instanceof LooseValidAt);
 
         if (!$this->configuration->validator()->validate($jwtToken, ...$constraints)) {
             throw PaymentException::invalidToken($token);
         }
 
-        if (!$this->has($token)) {
+        if (!$this->getSavedToken($token)) {
             throw PaymentException::tokenInvalidated($token);
         }
 
@@ -97,13 +105,19 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
             $jwtToken->claims()->get('sub'),
             $jwtToken->claims()->get('ful'),
             $expires->getTimestamp(),
-            $errorUrl
+            $errorUrl,
         );
     }
 
     public function invalidateToken(string $token): bool
     {
-        $this->delete($token);
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(static::class, 'v6.8.0.0', PaymentTokenGenerator::class));
+
+        if (Feature::isActive('REPEATED_PAYMENT_FINALIZE')) {
+            $this->connection->update('payment_token', ['consumed' => 1], ['token' => self::normalize($token)]);
+        } else {
+            $this->delete($token);
+        }
 
         return false;
     }
@@ -124,11 +138,12 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
         );
     }
 
-    private function has(string $token): bool
+    private function getSavedToken(string $token): bool
     {
-        $valid = $this->connection->fetchOne('SELECT token FROM payment_token WHERE token = :token', ['token' => self::normalize($token)]);
-
-        return $valid !== false;
+        return (bool) $this->connection->fetchOne(
+            'SELECT 1 FROM payment_token WHERE token = :token',
+            ['token' => self::normalize($token)]
+        );
     }
 
     private static function normalize(string $token): string

@@ -42,11 +42,17 @@ export default class FormAjaxSubmitPlugin extends Plugin {
          */
         redirectTo: false,
 
-        /*+
+        /**
          * route which should be forwarded to
          * when submitted
          */
         forwardTo: false,
+
+        /**
+         * whether or not the form should be submitted without validation
+         * @type bool
+         */
+        noValidate: false,
     };
 
     init() {
@@ -117,19 +123,20 @@ export default class FormAjaxSubmitPlugin extends Plugin {
     /**
      * on submit callback for the form
      *
-     * @param event
+     * @param {Event} event
      *
      * @private
      */
     _onSubmit(event) {
-        if (!event.cancelable) {
-            console.error('[Ajax Form Submit]: The submit event cannot be prevented as it is not cancelable and would be handled by the navigator.');
+
+        if (event.type === 'submit' && event.cancelable === true) {
+            event.preventDefault();
         }
 
-        event.preventDefault();
+        const submitter = event.submitter || event.currentTarget;
 
         // checks form validity before submit
-        if (this._form.checkValidity() === false) {
+        if (!this.options.noValidate && !submitter?.hasAttribute('formNoValidate') && !this._form.checkValidity()) {
             return;
         }
 
@@ -142,49 +149,67 @@ export default class FormAjaxSubmitPlugin extends Plugin {
 
         if (event.type === 'change' && Array.isArray(this.options.submitOnChange)) {
             const target = event.currentTarget;
-            this.options.submitOnChange.forEach(selector => {
+            this.options.submitOnChange.some(selector => {
                 if (target.matches(selector)) {
-                    this._fireRequest();
+                    this._fireRequest(event);
+                    return true;
                 }
+                return false;
             });
         } else {
-            this._fireRequest();
+            this._fireRequest(event);
         }
     }
 
     /**
      * fire the ajax request for the form
      *
+     * @param {Event} event
+     *
      * @private
      */
-    _fireRequest() {
+    _fireRequest(event) {
         this._createLoadingIndicators();
         this.$emitter.publish('beforeSubmit');
 
         if (!this.formSubmittedByCaptcha) {
-            this.sendAjaxFormSubmit();
+            this.sendAjaxFormSubmit(event);
         }
     }
 
-    sendAjaxFormSubmit() {
-        const action = this._form.getAttribute('action');
-        const method = this._form.getAttribute('method');
+    /**
+     * submits the form via ajax
+     *
+     * @param {Event|undefined} event
+     */
+    sendAjaxFormSubmit(event) {
+        let action = this._form.getAttribute('action');
+        let method = this._form.getAttribute('method');
 
-        if (method === 'get') {
-            fetch(action, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            })
-                .then(response => response.text())
-                .then(response => this._onAfterAjaxSubmit(response));
-        } else {
-            fetch(action, {
-                method: 'POST',
-                body: this._getFormData(),
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            })
-                .then(response => response.text())
-                .then(response => this._onAfterAjaxSubmit(response));
+        const submitter = event?.submitter || event?.currentTarget;
+        if (submitter?.hasAttribute('formAction')) {
+            action = submitter.getAttribute('formAction');
         }
+        if (submitter?.hasAttribute('formMethod')) {
+            method = submitter.getAttribute('formMethod').toLowerCase();
+        }
+
+        const fetchOptions = {
+            method: method === 'get' ? 'get' : (method ?? 'post'),
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        };
+
+        if (method !== 'get') {
+            fetchOptions.body = this._getFormData();
+        }
+
+        fetch(action, fetchOptions)
+            .then(response => response.text())
+            .then(response => this._onAfterAjaxSubmit(response))
+            .catch(error => {
+                console.error('Form submission error:', error);
+                this._removeLoadingIndicators();
+            });
     }
 
     /**
@@ -239,7 +264,9 @@ export default class FormAjaxSubmitPlugin extends Plugin {
         if (this.options.replaceSelectors) {
             this.options.replaceSelectors.forEach((selector) => {
                 const elements = document.querySelectorAll(selector);
-                elements.forEach(el => ElementLoadingIndicatorUtil.create(el));
+                elements.forEach(el => {
+                    ElementLoadingIndicatorUtil.create(el);
+                });
             });
         }
 
@@ -252,12 +279,16 @@ export default class FormAjaxSubmitPlugin extends Plugin {
      * @private
      */
     _removeLoadingIndicators() {
-        this.options.replaceSelectors.forEach((selector) => {
-            const elements = document.querySelectorAll(selector);
-            elements.forEach(el => ElementLoadingIndicatorUtil.remove(el));
-        });
+        if (this.options.replaceSelectors) {
+            this.options.replaceSelectors.forEach((selector) => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(el => {
+                    ElementLoadingIndicatorUtil.remove(el);
+                });
+            });
+        }
 
-        this.$emitter.publish('createLoadingIndicators');
+        this.$emitter.publish('removeLoadingIndicators');
     }
 
     /**

@@ -55,6 +55,52 @@
                         "ApiKey": []
                     }
                 ]
+            },
+            "get": {
+                "tags": [
+                    "Content"
+                ],
+                "summary": "Fetch and resolve Media Entities",
+                "description": "Fetch one or multiple Media Entities with the corresponding Identifier.",
+                "operationId": "readMediaGet",
+                "parameters": [
+                    {
+                        "name": "ids[]",
+                        "in": "query",
+                        "description": "Identifier (UUID) of the media entity to be fetched.",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The loaded MediaCollection containing the requested Media Entities.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Media"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
             }
         }
     }

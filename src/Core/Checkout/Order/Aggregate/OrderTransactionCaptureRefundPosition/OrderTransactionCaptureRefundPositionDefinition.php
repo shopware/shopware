@@ -53,21 +53,21 @@ class OrderTransactionCaptureRefundPositionDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of order transaction capture refund position.'),
             (new VersionField())->addFlags(new ApiAware()),
-            (new FkField('refund_id', 'refundId', OrderTransactionCaptureRefundDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new FkField('refund_id', 'refundId', OrderTransactionCaptureRefundDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of order transaction capture refund.'),
             (new ReferenceVersionField(OrderTransactionCaptureRefundDefinition::class, 'refund_version_id'))->addFlags(new ApiAware(), new Required()),
-            (new FkField('order_line_item_id', 'orderLineItemId', OrderLineItemDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new FkField('order_line_item_id', 'orderLineItemId', OrderLineItemDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of order line item.'),
             (new ReferenceVersionField(OrderLineItemDefinition::class))->addFlags(new ApiAware(), new Required()),
 
             (new ManyToOneAssociationField('orderLineItem', 'order_line_item_id', OrderLineItemDefinition::class, 'id'))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('orderTransactionCaptureRefund', 'order_transaction_capture_refund.id', OrderTransactionCaptureRefundDefinition::class, 'id'))->addFlags(new ApiAware()),
 
-            (new StringField('external_reference', 'externalReference'))->addFlags(new ApiAware()),
-            (new StringField('reason', 'reason'))->addFlags(new ApiAware()),
-            (new IntField('quantity', 'quantity'))->addFlags(new ApiAware()),
-            (new CalculatedPriceField('amount', 'amount'))->addFlags(new ApiAware(), new Required()),
-            (new CustomFields())->addFlags(new ApiAware()),
+            (new StringField('external_reference', 'externalReference'))->addFlags(new ApiAware())->setDescription('External payment provider token.'),
+            (new StringField('reason', 'reason'))->addFlags(new ApiAware())->setDescription('Reason for refunding the amount for an order.'),
+            (new IntField('quantity', 'quantity'))->addFlags(new ApiAware())->setDescription('Quantity of line item to be refunded.'),
+            (new CalculatedPriceField('amount', 'amount'))->addFlags(new ApiAware(), new Required())->setDescription('Number of items of each product.'),
+            (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
         ]);
     }
 }

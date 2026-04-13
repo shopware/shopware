@@ -5,8 +5,8 @@ namespace Shopware\Core\Checkout\Cart\LineItemFactoryHandler;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -36,7 +36,7 @@ class CustomLineItemFactory implements LineItemFactoryInterface
      */
     public function create(array $data, SalesChannelContext $context): LineItem
     {
-        if (!$context->hasPermission(ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
+        if (!$context->hasPermission(CheckoutPermissions::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
             throw CartException::insufficientPermission();
         }
 
@@ -53,7 +53,7 @@ class CustomLineItemFactory implements LineItemFactoryInterface
      */
     public function update(LineItem $lineItem, array $data, SalesChannelContext $context): void
     {
-        if (!$context->hasPermission(ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
+        if (!$context->hasPermission(CheckoutPermissions::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
             throw CartException::insufficientPermission();
         }
 

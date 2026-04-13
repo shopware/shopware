@@ -47,10 +47,6 @@ describe('src/module/sw-order/component/sw-order-address-modal', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should get customer information on creation', async () => {
         wrapper.vm.getCustomerInfo = jest.fn();
 

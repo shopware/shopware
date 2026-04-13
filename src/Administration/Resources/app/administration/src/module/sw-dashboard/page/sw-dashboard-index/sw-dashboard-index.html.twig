@@ -26,7 +26,7 @@
             {% endblock %}
             {% endblock %}
 
-            <sw-usage-data-consent-banner :can-be-hidden="true" />
+            <sw-settings-services-dashboard-banner />
 
             <sw-extension-component-section
                 position-identifier="sw-dashboard__before-content"
@@ -53,9 +53,14 @@
                             :key="`helpcardContent-${index}`"
                             class="sw-dashboard-index__card-list-item"
                         >
-                            <sw-external-link :href="$tc(`sw-dashboard.helpcard.${key}Link`)">
+                            <mt-link
+                                as="a"
+                                :to="$tc(`sw-dashboard.helpcard.${key}Link`)"
+                                type="external"
+                                target="_blank"
+                            >
                                 {{ $tc(`sw-dashboard.helpcard.${key}`) }}
-                            </sw-external-link>
+                            </mt-link>
                         </li>
                     </ul>
                     {% endblock %}
@@ -80,12 +85,21 @@
                     {% endblock %}
 
                     {% block sw_dashboard_index_content_feedback_link %}
-                    <sw-external-link
+                    <mt-button
                         class="sw-dashboard-index__card-button"
-                        :href="$tc('sw-dashboard.feedbackCard.feedbackLink')"
+                        size="large"
+                        variant="secondary"
+                        :link="$tc('sw-dashboard.feedbackCard.feedbackLink')"
                     >
-                        {{ $tc('sw-dashboard.feedbackCard.feedback') }}
-                    </sw-external-link>
+                        <span>{{ $tc('sw-dashboard.feedbackCard.feedback') }}</span>
+
+                        <template #iconBack>
+                            <mt-icon
+                                name="external-link-s"
+                                size="var(--scale-size-12)"
+                            />
+                        </template>
+                    </mt-button>
                     {% endblock %}
                     {% endblock %}
                 </div>

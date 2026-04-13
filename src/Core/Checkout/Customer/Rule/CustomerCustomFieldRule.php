@@ -55,7 +55,7 @@ class CustomerCustomFieldRule extends Rule
 
         $customFields = $customer->getCustomFields() ?? [];
 
-        return CustomFieldRule::match($this->renderedField, $this->renderedFieldValue, $this->operator, $customFields);
+        return CustomFieldRule::match($this->renderedField, $this->renderedFieldValue, $this->operator, $customFields, $scope->getSalesChannelContext());
     }
 
     public function getConstraints(): array

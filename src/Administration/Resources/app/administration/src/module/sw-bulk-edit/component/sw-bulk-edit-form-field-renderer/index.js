@@ -7,9 +7,11 @@ import template from './sw-bulk-edit-form-field-renderer.html.twig';
 export default {
     template,
 
-    computed: {
-        suffixLabel() {
-            return this.config?.suffixLabel ? this.config.suffixLabel : null;
+    emits: ['update:default-unit'],
+
+    methods: {
+        onUpdateDefaultUnit(unit) {
+            this.$emit('update:default-unit', { unit, config: this.config });
         },
     },
 };

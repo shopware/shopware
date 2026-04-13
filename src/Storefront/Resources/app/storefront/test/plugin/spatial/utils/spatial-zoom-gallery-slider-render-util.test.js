@@ -32,6 +32,55 @@ describe('SpatialZoomGallerySliderRenderUtil', () => {
         expect(SpatialZoomGallerySliderRenderUtilObject instanceof SpatialZoomGallerySliderRenderUtil).toBe(true);
     });
 
+    describe('constructor', () => {
+        test('should return early if plugin.el is falsy', () => {
+            jest.clearAllMocks();
+            const fakePlugin = { initViewer: jest.fn() };
+            new SpatialZoomGallerySliderRenderUtil(fakePlugin);
+            expect(window.PluginManager.getPluginInstanceFromElement).not.toHaveBeenCalled();
+        });
+
+        test('should return early if el.closest returns null', () => {
+            jest.clearAllMocks();
+            const fakePlugin = {
+                el: { closest: jest.fn().mockReturnValue(null) },
+                initViewer: jest.fn()
+            };
+            new SpatialZoomGallerySliderRenderUtil(fakePlugin);
+            expect(window.PluginManager.getPluginInstanceFromElement).not.toHaveBeenCalled();
+        });
+
+        test('should return early if gallerySlider.querySelector returns null', () => {
+            jest.clearAllMocks();
+            const fakePlugin = {
+                el: { closest: jest.fn().mockReturnValue({ querySelector: jest.fn().mockReturnValue(null) }) },
+                initViewer: jest.fn()
+            };
+            new SpatialZoomGallerySliderRenderUtil(fakePlugin);
+            expect(window.PluginManager.getPluginInstanceFromElement).not.toHaveBeenCalled();
+        });
+
+        test('should subscribe to initSlider event when valid elements', () => {
+            jest.clearAllMocks();
+            const fakeZoomModalElement = {};
+            const fakeGallerySlider = { querySelector: jest.fn().mockReturnValue(fakeZoomModalElement) };
+            const fakePlugin = {
+                el: { closest: jest.fn().mockReturnValue(fakeGallerySlider) },
+                initViewer: jest.fn()
+            };
+            const subscribeMock = jest.fn();
+            window.PluginManager.getPluginInstanceFromElement.mockReturnValue({ $emitter: { subscribe: subscribeMock } });
+
+            new SpatialZoomGallerySliderRenderUtil(fakePlugin);
+
+            expect(window.PluginManager.getPluginInstanceFromElement).toHaveBeenCalledWith(fakeZoomModalElement, 'ZoomModal');
+            expect(subscribeMock).toHaveBeenCalledWith('initSlider', expect.any(Function));
+            const [, initSliderCallback] = subscribeMock.mock.calls[0];
+            initSliderCallback();
+            expect(fakePlugin.initViewer).toHaveBeenCalled();
+        });
+    });
+
     describe('.removeDisabled', () => {
         beforeEach(() => {
             jest.clearAllMocks();

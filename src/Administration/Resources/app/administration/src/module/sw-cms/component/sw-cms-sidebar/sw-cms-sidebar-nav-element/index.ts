@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-sidebar-nav-element.html.twig';
 import './sw-cms-sidebar-nav-element.scss';
 

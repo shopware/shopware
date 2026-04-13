@@ -29,7 +29,7 @@ class ExtensionStoreLicensesControllerTest extends TestCase
         );
 
         $response = $controller->cancelSubscription(1, Context::createDefaultContext());
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
     public function testRateLicensedExtension(): void
@@ -49,6 +49,6 @@ class ExtensionStoreLicensesControllerTest extends TestCase
         ]);
 
         $response = $controller->rateLicensedExtension(1, $request, Context::createDefaultContext());
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 }

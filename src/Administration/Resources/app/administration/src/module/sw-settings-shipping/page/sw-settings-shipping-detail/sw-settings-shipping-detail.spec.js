@@ -222,4 +222,9 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
         wrapper.vm.loadEntityData();
         expect(spy).toHaveBeenCalled();
     });
+
+    it('should initialize shipping price with quantityStart=0 after creating component', async () => {
+        const wrapper = await createWrapper([]);
+        expect(wrapper.vm.shippingMethod.quantityStart).toBe(0);
+    });
 });

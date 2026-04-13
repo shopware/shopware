@@ -1,5 +1,5 @@
-import orderBy from 'lodash/orderBy';
-import sortBy from 'lodash/sortBy';
+import orderBy from 'lodash-es/orderBy';
+import sortBy from 'lodash-es/sortBy';
 import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
 
@@ -502,7 +502,6 @@ export default {
 
                 action.group = action.group || this.flowBuilderService.getGroup('GENERAL');
 
-                // eslint-disable-next-line max-len
                 actions.push(
                     actions.splice(
                         actions.findIndex((el) => el.group === this.flowBuilderService.getGroup('GENERAL')),

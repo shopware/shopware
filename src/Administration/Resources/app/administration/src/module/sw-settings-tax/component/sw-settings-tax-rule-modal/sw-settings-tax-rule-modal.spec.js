@@ -52,10 +52,6 @@ describe('sw-settings-tax-rule-modal', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should house a country criteria', async () => {
         expect(wrapper.vm.countryCriteria).toEqual(
             expect.objectContaining({

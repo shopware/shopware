@@ -136,7 +136,7 @@ export default {
                 return;
             }
 
-            this.countryId = this.$route.params.id;
+            this.countryId = this.$route.params.id.toLowerCase();
 
             Promise.all([
                 this.loadEntityData(),

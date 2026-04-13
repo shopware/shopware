@@ -37,7 +37,6 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -72,6 +71,9 @@ export default {
             return Shopware.Store.get('swProductDetail').isLoading;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Unused, will be removed without replacement
+         */
         productCrossSellingRepository() {
             return this.repositoryFactory.create('product_cross_selling');
         },
@@ -98,8 +100,19 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Unused, will be removed without replacement
+         */
         crossSellingAssigmentRepository() {
             return this.repositoryFactory.create('product_cross_selling_assigned_products');
+        },
+
+        crossSellingTitle() {
+            return (
+                this.crossSelling.name ||
+                this.crossSelling.translated?.name ||
+                this.$tc('sw-product.crossselling.newCrossSellingTitle')
+            );
         },
 
         sortingTypes() {
@@ -148,6 +161,9 @@ export default {
             return `${this.crossSelling.sortBy}:${this.crossSelling.sortDirection}`;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Unused, will be removed without replacement
+         */
         disablePositioning() {
             return !!this.term || this.sortBy !== 'position';
         },
@@ -174,6 +190,12 @@ export default {
                     label: item.label,
                 };
             });
+        },
+
+        productStreamCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('internal', false));
+            return criteria;
         },
     },
 

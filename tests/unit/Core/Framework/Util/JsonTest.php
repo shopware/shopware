@@ -25,8 +25,8 @@ class JsonTest extends TestCase
             Json::decodeToList('["abc", "foo"');
             static::fail(UtilException::class . ' not thrown');
         } catch (UtilException $e) {
-            static::assertEquals(UtilException::INVALID_JSON, $e->getErrorCode());
-            static::assertEquals('JSON is invalid', $e->getMessage());
+            static::assertSame(UtilException::INVALID_JSON, $e->getErrorCode());
+            static::assertSame('JSON is invalid', $e->getMessage());
             static::assertInstanceOf(\JsonException::class, $e->getPrevious());
         }
     }
@@ -37,8 +37,8 @@ class JsonTest extends TestCase
             Json::decodeToList('{"abc": "foo"}');
             static::fail(UtilException::class . ' not thrown');
         } catch (UtilException $e) {
-            static::assertEquals(UtilException::INVALID_JSON_NOT_LIST, $e->getErrorCode());
-            static::assertEquals('JSON cannot be decoded to a list', $e->getMessage());
+            static::assertSame(UtilException::INVALID_JSON_NOT_LIST, $e->getErrorCode());
+            static::assertSame('JSON cannot be decoded to a list', $e->getMessage());
         }
     }
 
@@ -48,8 +48,8 @@ class JsonTest extends TestCase
             Json::decodeToList('{"0": "abc", "2": "foo"}');
             static::fail(UtilException::class . ' not thrown');
         } catch (UtilException $e) {
-            static::assertEquals(UtilException::INVALID_JSON_NOT_LIST, $e->getErrorCode());
-            static::assertEquals('JSON cannot be decoded to a list', $e->getMessage());
+            static::assertSame(UtilException::INVALID_JSON_NOT_LIST, $e->getErrorCode());
+            static::assertSame('JSON cannot be decoded to a list', $e->getMessage());
         }
     }
 
@@ -79,8 +79,8 @@ class JsonTest extends TestCase
             Json::decodeToList($input);
             static::fail(UtilException::class . ' not thrown');
         } catch (UtilException $e) {
-            static::assertEquals(UtilException::INVALID_JSON_NOT_LIST, $e->getErrorCode());
-            static::assertEquals('JSON cannot be decoded to a list', $e->getMessage());
+            static::assertSame(UtilException::INVALID_JSON_NOT_LIST, $e->getErrorCode());
+            static::assertSame('JSON cannot be decoded to a list', $e->getMessage());
         }
     }
 

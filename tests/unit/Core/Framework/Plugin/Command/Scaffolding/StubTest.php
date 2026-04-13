@@ -20,8 +20,8 @@ class StubTest extends TestCase
 
         $stub = Stub::template($destinationPath, $sourcePath);
 
-        static::assertEquals($destinationPath, $stub->getPath());
-        static::assertEquals(file_get_contents(__DIR__ . '/test-with-params.stub'), $stub->getContent());
+        static::assertSame($destinationPath, $stub->getPath());
+        static::assertSame(file_get_contents(__DIR__ . '/test-with-params.stub'), $stub->getContent());
     }
 
     public function testRawConstructor(): void
@@ -31,8 +31,8 @@ class StubTest extends TestCase
 
         $stub = Stub::raw($destinationPath, $content);
 
-        static::assertEquals($destinationPath, $stub->getPath());
-        static::assertEquals($content, $stub->getContent());
+        static::assertSame($destinationPath, $stub->getPath());
+        static::assertSame($content, $stub->getContent());
     }
 
     /**
@@ -43,7 +43,7 @@ class StubTest extends TestCase
     {
         $stub = new Stub('/path/to/destination', $content, $type, $params);
 
-        static::assertEquals($expectedContent, $stub->getContent());
+        static::assertSame($expectedContent, $stub->getContent());
     }
 
     public static function contentProvider(): \Generator

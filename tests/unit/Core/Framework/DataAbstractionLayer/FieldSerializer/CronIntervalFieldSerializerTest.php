@@ -62,7 +62,7 @@ class CronIntervalFieldSerializerTest extends TestCase
         )->current();
 
         static::assertIsString($cronExpression);
-        static::assertEquals(self::COMPLEX_CRON, $cronExpression);
+        static::assertSame(self::COMPLEX_CRON, $cronExpression);
     }
 
     public function testEncodeMethodWithIncorrectFieldParameterTypeWillThrowInvalidSerializerException(): void
@@ -131,7 +131,7 @@ class CronIntervalFieldSerializerTest extends TestCase
         )->current();
 
         static::assertIsString($cronExpression);
-        static::assertEquals(self::COMPLEX_CRON, $cronExpression);
+        static::assertSame(self::COMPLEX_CRON, $cronExpression);
     }
 
     public function testEncodeMethodWithIncorrectStringWillThrowInvalidCronIntervalFormatException(): void

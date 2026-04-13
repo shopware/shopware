@@ -46,7 +46,7 @@ class PaymentMethodIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -57,7 +57,7 @@ class PaymentMethodIndexer extends EntityIndexer
     {
         $updates = $event->getPrimaryKeys(PaymentMethodDefinition::ENTITY_NAME);
 
-        if (empty($updates)) {
+        if ($updates === []) {
             return null;
         }
 
@@ -72,7 +72,7 @@ class PaymentMethodIndexer extends EntityIndexer
         }
 
         $ids = array_unique(array_filter($ids));
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

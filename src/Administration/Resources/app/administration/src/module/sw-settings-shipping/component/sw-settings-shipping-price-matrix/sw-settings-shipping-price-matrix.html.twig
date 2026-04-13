@@ -89,206 +89,208 @@
     </sw-container>
     {% endblock %}
 
-    {% block sw_settings_shipping_price_matrix_price_grid %}
-    <sw-data-grid
-        v-if="showDataGrid"
-        :data-source="prices"
-        :columns="ruleColumns"
-        :show-selection="false"
-        :show-settings="true"
-        :compact-mode="true"
-    >
-        {% block sw_settings_shipping_price_matrix_price_grid_column_calculcation_rule %}
-        <template
-            #column-calculationRule="{ item, itemIndex, compact }"
+    <template #grid>
+        {% block sw_settings_shipping_price_matrix_price_grid %}
+        <sw-data-grid
+            v-if="showDataGrid"
+            :data-source="prices"
+            :columns="ruleColumns"
+            :show-selection="false"
+            :show-settings="true"
+            :compact-mode="true"
         >
-            <sw-select-rule-create
-                class="sw-settings-shipping-price-matrix__column-calculation-rule-select"
-                size="small"
-                :disabled="disabled"
-                :rule-id="item.calculationRuleId"
-                :rule-filter="shippingRuleFilterCriteria"
-                :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
-                rule-aware-group-key="shippingMethodPriceCalculations"
-                :restricted-rule-ids="usedCalculationRules"
-                :restricted-rule-ids-tooltip-label="$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix')"
-                @save-rule="(ruleId) => onSaveCustomShippingRule(ruleId, item)"
+            {% block sw_settings_shipping_price_matrix_price_grid_column_calculcation_rule %}
+            <template
+                #column-calculationRule="{ item, itemIndex, compact }"
             >
-                <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">
-                    <sw-price-rule-modal
-                        v-if="showRuleModal"
-                        rule-aware-group-key="shippingMethodPriceCalculations"
-                        @save="onSaveRule"
-                        @modal-close="onCloseRuleModal"
-                    />
-                </template>
-            </sw-select-rule-create>
-        </template>
-        {% endblock %}
-        {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_start %}
-        <template
-            #column-quantityStart="{ item, itemIndex, compact }"
-        >
-            <mt-number-field
-                v-model="item.quantityStart"
-                :disabled="disabled"
-                :name="`sw-field--${item.id}-quantity-start`"
-                :number-type="numberFieldType"
-                :size="compact ? 'small' : 'default'"
-                :min="priceGroup.prices[itemIndex - 1] ? priceGroup.prices[itemIndex - 1].quantityEnd : 0"
-                :max="item.quantityEnd ? item.quantityEnd : null"
-                :digits="3"
-            />
-        </template>
-        {% endblock %}
-        {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_end %}
-        <template
-            #column-quantityEnd="{ item, itemIndex, compact }"
-        >
-            <mt-number-field
-                v-model="item.quantityEnd"
-                :disabled="disabled"
-                :name="`sw-field--${item.id}-quantity-end`"
-                :number-type="numberFieldType"
-                :size="compact ? 'small' : 'default'"
-                :placeholder="$tc('sw-settings-shipping.priceMatrix.any')"
-                :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
-                :min="item.quantityStart"
-                :digits="3"
-                @update:model-value="onQuantityEndChange(item)"
-            />
-        </template>
-        {% endblock %}
-        {% block sw_settings_shipping_price_matrix_price_grid_currencies_list %}
-        <template
-            v-for="currency in currencies"
-            :key="currency.isoCode"
-            #[`column-price-${currency.isoCode}`]="{ item, column, compact }"
-        >
-            <sw-inherit-wrapper
-                class="sw-settings-shipping-price-matrix__price"
-                :value="getPrice(item, currency)"
-                :has-parent="!currency.isSystemDefault"
-                :inherited-value="currency.isSystemDefault ? null : convertDefaultPriceToCurrencyPrice(item, currency)"
-                @update:value="setPrice(item, currency, $event)"
-            >
-                <template #content="props">
-
-                    <sw-inheritance-switch
-                        v-if="!currency.isSystemDefault"
-                        class="sw-settings-shipping-price-matrix__price-inherit-icon"
-                        :is-inherited="props.isInherited"
-                        :disabled="disabled"
-                        @inheritance-restore="props.restoreInheritance"
-                        @inheritance-remove="props.removeInheritance"
-                    />
-
-                    <mt-number-field
-                        v-model="props.currentValue.gross"
-                        :name="`sw-field--${item.id}-${currency.id}-gross`"
-                        :size="compact ? 'small' : 'default'"
-                        class="sw-settings-shipping-price-matrix__price-input"
-                        :digits="50"
-                        :disabled="props.isInherited || disabled"
-                    />
-                    <mt-number-field
-                        v-model="props.currentValue.net"
-                        :name="`sw-field--${item.id}-${currency.id}-net`"
-                        :size="compact ? 'small' : 'default'"
-                        class="sw-settings-shipping-price-matrix__price-input"
-                        :digits="50"
-                        :disabled="props.isInherited || disabled"
-                    />
-                </template>
-            </sw-inherit-wrapper>
-        </template>
-        {% endblock %}
-
-        {% block sw_settings_shipping_price_matrix_price_grid_actions %}
-        <template #actions="{ item }">
-            {% block sw_settings_shipping_price_matrix_price_grid_actions_delete %}
-            <sw-context-menu-item
-                :disabled="disableDeleteButton || disabled"
-                variant="danger"
-                @click="onDeleteShippingPrice(item)"
-            >
-                {{ $tc('sw-settings-shipping.priceMatrix.contextMenuDeletePrice') }}
-            </sw-context-menu-item>
+                <sw-select-rule-create
+                    class="sw-settings-shipping-price-matrix__column-calculation-rule-select"
+                    size="small"
+                    :disabled="disabled"
+                    :rule-id="item.calculationRuleId"
+                    :rule-filter="shippingRuleFilterCriteria"
+                    :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
+                    rule-aware-group-key="shippingMethodPriceCalculations"
+                    :restricted-rule-ids="usedCalculationRules"
+                    :restricted-rule-ids-tooltip-label="$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix')"
+                    @save-rule="(ruleId) => onSaveCustomShippingRule(ruleId, item)"
+                >
+                    <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">
+                        <sw-price-rule-modal
+                            v-if="showRuleModal"
+                            rule-aware-group-key="shippingMethodPriceCalculations"
+                            @save="onSaveRule"
+                            @modal-close="onCloseRuleModal"
+                        />
+                    </template>
+                </sw-select-rule-create>
+            </template>
             {% endblock %}
-        </template>
-        {% endblock %}
-    </sw-data-grid>
-    <div
-        v-if="showDataGrid && !showAllPrices"
-        class="sw-settings-shipping-price-matrix__price-load-all"
-    >
-        <mt-button
-            ghost
-            size="small"
-            class="sw-settings-shipping-price-matrix__price-load-all-button"
-            variant="secondary"
-            @click="updateShowAllPrices"
-        >
-            {{ $tc('sw-settings-shipping.priceMatrix.buttonLoadAllPrices') }}
-        </mt-button>
-    </div>
-    {% endblock %}
+            {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_start %}
+            <template
+                #column-quantityStart="{ item, itemIndex, compact }"
+            >
+                <mt-number-field
+                    v-model="item.quantityStart"
+                    :disabled="disabled"
+                    :name="`sw-field--${item.id}-quantity-start`"
+                    :number-type="numberFieldType"
+                    :size="compact ? 'small' : 'default'"
+                    :min="priceGroup.prices[itemIndex - 1] ? priceGroup.prices[itemIndex - 1].quantityEnd : 0"
+                    :max="item.quantityEnd ? item.quantityEnd : null"
+                    :digits="3"
+                />
+            </template>
+            {% endblock %}
+            {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_end %}
+            <template
+                #column-quantityEnd="{ item, itemIndex, compact }"
+            >
+                <mt-number-field
+                    v-model="item.quantityEnd"
+                    :disabled="disabled"
+                    :name="`sw-field--${item.id}-quantity-end`"
+                    :number-type="numberFieldType"
+                    :size="compact ? 'small' : 'default'"
+                    :placeholder="$tc('sw-settings-shipping.priceMatrix.any')"
+                    :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
+                    :min="item.quantityStart"
+                    :digits="3"
+                    @update:model-value="onQuantityEndChange(item)"
+                />
+            </template>
+            {% endblock %}
+            {% block sw_settings_shipping_price_matrix_price_grid_currencies_list %}
+            <template
+                v-for="currency in currencies"
+                :key="currency.isoCode"
+                #[`column-price-${currency.isoCode}`]="{ item, column, compact }"
+            >
+                <sw-inherit-wrapper
+                    class="sw-settings-shipping-price-matrix__price"
+                    :value="getPrice(item, currency)"
+                    :has-parent="!currency.isSystemDefault"
+                    :inherited-value="currency.isSystemDefault ? null : convertDefaultPriceToCurrencyPrice(item, currency)"
+                    @update:value="setPrice(item, currency, $event)"
+                >
+                    <template #content="props">
 
-    {% block sw_settings_shipping_price_matrix_empty %}
-    <div
-        v-else
-        class="sw-settings-shipping-price-matrix__empty"
-    >
-        {% block sw_settings_shipping_price_matrix_empty_text %}
-        <p class="sw-settings-shipping-price-matrix__empty-text">
-            {{ $tc('sw-settings-shipping.priceMatrix.emptyText') }}
-        </p>
-        {% endblock %}
-        <sw-container
-            columns="1fr 10px 1fr"
-            gap="0px 24px"
-        >
-            {% block sw_settings_shipping_price_matrix_empty_property_store %}
-            <sw-single-select
-                class="sw-settings-shipping-price-matrix__empty--select-property"
-                :options="calculationTypes"
-                :value="priceGroup.calculation"
-                :disabled="disabled"
-                size="small"
-                show-clearable-button
-                :placeholder="$tc('sw-settings-shipping.priceMatrix.selectProperty')"
-                @update:value="onCalculationChange"
-            />
+                        <sw-inheritance-switch
+                            v-if="!currency.isSystemDefault"
+                            class="sw-settings-shipping-price-matrix__price-inherit-icon"
+                            :is-inherited="props.isInherited"
+                            :disabled="disabled"
+                            @inheritance-restore="props.restoreInheritance"
+                            @inheritance-remove="props.removeInheritance"
+                        />
+
+                        <mt-number-field
+                            v-model="props.currentValue.gross"
+                            :name="`sw-field--${item.id}-${currency.id}-gross`"
+                            :size="compact ? 'small' : 'default'"
+                            class="sw-settings-shipping-price-matrix__price-input"
+                            :digits="50"
+                            :disabled="props.isInherited || disabled"
+                        />
+                        <mt-number-field
+                            v-model="props.currentValue.net"
+                            :name="`sw-field--${item.id}-${currency.id}-net`"
+                            :size="compact ? 'small' : 'default'"
+                            class="sw-settings-shipping-price-matrix__price-input"
+                            :digits="50"
+                            :disabled="props.isInherited || disabled"
+                        />
+                    </template>
+                </sw-inherit-wrapper>
+            </template>
             {% endblock %}
 
-            <p class="sw-settings-shipping-price-matrix__empty-text-or">
-                {{ $tc('sw-settings-shipping.priceMatrix.textOr') }}
+            {% block sw_settings_shipping_price_matrix_price_grid_actions %}
+            <template #actions="{ item }">
+                {% block sw_settings_shipping_price_matrix_price_grid_actions_delete %}
+                <sw-context-menu-item
+                    :disabled="disableDeleteButton || disabled"
+                    variant="danger"
+                    @click="onDeleteShippingPrice(item)"
+                >
+                    {{ $tc('sw-settings-shipping.priceMatrix.contextMenuDeletePrice') }}
+                </sw-context-menu-item>
+                {% endblock %}
+            </template>
+            {% endblock %}
+        </sw-data-grid>
+        <div
+            v-if="showDataGrid && !showAllPrices"
+            class="sw-settings-shipping-price-matrix__price-load-all"
+        >
+            <mt-button
+                ghost
+                size="small"
+                class="sw-settings-shipping-price-matrix__price-load-all-button"
+                variant="secondary"
+                @click="updateShowAllPrices"
+            >
+                {{ $tc('sw-settings-shipping.priceMatrix.buttonLoadAllPrices') }}
+            </mt-button>
+        </div>
+        {% endblock %}
+
+        {% block sw_settings_shipping_price_matrix_empty %}
+        <div
+            v-if="!showDataGrid"
+            class="sw-settings-shipping-price-matrix__empty"
+        >
+            {% block sw_settings_shipping_price_matrix_empty_text %}
+            <p class="sw-settings-shipping-price-matrix__empty-text">
+                {{ $tc('sw-settings-shipping.priceMatrix.emptyText') }}
             </p>
-
-            {% block sw_settings_shipping_price_matrix_empty_rule_select %}
-            <sw-select-rule-create
-                size="small"
-                :disabled="disabled"
-                :rule-filter="shippingRuleFilterCriteria"
-                :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
-                rule-aware-group-key="shippingMethodPriceCalculations"
-                :restricted-rule-ids="usedCalculationRules"
-                :restricted-rule-ids-tooltip-label="$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix')"
-                @save-rule="(ruleId) => { onSaveCustomShippingRule(ruleId) }"
-            >
-                <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">
-                    <sw-price-rule-modal
-                        v-if="showRuleModal"
-                        rule-aware-group-key="shippingMethodPriceCalculations"
-                        @save="onSaveRule"
-                        @modal-close="onCloseRuleModal"
-                    />
-                </template>
-            </sw-select-rule-create>
             {% endblock %}
-        </sw-container>
-    </div>
-    {% endblock %}
+            <sw-container
+                columns="1fr 10px 1fr"
+                gap="0px 24px"
+            >
+                {% block sw_settings_shipping_price_matrix_empty_property_store %}
+                <sw-single-select
+                    class="sw-settings-shipping-price-matrix__empty--select-property"
+                    :options="calculationTypes"
+                    :value="priceGroup.calculation"
+                    :disabled="disabled"
+                    size="small"
+                    show-clearable-button
+                    :placeholder="$tc('sw-settings-shipping.priceMatrix.selectProperty')"
+                    @update:value="onCalculationChange"
+                />
+                {% endblock %}
+
+                <p class="sw-settings-shipping-price-matrix__empty-text-or">
+                    {{ $tc('sw-settings-shipping.priceMatrix.textOr') }}
+                </p>
+
+                {% block sw_settings_shipping_price_matrix_empty_rule_select %}
+                <sw-select-rule-create
+                    size="small"
+                    :disabled="disabled"
+                    :rule-filter="shippingRuleFilterCriteria"
+                    :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
+                    rule-aware-group-key="shippingMethodPriceCalculations"
+                    :restricted-rule-ids="usedCalculationRules"
+                    :restricted-rule-ids-tooltip-label="$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix')"
+                    @save-rule="(ruleId) => { onSaveCustomShippingRule(ruleId) }"
+                >
+                    <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">
+                        <sw-price-rule-modal
+                            v-if="showRuleModal"
+                            rule-aware-group-key="shippingMethodPriceCalculations"
+                            @save="onSaveRule"
+                            @modal-close="onCloseRuleModal"
+                        />
+                    </template>
+                </sw-select-rule-create>
+                {% endblock %}
+            </sw-container>
+        </div>
+        {% endblock %}
+    </template>
 
     {% block sw_settings_shipping_price_matrix_delete_modal %}
     <sw-modal

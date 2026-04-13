@@ -2,13 +2,11 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Controller\CookieController;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +14,6 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(CookieController::class)]
 class CookieControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -34,11 +31,11 @@ class CookieControllerTest extends TestCase
 
         $systemConfig->set('core.cart.wishlistEnabled', true);
 
-        $response = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas');
+        $crawler = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas');
 
-        static::assertCount(1, $response->filterXPath('//input[@id="cookie_Comfort features"]'));
-        static::assertCount(1, $response->filterXPath('//input[@id="cookie_wishlist-enabled"]'));
-        static::assertCount(1, $response->filterXPath('//input[@id="cookie_youtube-video"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_comfort-features"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_wishlist-enabled"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_youtube-video"]'));
     }
 
     public function testCookieGroupNotIncludeWishlistInComfortFeatures(): void
@@ -47,11 +44,11 @@ class CookieControllerTest extends TestCase
 
         $systemConfig->set('core.cart.wishlistEnabled', false);
 
-        $response = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas');
+        $crawler = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas');
 
-        static::assertCount(1, $response->filterXPath('//input[@id="cookie_Comfort features"]'));
-        static::assertCount(0, $response->filterXPath('//input[@id="cookie_wishlist-enabled"]'));
-        static::assertCount(1, $response->filterXPath('//input[@id="cookie_youtube-video"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_comfort-features"]'));
+        static::assertCount(0, $crawler->filterXPath('//input[@id="cookie_wishlist-enabled"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_youtube-video"]'));
     }
 
     public function testCookieRequiredGroupIncludeGoogleReCaptchaWhenActive(): void
@@ -79,11 +76,11 @@ class CookieControllerTest extends TestCase
             ],
         ]);
 
-        $response = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas');
+        $crawler = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas');
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
-        static::assertCount(1, $response->filterXPath('//input[@id="cookie_Technically required"]'));
-        static::assertCount(0, $response->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_technically-required"]'));
+        static::assertCount(0, $crawler->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
 
         $systemConfig->set('core.basicInformation.activeCaptchasV2', [
             GoogleReCaptchaV2::CAPTCHA_NAME => [
@@ -97,11 +94,11 @@ class CookieControllerTest extends TestCase
             ],
         ]);
 
-        $response = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas');
+        $crawler = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas');
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
-        static::assertCount(1, $response->filterXPath('//input[@id="cookie_Technically required"]'));
-        static::assertCount(1, $response->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_technically-required"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
 
         $systemConfig->set('core.basicInformation.activeCaptchasV3', [
             GoogleReCaptchaV3::CAPTCHA_NAME => [
@@ -115,10 +112,28 @@ class CookieControllerTest extends TestCase
             ],
         ]);
 
-        $response = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas');
+        $crawler = $this->browser->request('GET', $_SERVER['APP_URL'] . '/cookie/offcanvas');
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
-        static::assertCount(1, $response->filterXPath('//input[@id="cookie_Technically required"]'));
-        static::assertCount(1, $response->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
+
+        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie_technically-required"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="cookie__GRECAPTCHA"]'));
+    }
+
+    public function testConsentOffcanvasRouteRendersWithParameters(): void
+    {
+        $crawler = $this->browser->request(
+            'GET',
+            $_SERVER['APP_URL'] . '/cookie/consent-offcanvas?featureName=feature&cookieName=cookieName'
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+
+        static::assertCount(1, $crawler->filterXPath('//div[@class="offcanvas-cookie"]'));
+        $content = $this->browser->getResponse()->getContent();
+
+        static::assertNotFalse($content);
+        static::assertStringContainsString('cookie.feature.title', $content);
+        static::assertStringContainsString('js-wishlist-cookie-accept', $content);
     }
 }

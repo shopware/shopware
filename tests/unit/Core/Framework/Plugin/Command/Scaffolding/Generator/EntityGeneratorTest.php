@@ -51,8 +51,8 @@ class EntityGeneratorTest extends TestCase
         (new EntityGenerator())
             ->addScaffoldConfig($configuration, $input, $io);
 
-        static::assertEquals($expectedHasOption, $configuration->hasOption(EntityGenerator::OPTION_NAME));
-        static::assertEquals($expectedEntities, $configuration->getOption(EntityGenerator::OPTION_NAME));
+        static::assertSame($expectedHasOption, $configuration->hasOption(EntityGenerator::OPTION_NAME));
+        static::assertSame($expectedEntities, $configuration->getOption(EntityGenerator::OPTION_NAME));
     }
 
     public static function addScaffoldConfigProvider(): \Generator

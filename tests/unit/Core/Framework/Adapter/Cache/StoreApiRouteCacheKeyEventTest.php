@@ -52,30 +52,30 @@ class StoreApiRouteCacheKeyEventTest extends TestCase
             Uuid::randomHex(),
         ];
         $event = new StoreApiRouteCacheKeyEvent($parts, $this->request, $this->context, null);
-        static::assertEquals($parts, $event->getParts());
+        static::assertSame($parts, $event->getParts());
     }
 
     public function testSetPartsWillGetPartsReturnSetterValue(): void
     {
-        static::assertEquals([], $this->defaultEvent->getParts());
+        static::assertSame([], $this->defaultEvent->getParts());
         $parts = [
             Uuid::randomHex(),
             Uuid::randomHex(),
         ];
         $this->defaultEvent->setParts($parts);
-        static::assertEquals($parts, $this->defaultEvent->getParts());
+        static::assertSame($parts, $this->defaultEvent->getParts());
     }
 
     public function testGetRequestWillReturnCorrectRequest(): void
     {
-        static::assertEquals($this->request, $this->defaultEvent->getRequest());
+        static::assertSame($this->request, $this->defaultEvent->getRequest());
     }
 
     public function testGetCriteriaWithCriteriaWillReturnCriteria(): void
     {
         $criteria = new Criteria();
         $event = new StoreApiRouteCacheKeyEvent([], $this->request, $this->context, $criteria);
-        static::assertEquals($criteria, $event->getCriteria());
+        static::assertSame($criteria, $event->getCriteria());
     }
 
     public function testGetCriteriaWithNullInCriteriaWillReturnNull(): void
@@ -85,7 +85,7 @@ class StoreApiRouteCacheKeyEventTest extends TestCase
 
     public function testGetSalesChannelIdWillReturnChannelIdFromGivenContext(): void
     {
-        static::assertEquals($this->salesChannelEntity->getId(), $this->defaultEvent->getSalesChannelId());
+        static::assertSame($this->salesChannelEntity->getId(), $this->defaultEvent->getSalesChannelId());
     }
 
     public function testDisableCachingWillDisableCache(): void

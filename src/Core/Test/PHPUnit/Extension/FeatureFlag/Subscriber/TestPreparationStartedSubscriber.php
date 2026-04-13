@@ -37,7 +37,7 @@ class TestPreparationStartedSubscriber implements PreparationStartedSubscriber
 
         $reflectedMethod = new \ReflectionMethod($class, $method);
 
-        /** @var \ReflectionAttribute<DisabledFeatures>[] $disabledFeatures */
+        /** @var list<\ReflectionAttribute<DisabledFeatures>> $disabledFeatures */
         $disabledFeatures = array_merge(
             $reflectedMethod->getAttributes(DisabledFeatures::class),
             $reflectedMethod->getDeclaringClass()->getAttributes(DisabledFeatures::class),

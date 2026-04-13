@@ -25,7 +25,9 @@ use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
 /**
  * @phpstan-type Module array{name: string, label: array<string, string>, parent: string, source: string|null, position: int}
- * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: int, entries?: list<array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: int}>}
+ * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie?: string, value?: string, expiration?: string, entries?: list<array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: string}>}
+ *
+ * @phpstan-import-type SourceConfig from AppDefinition
  */
 #[Package('framework')]
 class AppEntity extends Entity
@@ -52,6 +54,8 @@ class AppEntity extends Entity
     protected ?string $baseAppUrl = null;
 
     protected ?string $checkoutGatewayUrl = null;
+
+    protected ?string $contextGatewayUrl = null;
 
     protected ?string $inAppPurchasesGatewayUrl = null;
 
@@ -148,11 +152,16 @@ class AppEntity extends Entity
     protected string $sourceType = 'local';
 
     /**
-     * @var array<string, string|null>
+     * @var SourceConfig
      */
     protected array $sourceConfig = [];
 
     protected bool $selfManaged = false;
+
+    /**
+     * @var list<string>
+     */
+    protected array $requestedPrivileges = [];
 
     public function getName(): string
     {
@@ -245,6 +254,16 @@ class AppEntity extends Entity
     public function setCheckoutGatewayUrl(?string $checkoutGatewayUrl): void
     {
         $this->checkoutGatewayUrl = $checkoutGatewayUrl;
+    }
+
+    public function getContextGatewayUrl(): ?string
+    {
+        return $this->contextGatewayUrl;
+    }
+
+    public function setContextGatewayUrl(?string $contextGatewayUrl): void
+    {
+        $this->contextGatewayUrl = $contextGatewayUrl;
     }
 
     public function getInAppPurchasesGatewayUrl(): ?string
@@ -442,7 +461,7 @@ class AppEntity extends Entity
     /**
      * @internal
      */
-    public function setAppSecret(?string $appSecret): void
+    public function setAppSecret(#[\SensitiveParameter] ?string $appSecret): void
     {
         $this->appSecret = $appSecret;
     }
@@ -638,9 +657,6 @@ class AppEntity extends Entity
         return $this->templateLoadPriority;
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function setTemplateLoadPriority(int $templateLoadPriority): void
     {
         $this->templateLoadPriority = $templateLoadPriority;
@@ -657,7 +673,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @return array<string, string|null>
+     * @return SourceConfig
      */
     public function getSourceConfig(): array
     {
@@ -665,7 +681,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @param array<string, string|null> $config
+     * @param SourceConfig $config
      */
     public function setSourceConfig(array $config): void
     {
@@ -685,5 +701,21 @@ class AppEntity extends Entity
     public function setSelfManaged(bool $selfManaged): void
     {
         $this->selfManaged = $selfManaged;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getRequestedPrivileges(): array
+    {
+        return $this->requestedPrivileges;
+    }
+
+    /**
+     * @param list<string> $requestedPrivileges
+     */
+    public function setRequestedPrivileges(array $requestedPrivileges): void
+    {
+        $this->requestedPrivileges = $requestedPrivileges;
     }
 }

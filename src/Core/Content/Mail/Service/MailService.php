@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -48,7 +49,8 @@ class MailService extends AbstractMailService
         private readonly EntityRepository $salesChannelRepository,
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
     ) {
     }
 
@@ -134,11 +136,10 @@ class MailService extends AbstractMailService
         $definition = new DataValidationDefinition('mail_service.send');
 
         $definition->add('recipients', new NotBlank(), new Type('array'));
-        $definition->add('salesChannelId', new EntityExists(['entity' => SalesChannelDefinition::ENTITY_NAME, 'context' => $context]));
+        $definition->add('salesChannelId', new EntityExists(entity: SalesChannelDefinition::ENTITY_NAME, context: $context));
         $definition->add('contentHtml', new NotBlank(), new Type('string'));
         $definition->add('contentPlain', new NotBlank(), new Type('string'));
         $definition->add('subject', new NotBlank(), new Type('string'));
-        $definition->add('senderName', new NotBlank(), new Type('string'));
 
         return $definition;
     }
@@ -149,7 +150,7 @@ class MailService extends AbstractMailService
      */
     private function createMail(array &$data, array $templateData, Context $context): ?Email
     {
-        $testMode = $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG) ?: !empty($data['testMode']);
+        $testMode = $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG) || !empty($data['testMode']);
 
         $salesChannel = $this->getSalesChannel($data, $templateData, $context);
 
@@ -174,8 +175,11 @@ class MailService extends AbstractMailService
                 $templateData['order']['deepLinkCode'] = 'home';
             }
         }
-
-        foreach (['subject', 'senderName'] as $renderDataIndex) {
+        $mailOptions = ['subject'];
+        if (\is_string($data['senderName'])) {
+            $mailOptions[] = 'senderName';
+        }
+        foreach ($mailOptions as $renderDataIndex) {
             try {
                 $data[$renderDataIndex] = $this->templateRenderer->render($data[$renderDataIndex], $templateData, $context, false);
             } catch (\Throwable $e) {
@@ -232,12 +236,21 @@ class MailService extends AbstractMailService
             $data['binAttachments'] ?? null
         );
 
+        $mail->getHeaders()->addTextHeader(
+            'Content-Language',
+            $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId())
+        );
+
         if ($testMode) {
-            $mail->getHeaders()
-                ->addTextHeader('X-Shopware-Event-Name', $templateData['eventName'] ?? '')
-                ->addTextHeader('X-Shopware-Sales-Channel-Id', (string) $salesChannel?->getId())
-                ->addTextHeader('X-Shopware-Language-Id', $context->getLanguageId())
-            ;
+            $headers = $mail->getHeaders();
+            $headers->addTextHeader('X-Shopware-Language-Id', $context->getLanguageId());
+
+            if (!empty($templateData['eventName'])) {
+                $headers->addTextHeader('X-Shopware-Event-Name', $templateData['eventName']);
+            }
+            if ($salesChannel instanceof SalesChannelEntity) {
+                $headers->addTextHeader('X-Shopware-Sales-Channel-Id', $salesChannel->getId());
+            }
         }
 
         return $mail;

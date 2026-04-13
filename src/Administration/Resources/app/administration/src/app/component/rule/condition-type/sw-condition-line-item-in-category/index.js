@@ -8,7 +8,8 @@ const { EntityCollection, Criteria } = Shopware.Data;
 /**
  * @sw-package fundamentals@after-sales
  */
-Component.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-item', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
     inheritAttrs: false,
 
@@ -96,4 +97,4 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-i
             return Object.values(category.breadcrumb).join(' / ');
         },
     },
-});
+};

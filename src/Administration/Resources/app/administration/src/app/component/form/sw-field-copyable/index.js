@@ -1,7 +1,7 @@
 import './sw-field-copyable.scss';
 import template from './sw-field-copyable.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const domUtils = Shopware.Utils.dom;
 
 /**
@@ -9,7 +9,7 @@ const domUtils = Shopware.Utils.dom;
  *
  * @private
  */
-Component.register('sw-field-copyable', {
+export default {
     template,
 
     mixins: [
@@ -59,7 +59,7 @@ Component.register('sw-field-copyable', {
                 } else {
                     this.notificationSuccess();
                 }
-            } catch (err) {
+            } catch (_err) {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),
@@ -81,4 +81,4 @@ Component.register('sw-field-copyable', {
             this.wasCopied = false;
         },
     },
-});
+};

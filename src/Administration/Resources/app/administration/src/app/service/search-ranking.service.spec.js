@@ -20,6 +20,12 @@ Shopware.Service().register('loginService', () => {
     };
 });
 
+Shopware.Service().register('systemConfigApiService', () => {
+    return {
+        getValues: () => Promise.resolve({ 'core.search.minSearchTermLength': 2 }),
+    };
+});
+
 describe('app/service/search-ranking.service.js', () => {
     const entity = 'product';
     const defaultModule = {
@@ -633,5 +639,34 @@ describe('app/service/search-ranking.service.js', () => {
         actual = await newService.getSearchFieldsByEntity('product');
         // expect to get different result
         expect(actual).toEqual({});
+    });
+
+    it('should validate search terms correctly', async () => {
+        const service = new SearchRankingService();
+        await service.getMinSearchTermLength();
+
+        expect(service.isValidTerm('ab')).toBe(true);
+        expect(service.isValidTerm('a')).toBe(false);
+        expect(service.isValidTerm('')).toBe(false);
+    });
+
+    it('should get minSearchTermLength from config', async () => {
+        const originalService = Shopware.Service('systemConfigApiService');
+        originalService.getValues = jest.fn().mockResolvedValue({ 'core.search.minSearchTermLength': 1 });
+
+        const service = new SearchRankingService();
+        await service.getMinSearchTermLength();
+
+        expect(service.isValidTerm('a')).toBe(true);
+    });
+
+    it('should save minSearchTermLength to config', async () => {
+        const originalService = Shopware.Service('systemConfigApiService');
+        originalService.saveValues = jest.fn();
+
+        const service = new SearchRankingService();
+        await service.saveMinSearchTermLength(3);
+
+        expect(originalService.saveValues).toHaveBeenCalledWith({ 'core.search.minSearchTermLength': 3 });
     });
 });

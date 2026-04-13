@@ -108,11 +108,6 @@ describe('module/sw-cms/component/sw-cms-create-wizard', () => {
         await setupCmsEnvironment();
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display the correct page types in selection step', async () => {
         const wrapper = await createWrapper();
         const typeSelection = wrapper.findAll('.sw-cms-create-wizard__page-type');
@@ -160,7 +155,7 @@ describe('module/sw-cms/component/sw-cms-create-wizard', () => {
     it('should generate the correct pagePreviewMedia tag', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm.pagePreviewMedia).toBe(
-            'url(administration/administration/static/img/cms/preview_landingpage_default.png)',
+            'url(administration/administration/static/img/cms/preview_landingpage_default.webp)',
         );
     });
 

@@ -84,9 +84,9 @@ class PromotionAbsoluteCalculationTest extends TestCase
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
-        static::assertEquals(75.0, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(75.0, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(64.1, $cart->getPrice()->getNetPrice());
+        static::assertSame(75.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(75.0, $cart->getPrice()->getPositionPrice());
+        static::assertSame(64.1, $cart->getPrice()->getNetPrice());
     }
 
     /**
@@ -116,9 +116,9 @@ class PromotionAbsoluteCalculationTest extends TestCase
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
-        static::assertEquals(70, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(70, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(58.82, $cart->getPrice()->getNetPrice());
+        static::assertSame(70.0, $cart->getPrice()->getPositionPrice());
+        static::assertSame(70.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(58.82, $cart->getPrice()->getNetPrice());
     }
 
     public function testNetCustomerAbsoluteDiscountHigherThanCartTotal(): void
@@ -147,9 +147,9 @@ class PromotionAbsoluteCalculationTest extends TestCase
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
-        static::assertEquals(0, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(0, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(0, $cart->getPrice()->getNetPrice());
+        static::assertSame(0.0, $cart->getPrice()->getPositionPrice());
+        static::assertSame(0.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(0.0, $cart->getPrice()->getNetPrice());
     }
 
     /**

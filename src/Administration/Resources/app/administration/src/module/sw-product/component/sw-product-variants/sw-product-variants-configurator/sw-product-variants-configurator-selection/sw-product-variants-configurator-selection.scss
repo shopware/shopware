@@ -2,19 +2,10 @@
 
 $sw-product-variants-configurator-selection-overlay: rgba(255, 255, 255, 80%);
 $sw-product-variants-configurator-selection-text-color: $color-darkgray-200;
-$sw-product-variants-configurator-selection-search-background: $color-gray-100;
 
 .sw-property-search__search-field.sw-product-variants-configurator-selection-search__search-field {
-    padding: 30px;
-    border-bottom: 1px solid #d8dde6;
-    background-color: $sw-product-variants-configurator-selection-search-background;
-
     .sw-simple-search-field {
         margin: 0;
-    }
-
-    .mt-icon.sw-simple-search-field__search-icon.icon--regular-search-s.mt-icon--small {
-        right: 45px;
     }
 }
 

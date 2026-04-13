@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Administration\Snippet;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -13,6 +14,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(SnippetException::class)]
 class SnippetExceptionTest extends TestCase
 {
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     * */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testDuplicatedFirstLevelKey(): void
     {
         $exception = SnippetException::duplicatedFirstLevelKey(['id1', 'id2', 'id3']);

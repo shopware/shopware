@@ -29,7 +29,7 @@ class SalesChannelCategoryDefinition extends CategoryDefinition implements Sales
         $fields = parent::defineFields();
 
         $fields->add(
-            (new StringField('seo_link', 'seoLink'))->addFlags(new ApiAware(), new Runtime(['type', 'linkType', 'internalLink']))
+            (new StringField('seo_url', 'seoUrl'))->addFlags(new ApiAware(), new Runtime(['type', 'linkType', 'internalLink']))
         );
 
         return $fields;

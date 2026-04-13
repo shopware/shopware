@@ -69,7 +69,7 @@ class ShopConfigurator
                 'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             ]);
 
-            if (!empty($defaultCountryStateTranslations)) {
+            if ($defaultCountryStateTranslations !== []) {
                 $correctDeTranslations = [
                     'DE-BW' => 'Baden-Württemberg',
                     'DE-BY' => 'Bayern',
@@ -104,7 +104,11 @@ class ShopConfigurator
             $this->changeDefaultLanguageData($newDefaultLanguageId, $currentLocale, $locale);
         }
 
-        $this->eventDispatcher->dispatch(new SystemLanguageChangeEvent(Uuid::fromBytesToHex($newDefaultLanguageId)));
+        $this->eventDispatcher->dispatch(new SystemLanguageChangeEvent(
+            Uuid::fromBytesToHex($newDefaultLanguageId),
+            $currentLocale['code'],
+            $locale,
+        ));
     }
 
     public function setDefaultCurrency(string $currencyCode): void
@@ -164,7 +168,7 @@ class ShopConfigurator
             'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
         ]);
 
-        if (empty($missingTranslations)) {
+        if ($missingTranslations === []) {
             return;
         }
 
@@ -282,7 +286,7 @@ class ShopConfigurator
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function getLocaleTranslations(string $localeId): array
     {

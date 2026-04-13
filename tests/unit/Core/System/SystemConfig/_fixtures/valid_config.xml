@@ -11,6 +11,37 @@
             <label lang="de-DE">E-Mail</label>
             <placeholder>Enter your eMail address</placeholder>
             <placeholder lang="de-DE">Bitte gib deine E-Mail Adresse ein</placeholder>
+            <defaultValue>42</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>stringWithQuoteDefaultValueRemovesQuotes</name>
+            <defaultValue>"42"</defaultValue>
+        </input-field>
+
+        <input-field>
+            <name>nullDefault</name>
+            <defaultValue>null</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>int</name>
+            <defaultValue>42</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>float</name>
+            <defaultValue>42</defaultValue>
+        </input-field>
+
+        <input-field type="float">
+            <name>floatWithStringValueExpectsValueIsCastedToFloat</name>
+            <defaultValue>"42.5"</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>bool</name>
+            <defaultValue>true</defaultValue>
         </input-field>
 
         <input-field type="single-select">
@@ -29,6 +60,22 @@
             <label lang="de-DE">E-Mail Versand Protokoll</label>
             <placeholder>Choose your preferred transfer method</placeholder>
             <placeholder lang="de-DE">Bitte wähle dein bevorzugtes Versand Protokoll</placeholder>
+            <defaultValue>smtp</defaultValue>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>period</name>
+            <options>
+                <option>
+                    <id>30</id>
+                    <name>1 Month</name>
+                </option>
+                <option>
+                    <id>60</id>
+                    <name>2 Months</name>
+                </option>
+            </options>
+            <defaultValue>30</defaultValue>
         </input-field>
 
         <component name="sw-select">
@@ -46,6 +93,7 @@
                     <name lang="de-DE">German pop3</name>
                 </option>
             </options>
+            <defaultValue>pop3</defaultValue>
         </component>
     </card>
 </config>

@@ -27,6 +27,7 @@ class OrderException extends HttpException
     final public const ORDER_ORDER_ALREADY_PAID_CODE = 'CHECKOUT__ORDER_ORDER_ALREADY_PAID';
     final public const ORDER_CAN_NOT_RECALCULATE_LIVE_VERSION_CODE = 'CHECKOUT__ORDER_CAN_NOT_RECALCULATE_LIVE_VERSION';
     final public const ORDER_PAYMENT_METHOD_NOT_CHANGEABLE_CODE = 'CHECKOUT__ORDER_PAYMENT_METHOD_NOT_CHANGEABLE';
+    final public const ORDER_NOT_CANCELLABLE_CODE = 'CHECKOUT__ORDER_NOT_CANCELLABLE';
     final public const ORDER_CUSTOMER_NOT_LOGGED_IN = 'CHECKOUT__ORDER_CUSTOMER_NOT_LOGGED_IN';
     final public const ORDER_CUSTOMER_ADDRESS_NOT_FOUND = 'CHECKOUT__ORDER_CUSTOMER_ADDRESS_NOT_FOUND';
     final public const ORDER_INVALID_ORDER_ADDRESS_MAPPING = 'CHECKOUT__INVALID_ORDER_ADDRESS_MAPPING';
@@ -104,6 +105,15 @@ class OrderException extends HttpException
             Response::HTTP_FORBIDDEN,
             self::ORDER_PAYMENT_METHOD_NOT_CHANGEABLE_CODE,
             'Payment methods of order with current payment transaction type can not be changed.'
+        );
+    }
+
+    public static function orderNotCancellable(): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::ORDER_NOT_CANCELLABLE_CODE,
+            'Order cannot be cancelled.'
         );
     }
 

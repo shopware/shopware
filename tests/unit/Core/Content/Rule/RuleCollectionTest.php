@@ -39,7 +39,7 @@ class RuleCollectionTest extends TestCase
 
         $collection = new RuleCollection([$ruleA, $ruleB, $ruleC, $ruleD, $ruleE]);
 
-        static::assertEquals([
+        static::assertSame([
             'a' => [$ruleA->getId(), $ruleE->getId()],
             'b' => [$ruleA->getId(), $ruleB->getId()],
             'c' => [$ruleB->getId(), $ruleC->getId()],

@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\Country\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -45,24 +45,9 @@ class CountryStateRouteTest extends TestCase
     {
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(1))
             ->method('dispatch')
-            ->with(static::callback(static function ($event) use (&$index) {
-                switch ($index) {
-                    case 0:
-                        ++$index;
-                        static::assertInstanceOf(AddCacheTagEvent::class, $event);
-
-                        return true;
-                    case 1:
-                        ++$index;
-                        static::assertInstanceOf(CountryStateCriteriaEvent::class, $event);
-
-                        return true;
-                    default:
-                        static::fail('Unexpected event dispatched');
-                }
-            }));
+            ->with(static::isInstanceOf(CountryStateCriteriaEvent::class));
 
         $countryStateRepository = $this->createMock(EntityRepository::class);
         $countryStateRepository->expects($this->once())
@@ -76,7 +61,9 @@ class CountryStateRouteTest extends TestCase
                 $this->salesChannelContext->getContext(),
             ));
 
-        $route = new CountryStateRoute($countryStateRepository, $dispatcher);
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+
+        $route = new CountryStateRoute($countryStateRepository, $dispatcher, $cacheTagCollector);
         $route->load(Uuid::randomHex(), new Request(), new Criteria(), $this->salesChannelContext);
     }
 }

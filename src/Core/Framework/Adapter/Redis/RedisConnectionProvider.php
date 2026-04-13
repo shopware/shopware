@@ -18,7 +18,7 @@ class RedisConnectionProvider
      * @internal
      */
     public function __construct(
-        private ContainerInterface $serviceLocator,
+        private readonly ContainerInterface $serviceLocator,
     ) {
     }
 

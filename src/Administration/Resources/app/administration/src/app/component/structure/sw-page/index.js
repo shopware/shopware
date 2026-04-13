@@ -1,7 +1,6 @@
 import template from './sw-page.html.twig';
 import './sw-page.scss';
 
-const { Component } = Shopware;
 const { dom } = Shopware.Utils;
 
 /**
@@ -42,7 +41,7 @@ const { dom } = Shopware.Utils;
  * </sw-page>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-page', {
+export default {
     template,
 
     provide() {
@@ -58,7 +57,6 @@ Component.register('sw-page', {
          */
         showSmartBar: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         /**
@@ -66,7 +64,6 @@ Component.register('sw-page', {
          */
         showSearchBar: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         /**
@@ -83,6 +80,8 @@ Component.register('sw-page', {
         return {
             module: null,
             parentRoute: null,
+            previousPath: null,
+            previousRoute: null,
             sidebarOffset: 0,
             scrollbarOffset: 0,
             hasFullWidthHeader: false,
@@ -91,6 +90,16 @@ Component.register('sw-page', {
     },
 
     computed: {
+        routerBack() {
+            if (this.previousPath && this.previousRoute === this.parentRoute) {
+                return this.previousPath;
+            }
+
+            return {
+                name: this.parentRoute,
+            };
+        },
+
         pageColor() {
             if (this.headerBorderColor) {
                 return this.headerBorderColor;
@@ -142,6 +151,9 @@ Component.register('sw-page', {
             return `${this.sidebarOffset + this.scrollbarOffset}px`;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 -- There's no replacement
+         */
         headerStyles() {
             return {
                 'border-bottom-color': this.pageColor,
@@ -161,10 +173,6 @@ Component.register('sw-page', {
             return {
                 'grid-row': rowNumber,
             };
-        },
-
-        sidebars() {
-            return Shopware.Store.get('sidebar').sidebars;
         },
     },
 
@@ -236,10 +244,12 @@ Component.register('sw-page', {
             if (this.$route.meta.parentPath) {
                 this.parentRoute = this.$route.meta.parentPath;
             }
-        },
 
-        setActiveSidebar(locationId) {
-            Shopware.Store.get('sidebar').setActiveSidebar(locationId);
+            this.previousPath = this.$router.options?.history?.state?.back;
+
+            if (this.previousPath) {
+                this.previousRoute = this.$router.resolve({ path: this.previousPath }).name;
+            }
         },
     },
-});
+};

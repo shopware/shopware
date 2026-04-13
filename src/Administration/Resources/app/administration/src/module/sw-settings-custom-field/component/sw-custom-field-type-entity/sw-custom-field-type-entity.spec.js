@@ -73,11 +73,6 @@ async function createWrapper(privileges = [], isNew = true, currentCustomField =
 }
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-entity', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should allow entity type selection on new custom field', async () => {
         const wrapper = await createWrapper();
         const entitySelect = wrapper.find('sw-single-select-stub');

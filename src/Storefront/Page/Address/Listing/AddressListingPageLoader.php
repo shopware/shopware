@@ -7,10 +7,10 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -65,7 +65,7 @@ class AddressListingPageLoader
         $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));
 
         $page->setAddress(
-            $page->getAddresses()->get($request->get('addressId'))
+            $page->getAddresses()->get(RequestParamHelper::get($request, 'addressId'))
         );
 
         $this->eventDispatcher->dispatch(
@@ -90,7 +90,7 @@ class AddressListingPageLoader
     {
         $salutations = $this->salutationRoute->load(new Request(), $context, new Criteria())->getSalutations();
 
-        $salutations->sort(fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
+        $salutations->sort(static fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
 
         return $salutations;
     }
@@ -101,15 +101,15 @@ class AddressListingPageLoader
     private function getCountries(SalesChannelContext $salesChannelContext): CountryCollection
     {
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('country.active', true))
-            ->addAssociation('states');
+            ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING))
+            ->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
 
-        $countries = $this->countryRoute
+        $criteria->getAssociation('states')
+            ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING))
+            ->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
+
+        return $this->countryRoute
             ->load(new Request(), $criteria, $salesChannelContext)
             ->getCountries();
-
-        $countries->sortCountryAndStates();
-
-        return $countries;
     }
 }

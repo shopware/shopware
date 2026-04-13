@@ -35,7 +35,7 @@ class InstallerKernelTest extends TestCase
         // the default revision changes per commit, if it is set we expect that it is correct
         static::assertTrue($kernel->getContainer()->hasParameter('kernel.shopware_version_revision'));
 
-        static::assertEquals(
+        static::assertSame(
             [
                 'FrameworkBundle' => FrameworkBundle::class,
                 'TwigBundle' => TwigBundle::class,

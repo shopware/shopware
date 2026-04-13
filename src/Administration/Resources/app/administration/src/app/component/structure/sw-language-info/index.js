@@ -1,7 +1,6 @@
 import template from './sw-language-info.html.twig';
 import './sw-language-info.scss';
 
-const { Component } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 /**
@@ -18,7 +17,7 @@ const { warn } = Shopware.Utils.debug;
  * </sw-language-info>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-language-info', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -37,7 +36,6 @@ Component.register('sw-language-info', {
         changeLanguageOnParentClick: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -150,4 +148,4 @@ Component.register('sw-language-info', {
             Shopware.Utils.EventBus.emit('on-change-language-clicked', this.parentLanguage.id);
         },
     },
-});
+};

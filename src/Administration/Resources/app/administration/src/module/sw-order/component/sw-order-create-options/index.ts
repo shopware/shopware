@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import type CriteriaType from 'src/core/data/criteria.data';
 
 import template from './sw-order-create-options.html.twig';
@@ -104,7 +103,6 @@ export default Component.wrapComponentConfig({
         cartDelivery: {
             immediate: true,
             handler(value): void {
-                // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                 this.shippingCost = value?.shippingCosts?.totalPrice ?? 0;
             },

@@ -3,6 +3,7 @@
  */
 import template from './sw-bulk-edit-save-modal-success.html.twig';
 import './sw-bulk-edit-save-modal-success.scss';
+import fileReaderUtils from '../../../../core/service/utils/file-reader.utils';
 
 const { Criteria } = Shopware.Data;
 
@@ -170,6 +171,10 @@ export default {
                 return Promise.resolve();
             }
 
+            if (!this.document[documentType]) {
+                this.document[documentType] = {};
+            }
+
             this.document[documentType].isDownloading = true;
             return this.orderDocumentApiService
                 .download(documentIds)
@@ -178,7 +183,7 @@ export default {
                         return;
                     }
 
-                    const filename = response.headers['content-disposition'].split('filename=')[1];
+                    const filename = fileReaderUtils.getFilenameFromResponse(response);
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(response.data);
                     link.download = filename;

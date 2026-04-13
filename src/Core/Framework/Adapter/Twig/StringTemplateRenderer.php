@@ -37,7 +37,7 @@ class StringTemplateRenderer
     {
         // use private twig instance here, because we use custom template loader
         $this->twig = new TwigEnvironment(new ArrayLoader(), [
-            'cache' => new FilesystemCache(Path::join($this->cacheDir, 'twig', 'string-template-renderer')),
+            'cache' => new FilesystemCache(Path::join($this->cacheDir)),
         ]);
 
         $this->disableTestMode();
@@ -73,6 +73,11 @@ class StringTemplateRenderer
             /** @var EscaperExtension $escaperExtension */
             $escaperExtension = $this->twig->getExtension(EscaperExtension::class);
             $escaperExtension->setDefaultStrategy($htmlEscape ? 'html' : false);
+        }
+
+        if ($this->twig->hasExtension(CoreExtension::class) && \array_key_exists('timezone', $data) && $data['timezone'] !== null) {
+            $coreExtension = $this->twig->getExtension(CoreExtension::class);
+            $coreExtension->setTimezone($data['timezone']);
         }
 
         try {

@@ -1,7 +1,6 @@
 import template from './sw-tree.html.twig';
 import './sw-tree.scss';
 
-const { Component } = Shopware;
 const { debounce, sort } = Shopware.Utils;
 
 /**
@@ -42,7 +41,7 @@ const { debounce, sort } = Shopware.Utils;
  * </sw-tree>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-tree', {
+export default {
     template,
 
     inject: ['feature'],
@@ -115,7 +114,6 @@ Component.register('sw-tree', {
         searchable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -156,7 +154,6 @@ Component.register('sw-tree', {
         disableContextMenu: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -165,7 +162,6 @@ Component.register('sw-tree', {
         bindItemsToFolder: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -174,7 +170,6 @@ Component.register('sw-tree', {
         sortable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -183,7 +178,6 @@ Component.register('sw-tree', {
         checkItemsInitial: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -192,7 +186,6 @@ Component.register('sw-tree', {
         allowDeleteCategories: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -201,7 +194,6 @@ Component.register('sw-tree', {
         allowCreateCategories: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -210,7 +202,6 @@ Component.register('sw-tree', {
         initiallyExpandedRoot: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -232,7 +223,6 @@ Component.register('sw-tree', {
             contextItem: null,
             currentEditMode: null,
             addElementPosition: null,
-            // eslint-disable-next-line vue/no-reserved-keys
             _eventFromEdit: null,
             createdItem: null,
             checkedElements: {},
@@ -1013,4 +1003,4 @@ Component.register('sw-tree', {
             this.toDeleteItem = null;
         },
     },
-});
+};

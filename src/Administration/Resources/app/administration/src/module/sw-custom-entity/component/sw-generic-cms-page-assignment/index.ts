@@ -1,6 +1,5 @@
 import type ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import type Repository from 'src/core/data/repository.data';
-import type { PropType } from 'vue';
 
 import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './sw-generic-cms-page-assignment.html.twig';
@@ -215,7 +214,6 @@ export default Shopware.Component.wrapComponentConfig({
                             if (configField.entity) {
                                 delete configField.entity;
                             }
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                             if (configField.hasOwnProperty('required')) {
                                 delete configField.required;
                             }

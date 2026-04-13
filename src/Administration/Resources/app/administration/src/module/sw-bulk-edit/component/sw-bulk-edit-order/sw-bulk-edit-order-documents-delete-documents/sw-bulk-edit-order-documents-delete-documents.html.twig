@@ -1,0 +1,15 @@
+{% block sw_bulk_edit_order_documents_delete_documents %}
+<div
+    v-if="documentTypes && documentTypes.total > 0"
+    class="sw-bulk-edit-order-documents-delete-documents"
+>
+    <mt-checkbox
+        v-for="documentType in documentTypes"
+        :key="documentType.id"
+        v-model:checked="documentType.selected"
+        :label="documentType.translated.name"
+        class="sw-bulk-edit-order-documents-delete-documents__checkbox"
+        :class="`is--${documentType.technicalName}`"
+    />
+</div>
+{% endblock %}

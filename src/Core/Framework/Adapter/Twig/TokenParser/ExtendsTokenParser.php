@@ -80,7 +80,7 @@ final class ExtendsTokenParser extends AbstractTokenParser
             ];
         }
 
-        $expression = $this->parser->getExpressionParser()->parseExpression();
+        $expression = $this->parser->parseExpression();
         $options = $this->convertExpressionToArray($expression);
 
         if (!isset($options['template']) || !\is_string($options['template'])) {

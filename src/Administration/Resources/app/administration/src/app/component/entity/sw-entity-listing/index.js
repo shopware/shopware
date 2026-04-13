@@ -4,13 +4,12 @@
 
 import template from './sw-entity-listing.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.extend('sw-entity-listing', 'sw-data-grid', {
+export default {
     template,
 
     inject: ['feature'],
@@ -41,13 +40,16 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             required: true,
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use `dataSource` prop instead to align with parent component
+         * The `items` prop will be removed in v6.8.0. Please use `dataSource` instead.
+         */
         items: {
             type: Array,
             required: false,
             default: null,
         },
 
-        // eslint-disable-next-line vue/require-default-prop
         dataSource: {
             type: [
                 Array,
@@ -59,7 +61,6 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
         showSettings: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -80,21 +81,18 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
         fullPage: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         allowInlineEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         allowColumnEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -107,7 +105,6 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -120,7 +117,6 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
         allowDelete: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -182,11 +178,27 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
             return this.$tc('global.default.edit');
         },
+
+        /**
+         * Internal data source that handles backward compatibility
+         * Prefers dataSource over items for consistency with parent component
+         */
+        internalDataSource() {
+            if (this.dataSource !== undefined && this.dataSource !== null) {
+                return this.dataSource;
+            }
+
+            return this.items;
+        },
     },
 
     watch: {
         items() {
-            this.applyResult(this.items);
+            this.applyResult(this.internalDataSource);
+        },
+
+        dataSource() {
+            this.applyResult(this.internalDataSource);
         },
     },
 
@@ -194,8 +206,18 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
         createdComponent() {
             this.$super('createdComponent');
 
-            if (this.items) {
-                this.applyResult(this.items);
+            // Show deprecation warning if items prop is used
+            if (this.items !== null && this.items !== undefined) {
+                console.warn(
+                    '[Deprecation] sw-entity-listing: The "items" prop is deprecated and will be removed in v6.8.0. ' +
+                        'Please use "dataSource" instead to align with the parent sw-data-grid component. ' +
+                        'Migration: Change :items="data" to :data-source="data"',
+                    this,
+                );
+            }
+
+            if (this.internalDataSource) {
+                this.applyResult(this.internalDataSource);
             }
         },
 
@@ -203,8 +225,8 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             this.records = result;
             const { total, criteria } = result;
             this.total = total;
-            this.page = criteria.page || 1;
-            this.limit = criteria.limit || this.criteriaLimit;
+            this.page = criteria?.page || 1;
+            this.limit = criteria?.limit || this.criteriaLimit;
             this.loading = false;
 
             if (criteria?.sortings?.[0]?.field) {
@@ -219,7 +241,7 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
             // send delete request to the server, immediately
             return this.repository
-                .delete(id, this.items.context)
+                .delete(id, this.internalDataSource.context)
                 .then(() => {
                     this.resetSelection();
                     this.$emit('delete-item-finish', id);
@@ -238,7 +260,7 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             selectedIds = Object.keys(this.selection);
 
             return this.repository
-                .syncDeleted(selectedIds, this.items.context)
+                .syncDeleted(selectedIds, this.internalDataSource.context)
                 .then(() => {
                     return this.deleteItemsFinish();
                 })
@@ -262,12 +284,14 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
         doSearch() {
             this.loading = true;
-            return this.repository.search(this.items.criteria, this.items.context).then(this.applyResult);
+            return this.repository
+                .search(this.internalDataSource.criteria, this.internalDataSource.context)
+                .then(this.applyResult);
         },
 
         save(record) {
             // send save request to the server, immediately
-            const promise = this.repository.save(record, this.items.context).then(() => {
+            const promise = this.repository.save(record, this.internalDataSource.context).then(() => {
                 return this.doSearch();
             });
             this.$emit('inline-edit-save', promise, record);
@@ -285,7 +309,7 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
         sort(column) {
             this.lastSortedColumn = column;
-            this.items.criteria.resetSorting();
+            this.internalDataSource.criteria.resetSorting();
 
             let direction = 'ASC';
             if (this.currentSortBy === this.lastSortedColumn.dataIndex) {
@@ -295,7 +319,9 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             }
 
             this.lastSortedColumn.dataIndex.split(',').forEach((field) => {
-                this.items.criteria.addSorting(Criteria.sort(field, direction, this.lastSortedColumn.naturalSorting));
+                this.internalDataSource.criteria.addSorting(
+                    Criteria.sort(field, direction, this.lastSortedColumn.naturalSorting),
+                );
             });
 
             this.currentSortBy = this.lastSortedColumn.dataIndex;
@@ -316,8 +342,8 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
         },
 
         paginate({ page = 1, limit = 25 }) {
-            this.items.criteria.setPage(page);
-            this.items.criteria.setLimit(limit);
+            this.internalDataSource.criteria.setPage(page);
+            this.internalDataSource.criteria.setLimit(limit);
 
             this.$emit('page-change', { page, limit });
 
@@ -348,4 +374,4 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             this.$emit('bulk-edit-modal-close');
         },
     },
-});
+};

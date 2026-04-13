@@ -9,9 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 class PurchaseStepsError extends Error
 {
     public function __construct(
-        private readonly string $id,
-        private readonly string $name,
-        private readonly int $quantity
+        protected readonly string $id,
+        protected readonly string $name,
+        protected readonly int $quantity
     ) {
         $this->message = \sprintf(
             'Your input quantity does not match with the setup of the %s. The quantity was changed to %d',

@@ -4,8 +4,10 @@ namespace Shopware\Core\System\UsageData\EntitySync;
 
 use Doctrine\DBAL\ConnectionException;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
@@ -16,14 +18,14 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 #[AsMessageHandler(handles: IterateEntityMessage::class)]
 #[Package('data-services')]
-final class IterateEntityMessageHandler
+final readonly class IterateEntityMessageHandler
 {
     public function __construct(
-        private readonly MessageBusInterface $bus,
-        private readonly IterateEntitiesQueryBuilder $iteratorFactory,
-        private readonly ConsentService $consentService,
-        private readonly EntityDefinitionService $entityDefinitionService,
-        private readonly LoggerInterface $logger,
+        private MessageBusInterface $bus,
+        private IterateEntitiesQueryBuilder $iteratorFactory,
+        private ConsentService $consentService,
+        private EntityDefinitionService $entityDefinitionService,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -40,10 +42,10 @@ final class IterateEntityMessageHandler
             ));
         }
 
-        $lastApprovalDate = $this->consentService->getLastConsentIsAcceptedDate();
-        if ($lastApprovalDate === null) {
+        $acceptedUntil = $this->consentService->getConsentState(BackendData::NAME, Context::createDefaultContext())->acceptedUntil;
+        if ($acceptedUntil === null) {
             throw new UnrecoverableMessageHandlingException(\sprintf(
-                'No approval date found. Skipping dispatching of entity sync message. Entity: %s, Operation: %s',
+                'The consent was never accepted. Skipping dispatching of entity sync message. Entity: %s, Operation: %s',
                 $message->entityName,
                 $message->operation->value,
             ));
@@ -68,7 +70,7 @@ final class IterateEntityMessageHandler
                     )
                 );
 
-                $iterator->setFirstResult($iterator->getFirstResult() + $iterator->getMaxResults());
+                $iterator->setFirstResult($iterator->getFirstResult() + (int) $iterator->getMaxResults());
             }
         } catch (ConnectionException|UnrecoverableMessageHandlingException $e) {
             throw $e;

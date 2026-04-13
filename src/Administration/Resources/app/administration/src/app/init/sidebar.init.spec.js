@@ -32,7 +32,7 @@ describe('src/app/init/sidebar.init', () => {
             icon: 'regular-star',
             title: 'Test sidebar',
             locationId: 'test-sidebar',
-        })
+        });
 
         // Check that sidebar store has the added sidebar
         expect(Shopware.Store.get('sidebar').sidebars).toHaveLength(1);
@@ -89,5 +89,5 @@ describe('src/app/init/sidebar.init', () => {
 
         // Check that sidebar store is empty
         expect(Shopware.Store.get('sidebar').sidebars).toEqual([]);
-    })
+    });
 });

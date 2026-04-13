@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Administration\Controller;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\UnableToReadFile;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -18,6 +19,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -31,9 +33,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\DataAbstractionLayer\TestEntityDefinition;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -54,7 +60,9 @@ class AdministrationControllerTest extends TestCase
 
     private Context $context;
 
-    /** @var MockObject&EntityRepository<CurrencyCollection> */
+    /**
+     * @var MockObject&EntityRepository<CurrencyCollection>
+     */
     private MockObject&EntityRepository $currencyRepository;
 
     private MockObject&DefinitionInstanceRegistry $definitionRegistry;
@@ -69,7 +77,18 @@ class AdministrationControllerTest extends TestCase
 
     private string $shopwareCoreDir;
 
+    private string $serviceRegistryUrl;
+
+    /**
+     * @var MockObject&EntityRepository<LanguageCollection>
+     */
+    private MockObject&EntityRepository $languageRepository;
+
     private string $refreshTokenTtl;
+
+    private string $analyticsGatewayUrl;
+
+    private IdsCollection $ids;
 
     protected function setUp(): void
     {
@@ -82,7 +101,12 @@ class AdministrationControllerTest extends TestCase
         $this->htmlSanitizer = $this->createMock(HtmlSanitizer::class);
         $this->parameterBag = $this->createMock(ParameterBagInterface::class);
         $this->shopwareCoreDir = __DIR__ . '/../../../../src/Core/';
+        $this->serviceRegistryUrl = 'https://registry.services.shopware.io';
+        $this->languageRepository = $this->createMock(EntityRepository::class);
         $this->refreshTokenTtl = 'P1W';
+        $this->analyticsGatewayUrl = 'https://analytics-gateway.test.com';
+
+        $this->ids = new IdsCollection();
     }
 
     public function testIndexPerformsOnSearchOfCurrency(): void
@@ -111,7 +135,10 @@ class AdministrationControllerTest extends TestCase
                     'cspNonce' => null,
                     'adminEsEnable' => true,
                     'storefrontEsEnable' => true,
+                    'serviceRegistryUrl' => $this->serviceRegistryUrl,
                     'refreshTokenTtl' => 7 * 86400 * 1000,
+                    'productStreamIndexingEnabled' => true,
+                    'analyticsGatewayUrl' => $this->analyticsGatewayUrl,
                 ]
             );
 
@@ -138,7 +165,102 @@ class AdministrationControllerTest extends TestCase
         $response = $controller->index(new Request(), $this->context);
 
         static::assertNotFalse($response->getContent());
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testIndexSetsCacheHeaders(): void
+    {
+        $this->parameterBag->expects($this->any())->method('has')->willReturn(true);
+        $this->parameterBag->expects($this->any())->method('get')->willReturn(true);
+
+        $controller = $this->createAdministrationController();
+
+        $container = new Container();
+        $twig = $this->createMock(Environment::class);
+
+        $twig->expects($this->once())->method('render')
+            ->willReturn('<html></html>');
+
+        $container->set('twig', $twig);
+        $controller->setContainer($container);
+
+        $currencyCollection = new CurrencyCollection();
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+        $currency->setIsoCode('EUR');
+        $currencyCollection->add($currency);
+
+        $this->currencyRepository->expects($this->once())->method('search')->willReturn(
+            new EntitySearchResult(
+                'currency',
+                1,
+                $currencyCollection,
+                null,
+                new Criteria(),
+                $this->context
+            )
+        );
+
+        $response = $controller->index(new Request(), $this->context);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertTrue($response->headers->has('cache-control'));
+
+        $cacheControl = $response->headers->get('cache-control');
+        static::assertNotNull($cacheControl);
+        static::assertStringContainsString('max-age=0', $cacheControl);
+        static::assertStringContainsString('public', $cacheControl);
+        static::assertStringContainsString('stale-while-revalidate=86400', $cacheControl);
+
+        static::assertSame(AdministrationController::CACHE_ID_ADMINISTRATION, $response->headers->get(AdministrationController::CACHE_ID_HEADER));
+    }
+
+    public function testIndexOmitsStaleWhileRevalidateWhenFrwIsActive(): void
+    {
+        $this->parameterBag->expects($this->any())->method('has')->willReturn(true);
+        $this->parameterBag->expects($this->any())->method('get')->willReturn(true);
+
+        $frwService = $this->createMock(FirstRunWizardService::class);
+        $frwService->method('frwShouldRun')->willReturn(true);
+
+        $controller = $this->createAdministrationController(firstRunWizardService: $frwService);
+
+        $container = new Container();
+        $twig = $this->createMock(Environment::class);
+
+        $twig->expects($this->once())->method('render')
+            ->willReturn('<html></html>');
+
+        $container->set('twig', $twig);
+        $controller->setContainer($container);
+
+        $currencyCollection = new CurrencyCollection();
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+        $currency->setIsoCode('EUR');
+        $currencyCollection->add($currency);
+
+        $this->currencyRepository->expects($this->once())->method('search')->willReturn(
+            new EntitySearchResult(
+                'currency',
+                1,
+                $currencyCollection,
+                null,
+                new Criteria(),
+                $this->context
+            )
+        );
+
+        $response = $controller->index(new Request(), $this->context);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertTrue($response->headers->has('cache-control'));
+
+        $cacheControl = $response->headers->get('cache-control');
+        static::assertNotNull($cacheControl);
+        static::assertStringContainsString('max-age=0', $cacheControl);
+        static::assertStringContainsString('public', $cacheControl);
+        static::assertStringNotContainsString('stale-while-revalidate', $cacheControl);
     }
 
     public function testCheckCustomerEmailValidWithoutException(): void
@@ -148,7 +270,7 @@ class AdministrationControllerTest extends TestCase
 
         $response = $controller->checkCustomerEmailValid($request, $this->context);
         static::assertNotFalse($response->getContent());
-        static::assertEquals(
+        static::assertSame(
             json_encode(['isValid' => true]),
             $response->getContent()
         );
@@ -161,7 +283,7 @@ class AdministrationControllerTest extends TestCase
 
         $response = $controller->checkCustomerEmailValid($request, $this->context);
         static::assertNotFalse($response->getContent());
-        static::assertEquals(
+        static::assertSame(
             json_encode(['isValid' => true]),
             $response->getContent()
         );
@@ -251,8 +373,8 @@ class AdministrationControllerTest extends TestCase
             ->willThrowException(new UnableToReadFile());
         $response = $controller->pluginIndex('foo');
 
-        static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
-        static::assertEquals('Plugin index.html not found', $response->getContent());
+        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        static::assertSame('Plugin index.html not found', $response->getContent());
     }
 
     public function testPluginIndexReturnsUnchangedFileIfNoReplaceableStringIsFound(): void
@@ -266,8 +388,8 @@ class AdministrationControllerTest extends TestCase
             ->willReturn($fileContent);
         $response = $controller->pluginIndex('foo');
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        static::assertEquals($fileContent, $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame($fileContent, $response->getContent());
     }
 
     public function testPluginIndexReplacesAsset(): void
@@ -287,12 +409,41 @@ class AdministrationControllerTest extends TestCase
 
         $response = $controller->pluginIndex('foo');
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $content = $response->getContent();
         static::assertIsString($content);
         static::assertStringNotContainsString('__$ASSET_BASE_PATH$__', $content);
         static::assertStringContainsString('http://localhost/bundles/', $content);
+    }
+
+    public function testPluginIndexSetsCacheHeaders(): void
+    {
+        $controller = $this->createAdministrationController();
+
+        $fileContent = '<html><head></head><body></body></html>';
+        $this->fileSystemOperator->expects($this->once())
+            ->method('read')
+            ->with('bundles/test-plugin/meteor-app/index.html')
+            ->willReturn($fileContent);
+
+        $this->fileSystemOperator->expects($this->once())
+            ->method('publicUrl')
+            ->with('/')
+            ->willReturn('http://localhost/bundles/');
+
+        $response = $controller->pluginIndex('test-plugin');
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertTrue($response->headers->has('cache-control'));
+
+        $cacheControl = $response->headers->get('cache-control');
+        static::assertNotNull($cacheControl);
+        static::assertStringContainsString('max-age=0', $cacheControl);
+        static::assertStringContainsString('public', $cacheControl);
+        static::assertStringContainsString('stale-while-revalidate=86400', $cacheControl);
+
+        static::assertSame(AdministrationController::CACHE_ID_ADMINISTRATION, $response->headers->get(AdministrationController::CACHE_ID_HEADER));
     }
 
     public function testResetExcludedSearchTermThrowsRoutingException(): void
@@ -358,7 +509,7 @@ class AdministrationControllerTest extends TestCase
         $controller = $this->createAdministrationController();
         $response = $controller->sanitizeHtml(new Request([], ['html' => '<br/>', 'field' => '']), $this->context);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{"preview":""}', $response->getContent());
     }
@@ -385,7 +536,7 @@ class AdministrationControllerTest extends TestCase
         $controller = $this->createAdministrationController();
         $response = $controller->sanitizeHtml(new Request([], ['html' => '<p>test</p>', 'field' => 'test_entity.id']), $this->context);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{"preview":"test"}', $response->getContent());
     }
@@ -400,7 +551,7 @@ class AdministrationControllerTest extends TestCase
         $controller = $this->createAdministrationController();
         $response = $controller->sanitizeHtml(new Request([], ['html' => $html, 'field' => 'test_entity.idAllowHtml']), $this->context);
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{"preview":"' . $html . '"}', $response->getContent());
     }
@@ -420,7 +571,7 @@ class AdministrationControllerTest extends TestCase
             $this->context
         );
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{"preview":"' . $sanitized . '"}', $response->getContent());
     }
@@ -433,6 +584,62 @@ class AdministrationControllerTest extends TestCase
 
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{"de-DE":[],"en-GB":[]}', $response->getContent());
+    }
+
+    public function testGetUnauthenticatedSnippetsWithoutAuthentication(): void
+    {
+        $controller = $this->createUnauthenticatedAdministrationController();
+
+        $request = new Request(query: ['locale' => 'en-GB']);
+        $response = $controller->snippets($request);
+        $snippets = \json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR)['en-GB'];
+
+        static::assertCount(2, $snippets);
+        static::assertArrayHasKey('global', $snippets);
+        static::assertArrayHasKey('sw-login', $snippets);
+    }
+
+    public function testGetAllActivatedLanguagesLocales(): void
+    {
+        $expectedLocales = [
+            $this->ids->create('de-DE') => 'de-DE',
+            $this->ids->create('en-GB') => 'en-GB',
+            $this->ids->create('jp-JP') => 'jp-JP',
+        ];
+
+        $languages = \array_map(static function (string $locale, string $languageId) {
+            $localeEntity = new LocaleEntity();
+            $localeEntity->setCode($locale);
+
+            $languageEntity = new LanguageEntity();
+            $languageEntity->setId($languageId);
+            $languageEntity->setLocale($localeEntity);
+
+            return $languageEntity;
+        }, $expectedLocales, \array_keys($expectedLocales));
+
+        $context = Context::createDefaultContext();
+        $languageRepository = $this->createMock(EntityRepository::class);
+        $languageRepository->method('search')
+            ->willReturn(new EntitySearchResult(
+                'language',
+                2,
+                new LanguageCollection($languages),
+                null,
+                new Criteria(),
+                $context,
+            ));
+        $controller = $this->createAdministrationController(null, false, $languageRepository);
+
+        $jsonResponse = $controller->getLocales(new Request(), $context);
+        static::assertInstanceOf(JsonResponse::class, $jsonResponse);
+        static::assertSame(Response::HTTP_OK, $jsonResponse->getStatusCode());
+
+        $content = $jsonResponse->getContent();
+        static::assertNotFalse($content);
+
+        $actualLocales = \json_decode($content, true);
+        static::assertEquals($expectedLocales, $actualLocales);
     }
 
     public static function excludedTerms(): \Generator
@@ -461,9 +668,16 @@ class AdministrationControllerTest extends TestCase
         ];
     }
 
+    /**
+     * @param ?EntityRepository<LanguageCollection> $languageRepository
+     */
     protected function createAdministrationController(
         ?CustomerCollection $collection = null,
-        bool $isCustomerBoundToSalesChannel = false
+        bool $isCustomerBoundToSalesChannel = false,
+        ?EntityRepository $languageRepository = null,
+        (SnippetFinderInterface&MockObject)|null $snippetFinder = null,
+        (SymfonyBearerTokenValidator&MockObject)|null $tokenValidator = null,
+        ?FirstRunWizardService $firstRunWizardService = null,
     ): AdministrationController {
         $collection = $collection ?? new CustomerCollection();
 
@@ -472,8 +686,8 @@ class AdministrationControllerTest extends TestCase
 
         return new AdministrationController(
             $this->createMock(TemplateFinder::class),
-            $this->createMock(FirstRunWizardService::class),
-            $this->createMock(SnippetFinderInterface::class),
+            $firstRunWizardService ?? $this->createMock(FirstRunWizardService::class),
+            $snippetFinder ?? $this->createMock(SnippetFinderInterface::class),
             [],
             new KnownIpsCollector(),
             $this->connection,
@@ -488,7 +702,53 @@ class AdministrationControllerTest extends TestCase
                 'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => $isCustomerBoundToSalesChannel,
             ]),
             $this->fileSystemOperator,
+            $this->serviceRegistryUrl,
+            $languageRepository ?? $this->languageRepository,
+            $tokenValidator ?? $this->createMock(SymfonyBearerTokenValidator::class),
+            $this->analyticsGatewayUrl,
             $this->refreshTokenTtl,
+        );
+    }
+
+    private function createUnauthenticatedAdministrationController(): AdministrationController
+    {
+        /** @var SnippetFinderInterface&MockObject $snippetFinder */
+        $snippetFinder = $this->createMock(SnippetFinderInterface::class);
+        $snippetFinder
+            ->expects($this->once())
+            ->method('findSnippets')
+            ->willReturn([
+                'global' => [],
+                'sw-login' => [],
+                'entityCategories' => [],
+                'help-center' => [],
+                'locale' => [],
+                'mt-text-editor-toolbar-button-link' => [],
+                'sales-channel-theme' => [],
+                'sidebar' => [],
+                'sw-ai-copilot-warning' => [],
+                'sw-app' => [],
+                'sw-base-filter' => [],
+                'sw-boolean-filter' => [],
+                'sw-bulk-edit' => [],
+                'sw-category' => [],
+                'sw-category-tree-field' => [],
+                'sw-cms' => [],
+                'sw-config-form-renderer' => [],
+            ]);
+
+        $tokenValidator = $this->createMock(SymfonyBearerTokenValidator::class);
+        $tokenValidator
+            ->expects($this->once())
+            ->method('validateAuthorization')
+            ->willThrowException(new OAuthServerException('', 0, ''));
+
+        return $this->createAdministrationController(
+            null,
+            false,
+            null,
+            $snippetFinder,
+            $tokenValidator,
         );
     }
 

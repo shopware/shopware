@@ -110,7 +110,7 @@ class EntityScoreQueryBuilder
         $fields = $definition->getFields()->filterByFlag(SearchRanking::class);
 
         // exclude read protected fields which are not allowed for the current scope
-        $fields = $fields->filter(function (Field $field) use ($context) {
+        $fields = $fields->filter(static function (Field $field) use ($context) {
             $flag = $field->getFlag(ApiAware::class);
             if ($flag === null) {
                 return false;

@@ -7,6 +7,10 @@ $sw-media-quickinfo-color-second-headline: $color-darkgray-200;
         opacity: 0.5;
         pointer-events: none;
     }
+
+    .sw-media-media-item > * {
+        grid-row: 1 / span 2;
+    }
 }
 
 .sw-media-quickinfo-multiple .sw-media-quickinfo-multiple__second-headline {

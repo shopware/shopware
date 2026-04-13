@@ -1,0 +1,25 @@
+{
+    "sw-settings-message-stats": {
+        "general": {
+            "mainMenuItemGeneral": "Nachrichtenwarteschlangen-Statistiken",
+            "descriptionTextModule": "Statistiken über verarbeitete Nachrichten im Nachrichtenwarteschlangensystem anzeigen",
+            "statsCardTitle": "Übersicht",
+            "description": "Diese Ansicht bietet detaillierte Einblicke in die Leistung der Shopware-Nachrichtenwarteschlange. Für jede verarbeitete Nachricht protokolliert das System, wie lange sie in der Warteschlange verblieben ist. Diese Statistiken basieren auf einem gleitenden Zeitfenster, das Sie in den Systemeinstellungen anpassen können.",
+            "totalMessages": "Verarbeitete Nachrichten",
+            "totalMessagesHelp": "Wie viele Nachrichten innerhalb des angegebenen Zeitrahmens erfolgreich verarbeitet wurden.",
+            "averageTime": "Durchschnittliche Wartezeit in der Warteschlange",
+            "averageTimeHelp": "Die durchschnittliche Zeit (in Sekunden), die Nachrichten in der Warteschlange warten, bevor sie verarbeitet werden. Dies hilft, Verzögerungen oder Engpässe zu erkennen.",
+            "processingWindow": "Verarbeitungsfenster",
+            "processingWindowHelp": "Zeigt die Zeit der ältesten Nachricht an, die derzeit in den Statistiken enthalten ist. Wenn das Statistikfenster z. B. auf 1 Stunde eingestellt ist, die Verarbeitung aber erst vor 5 Minuten begonnen hat, wird diese kürzere Dauer angezeigt.",
+            "refreshButton": "Daten aktualisieren",
+            "errorTitle": "Fehler beim Laden der Statistiken",
+            "emptyStateTitle": "Keine Statistiken verfügbar",
+            "emptyStateSubline": "Es wurden noch keine Nachrichtenwarteschlangen-Statistiken gesammelt.",
+            "type": "Typ",
+            "count": "Anzahl",
+            "seconds": "s",
+            "statsDisabledTitle": "Nachrichtenwarteschlangen-Statistiken sind deaktiviert",
+            "statsDisabledContent": "Um Nachrichtenwarteschlangen-Statistiken zu aktivieren, setzen Sie den Schlüssel \"shopware.messenger.stats.enabled\" in Ihrer shopware.yaml-Konfigurationsdatei auf true und starten Sie die Worker neu."
+        }
+    }
+}

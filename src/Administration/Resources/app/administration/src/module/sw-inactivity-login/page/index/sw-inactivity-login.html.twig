@@ -4,7 +4,7 @@
     <sw-modal
         v-if="lastKnownUser"
         class="sw-inactivity-login__modal"
-        :title="$tc('sw-inactivity-login.modal.title')"
+        :title="$t('global.sw-inactivity-login.modal.title')"
         :closable="false"
     >
         <mt-password-field
@@ -28,7 +28,7 @@
                 @click="onBackToLogin"
                 @keydown.enter="onBackToLogin"
             >
-                {{ $tc('sw-inactivity-login.modal.actions.backToLogin') }}
+                {{ $t('global.sw-inactivity-login.modal.actions.backToLogin') }}
             </a>
 
             <mt-button
@@ -36,7 +36,7 @@
                 :is-loading="isLoading"
                 @click="loginUserWithPassword"
             >
-                {{ $tc('sw-login.index.buttonLogin') }}
+                {{ $t('sw-login.index.buttonLogin') }}
             </mt-button>
         </template>
     </sw-modal>

@@ -37,7 +37,7 @@ class FormCmsElementResolver extends AbstractCmsElementResolver
 
         $salutations = $this->salutationRoute->load(new Request(), $context, new Criteria())->getSalutations();
 
-        $salutations->sort(fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
+        $salutations->sort(static fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
 
         $slot->setData($salutations);
     }

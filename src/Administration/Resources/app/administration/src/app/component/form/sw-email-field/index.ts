@@ -1,15 +1,15 @@
 import template from './sw-email-field.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  * @status ready
  * @description Wrapper component for sw-email-field and mt-email-field. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-email-field instead.
  */
-Component.register('sw-email-field', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
@@ -23,6 +23,12 @@ Component.register('sw-email-field', {
             type: String,
             required: false,
             default: null,
+        },
+
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -44,8 +50,6 @@ Component.register('sw-email-field', {
 
     methods: {
         getSlots() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots;
         },
 

@@ -12,7 +12,6 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
-use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -67,7 +66,9 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity = new NewsletterRecipientEntity();
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
+        $newsletterRecipientEntity->setStatus(NewsletterSubscribeRoute::STATUS_OPT_IN);
 
+        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
@@ -100,7 +101,9 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
         );
 
-        $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+        $response = $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
+
+        static::assertSame(NewsletterSubscribeRoute::STATUS_OPT_IN, $response->getStatus());
     }
 
     public function testSubscribeWithDOIDisabled(): void
@@ -118,7 +121,9 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity = new NewsletterRecipientEntity();
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
+        $newsletterRecipientEntity->setStatus(NewsletterSubscribeRoute::STATUS_DIRECT);
 
+        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
@@ -151,7 +156,9 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
         );
 
-        $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+        $response = $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
+
+        static::assertSame(NewsletterSubscribeRoute::STATUS_DIRECT, $response->getStatus());
     }
 
     /**
@@ -169,13 +176,14 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
+        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
         ]);
 
         $mock = $this->createMock(DataValidator::class);
-        $mock->method('validate')->willReturnCallback(function (array $data, DataValidationDefinition $definition) use ($properties, $constraints): void {
+        $mock->method('validate')->willReturnCallback(static function (array $data, DataValidationDefinition $definition) use ($properties, $constraints): void {
             foreach ($properties as $propertyName => $value) {
                 static::assertEquals($value, $data[$propertyName] ?? null);
                 static::assertEquals($definition->getProperties()[$propertyName] ?? null, $constraints);
@@ -193,7 +201,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
         );
 
-        $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+        $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
     }
 
     public static function validatorDataProvider(): \Generator
@@ -208,10 +216,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             ['firstName' => 'Y http://localhost', 'lastName' => 'Tran http://localhost'],
             [
                 new NotBlank(),
-                new Regex([
-                    'pattern' => NewsletterSubscribeRoute::DOMAIN_NAME_REGEX,
-                    'match' => false,
-                ]),
+                new Regex(pattern: NewsletterSubscribeRoute::DOMAIN_NAME_REGEX, match: false),
             ],
         ];
 
@@ -225,10 +230,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             ['firstName' => 'Y', 'lastName' => 'Tran'],
             [
                 new NotBlank(),
-                new Regex([
-                    'pattern' => NewsletterSubscribeRoute::DOMAIN_NAME_REGEX,
-                    'match' => false,
-                ]),
+                new Regex(pattern: NewsletterSubscribeRoute::DOMAIN_NAME_REGEX, match: false),
             ],
         ];
     }
@@ -245,6 +247,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterRecipientEntity->setId(Uuid::randomHex());
         $newsletterRecipientEntity->setConfirmedAt(new \DateTime());
 
+        /** @var StaticEntityRepository<NewsletterRecipientCollection> $entityRepository */
         $entityRepository = new StaticEntityRepository([
             [$newsletterRecipientEntity->getId()],
             new NewsletterRecipientCollection([$newsletterRecipientEntity]),
@@ -259,7 +262,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $rateLimiterMock
             ->expects($this->once())
             ->method('ensureAccepted')
-            ->willReturnCallback(function (string $route, string $key): void {
+            ->willReturnCallback(static function (string $route, string $key): void {
                 static::assertSame($route, RateLimiter::NEWSLETTER_FORM);
                 static::assertSame($key, '127.0.0.1');
             });
@@ -275,7 +278,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
         );
 
-        $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+        $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
     }
 
     public function testRateLimitationWithThrowException(): void
@@ -312,13 +315,13 @@ class NewsletterSubscribeRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
         );
 
-        static::expectException(NewsletterException::class);
+        static::expectException(RateLimitExceededException::class);
 
-        $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+        $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
     }
 
     /**
-     * @param array{isDoubleOptIn: bool, doubleOptInRegistered: bool} $doiSettings
+     * @param array{'core.newsletter.doubleOptIn': bool, 'core.newsletter.doubleOptInRegistered': bool} $doiSettings
      * @param array{id: string, email: string} $customerData
      * @param array{id: string, email: string} $recipientData
      */
@@ -384,7 +387,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $dispatchedEvents = [];
         $eventDispatcher
             ->method('dispatch')
-            ->willReturnCallback(function ($event) use (&$dispatchedEvents) {
+            ->willReturnCallback(static function ($event) use (&$dispatchedEvents) {
                 $dispatchedEvents[] = $event;
 
                 return $event;
@@ -401,7 +404,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $customerRepository,
         );
 
-        $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
+        $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
 
         static::assertInstanceOf(BuildValidationEvent::class, $dispatchedEvents[0]);
 

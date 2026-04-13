@@ -15,6 +15,6 @@ class StorefrontPluginConfigurationTest extends TestCase
     public function testAssetName(): void
     {
         $config = new StorefrontPluginConfiguration('SwagPayPal');
-        static::assertEquals('swag-pay-pal', $config->getAssetName());
+        static::assertSame('swag-pay-pal', $config->getAssetName());
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\Infrastructure\Path;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -26,7 +27,8 @@ class MediaUrlGenerator extends AbstractMediaUrlGenerator
             if (str_starts_with($value->path, 'http')) {
                 $url = $value->path;
             } else {
-                $url = $this->filesystem->publicUrl($value->path);
+                $encodedPath = $this->encodeFilePath($value->path);
+                $url = $this->filesystem->publicUrl($encodedPath);
             }
 
             if ($value->updatedAt !== null) {
@@ -37,5 +39,20 @@ class MediaUrlGenerator extends AbstractMediaUrlGenerator
         }
 
         return $urls;
+    }
+
+    private function encodeFilePath(string $filePath): string
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return $filePath;
+        }
+
+        $segments = explode('/', $filePath);
+
+        foreach ($segments as $index => $segment) {
+            $segments[$index] = rawurlencode($segment);
+        }
+
+        return implode('/', $segments);
     }
 }

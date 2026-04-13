@@ -47,10 +47,10 @@ class PromotionDiscountPriceDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('discount_id', 'discountId', PromotionDiscountDefinition::class))->addFlags(new Required()),
-            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new Required()),
-            (new FloatField('price', 'price'))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of promotion discount price.'),
+            (new FkField('discount_id', 'discountId', PromotionDiscountDefinition::class))->addFlags(new Required())->setDescription('Unique identity of discount.'),
+            (new FkField('currency_id', 'currencyId', CurrencyDefinition::class))->addFlags(new Required())->setDescription('Unique identity of currency.'),
+            (new FloatField('price', 'price'))->addFlags(new Required())->setDescription('Price of the discount.'),
             new ManyToOneAssociationField('promotionDiscount', 'discount_id', PromotionDiscountDefinition::class, 'id', false),
             new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class, 'id', false),
         ]);

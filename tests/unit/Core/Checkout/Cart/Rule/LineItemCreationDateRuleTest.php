@@ -70,10 +70,10 @@ class LineItemCreationDateRuleTest extends TestCase
         $operators = $ruleConstraints['operator'];
 
         static::assertEquals(new NotBlank(), $date[0]);
-        static::assertEquals(new Type(['type' => 'string']), $date[1]);
+        static::assertEquals(new Type(type: 'string'), $date[1]);
 
         static::assertEquals(new NotBlank(), $operators[0]);
-        static::assertEquals(new Choice($expectedOperators), $operators[1]);
+        static::assertEquals(new Choice(choices: $expectedOperators), $operators[1]);
     }
 
     /**
@@ -251,7 +251,7 @@ class LineItemCreationDateRuleTest extends TestCase
         $result = $lineItemCreationDateRule->getConfig()->getData();
 
         static::assertIsArray($result['operatorSet']['operators']);
-        static::assertEquals(RuleConfig::OPERATOR_SET_NUMBER, $result['operatorSet']['operators']);
+        static::assertSame(RuleConfig::OPERATOR_SET_NUMBER, $result['operatorSet']['operators']);
     }
 
     private function createLineItemWithCreatedDate(string $createdAt): LineItem

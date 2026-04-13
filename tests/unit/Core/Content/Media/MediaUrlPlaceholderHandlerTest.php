@@ -39,7 +39,7 @@ class MediaUrlPlaceholderHandlerTest extends TestCase
         $this->connection->method('getDatabasePlatform')->willReturn($this->createMock(AbstractPlatform::class));
 
         $fileSystemOperator = $this->createMock(Filesystem::class);
-        $fileSystemOperator->expects($this->any())->method('publicUrl')->willReturnCallback(function ($path) {
+        $fileSystemOperator->expects($this->any())->method('publicUrl')->willReturnCallback(static function ($path) {
             return 'http://foo.text:8000/' . $path;
         });
 
@@ -92,12 +92,14 @@ class MediaUrlPlaceholderHandlerTest extends TestCase
                 'path' => 'media/12/34/cat.pdf',
                 'created_at' => self::DATETIME,
                 'updated_at' => self::DATETIME,
+                'mime_type' => 'application/pdf',
             ],
             [
                 'id' => Uuid::fromHexToBytes(self::MEDIA2_ID),
                 'path' => 'media/56/78/dog.pdf',
                 'created_at' => self::DATETIME,
                 'updated_at' => self::DATETIME,
+                'mime_type' => 'application/pdf',
             ],
         ]);
         $this->connection->method('executeQuery')->willReturn($result);

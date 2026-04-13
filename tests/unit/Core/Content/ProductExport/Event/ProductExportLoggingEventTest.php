@@ -31,6 +31,6 @@ class ProductExportLoggingEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('name', $flow->data());
-        static::assertEquals('custom-name', $flow->data()['name']);
+        static::assertSame('custom-name', $flow->data()['name']);
     }
 }

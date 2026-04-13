@@ -26,7 +26,6 @@
             gap="16px"
         >
             {% block sw_flow_affiliate_and_campaign_code_modal_affiliate_code %}
-
             <mt-text-field
                 v-model="affiliateCode.value"
                 name="sw-field--affiliateCode-value"
@@ -37,12 +36,12 @@
             {% endblock %}
 
             {% block sw_flow_affiliate_and_campaign_code_modal_affiliate_code_overwrite %}
-
             <mt-switch
                 v-model="affiliateCode.upsert"
                 name="sw-field--affiliateCode-upsert"
                 class="sw-flow-affiliate-and-campaign-code-modal__affiliate-code-overwrite"
                 :label="$tc('sw-flow.modals.affiliateAndCampaignCode.overwrite')"
+                bordered
             />
             {% endblock %}
         </sw-container>
@@ -52,7 +51,6 @@
             gap="16px"
         >
             {% block sw_flow_affiliate_and_campaign_code_modal_campaign_code %}
-
             <mt-text-field
                 v-model="campaignCode.value"
                 name="sw-field--campaignCode-value"
@@ -63,12 +61,12 @@
             {% endblock %}
 
             {% block sw_flow_affiliate_and_campaign_code_modal_campaign_code_overwrite %}
-
             <mt-switch
                 v-model="campaignCode.upsert"
                 name="sw-field--campaignCode-upsert"
                 class="sw-flow-affiliate-and-campaign-code-modal__campaign-code-overwrite"
                 :label="$tc('sw-flow.modals.affiliateAndCampaignCode.overwrite')"
+                bordered
             />
             {% endblock %}
         </sw-container>

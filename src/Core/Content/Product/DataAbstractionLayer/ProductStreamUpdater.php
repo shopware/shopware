@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -39,7 +40,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         private readonly ProductDefinition $productDefinition,
         private readonly EntityRepository $repository,
         private readonly MessageBusInterface $messageBus,
-        private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater
+        private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
+        private readonly bool $indexingEnabled,
     ) {
     }
 
@@ -79,35 +81,33 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         $filter = json_decode((string) $filter, true, 512, \JSON_THROW_ON_ERROR);
 
         $criteria = $this->getCriteria($filter);
+        $criteria?->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
         if ($criteria === null) {
             return;
         }
 
-        $considerInheritance = $message->getContext()->considerInheritance();
-        $message->getContext()->setConsiderInheritance(true);
-
         $binaryStreamId = Uuid::fromHexToBytes($streamId);
 
-        /** @var list<string> $ids */
-        $ids = $this->connection->fetchFirstColumn(
+        /** @var list<string> $oldMatches */
+        $oldMatches = $this->connection->fetchFirstColumn(
             'SELECT LOWER(HEX(product_id)) FROM product_stream_mapping WHERE product_stream_id = :id',
             ['id' => $binaryStreamId],
         );
 
-        RetryableTransaction::retryable($this->connection, function () use ($binaryStreamId): void {
-            $this->connection->executeStatement(
-                'DELETE FROM product_stream_mapping WHERE product_stream_id = :id',
-                ['id' => $binaryStreamId],
-            );
-        });
+        try {
+            $newMatches = $message->getContext()->enableInheritance(fn (Context $context): array => $this->repository->searchIds($criteria, $context)->getIds());
+        } catch (UnmappedFieldException) {
+            // invalid filter, remove all mappings
+            $newMatches = [];
+        }
 
-        /** @var list<string> $matches */
-        $matches = $this->repository->searchIds($criteria, $message->getContext())->getIds();
+        $toBeAdded = array_values(array_diff($newMatches, $oldMatches));
+        $toBeDeleted = array_values(array_diff($oldMatches, $newMatches));
 
         $insert = new MultiInsertQueryQueue($this->connection, 250, false, false);
 
-        foreach ($matches as $id) {
-            $ids[] = $id;
+        foreach ($toBeAdded as $id) {
             $insert->addInsert('product_stream_mapping', [
                 'product_id' => Uuid::fromHexToBytes($id),
                 'product_version_id' => $version,
@@ -117,9 +117,20 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $insert->execute();
 
-        $message->getContext()->setConsiderInheritance($considerInheritance);
+        if ($toBeDeleted !== []) {
+            RetryableTransaction::retryable($this->connection, function () use ($toBeDeleted, $binaryStreamId): void {
+                $this->connection->executeStatement(
+                    'DELETE FROM product_stream_mapping WHERE product_id IN (:ids) AND product_stream_id = :streamId',
+                    [
+                        'ids' => Uuid::fromHexToBytesList($toBeDeleted),
+                        'streamId' => $binaryStreamId,
+                    ],
+                    ['ids' => ArrayParameterType::BINARY],
+                );
+            });
+        }
 
-        $ids = array_unique($ids);
+        $ids = array_unique([...$toBeAdded, ...$toBeDeleted]);
 
         foreach (array_chunk($ids, 250) as $chunkedIds) {
             $this->manyToManyIdFieldUpdater->update(
@@ -133,9 +144,21 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
-        $ids = $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME);
+        if (!$this->indexingEnabled) {
+            return null;
+        }
 
-        if (empty($ids)) {
+        $ids = $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME);
+        $filterIds = $event->getPrimaryKeysWithPropertyChange(ProductStreamFilterDefinition::ENTITY_NAME, [
+            'type',
+            'field',
+            'value',
+            'operator',
+            'parameters',
+            'position',
+        ]);
+
+        if ($ids === [] || $filterIds === []) {
             return null;
         }
 
@@ -153,6 +176,10 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
      */
     public function updateProducts(array $ids, Context $context): void
     {
+        if (!$this->indexingEnabled) {
+            return;
+        }
+
         $streams = $this->connection->fetchAllAssociative('SELECT id, api_filter FROM product_stream WHERE invalid = 0 AND api_filter IS NOT NULL');
 
         $insert = new MultiInsertQueryQueue($this->connection);
@@ -181,9 +208,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             }
 
             foreach ($matches->getIds() as $id) {
-                if (!\is_string($id)) {
-                    continue;
-                }
                 $insert->addInsert('product_stream_mapping', [
                     'product_id' => Uuid::fromHexToBytes($id),
                     'product_version_id' => $version,
@@ -228,7 +252,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             $parsed[] = QueryStringParser::fromArray($this->productDefinition, $filter, $exception, '');
         }
 
-        if (empty($filters)) {
+        if ($filters === []) {
             return null;
         }
 

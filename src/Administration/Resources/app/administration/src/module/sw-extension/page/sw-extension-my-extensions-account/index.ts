@@ -60,10 +60,9 @@ export default Shopware.Component.wrapComponentConfig({
         this.createdComponent()
             .then(() => {
                 this.unsubscribeStore = Store.get('shopwareExtensions').$onAction(({ name, args }) =>
-                    this.showErrorNotification({ type: name, payload: args as MappedError[] }),
+                    this.showErrorNotification({ type: name, payload: args as MappedError[][] }),
                 );
             })
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
             .catch(() => {});
     },
 
@@ -106,7 +105,6 @@ export default Shopware.Component.wrapComponentConfig({
 
                 this.$emit('login-success');
 
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationSuccess({
                     message: this.$tc('sw-extension.my-extensions.account.loginNotificationMessage'),
                 });
@@ -122,21 +120,22 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        showErrorNotification({ type, payload }: { type: string; payload: MappedError[] }) {
+        showErrorNotification({ type, payload }: { type: string; payload: MappedError[][] }) {
             if (type !== 'pluginErrorsMapped') {
                 return;
             }
 
-            payload.forEach((error) => {
-                if (error.parameters) {
-                    this.showApiNotification(error);
-                    return;
-                }
+            payload.forEach((errors) => {
+                errors.forEach((error) => {
+                    if (error.parameters) {
+                        this.showApiNotification(error);
+                        return;
+                    }
 
-                // Methods from mixins are not recognized
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.createNotificationError({
-                    message: this.$tc(error.message),
+                    // Methods from mixins are not recognized
+                    this.createNotificationError({
+                        message: this.$tc(error.message),
+                    });
                 });
             });
         },
@@ -146,7 +145,6 @@ export default Shopware.Component.wrapComponentConfig({
             const docLink = this.$tc('sw-extension.errors.messageToTheShopwareDocumentation', error.parameters, 0);
 
             // Methods from mixins are not recognized
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.createNotificationError({
                 title: error.title,
                 message: `${error.message} ${docLink}`,

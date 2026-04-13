@@ -28,7 +28,7 @@ class MediaEntityTest extends TestCase
             $media->setFileExtension($ext);
         }
 
-        static::assertEquals($expected, $media->getFileNameIncludingExtension());
+        static::assertSame($expected, $media->getFileNameIncludingExtension());
     }
 
     /**

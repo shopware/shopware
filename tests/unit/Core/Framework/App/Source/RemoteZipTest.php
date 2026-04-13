@@ -32,7 +32,7 @@ class RemoteZipTest extends TestCase
             $this->createMock(AppDownloader::class),
             $this->createMock(AppExtractor::class),
         );
-        static::assertEquals('remote-zip', $source->name());
+        static::assertSame('remote-zip', $source->name());
     }
 
     public function testSupportsExistingAppWithRemoteZipType(): void
@@ -108,7 +108,7 @@ class RemoteZipTest extends TestCase
 
         $filesystem = $source->filesystem($app);
 
-        static::assertEquals($dirFactory->path() . '/TestApp', $filesystem->location);
+        static::assertSame($dirFactory->path() . '/TestApp', $filesystem->location);
     }
 
     public static function appProvider(): \Generator
@@ -186,7 +186,7 @@ class RemoteZipTest extends TestCase
 
         $filesystem = $source->filesystem($app);
 
-        static::assertEquals($dirFactory->path() . '/TestApp', $filesystem->location);
+        static::assertSame($dirFactory->path() . '/TestApp', $filesystem->location);
     }
 
     public function testExceptionIsThrowIfDownloadingOrExtractingFails(): void

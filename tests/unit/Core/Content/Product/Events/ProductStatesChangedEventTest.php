@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\UpdatedStates;
 use Shopware\Core\Content\Product\Events\ProductStatesChangedEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 
 /**
  * @internal
@@ -16,12 +17,14 @@ class ProductStatesChangedEventTest extends TestCase
 {
     public function testProductStatesChangedEvent(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $updatedStates = [new UpdatedStates('foobar', ['foo'], ['bar'])];
         $context = Context::createDefaultContext();
 
         $event = new ProductStatesChangedEvent($updatedStates, $context);
 
-        static::assertEquals($updatedStates, $event->getUpdatedStates());
-        static::assertEquals($context, $event->getContext());
+        static::assertSame($updatedStates, $event->getUpdatedStates());
+        static::assertSame($context, $event->getContext());
     }
 }

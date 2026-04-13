@@ -1,13 +1,13 @@
 @import "~scss/variables";
 
-$sw-page-smart-bar-border-color: $color-gray-300;
-$sw-page-separator-color: $color-gray-300;
-$sw-page-divider-background-color: $color-gray-300;
-$sw-page-smart-bar-background-color: $color-white;
-$sw-page-smart-bar-headline-color: $color-darkgray-200;
+$sw-page-smart-bar-border-color: var(--color-border-primary-default);
+$sw-page-separator-color: var(--color-border-primary-default);
+$sw-page-divider-background-color: var(--color-border-primary-default);
+$sw-page-smart-bar-background-color: var(--color-elevation-surface-default);
+$sw-page-smart-bar-headline-color: var(--color-text-primary-default);
 $sw-page-side-content-default-width: 440px;
-$sw-page-smart-bar-headline-font-size: $font-size-m;
-$sw-page-smart-bar-headline-font-weight: $font-weight-semi-bold;
+$sw-page-smart-bar-headline-font-size: var(--font-size-m);
+$sw-page-smart-bar-headline-font-weight: var(--font-weight-semibold);
 $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
 
 .sw-page {
@@ -24,12 +24,12 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
     .sw-page__head-area {
         position: relative;
         display: grid;
-        grid-column-gap: 8px;
+        grid-column-gap: var(--scale-size-8);
         /* stylelint-disable-next-line max-line-length */
         grid-template-columns: [head-start back-btn-start] 1fr [back-btn-end header-content-start] minmax(0, $content-width) [header-content-end] 1fr [smart-bar-end];
         align-items: center;
         background: $sw-page-smart-bar-background-color;
-        border-bottom: 2px solid $sw-page-smart-bar-border-color;
+        border-bottom: 1px solid $sw-page-smart-bar-border-color;
         z-index: $z-index-page-header;
     }
 
@@ -46,12 +46,12 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
     .sw-page__top-bar-actions {
         grid-row: 1;
         grid-column: header-content-end / smart-bar-end;
-        padding-right: 32px;
+        padding-right: var(--scale-size-32);
         display: flex;
         align-content: flex-end;
         justify-content: flex-end;
         align-items: center;
-        gap: 4px;
+        gap: var(--scale-size-4);
     }
 
     .sw-page__smart-bar-divider {
@@ -69,10 +69,10 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
 
     .smart-bar__back-btn {
         width: 54px;
-        height: 24px;
+        height: var(--scale-size-24);
         line-height: $line-height-md;
         display: grid;
-        grid-template-columns: 30px 24px;
+        grid-template-columns: 30px var(--scale-size-24);
         align-items: center;
         margin-left: 20px;
 
@@ -83,7 +83,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
     }
 
     .smart-bar__content {
-        min-height: 70px;
+        min-height: 80px;
         max-width: $content-width;
         padding: 15px 0;
         display: flex;
@@ -131,7 +131,7 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         .mt-button,
         .sw-button-group,
         .sw-tooltip--wrapper {
-            margin-left: 8px;
+            margin-left: var(--scale-size-8);
 
             &:first-child {
                 margin-left: 0;
@@ -211,24 +211,6 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
                 border: none;
                 background: var(--color-interaction-secondary-hover);
             }
-        }
-    }
-
-    .sw-page__sidebar-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: var(--border-radius-button);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        transition: background-color 0.2s ease-in-out;
-
-        &:hover {
-            background: var(--color-interaction-secondary-hover);
-        }
-
-        &-active {
-            background: var(--color-interaction-secondary-hover);
         }
     }
 }

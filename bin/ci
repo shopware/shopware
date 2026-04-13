@@ -1,6 +1,7 @@
 #!/usr/bin/env php
 <?php
 
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -17,10 +18,6 @@ return static function (array &$context) {
 
     $classLoader = require __DIR__ . '/../vendor/autoload.php';
 
-    if (!class_exists(Application::class)) {
-        throw new RuntimeException('You need to add "symfony/framework-bundle" as a Composer dependency.');
-    }
-
     if (!isset($context['PROJECT_ROOT'])) {
         $context['PROJECT_ROOT'] = dirname(__DIR__);
     }
@@ -33,7 +30,7 @@ return static function (array &$context) {
         $context['INSTALL'] = true;
     }
 
-    $_SERVER['DATABASE_URL'] = 'mysql://_placeholder.test';
+    $_SERVER['DATABASE_URL'] = MySQLFactory::PLACEHOLDER_DATABASE_URL;
 
     $kernel = KernelFactory::create(
         $env,

@@ -21,15 +21,15 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * @phpstan-import-type JSONWebKey from JWKStruct
  */
 #[Package('checkout')]
-final class KeyFetcher
+final readonly class KeyFetcher
 {
     final public const CORE_STORE_JWKS = 'core.store.jwks';
 
     public function __construct(
-        private readonly ClientInterface $client,
-        private readonly AbstractStoreRequestOptionsProvider $storeRequestOptionsProvider,
-        private readonly SystemConfigService $systemConfigService,
-        private readonly LoggerInterface $logger
+        private ClientInterface $client,
+        private AbstractStoreRequestOptionsProvider $storeRequestOptionsProvider,
+        private SystemConfigService $systemConfigService,
+        private LoggerInterface $logger
     ) {
     }
 
@@ -77,7 +77,7 @@ final class KeyFetcher
 
                     return null;
                 }
-                $this->systemConfigService->set(self::CORE_STORE_JWKS, $result);
+                $this->systemConfigService->set(self::CORE_STORE_JWKS, $result, null, true);
 
                 /** @var array{keys: array<int, JSONWebKey>} $key */
                 $key = json_decode($result, true, 512, \JSON_THROW_ON_ERROR);

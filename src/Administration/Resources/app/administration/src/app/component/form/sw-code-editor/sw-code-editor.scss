@@ -1,0 +1,95 @@
+.sw-code-editor {
+    margin-bottom: var(--scale-size-22);
+
+    .sw-field {
+        margin-bottom: 0;
+    }
+
+    .sw-code-editor__label {
+        display: block;
+        line-height: var(--font-line-height-xs);
+        font-size: var(--font-size-xs);
+        color: var(--color-text-primary-default);
+        margin-bottom: var(--scale-size-8);
+        font-weight: var(--font-weight-regular);
+        user-select: none;
+    }
+
+    .sw-code-editor__editor {
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-xs);
+        height: var(--scale-size-256);
+    }
+
+    &__sanitize-bar {
+        position: relative;
+        width: 100%;
+        overflow: visible;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-top: var(--scale-size-8);
+        min-height: var(--scale-size-30);
+    }
+
+    &__sanitize-info,
+    &__sanitized-hint {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-8);
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-xs);
+        width: 100%;
+        opacity: 0;
+        transition: opacity 0.16s ease;
+
+        &--visible {
+            opacity: 1;
+        }
+
+        .sw-label {
+            margin: 0;
+        }
+    }
+
+    &.has--error {
+        .sw-field__label {
+            color: var(--color-text-critical-default);
+        }
+
+        .sw-code-editor__editor {
+            border: 1px solid var(--color-border-critical-default);
+        }
+
+        .ace_content {
+            background-color: var(--color-background-critical-default);
+        }
+    }
+
+    &.is--disabled {
+        .sw-code-editor__editor {
+            background-color: var(--color-gray-100);
+
+            &::after {
+                content: "";
+                position: absolute;
+                z-index: 10;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+            }
+        }
+    }
+}
+
+.ace_editor * {
+    font-family: Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace !important;
+}
+
+@supports (font-variation-settings: normal) {
+    .ace_editor * {
+        font-family: Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace !important;
+    }
+}

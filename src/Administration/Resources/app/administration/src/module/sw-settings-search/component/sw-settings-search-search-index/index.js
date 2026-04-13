@@ -54,7 +54,6 @@ export default {
 
         productSearchKeywordsCriteria() {
             const criteria = new Criteria(1, 1);
-            criteria.addAggregation(Criteria.min('firstDate', 'createdAt'));
             criteria.addAggregation(Criteria.max('lastDate', 'createdAt'));
             return criteria;
         },
@@ -84,8 +83,11 @@ export default {
             this.productSearchKeywordRepository
                 .search(this.productSearchKeywordsCriteria, Context.api)
                 .then((result) => {
+                    if (!result.total) {
+                        return;
+                    }
+
                     this.latestIndex = {
-                        firstDate: result.aggregations.firstDate.min,
                         lastDate: result.aggregations.lastDate.max,
                     };
                 })

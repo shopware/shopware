@@ -28,6 +28,7 @@ async function createWrapper(slotsData = {}) {
                 'mt-tabs': true,
                 'sw-extension-component-section': true,
                 'sw-app-topbar-button': true,
+                'sw-app-topbar-sidebar': true,
             },
             mocks: {
                 $route: {
@@ -75,13 +76,6 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
                 );
             },
         });
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be in full width', async () => {

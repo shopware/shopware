@@ -120,7 +120,6 @@ async function createWrapper() {
         },
         props: {
             orderId: '1a2b3c',
-            isSaveSuccessful: false,
         },
     });
 }
@@ -131,12 +130,6 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     beforeAll(() => {
         setActivePinia(createPinia());
         Shopware.Store.get('swOrderDetail').order = orderMock;
-    });
-
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have a disabled on transaction card', async () => {

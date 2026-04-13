@@ -132,7 +132,7 @@ class FloatComparatorTest extends TestCase
     {
         $x = 0.631 * 5;
 
-        /** @phpstan-ignore-next-line phpstan errors because the check is always false, which is exactly the point */
+        /** @phpstan-ignore identical.alwaysFalse, staticMethod.alreadyNarrowedType (check is always false, which is exactly the point) */
         static::assertFalse($x === 3.155);
         static::assertTrue(FloatComparator::cast($x) === 3.155);
     }
@@ -175,7 +175,7 @@ class FloatComparatorTest extends TestCase
         $equalsData = self::equalsDataProvider();
 
         return \array_map(
-            fn ($testData) => [$testData[0], $testData[1], !$testData[2]],
+            static fn ($testData) => [$testData[0], $testData[1], !$testData[2]],
             $equalsData
         );
     }

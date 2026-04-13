@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Theme;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteDirectory;
+use League\Flysystem\Visibility;
 use Psr\Log\LoggerInterface;
 use ScssPhp\ScssPhp\OutputStyle;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
+use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
@@ -25,6 +27,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\Validator\SCSSValidator;
 use Symfony\Component\Asset\Package as AssetPackage;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Filesystem as LocalFilesystem;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
 
@@ -42,6 +45,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly FilesystemOperator $tempFilesystem,
         private readonly CopyBatchInputFactory $copyBatchInputFactory,
         private readonly ThemeFileResolver $themeFileResolver,
+        private readonly TwigComponentHelper $twigComponentHelper,
         private readonly bool $debug,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ThemeFilesystemResolver $themeFilesystemResolver,
@@ -51,7 +55,9 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly AbstractThemePathBuilder $themePathBuilder,
         private readonly AbstractScssCompiler $scssCompiler,
         private readonly array $customAllowedRegex = [],
-        private readonly bool $validate = false
+        private readonly bool $validate = false,
+        private readonly string $visibility = Visibility::PUBLIC,
+        private readonly LocalFilesystem $localFilesystem = new LocalFilesystem(),
     ) {
     }
 
@@ -63,37 +69,6 @@ class ThemeCompiler implements ThemeCompilerInterface
         bool $withAssets,
         Context $context
     ): void {
-        try {
-            $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configurationCollection, false);
-
-            $styleFiles = $resolvedFiles[ThemeFileResolver::STYLE_FILES];
-        } catch (\Throwable $e) {
-            throw ThemeException::themeCompileException(
-                $themeConfig->getName() ?? '',
-                'Files could not be resolved with error: ' . $e->getMessage(),
-                $e
-            );
-        }
-
-        try {
-            $concatenatedStyles = $this->concatenateStyles($styleFiles, $salesChannelId);
-        } catch (\Throwable $e) {
-            throw ThemeException::themeCompileException(
-                $themeConfig->getName() ?? '',
-                'Error while trying to concatenate Styles: ' . $e->getMessage(),
-                $e
-            );
-        }
-
-        $compiled = $this->compileStyles(
-            $concatenatedStyles,
-            $themeConfig,
-            $styleFiles->getResolveMappings(),
-            $salesChannelId,
-            $themeId,
-            $context
-        );
-
         $newThemeHash = Uuid::randomHex();
         $themePrefix = $this->themePathBuilder->generateNewPath($salesChannelId, $themeId, $newThemeHash);
         $oldThemePrefix = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
@@ -106,8 +81,22 @@ class ThemeCompiler implements ThemeCompilerInterface
             $this->filesystem->deleteDirectory($path);
         }
 
+        // Normal style files. Loaded for usual pages.
+        $compiledStyles = $this->getCompiledStyles(
+            $this->getResolvedStyleFiles($themeConfig, $configurationCollection),
+            $themeId,
+            $themeConfig,
+            $salesChannelId,
+            $context
+        );
+
         try {
-            $assets = $this->collectCompiledFiles($themePrefix, $themeId, $compiled, $withAssets, $themeConfig, $configurationCollection);
+            $styleCopyFiles = $this->getStyleCopyFiles($themePrefix, $compiledStyles);
+
+            $assetCopyFiles = [];
+            if ($withAssets) {
+                $assetCopyFiles = $this->getAssetCopyFiles($themeConfig, $configurationCollection, $themeId);
+            }
         } catch (\Throwable $e) {
             throw ThemeException::themeCompileException(
                 $themeConfig->getName() ?? '',
@@ -116,14 +105,19 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         }
 
-        $scriptFiles = $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
+        $scriptFiles = $this->getScriptCopyFiles($configurationCollection, $themePrefix);
 
-        CopyBatch::copy($this->filesystem, ...$assets, ...$scriptFiles);
+        CopyBatch::copy(
+            $this->filesystem,
+            ...$styleCopyFiles,
+            ...$assetCopyFiles,
+            ...$scriptFiles,
+        );
 
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
 
         $this->cacheInvalidator->invalidate([
-            CachedResolvedConfigLoader::buildName($themeId),
+            ThemeConfigCacheInvalidator::buildCacheTag($themeId),
         ]);
     }
 
@@ -141,12 +135,12 @@ class ThemeCompiler implements ThemeCompilerInterface
                     $filename = basename($originalPath);
                     $extension = $this->getImportFileExtension(pathinfo($filename, \PATHINFO_EXTENSION));
                     $path = $dirname . \DIRECTORY_SEPARATOR . $filename . $extension;
-                    if (file_exists($path)) {
+                    if (\is_file($path)) {
                         return $path;
                     }
 
                     $path = $dirname . \DIRECTORY_SEPARATOR . '_' . $filename . $extension;
-                    if (file_exists($path)) {
+                    if (\is_file($path)) {
                         return $path;
                     }
                 }
@@ -163,7 +157,11 @@ class ThemeCompiler implements ThemeCompilerInterface
         StorefrontPluginConfigurationCollection $configurationCollection,
         string $themePrefix
     ): array {
-        $scriptsDist = $this->getScriptDistFolders($configurationCollection);
+        // The "getScriptDistFolders" method can remove script files from the scriptFiles property in the configurationCollection.
+        // This can result in plugin script files being missing from later methods. Cloning the collection prevents this.
+        // As structs are overriding the object cloning with the "CloneTrait" and implement a deep copy mechanism,
+        // cloning the collection will prevent the mutation of the configurations and file collections inside as well.
+        $scriptsDist = $this->getScriptDistFolders(clone $configurationCollection);
         $themePath = 'theme/' . $themePrefix;
         $distRelativePath = 'Resources/app/storefront/dist/storefront';
 
@@ -190,10 +188,36 @@ class ThemeCompiler implements ThemeCompilerInterface
 
             $targetPath = $themePath . '/js/' . $folderName;
             foreach ($files as $file) {
-                if (file_exists($file->getRealPath())) {
-                    $copyFiles[] = new CopyBatchInput($file->getRealPath(), [$targetPath . '/' . $file->getFilename()]);
+                $filePath = $file->getRealPath();
+                if ($filePath) {
+                    $copyFiles[] = new CopyBatchInput($filePath, [$targetPath . '/' . $file->getFilename()], $this->visibility);
                 }
             }
+        }
+
+        return $copyFiles;
+    }
+
+    /**
+     * @return list<CopyBatchInput>
+     */
+    private function copyComponentScriptFiles(string $themePrefix): array
+    {
+        $componentScriptFiles = $this->twigComponentHelper->getComponents();
+        $themeComponentsPath = 'theme/' . $themePrefix . '/js/components/';
+
+        $copyFiles = [];
+
+        foreach ($componentScriptFiles as $component) {
+            $componentPath = $component->getScriptPath();
+
+            if (!$this->localFilesystem->exists($componentPath)) {
+                continue;
+            }
+
+            $componentTargetPath = $themeComponentsPath . $component->getRelativeNamespacePath() . '.js';
+
+            $copyFiles[] = new CopyBatchInput($componentPath, [$componentTargetPath], $this->visibility);
         }
 
         return $copyFiles;
@@ -265,7 +289,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $asset = $fs->path('Resources', $asset);
             }
 
-            $collected = [...$collected, ...$this->copyBatchInputFactory->fromDirectory($asset, $outputPath)];
+            $collected = [...$collected, ...$this->copyBatchInputFactory->fromDirectory($asset, $outputPath, $this->visibility)];
         }
 
         return array_values($collected);
@@ -309,9 +333,9 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         } catch (\Throwable $exception) {
             throw ThemeException::themeCompileException(
-                $configuration->getTechnicalName(),
+                $configuration->getTechnicalName() . ' - Theme-ID: ' . $themeId,
                 $exception->getMessage(),
-                $exception
+                $exception,
             );
         }
 
@@ -347,7 +371,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     {
         $allFeatures = Feature::getAll();
 
-        $featuresScss = implode(',', array_map(fn ($value, $key) => \sprintf('"%s": %s', $key, json_encode($value, \JSON_THROW_ON_ERROR)), $allFeatures, array_keys($allFeatures)));
+        $featuresScss = implode(',', array_map(static fn ($value, $key) => \sprintf('"%s": %s', $key, json_encode($value, \JSON_THROW_ON_ERROR)), $allFeatures, array_keys($allFeatures)));
 
         return \sprintf('$sw-features: (%s);', $featuresScss);
     }
@@ -362,7 +386,7 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private function formatVariables(array $variables): array
     {
-        return array_map(fn ($value, $key) => \sprintf(
+        return array_map(static fn ($value, $key) => \sprintf(
             '$%s: %s;',
             $key,
             isset($value) && $value !== '' ? $value : 'null'
@@ -400,7 +424,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             }
 
             if (
-                \in_array($data['type'], ['media', 'textarea'], true)
+                \in_array($data['type'], ['media', 'textarea', 'url'], true)
                 && \is_string($data['value'])
                 && !\str_starts_with($data['value'], '\'')
                 && !\str_ends_with($data['value'], '\'')
@@ -451,7 +475,7 @@ PHP_EOL;
         FileCollection $styleFiles,
         string $salesChannelId
     ): string {
-        $styles = $styleFiles->map(fn (File $file) => \sprintf('@import \'%s\';', $file->getFilepath()));
+        $styles = $styleFiles->map(static fn (File $file) => \sprintf('@import \'%s\';', $file->getFilepath()));
 
         $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent(
             implode("\n", $styles),
@@ -462,16 +486,58 @@ PHP_EOL;
         return $concatenatedStylesEvent->getConcatenatedStyles();
     }
 
+    private function getResolvedStyleFiles(
+        StorefrontPluginConfiguration $themeConfig,
+        StorefrontPluginConfigurationCollection $configurationCollection,
+    ): FileCollection {
+        try {
+            return $this->themeFileResolver->resolveStyleFiles($themeConfig, $configurationCollection, false);
+        } catch (\Throwable $e) {
+            throw ThemeException::themeCompileException(
+                $themeConfig->getName() ?? '',
+                'Files could not be resolved with error: ' . $e->getMessage(),
+                $e
+            );
+        }
+    }
+
+    /**
+     * Concatenates all files of the provided collection and compiles the styles.
+     */
+    private function getCompiledStyles(
+        FileCollection $styleFiles,
+        string $themeId,
+        StorefrontPluginConfiguration $themeConfig,
+        string $salesChannelId,
+        Context $context,
+    ): string {
+        try {
+            $concatenatedStyles = $this->concatenateStyles($styleFiles, $salesChannelId);
+        } catch (\Throwable $e) {
+            throw ThemeException::themeCompileException(
+                $themeConfig->getName() ?? '',
+                'Error while trying to concatenate Styles: ' . $e->getMessage(),
+                $e
+            );
+        }
+
+        return $this->compileStyles(
+            $concatenatedStyles,
+            $themeConfig,
+            $styleFiles->getResolveMappings(),
+            $salesChannelId,
+            $themeId,
+            $context
+        );
+    }
+
     /**
      * @return list<CopyBatchInput>
      */
-    private function collectCompiledFiles(
+    private function getStyleCopyFiles(
         string $themePrefix,
-        string $themeId,
         string $compiled,
-        bool $withAssets,
-        StorefrontPluginConfiguration $themeConfig,
-        StorefrontPluginConfigurationCollection $configurationCollection
+        string $fileName = 'all.css'
     ): array {
         $compileLocation = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
 
@@ -485,23 +551,43 @@ PHP_EOL;
             new CopyBatchInput(
                 $tempStream,
                 [
-                    $compileLocation . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css',
-                ]
+                    $compileLocation . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . $fileName,
+                ],
+                $this->visibility
             ),
         ];
 
-        // assets
-        if ($withAssets) {
-            $assetPath = 'theme' . \DIRECTORY_SEPARATOR . $themeId;
+        return $files;
+    }
 
-            try {
-                $this->filesystem->deleteDirectory($assetPath);
-            } catch (UnableToDeleteDirectory) {
-            }
+    /**
+     * @return list<CopyBatchInput>
+     */
+    private function getAssetCopyFiles(
+        StorefrontPluginConfiguration $themeConfig,
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        string $themeId
+    ): array {
+        $assetPath = 'theme' . \DIRECTORY_SEPARATOR . $themeId;
 
-            $files = [...$files, ...$this->getAssets($themeConfig, $configurationCollection, $assetPath)];
+        try {
+            $this->filesystem->deleteDirectory($assetPath);
+        } catch (UnableToDeleteDirectory) {
         }
 
-        return $files;
+        return $this->getAssets($themeConfig, $configurationCollection, $assetPath);
+    }
+
+    /**
+     * @return list<CopyBatchInput>
+     */
+    private function getScriptCopyFiles(
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        string $themePrefix
+    ): array {
+        $themeScriptCopyFiles = $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
+        $componentScriptCopyFiles = $this->copyComponentScriptFiles($themePrefix);
+
+        return [...$themeScriptCopyFiles, ...$componentScriptCopyFiles];
     }
 }

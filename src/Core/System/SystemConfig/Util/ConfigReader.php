@@ -11,6 +11,12 @@ use Shopware\Core\System\SystemConfig\SystemConfigException;
 #[Package('framework')]
 class ConfigReader extends XmlReader
 {
+    public const INPUT_TYPE_BOOL = 'bool';
+    public const INPUT_TYPE_CHECKBOX = 'checkbox';
+    public const INPUT_TYPE_INT = 'int';
+    public const INPUT_TYPE_FLOAT = 'float';
+    public const INPUT_TYPE_MULTI_SELECT = 'multi-select';
+
     private const FALLBACK_LOCALE = 'en-GB';
 
     protected string $xsdFile = __DIR__ . '/../Schema/config.xsd';
@@ -45,22 +51,24 @@ class ConfigReader extends XmlReader
     }
 
     /**
-     * @return array<array{title: array<string, string|null>, name: string|null, elements: array<int, array<string, mixed>>, flag?: string|null}>
+     * @return array<array{title: array<string, string|null>, name: string|null, elements: list<array<string, mixed>>, flag?: string|null}>
      */
     private function getCardDefinitions(\DOMDocument $xml): array
     {
         $cardDefinitions = [];
 
-        foreach ($xml->getElementsByTagName('card') as $index => $element) {
-            $cardDefinitions[] = [
+        foreach ($xml->getElementsByTagName('card') as $element) {
+            $cardDefinition = [
                 'title' => $this->getCardTitles($element),
                 'name' => $this->getCardName($element),
                 'elements' => $this->getElements($element),
             ];
 
             if ($this->getCardFlag($element) !== null) {
-                $cardDefinitions[$index]['flag'] = $this->getCardFlag($element);
+                $cardDefinition['flag'] = $this->getCardFlag($element);
             }
+
+            $cardDefinitions[] = $cardDefinition;
         }
 
         return $cardDefinitions;
@@ -80,20 +88,18 @@ class ConfigReader extends XmlReader
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     private function getElements(\DOMElement $xml): array
     {
         $elements = [];
-        $count = 0;
         foreach (static::getAllChildren($xml) as $element) {
             $nodeName = $element->nodeName;
             if (\in_array($nodeName, ['title', 'name', 'flag'], true)) {
                 continue;
             }
 
-            $elements[$count] = $this->elementToArray($element);
-            ++$count;
+            $elements[] = $this->elementToArray($element);
         }
 
         return $elements;
@@ -198,10 +204,35 @@ class ConfigReader extends XmlReader
                 continue;
             }
 
+            if ($option->nodeName === 'defaultValue') {
+                $elementData[$option->nodeName] = $this->parseDefaultValue($option->nodeValue, $elementData['type'] ?? null);
+
+                continue;
+            }
+
             $elementData[$option->nodeName] = $option->nodeValue;
         }
 
         return $elementData;
+    }
+
+    private function parseDefaultValue(?string $value, ?string $type): mixed
+    {
+        $value = XmlReader::phpize($value);
+
+        if ($value === null) {
+            return null;
+        }
+
+        return match ($type) {
+            // custom elements can have all types, there we can't guarantee the type
+            null => $value,
+            self::INPUT_TYPE_BOOL, self::INPUT_TYPE_CHECKBOX => (bool) $value,
+            self::INPUT_TYPE_INT => (int) $value,
+            self::INPUT_TYPE_FLOAT => (float) $value,
+            self::INPUT_TYPE_MULTI_SELECT => (array) $value,
+            default => (string) $value,
+        };
     }
 
     /**

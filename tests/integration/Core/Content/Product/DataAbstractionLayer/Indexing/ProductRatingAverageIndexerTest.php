@@ -81,14 +81,14 @@ class ProductRatingAverageIndexerTest extends TestCase
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
 
         static::assertInstanceOf(ProductEntity::class, $product = $products->get($productId));
-        static::assertEquals($pointsOnAReview, $product->getRatingAverage());
+        static::assertSame($pointsOnAReview, $product->getRatingAverage());
 
         $expected = ($pointsOnAReview + $pointsOnBReview) / 2;
         $this->createReview($reviewBId, $pointsOnBReview, $productId, true);
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
 
         static::assertInstanceOf(ProductEntity::class, $product = $products->get($productId));
-        static::assertEquals($expected, $product->getRatingAverage());
+        static::assertSame($expected, $product->getRatingAverage());
     }
 
     /**
@@ -114,7 +114,7 @@ class ProductRatingAverageIndexerTest extends TestCase
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
 
         static::assertInstanceOf(ProductEntity::class, $product = $products->get($productId));
-        static::assertEquals($pointsOnBReview, $product->getRatingAverage());
+        static::assertSame($pointsOnBReview, $product->getRatingAverage());
     }
 
     /**
@@ -138,7 +138,7 @@ class ProductRatingAverageIndexerTest extends TestCase
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
 
         static::assertInstanceOf(ProductEntity::class, $product = $products->get($productId));
-        static::assertEquals($pointsOnBReview, $product->getRatingAverage());
+        static::assertSame($pointsOnBReview, $product->getRatingAverage());
 
         $this->updateReview([['id' => $reviewAId, 'status' => true]]);
 
@@ -147,7 +147,7 @@ class ProductRatingAverageIndexerTest extends TestCase
         $expected = ($pointsOnAReview + $pointsOnBReview) / 2;
 
         static::assertInstanceOf(ProductEntity::class, $product = $products->get($productId));
-        static::assertEquals($expected, $product->getRatingAverage());
+        static::assertSame($expected, $product->getRatingAverage());
     }
 
     /**
@@ -178,16 +178,16 @@ class ProductRatingAverageIndexerTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $productA = $products->get($productAId));
         static::assertInstanceOf(ProductEntity::class, $productB = $products->get($productBId));
 
-        static::assertEquals(2.0, $productA->getRatingAverage());
-        static::assertEquals(0.0, $productB->getRatingAverage());
+        static::assertSame(2.0, $productA->getRatingAverage());
+        static::assertNull($productB->getRatingAverage());
 
         $this->updateReview([['id' => $reviewAId, 'status' => true], ['id' => $reviewBId, 'status' => true], ['id' => $reviewCId, 'productId' => $productBId, 'status' => true]]);
         $products = $this->productRepository->search(new Criteria([$productAId, $productBId]), $this->salesChannel->getContext());
 
         static::assertInstanceOf(ProductEntity::class, $productA = $products->get($productAId));
         static::assertInstanceOf(ProductEntity::class, $productB = $products->get($productBId));
-        static::assertEquals(5.0, $productA->getRatingAverage());
-        static::assertEquals(2.0, $productB->getRatingAverage());
+        static::assertSame(5.0, $productA->getRatingAverage());
+        static::assertSame(2.0, $productB->getRatingAverage());
     }
 
     /**
@@ -211,17 +211,17 @@ class ProductRatingAverageIndexerTest extends TestCase
         $products = $this->productRepository->search(new Criteria([$productAId]), $this->salesChannel->getContext());
 
         static::assertInstanceOf(ProductEntity::class, $productA = $products->get($productAId));
-        static::assertEquals(3.5, $productA->getRatingAverage());
+        static::assertSame(3.5, $productA->getRatingAverage());
 
         $this->updateReview([['id' => $reviewAId, 'status' => false]]);
         $products = $this->productRepository->search(new Criteria([$productAId]), $this->salesChannel->getContext());
         static::assertInstanceOf(ProductEntity::class, $productA = $products->get($productAId));
-        static::assertEquals(2.0, $productA->getRatingAverage());
+        static::assertSame(2.0, $productA->getRatingAverage());
 
         $this->updateReview([['id' => $reviewBId, 'status' => false]]);
         $products = $this->productRepository->search(new Criteria([$productAId]), $this->salesChannel->getContext());
         static::assertInstanceOf(ProductEntity::class, $productA = $products->get($productAId));
-        static::assertEquals(0.0, $productA->getRatingAverage());
+        static::assertNull($productA->getRatingAverage());
     }
 
     /**
@@ -245,13 +245,46 @@ class ProductRatingAverageIndexerTest extends TestCase
         $products = $this->productRepository->search(new Criteria([$productAId]), $this->salesChannel->getContext());
 
         static::assertInstanceOf(ProductEntity::class, $productA = $products->get($productAId));
-        static::assertEquals(3.5, $productA->getRatingAverage());
+        static::assertSame(3.5, $productA->getRatingAverage());
 
         $this->deleteReview([['id' => $reviewAId]]);
         $products = $this->productRepository->search(new Criteria([$productAId]), $this->salesChannel->getContext());
 
         static::assertInstanceOf(ProductEntity::class, $productA = $products->get($productAId));
-        static::assertEquals(2.0, $productA->getRatingAverage());
+        static::assertSame(2.0, $productA->getRatingAverage());
+    }
+
+    /**
+     * tests that reviews on both parent and variant product are averaged correctly
+     */
+    #[Group('reviews')]
+    public function testRatingAverageIsCorrectWhenReviewsExistOnParentAndVariant(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $this->createProduct($parentId);
+
+        $this->productRepository->create(
+            [
+                [
+                    'id' => $variantId,
+                    'productNumber' => $variantId,
+                    'stock' => 1,
+                    'active' => true,
+                    'parentId' => $parentId,
+                ],
+            ],
+            $this->salesChannel->getContext()
+        );
+
+        $this->createReview(Uuid::randomHex(), 5.0, $parentId, true);
+        $this->createReview(Uuid::randomHex(), 4.0, $variantId, true);
+
+        $products = $this->productRepository->search(new Criteria([$parentId]), $this->salesChannel->getContext());
+
+        static::assertInstanceOf(ProductEntity::class, $product = $products->get($parentId));
+        static::assertSame(4.5, $product->getRatingAverage());
     }
 
     /**
@@ -279,13 +312,13 @@ SQL;
 
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
         static::assertInstanceOf(ProductEntity::class, $product = $products->get($productId));
-        static::assertEquals(0, $product->getRatingAverage());
+        static::assertSame(0.0, $product->getRatingAverage());
 
         $this->productIndexer->handle(new EntityIndexingMessage([$productId]));
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
 
         static::assertInstanceOf(ProductEntity::class, $product = $products->get($productId));
-        static::assertEquals(3, $product->getRatingAverage());
+        static::assertSame(3.0, $product->getRatingAverage());
     }
 
     /**

@@ -10,7 +10,6 @@
     }
 
     &__heading {
-        margin: 0 0 16px;
         font-size: $font-size-xs;
 
         * {
@@ -22,6 +21,14 @@
                 color: $color-gray-500;
             }
         }
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        justify-items: center;
+        gap: 16px;
+        margin: auto 0;
     }
 
     &__title {

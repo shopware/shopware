@@ -60,10 +60,6 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should handle route enter', async () => {
         const next = jest.fn();
         const params = {};

@@ -36,6 +36,7 @@ const stateHistoryFixture = [
             username: 'admin',
         },
         createdAt: '2022-10-12T10:01:28.535+00:00',
+        internalComment: 'Order delivery internal comment',
     },
     {
         entityName: 'order_transaction',
@@ -56,6 +57,7 @@ const stateHistoryFixture = [
         },
         createdAt: '2022-10-12T10:01:33.815+00:00',
         referencedId: '2',
+        internalComment: 'Order transaction internal comment',
     },
 ];
 
@@ -136,6 +138,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
                     'sw-select-field': true,
                     'sw-loader': true,
                     'sw-provide': { template: `<slot/>`, inheritAttrs: false },
+                    'mt-icon': true,
                 },
                 provide: {
                     stateStyleDataProviderService: {
@@ -149,7 +152,6 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
                         create: () => ({
                             search: () => {
                                 if (options.error) {
-                                    // eslint-disable-next-line prefer-promise-reject-errors
                                     return Promise.reject({
                                         response: {
                                             data: {
@@ -186,11 +188,6 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         SwOrderStateHistoryModal = await wrapTestComponent('sw-order-state-history-modal', { sync: true });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show state history grid correctly', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -204,6 +201,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         expect(firstRow.find('.sw-data-grid__cell--delivery').text()).toBe('Open');
         expect(firstRow.find('.sw-data-grid__cell--transaction').text()).toBe('Open');
         expect(firstRow.find('.sw-data-grid__cell--order').text()).toBe('Open');
+        expect(firstRow.find('.sw-data-grid__cell--internalComment').find('mt-icon-stub').exists()).toBe(false);
 
         const secondRow = stateHistoryRows.at(1);
         expect(secondRow.find('.sw-data-grid__cell--entity').text()).toBe('global.entities.order_delivery');
@@ -211,6 +209,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         expect(secondRow.find('.sw-data-grid__cell--delivery').text()).toBe('Shipped');
         expect(secondRow.find('.sw-data-grid__cell--transaction').text()).toBe('Open');
         expect(secondRow.find('.sw-data-grid__cell--order').text()).toBe('Open');
+        expect(secondRow.find('.sw-data-grid__cell--internalComment').find('mt-icon-stub').exists()).toBe(true);
 
         const thirdRow = stateHistoryRows.at(2);
         expect(thirdRow.find('.sw-data-grid__cell--entity').text()).toBe('global.entities.order_transaction 1');
@@ -218,6 +217,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         expect(thirdRow.find('.sw-data-grid__cell--delivery').text()).toBe('Shipped');
         expect(thirdRow.find('.sw-data-grid__cell--transaction').text()).toBe('In progress');
         expect(thirdRow.find('.sw-data-grid__cell--order').text()).toBe('Open');
+        expect(thirdRow.find('.sw-data-grid__cell--internalComment').find('mt-icon-stub').exists()).toBe(true);
 
         const fourthRow = stateHistoryRows.at(3);
         expect(fourthRow.find('.sw-data-grid__cell--entity').text()).toBe('global.entities.order_transaction 2');
@@ -225,6 +225,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
         expect(fourthRow.find('.sw-data-grid__cell--delivery').text()).toBe('Shipped');
         expect(fourthRow.find('.sw-data-grid__cell--transaction').text()).toBe('Open');
         expect(fourthRow.find('.sw-data-grid__cell--order').text()).toBe('Open');
+        expect(fourthRow.find('.sw-data-grid__cell--internalComment').find('mt-icon-stub').exists()).toBe(false);
     });
 
     it('should error notification if loading state history failed', async () => {
@@ -303,5 +304,124 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
             'global.entities.order_delivery',
             'global.entities.order_transaction',
         ]);
+    });
+
+    it('should add last transaction entry when there are multiple transactions and last transaction is not in history', async () => {
+        const multipleTransactionOrder = {
+            ...orderProp,
+            transactions: getCollection('order_transaction', [
+                {
+                    id: '2',
+                    stateMachineState: {
+                        technicalName: 'open',
+                        translated: {
+                            name: 'Open',
+                        },
+                    },
+                    getEntityName: () => 'order_transaction',
+                },
+                {
+                    id: '3',
+                    stateMachineState: {
+                        technicalName: 'paid',
+                        translated: {
+                            name: 'Paid',
+                        },
+                    },
+                    getEntityName: () => 'order_transaction',
+                },
+            ]),
+        };
+
+        // State history that doesn't include the last transaction (id: '3')
+        const historyWithoutLastTransaction = [
+            {
+                entityName: 'order_transaction',
+                fromStateMachineState: {
+                    technicalName: 'open',
+                    translated: {
+                        name: 'Open',
+                    },
+                },
+                toStateMachineState: {
+                    technicalName: 'in_progress',
+                    translated: {
+                        name: 'In progress',
+                    },
+                },
+                user: {
+                    username: 'admin',
+                },
+                createdAt: '2022-10-12T10:01:33.815+00:00',
+                referencedId: '2', // Only includes first transaction
+            },
+        ];
+
+        const wrapper = await createWrapper({}, multipleTransactionOrder, historyWithoutLastTransaction);
+        await flushPromises();
+
+        const transactionEntries = wrapper.vm.dataSource.filter((entry) => entry.entity === 'order_transaction');
+        // Should have multiple transaction entries including the last one
+        expect(transactionEntries.length).toBeGreaterThan(1);
+        expect(wrapper.vm.hasMultipleTransactions).toBe(true);
+
+        // Verify that the last transaction was added
+        const lastTransactionEntry = wrapper.vm.dataSource.find(
+            (entry) => entry.entity === 'order_transaction' && entry.referencedId === '3',
+        );
+        expect(lastTransactionEntry).toBeDefined();
+    });
+
+    it('should display username or fallback to email in user column', async () => {
+        const stateHistoryWithEmailFallback = [
+            {
+                entityName: 'order_delivery',
+                fromStateMachineState: {
+                    technicalName: 'open',
+                    translated: { name: 'Open' },
+                },
+                toStateMachineState: {
+                    technicalName: 'shipped',
+                    translated: { name: 'Shipped' },
+                },
+                user: {
+                    username: 'admin',
+                },
+                createdAt: '2022-10-12T10:01:28.535+00:00',
+            },
+            {
+                entityName: 'order_transaction',
+                fromStateMachineState: {
+                    technicalName: 'open',
+                    translated: { name: 'Open' },
+                },
+                toStateMachineState: {
+                    technicalName: 'in_progress',
+                    translated: { name: 'In progress' },
+                },
+                user: {
+                    email: 'user@example.com',
+                },
+                createdAt: '2022-10-12T10:01:33.815+00:00',
+                referencedId: '2',
+            },
+        ];
+
+        const wrapper = await createWrapper({}, orderProp, stateHistoryWithEmailFallback);
+        await flushPromises();
+
+        const stateHistoryRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+
+        // First row should show username
+        const firstRow = stateHistoryRows.at(0);
+        expect(firstRow.find('.sw-data-grid__cell--user').text()).toBe('sw-order.stateHistoryModal.labelSystemUser');
+
+        // Second row should show username
+        const secondRow = stateHistoryRows.at(1);
+        expect(secondRow.find('.sw-data-grid__cell--user').text()).toBe('admin');
+
+        // Third row should show email (fallback)
+        const thirdRow = stateHistoryRows.at(2);
+        expect(thirdRow.find('.sw-data-grid__cell--user').text()).toBe('user@example.com');
     });
 });

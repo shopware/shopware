@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuild
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -42,9 +41,12 @@ class IconCacheTwigFilterTest extends TestCase
 {
     public function testStorefrontRenderIconCacheEnabled(): void
     {
+        $storefrontBundleFileName = (new \ReflectionClass(Storefront::class))->getFileName();
+        static::assertNotFalse($storefrontBundleFileName);
+
         $twig = $this->createFinder([
             new BundleFixture('StorefrontTest', __DIR__ . '/fixtures/Storefront/'),
-            new BundleFixture('Storefront', \dirname((string) ReflectionHelper::getFileName(Storefront::class))),
+            new BundleFixture('Storefront', \dirname($storefrontBundleFileName)),
         ]);
 
         $container = $this->buildContainer();
@@ -60,7 +62,7 @@ class IconCacheTwigFilterTest extends TestCase
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
 
         $rendered = $controller->testRenderStorefront('@StorefrontTest/test/base.html.twig', $salesChannelContext);
-        static::assertEquals(str_replace(' ', '', '<span class="icon icon-minus-large icon-xs icon-filter-panel-item-toggle" aria-hidden="true">
+        static::assertSame(str_replace(' ', '', '<span class="icon icon-minus-large icon-xs icon-filter-panel-item-toggle" aria-hidden="true">
                                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16"><defs><path id="icons-solid-minus-large" d="M2 9h12c.5523 0 1-.4477 1-1s-.4477-1-1-1H2c-.5523 0-1 .4477-1 1s.4477 1 1 1z" /></defs><use xlink:href="#icons-solid-minus-large" fill="#758CA3" fill-rule="evenodd" /></svg>
                     </span><span class="icon icon-minus-large icon-xs icon-filter-panel-item-toggle" aria-hidden="true">
                                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16"><use xlink:href="#icons-solid-minus-large" fill="#758CA3" fill-rule="evenodd" /></svg>
@@ -113,7 +115,7 @@ class IconCacheTwigFilterTest extends TestCase
             $directory = $bundle->getPath() . '/Resources/views';
             $loader->addPath($directory);
             $loader->addPath($directory, $bundle->getName());
-            if (file_exists($directory . '/../app/storefront/dist')) {
+            if (\is_dir($directory . '/../app/storefront/dist')) {
                 $loader->addPath($directory . '/../app/storefront/dist', $bundle->getName());
             }
         }

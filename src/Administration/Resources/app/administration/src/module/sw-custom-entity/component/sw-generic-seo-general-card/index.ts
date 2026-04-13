@@ -2,8 +2,6 @@
  * @sw-package inventory
  */
 
-import type { PropType } from 'vue';
-
 import template from './sw-generic-seo-general-card.html.twig';
 import './sw-generic-seo-general-card.scss';
 

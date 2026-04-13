@@ -1,8 +1,6 @@
 import template from './sw-card-view.html.twig';
 import './sw-card-view.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -25,15 +23,14 @@ const { Component } = Shopware;
  * </sw-card-view>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-card-view', {
+export default {
     template,
 
     props: {
         showErrorSummary: {
             type: Boolean,
             require: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
-});
+};

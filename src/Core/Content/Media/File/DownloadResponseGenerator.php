@@ -6,6 +6,7 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToGenerateTemporaryUrl;
 use Psr\Http\Message\StreamInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -31,6 +32,7 @@ class DownloadResponseGenerator
      * @internal
      */
     public function __construct(
+        private readonly LoggerInterface $logger,
         private readonly FilesystemOperator $filesystemPublic,
         private readonly FilesystemOperator $filesystemPrivate,
         private readonly MediaService $mediaService,
@@ -53,7 +55,10 @@ class DownloadResponseGenerator
             $url = $fileSystem->temporaryUrl($path, (new \DateTime())->modify($expiration));
 
             return new RedirectResponse($url);
-        } catch (UnableToGenerateTemporaryUrl) {
+        } catch (UnableToGenerateTemporaryUrl $exception) {
+            $this->logger->warning($exception->getMessage(), ['exception' => $exception]);
+        } catch (\Exception $exception) {
+            $this->logger->critical($exception->getMessage(), ['exception' => $exception]);
         }
 
         return $this->getDefaultResponse($media, $context, $fileSystem);
@@ -76,7 +81,7 @@ class DownloadResponseGenerator
                     $location = stream_get_meta_data($stream)['uri'] ?? $location;
                 }
 
-                $response = new Response(null, 200, $this->getStreamHeaders($media));
+                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($media));
                 $response->headers->set(self::X_SENDFILE_DOWNLOAD_STRATEGY, $location);
 
                 return $response;
@@ -84,11 +89,11 @@ class DownloadResponseGenerator
                 $location = $media->getPath();
 
                 // Apply the path prefix if configured
-                if (!empty($this->privateLocalPathPrefix)) {
+                if ($this->privateLocalPathPrefix !== '') {
                     $location = $this->privateLocalPathPrefix . '/' . ltrim($location, '/');
                 }
 
-                $response = new Response(null, 200, $this->getStreamHeaders($media));
+                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($media));
                 $response->headers->set(self::X_ACCEL_REDIRECT, $location);
 
                 return $response;
@@ -117,7 +122,7 @@ class DownloadResponseGenerator
             throw MediaException::fileNotFound($media->getFileName() . '.' . $media->getFileExtension());
         }
 
-        return new StreamedResponse(function () use ($stream): void {
+        return new StreamedResponse(static function () use ($stream): void {
             fpassthru($stream);
         }, Response::HTTP_OK, $this->getStreamHeaders($media));
     }

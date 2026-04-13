@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\System\SalesChannel\SalesChannel;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -10,7 +9,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannel\ContextRoute;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -18,7 +16,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(ContextRoute::class)]
 #[Group('store-api')]
 class ContextRouteTest extends TestCase
 {
@@ -129,5 +126,62 @@ class ContextRouteTest extends TestCase
         static::assertArrayHasKey('activeBillingAddress', $response['customer']);
         static::assertArrayHasKey('id', $response['customer']['activeBillingAddress']);
         static::assertSame($newBillingAddressId, $response['customer']['activeBillingAddress']['id']);
+    }
+
+    public function testFetchingContextReturnsMeasurementSystem(): void
+    {
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/context'
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('measurementSystem', $response);
+        static::assertIsArray($response['measurementSystem']);
+        static::assertArrayHasKey('units', $response['measurementSystem']);
+        static::assertIsArray($response['measurementSystem']['units']);
+        static::assertArrayHasKey('length', $response['measurementSystem']['units']);
+        static::assertArrayHasKey('weight', $response['measurementSystem']['units']);
+        static::assertSame('mm', $response['measurementSystem']['units']['length']);
+        static::assertSame('kg', $response['measurementSystem']['units']['weight']);
+
+        // update measurement system of the sales channel and check again
+        $measurementSystem = [
+            'system' => 'imperial',
+            'units' => [
+                'length' => 'in',
+                'weight' => 'lb',
+            ],
+        ];
+
+        $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
+
+        $salesChannelRepository->update([
+            [
+                'id' => $this->ids->get('sales-channel'),
+                'measurementUnits' => $measurementSystem,
+            ],
+        ], Context::createDefaultContext());
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/context'
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('measurementSystem', $response);
+        static::assertIsArray($response['measurementSystem']);
+        static::assertArrayHasKey('units', $response['measurementSystem']);
+        static::assertIsArray($response['measurementSystem']['units']);
+        static::assertArrayHasKey('length', $response['measurementSystem']['units']);
+        static::assertArrayHasKey('weight', $response['measurementSystem']['units']);
+        static::assertSame('in', $response['measurementSystem']['units']['length']);
+        static::assertSame('lb', $response['measurementSystem']['units']['weight']);
     }
 }

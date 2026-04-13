@@ -25,7 +25,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(NotificationService::class)]
 class NotificationServiceTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<NotificationCollection> */
+    /**
+     * @var MockObject&EntityRepository<NotificationCollection>
+     */
     private MockObject&EntityRepository $entityRepository;
 
     private NotificationService $notificationService;
@@ -114,7 +116,7 @@ class NotificationServiceTest extends TestCase
 
         $notifications = $this->notificationService->getNotifications($context, 0, '1718179529');
 
-        static::assertEquals([
+        static::assertSame([
             'notifications' => $notificationCollection,
             'timestamp' => '2024-06-13 00:00:00.000',
         ], $notifications);

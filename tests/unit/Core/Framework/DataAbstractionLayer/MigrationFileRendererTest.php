@@ -41,6 +41,6 @@ class MigrationFileRendererTest extends TestCase
 
         $result = MigrationFileRenderer::createMigrationClassName($timestamp, $entity);
 
-        static::assertEquals('Migration20231117120000TestEntity', $result);
+        static::assertSame('Migration20231117120000TestEntity', $result);
     }
 }

@@ -24,10 +24,12 @@ in {
   process.manager.implementation = lib.mkDefault "honcho";
 
   dotenv.disableHint = true;
+  cachix.enable = false;
+  devenv.warnOnNewVersion = false;
 
   languages.javascript = {
     enable = lib.mkDefault true;
-    package = lib.mkDefault pkgs.nodejs_20;
+    package = lib.mkDefault pkgs.nodejs_22;
   };
 
   languages.php = {
@@ -45,7 +47,6 @@ in {
       ''}
       display_errors = On
       error_reporting = E_ALL
-      assert.active = 0
       opcache.memory_consumption = 256M
       opcache.interned_strings_buffer = 20
       zend.assertions = 0
@@ -92,7 +93,7 @@ in {
 
   services.mysql = {
     enable = true;
-    package = pkgs.mysql80;
+    package = pkgs.mysql84;
     initialDatabases = lib.mkDefault [{ name = "shopware"; }];
     ensureUsers = lib.mkDefault [
       {
@@ -146,10 +147,6 @@ in {
   env.CYPRESS_dbPassword = lib.mkDefault "shopware";
   env.CYPRESS_dbName = lib.mkDefault "shopware";
 
-  scripts.build-updater.exec = ''
-      ${pkgs.phpPackages.box}/bin/box compile -d src/WebInstaller
-      mv src/WebInstaller/shopware-installer.phar.php shop/public/shopware-installer.phar.php
-  '';
-
-  scripts.watch-updater.exec = "${pkgs.watchexec}/bin/watchexec -i src/WebInstaller/shopware-installer.phar.php  -eyaml,php,js build-updater";
+  # Service Registry
+  env.SERVICE_REGISTRY_URL = lib.mkDefault "https://registry.staging-services.shopware.io";
 }

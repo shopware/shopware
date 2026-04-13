@@ -1,12 +1,6 @@
 .sw-product-detail-variants {
-    &__generated-variants.mt-card {
-        overflow: visible;
-
-        .mt-card__content,
-        .mt-tabs__custom-content {
-            padding: 0;
-            background: #f8f9fa;
-        }
+    &__generated-variants.mt-card .sw-tabs__custom-content {
+        padding: 0;
     }
 
     .sw-product-detail-variants__generated-variants.is--loading .mt-card__content {
@@ -16,21 +10,6 @@
     .sw-product-detail-variants__generated-variants .mt-card__content {
         padding: 0;
         height: 100%;
-
-        .sw-product-detail-variants__generated-variants-empty-state {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 400px;
-
-            .sw-product-detail-variants__generated-variants-empty-state--label {
-                max-width: 240px;
-                margin-top: 25px;
-                margin-bottom: 25px;
-                text-align: center;
-            }
-        }
     }
 
     .sw-skeleton__detail:not(:last-child),

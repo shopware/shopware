@@ -33,7 +33,7 @@ class AffiliateCodeRuleTest extends TestCase
         static::assertArrayHasKey('affiliateCode', $constraints, 'Constraint affiliateCode not found in Rule');
         static::assertEquals($constraints['affiliateCode'], [
             new NotBlank(),
-            new Type(['type' => 'string']),
+            new Type(type: 'string'),
         ]);
     }
 
@@ -102,7 +102,7 @@ class AffiliateCodeRuleTest extends TestCase
 
         $scope = new CheckoutRuleScope($salesChannelContext);
         $match = $rule->match($scope);
-        static::assertEquals($match, $isMatching);
+        static::assertSame($match, $isMatching);
     }
 
     /**

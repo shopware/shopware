@@ -1,10 +1,16 @@
 .sw-import-export-edit-profile-indicators {
-    &__text {
-        margin-bottom: 24px;
+    &__headline {
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
+        color: var(--color-text-primary-default);
+        font-weight: var(--font-weight-medium);
+        margin-bottom: var(--scale-size-4);
     }
 
-    .sw-import-export-edit-profile-indicators__separator-select,
-    .sw-import-export-edit-profile-indicators__enclosure-select {
-        margin-bottom: 0;
+    &__text {
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-primary-default);
+        margin-bottom: var(--scale-size-24);
     }
 }

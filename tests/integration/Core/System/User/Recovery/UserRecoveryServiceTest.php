@@ -63,7 +63,7 @@ class UserRecoveryServiceTest extends TestCase
 
         $eventDispatched = false;
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $this->addEventListener($dispatcher, UserRecoveryRequestEvent::EVENT_NAME, function (UserRecoveryRequestEvent $event) use (&$eventDispatched): void {
+        $this->addEventListener($dispatcher, UserRecoveryRequestEvent::EVENT_NAME, static function (UserRecoveryRequestEvent $event) use (&$eventDispatched): void {
             $eventDispatched = true;
         });
 
@@ -168,7 +168,7 @@ class UserRecoveryServiceTest extends TestCase
 
         $passwordAfter = $userAfter->getPassword();
 
-        static::assertNotEquals($passwordBefore, $passwordAfter);
+        static::assertNotSame($passwordBefore, $passwordAfter);
     }
 
     public function testGetUserByHash(): void

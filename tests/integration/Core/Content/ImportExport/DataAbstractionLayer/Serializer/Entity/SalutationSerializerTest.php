@@ -65,8 +65,8 @@ class SalutationSerializerTest extends TestCase
         $actualTranslations = $deserialized['translations'][Defaults::LANGUAGE_SYSTEM];
         unset($salutation['translations'], $deserialized['translations']);
 
-        static::assertEquals($salutation, $deserialized);
-        static::assertEquals($expectedTranslations, $actualTranslations);
+        static::assertSame($salutation, $deserialized);
+        static::assertSame($expectedTranslations, $actualTranslations);
     }
 
     public function testDeserializeOnlySalutationKey(): void

@@ -38,17 +38,31 @@
                 v-if="lastStateChange"
                 class="sw-order-detail-state-card__state-history-text"
             >
+                {% block sw_order_detail_state_card_state_history_text_label %}
                 <i18n-t
                     keypath="sw-order.stateCard.labelHistory"
                     scope="local"
                 >
                     <template #time>
-                        <sw-time-ago :date="lastStateChange.createdAt" />
+                        <sw-time-ago
+                            :date="lastStateChange.createdAt"
+                            :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                        />
                     </template>
                     <template #author>
-                        {{ lastStateChange.user ? lastStateChange.user.firstName + ' ' + lastStateChange.user.lastName : $tc('sw-order.stateCard.labelSystemUser') }}
+                        {{ lastChangeAuthorLabel }}
                     </template>
                 </i18n-t>
+                {% endblock %}
+
+                {% block sw_order_detail_state_card_state_history_text_internal_comment %}
+                <mt-icon
+                    v-if="lastStateChange.internalComment"
+                    v-tooltip="lastStateChange.internalComment"
+                    name="regular-comment"
+                    size="14"
+                />
+                {% endblock %}
             </div>
             <div v-else></div>
             {% endblock %}

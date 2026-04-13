@@ -210,7 +210,7 @@ validate snippets:
         - changes:
               - '**/*.json'
     script:
-        - ${PROJECT_ROOT}/bin/console snippets:validate
+        - ${PROJECT_ROOT}/bin/console translation:validate
 
 jest:
     stage: test

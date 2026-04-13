@@ -1,0 +1,40 @@
+<div class="sw-settings-usage-user-data-consent-card sw-settings-usage-data-consent-modal-sub-card">
+    <mt-loader v-if="isLoading" />
+
+    <h4>{{ $t('sw-settings-usage-data.consent-modal.user-data.title') }}</h4>
+
+    <i18n-t
+        tag="p"
+        keypath="sw-settings-usage-data.consent-modal.user-data.description"
+        scope="global"
+    >
+        <template #data>
+            <span
+                v-tooltip="{ message: $t('sw-settings-usage-data.consent-modal.user-data.help-text.data')}"
+                class="sw-settings-usage-data-consent-modal-sub-card__tooltip"
+            >
+                {{ $t('sw-settings-usage-data.consent-modal.user-data.emphasizes.data') }}
+            </span>
+        </template>
+
+        <template #privacy-policy>
+            <mt-link
+                as="a"
+                type="external"
+                target="_blank"
+                :href="$t('sw-settings-usage-data.consent-modal.user-data.external-links.privacy-policy.link')"
+                @click="$emit('legal-link-clicked')"
+            >
+                {{ $t('sw-settings-usage-data.consent-modal.user-data.external-links.privacy-policy.label') }}
+            </mt-link>
+        </template>
+    </i18n-t>
+
+    <mt-switch
+        v-if="!hideSwitch"
+        :model-value="consent"
+        :disabled="isLoading"
+        :label="$t('sw-settings-usage-data.consent-modal.user-data.label-checkbox')"
+        @update:model-value="$emit('update:consent', $event)"
+    />
+</div>

@@ -118,10 +118,6 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should navigate tab correctly', async () => {
         let customerBaseForm = wrapper.find('sw-customer-base-form-stub');
         let customerAddressForm = wrapper.find('sw-customer-address-form-stub');

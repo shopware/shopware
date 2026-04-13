@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Message;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler;
@@ -27,14 +26,10 @@ class DeleteThemeFilesHandlerTest extends TestCase
         $filesystem = $this->createMock(FilesystemOperator::class);
         $filesystem->expects($this->once())->method('deleteDirectory')->with('theme' . \DIRECTORY_SEPARATOR . $currentPath);
 
-        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidator->expects($this->once())->method('invalidate')->with(['theme_scripts_' . $currentPath]);
-
         $handler = new DeleteThemeFilesHandler(
             $filesystem,
             // the path builder will generate a different path then the hard coded one
             new MD5ThemePathBuilder(),
-            $cacheInvalidator
         );
 
         $handler($message);
@@ -55,7 +50,6 @@ class DeleteThemeFilesHandlerTest extends TestCase
         $handler = new DeleteThemeFilesHandler(
             $filesystem,
             $pathBuilder,
-            $this->createMock(CacheInvalidator::class)
         );
 
         $handler($message);

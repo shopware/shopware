@@ -21,6 +21,6 @@ class CustomEventTest extends TestCase
         static::assertSame('checkout.order.place.custom', $firstEvent->getName());
 
         static::assertSame('checkout.order.place.custom', $firstEvent->getName());
-        static::assertEquals(['orderAware', 'customerAware'], $firstEvent->getAware());
+        static::assertSame(['orderAware', 'customerAware'], $firstEvent->getAware());
     }
 }

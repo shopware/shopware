@@ -28,7 +28,7 @@ class HtmlSanitizerTest extends TestCase
     {
         $filteredString = $this->sanitizer->sanitize($this->unfilteredString);
 
-        static::assertEquals($this->unfilteredString, $filteredString);
+        static::assertSame($this->unfilteredString, $filteredString);
     }
 
     public function testOverrideHasNoEffectToFutureCalls(): void
@@ -37,7 +37,7 @@ class HtmlSanitizerTest extends TestCase
         $filteredString = $this->sanitizer->sanitize($this->unfilteredString);
 
         static::assertSame($filteredWithOverride, 'test');
-        static::assertEquals($this->unfilteredString, $filteredString);
+        static::assertSame($this->unfilteredString, $filteredString);
     }
 
     public function testForbiddenElementAllowedAttribute(): void
@@ -80,10 +80,7 @@ class HtmlSanitizerTest extends TestCase
         $sanitizer->sanitize($this->unfilteredString);
 
         $reflObj = new \ReflectionObject($sanitizer);
-        $reflProp = $reflObj->getProperty('purifiers');
-        $reflProp->setAccessible(true);
-
-        $purifiers = $reflProp->getValue($sanitizer);
+        $purifiers = $reflObj->getProperty('purifiers')->getValue($sanitizer);
 
         static::assertCount(1, $purifiers);
 
@@ -93,7 +90,7 @@ class HtmlSanitizerTest extends TestCase
         $config = $newPurifier->config;
         static::assertInstanceOf(\HTMLPurifier_Config::class, $config);
         static::assertNull($config->get('Cache.DefinitionImpl'));
-        static::assertEquals($cacheDir, $config->get('Cache.SerializerPath'));
+        static::assertSame($cacheDir, $config->get('Cache.SerializerPath'));
     }
 
     public function testSanitizeNotThrowingOnNull(): void
@@ -134,10 +131,7 @@ class HtmlSanitizerTest extends TestCase
         $sanitizer->sanitize($this->unfilteredString);
 
         $reflObj = new \ReflectionObject($sanitizer);
-        $reflProp = $reflObj->getProperty('purifiers');
-        $reflProp->setAccessible(true);
-
-        $purifiers = $reflProp->getValue($sanitizer);
+        $purifiers = $reflObj->getProperty('purifiers')->getValue($sanitizer);
 
         static::assertCount(1, $purifiers);
 

@@ -20,9 +20,14 @@ class StagingMailHandlerTest extends TestCase
     public function testDisabled(): void
     {
         $config = new StaticSystemConfigService();
-        $handler = new StagingMailHandler(false, $config);
+        $handler = new StagingMailHandler($config);
 
-        $handler(new SetupStagingEvent(Context::createDefaultContext(), $this->createMock(SymfonyStyle::class)));
+        $handler(new SetupStagingEvent(
+            Context::createDefaultContext(),
+            $this->createMock(SymfonyStyle::class),
+            false,
+            []
+        ));
 
         static::assertNull($config->get(MailSender::DISABLE_MAIL_DELIVERY));
     }
@@ -30,9 +35,14 @@ class StagingMailHandlerTest extends TestCase
     public function testEnabled(): void
     {
         $config = new StaticSystemConfigService();
-        $handler = new StagingMailHandler(true, $config);
+        $handler = new StagingMailHandler($config);
 
-        $handler(new SetupStagingEvent(Context::createDefaultContext(), $this->createMock(SymfonyStyle::class)));
+        $handler(new SetupStagingEvent(
+            Context::createDefaultContext(),
+            $this->createMock(SymfonyStyle::class),
+            true,
+            []
+        ));
 
         static::assertTrue($config->get(MailSender::DISABLE_MAIL_DELIVERY));
     }

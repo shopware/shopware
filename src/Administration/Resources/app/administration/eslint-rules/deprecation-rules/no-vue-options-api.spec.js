@@ -2,7 +2,9 @@ const { RuleTester } = require('eslint');
 const rule = require('./no-vue-options-api');
 
 const ruleTester = new RuleTester({
-    parser: require.resolve('@typescript-eslint/parser'),
+    languageOptions: {
+        parser: require('@typescript-eslint/parser'),
+    },
 });
 
 /**

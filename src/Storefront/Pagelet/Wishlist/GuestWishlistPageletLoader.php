@@ -43,7 +43,7 @@ class GuestWishlistPageletLoader
         $criteria = $this->createCriteria($productsIds, $context);
         $this->eventDispatcher->dispatch(new GuestWishListPageletProductCriteriaEvent($criteria, $context, $request));
 
-        if (!empty($productsIds)) {
+        if ($productsIds !== []) {
             $response = $this->productListRoute->load($criteria, $context);
         } else {
             $response = new ProductListResponse(new EntitySearchResult(
@@ -68,7 +68,7 @@ class GuestWishlistPageletLoader
      */
     private function extractProductIds(Request $request): array
     {
-        $productIds = $request->get('productIds', []);
+        $productIds = $request->request->all()['productIds'] ?? [];
 
         if (!\is_array($productIds)) {
             throw RoutingException::missingRequestParameter('productIds');
@@ -87,7 +87,7 @@ class GuestWishlistPageletLoader
 
         $criteria->setLimit(self::LIMIT);
 
-        if (!empty($productIds)) {
+        if ($productIds !== []) {
             $criteria->setIds($productIds);
         }
 

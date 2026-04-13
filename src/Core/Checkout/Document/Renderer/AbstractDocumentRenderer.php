@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificat
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -29,7 +30,7 @@ abstract class AbstractDocumentRenderer
     /**
      * @param array<int, string> $ids
      *
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     protected function getOrdersLanguageId(array $ids, string $versionId, Connection $connection): array
     {
@@ -51,7 +52,7 @@ abstract class AbstractDocumentRenderer
      */
     protected function isAllowIntraCommunityDelivery(array $config, OrderEntity $order): bool
     {
-        if (empty($config['displayAdditionalNoteDelivery'])) {
+        if (($config['displayAdditionalNoteDelivery'] ?? false) === false) {
             return false;
         }
 
@@ -60,7 +61,12 @@ abstract class AbstractDocumentRenderer
             return false;
         }
 
-        $orderDelivery = $order->getDeliveries()?->first();
+        $orderDelivery = $order->getPrimaryOrderDelivery();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $orderDelivery = $order->getDeliveries()?->first();
+        }
+
         if (!$orderDelivery) {
             return false;
         }
@@ -84,7 +90,11 @@ abstract class AbstractDocumentRenderer
             return false;
         }
 
-        $orderDelivery = $order->getDeliveries()?->first();
+        $orderDelivery = $order->getPrimaryOrderDelivery();
+        if (!Feature::isActive('v6.8.0.0')) {
+            $orderDelivery = $order->getDeliveries()?->first();
+        }
+
         if (!$orderDelivery) {
             return false;
         }
@@ -100,14 +110,14 @@ abstract class AbstractDocumentRenderer
             return true;
         }
 
-        $vatId = $shippingAddress->getVatId();
-        if ($vatId === null) {
+        $vatIds = $order->getOrderCustomer()?->getVatIds();
+        if (!\is_array($vatIds)) {
             return false;
         }
 
-        $violations = $validator->validate([$vatId], [
+        $violations = $validator->validate($vatIds, [
             new NotBlank(),
-            new CustomerVatIdentification(['countryId' => $country->getId()]),
+            new CustomerVatIdentification(countryId: $country->getId()),
         ]);
 
         return $violations->count() === 0;

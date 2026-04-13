@@ -38,7 +38,7 @@ export default {
         },
 
         nextAction() {
-            if (Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
+            if (Shopware.Store.get('context').app.config.settings?.disableExtensionManagement) {
                 return 'sw.first.run.wizard.index.finish';
             }
 

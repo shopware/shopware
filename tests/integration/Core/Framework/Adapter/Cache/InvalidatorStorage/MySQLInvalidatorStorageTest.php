@@ -106,7 +106,7 @@ class MySQLInvalidatorStorageTest extends TestCase
         $storage = new MySQLInvalidatorStorage(
             $this->connection,
             $this->logger,
-            fn (MySQLInvalidatorStorage $storage, array $tags) => $storage->store(['tag4', 'tag5', 'tag6']),
+            static fn (MySQLInvalidatorStorage $storage, array $tags) => $storage->store(['tag4', 'tag5', 'tag6']),
         );
 
         // store these first
@@ -114,7 +114,7 @@ class MySQLInvalidatorStorageTest extends TestCase
 
         $tags = $storage->loadAndDelete();
 
-        static::assertEquals(['tag1', 'tag2', 'tag3'], $tags);
+        static::assertSame(['tag1', 'tag2', 'tag3'], $tags);
 
         $result = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
 
@@ -153,7 +153,7 @@ class MySQLInvalidatorStorageTest extends TestCase
         // 2. load tags on original connection (which will trigger callable from above to simulate parallel request loading tags)
         $tags = $storage1->loadAndDelete();
 
-        static::assertEquals(['tag1', 'tag2', 'tag3'], $tags);
+        static::assertSame(['tag1', 'tag2', 'tag3'], $tags);
 
         $result = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
 
@@ -190,7 +190,7 @@ class MySQLInvalidatorStorageTest extends TestCase
 
         $connection->expects($this->once())
             ->method('transactional')
-            ->willReturnCallback(fn (callable $cb) => $cb());
+            ->willReturnCallback(static fn (callable $cb) => $cb());
 
         $storage = new MySQLInvalidatorStorage($connection, $this->logger);
         $storage->loadAndDelete();

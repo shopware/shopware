@@ -54,8 +54,8 @@ class CheapestPriceFacadeTest extends TestCase
 
         $price->change($update);
 
-        static::assertEquals($unit, $price->getUnit());
-        static::assertEquals($tax, $price->getTaxes()->getAmount());
+        static::assertSame($unit, $price->getUnit());
+        static::assertSame($tax, $price->getTaxes()->getAmount());
     }
 
     public function testChangeWithPriceFacade(): void
@@ -76,7 +76,7 @@ class CheapestPriceFacadeTest extends TestCase
             )
         );
 
-        static::assertEquals(5, $price->getUnit());
+        static::assertSame(5.0, $price->getUnit());
     }
 
     public function testChangeWithNullFacade(): void
@@ -90,7 +90,7 @@ class CheapestPriceFacadeTest extends TestCase
 
         $price->change(null);
 
-        static::assertEquals(10, $price->getUnit());
+        static::assertSame(10.0, $price->getUnit());
     }
 
     public function testReset(): void
@@ -104,7 +104,7 @@ class CheapestPriceFacadeTest extends TestCase
 
         $price->reset();
 
-        static::assertEquals(10, $price->getUnit());
+        static::assertSame(10.0, $price->getUnit());
     }
 
     public static function providerChange(): \Generator

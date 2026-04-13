@@ -5,11 +5,11 @@
 import template from './sw-sales-channel-products-assignment-dynamic-product-groups.html.twig';
 import './sw-sales-channel-products-assignment-dynamic-product-groups.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sales-channel-products-assignment-dynamic-product-groups', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -74,6 +74,7 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
         productStreamCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
+            criteria.addFilter(Criteria.equals('internal', false));
             if (this.term) {
                 criteria.setTerm(this.term);
             }
@@ -199,4 +200,4 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
             });
         },
     },
-});
+};

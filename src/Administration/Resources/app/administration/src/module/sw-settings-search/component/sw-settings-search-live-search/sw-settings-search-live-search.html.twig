@@ -59,29 +59,46 @@
     {% endblock %}
 
     {% block sw_settings_search_view_live_search_input %}
-    <sw-simple-search-field
-        v-model:value="liveSearchTerm"
-        class="sw-settings-search-live-search__search_box"
-        variant="form"
-        :delay="1000"
-        :disabled="!isSearchEnable || undefined"
-        @search-term-change="searchOnStorefront"
+    <sw-container
+        class="sw-settings-search-live-search__search-container"
+        columns="1fr 250px"
+        gap="16px"
     >
+        <sw-simple-search-field
+            v-model:value="liveSearchTerm"
+            class="sw-settings-search-live-search__search_box"
+            variant="form"
+            :delay="1000"
+            :disabled="!isSearchEnable || undefined"
+            @search-term-change="searchOnStorefront"
+        >
 
-        {% block sw_settings_search_view_live_search_search_icon_wrapper %}
-        <template #sw-simple-search-field-icon>
-            {% block sw_settings_search_view_live_search_search_icon %}
-            <mt-icon
-                class="sw-settings-search-live-search__search-icon"
-                name="regular-search-s"
-                size="16px"
-                @click="searchOnStorefront"
-            />
+            {% block sw_settings_search_view_live_search_search_icon_wrapper %}
+            <template #sw-simple-search-field-icon>
+                {% block sw_settings_search_view_live_search_search_icon %}
+                <mt-icon
+                    class="sw-settings-search-live-search__search-icon"
+                    name="regular-search-s"
+                    size="16px"
+                    @click="searchOnStorefront"
+                />
+                {% endblock %}
+            </template>
             {% endblock %}
-        </template>
-        {% endblock %}
 
-    </sw-simple-search-field>
+        </sw-simple-search-field>
+
+        <mt-select
+            v-model="productSortingKey"
+            class="sw-settings-search-live-search__sorting-select"
+            value-property="key"
+            label-property="translated.label"
+            :placeholder="$tc('sw-settings-search.liveSearchTab.textPlaceholderSorting')"
+            :options="productSortings"
+            :disabled="!isSearchEnable || undefined"
+            @update:model-value="searchOnStorefront"
+        />
+    </sw-container>
     {% endblock %}
 
     {% block sw_settings_search_view_live_search_results %}

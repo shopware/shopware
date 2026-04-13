@@ -2,21 +2,24 @@
 
 namespace Shopware\Core\System\Country\SalesChannel;
 
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
+use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\Event\CountryStateCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('fundamentals@discovery')]
 class CountryStateRoute extends AbstractCountryStateRoute
 {
@@ -29,7 +32,8 @@ class CountryStateRoute extends AbstractCountryStateRoute
      */
     public function __construct(
         private readonly EntityRepository $countryStateRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -38,13 +42,15 @@ class CountryStateRoute extends AbstractCountryStateRoute
         return 'country-state-route-' . $id;
     }
 
-    #[Route(path: '/store-api/country-state/{countryId}', name: 'store-api.country.state', methods: ['GET', 'POST'], defaults: ['_entity' => 'country'])]
+    #[Route(
+        path: '/store-api/country-state/{countryId}',
+        name: 'store-api.country.state',
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => CountryDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
+    )]
     public function load(string $countryId, Request $request, Criteria $criteria, SalesChannelContext $context): CountryStateRouteResponse
     {
-        $this->dispatcher->dispatch(new AddCacheTagEvent(
-            self::buildName($countryId),
-            self::ALL_TAG
-        ));
+        $this->cacheTagCollector->addTag(self::buildName($countryId), self::ALL_TAG);
 
         $criteria->addFilter(
             new EqualsFilter('countryId', $countryId),

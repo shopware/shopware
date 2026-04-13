@@ -130,10 +130,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show the snippet for the admin title', async () => {
         Shopware.Store.get('session').setCurrentUser({
             admin: true,
@@ -429,6 +425,17 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         await flushPromises();
 
         expect(wrapper.vm.flyoutStyle.top).toBe('80px');
+    });
+
+    it('should call logoutSso and clear stores on logout', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.loginService.logoutSso = jest.fn().mockResolvedValue(undefined);
+
+        await wrapper.vm.onLogoutUser();
+
+        expect(wrapper.vm.loginService.logoutSso).toHaveBeenCalledTimes(1);
     });
 
     it('should not show icons in flyout menu items', async () => {

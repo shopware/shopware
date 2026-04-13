@@ -39,7 +39,7 @@ class PromotionCodeOfTypeRule extends Rule
         }
 
         $promotionLineItems = $scope->getCart()->getLineItems()->filterFlatByType(LineItem::PROMOTION_LINE_ITEM_TYPE);
-        $hasNoPromotionLineItems = \count($promotionLineItems) === 0;
+        $hasNoPromotionLineItems = $promotionLineItems === [];
 
         if ($this->operator === self::OPERATOR_EQ && $hasNoPromotionLineItems) {
             return false;

@@ -107,10 +107,6 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show text on last name column  when edit mode is off', async () => {
         const lastNameCell = wrapper.find('td');
 

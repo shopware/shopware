@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Core\Test\FixtureLoader;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -56,8 +57,7 @@ CREATE TABLE IF NOT EXISTS `php_bench` (
                 ->get(Connection::class)
                 ->fetchOne('SELECT ids FROM php_bench WHERE `key` = :key', ['key' => 'ids']);
 
-            self::$ids = \unserialize($ids);
-            \assert(self::$ids instanceof IdsCollection);
+            self::$ids = Serialization::assertUnserializedInstanceOf(IdsCollection::class, $ids);
         }
 
         return self::$ids;

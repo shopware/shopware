@@ -126,7 +126,7 @@ class RecordTest extends TestCase
         ]);
         $record->merge($entity);
 
-        static::assertEquals([
+        static::assertSame([
             'products' => [
                 'tmp' => [
                     'definition' => $productDefinition,

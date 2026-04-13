@@ -16,11 +16,6 @@ async function createWrapper() {
 }
 
 describe('components/base/sw-button', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render the mt-button when major feature flag is enabled', async () => {
         global.activeFeatureFlags = ['ENABLE_METEOR_COMPONENTS'];
 

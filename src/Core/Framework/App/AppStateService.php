@@ -65,7 +65,7 @@ class AppStateService
         $this->scriptExecutor->execute(new AppActivatedHook($event));
     }
 
-    public function deactivateApp(string $appId, Context $context): void
+    public function deactivateApp(string $appId, Context $context, bool $deactivateForDeletion = false): void
     {
         $app = $this->appRepo->search(new Criteria([$appId]), $context)->getEntities()->first();
 
@@ -75,11 +75,10 @@ class AppStateService
         if (!$app->isActive()) {
             return;
         }
-        if (!$app->getAllowDisable()) {
-            throw new \RuntimeException(\sprintf('App %s can not be deactivated. You have to uninstall the app.', $app->getName()));
+        if (!$deactivateForDeletion && !$app->getAllowDisable()) {
+            throw AppException::restrictDeletePreventsDeactivation($app->getName());
         }
 
-        $this->activeAppsLoader->reset();
         // throw event before deactivating app in db as theme configs from the app need to be removed beforehand
         $event = new AppDeactivatedEvent($app, $context);
         $this->eventDispatcher->dispatch($event);
@@ -91,5 +90,7 @@ class AppStateService
         $this->paymentMethodStateService->deactivatePaymentMethods($appId, $context);
         $this->ruleConditionPersister->deactivateConditionScripts($appId, $context);
         $this->flowEventPersister->deactivateFlow($appId);
+        // reset only after new state is in the DB
+        $this->activeAppsLoader->reset();
     }
 }

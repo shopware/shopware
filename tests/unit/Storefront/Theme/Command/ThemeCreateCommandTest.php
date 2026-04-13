@@ -7,7 +7,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Theme\Command\ThemeCreateCommand;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -27,7 +29,7 @@ class ThemeCreateCommandTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->removeTheme(self::THEME_NAME);
+        $this->removeTheme();
     }
 
     public function testSuccessfulCreateCommand(): void
@@ -64,22 +66,29 @@ class ThemeCreateCommandTest extends TestCase
         static::assertFileExists($expectedDirectory . 'Resources/theme.json');
     }
 
+    public function testCommandFailsWhenDirectoryCannotBeCreated(): void
+    {
+        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem->method('mkdir')->willThrowException(new IOException('Permission denied'));
+
+        $commandTester = $this->getCommandTester($filesystem);
+        $commandTester->execute(['theme-name' => self::THEME_NAME]);
+
+        static::assertStringContainsString('Unable to create directory', $commandTester->getDisplay(true));
+        static::assertSame(Command::FAILURE, $commandTester->getStatusCode());
+    }
+
     public function testCommandFailsOnDuplicate(): void
     {
-        static::markTestSkipped('This test is not working as expected.');
-
         $commandTester = $this->getCommandTester();
 
         $commandTester->execute(['theme-name' => self::THEME_NAME]);
 
-        $result = $commandTester->getDisplay(true);
-
-        static::assertStringContainsString('Creating theme structure under', $result);
+        static::assertStringContainsString('Creating theme structure under', $commandTester->getDisplay(true));
 
         $commandTester->execute(['theme-name' => self::THEME_NAME]);
 
-        $result = $commandTester->getDisplay(true);
-
+        $result = preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true)));
         static::assertIsString($result);
         static::assertStringContainsString('already exists', $result);
     }
@@ -107,7 +116,7 @@ class ThemeCreateCommandTest extends TestCase
         ];
     }
 
-    private function removeTheme(string $pluginName): bool
+    private function removeTheme(): bool
     {
         $directory = $this->projectDir . '/custom/';
 
@@ -120,15 +129,16 @@ class ThemeCreateCommandTest extends TestCase
         return true;
     }
 
-    private function getCommandTester(): CommandTester
+    private function getCommandTester(?Filesystem $filesystem = null): CommandTester
     {
         $themeCreateCommand = new ThemeCreateCommand(
-            $this->projectDir
+            $this->projectDir,
+            $filesystem ?? new Filesystem(),
         );
 
         $commandTester = new CommandTester($themeCreateCommand);
         $application = new Application();
-        $application->add($themeCreateCommand);
+        $application->addCommand($themeCreateCommand);
 
         return $commandTester;
     }

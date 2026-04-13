@@ -2,7 +2,6 @@
 
 use Danger\Config;
 use Danger\Context;
-use Danger\Platform\Github\Github;
 use Danger\Rule\Condition;
 use Danger\Struct\File;
 
@@ -10,10 +9,10 @@ const COMPOSER_PACKAGE_EXCEPTIONS = [
     '~' => [
         '^symfony\/.*$' => 'We are too tightly coupled to symfony, therefore minor updates often cause breaks',
         '^php$' => 'PHP does not follow semantic versioning, therefore minor updates include breaks',
+        '^doctrine\/dbal$' => 'Minor updates often introduce deprecations, which cause PHPStan to fail.',
     ],
     'strict' => [
         '^phpstan\/phpstan.*$' => 'Even patch updates for PHPStan may lead to a red CI pipeline, because of new static analysis errors',
-        '^phpstan\/phpdoc-parser.*$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of no lock on their side',
         '^friendsofphp\/php-cs-fixer$' => 'Even patch updates for PHP-CS-Fixer may lead to a red CI pipeline, because of new style issues',
         '^symplify\/phpstan-rules$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
         '^rector\/type-perfect$' => 'Even patch updates for PHPStan plugins may lead to a red CI pipeline, because of new static analysis errors',
@@ -35,15 +34,23 @@ const BaseTestClasses = [
 return (new Config())
     ->useThreadOn(Config::REPORT_LEVEL_WARNING)
     ->useRule(function (Context $context): void {
-         if ($context->platform->pullRequest->getFiles()->has('.danger.php')) {
-             $context->notice('Any changes to .danger.php will not be reflected in your pull request. Commit your changes separately.');
-         }
+        if ($context->platform->pullRequest->getFiles()->has('.danger.php')) {
+            $context->notice('Any changes to .danger.php will not be reflected in your pull request. Commit your changes separately.');
+        }
     })
     ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 
-        if ($files->matches('changelog/_unreleased/*.md')->count() === 0) {
-            $context->warning('The Pull Request doesn\'t contain any changelog file');
+        if ($files->matches('changelog/_unreleased/*.md')->count() > 0) {
+            $context->failure('The Pull Request makes use of the old changelog format. Please document your changes in the `RELEASE_INFO-6.7.md` and `UPGRADE-6.8.md` file respectively. For detailed infos please refer to the [release documentation guide](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md).');
+        }
+    })
+
+    ->useRule(function (Context $context): void {
+        $files = $context->platform->pullRequest->getFiles();
+
+        if ($files->matches('RELEASE_INFO-6.7.md')->count() === 0) {
+            $context->warning('The Pull Request doesn\'t contain any release info, if your changes are relevant for external developers please add an entry to the release info file, including the consequences of the change and how it affects external developers. For detailed infos please refer to the [release documentation guide](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md).');
         }
     })
 
@@ -56,7 +63,7 @@ return (new Config())
         [
             function (Context $context): void {
                 $filesWithIgnoredErrors = [];
-                $phpstanBaseline = $context->platform->pullRequest->getFile('phpstan-baseline.neon')->getContent();
+                $phpstanBaseline = $context->platform->pullRequest->getFile('phpstan-baseline.php')->getContent();
                 foreach ($context->platform->pullRequest->getFiles()->map(fn (File $f) => $f->name) as $fileName) {
                     if (str_contains($phpstanBaseline, 'path: ' . $fileName)) {
                         $filesWithIgnoredErrors[] = $fileName;
@@ -71,36 +78,22 @@ return (new Config())
                 }
             },
             function (Context $context): void {
-                $files = $context->platform->pullRequest->getFiles();
+                $phpstanBaseline = $context->platform->pullRequest->getFiles()->get('phpstan-baseline.php');
+                if (!$phpstanBaseline instanceof File) {
+                    return;
+                }
 
-                $newRepoUseInFrontend = array_merge(
-                    $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Controller/*')
-                        ->matchesContent('/EntityRepository/')
-                        ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
-                    $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Page/*')
-                        ->matchesContent('/EntityRepository/')
-                        ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
-                    $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Pagelet/*')
-                        ->matchesContent('/EntityRepository/')
-                        ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
-                );
+                $additions = $phpstanBaseline->additions ?? 0;
+                if ($additions === 0) {
+                    return;
+                }
 
-                if (count($newRepoUseInFrontend) > 0) {
-                    $errorFiles = [];
-                    foreach ($newRepoUseInFrontend as $file) {
-                        if ($file->name !== '.danger.php') {
-                            $errorFiles[] = $file->name . '<br/>';
-                        }
-                    }
-
-                    if (count($errorFiles) === 0) {
-                        return;
-                    }
-
+                $deletions = $phpstanBaseline->deletions ?? 0;
+                if (($deletions - $additions) < 0) {
                     $context->failure(
-                        'Do not use direct repository calls in the Frontend Layer (Controller, Page, Pagelet).'
-                        . ' Use Store-Api Routes instead.<br/>'
-                        . implode('<br>', $errorFiles)
+                        'It is not allowed to add new ignored PHPStan errors to the baseline. ' .
+                        'Only removals are allowed. Try to fix the error(s) instead. ' .
+                        'If this should not be possible, please add a `@phpstan-ignore` annotation to the affected line with the correct identifier and a proper comment, why a fix is not possible right now.'
                     );
                 }
             },
@@ -109,7 +102,41 @@ return (new Config())
     ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 
-        if ($files->matches('*/shopware.yaml')->count() > 0) {
+        $newRepoUseInFrontend = array_merge(
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Controller/*')
+                ->matchesContent('/EntityRepository/')
+                ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Page/*')
+                ->matchesContent('/EntityRepository/')
+                ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Pagelet/*')
+                ->matchesContent('/EntityRepository/')
+                ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
+        );
+
+        if (count($newRepoUseInFrontend) > 0) {
+            $errorFiles = [];
+            foreach ($newRepoUseInFrontend as $file) {
+                if ($file->name !== '.danger.php') {
+                    $errorFiles[] = $file->name . '<br/>';
+                }
+            }
+
+            if (count($errorFiles) === 0) {
+                return;
+            }
+
+            $context->failure(
+                'Do not use direct repository calls in the Frontend Layer (Controller, Page, Pagelet).'
+                . ' Use Store-Api Routes instead.<br/>'
+                . implode('<br>', $errorFiles)
+            );
+        }
+    })
+    ->useRule(function (Context $context): void {
+        $files = $context->platform->pullRequest->getFiles();
+
+        if ($files->matches('*/shopware.yaml')->count() > 0 && $files->matches('*/config-schema.json')->count() === 0) {
             $context->warning('You updated the shopware.yaml, please consider to update the config-schema.json');
         }
     })
@@ -223,10 +250,6 @@ return (new Config())
         $addedLegacyTests = [];
 
         foreach ($addedFiles->matches('src/**/*Test.php') as $file) {
-            if (str_contains($file->name, 'src/WebInstaller/')) {
-                continue;
-            }
-
             $content = $file->getContent();
 
             if (str_contains($content, 'extends TestCase')) {
@@ -251,12 +274,20 @@ return (new Config())
         $unitTestsName = [];
 
         // prepare phpunit code coverage exclude lists
-        $phpUnitConfig = __DIR__ . '/phpunit.xml.dist';
         $excludedDirs = [];
         $excludedFiles = [];
         $dom = new DOMDocument();
 
-        if ($dom->load($phpUnitConfig)) {
+        $phpUnitConfigFromPullRequest = $context->platform->pullRequest->getFiles()
+            ->matches('phpunit.xml.dist')
+            ->first();
+
+        $phpUnitConfig = $phpUnitConfigFromPullRequest?->name ?? __DIR__ . '/phpunit.xml.dist';
+        $domLoad = $phpUnitConfigFromPullRequest
+            ? $dom->loadXML($phpUnitConfigFromPullRequest->getContent())
+            : $dom->load($phpUnitConfig);
+
+        if ($domLoad) {
             $xpath = new DOMXPath($dom);
             foreach ($xpath->query('//source/exclude/directory') as $dirDomElement) {
                 $excludedDirs[] = [
@@ -334,6 +365,7 @@ return (new Config())
                 'Test',
                 'Definition',
                 'Event',
+                'Exception',
             ];
 
             $ignored = false;
@@ -369,7 +401,6 @@ return (new Config())
 
         foreach ($composerFiles as $composerFile) {
             if ($composerFile->status === File::STATUS_REMOVED
-                || str_contains((string) $composerFile->name, 'src/WebInstaller')
                 || str_contains((string) $composerFile->name, '/Test/')
             ) {
                 continue;
@@ -427,6 +458,81 @@ return (new Config())
                     );
                 }
             }
+        }
+    })
+    // check for the testsuite name containing "core" as we have split the core integration tests into multiple suites
+    ->useRule(function (Context $context): void {
+        $pullRequestFiles = $context->platform->pullRequest->getFiles();
+
+        $addedTests = $pullRequestFiles
+            ->filter(fn (File $file) => in_array($file->status, [File::STATUS_ADDED, File::STATUS_MODIFIED, File::STATUS_RENAMED], true))
+            ->matches('tests/integration/Core/Framework/**Test.php');
+
+        if (\count($addedTests) === 0) {
+            return;
+        }
+
+        $dom = new DOMDocument();
+        $phpUnitConfigFromPullRequest = $pullRequestFiles
+            ->matches('phpunit.xml.dist')
+            ->first();
+
+        $phpUnitConfig = $phpUnitConfigFromPullRequest?->name ?? __DIR__ . '/phpunit.xml.dist';
+        $domLoad = $phpUnitConfigFromPullRequest
+            ? $dom->loadXML($phpUnitConfigFromPullRequest->getContent())
+            : $dom->load($phpUnitConfig);
+
+        if ($domLoad === false) {
+            $context->failure(sprintf('Was not able to load phpunit config file %s. Please check configuration.', $phpUnitConfig));
+
+            return;
+        }
+
+        $nodes = $missing = [];
+        $root = 'tests/integration/Core/Framework';
+
+        $xpath = new DOMXPath($dom);
+        foreach ($xpath->query('//testsuite[contains(@name, "core-framework")]/directory | //testsuite[contains(@name, "core")]/file') as $dirDomElement) {
+            $nodes[] = $dirDomElement->nodeValue;
+        }
+
+        foreach ($addedTests as $file) {
+            $filePath = dirname($file->name);
+
+            if ($filePath === $root) {
+                $nodeType = 'file';
+                $filePath = $file->name;
+            } else {
+                $nodeType = 'directory';
+                $filePath = str_replace($root . '/', '', $filePath);
+                $filePath = explode('/', $filePath);
+                $filePath = $root . '/' . current($filePath);
+            }
+
+            $matches = array_filter($nodes, function ($item) use ($filePath) {
+                return str_contains($filePath, $item);
+            });
+            if (empty($matches)) {
+                $missing[] = htmlentities('<' . $nodeType . '>' . $filePath . '</' . $nodeType . '>');
+            }
+        }
+
+        if (\count($missing) > 0) {
+            $context->failure(
+                'Please add the integration test(s) within one of the core-batch testsuite of phpunit.xml.dist: <br/><br/>'
+                . implode('<br/>', array_unique($missing))
+            );
+        }
+    })
+    ->useRule(function (Context $context): void {
+        $routesSnapshot = $context->platform->pullRequest->getFiles()->get('tests/integration/Core/Framework/_snapshots/routes_without_schema/snapshot.json');
+        if (!$routesSnapshot instanceof File) {
+            return;
+        }
+
+        $additions = $routesSnapshot->additions ?? 0;
+        if ($additions !== 0) {
+            $context->failure('Do not extend the `snapshot.json` file. Please create an open API schema for the new endpoint instead.');
         }
     })
 ;

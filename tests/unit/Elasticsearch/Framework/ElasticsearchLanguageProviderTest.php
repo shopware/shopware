@@ -26,17 +26,17 @@ class ElasticsearchLanguageProviderTest extends TestCase
 
         $languageRepository
             ->method('search')
-            ->willReturnCallback(function (Criteria $criteria) {
+            ->willReturnCallback(static function (Criteria $criteria) {
                 static::assertTrue($criteria->hasEqualsFilter('fooo'));
                 $sortings = $criteria->getSorting();
                 static::assertCount(1, $sortings);
-                static::assertEquals('id', $sortings[0]->getField());
+                static::assertSame('id', $sortings[0]->getField());
 
                 return new EntitySearchResult('foo', 0, new LanguageCollection(), null, $criteria, Context::createDefaultContext());
             });
 
         $dispatcher = new EventDispatcher();
-        $dispatcher->addListener(ElasticsearchIndexerLanguageCriteriaEvent::class, function (ElasticsearchIndexerLanguageCriteriaEvent $event): void {
+        $dispatcher->addListener(ElasticsearchIndexerLanguageCriteriaEvent::class, static function (ElasticsearchIndexerLanguageCriteriaEvent $event): void {
             $event->getCriteria()->addFilter(new EqualsFilter('fooo', null));
         });
 

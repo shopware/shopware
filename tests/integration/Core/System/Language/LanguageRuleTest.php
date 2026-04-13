@@ -2,24 +2,19 @@
 
 namespace Shopware\Tests\Integration\Core\System\Language;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\Language\Rule\LanguageRule;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -32,20 +27,23 @@ class LanguageRuleTest extends TestCase
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
+    /**
+     * @var EntityRepository<RuleCollection>
+     */
     private EntityRepository $ruleRepository;
 
+    /**
+     * @var EntityRepository<RuleConditionCollection>
+     */
     private EntityRepository $conditionRepository;
 
     private Context $context;
-
-    private LanguageRule $rule;
 
     protected function setUp(): void
     {
         $this->ruleRepository = static::getContainer()->get('rule.repository');
         $this->conditionRepository = static::getContainer()->get('rule_condition.repository');
         $this->context = Context::createDefaultContext();
-        $this->rule = new LanguageRule();
     }
 
     public function testValidateWithMissingParameters(): void
@@ -80,7 +78,7 @@ class LanguageRuleTest extends TestCase
     public function testValidateWithInvalidLanguageIdsUuid(): void
     {
         try {
-            /** @phpstan-ignore-next-line Intentionally insert invalid languageIds */
+            /** @phpstan-ignore argument.type (for test purpose) */
             $this->createCondition(['operator' => Rule::OPERATOR_EQ, 'languageIds' => ['INVALID-UUID', true, 3]]);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
@@ -158,76 +156,6 @@ class LanguageRuleTest extends TestCase
         );
 
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
-    }
-
-    public function testConstraints(): void
-    {
-        $expectedOperators = [
-            Rule::OPERATOR_EQ,
-            Rule::OPERATOR_NEQ,
-        ];
-
-        $ruleConstraints = $this->rule->getConstraints();
-
-        static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
-        $operators = $ruleConstraints['operator'];
-        static::assertEquals(new NotBlank(), $operators[0]);
-        static::assertEquals(new Choice($expectedOperators), $operators[1]);
-
-        $this->rule->assign(['operator' => Rule::OPERATOR_EQ]);
-        static::assertArrayHasKey('languageIds', $ruleConstraints, 'Constraint languageIds not found in Rule');
-        $languageIds = $ruleConstraints['languageIds'];
-        static::assertEquals(new NotBlank(), $languageIds[0]);
-        static::assertEquals(new ArrayOfUuid(), $languageIds[1]);
-    }
-
-    #[DataProvider('getMatchValues')]
-    public function testRuleMatching(string $operator, bool $isMatching, string $languageId): void
-    {
-        $languageIds = ['kyln123', 'kyln456'];
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$languageId]);
-
-        $salesChannelContext->method('getContext')->willReturn($context);
-        $scope = new CheckoutRuleScope($salesChannelContext);
-        $this->rule->assign(['languageIds' => $languageIds, 'operator' => $operator]);
-
-        $match = $this->rule->match($scope);
-        if ($isMatching) {
-            static::assertTrue($match);
-        } else {
-            static::assertFalse($match);
-        }
-    }
-
-    /**
-     * @return array<string, array{0: string, 1: bool, 2: string}>
-     */
-    public static function getMatchValues(): array
-    {
-        return [
-            'operator_eq / not match / language id' => [Rule::OPERATOR_EQ, false, Uuid::randomHex()],
-            'operator_eq / match / language id' => [Rule::OPERATOR_EQ, true, 'kyln123'],
-            'operator_neq / match / language id' => [Rule::OPERATOR_NEQ, true,  Uuid::randomHex()],
-            'operator_neq / not match / language id' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
-        ];
-    }
-
-    public function testCallingMatchWithoutValueThrowsException(): void
-    {
-        try {
-            $salesChannelContext = $this->createMock(SalesChannelContext::class);
-            $scope = new CheckoutRuleScope($salesChannelContext);
-            $value = null;
-            $rule = new LanguageRule(Rule::OPERATOR_EQ, $value);
-            $rule->match($scope);
-            static::fail('Exception was not thrown');
-        } catch (UnsupportedValueException $exception) {
-            static::assertSame(
-                \sprintf('Unsupported value of type %s in %s', \gettype($value), LanguageRule::class),
-                $exception->getMessage()
-            );
-        }
     }
 
     /**

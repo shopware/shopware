@@ -170,7 +170,7 @@ class ProductBoxCmsElementResolverTest extends TestCase
 
         $product = $productBoxStruct->getProduct();
         static::assertNotNull($product);
-        static::assertEquals($productId, $product->getId());
+        static::assertSame($productId, $product->getId());
     }
 
     #[DataProvider('enrichDataProvider')]

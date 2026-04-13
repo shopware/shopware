@@ -87,11 +87,34 @@ async function createWrapper(propsData) {
                                                 name: 'Buzbach',
                                             },
                                         },
+                                        hash: 'isUnique',
+                                        getEntityName: () => 'customer_address',
+                                    },
+                                    {
+                                        street: 'Denesik Bridge',
+                                        zipcode: '05132',
+                                        city: 'Bernierstad',
+                                        company: 'Muster SE',
+                                        department: 'People & Culture',
+                                        id: '652e9e571cc94bd898077f256dcf6233',
+                                        country: {
+                                            translated: {
+                                                name: 'Buzbach',
+                                            },
+                                        },
+                                        countryState: {
+                                            translated: {
+                                                name: 'NRW',
+                                            },
+                                        },
+                                        hash: 'isDuplicate',
+                                        getEntityName: () => 'customer_address',
                                     },
                                 ]),
                             }),
                         create: () => ({
                             _isNew: true,
+                            getEntityName: () => 'customer_address',
                         }),
                     }),
                 },
@@ -119,6 +142,8 @@ async function createWrapper(propsData) {
                         name: 'NRW',
                     },
                 },
+                hash: 'isDuplicate',
+                getEntityName: () => 'order_address',
             },
             addressId: '38e8895864a649a1b2ec806dad02ab87',
             type: 'billing',
@@ -165,10 +190,6 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to edit address', async () => {
         expect(wrapper.vm.currentAddress).toBeNull();
 
@@ -183,7 +204,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.currentAddress).toEqual({
+        expect(wrapper.vm.currentAddress).toMatchObject({
             street: 'Denesik Bridge',
             zipcode: '05132',
             city: 'Bernierstad',
@@ -200,6 +221,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
                 },
             },
             department: 'People & Culture',
+            hash: 'isDuplicate',
         });
     });
 
@@ -286,7 +308,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
 
         const information = list.findAll('.sw-select-result').at(0).find('.sw-order-address-selection__information');
 
-        expect(list.findAll('.sw-select-result')).toHaveLength(1);
+        expect(list.findAll('.sw-select-result')).toHaveLength(2);
         expect(information.findAll('p').at(1).text()).toBe('Stehr Divide');
         expect(information.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
         expect(information.findAll('p').at(3).text()).toBe('Buzbach');

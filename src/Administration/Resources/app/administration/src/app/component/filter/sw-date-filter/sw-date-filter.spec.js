@@ -66,7 +66,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
             [Criteria.range('releaseDate', { gte: '2021-01-22' })],
-            { from: '2021-01-22', to: null, timeframe: 'custom' },
+            { from: '2021-01-22T00:00:00.000Z', to: null, timeframe: 'custom' },
         ]);
     });
 
@@ -97,7 +97,14 @@ describe('src/app/component/filter/sw-date-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
             [Criteria.range('releaseDate', { gte: '2021-01-19' })],
-            { from: '2021-01-19', to: null, timeframe: 'custom' },
+            { from: '2021-01-19T00:00:00.000Z', to: null, timeframe: 'custom' },
+        ]);
+
+        // [1] is a duplicate emission from sw-date-filter mutating dateValue.from to ISO (triggers sw-range-filter watch again)
+        expect(wrapper.emitted()['filter-update'][1]).toEqual([
+            'releaseDate',
+            [Criteria.range('releaseDate', { gte: '2021-01-19T00:00:00.000Z' })],
+            { from: '2021-01-19T00:00:00.000Z', to: null, timeframe: 'custom' },
         ]);
 
         const toInput = wrapper.find('.sw-date-filter__to').find('input');
@@ -106,16 +113,16 @@ describe('src/app/component/filter/sw-date-filter', () => {
         await toInput.trigger('input');
         await flushPromises();
 
-        expect(wrapper.emitted()['filter-update'][1]).toEqual([
+        expect(wrapper.emitted()['filter-update'][2]).toEqual([
             'releaseDate',
             [
                 Criteria.range('releaseDate', {
-                    gte: '2021-01-19',
+                    gte: '2021-01-19T00:00:00.000Z',
                     lte: '2021-01-25',
                 }),
             ],
             {
-                from: '2021-01-19',
+                from: '2021-01-19T00:00:00.000Z',
                 to: '2021-01-25T23:59:59.000Z',
                 timeframe: 'custom',
             },

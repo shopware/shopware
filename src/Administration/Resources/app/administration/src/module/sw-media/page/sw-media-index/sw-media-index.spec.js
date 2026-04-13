@@ -51,11 +51,6 @@ describe('src/module/sw-media/page/sw-media-index', () => {
         global.activeAclRoles = [];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the default accept value', async () => {
         const wrapper = await createWrapper();
         const fileInput = wrapper.find('sw-media-upload-v2-stub');
@@ -96,5 +91,42 @@ describe('src/module/sw-media/page/sw-media-index', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
+
+    it('refreshes the list when the last upload finishes', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.reloadList = jest.fn();
+        wrapper.vm.uploads = [{ id: 'upload-id' }];
+        wrapper.vm.pendingUploadsCount = 1;
+
+        wrapper.vm.onUploadFinished({ targetId: 'upload-id' });
+
+        expect(wrapper.vm.reloadList).toHaveBeenCalled();
+        expect(wrapper.vm.uploads).toHaveLength(0);
+    });
+
+    it('refreshes the list when the last upload fails', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.reloadList = jest.fn();
+        wrapper.vm.uploads = [{ id: 'upload-id' }];
+        wrapper.vm.pendingUploadsCount = 1;
+
+        wrapper.vm.onUploadFailed({ targetId: 'upload-id' });
+
+        expect(wrapper.vm.reloadList).toHaveBeenCalled();
+        expect(wrapper.vm.uploads).toHaveLength(0);
+    });
+
+    it('does not refresh the list before all uploads are finished', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.reloadList = jest.fn();
+        wrapper.vm.uploads = [{ id: 'upload-id' }];
+        wrapper.vm.pendingUploadsCount = 2;
+
+        wrapper.vm.onUploadFinished({ targetId: 'upload-id' });
+
+        expect(wrapper.vm.reloadList).not.toHaveBeenCalled();
+        expect(wrapper.vm.uploads).toHaveLength(0);
+        expect(wrapper.vm.pendingUploadsCount).toBe(1);
     });
 });

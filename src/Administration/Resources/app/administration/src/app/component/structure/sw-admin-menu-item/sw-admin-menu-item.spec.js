@@ -85,17 +85,6 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         Shopware.Store.get('settingsItems').settingsGroups.system = [];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper({
-            props: {
-                entry: catalogues,
-            },
-        });
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain all menu entries', async () => {
         const wrapper = await createWrapper({
             props: {
@@ -324,7 +313,6 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         });
     });
 
-    // eslint-disable-next-line max-len
     it('should not show the menu entry when all children have privileges the user do not have and the main path is also restricted', async () => {
         const wrapper = await createWrapper({
             privileges: [],
@@ -422,7 +410,6 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         expect(wrapper.html()).toMatchInlineSnapshot('"<!--v-if-->"');
     });
 
-    // eslint-disable-next-line max-len
     it('should show the menu entry when all children have privileges the user do not have but the main path is allowed', async () => {
         const wrapper = await createWrapper({
             privileges: [],

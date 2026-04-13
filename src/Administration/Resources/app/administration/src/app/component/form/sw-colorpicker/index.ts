@@ -1,15 +1,15 @@
 import template from './sw-colorpicker.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  * @status ready
  * @description Wrapper component for sw-colorpicker and mt-colorpicker. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-colorpicker instead.
  */
-Component.register('sw-colorpicker', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
@@ -29,6 +29,12 @@ Component.register('sw-colorpicker', {
             type: Number,
             required: false,
             default: undefined,
+        },
+
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -51,8 +57,6 @@ Component.register('sw-colorpicker', {
 
     methods: {
         getSlots() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots;
         },
     },

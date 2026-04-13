@@ -24,23 +24,23 @@ class MetadataTest extends TestCase
     public function testFromXml(): void
     {
         $metaData = $this->manifest->getMetadata();
-        static::assertEquals('test', $metaData->getName());
-        static::assertEquals('shopware AG', $metaData->getAuthor());
-        static::assertEquals('(c) by shopware AG', $metaData->getCopyright());
-        static::assertEquals('MIT', $metaData->getLicense());
-        static::assertEquals('https://test.com/privacy', $metaData->getPrivacy());
-        static::assertEquals('1.0.0', $metaData->getVersion());
-        static::assertEquals('icon.png', $metaData->getIcon());
+        static::assertSame('test', $metaData->getName());
+        static::assertSame('shopware AG', $metaData->getAuthor());
+        static::assertSame('(c) by shopware AG', $metaData->getCopyright());
+        static::assertSame('MIT', $metaData->getLicense());
+        static::assertSame('https://test.com/privacy', $metaData->getPrivacy());
+        static::assertSame('1.0.0', $metaData->getVersion());
+        static::assertSame('icon.png', $metaData->getIcon());
 
-        static::assertEquals([
+        static::assertSame([
             'en-GB' => 'Swag App Test',
             'de-DE' => 'Swag App Test',
         ], $metaData->getLabel());
-        static::assertEquals([
+        static::assertSame([
             'en-GB' => 'Test for App System',
             'de-DE' => 'Test für das App System',
         ], $metaData->getDescription());
-        static::assertEquals([
+        static::assertSame([
             'en-GB' => 'Following personal information will be processed on shopware AG\'s servers:
 
 - Name
@@ -60,14 +60,14 @@ class MetadataTest extends TestCase
 
         $metaData = $manifest->getMetadata();
 
-        static::assertEquals([
+        static::assertSame([
             'en-GB' => 'Swag App Test',
             'de-DE' => 'Swag App Test',
         ], $metaData->getLabel());
-        static::assertEquals([], $metaData->getDescription());
+        static::assertSame([], $metaData->getDescription());
 
         $array = $metaData->toArray('en-GB');
-        static::assertEquals([], $array['description']);
+        static::assertSame([], $array['description']);
     }
 
     public function testValidateTranslationsReturnsMissingTranslationErrorIfTranslationIsMissing(): void
@@ -76,7 +76,7 @@ class MetadataTest extends TestCase
         $error = $manifest->getMetadata()->validateTranslations();
 
         static::assertInstanceOf(MissingTranslationError::class, $error);
-        static::assertEquals('Missing translations for "Metadata":
+        static::assertSame('Missing translations for "Metadata":
 - label: de-DE, fr-FR', $error->getMessage());
     }
 

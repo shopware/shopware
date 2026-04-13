@@ -38,12 +38,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-settings-currency/component/sw-settings-currency-country-modal', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should disable already assigned countries', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({

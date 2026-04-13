@@ -4,7 +4,9 @@ namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\ConditionTypeNotFound;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Event\AppScriptConditionEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -29,7 +31,8 @@ class RulePayloadUpdater implements EventSubscriberInterface
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly RuleConditionRegistry $ruleConditionRegistry
+        private readonly RuleConditionRegistry $ruleConditionRegistry,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -57,12 +60,13 @@ class RulePayloadUpdater implements EventSubscriberInterface
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        /** @var array<array<string>> $rules $rules */
+        /** @var array<string, list<array<string, string>>> */
         $rules = FetchModeHelper::group($conditions);
 
+        $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $update = new RetryableQuery(
             $this->connection,
-            $this->connection->prepare('UPDATE `rule` SET payload = :payload, invalid = :invalid WHERE id = :id')
+            $this->connection->prepare('UPDATE `rule` SET payload = :payload, invalid = :invalid, updated_at = :updatedAt WHERE id = :id')
         );
 
         $updated = [];
@@ -84,6 +88,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
                     'id' => Uuid::fromHexToBytes($id),
                     'payload' => $serialized,
                     'invalid' => (int) $invalid,
+                    'updatedAt' => $now,
                 ]);
             }
 
@@ -113,7 +118,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, mixed> $rules
+     * @param list<array<string, mixed>> $rules
      *
      * @return list<Rule>
      */

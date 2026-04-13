@@ -25,7 +25,9 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 #[CoversClass(SalesChannelUserConfigSubscriber::class)]
 class SalesChannelUserConfigSubscriberTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<UserConfigCollection> */
+    /**
+     * @var MockObject&EntityRepository<UserConfigCollection>
+     */
     private MockObject&EntityRepository $userConfigRepository;
 
     private SalesChannelUserConfigSubscriber $salesChannelUserConfigSubscriber;
@@ -38,7 +40,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             SalesChannelEvents::SALES_CHANNEL_DELETED => 'onSalesChannelDeleted',
         ], $this->salesChannelUserConfigSubscriber->getSubscribedEvents());
     }

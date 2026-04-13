@@ -64,12 +64,20 @@
 
         <span v-if="isInstalled">
             {{ $tc('sw-extension-store.component.sw-extension-card-base.installedLabel') }}
-            {{ dateFilter(extension.installedAt.date, { month: 'numeric', year: 'numeric', hour: undefined, minute: undefined }) }}
+            <sw-time-ago
+                v-if="extension.installedAt.date"
+                :date="extension.installedAt.date"
+                :date-time-format="{ month: '2-digit', day: '2-digit' }"
+            />
         </span>
 
         <span v-else-if="extension.storeLicense">
             {{ $tc('sw-extension-store.component.sw-extension-card-base.purchasedLabel') }}
-            {{ dateFilter(extension.storeLicense.creationDate, { month: 'numeric', year: 'numeric', hour: undefined, minute: undefined }) }}
+            <sw-time-ago
+                v-if="extension.storeLicense.creationDate"
+                :date="extension.storeLicense.creationDate"
+                :date-time-format="{ month: '2-digit', day: '2-digit' }"
+            />
         </span>
     </div>
 

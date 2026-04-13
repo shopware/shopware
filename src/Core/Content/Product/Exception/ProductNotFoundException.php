@@ -2,28 +2,21 @@
 
 namespace Shopware\Core\Content\Product\Exception;
 
+use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('inventory')]
-class ProductNotFoundException extends ShopwareHttpException
+class ProductNotFoundException extends ProductException
 {
     public function __construct(string $productId)
     {
         parent::__construct(
-            'Product for id {{ productId }} not found.',
-            ['productId' => $productId]
+            Response::HTTP_NOT_FOUND,
+            Feature::isActive('v6.8.0.0') ? self::PRODUCT_NOT_FOUND : 'CONTENT__PRODUCT_NOT_FOUND',
+            self::$couldNotFindMessage,
+            ['entity' => 'product', 'field' => 'id', 'value' => $productId]
         );
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'CONTENT__PRODUCT_NOT_FOUND';
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_NOT_FOUND;
     }
 }

@@ -22,8 +22,7 @@ class FakeConnection extends Connection
      *
      * @throws Exception
      *
-     * @phpstan-ignore-next-line DBAL Connection uses psalm-consistent-constructor annotation,
-     * therefore deriving classes should not change the constructor args, as we are in tests we ignore the error
+     * @phpstan-ignore parameter.missing, parameter.missing
      */
     public function __construct(private readonly array $dbRows)
     {
@@ -41,8 +40,18 @@ class FakeConnection extends Connection
         return FakeResultFactory::createResult($this->dbRows, $this);
     }
 
+    public function update(string $table, array $data, array $criteria = [], array $types = []): int|string
+    {
+        return 1;
+    }
+
     public function createQueryBuilder(): QueryBuilder|FakeQueryBuilder
     {
         return new FakeQueryBuilder($this, $this->dbRows);
+    }
+
+    public function transactional(\Closure $func): mixed
+    {
+        return $func($this);
     }
 }

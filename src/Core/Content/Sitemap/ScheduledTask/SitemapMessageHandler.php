@@ -16,16 +16,16 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler]
 #[Package('discovery')]
-final class SitemapMessageHandler
+final readonly class SitemapMessageHandler
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        private readonly SitemapExporterInterface $sitemapExporter,
-        private readonly LoggerInterface $logger,
-        private readonly SystemConfigService $systemConfigService,
+        private AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        private SitemapExporterInterface $sitemapExporter,
+        private LoggerInterface $logger,
+        private SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -45,10 +45,10 @@ final class SitemapMessageHandler
             return;
         }
 
-        $context = $this->salesChannelContextFactory->create('', $message->getLastSalesChannelId(), [SalesChannelContextService::LANGUAGE_ID => $message->getLastLanguageId()]);
+        $salesChannelContext = $this->salesChannelContextFactory->create('', $message->getLastSalesChannelId(), [SalesChannelContextService::LANGUAGE_ID => $message->getLastLanguageId()]);
 
         try {
-            $this->sitemapExporter->generate($context, true, $message->getLastProvider(), $message->getNextOffset());
+            $this->sitemapExporter->generate($salesChannelContext, true, $message->getLastProvider(), $message->getNextOffset());
         } catch (AlreadyLockedException $exception) {
             $this->logger->error(\sprintf('ERROR: %s', $exception->getMessage()));
         }

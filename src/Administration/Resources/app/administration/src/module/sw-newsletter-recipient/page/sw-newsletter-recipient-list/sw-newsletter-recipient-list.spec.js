@@ -6,9 +6,29 @@ import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
+const mockNewsletterRecipient = [
+    {
+        email: 'test@example.com',
+        firstName: 'Max',
+        lastName: 'Mustermann',
+        status: 'direct',
+        createdAt: '2020-09-23T11:42:12.104+00:00',
+        id: '1',
+    },
+    {
+        email: 'second@recipient.com',
+        firstName: 'Second',
+        lastName: 'Recipient',
+        status: 'direct',
+        id: '2',
+        createdAt: '2020-09-23T11:00:12.104+00:00',
+    },
+];
+
 function mockApiCall(type) {
     switch (type) {
-        case 'language' || 'languageFilters':
+        case 'language':
+        case 'languageFilters':
             return [
                 {
                     localeId: '575d2f35a8144b79beefe70e158eb03e',
@@ -19,30 +39,24 @@ function mockApiCall(type) {
                     id: '25c6e7681c334d0caebae74c382c68e1',
                 },
             ];
-        case 'newsletter_recipient':
-            return [
-                {
-                    email: 'test@example.com',
-                    title: null,
-                    firstName: 'Max',
-                    lastName: 'Mustermann',
-                    zipCode: '48624',
-                    city: 'Schöppingen',
-                    street: null,
-                    status: 'direct',
-                    hash: 'c225f2cc023946679c4e0d9189375402',
-                    confirmedAt: null,
-                    salutationId: 'fd04f0ca555143ab9f28294699f7384b',
-                    languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-                    salesChannelId: '7b872c384b254613b5a4bd5c8b965bab',
-                    createdAt: '2020-09-23T11:42:12.104+00:00',
-                    updatedAt: '2020-09-23T13:27:01.436+00:00',
-                    apiAlias: null,
-                    id: '92618290af63445b973cc1021d60e3f5',
-                    salesChannel: {},
+        case 'newsletter_recipient': {
+            const data = mockNewsletterRecipient;
+            data.total = data.length;
+            data.criteria = {
+                limit: 25,
+                page: 1,
+                sortings: [],
+                filters: [],
+                associations: [],
+                resetSorting() {
+                    this.sortings = [];
                 },
-            ];
-
+                addSorting(sorting) {
+                    this.sortings.push(sorting);
+                },
+            };
+            return data;
+        }
         case 'sales_channel':
             return [
                 {
@@ -63,6 +77,21 @@ function mockApiCall(type) {
                     id: '7b872c384b254613b5a4bd5c8b965bab',
                 },
             ];
+        case 'tag':
+            return [
+                {
+                    id: '019a7d9f8ea171aaab00637a71b07bb7',
+                    name: 'Tag 1',
+                },
+                {
+                    id: '019a7d9f8ea171aaab00637a71b07cc8',
+                    name: 'Tag 2',
+                },
+                {
+                    id: '019a7d9f8ea171aaab00637a71b07dd9',
+                    name: 'Tag 3',
+                },
+            ];
         default:
             throw new Error(`no data for ${type} available`);
     }
@@ -79,8 +108,21 @@ class MockRepositoryFactory {
         });
     }
 }
+const searchSpy = jest.fn(() => Promise.resolve(mockApiCall('newsletter_recipient')));
 
-async function createWrapper() {
+async function createWrapper(options = {}, customStubs = {}) {
+    const { useSearchSpy = false } = options;
+
+    const repositoryFactory = useSearchSpy
+        ? {
+              create: jest.fn(() => ({
+                  search: searchSpy,
+              })),
+          }
+        : {
+              create: (type) => new MockRepositoryFactory(type),
+          };
+
     return mount(await wrapTestComponent('sw-newsletter-recipient-list', { sync: true }), {
         global: {
             stubs: {
@@ -89,12 +131,10 @@ async function createWrapper() {
                 },
                 'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"></div>',
-                },
                 'sw-entity-listing': {
                     props: [
                         'items',
+                        'dataSource',
                         'allowView',
                         'allowEdit',
                         'allowDelete',
@@ -107,7 +147,7 @@ async function createWrapper() {
                     },
                     template: `
                     <div>
-                    <template v-for="item in items">
+                    <template v-for="item in (dataSource || items)">
 
                         <template slot="column-firstName" slot-scope="{ item, compact, isInlineEdit }">
 
@@ -141,6 +181,8 @@ async function createWrapper() {
                     </template>
                     </div>`,
                 },
+                'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
+                'sw-provide': await wrapTestComponent('sw-provide', { sync: true }),
                 'sw-container': true,
                 'sw-loader': true,
                 'sw-search-bar': true,
@@ -148,15 +190,22 @@ async function createWrapper() {
                 'sw-label': true,
                 'router-link': true,
                 'sw-sidebar-item': true,
-                'sw-newsletter-recipient-filter-switch': true,
                 'sw-sidebar-collapse': true,
                 'sw-entity-multi-select': true,
                 'sw-sidebar': true,
+                'sw-time-ago': true,
+                'sw-pagination': true,
+                'sw-bulk-edit-modal': true,
+                'sw-context-button': true,
+                'sw-data-grid-column-boolean': true,
+                'sw-data-grid-inline-edit': true,
+                'sw-button-group': true,
+                'sw-context-menu-divider': true,
+                'sw-data-grid-skeleton': true,
+                ...customStubs,
             },
             provide: {
-                repositoryFactory: {
-                    create: (type) => new MockRepositoryFactory(type),
-                },
+                repositoryFactory,
                 searchRankingService: {
                     getSearchFieldsByEntity: () => {
                         return Promise.resolve({
@@ -166,13 +215,25 @@ async function createWrapper() {
                     buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                         return criteria;
                     },
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
+            },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
                 },
             },
         },
     });
 }
 
-describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
+describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
     });
@@ -300,11 +361,9 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('.sw-empty-state');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 
@@ -314,6 +373,43 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     it('should return filters from filter registry', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
+    });
+
+    it('should sort by firstName when clicking the name column', async () => {
+        const wrapper = await createWrapper(
+            { useSearchSpy: true },
+            {
+                'sw-entity-listing': await wrapTestComponent('sw-entity-listing', { sync: true }),
+            },
+        );
+        await wrapper.setData({
+            disableRouteParams: true,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--firstName div').text()).toBe(
+            `${mockNewsletterRecipient[0].firstName} ${mockNewsletterRecipient[0].lastName}`,
+        );
+
+        searchSpy.mockClear();
+        searchSpy.mockResolvedValueOnce([
+            mockNewsletterRecipient[1],
+            mockNewsletterRecipient[0],
+        ]);
+
+        await wrapper.find('.sw-data-grid__cell--1').trigger('click');
+        await wrapper.setData({
+            total: 2,
+        });
+        await flushPromises();
+
+        expect(searchSpy).toHaveBeenCalledTimes(1);
+        expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--firstName div').text()).toBe(
+            `${mockNewsletterRecipient[1].firstName} ${mockNewsletterRecipient[1].lastName}`,
+        );
     });
 });

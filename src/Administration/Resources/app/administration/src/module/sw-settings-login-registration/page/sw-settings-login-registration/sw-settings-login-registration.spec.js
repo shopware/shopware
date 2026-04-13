@@ -68,10 +68,6 @@ describe('module/sw-settings-login-registration/page/sw-settings-login-registrat
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the settings card system', async () => {
         await wrapper.vm.$nextTick();
         expect(

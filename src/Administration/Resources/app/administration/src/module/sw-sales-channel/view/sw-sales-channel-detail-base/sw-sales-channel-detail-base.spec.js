@@ -19,7 +19,9 @@ responses.addResponse({
     },
 });
 
-async function createWrapper() {
+async function createWrapper(options = {}) {
+    const { props = {}, provide = {} } = options;
+
     return mount(await wrapTestComponent('sw-sales-channel-detail-base', { sync: true }), {
         global: {
             stubs: {
@@ -42,15 +44,25 @@ async function createWrapper() {
                 'sw-help-text': true,
                 'sw-sales-channel-detail-hreflang': true,
                 'sw-sales-channel-detail-domains': true,
+                'sw-agentic-commerce-tracking-config': true,
                 'sw-category-tree-field': true,
                 'mt-select': true,
                 'sw-custom-field-set-renderer': true,
+                'sw-form-field-renderer': true,
+                'mt-banner': true,
+                'sw-sales-channel-measurement': true,
+                'sw-time-ago': true,
             },
             provide: {
                 salesChannelService: {},
                 productExportService: {},
                 knownIpsService: {
                     getKnownIps: () => Promise.resolve(),
+                },
+                systemConfigApiService: {
+                    getConfig: () => Promise.resolve([]),
+                    getValues: () => Promise.resolve({}),
+                    saveValues: () => Promise.resolve(),
                 },
                 repositoryFactory: {
                     create: () => ({
@@ -65,12 +77,18 @@ async function createWrapper() {
                         },
                     }),
                 },
+                ...provide,
+            },
+            mocks: {
+                $t: jest.fn().mockImplementation((snippet) => snippet),
+                $router: { resolve: () => ({ href: '/sw/settings/payment/overview' }) },
             },
         },
         props: {
             salesChannel: {},
             productExport: {},
             customFieldSets: [],
+            ...props,
         },
     });
 }
@@ -1000,7 +1018,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     it('should return filters from filter registry', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
     });
 
     it('"changeInterval" also updates cronjob config', async () => {
@@ -1045,5 +1066,495 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         expect(wrapper.vm.cliCommand).toBe('php bin/console product-export:generate sc-id export-id');
+    });
+
+    it('should build unserved languages alert with correct pluralization for single item', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            {
+                name: 'English',
+            },
+        ];
+
+        const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
+        const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                list: 'English',
+            },
+            1,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build unserved languages alert with correct pluralization for multiple items', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            {
+                name: 'English',
+            },
+            {
+                name: 'German',
+            },
+        ];
+
+        const snippet = 'sw-sales-channel.detail.warningUnservedLanguage';
+        const result = wrapper.vm.buildUnservedLanguagesAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                list: 'English, German',
+            },
+            2,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build payment alert with correct pluralization for single item', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            { translated: { name: 'PayPal|Invoice' } },
+        ];
+
+        const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
+
+        const result = wrapper.vm.buildDisabledPaymentAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                separatedList: '<span>PayPal&vert;Invoice</span>',
+                paymentSettingsLink: '/sw/settings/payment/overview',
+            },
+            1,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build payment alert with correct pluralization for multiple items', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            { translated: { name: 'PayPal|Invoice' } },
+            { translated: { name: 'Cash on delivery' } },
+        ];
+
+        const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
+
+        const result = wrapper.vm.buildDisabledPaymentAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                separatedList: '<span>PayPal&vert;Invoice</span>, <span>Cash on delivery</span>',
+                paymentSettingsLink: '/sw/settings/payment/overview',
+            },
+            2,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build shipping alert with correct pluralization for single item', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            { translated: { name: 'Standard' } },
+        ];
+        collection.first = () => collection[0];
+        collection.last = () => collection[0];
+
+        const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
+        const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                name: 'Standard',
+                addition: 'Standard',
+            },
+            1,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should build shipping alert with correct pluralization for multiple items', async () => {
+        const wrapper = await createWrapper();
+        const collection = [
+            { translated: { name: 'Standard' } },
+            { translated: { name: 'Express' } },
+        ];
+        collection.first = () => collection[0];
+        collection.last = () => collection[1];
+
+        const snippet = 'sw-sales-channel.detail.warningDisabledShippingMethod';
+        const result = wrapper.vm.buildDisabledShippingAlert(snippet, collection);
+
+        expect(wrapper.vm.$t).toHaveBeenCalledWith(
+            snippet,
+            {
+                name: 'Standard',
+                addition: 'Express',
+            },
+            2,
+        );
+
+        expect(result).toBe(snippet);
+    });
+
+    it('should return disabledCountryVariant "attention" if the sales channel country is in the disabled countries list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                countryId: 'DE',
+                countries: [{ id: 'DE', active: false }],
+            },
+        });
+
+        expect(wrapper.vm.disabledCountryVariant).toBe('attention');
+
+        const banner = wrapper.get('mt-banner-stub');
+        expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should return disabledCountryVariant "info" if the sales channel country is NOT in the disabled countries list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                countryId: 'DE',
+                countries: [{ id: 'DE', active: true }],
+            },
+        });
+
+        expect(wrapper.vm.disabledCountryVariant).toBe('info');
+    });
+
+    it('should return disabledPaymentMethodVariant "attention" if the sales channel payment method is in the disabled payment methods list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                paymentMethodId: 'pm-1',
+                paymentMethods: [{ id: 'pm-1', active: false }],
+            },
+        });
+
+        expect(wrapper.vm.disabledPaymentMethodVariant).toBe('attention');
+
+        const banner = wrapper.get('mt-banner-stub');
+        expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should return disabledPaymentMethodVariant "info" if the sales channel payment method is NOT in the disabled payment methods list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                paymentMethodId: 'pm-1',
+                paymentMethods: [{ id: 'pm-1', active: true }],
+            },
+        });
+
+        expect(wrapper.vm.disabledPaymentMethodVariant).toBe('info');
+    });
+
+    it('should return disabledShippingMethodVariant "attention" if the sales channel shipping method is in the disabled shipping methods list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                shippingMethodId: 'sm-1',
+                shippingMethods: [{ id: 'sm-1', active: false }],
+            },
+        });
+
+        expect(wrapper.vm.disabledShippingMethodVariant).toBe('attention');
+
+        const banner = wrapper.get('mt-banner-stub');
+        expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should return disabledShippingMethodVariant "info" if the sales channel shipping method is NOT in the disabled shipping methods list', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                shippingMethodId: 'sm-1',
+                shippingMethods: [{ id: 'sm-1', active: true }],
+            },
+        });
+
+        expect(wrapper.vm.disabledShippingMethodVariant).toBe('info');
+    });
+
+    it('should return unservedLanguageVariant "attention" if the sales channel language is NOT served by any domain', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                languageId: 'language-1',
+                languages: [{ id: 'language-1' }],
+                domains: [], // no domain serves the language
+            },
+        });
+
+        expect(wrapper.vm.unservedLanguageVariant).toBe('attention');
+
+        const banner = wrapper.get('mt-banner-stub');
+        expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should return unservedLanguageVariant "info" if the sales channel language IS served by a domain', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                languageId: 'language-1',
+                languages: [{ id: 'language-1' }],
+                domains: [{ languageId: 'language-1' }],
+            },
+        });
+
+        expect(wrapper.vm.unservedLanguageVariant).toBe('info');
+    });
+
+    it('should render agentic commerce export config from injected fallback when prop is not forwarded', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                },
+            },
+            provide: {
+                swSalesChannelDetailGetAgenticCommerceExportConfig: () => [
+                    {
+                        provider: 'open-ai',
+                        elements: [
+                            {
+                                name: 'core.openAiProductExport.returnPolicyUrl',
+                                type: 'text',
+                                config: {
+                                    label: 'Return policy URL',
+                                },
+                            },
+                        ],
+                        values: {},
+                        isLoading: false,
+                    },
+                ],
+            },
+        });
+
+        expect(wrapper.vm.isAgenticCommerce).toBe(true);
+        expect(wrapper.vm.resolvedAgenticCommerceExportConfig).toHaveLength(1);
+
+        const card = wrapper.get(
+            'div.mt-card[position-identifier="sw-sales-channel-detail-base-agentic-commerce-export-config-open-ai"]',
+        );
+        expect(card.exists()).toBe(true);
+        expect(wrapper.findAll('sw-form-field-renderer-stub')).toHaveLength(1);
+    });
+
+    it('should not require a theme when activating an agentic commerce sales channel', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                active: true,
+                typeId: Shopware.Defaults.agenticCommerceTypeId,
+            },
+        });
+
+        wrapper.vm.salesChannelRepository.get = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        wrapper.vm.onToggleActive();
+
+        expect(wrapper.vm.salesChannelRepository.get).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).not.toHaveBeenCalled();
+    });
+
+    it('should not report unserved languages for product export channels', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                typeId: PRODUCT_COMPARISON_TYPE_ID,
+                languageId: 'language-1',
+                languages: [{ id: 'language-1', name: 'English' }],
+                domains: [],
+            },
+        });
+
+        expect(wrapper.vm.unservedLanguages).toEqual([]);
+        expect(wrapper.find('mt-banner-stub').exists()).toBe(false);
+    });
+
+    it('should handle error if sales channel cannot be deleted due to foreign key constraint issues', async () => {
+        const wrapper = await createWrapper();
+
+        const deleteError = {
+            response: {
+                data: {
+                    errors: [
+                        {
+                            code: '1451',
+                            detail: 'Integrity constraint violation: 1451 - Cannot delete or update a parent row: a foreign key constraint fails (`test`.`order`, CONSTRAINT `fk.order.sales_channel_id` FOREIGN KEY (`sales_channel_id`) REFERENCES `sales_channel` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE)',
+                        },
+                    ],
+                },
+            },
+        };
+
+        wrapper.vm.salesChannelRepository.delete = jest.fn().mockRejectedValue(deleteError);
+        wrapper.vm.$t = jest
+            .fn()
+            .mockReturnValueOnce('Orders')
+            .mockReturnValueOnce('sw-sales-channel.detail.foreignKeyDelete');
+
+        wrapper.vm.createNotificationError = jest.fn();
+
+        const result = await wrapper.vm.deleteSalesChannel('test-id');
+
+        expect(wrapper.vm.salesChannelRepository.delete).toHaveBeenCalledWith('test-id', Shopware.Context.api);
+        expect(wrapper.vm.$t.mock.calls).toEqual([
+            [
+                'global.entities.order',
+                0,
+            ],
+            [
+                'sw-sales-channel.detail.foreignKeyDelete',
+                { assignment: 'orders' },
+            ],
+        ]);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-sales-channel.detail.foreignKeyDelete',
+        });
+        expect(result).toBe(false);
+    });
+
+    it('should handle delete confirmation and navigate on success', async () => {
+        const wrapper = await createWrapper();
+        const mockPush = jest.fn();
+
+        wrapper.vm.$router = { push: mockPush };
+        wrapper.vm.$nextTick = jest.fn().mockImplementation((callback) => callback());
+        wrapper.vm.deleteSalesChannel = jest.fn().mockResolvedValue(true);
+
+        await wrapper.setProps({
+            salesChannel: { id: 'test-id' },
+        });
+
+        wrapper.vm.onConfirmDelete();
+        await flushPromises();
+
+        expect(wrapper.vm.showDeleteModal).toBe(false);
+        expect(wrapper.vm.deleteSalesChannel).toHaveBeenCalledWith('test-id');
+        expect(mockPush).toHaveBeenCalledWith({ name: 'sw.dashboard.index' });
+    });
+
+    it('should handle delete confirmation without navigation on failure', async () => {
+        const wrapper = await createWrapper();
+        const mockPush = jest.fn();
+
+        wrapper.vm.$router = { push: mockPush };
+        wrapper.vm.$nextTick = jest.fn().mockImplementation((callback) => callback());
+        wrapper.vm.deleteSalesChannel = jest.fn().mockResolvedValue(false);
+
+        await wrapper.setProps({
+            salesChannel: { id: 'test-id' },
+        });
+
+        wrapper.vm.onConfirmDelete();
+        await flushPromises();
+
+        expect(wrapper.vm.showDeleteModal).toBe(false);
+        expect(wrapper.vm.deleteSalesChannel).toHaveBeenCalledWith('test-id');
+        expect(mockPush).not.toHaveBeenCalled();
+    });
+
+    it('should render tracking config component for agentic commerce sales channel', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                    configuration: {},
+                },
+            },
+        });
+
+        expect(wrapper.find('sw-agentic-commerce-tracking-config-stub').exists()).toBe(true);
+    });
+
+    it('should not render tracking config component for non-agentic commerce sales channel', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID,
+                },
+            },
+        });
+
+        expect(wrapper.find('sw-agentic-commerce-tracking-config-stub').exists()).toBe(false);
+    });
+
+    it('should pass disabled state to tracking config component when user lacks editor permission', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                    configuration: {},
+                },
+            },
+            provide: {
+                acl: {
+                    can: (permission) => permission !== 'sales_channel.editor',
+                },
+            },
+        });
+
+        const trackingConfig = wrapper.find('sw-agentic-commerce-tracking-config-stub');
+        expect(trackingConfig.exists()).toBe(true);
+        expect(trackingConfig.attributes('disabled')).toBeDefined();
+    });
+
+    it('should update salesChannel.configuration when onTrackingConfigChange is called', async () => {
+        const salesChannel = {
+            typeId: Shopware.Defaults.agenticCommerceTypeId,
+            configuration: {},
+        };
+        const wrapper = await createWrapper({ props: { salesChannel } });
+
+        const newConfig = { affiliateCode: 'aff-123', campaignCode: 'camp-456' };
+        wrapper.vm.onTrackingConfigChange(newConfig);
+
+        expect(wrapper.vm.salesChannel.configuration).toEqual(newConfig);
+    });
+
+    it('should reset salesChannelDomainId when storefront sales channel changes', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: PRODUCT_COMPARISON_TYPE_ID,
+                },
+                productExport: {
+                    salesChannelDomainId: 'old-domain-id',
+                    salesChannelDomain: { id: 'old-domain-id' },
+                    storefrontSalesChannelId: 'old-sales-channel-id',
+                },
+            },
+        });
+
+        wrapper.vm.onStorefrontSelectionChange('new-sales-channel-id');
+
+        expect(wrapper.vm.productExport.salesChannelDomainId).toBeNull();
+        expect(wrapper.vm.productExport.salesChannelDomain).toBeNull();
     });
 });

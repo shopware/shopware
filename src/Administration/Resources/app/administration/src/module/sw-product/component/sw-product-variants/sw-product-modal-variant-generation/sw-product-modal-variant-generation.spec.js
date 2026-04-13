@@ -210,6 +210,9 @@ async function createWrapper() {
                         buildSearchQueriesForEntity: () => {
                             return null;
                         },
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
                     },
                     mediaService: {
                         getDefaultFolderId: () => {
@@ -240,12 +243,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 },
             };
         });
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should remove file for all variants', async () => {
@@ -347,6 +344,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: '1',
                         downloads: [],
                         productStates: ['is-download'],
+                        type: 'digital',
                         options: [
                             {
                                 entity: {
@@ -359,6 +357,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: '2',
                         downloads: [],
                         productStates: ['is-download'],
+                        type: 'digital',
                         options: [
                             {
                                 entity: {
@@ -371,6 +370,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: '3',
                         downloads: [],
                         productStates: ['is-download'],
+                        type: 'digital',
                         options: [
                             {
                                 entity: {
@@ -383,6 +383,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: '4',
                         downloads: [],
                         productStates: ['is-download'],
+                        type: 'digital',
                         options: [
                             {
                                 entity: {
@@ -405,6 +406,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '1',
                 downloads: [],
                 productStates: ['is-download'],
+                type: 'digital',
                 options: [
                     {
                         entity: {
@@ -417,6 +419,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '2',
                 downloads: [],
                 productStates: ['is-download'],
+                type: 'digital',
                 options: [
                     {
                         entity: {
@@ -437,6 +440,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '3',
                 downloads: [],
                 productStates: ['is-download'],
+                type: 'digital',
                 options: [
                     {
                         entity: {
@@ -449,6 +453,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '4',
                 downloads: [],
                 productStates: ['is-download'],
+                type: 'digital',
                 options: [
                     {
                         entity: {
@@ -470,6 +475,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: '1',
                         downloads: [],
                         productStates: ['is-download'],
+                        type: 'digital',
                         options: [
                             {
                                 entity: {
@@ -482,6 +488,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: '2',
                         downloads: [],
                         productStates: ['is-download'],
+                        type: 'digital',
                         options: [
                             {
                                 entity: {
@@ -501,6 +508,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '1',
                 downloads: [],
                 productStates: ['is-download'],
+                type: 'digital',
                 options: [
                     {
                         entity: {
@@ -521,6 +529,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     {
                         id: 'random-id',
                         productStates: ['is-download'],
+                        type: 'digital',
                         downloads: [],
                         options: [],
                     },
@@ -550,6 +559,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             {
                 id: 'random-id',
                 productStates: ['is-download'],
+                type: 'digital',
                 downloads: [
                     {
                         id: 'random-id',
@@ -596,6 +606,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     {
                         id: 'random-id',
                         productStates: ['is-download'],
+                        type: 'digital',
                         downloads: [
                             {
                                 id: 'example-id',
@@ -622,6 +633,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     {
                         id: 'random-id',
                         productStates: ['is-download'],
+                        type: 'digital',
                         downloads: [],
                         options: [],
                     },
@@ -638,12 +650,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            productRepository: {
-                save: jest.fn().mockReturnValueOnce(Promise.resolve({})),
-            },
-        });
-
-        await wrapper.setData({
             variantGenerationQueue: {
                 createQueue: [
                     {
@@ -654,6 +660,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                             },
                         ],
                         productStates: ['is-download'],
+                        type: 'digital',
                         options: [],
                     },
                 ],
@@ -662,6 +669,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: 'delete-id',
                     },
                 ],
+            },
+            variantsGenerator: {
+                ...wrapper.vm.variantsGenerator,
+                saveVariants: () => Promise.resolve(),
+                saveConfiguratorSettings: () => Promise.resolve(),
             },
         });
 
@@ -679,9 +691,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            productRepository: {
-                save: jest.fn().mockReturnValueOnce(Promise.resolve({})),
-            },
             variantGenerationQueue: {
                 createQueue: [
                     {
@@ -692,6 +701,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                             },
                         ],
                         productStates: ['is-download'],
+                        type: 'digital',
                         options: [],
                     },
                 ],
@@ -704,6 +714,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             variantsGenerator: {
                 generateVariants: () => Promise.resolve(),
                 saveVariants: () => Promise.resolve(),
+                saveConfiguratorSettings: () => Promise.resolve(),
             },
         });
         await wrapper.vm.$nextTick();
@@ -762,7 +773,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
 
         const wrapper = await createWrapper();
         wrapper.vm.product.configuratorSettings = configuratorSetting;
-        wrapper.vm.productRepository.save = jest.fn().mockReturnValueOnce(Promise.resolve({}));
 
         wrapper.vm.optionRepository.search = jest.fn().mockReturnValueOnce(Promise.resolve(configuratorSetting));
 
@@ -825,7 +835,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
 
     it('should show variant generation step without any to create', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.productRepository.save = jest.fn().mockReturnValueOnce(Promise.resolve({}));
         wrapper.vm.variantsGenerator.filterVariations = jest.fn().mockReturnValueOnce(
             Promise.resolve({
                 deleteQueue: [],
@@ -914,6 +923,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 ],
                 downloads: [],
                 productStates: [],
+                type: 'physical',
             },
             {
                 id: '2',
@@ -926,6 +936,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 ],
                 downloads: [],
                 productStates: ['is-download'],
+                type: 'digital',
             },
         ];
 
@@ -950,7 +961,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         wrapper.vm.onTermChange('');
 
         items[0].productStates = ['is-download'];
+        items[0].type = 'digital';
         items[1].productStates = [];
+        items[1].type = 'physical';
         expect(wrapper.vm.paginatedVariantArray).toEqual(items);
         expect(wrapper.vm.paginatedVariantArray[0].downloads).toContainEqual(file);
     });
@@ -968,6 +981,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 ],
                 downloads: [],
                 productStates: ['is-download'],
+                type: 'digital',
             },
             {
                 id: '2',
@@ -980,6 +994,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 ],
                 downloads: [],
                 productStates: ['is-download'],
+                type: 'digital',
             },
         ];
         const file = {
@@ -1022,6 +1037,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 ],
                 downloads: [],
                 productStates: [],
+                type: 'physical',
             },
         ];
 
@@ -1041,6 +1057,77 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
 
         wrapper.vm.onChangeVariantValue(true, items[0]);
         expect(wrapper.vm.variantGenerationQueue.createQueue[0].downloads).toContainEqual(file);
+    });
+
+    it('should not call productRepository.save after generating variants', async () => {
+        const wrapper = await createWrapper();
+
+        const saveMock = jest.fn().mockReturnValueOnce(Promise.resolve({}));
+
+        await wrapper.setData({
+            productRepository: {
+                save: saveMock,
+            },
+            variantGenerationQueue: {
+                createQueue: [
+                    {
+                        id: 'random-id',
+                        downloads: [],
+                        productStates: [],
+                        type: 'physical',
+                        options: [],
+                    },
+                ],
+                deleteQueue: [],
+            },
+            variantsGenerator: {
+                saveVariants: () => Promise.resolve(),
+                saveConfiguratorSettings: () => Promise.resolve(),
+            },
+        });
+
+        wrapper.vm.generateVariants();
+        await flushPromises();
+
+        // productRepository.save should NOT be called - variants are saved via sync API
+        // and swProductDetailLoadAll() reloads fresh data from server
+        expect(saveMock).not.toHaveBeenCalled();
+        // The event should still be emitted
+        expect(wrapper.emitted('variations-finish-generate')).toHaveLength(1);
+    });
+
+    it('should handle error when generating variants fails', async () => {
+        const wrapper = await createWrapper();
+
+        const createNotificationErrorSpy = jest.spyOn(wrapper.vm, 'createNotificationError');
+
+        await wrapper.setData({
+            variantGenerationQueue: {
+                createQueue: [
+                    {
+                        id: 'random-id',
+                        downloads: [],
+                        productStates: [],
+                        type: 'physical',
+                        options: [],
+                    },
+                ],
+                deleteQueue: [],
+            },
+            variantsGenerator: {
+                saveVariants: () => Promise.reject(new Error('Save failed')),
+            },
+        });
+
+        wrapper.vm.generateVariants();
+        await flushPromises();
+
+        expect(wrapper.vm.isLoading).toBe(false);
+        expect(wrapper.vm.actualProgress).toBe(0);
+        expect(wrapper.vm.maxProgress).toBe(0);
+        expect(createNotificationErrorSpy).toHaveBeenCalledWith({
+            message: 'sw-product.variations.generatedListMessageGenerateError',
+        });
     });
 
     it('should add option count when change the isAddOnly', async () => {

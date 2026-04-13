@@ -1,12 +1,10 @@
-@import "~scss/variables";
-
 .sw-rating-stars {
     position: relative;
-    height: 22px;
-    margin: 2px;
+    margin: var(--scale-size-2);
+    height: var(--scale-size-22);
 
     &__star {
-        margin-right: 1px;
+        margin-right: var(--scale-size-1);
 
         &:last-child {
             margin-right: 0;
@@ -16,22 +14,24 @@
     &__value {
         position: absolute;
         left: 0;
-        top: 0;
+        top: 50%;
+        transform: translateY(-50%);
         font-size: 0;
 
         .sw-rating-stars__star {
-            color: $color-module-yellow-700;
+            color: var(--color-yellow-500);
         }
     }
 
     &__placeholder {
         position: absolute;
         left: 0;
-        top: 0;
+        top: 50%;
+        transform: translateY(-50%);
         font-size: 0;
 
         .sw-rating-stars__star {
-            color: $color-gray-300;
+            color: var(--color-icon-primary-disabled);
         }
     }
 }

@@ -10,6 +10,10 @@ const entities = [
     { id: 'id1', name: 'first' },
 ];
 
+const translatedEntities = [
+    { id: 'id1', name: null, translated: { name: 'first' } },
+];
+
 function getCollection() {
     return new EntityCollection(
         '/test-entity',
@@ -96,6 +100,24 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
         const wrapper = await createWrapper();
 
         await wrapper.getComponent('.sw-entity-multi-select').vm.$emit('update:entity-collection', entities);
+
+        const [
+            name,
+            criteria,
+            value,
+        ] = wrapper.emitted('filter-update')[0];
+
+        expect(name).toBe('category-filter');
+        expect(criteria).toEqual([Criteria.equalsAny('category.id', ['id1'])]);
+        expect(value[0]).toEqual({ id: 'id1', name: 'first' });
+
+        expect(wrapper.emitted('filter-reset')).toBeFalsy();
+    });
+
+    it('should emit `filter-update` event when user chooses translated entity', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.getComponent('.sw-entity-multi-select').vm.$emit('update:entity-collection', translatedEntities);
 
         const [
             name,

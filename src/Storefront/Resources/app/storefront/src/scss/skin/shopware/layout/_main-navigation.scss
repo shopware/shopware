@@ -3,8 +3,6 @@ Main navigation
 ==============================================
 Custom styling for main navigation on larger screens.
 
-Active styling is handled by views/storefront/layout/navigation/active-styling.html.twig
-
 Based on bootstrap nav:
 https://getbootstrap.com/docs/5.2/components/navs-tabs
 */
@@ -19,8 +17,32 @@ https://getbootstrap.com/docs/5.2/components/navs-tabs
         }
     }
 
+    .main-navigation-link.root {
+        &.active .main-navigation-link-text {
+            border-color: $primary;
+        }
+    }
+
     .main-navigation-link-text {
         border-bottom: 2px solid transparent;
         padding-bottom: 3px;
+    }
+}
+
+.main-navigation-menu {
+    .dropdown-menu::after {
+        content: '';
+        position: absolute;
+        height: calc(1 * var(--#{$prefix}dropdown-spacer) + 1px);
+        left: 0;
+        right: 0;
+    }
+
+    .dropdown:not(.dropup) .dropdown-menu::after {
+        top: calc(-1 * var(--#{$prefix}dropdown-spacer) - 1px);
+    }
+
+    .dropup .dropdown-menu::after {
+        bottom: calc(-1 * var(--#{$prefix}dropdown-spacer) - 1px);
     }
 }

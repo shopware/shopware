@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
@@ -109,6 +110,36 @@ class GrossPriceCalculatorTest extends TestCase
         ];
     }
 
+    #[DataProvider('listPriceCalculationProvider')]
+    public function testListPriceCalculation(?float $listPriceValue, ?ListPrice $expected): void
+    {
+        $definition = new QuantityPriceDefinition(100, new TaxRuleCollection(), 1);
+        $definition->setListPrice($listPriceValue);
+
+        $calculator = new GrossPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+
+        static::assertEquals($expected, $price->getListPrice());
+    }
+
+    public static function listPriceCalculationProvider(): \Generator
+    {
+        yield 'test calculation without list price' => [
+            null,
+            null,
+        ];
+
+        yield 'test calculation with zero list price' => [
+            0.0,
+            null,
+        ];
+
+        yield 'test calculation with valid list price' => [
+            200.0,
+            ListPrice::createFromUnitPrice(100, 200),
+        ];
+    }
+
     public function testTaxesAreRoundedProperly(): void
     {
         $definition = new QuantityPriceDefinition(100, new TaxRuleCollection([new TaxRule(19, 48.12345)]), 1);
@@ -119,8 +150,9 @@ class GrossPriceCalculatorTest extends TestCase
         static::assertCount(1, $price->getCalculatedTaxes());
 
         $tax = $price->getCalculatedTaxes()->first();
+        static::assertNotNull($tax);
 
-        static::assertEquals(19, $tax?->getTaxRate());
-        static::assertEquals(48.12, $tax?->getPrice());
+        static::assertSame(19.0, $tax->getTaxRate());
+        static::assertSame(48.12, $tax->getPrice());
     }
 }

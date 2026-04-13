@@ -3,8 +3,6 @@
         {% set violationPath = '/street' %}
     {% elseif formViolations.getViolations("/#{prefix}/street") is not empty %}
         {% set violationPath = "/#{prefix}/street" %}
-    {% else %}
-        {% set requiredMessage = 'error.VIOLATION::IS_BLANK_ERROR'|trans({ '%field%': 'address.streetLabel'|trans|sw_sanitize }) %}
     {% endif %}
 
     {% set streetAutocomplete = 'address-line1' %}

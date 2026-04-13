@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\System\CustomEntity\Api\CustomEntityApiController;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
+use Shopware\Tests\Integration\Core\Framework\fixtures\QueryParameterAllowList;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
@@ -27,6 +28,26 @@ class ApiRoutesHaveASchemaTest extends TestCase
     use SnapshotTesting;
 
     private RouteCollection $routes;
+
+    /**
+     * @var array<string, mixed>
+     */
+    private array $schemaRoutes = [];
+
+    /**
+     * @var array<string, true>
+     */
+    private array $matchedSchemaEntries = [];
+
+    /**
+     * @var array<string, true>
+     */
+    private array $experimentalChecked = [];
+
+    /**
+     * @var list<string>
+     */
+    private array $missingRoutes = [];
 
     protected function setUp(): void
     {
@@ -53,6 +74,8 @@ class ApiRoutesHaveASchemaTest extends TestCase
             null
         );
 
+        $allowedQueryParams = $this->buildAllowedQueryParams();
+
         $schemaRoutes = $schema['paths'];
         $missingRoutes = [];
 
@@ -67,7 +90,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
             $path = \substr($path, \strlen('/store-api'));
             if (\array_key_exists($path, $schemaRoutes)) {
                 $this->checkExperimentalState($route, $schemaRoutes[$path]);
-                $this->checkQueryParameters($route, $schemaRoutes[$path]);
+                $this->checkQueryParameters($route, $schemaRoutes[$path], $allowedQueryParams, $schema);
                 unset($schemaRoutes[$path]);
 
                 continue;
@@ -83,12 +106,14 @@ class ApiRoutesHaveASchemaTest extends TestCase
             $missingRoutes[] = $path;
         }
 
-        if (!empty($schemaRoutes)) {
-            foreach ($schemaRoutes as $path => $schema) {
-                $routesFromPathParameter = $this->getRoutesFromSchemaDefinitionPath($path, $schema);
+        if ($schemaRoutes !== []) {
+            foreach ($schemaRoutes as $path => $routeSchema) {
+                $routesFromPathParameter = $this->getRoutesFromSchemaDefinitionPath($path, $routeSchema);
                 foreach ($routesFromPathParameter as $routeFromPathParameter) {
                     if (\in_array($routeFromPathParameter, $missingRoutes, true)) {
-                        unset($schemaRoutes[$path], $missingRoutes[array_search($routeFromPathParameter, $missingRoutes, true)]);
+                        $missingRouteKey = array_search($routeFromPathParameter, $missingRoutes, true);
+                        static::assertNotFalse($missingRouteKey);
+                        unset($schemaRoutes[$path], $missingRoutes[$missingRouteKey]);
                     }
                 }
                 $missingRoutes = array_values($missingRoutes);
@@ -118,45 +143,104 @@ class ApiRoutesHaveASchemaTest extends TestCase
             DefinitionService::API
         );
 
-        $schemaRoutes = $schema['paths'];
-        $missingRoutes = [];
+        $this->schemaRoutes = $schema['paths'];
 
         foreach ($this->routes as $route) {
-            if (!$this->isCoreRoute($route)) {
-                continue;
-            }
             $path = $route->getPath();
+            $subPath = \substr($path, \strlen('/api'));
             if (!$this->isAdminApi($path)) {
                 continue;
             }
-            $path = \substr($path, \strlen('/api'));
-            if (\array_key_exists($path, $schemaRoutes)) {
-                $this->checkExperimentalState($route, $schemaRoutes[$path]);
-                unset($schemaRoutes[$path]);
 
-                continue;
-            }
-            if ($this->isRepositoryCrudRoute($route)) {
-                $listPath = str_replace('{path}', '', $path);
-                $crudPath = str_replace('{path}', '{id}', $path);
-                unset($schemaRoutes[$listPath]);
-                unset($schemaRoutes[$crudPath]);
+            if (!\array_key_exists($subPath, $this->schemaRoutes)) {
+                $this->handleRouteNotInSchema($route, $subPath);
 
                 continue;
             }
 
-            $missingRoutes[] = $path;
+            $this->matchRouteMethodsToSchema($route, $subPath);
+
+            if ($this->isSchemaPathFullyCovered($subPath)) {
+                unset($this->schemaRoutes[$subPath]);
+            }
         }
-        sort($missingRoutes);
 
-        static::assertSame([], array_keys($schemaRoutes), 'The schema contains routes that do not exist');
+        usort($this->missingRoutes, static function (string $a, string $b): int {
+            [$methodA, $pathA] = explode(' ', $a, 2);
+            [$methodB, $pathB] = explode(' ', $b, 2);
+
+            return $pathA === $pathB ? $methodA <=> $methodB : $pathA <=> $pathB;
+        });
+
+        static::assertSame([], array_keys($this->schemaRoutes), 'The schema contains routes that do not exist');
+
         // Add missing routes under:
         // src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths
-        $this->assertSnapshot(
-            'routes_without_schema',
-            $missingRoutes,
-            'Routes are missing in the schema'
-        );
+        $this->assertSnapshot('routes_without_schema', [
+            [
+                'type' => self::TYPE_JSON,
+                'actual' => $this->missingRoutes,
+            ],
+        ]);
+    }
+
+    private function handleRouteNotInSchema(Route $route, string $subPath): void
+    {
+        if ($this->isRepositoryCrudRoute($route)) {
+            unset($this->schemaRoutes[str_replace('{path}', '', $subPath)]);
+            unset($this->schemaRoutes[str_replace('{path}', '{id}', $subPath)]);
+
+            return;
+        }
+
+        // Don't enforce schema for non-core routes (test can run on custom installations)
+        if (!$this->isCoreRoute($route)) {
+            return;
+        }
+
+        foreach ($route->getMethods() ?: ['*'] as $method) {
+            $this->missingRoutes[] = strtoupper($method) . ' ' . $subPath;
+        }
+    }
+
+    private function matchRouteMethodsToSchema(Route $route, string $subPath): void
+    {
+        $schemaMethods = array_keys($this->schemaRoutes[$subPath]);
+        $routeMethods = array_map('strtolower', $route->getMethods()) ?: $schemaMethods;
+        static::assertContainsOnlyString($routeMethods);
+
+        foreach ($routeMethods as $method) {
+            if (isset($this->matchedSchemaEntries[$subPath . '#' . $method])) {
+                continue;
+            }
+
+            if (\in_array($method, $schemaMethods, true)) {
+                $this->markSchemaMethodAsMatched($route, $subPath, $method);
+            } elseif ($this->isCoreRoute($route)) {
+                $this->missingRoutes[] = strtoupper($method) . ' ' . $subPath;
+            }
+        }
+    }
+
+    private function markSchemaMethodAsMatched(Route $route, string $subPath, string $method): void
+    {
+        if (!isset($this->experimentalChecked[$subPath])) {
+            $this->checkExperimentalState($route, $this->schemaRoutes[$subPath]);
+            $this->experimentalChecked[$subPath] = true;
+        }
+
+        $this->matchedSchemaEntries[$subPath . '#' . $method] = true;
+    }
+
+    private function isSchemaPathFullyCovered(string $subPath): bool
+    {
+        foreach (array_keys($this->schemaRoutes[$subPath]) as $method) {
+            if (!isset($this->matchedSchemaEntries[$subPath . '#' . $method])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function isStoreApi(string $path): bool
@@ -227,31 +311,44 @@ class ApiRoutesHaveASchemaTest extends TestCase
 
     /**
      * @param array<string, mixed> $schema
+     * @param array<string, array<string, true>> $allowedQueryParams
+     * @param array<string, mixed> $fullSchema
      */
-    private function checkQueryParameters(Route $route, array $schema): void
+    private function checkQueryParameters(Route $route, array $schema, array $allowedQueryParams, array $fullSchema): void
     {
-        $whitelist = [
-            '/store-api/shipping-method:onlyAvailable',
-            '/store-api/checkout/cart/line-item:ids',
-            '/store-api/product-listing/{categoryId}:p',
-            '/store-api/search:p',
-        ];
+        $allowedForRoute = $allowedQueryParams[$route->getPath()] ?? [];
 
         foreach ($schema as $operation) {
-            foreach ($operation['parameters'] ?? [] as $item) {
+            $parameters = $operation['parameters'] ?? [];
+            $resolvedParameters = [];
+            foreach ($parameters as $parameter) {
+                if (isset($parameter['$ref'])) {
+                    $resolvedParameters[] = $this->resolveRef($parameter['$ref'], $fullSchema);
+                } else {
+                    $resolvedParameters[] = $parameter;
+                }
+            }
+
+            foreach ($resolvedParameters as $item) {
                 if ($item['in'] !== 'query') {
                     continue;
                 }
 
-                if ($item['schema']['type'] === 'string') {
+                $parameterName = $item['name'];
+
+                // It's explicitly allowed
+                if (isset($allowedForRoute[$parameterName])) {
                     continue;
                 }
 
-                /** @var string $parameterName */
-                $parameterName = $item['name'];
-                $key = $route->getPath() . ':' . $parameterName;
+                // string params are fine
+                if (isset($item['schema']['type']) && $item['schema']['type'] === 'string') {
+                    continue;
+                }
 
-                static::assertContains($key, $whitelist, \sprintf('Route "%s" has as query parameter "%s" which is not allowed.', $route->getPath(), $parameterName));
+                static::fail(
+                    \sprintf('Route "%s" has a non-string query parameter "%s" which is not allowed. Please add it to the allowed list in ApiRoutesHaveASchemaTest.', $route->getPath(), $parameterName)
+                );
             }
         }
     }
@@ -270,7 +367,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
                     continue;
                 }
 
-                if ($item['schema']['type'] === 'string' && !empty($item['schema']['enum'])) {
+                if ($item['schema']['type'] === 'string' && isset($item['schema']['enum'])) {
                     foreach ($item['schema']['enum'] as $enum) {
                         $paths[] = str_replace('{' . $item['name'] . '}', $enum, $path);
                     }
@@ -279,5 +376,58 @@ class ApiRoutesHaveASchemaTest extends TestCase
         }
 
         return $paths;
+    }
+
+    /**
+     * Build the complete list of allowed query parameters by combining static params with params from the routes.
+     *
+     * @return array<string, array<string, true>>
+     */
+    private function buildAllowedQueryParams(): array
+    {
+        $allowList = QueryParameterAllowList::getQueryParameterAllowList();
+
+        $groups = $allowList['groups'];
+        $routes = $allowList['allowedList'];
+
+        $allowedQueryParams = [];
+        foreach ($routes as $route => $params) {
+            $allowed = [];
+            foreach ($params as $param) {
+                if (str_starts_with($param, '@')) {
+                    $groupParams = $groups[substr($param, 1)];
+                    foreach ($groupParams as $p) {
+                        $allowed[$p] = true;
+                    }
+                } else {
+                    $allowed[$param] = true;
+                }
+            }
+            $allowedQueryParams[$route] = $allowed;
+        }
+
+        return $allowedQueryParams;
+    }
+
+    /**
+     * @param array<string, mixed> $fullSchema
+     *
+     * @return array<string, mixed>
+     */
+    private function resolveRef(string $ref, array $fullSchema): array
+    {
+        $refPath = \str_replace('#/', '', $ref);
+        $parts = \explode('/', $refPath);
+
+        $current = $fullSchema;
+        foreach ($parts as $part) {
+            if (!\is_array($current) || !\array_key_exists($part, $current)) {
+                static::fail(\sprintf('Reference "%s" could not be resolved.', $ref));
+            }
+
+            $current = $current[$part];
+        }
+
+        return $current;
     }
 }

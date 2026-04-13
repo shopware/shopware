@@ -21,7 +21,7 @@ class ElasticsearchTest extends TestCase
     {
         $elasticsearch = new Elasticsearch();
 
-        static::assertEquals(-1, $elasticsearch->getTemplatePriority());
+        static::assertSame(-1, $elasticsearch->getTemplatePriority());
     }
 
     public function testBundle(): void

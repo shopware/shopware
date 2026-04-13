@@ -48,11 +48,14 @@ export default {
 
         classes() {
             return {
-                'has--navigation-indent': this.element.config.navigationArrows.value === 'outside',
+                [`has--navigation-${this.element.config.navigationArrows.value}`]: this.hasNavigationArrows,
                 'has--border': !!this.element.config.border.value,
             };
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, is not used anymore
+         */
         navArrowsClasses() {
             if (this.hasNavigationArrows) {
                 return [`has--arrow-${this.element.config.navigationArrows.value}`];

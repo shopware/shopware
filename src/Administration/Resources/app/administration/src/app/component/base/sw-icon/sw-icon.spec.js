@@ -9,6 +9,11 @@ async function createWrapper() {
         props: {
             name: 'regular-circle-download',
         },
+        global: {
+            stubs: {
+                'sw-icon-deprecated': true,
+            },
+        },
     });
 }
 
@@ -19,10 +24,6 @@ describe('src/app/component/base/mt-icon/index.js', () => {
         wrapper = await createWrapper();
 
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render the correct icon (circle-download)', async () => {

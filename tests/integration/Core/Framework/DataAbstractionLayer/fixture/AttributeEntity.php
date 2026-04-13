@@ -12,11 +12,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ListField as ListFieldAttr;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToOne;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Password;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
@@ -24,7 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -86,7 +88,7 @@ class AttributeEntity extends EntityStruct
     #[Serialized(serializer: PriceFieldSerializer::class, api: true)]
     public ?PriceCollection $serialized = null;
 
-    #[Field(type: PriceField::class)]
+    #[Field(type: FieldType::PRICE)]
     public ?PriceCollection $price = null;
 
     #[Required]
@@ -181,4 +183,19 @@ class AttributeEntity extends EntityStruct
     #[Field(type: FieldType::STRING)]
     #[AllowHtml]
     public string $htmlString;
+
+    #[Field(type: FieldType::EMAIL)]
+    public ?string $email = null;
+
+    #[Field(type: FieldType::STRING, maxLength: 4096)]
+    public ?string $longString = null;
+
+    #[Password(for: 'customer')]
+    public ?string $password = null;
+
+    /**
+     * @var list<string>|null
+     */
+    #[ListFieldAttr(fieldType: StringField::class)]
+    public ?array $tags = null;
 }

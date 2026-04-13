@@ -35,6 +35,7 @@ use SwagTestPlugin\SwagTestPlugin;
 use SwagTestSkipRebuild\SwagTestSkipRebuild;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -44,15 +45,13 @@ class KernelPluginIntegrationTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;
 
-    private ?Kernel $kernel = null;
+    private Kernel $kernel;
 
     protected function tearDown(): void
     {
-        if ($this->kernel) {
-            $serviceContainer = $this->kernel->getContainer()->get('test.service_container');
-            static::assertInstanceOf(TestContainer::class, $serviceContainer);
-            $serviceContainer->get('cache.object')->clear();
-        }
+        $serviceContainer = $this->kernel->getContainer()->get('test.service_container');
+        static::assertInstanceOf(TestContainer::class, $serviceContainer);
+        $serviceContainer->get('cache.object')->clear();
     }
 
     public function testWithDisabledPlugins(): void
@@ -339,7 +338,6 @@ class KernelPluginIntegrationTest extends TestCase
         );
         $this->makeKernel($loader);
         $kernel = $this->kernel;
-        static::assertNotNull($kernel);
         $kernel->boot();
 
         $criteria = new Criteria();
@@ -368,7 +366,6 @@ class KernelPluginIntegrationTest extends TestCase
     private function makePluginLifecycleService(): PluginLifecycleService
     {
         $kernel = $this->kernel;
-        static::assertNotNull($kernel);
         $container = $kernel->getContainer();
 
         $emptyPluginCollection = new PluginCollection();
@@ -394,7 +391,8 @@ class KernelPluginIntegrationTest extends TestCase
             $this->createMock(CustomEntitySchemaUpdater::class),
             $this->createMock(PluginService::class),
             $this->createMock(VersionSanitizer::class),
-            $this->createMock(DefinitionInstanceRegistry::class)
+            $this->createMock(DefinitionInstanceRegistry::class),
+            new RequestStack(),
         );
     }
 

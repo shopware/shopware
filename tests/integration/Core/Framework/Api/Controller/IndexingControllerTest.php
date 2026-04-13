@@ -64,7 +64,7 @@ class IndexingControllerTest extends TestCase
             static::assertTrue($response['finish']);
         } else {
             static::assertFalse($response['finish']);
-            static::assertEquals(['offset' => $offset + 50], $response['offset']);
+            static::assertSame(['offset' => $offset + 50], $response['offset']);
         }
     }
 

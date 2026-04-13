@@ -5,11 +5,10 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1643366069AddSeoUrlUpdaterIndex extends MigrationStep
@@ -21,33 +20,10 @@ class Migration1643366069AddSeoUrlUpdaterIndex extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if ($this->hasIndexAlready($connection)) {
+        if (TableHelper::indexExists($connection, 'seo_url', 'idx.delete_query')) {
             return;
         }
 
         $connection->executeStatement('CREATE INDEX `idx.delete_query` ON seo_url (foreign_key, sales_channel_id);');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
-
-    private function hasIndexAlready(Connection $connection): bool
-    {
-        $indices = $connection->fetchAllAssociative('SHOW INDEX FROM seo_url');
-
-        $grouped = [];
-
-        foreach ($indices as $index) {
-            $grouped[$index['Key_name']][] = $index['Column_name'];
-        }
-
-        foreach ($grouped as $columns) {
-            if (\count($columns) === 2 && \in_array('foreign_key', $columns, true) && \in_array('sales_channel_id', $columns, true)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

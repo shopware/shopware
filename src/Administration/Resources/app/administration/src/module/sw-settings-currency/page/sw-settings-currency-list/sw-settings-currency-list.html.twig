@@ -27,7 +27,7 @@
             {{ $tc('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
-                size="16px"
+                size="12px"
             /> {{ $tc('sw-settings-currency.list.textHeadline') }}
             {% endblock %}
 
@@ -67,7 +67,7 @@
                 v-if="isLoading || currency"
                 ref="swSettingsCurrencyGrid"
                 class="sw-settings-currency-list-grid"
-                :items="currency"
+                :data-source="currency"
                 :columns="getCurrencyColumns()"
                 :repository="currencyRepository"
                 :full-page="false"

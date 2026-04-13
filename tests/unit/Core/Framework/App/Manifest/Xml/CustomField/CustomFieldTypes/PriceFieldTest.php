@@ -26,12 +26,12 @@ class PriceFieldTest extends TestCase
 
         $priceField = $customFieldSet->getFields()[0];
         static::assertInstanceOf(PriceField::class, $priceField);
-        static::assertEquals('test_price_field', $priceField->getName());
-        static::assertEquals([
+        static::assertSame('test_price_field', $priceField->getName());
+        static::assertSame([
             'en-GB' => 'Test price field',
         ], $priceField->getLabel());
-        static::assertEquals([], $priceField->getHelpText());
-        static::assertEquals(1, $priceField->getPosition());
+        static::assertSame([], $priceField->getHelpText());
+        static::assertSame(1, $priceField->getPosition());
         static::assertFalse($priceField->getRequired());
     }
 }

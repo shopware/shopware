@@ -19,7 +19,7 @@
     {% endblock %}
 
     {% block sw_product_layout_assignment_description %}
-    <div>
+    <div class="sw-product-layout-assignment__info">
         {% block sw_product_layout_assignment_heading %}
         <div
             class="sw-product-layout-assignment__heading"
@@ -82,6 +82,8 @@
             </mt-button>
             {% endblock %}
         </div>
+
+        <sw-cms-reset-inheritance v-if="product" />
         {% endblock %}
     </div>
     {% endblock %}

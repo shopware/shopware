@@ -17,7 +17,7 @@ class NamespaceHierarchyBuilder
     }
 
     /**
-     * @return array<string>
+     * @return array<string, int>
      */
     public function buildHierarchy(): array
     {

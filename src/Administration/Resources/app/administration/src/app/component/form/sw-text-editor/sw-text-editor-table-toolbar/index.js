@@ -1,15 +1,13 @@
 import template from './sw-text-editor-table-toolbar.html.twig';
 import './sw-text-editor-table-toolbar.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  * @deprecated tag:v6.8.0 - Will be removed, use mt-text-editor instead.
  *
  * @private
  */
-Component.register('sw-text-editor-table-toolbar', {
+export default {
     template,
 
     emits: [
@@ -18,7 +16,6 @@ Component.register('sw-text-editor-table-toolbar', {
     ],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         selection: {
             required: false,
             default: null,
@@ -277,4 +274,4 @@ Component.register('sw-text-editor-table-toolbar', {
             this.selection.addRange(this.range);
         },
     },
-});
+};

@@ -5,12 +5,10 @@
 import template from './sw-skeleton.html.twig';
 import './sw-skeleton.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-skeleton', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {

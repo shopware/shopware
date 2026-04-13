@@ -1,4 +1,4 @@
-import type { PropType, ComponentObjectPropsOptions } from 'vue';
+import type { ComponentObjectPropsOptions } from 'vue';
 import type { DragConfig } from 'src/app/directive/dragdrop.directive';
 import template from './sw-multi-snippet-drag-and-drop.html.twig';
 import './sw-multi-snippet-drag-and-drop.scss';
@@ -19,7 +19,7 @@ const DEFAULT_MAX_LINES = 10 as number;
  *
  * @private
  */
-Component.register('sw-multi-snippet-drag-and-drop', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: ['feature'],

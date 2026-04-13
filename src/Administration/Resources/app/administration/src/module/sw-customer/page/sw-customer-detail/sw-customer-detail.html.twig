@@ -89,7 +89,13 @@
                     {% block sw_customer_detail_content_customer_group_registration_content %}
                     <div class="sw-customer-detail__customer-registration-alert-text">
                         {% block sw_customer_detail_content_customer_group_registration_message %}
-                        {{ $tc('sw-customer.customerGroupRegistration.alert', { name: customer.requestedGroup.translated.name }, 0) }}
+                        {{ $tc('sw-customer.customerGroupRegistration.alert', {name: this.customer.requestedGroup.translated.name }, 0) }}
+                        <p
+                            v-if="!customer.active"
+                            class="sw-customer-detail__customer-registration-alert-hint"
+                        >
+                            {{  $tc('sw-customer.customerGroupRegistration.customerInactiveMessage') }}
+                        </p>
                         {% endblock %}
                     </div>
                     <div class="sw-customer-detail__customer-registration-alert-actions">

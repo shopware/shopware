@@ -108,7 +108,7 @@ class WebhookDispatcherTest extends TestCase
 
     public function testAddListenerForwardsToInner(): void
     {
-        $listener = function (): void {};
+        $listener = static function (): void {};
 
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
         $eventDispatcherMock->expects($this->once())
@@ -125,7 +125,7 @@ class WebhookDispatcherTest extends TestCase
 
     public function testRemoveListenerForwardsToInner(): void
     {
-        $listener = function (): void {};
+        $listener = static function (): void {};
 
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
         $eventDispatcherMock->expects($this->once())
@@ -157,7 +157,7 @@ class WebhookDispatcherTest extends TestCase
 
     public function testGetListenerPriorityForwardsToInner(): void
     {
-        $listener = function (): void {};
+        $listener = static function (): void {};
 
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
         $eventDispatcherMock->expects($this->once())

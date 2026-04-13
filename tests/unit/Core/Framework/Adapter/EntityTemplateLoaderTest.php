@@ -30,7 +30,7 @@ class EntityTemplateLoaderTest extends TestCase
     {
         $subscribedEvents = EntityTemplateLoader::getSubscribedEvents();
 
-        static::assertEquals(['app_template.written' => 'reset'], $subscribedEvents);
+        static::assertSame(['app_template.written' => 'reset'], $subscribedEvents);
     }
 
     public function testDevMode(): void

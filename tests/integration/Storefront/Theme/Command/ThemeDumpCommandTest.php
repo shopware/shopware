@@ -127,6 +127,36 @@ class ThemeDumpCommandTest extends TestCase
         $commandTester->assertCommandIsSuccessful();
     }
 
+    public function testInteractiveModeDisplaysThemeAssignmentInfos(): void
+    {
+        $this->setUpExampleThemes();
+
+        $themeFileResolverMock = new ThemeFileResolverMock();
+        $themeFilesystemResolverMock = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolverMock->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
+
+        $themeDumpCommand = new ThemeDumpCommand(
+            $this->getPluginRegistryMock(),
+            $themeFileResolverMock,
+            static::getContainer()->get('theme.repository'),
+            $this->createMock(StaticFileConfigDumper::class),
+            $themeFilesystemResolverMock
+        );
+        $themeDumpCommand->setHelperSet(new HelperSet([new QuestionHelper()]));
+
+        $commandTester = new CommandTester($themeDumpCommand);
+        $commandTester->setInputs(['Parent theme', 'http://localhost/1/' . $this->parentThemeId]);
+        $commandTester->execute([]);
+
+        $output = $commandTester->getDisplay();
+
+        static::assertStringContainsString('Theme assignment:', $output);
+        static::assertStringContainsString('Parent theme || Assigned to:', $output);
+        static::assertStringContainsString('Child theme || Assigned to:', $output);
+
+        $commandTester->assertCommandIsSuccessful();
+    }
+
     /**
      * @return list<array{themeId: string|null, domainUrl: string|null}>
      */

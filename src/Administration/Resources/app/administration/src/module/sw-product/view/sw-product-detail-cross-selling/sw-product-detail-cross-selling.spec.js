@@ -75,12 +75,6 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         });
     });
 
-    it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should load assigned products', async () => {
         const customProduct = buildProduct();
 

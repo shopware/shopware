@@ -398,7 +398,7 @@ export default {
             });
 
             if (foundVariantIndex >= 0) {
-                delete variant.price[foundVariantIndex];
+                variant.price.splice(foundVariantIndex, 1);
             }
 
             if (variant.price.length <= 0) {
@@ -541,9 +541,13 @@ export default {
                     this.isDeletionOver = true;
 
                     this.createNotificationError({
-                        message: this.$tc('sw-product.list.notificationVariantDeleteErrorCanonicalUrl', amount, {
-                            variantName,
-                        }),
+                        message: this.$tc(
+                            'sw-product.list.notificationVariantDeleteErrorCanonicalUrl',
+                            {
+                                variantName,
+                            },
+                            amount,
+                        ),
                     });
 
                     return;
@@ -553,10 +557,14 @@ export default {
                     .syncDeleted(variantIds)
                     .then(() => {
                         this.createNotificationSuccess({
-                            message: this.$tc('sw-product.list.notificationVariantDeleteSuccess', amount, {
-                                variantName,
+                            message: this.$tc(
+                                'sw-product.list.notificationVariantDeleteSuccess',
+                                {
+                                    variantName,
+                                    amount,
+                                },
                                 amount,
-                            }),
+                            ),
                         });
 
                         this.$refs.variantGrid.resetSelection();
@@ -565,10 +573,14 @@ export default {
                     })
                     .catch(() => {
                         this.createNotificationError({
-                            message: this.$tc('sw-product.list.notificationVariantDeleteError', amount, {
-                                variantName,
+                            message: this.$tc(
+                                'sw-product.list.notificationVariantDeleteError',
+                                {
+                                    variantName,
+                                    amount,
+                                },
                                 amount,
-                            }),
+                            ),
                         });
                     })
                     .finally(() => {
@@ -738,9 +750,7 @@ export default {
             await this.$nextTick();
 
             let includesDigital = '0';
-            const digital = Object.values(this.$refs.variantGrid.selection).filter((product) =>
-                product.states.includes('is-download'),
-            );
+            const digital = Object.values(this.$refs.variantGrid.selection).filter((product) => product.type === 'digital');
             if (digital.length > 0) {
                 includesDigital = digital.filter((product) => product.isCloseout).length !== digital.length ? '1' : '2';
             }
@@ -755,7 +765,7 @@ export default {
         },
 
         variantIsDigital(variant) {
-            return variant.states && variant.states.includes('is-download');
+            return variant.type && variant.type === 'digital';
         },
     },
 };

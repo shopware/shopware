@@ -1,5 +1,5 @@
 /**
- * @sw-package inventory
+ * @sw-package after-sales
  */
 Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'permissions',

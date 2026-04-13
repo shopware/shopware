@@ -21,7 +21,7 @@
             {{ $tc('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
-                size="16px"
+                size="12px"
             /> {{ $tc('sw-settings-country.list.textHeadline') }}
             {% endblock %}
 
@@ -79,7 +79,7 @@
                     <sw-entity-listing
                         ref="swSettingsCountryGrid"
                         class="sw-settings-country-list-grid"
-                        :items="country"
+                        :data-source="country"
                         :columns="getCountryColumns()"
                         :repository="countryRepository"
                         :full-page="false"

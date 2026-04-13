@@ -10,7 +10,6 @@ describe('marketing.store', () => {
     let store = Shopware.Store.get('marketing');
 
     beforeAll(() => {
-        // @ts-expect-error
         // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
         Shopware.Service().register('shopwareDiscountCampaignService', () => {
             return new ShopwareDiscountCampaignService();

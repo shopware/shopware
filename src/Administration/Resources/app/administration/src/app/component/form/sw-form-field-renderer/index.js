@@ -1,6 +1,6 @@
 import template from './sw-form-field-renderer.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
 /**
  * @sw-package framework
@@ -67,7 +67,7 @@ const { types } = Shopware.Utils;
  *     }">
  * </sw-form-field-renderer>
  */
-Component.register('sw-form-field-renderer', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -94,7 +94,6 @@ Component.register('sw-form-field-renderer', {
             required: false,
             default: null,
         },
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },
@@ -220,6 +219,7 @@ Component.register('sw-form-field-renderer', {
                 [
                     'sw-single-select',
                     'sw-multi-select',
+                    'mt-select',
                 ].includes(this.componentName)
             ) {
                 if (!this.config.hasOwnProperty('options')) {
@@ -251,14 +251,11 @@ Component.register('sw-form-field-renderer', {
         },
 
         componentPropName() {
-            switch (this.componentName) {
-                case 'mt-textarea':
-                case 'mt-switch':
-                case 'mt-number-field':
-                    return 'modelValue';
-                default:
-                    return 'value';
+            if (this.componentName.startsWith('mt-')) {
+                return 'modelValue';
             }
+
+            return 'value';
         },
     },
 
@@ -325,33 +322,33 @@ Component.register('sw-form-field-renderer', {
             const type = customType ?? this.type;
 
             const components = {
-                bool: 'sw-switch-field-deprecated',
-                switch: 'sw-switch-field-deprecated',
-                textarea: 'sw-textarea-field-deprecated',
-                checkbox: 'sw-checkbox-field-deprecated',
-                colorpicker: 'sw-colorpicker-deprecated',
+                bool: 'mt-switch',
+                switch: 'mt-switch',
+                textarea: 'mt-textarea',
+                checkbox: 'mt-checkbox',
+                colorpicker: 'mt-colorpicker',
                 compactColorpicker: 'sw-compact-colorpicker',
-                date: 'sw-datepicker-deprecated',
-                datetime: 'sw-datepicker-deprecated',
-                time: 'sw-datepicker-deprecated',
-                email: 'sw-email-field-deprecated',
-                float: 'sw-number-field-deprecated',
-                int: 'sw-number-field-deprecated',
-                number: 'sw-number-field-deprecated',
+                date: 'mt-datepicker',
+                datetime: 'mt-datepicker',
+                time: 'mt-datepicker',
+                email: 'mt-email-field',
+                float: 'mt-number-field',
+                int: 'mt-number-field',
+                number: 'mt-number-field',
                 'multi-entity-id-select': 'sw-entity-multi-id-select',
-                'multi-select': 'sw-multi-select',
-                password: 'sw-password-field-deprecated',
+                'multi-select': 'mt-select',
+                password: 'mt-password-field',
                 price: 'sw-price-field',
                 radio: 'sw-radio-field',
                 'single-entity-id-select': 'sw-entity-single-select',
-                'single-select': 'sw-single-select',
-                string: 'sw-text-field-deprecated',
-                text: 'sw-text-field-deprecated',
+                'single-select': 'mt-select',
+                string: 'mt-text-field',
+                text: 'mt-text-field',
                 tagged: 'sw-tagged-field',
-                url: 'sw-url-field-deprecated',
+                url: 'mt-url-field',
             };
 
-            return components[type] ?? 'sw-text-field-deprecated';
+            return components[type] ?? 'mt-text-field';
         },
 
         createRepository(entity) {
@@ -376,4 +373,4 @@ Component.register('sw-form-field-renderer', {
             return this.$slots;
         },
     },
-});
+};

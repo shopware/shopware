@@ -1,14 +1,12 @@
 import template from './sw-tree-item.html.twig';
 import './sw-tree-item.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  */
-Component.register('sw-tree-item', {
+export default {
     template,
 
     inject: {
@@ -101,7 +99,6 @@ Component.register('sw-tree-item', {
 
         disableContextMenu: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -134,7 +131,6 @@ Component.register('sw-tree-item', {
         sortable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -169,7 +165,6 @@ Component.register('sw-tree-item', {
         displayCheckbox: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -178,7 +173,6 @@ Component.register('sw-tree-item', {
         allowNewCategories: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -187,7 +181,6 @@ Component.register('sw-tree-item', {
         allowDeleteCategories: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -196,7 +189,6 @@ Component.register('sw-tree-item', {
         allowCreateWithoutPosition: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -205,7 +197,6 @@ Component.register('sw-tree-item', {
         allowDuplicate: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -252,7 +243,6 @@ Component.register('sw-tree-item', {
                 return this.item.checked;
             },
             set(isChecked) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.item.checked = isChecked;
             },
         },
@@ -265,7 +255,6 @@ Component.register('sw-tree-item', {
             if (this.item.initialOpened) {
                 this.openTreeItem(true);
                 this.getTreeItemChildren(this.item);
-                // eslint-disable-next-line vue/no-side-effects-in-computed-properties,vue/no-mutating-props
                 this.item.initialOpened = false;
             }
             return this.opened;
@@ -342,14 +331,10 @@ Component.register('sw-tree-item', {
         },
 
         contentSlot() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots.content;
         },
 
         actionsSlot() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots.actions;
         },
     },
@@ -530,11 +515,9 @@ Component.register('sw-tree-item', {
         toggleItemCheck(event, item) {
             if (this.checkedGhost && !item.checked) {
                 this.checked = true;
-                // eslint-disable-next-line vue/no-mutating-props
                 this.item.checked = true;
             } else {
                 this.checked = event;
-                // eslint-disable-next-line vue/no-mutating-props
                 this.item.checked = event;
             }
 
@@ -614,15 +597,11 @@ Component.register('sw-tree-item', {
         },
 
         renderContentSlotNode({ item, openTreeItem, getName }) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots.content({ item, openTreeItem, getName });
         },
 
         renderActionsSlotNode({ item, openTreeItem }) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots.actions({ item, openTreeItem });
         },
     },
-});
+};

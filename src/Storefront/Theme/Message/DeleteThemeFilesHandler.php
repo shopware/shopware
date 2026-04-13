@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Theme\Message;
 
 use League\Flysystem\FilesystemOperator;
-use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\AbstractThemePathBuilder;
@@ -18,12 +17,11 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler]
 #[Package('framework')]
-final class DeleteThemeFilesHandler
+final readonly class DeleteThemeFilesHandler
 {
     public function __construct(
-        private readonly FilesystemOperator $filesystem,
-        private readonly AbstractThemePathBuilder $pathBuilder,
-        private readonly CacheInvalidator $cacheInvalidator
+        private FilesystemOperator $filesystem,
+        private AbstractThemePathBuilder $pathBuilder,
     ) {
     }
 
@@ -31,7 +29,7 @@ final class DeleteThemeFilesHandler
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
         $currentPath = $this->pathBuilder->assemblePath($message->getSalesChannelId(), $message->getThemeId());
@@ -40,8 +38,5 @@ final class DeleteThemeFilesHandler
         }
 
         $this->filesystem->deleteDirectory('theme' . \DIRECTORY_SEPARATOR . $message->getThemePath());
-        $this->cacheInvalidator->invalidate([
-            'theme_scripts_' . $message->getThemePath(),
-        ]);
     }
 }

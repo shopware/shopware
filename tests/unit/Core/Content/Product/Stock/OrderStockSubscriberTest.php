@@ -187,7 +187,7 @@ class OrderStockSubscriberTest extends TestCase
      * @param list<array{id: string, quantity: string, referenced_id: string}> $beforeState
      * @param list<array{id: string, quantity: string, referenced_id: string}> $afterState
      * @param list<array{lineItemId: string, productId: string, quantityBefore: int, newQuantity: int}> $expectedUpdates
-     * @param list<array{type: 'insert'|'delete'|'update', id: string, state: array<string, mixed>}> $commands
+     * @param list<array{type: 'insert', id: string}|array{type: 'delete', id: string}|array{type: 'update', id: string, state: array<string, mixed>}> $commands
      */
     #[DataProvider('orderItemWriteProvider')]
     public function testOrderItemWrites(array $beforeState, array $afterState, array $expectedUpdates, array $commands): void
@@ -208,12 +208,12 @@ class OrderStockSubscriberTest extends TestCase
         $afterState = array_map($idMapper(['id', 'referenced_id']), $afterState);
 
         $beforeState = array_combine(
-            array_map(fn (array $lineItem) => $lineItem['id'], $beforeState),
+            array_map(static fn (array $lineItem) => $lineItem['id'], $beforeState),
             $beforeState
         );
 
         $afterState = array_combine(
-            array_map(fn (array $lineItem) => $lineItem['id'], $afterState),
+            array_map(static fn (array $lineItem) => $lineItem['id'], $afterState),
             $afterState
         );
 
@@ -235,16 +235,16 @@ class OrderStockSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $stockStorage->expects($this->once())
             ->method('alter')
-            ->with(static::callback(function (array $changes) use ($expectedUpdates): bool {
+            ->with(static::callback(static function (array $changes) use ($expectedUpdates): bool {
                 static::assertSameSize($expectedUpdates, $changes);
 
                 foreach ($expectedUpdates as $i => $expectedUpdate) {
                     static::assertInstanceOf(StockAlteration::class, $changes[$i]);
-                    static::assertEquals($expectedUpdate['lineItemId'], $changes[$i]->lineItemId);
-                    static::assertEquals($expectedUpdate['productId'], $changes[$i]->productId);
+                    static::assertSame($expectedUpdate['lineItemId'], $changes[$i]->lineItemId);
+                    static::assertSame($expectedUpdate['productId'], $changes[$i]->productId);
 
-                    static::assertEquals($expectedUpdate['quantityBefore'], $changes[$i]->quantityBefore);
-                    static::assertEquals($expectedUpdate['newQuantity'], $changes[$i]->newQuantity);
+                    static::assertSame($expectedUpdate['quantityBefore'], $changes[$i]->quantityBefore);
+                    static::assertSame($expectedUpdate['newQuantity'], $changes[$i]->newQuantity);
                 }
 
                 return true;
@@ -632,15 +632,15 @@ class OrderStockSubscriberTest extends TestCase
                 static::assertInstanceOf(StockAlteration::class, $changes[0]);
                 static::assertInstanceOf(StockAlteration::class, $changes[1]);
 
-                static::assertEquals($this->ids->get('item-1'), $changes[0]->lineItemId);
-                static::assertEquals($this->ids->get('product-1'), $changes[0]->productId);
-                static::assertEquals($quantityBefore, $changes[0]->quantityBefore);
-                static::assertEquals($quantityAfter, $changes[0]->newQuantity);
+                static::assertSame($this->ids->get('item-1'), $changes[0]->lineItemId);
+                static::assertSame($this->ids->get('product-1'), $changes[0]->productId);
+                static::assertSame($quantityBefore, $changes[0]->quantityBefore);
+                static::assertSame($quantityAfter, $changes[0]->newQuantity);
 
-                static::assertEquals($this->ids->get('item-2'), $changes[1]->lineItemId);
-                static::assertEquals($this->ids->get('product-2'), $changes[1]->productId);
-                static::assertEquals($quantityBefore, $changes[1]->quantityBefore);
-                static::assertEquals($quantityAfter, $changes[1]->newQuantity);
+                static::assertSame($this->ids->get('item-2'), $changes[1]->lineItemId);
+                static::assertSame($this->ids->get('product-2'), $changes[1]->productId);
+                static::assertSame($quantityBefore, $changes[1]->quantityBefore);
+                static::assertSame($quantityAfter, $changes[1]->newQuantity);
 
                 return true;
             }));

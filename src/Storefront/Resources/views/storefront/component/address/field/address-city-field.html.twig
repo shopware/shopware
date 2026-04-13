@@ -3,9 +3,6 @@
         {% set violationPath = '/city' %}
     {% elseif formViolations.getViolations("/#{prefix}/city") is not empty %}
         {% set violationPath = "/#{prefix}/city" %}
-    {% else %}
-        {% set requiredMessage = 'error.VIOLATION::IS_BLANK_ERROR'|trans({ '%field%': 'address.cityLabel'|trans|sw_sanitize }) %}
-        {% set violationPath = null %}
     {% endif %}
 
     {% set cityAutocomplete = 'address-level2' %}

@@ -13,8 +13,7 @@
                 <form class="login-form"
                       action="{{ path('frontend.account.login') }}"
                       method="post"
-                      data-form-handler="true"
-                      data-form-validation="true">
+                      data-form-handler="true">
                     {% block component_account_login_form_redirect %}
                         <input type="hidden"
                                name="redirectTo"
@@ -22,7 +21,7 @@
 
                         <input type="hidden"
                                name="redirectParameters"
-                               value="{{ redirectParameters }}">
+                               value="{{ redirectParameters is iterable ? redirectParameters|json_encode : redirectParameters }}">
                     {% endblock %}
 
                     {% block component_account_login_form_description %}
@@ -36,17 +35,22 @@
                             {% if errorSnippet != null %}
                                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                     type: 'danger',
-                                    content: errorSnippet|trans|sw_sanitize
+                                    content: errorSnippet|trans|sw_sanitize({}, true),
+                                    announceOnLoad: true,
+                                    ariaLive: 'assertive'
                                 } %}
                             {% elseif waitTime != null %}
                                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                     type: 'info',
-                                    content: 'account.loginThrottled'|trans({'%seconds%': waitTime})|sw_sanitize
+                                    content: 'account.loginThrottled'|trans({'%seconds%': waitTime|number_format})|sw_sanitize,
+                                    announceOnLoad: true
                                 } %}
                             {% else %}
                                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                     type: 'danger',
-                                    content: 'account.loginBadCredentials'|trans|sw_sanitize
+                                    content: 'account.loginBadCredentials'|trans|sw_sanitize,
+                                    announceOnLoad: true,
+                                    ariaLive: 'assertive'
                                 } %}
                             {% endif %}
                         {% endif %}

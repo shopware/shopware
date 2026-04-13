@@ -4,12 +4,17 @@ namespace Shopware\Core\Framework\App\ScheduledTask;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Shopware\Core\System\Integration\IntegrationCollection;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -23,6 +28,10 @@ final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
 
     /**
      * @internal
+     *
+     * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
+     * @param EntityRepository<AclRoleCollection> $aclRoleRepository
+     * @param EntityRepository<IntegrationCollection> $integrationRepository
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
@@ -47,15 +56,17 @@ final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
         $this->deleteIds($this->integrationRepository, $criteria, $context);
     }
 
+    /**
+     * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
+     */
     private function deleteIds(EntityRepository $repository, Criteria $criteria, Context $context): void
     {
-        $data = $repository->searchIds($criteria, $context)->getData();
-
-        if (empty($data)) {
+        $ids = $repository->searchIds($criteria, $context)->getIds();
+        if ($ids === []) {
             return;
         }
 
-        $deleteIds = array_values($data);
+        $deleteIds = array_map(static fn (string $id) => ['id' => $id], $ids);
 
         $repository->delete($deleteIds, $context);
     }

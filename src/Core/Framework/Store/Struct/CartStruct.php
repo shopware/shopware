@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Store\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class CartStruct extends Struct
 {
@@ -21,8 +18,14 @@ class CartStruct extends Struct
 
     protected CartPositionCollection $positions;
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $shop;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function fromArray(array $data): CartStruct
     {
         $data['positions'] = new CartPositionCollection($data['positions']);
@@ -80,11 +83,17 @@ class CartStruct extends Struct
         $this->positions = $positions;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getShop(): array
     {
         return $this->shop;
     }
 
+    /**
+     * @param array<string, mixed> $shop
+     */
     public function setShop(array $shop): void
     {
         $this->shop = $shop;

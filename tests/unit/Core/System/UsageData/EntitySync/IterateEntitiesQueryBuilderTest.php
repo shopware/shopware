@@ -96,7 +96,7 @@ class IterateEntitiesQueryBuilderTest extends TestCase
             'FROM ' . EntityDefinitionQueryHelper::escape(IterableTestEntityDefinition::ENTITY_NAME),
             $queryBuilder->getSQL()
         );
-        static::assertEquals(12, $queryBuilder->getMaxResults());
+        static::assertSame(12, $queryBuilder->getMaxResults());
     }
 
     public function testCreateAddsLastRunConditionIfGiven(): void
@@ -119,12 +119,12 @@ class IterateEntitiesQueryBuilderTest extends TestCase
             'FROM ' . EntityDefinitionQueryHelper::escape(IterableTestEntityDefinition::ENTITY_NAME),
             $queryBuilder->getSQL()
         );
-        static::assertEquals(12, $queryBuilder->getMaxResults());
+        static::assertSame(12, $queryBuilder->getMaxResults());
         static::assertStringContainsString(
             '(created_at > :lastRun) AND (created_at <= :currentRun) AND ((updated_at IS NULL) OR (updated_at <= :currentRun))',
             $queryBuilder->getSQL()
         );
-        static::assertEquals('2023-08-11 00:00:00.000', $queryBuilder->getParameter('lastRun'));
+        static::assertSame('2023-08-11 00:00:00.000', $queryBuilder->getParameter('lastRun'));
     }
 
     public function testCreateThrowsForUpdatesIfLastRunIsNotSet(): void
@@ -142,13 +142,13 @@ class IterateEntitiesQueryBuilderTest extends TestCase
             'FROM ' . EntityDefinitionQueryHelper::escape(IterableTestEntityDefinition::ENTITY_NAME),
             $queryBuilder->getSQL()
         );
-        static::assertEquals(12, $queryBuilder->getMaxResults());
+        static::assertSame(12, $queryBuilder->getMaxResults());
 
         static::assertStringContainsString(
             '(created_at <= :lastRun) AND (updated_at > :lastRun) AND (updated_at <= :currentRun)',
             $queryBuilder->getSQL()
         );
-        static::assertEquals('2023-08-11 00:00:00.000', $queryBuilder->getParameter('lastRun'));
+        static::assertSame('2023-08-11 00:00:00.000', $queryBuilder->getParameter('lastRun'));
     }
 
     public function testCreateThrowsExceptionForDeletionsIfLastRunIsNotSet(): void
@@ -171,12 +171,12 @@ class IterateEntitiesQueryBuilderTest extends TestCase
             'FROM ' . EntityDefinitionQueryHelper::escape('usage_data_entity_deletion'),
             $queryBuilder->getSQL()
         );
-        static::assertEquals(12, $queryBuilder->getMaxResults());
+        static::assertSame(12, $queryBuilder->getMaxResults());
         static::assertStringContainsString(
             '(`entity_name` = :entityName) AND (`deleted_at` <= :currentRunDate)',
             $queryBuilder->getSQL(),
         );
-        static::assertEquals(IterableTestEntityDefinition::ENTITY_NAME, $queryBuilder->getParameter('entityName'));
+        static::assertSame(IterableTestEntityDefinition::ENTITY_NAME, $queryBuilder->getParameter('entityName'));
     }
 
     /**
@@ -210,7 +210,7 @@ class IterateEntitiesQueryBuilderTest extends TestCase
             $queryBuilder->getSQL()
         );
 
-        static::assertEquals(Uuid::fromHexToBytes(Defaults::LIVE_VERSION), $queryBuilder->getParameter('versionId'));
+        static::assertSame(Uuid::fromHexToBytes(Defaults::LIVE_VERSION), $queryBuilder->getParameter('versionId'));
     }
 }
 

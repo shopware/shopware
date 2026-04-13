@@ -83,12 +83,6 @@ async function createWrapper(privileges = [], isBasedItem = true) {
 }
 
 describe('module/sw-settings-country/component/sw-settings-country-currency-dependent-modal', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should able to show right column on grid', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -12,6 +12,10 @@ const assignFn = jest.fn(() => Promise.resolve());
 const orderMock = {
     id: '123',
     orderNumber: 10000,
+    updatedAt: null,
+    createdAt: null,
+    updatedBy: null,
+    createdBy: null,
     orderCustomer: {
         customerId: 'orderID',
         firstName: 'John',
@@ -129,9 +133,18 @@ async function createWrapper() {
                     isActive: () => true,
                 },
                 repositoryFactory: {
-                    create() {
+                    create(entityName) {
+                        if (entityName !== 'order') {
+                            return {
+                                search: () => Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null)),
+                                delete: deleteFn,
+                                assign: assignFn,
+                            };
+                        }
+
                         return {
-                            search: () => Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null)),
+                            search: () =>
+                                Promise.resolve(new EntityCollection('', 'order', Shopware.Context.api, null, [orderMock])),
                             delete: deleteFn,
                             assign: assignFn,
                         };
@@ -145,6 +158,7 @@ async function createWrapper() {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-order-state-change-modal': true,
+                'sw-time-ago': true,
             },
         },
     });
@@ -154,6 +168,7 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
     let wrapper;
 
     beforeAll(() => {
+        global.activeAclRoles = ['order.editor'];
         setActivePinia(createPinia());
     });
 
@@ -163,10 +178,6 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         await flushPromises();
 
         jest.clearAllMocks();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show correct summary header', async () => {
@@ -216,5 +227,47 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         wrapper.vm.$options.watch['order.id'].call(wrapper.vm);
 
         expect(spyCreatedComponent).toHaveBeenCalledTimes(1);
+    });
+
+    it('should output no user if last updated by api', async () => {
+        orderMock.updatedBy = null;
+        orderMock.createdBy = 'foo';
+        orderMock.updatedAt = '2020-01-01T00:00:00.000Z';
+        orderMock.createdAt = '2019-01-01T00:00:00.000Z';
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.lastChangedUser).toBeNull();
+        expect(wrapper.vm.lastChangedDateTime).toBe('2020-01-01T00:00:00.000Z');
+    });
+
+    it('should output user if last updated by user', async () => {
+        orderMock.updatedBy = 'bar';
+        orderMock.createdBy = 'foo';
+        orderMock.updatedAt = '2020-01-01T00:00:00.000Z';
+        orderMock.createdAt = '2019-01-01T00:00:00.000Z';
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.lastChangedUser).toBe('bar');
+        expect(wrapper.vm.lastChangedDateTime).toBe('2020-01-01T00:00:00.000Z');
+    });
+
+    it('should disable state selects on loading', async () => {
+        const stateSelects = wrapper.findAll('.sw-order-general-info__order-state');
+        expect(stateSelects).toHaveLength(3);
+
+        wrapper.vm.onLeaveModalConfirm([], false);
+
+        expect(Shopware.Store.get('swOrderDetail').isLoading).toBeTruthy();
+
+        Shopware.Store.get('swOrderDetail').savedSuccessful = true;
+        wrapper.vm.$options.watch.savedSuccessful.call(wrapper.vm, false, true);
+
+        expect(Shopware.Store.get('swOrderDetail').isLoading).toBeFalsy();
+
+        stateSelects.forEach((select) => {
+            // get first child first
+            const selectStub = select.find('sw-order-state-select-v2-stub');
+            expect(selectStub.attributes('disabled')).toBe('false');
+        });
     });
 });

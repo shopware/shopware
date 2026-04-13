@@ -4,12 +4,10 @@
 import template from './sw-contextual-field.html.twig';
 import './sw-contextual-field.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-contextual-field', {
+export default {
     template,
     inheritAttrs: false,
 
@@ -28,4 +26,4 @@ Component.register('sw-contextual-field', {
             );
         },
     },
-});
+};

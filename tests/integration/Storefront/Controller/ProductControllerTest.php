@@ -8,12 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -102,7 +104,7 @@ class ProductControllerTest extends TestCase
 
         $this->checkStatusCode($response);
         static::assertInstanceOf(JsonResponse::class, $response);
-        static::assertEquals($productId, $content['productId']);
+        static::assertSame($productId, $content['productId']);
         static::assertStringContainsString($productId, $content['url']);
     }
 
@@ -231,7 +233,11 @@ class ProductControllerTest extends TestCase
         $controller = static::getContainer()->get(ProductController::class);
 
         if ($shouldThrowException) {
-            $this->expectException(ProductNotFoundException::class);
+            if (!Feature::isActive('v6.8.0.0')) {
+                $this->expectException(ProductNotFoundException::class);
+            } else {
+                $this->expectException(ProductException::class);
+            }
         }
 
         $response = $controller->index($context, $this->createDetailRequest($context, $this->ids->get($requestVariant)));
@@ -251,27 +257,27 @@ class ProductControllerTest extends TestCase
         $crawler->filter('.product-detail-configurator .product-detail-configurator-option-label')
             ->each(static function (Crawler $option) use ($blue, $green, $red, $xl, $l, &$blueFound, &$greenFound, &$redFound, &$xlFound, &$lFound, &$mFound): void {
                 if ($option->innerText() === 'blue') {
-                    static::assertEquals($blue, $option->matches('.is-combinable'));
+                    static::assertSame($blue, $option->matches('.is-combinable'));
                     $blueFound = true;
                 }
 
                 if ($option->innerText() === 'green') {
-                    static::assertEquals($green, $option->matches('.is-combinable'));
+                    static::assertSame($green, $option->matches('.is-combinable'));
                     $greenFound = true;
                 }
 
                 if ($option->innerText() === 'red') {
-                    static::assertEquals($red, $option->matches('.is-combinable'));
+                    static::assertSame($red, $option->matches('.is-combinable'));
                     $redFound = true;
                 }
 
                 if ($option->innerText() === 'xl') {
-                    static::assertEquals($xl, $option->matches('.is-combinable'));
+                    static::assertSame($xl, $option->matches('.is-combinable'));
                     $xlFound = true;
                 }
 
                 if ($option->innerText() === 'l') {
-                    static::assertEquals($l, $option->matches('.is-combinable'));
+                    static::assertSame($l, $option->matches('.is-combinable'));
                     $lFound = true;
                 }
 
@@ -321,7 +327,28 @@ class ProductControllerTest extends TestCase
         static::assertArrayHasKey('product-page-loaded', $traces);
     }
 
-    public function testMProductQuickViewWidgetLoadedHookScriptsAreExecuted(): void
+    public function testProductPageDepthMicrodataUsesDepthItemProp(): void
+    {
+        Feature::skipTestIfActive('JSON_LD_DATA', $this);
+
+        $productId = $this->createProduct(['length' => 12.0]);
+
+        $response = $this->request(
+            'GET',
+            '/my-product/' . $productId,
+            []
+        );
+
+        $this->checkStatusCode($response);
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        static::assertStringContainsString('<meta itemprop="depth"', $content);
+        static::assertStringContainsString('content="12 mm"', $content);
+        static::assertStringNotContainsString('itemprop="length"', $content);
+    }
+
+    public function testProductQuickViewWidgetLoadedHookScriptsAreExecuted(): void
     {
         $productId = $this->createProduct();
 
@@ -356,7 +383,14 @@ class ProductControllerTest extends TestCase
 
         $content = $response->getContent();
         static::assertIsString($content);
-        static::assertStringContainsString('<p class="product-detail-review-item-content" itemprop="description" lang="en-GB">', $content);
+
+        if (Feature::isActive('JSON_LD_DATA')) {
+            static::assertStringContainsString('class="product-detail-review-item-content"', $content);
+        } else {
+            static::assertStringContainsString('class="product-detail-review-item-content"', $content);
+            static::assertStringContainsString('itemprop="description"', $content);
+        }
+
         static::assertStringContainsString(self::TEST_CONTENT, $content);
     }
 
@@ -376,7 +410,10 @@ class ProductControllerTest extends TestCase
         return $request;
     }
 
-    private function createProduct(): string
+    /**
+     * @param array<string, mixed> $overrides
+     */
+    private function createProduct(array $overrides = []): string
     {
         $id = Uuid::randomHex();
 
@@ -407,6 +444,8 @@ class ProductControllerTest extends TestCase
                 ],
             ],
         ];
+
+        $product = array_replace_recursive($product, $overrides);
 
         $repository = static::getContainer()->get('product.repository');
 

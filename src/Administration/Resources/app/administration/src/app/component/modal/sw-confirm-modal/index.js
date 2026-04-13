@@ -1,7 +1,5 @@
 import template from './sw-confirm-modal.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -20,7 +18,7 @@ const { Component } = Shopware;
  * </sw-confirm-modal>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-confirm-modal', {
+export default {
     template,
 
     emits: [
@@ -37,6 +35,12 @@ Component.register('sw-confirm-modal', {
         },
 
         text: {
+            type: String,
+            required: false,
+            default: '',
+        },
+
+        textConfirm: {
             type: String,
             required: false,
             default: '',
@@ -107,6 +111,10 @@ Component.register('sw-confirm-modal', {
         },
 
         confirmText() {
+            if (this.textConfirm) {
+                return this.textConfirm;
+            }
+
             switch (this.type) {
                 case 'delete':
                     return this.$tc('global.default.delete');
@@ -137,4 +145,4 @@ Component.register('sw-confirm-modal', {
             }
         },
     },
-});
+};

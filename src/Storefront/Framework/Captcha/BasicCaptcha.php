@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -28,40 +29,33 @@ class BasicCaptcha extends AbstractCaptcha
     ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supports(Request $request, array $captchaConfig): bool
     {
-        /** @var SalesChannelContext|null $context */
-        $context = $request->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-        $salesChannelId = $context ? $context->getSalesChannelId() : null;
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        $salesChannelId = $context instanceof SalesChannelContext ? $context->getSalesChannelId() : null;
 
         $activeCaptchas = $this->systemConfigService->get('core.basicInformation.activeCaptchasV2', $salesChannelId);
 
-        if (empty($activeCaptchas) || !\is_array($activeCaptchas)) {
+        if (!\is_array($activeCaptchas) || $activeCaptchas === []) {
             return false;
         }
 
         return $request->isMethod(Request::METHOD_POST)
-            && \in_array(self::CAPTCHA_NAME, array_keys($activeCaptchas), true)
+            && \array_key_exists(self::CAPTCHA_NAME, $activeCaptchas)
             && $activeCaptchas[self::CAPTCHA_NAME]['isActive'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function isValid(Request $request, array $captchaConfig): bool
     {
-        $basicCaptchaValue = $request->get(self::CAPTCHA_REQUEST_PARAMETER);
+        $basicCaptchaValue = $request->request->get(self::CAPTCHA_REQUEST_PARAMETER);
 
         if ($basicCaptchaValue === null) {
             return false;
         }
 
         $session = $this->requestStack->getSession();
-        $captchaSession = $session->get($request->get('formId') . self::BASIC_CAPTCHA_SESSION);
-        $session->remove($request->get('formId') . self::BASIC_CAPTCHA_SESSION);
+        $captchaSession = $session->get(RequestParamHelper::get($request, 'formId') . self::BASIC_CAPTCHA_SESSION);
+        $session->remove(RequestParamHelper::get($request, 'formId') . self::BASIC_CAPTCHA_SESSION);
 
         if ($captchaSession === null) {
             return false;
@@ -70,25 +64,16 @@ class BasicCaptcha extends AbstractCaptcha
         return strtolower((string) $basicCaptchaValue) === strtolower((string) $captchaSession);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function shouldBreak(): bool
     {
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName(): string
     {
         return self::CAPTCHA_NAME;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getViolations(): ConstraintViolationList
     {
         $violations = new ConstraintViolationList();

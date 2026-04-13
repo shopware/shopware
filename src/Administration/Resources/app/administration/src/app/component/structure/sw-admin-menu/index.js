@@ -1,7 +1,7 @@
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { dom, types } = Shopware.Utils;
 
 /**
@@ -9,7 +9,7 @@ const { dom, types } = Shopware.Utils;
  *
  * @private
  */
-Component.register('sw-admin-menu', {
+export default {
     template,
 
     inject: [
@@ -104,11 +104,9 @@ Component.register('sw-admin-menu', {
             // Throw an console error if navigation entry is on level 4 or higher. Also remove the navigation entry from menu
             return adminModuleNavigationEntries.filter((entry) => {
                 const levelOneParent = adminModuleNavigationEntries.find((e) => entry.parent && e.id === entry.parent);
-                // eslint-disable-next-line max-len
                 const levelTwoParent = adminModuleNavigationEntries.find(
                     (e) => levelOneParent?.parent && e.id === levelOneParent?.parent,
                 );
-                // eslint-disable-next-line max-len
                 const levelThreeParent = adminModuleNavigationEntries.find(
                     (e) => levelTwoParent?.parent && e.id === levelTwoParent?.parent,
                 );
@@ -237,8 +235,10 @@ The admin menu only supports up to three levels of nesting.`,
     },
 
     beforeUnmount() {
-        document.removeEventListener('mousemove', this.onMouseMoveDocument);
+        document.removeEventListener('mousemove', this.onMouseMoveDocument.bind(this));
         document.removeEventListener('mouseleave', this.onFlyoutLeave);
+
+        this.beforeUnmountedComponent();
     },
 
     methods: {
@@ -248,11 +248,17 @@ The admin menu only supports up to three levels of nesting.`,
             this.collapseMenuOnSmallViewports();
             this.getUser();
 
-            Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', (state) => {
-                this.isOffCanvasShown = state;
-            });
+            Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
 
             this.initNavigation();
+        },
+
+        beforeUnmountedComponent() {
+            Shopware.Utils.EventBus.off('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
+        },
+
+        onToggleCanvas(state) {
+            this.isOffCanvasShown = state;
         },
 
         initNavigation() {
@@ -387,15 +393,13 @@ The admin menu only supports up to three levels of nesting.`,
             this.isUserActionsActive = false;
         },
 
-        onLogoutUser() {
-            this.loginService.logout();
+        async onLogoutUser() {
+            await this.loginService.logoutSso();
+
             this.adminMenuStore.clearExpandedMenuEntries();
             Shopware.Store.get('session').removeCurrentUser();
             Shopware.Store.get('notification').clearGrowlNotificationsForCurrentUser();
             Shopware.Store.get('notification').clearNotificationsForCurrentUser();
-            this.$router.push({
-                name: 'sw.login.index',
-            });
         },
 
         addScrollbarOffset() {
@@ -554,7 +558,6 @@ The admin menu only supports up to three levels of nesting.`,
             // Inspired by https://github.com/substack/point-in-polygon/blob/master/index.js
             let inside = false;
 
-            // eslint-disable-next-line no-plusplus
             for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
                 const xi = polygon[i][0];
                 const yi = polygon[i][1];
@@ -738,4 +741,4 @@ The admin menu only supports up to three levels of nesting.`,
             return types.isEqual(entry, firstPluginEntry);
         },
     },
-});
+};

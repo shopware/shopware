@@ -162,7 +162,7 @@ export default {
 
     methods: {
         createdComponent() {
-            this.paymentMethodId = this.$route.params.id;
+            this.paymentMethodId = this.$route.params.id.toLowerCase();
             this.loadEntityData();
             this.loadCustomFieldSets();
         },
@@ -243,13 +243,12 @@ export default {
 
             try {
                 errorDetails = error.response.data.errors[0].detail;
-            } catch (e) {
+            } catch (_e) {
                 errorDetails = '';
             }
 
             this.createNotificationError({
                 title: this.$tc('global.default.error'),
-                // eslint-disable-next-line max-len
                 message: `${this.$tc('sw-settings-payment.detail.messageSaveError', { name: this.paymentMethod.name }, 0)} ${errorDetails}`,
             });
         },

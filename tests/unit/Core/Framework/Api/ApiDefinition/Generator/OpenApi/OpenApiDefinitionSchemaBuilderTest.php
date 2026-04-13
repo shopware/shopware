@@ -65,33 +65,33 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
             '/simple',
             false
         );
-        $properties = json_decode($schema['Simple']->toJson(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR)['properties'];
+        $properties = json_decode($schema['Simple']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
         static::assertArrayHasKey('id', $properties);
         static::assertArrayHasKey('type', $properties['id']);
-        static::assertEquals('string', $properties['id']['type']);
+        static::assertSame('string', $properties['id']['type']);
         static::assertArrayHasKey('pattern', $properties['id']);
-        static::assertEquals('^[0-9a-f]{32}$', $properties['id']['pattern']);
+        static::assertSame('^[0-9a-f]{32}$', $properties['id']['pattern']);
         static::assertArrayHasKey('stringField', $properties);
         static::assertArrayHasKey('type', $properties['stringField']);
-        static::assertEquals('string', $properties['stringField']['type']);
+        static::assertSame('string', $properties['stringField']['type']);
         static::assertArrayHasKey('intField', $properties);
         static::assertArrayHasKey('type', $properties['intField']);
-        static::assertEquals('integer', $properties['intField']['type']);
+        static::assertSame('integer', $properties['intField']['type']);
         static::assertArrayHasKey('format', $properties['intField']);
-        static::assertEquals('int64', $properties['intField']['format']);
+        static::assertSame('int64', $properties['intField']['format']);
         static::assertArrayHasKey('floatField', $properties);
         static::assertArrayHasKey('type', $properties['floatField']);
-        static::assertEquals('number', $properties['floatField']['type']);
+        static::assertSame('number', $properties['floatField']['type']);
         static::assertArrayHasKey('format', $properties['floatField']);
-        static::assertEquals('float', $properties['floatField']['format']);
+        static::assertSame('float', $properties['floatField']['format']);
         static::assertArrayHasKey('boolField', $properties);
         static::assertArrayHasKey('type', $properties['boolField']);
-        static::assertEquals('boolean', $properties['boolField']['type']);
+        static::assertSame('boolean', $properties['boolField']['type']);
         static::assertArrayHasKey('childCount', $properties);
         static::assertArrayHasKey('type', $properties['childCount']);
-        static::assertEquals('integer', $properties['childCount']['type']);
+        static::assertSame('integer', $properties['childCount']['type']);
         static::assertArrayHasKey('format', $properties['childCount']);
-        static::assertEquals('int64', $properties['childCount']['format']);
+        static::assertSame('int64', $properties['childCount']['format']);
     }
 
     public function testFlagConversion(): void
@@ -101,14 +101,14 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
             '/simple',
             false
         );
-        $properties = json_decode($schema['Simple']->toJson(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR)['properties'];
+        $properties = json_decode($schema['Simple']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
 
         static::assertArrayHasKey('requiredField', $properties);
         static::assertArrayHasKey('readOnlyField', $properties);
         static::assertArrayHasKey('readOnly', $properties['readOnlyField']);
         static::assertTrue($properties['readOnlyField']['readOnly']);
         static::assertArrayHasKey('runtimeField', $properties);
-        static::assertEquals('Runtime field, cannot be used as part of the criteria.', $properties['runtimeField']['description']);
+        static::assertSame('Runtime field, cannot be used as part of the criteria.', $properties['runtimeField']['description']);
     }
 
     public function testExtensionConversion(): void
@@ -118,10 +118,35 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
             '/simple-extended',
             false
         );
-        $properties = json_decode($schema['SimpleExtended']->toJson(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR)['properties'];
+        $properties = json_decode($schema['SimpleExtended']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
 
         static::assertArrayHasKey('extensions', $properties);
         static::assertArrayHasKey('properties', $properties['extensions']);
         static::assertArrayHasKey('extendedJsonField', $properties['extensions']['properties']);
+    }
+
+    public function testAssociationDescriptions(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(ComplexDefinition::class),
+            '/complex',
+            false
+        );
+
+        $properties = json_decode($schema['Complex']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
+
+        // Test ManyToOne association description
+        static::assertArrayHasKey('simpleTo', $properties);
+        static::assertArrayHasKey('description', $properties['simpleTo']);
+        static::assertSame('A reference to a simple entity', $properties['simpleTo']['description']);
+
+        // Test OneToMany association description
+        static::assertArrayHasKey('simpleManys', $properties);
+        static::assertArrayHasKey('description', $properties['simpleManys']);
+        static::assertSame('Multiple simple entities', $properties['simpleManys']['description']);
+
+        // Test with empty description
+        static::assertArrayHasKey('simpleToWithEmptyDescription', $properties);
+        static::assertArrayNotHasKey('description', $properties['simpleToWithEmptyDescription']);
     }
 }

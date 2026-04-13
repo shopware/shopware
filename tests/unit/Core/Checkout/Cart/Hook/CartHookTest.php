@@ -22,7 +22,7 @@ class CartHookTest extends TestCase
         $cart->setSource('test');
         $hook = new CartHook($cart, $this->createMock(SalesChannelContext::class));
 
-        static::assertEquals('cart-test', $hook->getName());
+        static::assertSame('cart-test', $hook->getName());
     }
 
     public function testNameWithoutCartSource(): void
@@ -30,6 +30,6 @@ class CartHookTest extends TestCase
         $cart = new Cart('test');
         $hook = new CartHook($cart, $this->createMock(SalesChannelContext::class));
 
-        static::assertEquals('cart', $hook->getName());
+        static::assertSame('cart', $hook->getName());
     }
 }

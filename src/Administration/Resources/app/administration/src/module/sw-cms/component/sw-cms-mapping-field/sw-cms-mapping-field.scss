@@ -57,8 +57,8 @@
 
         .mt-icon {
             width: 16px;
-            height: 16px;
-            padding: 2px;
+            height: 18px;
+            margin-right: 2px;
         }
     }
 
@@ -79,6 +79,14 @@
 
     .sw-cms-mapping-field__empty-demo {
         margin: 0;
+    }
+
+    &.is--disabled {
+        .sw-cms-mapping-field__info,
+        .sw-cms-mapping-field__action-remove {
+            pointer-events: none;
+            opacity: 0.7;
+        }
     }
 }
 

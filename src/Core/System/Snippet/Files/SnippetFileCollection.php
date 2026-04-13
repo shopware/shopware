@@ -69,7 +69,7 @@ class SnippetFileCollection extends Collection
      */
     public function getFilesArray(bool $isBase = true): array
     {
-        return array_filter($this->toArray(), fn ($file) => $file['isBase'] === $isBase);
+        return array_filter($this->toArray(), static fn ($file) => $file['isBase'] === $isBase);
     }
 
     /**
@@ -134,11 +134,19 @@ class SnippetFileCollection extends Collection
         if ($this->mapping === null) {
             $this->mapping = [];
             foreach ($this->elements as $element) {
-                $this->mapping[(string) realpath($element->getPath())] = true;
+                $realPath = realpath($element->getPath());
+                if ($realPath !== false) {
+                    $this->mapping[$realPath] = true;
+                }
             }
         }
 
-        return isset($this->mapping[realpath($filePath)]);
+        $realFilePath = realpath($filePath);
+        if ($realFilePath === false) {
+            return false;
+        }
+
+        return isset($this->mapping[$realFilePath]);
     }
 
     protected function getExpectedClass(): ?string

@@ -2,4 +2,21 @@
     .sw-manufacturer-detail__container {
         margin-bottom: 16px;
     }
+
+    .sw-manufacturer-detail__logo-upload {
+        .sw-media-upload-v2 {
+            &__header {
+                margin-bottom: 0;
+                min-height: 24px;
+            }
+
+            &__dropzone {
+                min-height: 150px;
+            }
+
+            &__url-form {
+                padding-left: 24px;
+            }
+        }
+    }
 }

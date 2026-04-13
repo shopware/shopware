@@ -7,14 +7,19 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
+use Shopware\Core\Content\Product\Extension\ProductPriceCalculationExtension;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -27,10 +32,13 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
 
     /**
      * @internal
+     *
+     * @param EntityRepository<UnitCollection> $unitRepository
      */
     public function __construct(
         private readonly EntityRepository $unitRepository,
-        private readonly QuantityPriceCalculator $calculator
+        private readonly QuantityPriceCalculator $calculator,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -40,23 +48,35 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
     }
 
     /**
-     * @param Entity[] $products
+     * @param iterable<Entity> $products
      */
     public function calculate(iterable $products, SalesChannelContext $context): void
     {
-        $units = $this->getUnits($context);
-
-        /** @var Entity $product */
-        foreach ($products as $product) {
-            $this->calculatePrice($product, $context, $units);
-            $this->calculateAdvancePrices($product, $context, $units);
-            $this->calculateCheapestPrice($product, $context, $units);
-        }
+        // allows full service decoration
+        $this->extensions->publish(
+            name: ProductPriceCalculationExtension::NAME,
+            extension: new ProductPriceCalculationExtension($products, $context),
+            function: $this->_calculate(...)
+        );
     }
 
     public function reset(): void
     {
         $this->units = null;
+    }
+
+    /**
+     * @param iterable<Entity> $products
+     */
+    private function _calculate(iterable $products, SalesChannelContext $context): void
+    {
+        $units = $this->getUnits($context);
+
+        foreach ($products as $product) {
+            $this->calculatePrice($product, $context, $units);
+            $this->calculateAdvancePrices($product, $context, $units);
+            $this->calculateCheapestPrice($product, $context, $units);
+        }
     }
 
     private function calculatePrice(Entity $product, SalesChannelContext $context, UnitCollection $units): void
@@ -87,7 +107,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
             return;
         }
 
-        if (!$prices instanceof ProductPriceCollection) {
+        if (!$prices instanceof EntityCollection || $prices->count() === 0) {
             return;
         }
 
@@ -95,15 +115,23 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         if ($prices === null) {
             return;
         }
-        $prices->sortByQuantity();
+        $prices->sort(fn (Entity $a, Entity $b) => $a->get('quantityStart') <=> $b->get('quantityStart'));
 
         $reference = ReferencePriceDto::createFromEntity($product);
 
         $calculated = new CalculatedPriceCollection();
         foreach ($prices as $price) {
-            $quantity = $price->getQuantityEnd() ?? $price->getQuantityStart();
+            $quantityStart = $price->get('quantityStart');
+            $quantityEnd = $price->get('quantityEnd');
+            $priceObj = $price->get('price');
 
-            $definition = $this->buildDefinition($product, $price->getPrice(), $context, $units, $reference, $quantity);
+            if (!$priceObj instanceof PriceCollection || (!\is_int($quantityStart) && !\is_int($quantityEnd))) {
+                continue;
+            }
+
+            $quantity = \is_int($quantityEnd) ? $quantityEnd : $quantityStart;
+
+            $definition = $this->buildDefinition($product, $priceObj, $context, $units, $reference, $quantity);
 
             $calculated->add($this->calculator->calculate($definition, $context));
         }
@@ -185,8 +213,10 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
 
     private function getPriceValue(PriceCollection $price, SalesChannelContext $context): float
     {
-        /** @var Price $currency */
         $currency = $price->getCurrencyPrice($context->getCurrencyId());
+        if ($currency === null) {
+            throw ProductException::noPriceForCurrency($context->getCurrency());
+        }
 
         $value = $this->getPriceForTaxState($currency, $context);
 
@@ -268,10 +298,15 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         );
     }
 
-    private function filterRulePrices(ProductPriceCollection $rules, SalesChannelContext $context): ?ProductPriceCollection
+    /**
+     * @param EntityCollection<ProductPriceEntity|PartialEntity> $rules
+     *
+     * @return EntityCollection<ProductPriceEntity|PartialEntity>|null
+     */
+    private function filterRulePrices(EntityCollection $rules, SalesChannelContext $context): ?EntityCollection
     {
         foreach ($context->getRuleIds() as $ruleId) {
-            $filtered = $rules->filterByRuleId($ruleId);
+            $filtered = $rules->filter(fn (Entity $price) => $ruleId === $price->get('ruleId'));
 
             if (\count($filtered) > 0) {
                 return $filtered;
@@ -290,7 +325,6 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         $criteria = new Criteria();
         $criteria->setTitle('product-price-calculator::units');
 
-        /** @var UnitCollection $units */
         $units = $this->unitRepository
             ->search($criteria, $context->getContext())
             ->getEntities();

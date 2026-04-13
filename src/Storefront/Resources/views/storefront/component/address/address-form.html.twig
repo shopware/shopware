@@ -26,14 +26,18 @@
                                 {% sw_include '@Storefront/storefront/component/address/field/address-company-department-field.html.twig' %}
                             {% endblock %}
 
-                            {# ludtwig-ignore twig-block-name-snake-case #}
-                            {% block component_address_form_company_vatId %}
-                                {% if prefix == 'address' and showVatIdField %}
-                                    {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
-                                        vatIds: context.customer.vatIds
-                                    } %}
-                                {% endif %}
-                            {% endblock %}
+                            {% if not feature('v6.8.0.0') %}
+                                {# @deprecated tag:v6.8.0 - Block component_address_form_company_vatId will be removed as `showVatIdField` was never true #}
+
+                                {# ludtwig-ignore twig-block-name-snake-case #}
+                                {% block component_address_form_company_vatId %}
+                                    {% if prefix == 'address' and showVatIdField %}
+                                        {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
+                                            vatIds: context.customer.vatIds
+                                        } %}
+                                    {% endif %}
+                                {% endblock %}
+                            {% endif %}
                         </div>
                     {% endblock %}
                 </div>

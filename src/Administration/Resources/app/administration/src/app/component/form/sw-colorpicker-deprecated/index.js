@@ -1,7 +1,7 @@
 import template from './sw-colorpicker.html.twig';
 import './sw-colorpicker.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const debounce = Shopware.Utils.debounce;
 
 /**
@@ -22,7 +22,7 @@ const debounce = Shopware.Utils.debounce;
  *      zIndex="100">
  * </sw-colorpicker>
  */
-Component.register('sw-colorpicker-deprecated', {
+export default {
     template,
 
     inject: ['feature'],
@@ -60,7 +60,6 @@ Component.register('sw-colorpicker-deprecated', {
         alpha: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -79,7 +78,6 @@ Component.register('sw-colorpicker-deprecated', {
         colorLabels: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -129,7 +127,6 @@ Component.register('sw-colorpicker-deprecated', {
         },
 
         sliderBackground() {
-            // eslint-disable-next-line max-len
             return `linear-gradient(90deg, hsla(${this.hueValue}, ${this.saturationValue}%, ${this.luminanceValue}%, 0), hsl(${this.hueValue}, ${this.saturationValue}%, ${this.luminanceValue}%)), url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\' width=\'100%25\' height=\'100%25\'%3E%3Crect width=\'10\' height=\'10\' x=\'00\' y=\'00\' fill=\'%23cdd5db\' /%3E%3Crect width=\'10\' height=\'10\' x=\'10\' y=\'10\' fill=\'%23cdd5db\' /%3E%3C/svg%3E")`;
         },
 
@@ -416,8 +413,8 @@ Component.register('sw-colorpicker-deprecated', {
             document.body.style.userSelect = null;
             this.isDragging = false;
 
-            window.removeEventListener('mousemove', this.moveSelector);
-            window.removeEventListener('mouseup', this.removeDragging);
+            window.removeEventListener('mousemove', this.moveSelector, false);
+            window.removeEventListener('mouseup', this.removeDragging, false);
         },
 
         setSingleRGBValue(newColorValue, type) {
@@ -530,7 +527,6 @@ Component.register('sw-colorpicker-deprecated', {
                 return {};
             }
 
-            // eslint-disable-next-line prefer-const
             let { hue, saturation, luminance, alpha } = color;
 
             saturation /= 100;
@@ -783,4 +779,4 @@ Component.register('sw-colorpicker-deprecated', {
             return Number(Number(num).toFixed(digits));
         },
     },
-});
+};

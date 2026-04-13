@@ -4,7 +4,7 @@ import defaultSearchConfiguration from './default-search-configuration';
 /**
  * @sw-package discovery
  */
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-customer-group-list', () => import('./page/sw-settings-customer-group-list'));
 Shopware.Component.register('sw-settings-customer-group-detail', () => import('./page/sw-settings-customer-group-detail'));
 Shopware.Component.extend(
@@ -12,7 +12,7 @@ Shopware.Component.extend(
     'sw-settings-customer-group-detail',
     () => import('./page/sw-settings-customer-group-create'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 
@@ -48,7 +48,7 @@ Module.register('sw-settings-customer-group', {
             props: {
                 default(route) {
                     return {
-                        customerGroupId: route.params.id,
+                        customerGroupId: route.params.id.toLowerCase(),
                     };
                 },
             },

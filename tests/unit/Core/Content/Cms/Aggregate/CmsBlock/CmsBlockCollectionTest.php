@@ -44,7 +44,7 @@ class CmsBlockCollectionTest extends TestCase
         /** @var CmsSlotEntity $lastSlot */
         $lastSlot = $collection->getSlots()->last();
 
-        static::assertEquals(['overwrite' => true], $lastSlot->getConfig());
+        static::assertSame(['overwrite' => true], $lastSlot->getConfig());
     }
 
     private function getBlock(): CmsBlockEntity

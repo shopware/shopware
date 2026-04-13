@@ -4,10 +4,14 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport\Api;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,8 +22,13 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('fundamentals@after-sales')]
 class ImportExportFileApiTest extends TestCase
 {
-    use AdminFunctionalTestBehaviour;
+    use AdminApiTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
+    /**
+     * @var EntityRepository<EntityCollection<ImportExportFileEntity>>
+     */
     private EntityRepository $repository;
 
     private Connection $connection;
@@ -39,7 +48,7 @@ class ImportExportFileApiTest extends TestCase
         $data = $this->prepareImportExportFileTestData($num);
 
         foreach ($data as $entry) {
-            $this->getBrowser()->request('POST', $this->prepareRoute(), [], [], [], json_encode($entry, \JSON_THROW_ON_ERROR));
+            $this->getBrowser()->jsonRequest('POST', $this->prepareRoute(), $entry);
             $response = $this->getBrowser()->getResponse();
             static::assertIsString($response->getContent());
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
@@ -51,8 +60,8 @@ class ImportExportFileApiTest extends TestCase
             $expect = $data[$record['id']];
             static::assertSame($expect['originalName'], $record['original_name']);
             static::assertSame($expect['path'], $record['path']);
-            static::assertEquals(strtotime((string) $expect['expireDate']), strtotime((string) $record['expire_date']));
-            static::assertEquals($expect['size'], $record['size']);
+            static::assertSame(strtotime((string) $expect['expireDate']), strtotime((string) $record['expire_date']));
+            static::assertSame($expect['size'], (int) $record['size']);
             static::assertSame($expect['accessToken'], $record['access_token']);
             unset($data[$record['id']]);
         }
@@ -64,7 +73,7 @@ class ImportExportFileApiTest extends TestCase
         foreach ($requiredProperties as $property) {
             $entry = current($this->prepareImportExportFileTestData());
             unset($entry[$property]);
-            $this->getBrowser()->request('POST', $this->prepareRoute(), $entry);
+            $this->getBrowser()->jsonRequest('POST', $this->prepareRoute(), $entry);
             $response = $this->getBrowser()->getResponse();
             static::assertIsString($response->getContent());
             static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), $response->getContent());
@@ -75,11 +84,11 @@ class ImportExportFileApiTest extends TestCase
     {
         foreach ([0, 5] as $num) {
             $data = $this->prepareImportExportFileTestData($num);
-            if (!empty($data)) {
+            if ($data !== []) {
                 $this->repository->create(array_values($data), $this->context);
             }
 
-            $this->getBrowser()->request('GET', $this->prepareRoute(), [], [], [
+            $this->getBrowser()->jsonRequest('GET', $this->prepareRoute(), [], [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
 
@@ -93,14 +102,14 @@ class ImportExportFileApiTest extends TestCase
                 $expectData[$entry['id']] = $entry;
             }
 
-            static::assertEquals($num, $content['total']);
+            static::assertSame($num, $content['total']);
             for ($i = 0; $i < $num; ++$i) {
                 $importExportFile = $content['data'][$i];
                 $expect = $expectData[$importExportFile['_uniqueIdentifier']];
                 static::assertSame($expect['originalName'], $importExportFile['originalName']);
                 static::assertSame($expect['path'], $importExportFile['path']);
-                static::assertEquals(strtotime((string) $expect['expireDate']), strtotime((string) $importExportFile['expireDate']));
-                static::assertEquals($expect['size'], $importExportFile['size']);
+                static::assertSame(strtotime((string) $expect['expireDate']), strtotime((string) $importExportFile['expireDate']));
+                static::assertSame($expect['size'], $importExportFile['size']);
                 static::assertSame($expect['accessToken'], $importExportFile['accessToken']);
             }
         }
@@ -120,29 +129,29 @@ class ImportExportFileApiTest extends TestCase
             $expectData[$id] = $data[$idx];
             unset($data[$idx]['id']);
 
-            $this->getBrowser()->request('PATCH', $this->prepareRoute() . $id, [], [], [
+            $this->getBrowser()->jsonRequest('PATCH', $this->prepareRoute() . $id, $data[$idx], [
                 'HTTP_ACCEPT' => 'application/json',
-            ], json_encode($data[$idx], \JSON_THROW_ON_ERROR));
+            ]);
             $response = $this->getBrowser()->getResponse();
-            static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         }
 
-        $this->getBrowser()->request('GET', $this->prepareRoute(), [], [], [
+        $this->getBrowser()->jsonRequest('GET', $this->prepareRoute(), [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertIsString($response->getContent());
         $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals($num, $content['total']);
+        static::assertSame($num, $content['total']);
         for ($i = 0; $i < $num; ++$i) {
             $importExportFile = $content['data'][$i];
             $expect = $expectData[$importExportFile['_uniqueIdentifier']];
             static::assertSame($expect['originalName'], $importExportFile['originalName']);
             static::assertSame($expect['path'], $importExportFile['path']);
-            static::assertEquals(strtotime((string) $expect['expireDate']), strtotime((string) $importExportFile['expireDate']));
-            static::assertEquals($expect['size'], $importExportFile['size']);
+            static::assertSame(strtotime((string) $expect['expireDate']), strtotime((string) $importExportFile['expireDate']));
+            static::assertSame($expect['size'], $importExportFile['size']);
             static::assertSame($expect['accessToken'], $importExportFile['accessToken']);
         }
     }
@@ -166,17 +175,17 @@ class ImportExportFileApiTest extends TestCase
             unset($data[$idx][$removedProperty]);
             unset($data[$idx]['id']);
 
-            $this->getBrowser()->request('PATCH', $this->prepareRoute() . $id, [], [], [
-                'HTTP_ACCEPT' => 'application/json',
-            ], json_encode($data[$idx], \JSON_THROW_ON_ERROR));
-            $response = $this->getBrowser()->getResponse();
-            static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-
-            $this->getBrowser()->request('GET', $this->prepareRoute() . $id, [], [], [
+            $this->getBrowser()->jsonRequest('PATCH', $this->prepareRoute() . $id, $data[$idx], [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
-            static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+            $this->getBrowser()->jsonRequest('GET', $this->prepareRoute() . $id, [], [
+                'HTTP_ACCEPT' => 'application/json',
+            ]);
+            $response = $this->getBrowser()->getResponse();
+            static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
             static::assertIsString($response->getContent());
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -194,9 +203,9 @@ class ImportExportFileApiTest extends TestCase
                     $expectValue = strtotime((string) $expectValue);
                 }
                 if ($property === $removedProperty) {
-                    static::assertNotEquals($expectValue, $currentValue);
+                    static::assertNotSame($expectValue, $currentValue);
                 } else {
-                    static::assertEquals($expectValue, $currentValue);
+                    static::assertSame($expectValue, $currentValue);
                 }
             }
         }
@@ -209,29 +218,29 @@ class ImportExportFileApiTest extends TestCase
         $this->repository->create(array_values($data), $this->context);
 
         foreach (array_values($data) as $expect) {
-            $this->getBrowser()->request('GET', $this->prepareRoute() . $expect['id'], [], [], [
+            $this->getBrowser()->jsonRequest('GET', $this->prepareRoute() . $expect['id'], [], [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
-            static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+            static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
             static::assertIsString($response->getContent());
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
             static::assertSame($expect['originalName'], $content['data']['originalName']);
             static::assertSame($expect['path'], $content['data']['path']);
-            static::assertEquals(strtotime((string) $expect['expireDate']), strtotime((string) $content['data']['expireDate']));
-            static::assertEquals($expect['size'], $content['data']['size']);
+            static::assertSame(strtotime((string) $expect['expireDate']), strtotime((string) $content['data']['expireDate']));
+            static::assertSame($expect['size'], $content['data']['size']);
             static::assertSame($expect['accessToken'], $content['data']['accessToken']);
         }
     }
 
     public function testImportExportFileDetailNotFound(): void
     {
-        $this->getBrowser()->request('GET', $this->prepareRoute() . Uuid::randomHex(), [], [], [
+        $this->getBrowser()->jsonRequest('GET', $this->prepareRoute() . Uuid::randomHex(), [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 
     public function testImportExportFileSearch(): void
@@ -246,24 +255,24 @@ class ImportExportFileApiTest extends TestCase
         $filter = [];
         foreach ($searchData as $key => $value) {
             $filter['filter'][$key] = $invalidData[$key];
-            $this->getBrowser()->request('POST', $this->prepareRoute(true), $filter, [], [
+            $this->getBrowser()->jsonRequest('POST', $this->prepareRoute(true), $filter, [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
-            static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+            static::assertSame(Response::HTTP_OK, $response->getStatusCode());
             static::assertIsString($response->getContent());
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static::assertEquals(0, $content['total']);
+            static::assertSame(0, $content['total']);
 
             $filter['filter'][$key] = $value;
-            $this->getBrowser()->request('POST', $this->prepareRoute(true), $filter, [], [
+            $this->getBrowser()->jsonRequest('POST', $this->prepareRoute(true), $filter, [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
-            static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+            static::assertSame(Response::HTTP_OK, $response->getStatusCode());
             static::assertIsString($response->getContent());
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static::assertEquals(1, $content['total']);
+            static::assertSame(1, $content['total']);
         }
     }
 
@@ -274,23 +283,23 @@ class ImportExportFileApiTest extends TestCase
         $this->repository->create(array_values($data), $this->context);
         $deleteId = array_column($data, 'id')[0];
 
-        $this->getBrowser()->request('DELETE', $this->prepareRoute() . Uuid::randomHex(), [], [], [
+        $this->getBrowser()->jsonRequest('DELETE', $this->prepareRoute() . Uuid::randomHex(), [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
 
         $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_file');
         static::assertCount($num, $records);
 
-        $this->getBrowser()->request('DELETE', $this->prepareRoute() . $deleteId, [], [], [
+        $this->getBrowser()->jsonRequest('DELETE', $this->prepareRoute() . $deleteId, [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
         $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_file');
-        static::assertEquals($num - 1, \count($records));
+        static::assertCount($num - 1, $records);
     }
 
     protected function prepareRoute(bool $search = false): string

@@ -11,6 +11,7 @@
         v-if="iconName"
         :name="iconName"
         :color="iconColor"
+        size="16px"
     />
     {% endblock %}
 
@@ -137,7 +138,7 @@
                 {% block sw_search_bar_item_order_label_name %}
                 <sw-highlight-text
                     :search-term="searchTerm"
-                    :text="`${item.orderCustomer.firstName} ${item.orderCustomer.lastName}`"
+                    :text="`${item.orderCustomer?.firstName || ''} ${item.orderCustomer?.lastName || ''}`"
                 />
                 {% endblock %}
 

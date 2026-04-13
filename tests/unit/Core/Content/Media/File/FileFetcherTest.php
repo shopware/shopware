@@ -210,11 +210,11 @@ class FileFetcherTest extends TestCase
 
     private function deleteTemporyData(): void
     {
-        if (file_exists(self::TEMP_FILE)) {
+        if (\is_file(self::TEMP_FILE)) {
             unlink(self::TEMP_FILE);
         }
 
-        if (is_dir(self::TEMP_DIR)) {
+        if (\is_dir(self::TEMP_DIR)) {
             static::assertTrue(rmdir(self::TEMP_DIR));
         }
     }

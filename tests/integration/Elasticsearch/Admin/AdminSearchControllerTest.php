@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Elasticsearch\Test\AdminElasticsearchTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -62,8 +63,8 @@ class AdminSearchControllerTest extends TestCase
     }
 
     /**
-     * @param array<string, string> $data
-     * @param array<string> $expectedPromotions
+     * @param array{term: string, entities: list<string>} $data
+     * @param list<string> $expectedPromotions
      */
     #[Depends('testIndexing')]
     #[DataProvider('providerSearchCases')]
@@ -72,7 +73,7 @@ class AdminSearchControllerTest extends TestCase
         $this->getBrowser()->request('POST', '/api/_admin/es-search', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR) ?: null);
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
@@ -82,19 +83,19 @@ class AdminSearchControllerTest extends TestCase
 
         $content = $content['data']['promotion'];
 
-        static::assertEquals(\count($expectedPromotions), $content['total']);
+        static::assertSame(\count($expectedPromotions), $content['total']);
 
         foreach ($expectedPromotions as $expectedPromotion) {
             $id = $ids->get($expectedPromotion);
             static::assertNotEmpty($content['data'][$id]);
-            static::assertEquals($id, $content['data'][$id]['id']);
+            static::assertSame($id, $content['data'][$id]['id']);
         }
     }
 
     /**
-     * @return iterable<string, array{array<string, string|array<string>>, array<string>}>
+     * @return \Generator<string, array{array{term: string, entities: list<string>}, list<string>}>
      */
-    public static function providerSearchCases(): iterable
+    public static function providerSearchCases(): \Generator
     {
         yield 'search with normal term' => [
             [

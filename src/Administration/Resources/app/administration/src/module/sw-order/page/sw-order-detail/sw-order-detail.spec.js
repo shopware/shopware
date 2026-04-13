@@ -88,11 +88,6 @@ async function createWrapper(order = {}) {
 describe('src/module/sw-order/page/sw-order-detail', () => {
     let wrapper;
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should remove version id when beforeunload event is triggered', async () => {
         wrapper = await createWrapper();
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
@@ -138,6 +133,20 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.hasNewVersionId).toBeTruthy();
     });
 
+    it('should reset pending address selections when creating a new version', async () => {
+        wrapper = await createWrapper();
+
+        Shopware.Store.get('swOrderDetail').setOrderAddressIds({
+            orderAddressId: 'old-order-address-id',
+            customerAddressId: 'customer-address-id',
+            type: 'billing',
+        });
+
+        await wrapper.vm.createNewVersionId();
+
+        expect(Shopware.Store.get('swOrderDetail').orderAddressIds).toEqual([]);
+    });
+
     it('should clean up unsaved version when component gets destroyed', async () => {
         wrapper = await createWrapper();
         await wrapper.vm.createNewVersionId();
@@ -146,6 +155,20 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         await wrapper.vm.beforeDestroyComponent();
 
         expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalled();
+    });
+
+    it('should reset pending address selections when component gets destroyed', async () => {
+        wrapper = await createWrapper();
+
+        Shopware.Store.get('swOrderDetail').setOrderAddressIds({
+            orderAddressId: 'old-order-address-id',
+            customerAddressId: 'customer-address-id',
+            type: 'billing',
+        });
+
+        await wrapper.vm.beforeDestroyComponent();
+
+        expect(Shopware.Store.get('swOrderDetail').orderAddressIds).toEqual([]);
     });
 
     it('should remove version context immediately when cancelling', async () => {
@@ -383,6 +406,9 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     it('should handle order address update', async () => {
         wrapper = await createWrapper({
             id: 'order123',
+            primaryOrderDelivery: {
+                id: 'delivery123',
+            },
             deliveries: [
                 {
                     id: 'delivery123',
@@ -496,5 +522,23 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         Shopware.Store.get('swOrderDetail').savedSuccessful = true;
         expect(await promise).toBe(true);
         expect(onSaveEditsSpy).toHaveBeenCalled();
+    });
+
+    it('should call afterSaveFn of saveAndReload', async () => {
+        wrapper = await createWrapper();
+
+        let promiseResolved = false;
+        const afterSaveFn = jest.fn(() =>
+            new Promise((r) => {
+                r();
+            }).then(() => {
+                promiseResolved = true;
+            }),
+        );
+
+        await wrapper.vm.saveAndReload(afterSaveFn);
+
+        expect(afterSaveFn).toHaveBeenCalledTimes(1);
+        expect(promiseResolved).toBe(true);
     });
 });

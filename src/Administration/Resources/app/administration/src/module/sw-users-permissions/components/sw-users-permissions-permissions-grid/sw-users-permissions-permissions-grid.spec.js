@@ -44,11 +44,6 @@ async function createWrapper({ privilegesMappings = [], rolePrivileges = [] } = 
 }
 
 describe('src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show the header with all titles', async () => {
         const wrapper = await createWrapper();
 
@@ -2490,7 +2485,6 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(wrapper.vm.role.privileges).not.toContain('categories.editor');
     });
 
-    // eslint-disable-next-line max-len
     it('parent checkbox should check all of the child permission when clicked and some child permissions are already clicked', async () => {
         const wrapper = await createWrapper({
             privilegesMappings: [

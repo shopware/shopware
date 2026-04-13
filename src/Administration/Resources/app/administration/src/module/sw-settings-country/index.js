@@ -1,16 +1,12 @@
 /**
  * @sw-package fundamentals@discovery
  */
-import './component/sw-settings-country-address-handling';
-import './component/sw-settings-country-new-snippet-modal';
-import './component/sw-multi-snippet-drag-and-drop';
-import './component/sw-settings-country-preview-template';
 
 import './acl';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-country-list', () => import('./page/sw-settings-country-list'));
 Shopware.Component.register('sw-settings-country-detail', () => import('./page/sw-settings-country-detail'));
 Shopware.Component.extend(
@@ -29,7 +25,20 @@ Shopware.Component.register(
     'sw-settings-country-currency-hamburger-menu',
     () => import('./component/sw-settings-country-currency-hamburger-menu'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register(
+    'sw-settings-country-preview-template',
+    () => import('./component/sw-settings-country-preview-template'),
+);
+Shopware.Component.register(
+    'sw-settings-country-new-snippet-modal',
+    () => import('./component/sw-settings-country-new-snippet-modal'),
+);
+Shopware.Component.register(
+    'sw-settings-country-address-handling',
+    () => import('./component/sw-settings-country-address-handling'),
+);
+Shopware.Component.register('sw-multi-snippet-drag-and-drop', () => import('./component/sw-multi-snippet-drag-and-drop'));
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-country', {
@@ -38,7 +47,7 @@ Module.register('sw-settings-country', {
     title: 'sw-settings-country.general.mainMenuItemGeneral',
     description: 'Country section in the settings module',
     color: '#9AA8B5',
-    icon: 'regular-cog',
+    icon: 'solid-cog',
     favicon: 'icon-module-settings.png',
     entity: 'country',
 

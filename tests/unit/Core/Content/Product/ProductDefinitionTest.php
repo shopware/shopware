@@ -40,6 +40,6 @@ class ProductDefinitionTest extends TestCase
         sort($expected);
         sort($keys);
 
-        static::assertEquals($expected, $keys);
+        static::assertSame($expected, $keys);
     }
 }

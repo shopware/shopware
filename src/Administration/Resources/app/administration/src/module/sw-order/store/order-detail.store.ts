@@ -17,7 +17,8 @@ const swOrderDetailStore = Shopware.Store.register({
         return {
             order: null as EntitySchema.order | null,
             loading: {
-                order: false,
+                order: false, // live version id
+                recalculation: false, // custom version id
                 states: false,
             },
             editing: false,
@@ -49,7 +50,7 @@ const swOrderDetailStore = Shopware.Store.register({
             this.loading[name] = data;
         },
 
-        setOrderAddressIds(value: OrderAddressId) {
+        setOrderAddressIds(value?: OrderAddressId | null) {
             if (!value) {
                 this.orderAddressIds = [];
                 return;

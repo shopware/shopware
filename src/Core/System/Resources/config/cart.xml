@@ -18,6 +18,15 @@
         </input-field>
 
         <input-field type="bool">
+            <name>openOffcanvasAfterAddToCart</name>
+            <defaultValue>true</defaultValue>
+            <label>Open offcanvas cart after adding a product</label>
+            <label lang="de-DE">Offcanvas-Warenkorb nach dem Hinzufügen eines Produkts öffnen</label>
+            <helpText>When enabled, the offcanvas cart will automatically open after adding a product. When disabled, only a success message will be displayed. Disable this if customers tend to add many products to their shopping cart.</helpText>
+            <helpText lang="de-DE">Wenn aktiviert, wird der Offcanvas-Warenkorb automatisch geöffnet, nachdem ein Produkt hinzugefügt wurde. Wenn deaktiviert, wird nur eine Erfolgsmeldung angezeigt. Deaktivieren Sie dies, wenn Kunden tendenziell viele Produkte dem Warenkorb hinzufügen.</helpText>
+        </input-field>
+
+        <input-field type="bool">
             <name>enableOrderRefunds</name>
             <label>Enable refunds</label>
             <label lang="de-DE">Stornierungen erlauben</label>
@@ -53,6 +62,13 @@
     <card>
         <title>Checkout</title>
         <title lang="de-DE">Bestellabschluss</title>
+
+        <input-field type="bool">
+            <name>showTosCheckbox</name>
+            <flag>v6.8.0.0</flag>
+            <label>Customers are required to agree to the terms and conditions</label>
+            <label lang="de-DE">Eine Zustimmung der AGB durch den Kunden ist erforderlich</label>
+        </input-field>
 
         <input-field type="bool">
             <name>showCustomerComment</name>

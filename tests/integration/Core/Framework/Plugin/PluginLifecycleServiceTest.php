@@ -18,11 +18,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
+use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -46,6 +48,7 @@ use SwagTestPlugin\Migration\Migration1536761533TestMigration;
 use SwagTestPlugin\SwagTestPlugin;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -63,6 +66,9 @@ class PluginLifecycleServiceTest extends TestCase
 
     private ContainerInterface $container;
 
+    /**
+     * @var EntityRepository<PluginCollection>
+     */
     private EntityRepository $pluginRepo;
 
     private PluginService $pluginService;
@@ -80,6 +86,11 @@ class PluginLifecycleServiceTest extends TestCase
     private string $iso = 'sv-SE';
 
     private string $fixturePath;
+
+    /**
+     * @var array<array{string, callable}>
+     */
+    private array $registeredListeners = [];
 
     protected function setUp(): void
     {
@@ -132,6 +143,14 @@ class PluginLifecycleServiceTest extends TestCase
         if (isset($_SERVER['TEST_KEEP_MIGRATIONS'])) {
             unset($_SERVER['TEST_KEEP_MIGRATIONS']);
         }
+
+        $dispatcher = $this->container->get('event_dispatcher');
+
+        foreach ($this->registeredListeners as [$eventName, $listener]) {
+            $dispatcher->removeListener($eventName, $listener);
+        }
+
+        $this->registeredListeners = [];
     }
 
     public function testInstallPlugin(): void
@@ -284,7 +303,7 @@ class PluginLifecycleServiceTest extends TestCase
         $assetService = $this->createMock(AssetService::class);
         $assetService
             ->expects($this->once())
-            ->method('copyAssetsFromBundle');
+            ->method('copyAssets');
 
         $service = new PluginLifecycleService(
             $this->pluginRepo,
@@ -303,6 +322,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(PluginService::class),
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
+            new RequestStack(),
         );
 
         $context = Context::createDefaultContext();
@@ -402,14 +422,14 @@ class PluginLifecycleServiceTest extends TestCase
             $dependants = $params['dependants'];
             $dependantNames = $params['dependantNames'];
 
-            static::assertEquals(self::PLUGIN_NAME, $dependencyName);
+            static::assertSame(self::PLUGIN_NAME, $dependencyName);
             static::assertCount(1, $dependants);
-            static::assertEquals(\sprintf('"%s"', self::DEPENDENT_PLUGIN_NAME), $dependantNames);
+            static::assertSame(\sprintf('"%s"', self::DEPENDENT_PLUGIN_NAME), $dependantNames);
 
             $dependant = array_pop($dependants);
 
             static::assertInstanceOf(PluginEntity::class, $dependant);
-            static::assertEquals(self::DEPENDENT_PLUGIN_NAME, $dependant->getName());
+            static::assertSame(self::DEPENDENT_PLUGIN_NAME, $dependant->getName());
 
             throw $exception;
         }
@@ -506,6 +526,26 @@ class PluginLifecycleServiceTest extends TestCase
         }
 
         \ComposerAutoloaderInitPluginTestShipsVendorDirectory::getLoader()->unregister();
+    }
+
+    public function testPluginInstallFailureTriggersUninstall(): void
+    {
+        $plugin = $this->getPlugin($this->context);
+        $expectedException = new \RuntimeException('Fail from post-install event');
+
+        $listener = static function () use ($expectedException): void {
+            throw $expectedException;
+        };
+
+        $this->addTestListener(PluginPostInstallEvent::class, $listener);
+
+        try {
+            $this->pluginLifecycleService->installPlugin($plugin, $this->context);
+            static::fail('Expected exception was not thrown.');
+        } catch (\Throwable $actualException) {
+            static::assertSame($expectedException, $actualException);
+            static::assertNull($plugin->getInstalledAt());
+        }
     }
 
     private function installNotSupportedPlugin(string $name): PluginEntity
@@ -760,6 +800,7 @@ class PluginLifecycleServiceTest extends TestCase
                     'id' => $id,
                     'name' => $iso,
                     'localeId' => $localeId,
+                    'active' => true,
                     'translationCode' => [
                         'id' => $localeId,
                         'code' => $iso,
@@ -818,6 +859,7 @@ class PluginLifecycleServiceTest extends TestCase
             $pluginService,
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
+            new RequestStack(),
         );
     }
 
@@ -862,5 +904,14 @@ class PluginLifecycleServiceTest extends TestCase
     private function getTestPlugin(Context $context): PluginEntity
     {
         return $this->pluginService->getPluginByName(self::PLUGIN_NAME, $context);
+    }
+
+    private function addTestListener(string $eventName, callable $listener): void
+    {
+        $dispatcher = $this->container->get('event_dispatcher');
+
+        $dispatcher->addListener($eventName, $listener);
+
+        $this->registeredListeners[] = [$eventName, $listener];
     }
 }

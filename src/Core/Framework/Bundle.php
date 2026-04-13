@@ -58,6 +58,18 @@ abstract class Bundle extends SymfonyBundle
         return $this->getPath() . str_replace('\\', '/', $migrationSuffix);
     }
 
+    /**
+     * Returns the PHP class namespace used to register Twig components for this bundle with
+     * Symfony UX TwigComponent. Override this method to use a different namespace structure.
+     */
+    public static function getTwigComponentNamespace(): string
+    {
+        $class = static::class;
+        $pos = strrpos($class, '\\');
+
+        return ($pos !== false ? substr($class, 0, $pos) : '') . '\\Resources\\views\\components\\';
+    }
+
     final public function getContainerPrefix(): string
     {
         return (new CamelCaseToSnakeCaseNameConverter())->normalize($this->getName());
@@ -67,7 +79,7 @@ abstract class Bundle extends SymfonyBundle
     {
         $confDir = $this->getPath() . '/Resources/config';
 
-        if (file_exists($confDir)) {
+        if (\is_dir($confDir)) {
             $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob');
@@ -76,7 +88,7 @@ abstract class Bundle extends SymfonyBundle
     }
 
     /**
-     * @return SymfonyBundle[]
+     * @return list<SymfonyBundle>
      */
     public function getAdditionalBundles(AdditionalBundleParameters $parameters): array
     {
@@ -96,6 +108,14 @@ abstract class Bundle extends SymfonyBundle
     public function getTemplatePriority(): int
     {
         return 0;
+    }
+
+    /**
+     * Used to configure the BaseUrl for the Admin Extension API
+     */
+    public function getAdminBaseUrl(): ?string
+    {
+        return null;
     }
 
     /**

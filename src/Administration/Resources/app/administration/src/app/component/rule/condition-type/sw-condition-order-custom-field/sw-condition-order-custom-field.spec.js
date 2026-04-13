@@ -124,7 +124,7 @@ async function createWrapper() {
     );
 }
 
-describe('src/module/sw-flow/component/sw-flow-sequence', () => {
+describe('components/rule/condition-type/sw-condition-order-custom-field', () => {
     let wrapper;
 
     beforeEach(async () => {
@@ -177,7 +177,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         wrapper.vm.onFieldChange('3');
 
         expect(wrapper.vm.renderedField).toBeNull();
-        expect(wrapper.vm.selectedFieldSet).toBeUndefined();
+        expect(wrapper.vm.selectedFieldSet).toBeNull();
     });
 
     it('should set custom field value on input', async () => {
@@ -223,5 +223,19 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         await flushPromises();
 
         expect(wrapper.vm.renderedFieldValue).toBe('test123');
+    });
+
+    it('should truncate custom field description', async () => {
+        mockCustomFields.at(0).customFieldSet.config.label = 'Order migration custom fields (attributes)';
+
+        const testWrapper = await createWrapper();
+        await flushPromises();
+
+        await testWrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
+        await flushPromises();
+
+        const description = document.body.querySelector('.sw-select-result__result-item-description').textContent;
+        expect(description).toHaveLength(20);
+        expect(description.endsWith('...')).toBe(true);
     });
 });

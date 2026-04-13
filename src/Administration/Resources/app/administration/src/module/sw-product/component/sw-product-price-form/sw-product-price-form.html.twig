@@ -9,10 +9,11 @@
 
         {% block sw_product_price_form_tax_field %}
         <sw-inherit-wrapper
+            v-if="!isLoading"
             ref="taxIdInheritation"
             v-model:value="product.taxId"
             :inherited-value="parentProduct.taxId"
-            :has-parent="!!parentProduct.taxId"
+            :has-parent="!!parentProduct.id"
             :help-text="taxRateHelpText"
             :label="$tc('sw-product.priceForm.labelTaxRate')"
             class="sw-product-price-form__tax-rate"
@@ -104,6 +105,7 @@
     {% block sw_product_price_form_maintain_currencies_modal %}
     <sw-maintain-currencies-modal
         v-if="displayMaintainCurrencies"
+        variant="full"
         :currencies="currencies"
         :prices="product.price"
         :default-price="defaultPrice"

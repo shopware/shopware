@@ -78,7 +78,7 @@ class DiscountCartProcessor implements CartProcessorInterface
         }
 
         // should not be possible to get negative carts
-        $total = $price->getTotalPrice() + $cart->getLineItems()->getPrices()->sum()->getTotalPrice();
+        $total = $price->getTotalPrice() + $cart->getLineItems()->getPrices()->getTotalPriceAmount();
 
         return $total >= 0;
     }

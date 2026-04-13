@@ -37,7 +37,10 @@
                     @click="toggleFilterMenu"
                 >
                     {{ $tc('sw-product.variations.generatedFilterList') }}
-                    <mt-icon name="regular-filter" />
+                    <mt-icon
+                        name="regular-filter"
+                        size="16"
+                    />
                 </mt-button>
                 {% endblock %}
 
@@ -212,7 +215,7 @@
                 {% block sw_product_variant_modal_bulk_edit_modal_column_stock %}
                 <template #column-stock="{ item }">
                     {{ item.stock }}
-                    <sw-color-badge :variant="stockColorVariant(item.stock)" />
+                    <sw-color-badge :variant="stockColorVariantFilter(item.stock)" />
                 </template>
                 {% endblock %}
 
@@ -363,6 +366,7 @@
             <mt-number-field
                 v-if="isInlineEdit"
                 v-model="item.stock"
+                number-type="int"
                 :placeholder="$tc('sw-product.list.variantModalInlineEditStockPlaceholder')"
                 size="small"
             />
@@ -494,11 +498,10 @@
     {% endblock %}
 
     {% block sw_product_variant_modal_body_empty_state %}
-    <sw-empty-state
+    <mt-empty-state
         v-else
-        title=""
-        :subline="$tc('sw-product.list.variantGridEmptyStateSubline')"
-        :absolute="false"
+        :icon="$route.meta.$module.icon"
+        :headline="$tc('sw-product.list.variantGridEmptyStateSubline')"
     />
     {% endblock %}
 

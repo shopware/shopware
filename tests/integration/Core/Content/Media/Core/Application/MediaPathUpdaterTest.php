@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Media\Core\Application;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
 use Shopware\Core\Content\Media\Core\Application\MediaPathStorage;
@@ -18,7 +17,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[CoversClass(MediaPathUpdater::class)]
 class MediaPathUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -55,7 +53,7 @@ class MediaPathUpdaterTest extends TestCase
 
         static::assertCount(1, $paths);
         static::assertArrayHasKey($ids->get('media-1'), $paths);
-        static::assertEquals('media/90/e6/f2/test-file-1.png', $paths[$ids->get('media-1')]);
+        static::assertSame('media/90/e6/f2/test-file-1.png', $paths[$ids->get('media-1')]);
     }
 
     public function testUpdateThumbnail(): void
@@ -63,6 +61,20 @@ class MediaPathUpdaterTest extends TestCase
         $ids = new IdsCollection();
 
         $inserts = new MultiInsertQueryQueue(static::getContainer()->get(Connection::class));
+
+        $inserts->addInsert('media_thumbnail_size', [
+            'id' => $ids->getBytes('thumbnail-size-1'),
+            'width' => 100,
+            'height' => 100,
+            'created_at' => '2022-01-01',
+        ]);
+
+        $inserts->addInsert('media_thumbnail_size', [
+            'id' => $ids->getBytes('thumbnail-size-2'),
+            'width' => 240,
+            'height' => 240,
+            'created_at' => '2022-01-01',
+        ]);
 
         $inserts->addInsert('media', [
             'id' => $ids->getBytes('media-1'),
@@ -76,6 +88,7 @@ class MediaPathUpdaterTest extends TestCase
             'media_id' => $ids->getBytes('media-1'),
             'width' => 100,
             'height' => 100,
+            'media_thumbnail_size_id' => $ids->getBytes('thumbnail-size-1'),
             'created_at' => '2022-01-01',
         ]);
         $inserts->addInsert('media_thumbnail', [
@@ -83,6 +96,7 @@ class MediaPathUpdaterTest extends TestCase
             'media_id' => $ids->getBytes('media-1'),
             'width' => 240,
             'height' => 240,
+            'media_thumbnail_size_id' => $ids->getBytes('thumbnail-size-2'),
             'created_at' => '2022-01-01',
         ]);
 
@@ -105,9 +119,9 @@ class MediaPathUpdaterTest extends TestCase
 
         static::assertCount(2, $paths);
         static::assertArrayHasKey($ids->get('thumbnail-1'), $paths);
-        static::assertEquals('thumbnail/test-file-1_100x100.png', $paths[$ids->get('thumbnail-1')]);
+        static::assertSame('thumbnail/test-file-1_100x100.png', $paths[$ids->get('thumbnail-1')]);
 
         static::assertArrayHasKey($ids->get('thumbnail-2'), $paths);
-        static::assertEquals('thumbnail/test-file-1_240x240.png', $paths[$ids->get('thumbnail-2')]);
+        static::assertSame('thumbnail/test-file-1_240x240.png', $paths[$ids->get('thumbnail-2')]);
     }
 }

@@ -47,17 +47,14 @@
             {% endblock %}
 
             {% block sw_extension_permissions_modal_link %}
-            <mt-button
-                class="sw-extension-permissions-modal__link"
-                variant="secondary"
+            <mt-link
+                class="sw-extension-permissions-modal__detail-link"
+                as="button"
+                type="internal"
                 @click="openDetailsModal(key)"
             >
                 {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.textEntities') }}
-                <mt-icon
-                    name="regular-long-arrow-right"
-                    size="12px"
-                />
-            </mt-button>
+            </mt-link>
             {% endblock %}
             {% endblock %}
         </div>
@@ -72,18 +69,14 @@
                 {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.domains') }}
             </span>
 
-            <mt-button
-                class="sw-extension-permissions-modal__link"
-                variant="secondary"
+            <mt-link
+                class="sw-extension-permissions-modal__detail-link"
+                as="button"
+                type="internal"
                 @click="toggleDomainsModal(true)"
             >
                 {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.showDomains') }}
-
-                <mt-icon
-                    name="regular-long-arrow-right"
-                    size="12px"
-                />
-            </mt-button>
+            </mt-link>
         </div>
         {% endblock %}
     </div>

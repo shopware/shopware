@@ -65,8 +65,9 @@
                                             v-bind="getBind(customField, props)"
                                             :key="props.isInherited"
                                             :class="'sw-form-field-renderer-input-field__' + customField.name"
-                                            :disabled="disabled || props.isInherited"
+                                            :disabled="disabled"
                                             :value="props.currentValue"
+                                            v-on="getElementEventListeners(customField, props)"
                                             @update:value="props.updateCurrentValue"
                                         />
                                     </template>

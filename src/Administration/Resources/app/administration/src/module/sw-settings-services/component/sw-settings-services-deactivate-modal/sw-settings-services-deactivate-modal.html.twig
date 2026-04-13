@@ -1,0 +1,43 @@
+<mt-modal-root>
+    <mt-modal :title="$t('sw-settings-services.deactivate-modal.title')">
+        <div class="sw-settings-services-deactivate-modal__content">
+            <p>{{ $t('sw-settings-services.deactivate-modal.p-1') }}</p>
+
+            <p>{{ $t('sw-settings-services.deactivate-modal.p-2') }}</p>
+
+            <mt-link
+                type="external"
+                as="a"
+                target="_blank"
+                :href="feedbackLink"
+            >
+                {{ $t('sw-settings-services.deactivate-modal.label-feedback-link') }}
+            </mt-link>
+        </div>
+
+        <template #footer>
+            <div class="sw-settings-services-deactivate-modal__footer">
+                <mt-modal-close
+                    as="mt-button"
+                    variant="secondary"
+                >
+                    {{ $t('global.default.cancel') }}
+                </mt-modal-close>
+
+                <mt-modal-action
+                    as="mt-button"
+                    variant="critical"
+                    :is-loading="isLoading"
+                    @click="disableServices"
+                >
+                    {{ $t('sw-settings-services.general.deactivate') }}
+                </mt-modal-action>
+            </div>
+        </template>
+    </mt-modal>
+
+    <mt-modal-trigger as="button">
+        {{ $t('sw-settings-services.general.deactivate') }}
+    </mt-modal-trigger>
+</mt-modal-root>
+

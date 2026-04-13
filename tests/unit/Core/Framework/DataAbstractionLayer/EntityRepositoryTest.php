@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -31,7 +32,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -45,7 +45,7 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener(EntitySearchedEvent::class, function ($inner) use (&$event): void {
+        $eventDispatcher->addListener(EntitySearchedEvent::class, static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
@@ -79,10 +79,10 @@ class EntityRepositoryTest extends TestCase
 
         $searchEvent = null;
         $aggregateEvent = null;
-        $eventDispatcher->addListener(EntitySearchedEvent::class, function ($inner) use (&$searchEvent): void {
+        $eventDispatcher->addListener(EntitySearchedEvent::class, static function ($inner) use (&$searchEvent): void {
             $searchEvent = $inner;
         });
-        $eventDispatcher->addListener('product.aggregation.result.loaded', function ($inner) use (&$aggregateEvent): void {
+        $eventDispatcher->addListener('product.aggregation.result.loaded', static function ($inner) use (&$aggregateEvent): void {
             $aggregateEvent = $inner;
         });
 
@@ -119,7 +119,7 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener(EntitySearchedEvent::class, function ($inner) use (&$event): void {
+        $eventDispatcher->addListener(EntitySearchedEvent::class, static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
@@ -155,7 +155,7 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener(EntitySearchedEvent::class, function ($inner) use (&$event): void {
+        $eventDispatcher->addListener(EntitySearchedEvent::class, static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
@@ -297,7 +297,7 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener('product.aggregation.result.loaded', function ($inner) use (&$event): void {
+        $eventDispatcher->addListener('product.aggregation.result.loaded', static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
@@ -321,12 +321,12 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $searchedEvent = null;
-        $eventDispatcher->addListener(EntitySearchedEvent::class, function ($inner) use (&$searchedEvent): void {
+        $eventDispatcher->addListener(EntitySearchedEvent::class, static function ($inner) use (&$searchedEvent): void {
             $searchedEvent = $inner;
         });
 
         $resultEvent = null;
-        $eventDispatcher->addListener('product.id.search.result.loaded', function ($inner) use (&$resultEvent): void {
+        $eventDispatcher->addListener('product.id.search.result.loaded', static function ($inner) use (&$resultEvent): void {
             $resultEvent = $inner;
         });
 
@@ -351,7 +351,7 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, function ($inner) use (&$event): void {
+        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
@@ -383,7 +383,7 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, function ($inner) use (&$event): void {
+        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
@@ -415,7 +415,7 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, function ($inner) use (&$event): void {
+        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
@@ -447,7 +447,7 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, function ($inner) use (&$event): void {
+        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
@@ -495,7 +495,7 @@ class EntityRepositoryTest extends TestCase
         );
 
         static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Entity  is not version aware');
+        static::expectExceptionMessage('Entity "" is not version aware');
 
         $repo->createVersion('test', Context::createDefaultContext());
     }
@@ -533,7 +533,7 @@ class EntityRepositoryTest extends TestCase
         );
 
         static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Entity  is not version aware');
+        static::expectExceptionMessage('Entity "" is not version aware');
 
         $repo->merge('test', Context::createDefaultContext());
     }
@@ -570,7 +570,7 @@ class EntityRepositoryTest extends TestCase
             $this->createMock(EntityLoadedEventFactory::class),
         );
 
-        static::expectException(InvalidUuidException::class);
+        static::expectExceptionObject(DataAbstractionLayerException::invalidEntityUuidException('test'));
 
         $repo->clone('test', Context::createDefaultContext(), 'test');
     }
@@ -580,7 +580,7 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, function ($inner) use (&$event): void {
+        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, static function ($inner) use (&$event): void {
             $event = $inner;
         });
 

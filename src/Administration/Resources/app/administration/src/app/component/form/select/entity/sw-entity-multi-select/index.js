@@ -12,7 +12,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 /**
  * @private
  */
-Component.register('sw-entity-multi-select', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -80,14 +80,12 @@ Component.register('sw-entity-multi-select', {
         disabled: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
 
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -160,6 +158,11 @@ Component.register('sw-entity-multi-select', {
             default: false,
         },
         label: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
+        autocomplete: {
             type: String,
             required: false,
             default: undefined,
@@ -450,4 +453,4 @@ Component.register('sw-entity-multi-select', {
             this.$refs.selectionList.blur();
         },
     },
-});
+};

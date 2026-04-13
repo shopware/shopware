@@ -103,10 +103,6 @@ describe('module/sw-customer/view/sw-customer-detail-base.spec.js', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should sort custom fields by their position', async () => {
         const formFields = wrapper.findAll('.sw-form-field-renderer');
 

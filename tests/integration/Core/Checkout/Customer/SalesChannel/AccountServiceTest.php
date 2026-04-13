@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Defaults;
@@ -75,8 +74,8 @@ class AccountServiceTest extends TestCase
         $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email);
 
         $customer = $this->accountService->getCustomerByLogin($email, 'shopware', $context);
-        static::assertEquals($email, $customer->getEmail());
-        static::assertEquals($context->getSalesChannelId(), $customer->getSalesChannelId());
+        static::assertSame($email, $customer->getEmail());
+        static::assertSame($context->getSalesChannelId(), $customer->getSalesChannelId());
     }
 
     public function testGetCustomerByLoginWithInvalidPassword(): void
@@ -98,8 +97,8 @@ class AccountServiceTest extends TestCase
         $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email);
 
         $customer = $this->accountService->getCustomerByLogin($email, 'invalid-password', $context);
-        static::assertEquals($email, $customer->getEmail());
-        static::assertEquals($context->getSalesChannelId(), $customer->getSalesChannelId());
+        static::assertSame($email, $customer->getEmail());
+        static::assertSame($context->getSalesChannelId(), $customer->getSalesChannelId());
     }
 
     public function testGetCustomerByLoginWhenCustomersHaveSameEmailReturnsTheLatestCreatedCustomer(): void
@@ -122,7 +121,7 @@ class AccountServiceTest extends TestCase
         $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, true, $idCustomer2, '2022-10-22 10:00:00');
 
         $customer = $this->accountService->getCustomerByLogin($email, 'shopware', $context);
-        static::assertEquals($idCustomer2, $customer->getId());
+        static::assertSame($idCustomer2, $customer->getId());
     }
 
     public function testGetCustomerByLoginWhenCustomersInDifferentSalesChannelsHaveSameEmail(): void
@@ -156,10 +155,10 @@ class AccountServiceTest extends TestCase
 
         $customer1 = $this->accountService->getCustomerByLogin($email, 'shopware', $context1);
 
-        static::assertEquals($context1->getSalesChannelId(), $customer1->getSalesChannelId());
+        static::assertSame($context1->getSalesChannelId(), $customer1->getSalesChannelId());
 
         $customer2 = $this->accountService->getCustomerByLogin($email, 'shopware', $context2);
-        static::assertEquals($context2->getSalesChannelId(), $customer2->getSalesChannelId());
+        static::assertSame($context2->getSalesChannelId(), $customer2->getSalesChannelId());
     }
 
     public function testCustomerFailsToLoginByMailWithInactiveAccount(): void
@@ -178,8 +177,7 @@ class AccountServiceTest extends TestCase
         ]);
         $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, false);
 
-        $this->expectException(CustomerNotFoundException::class);
-        $this->expectExceptionMessage('No matching customer for the email "johndoe@example.com" was found.');
+        $this->expectException(BadCredentialsException::class);
         $this->accountService->getCustomerByLogin($email, 'shopware', $context);
     }
 
@@ -201,8 +199,8 @@ class AccountServiceTest extends TestCase
         $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, true, $idCustomer, '2022-10-21 10:00:00', Hasher::hash('shopware', 'md5'), 'Md5');
 
         $customer = $this->accountService->getCustomerByLogin($email, 'shopware', $context);
-        static::assertEquals($email, $customer->getEmail());
-        static::assertEquals($context->getSalesChannelId(), $customer->getSalesChannelId());
+        static::assertSame($email, $customer->getEmail());
+        static::assertSame($context->getSalesChannelId(), $customer->getSalesChannelId());
 
         $customer = $this
             ->getContainer()

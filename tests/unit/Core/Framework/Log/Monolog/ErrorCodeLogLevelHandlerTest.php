@@ -31,7 +31,7 @@ class ErrorCodeLogLevelHandlerTest extends TestCase
         $innerHandler->expects($this->once())
             ->method('handle')
             ->willReturnCallback(static function (LogRecord $record) use ($expectedLogLevel): bool {
-                static::assertEquals($expectedLogLevel, $record->level);
+                static::assertSame($expectedLogLevel, $record->level);
 
                 return true;
             });

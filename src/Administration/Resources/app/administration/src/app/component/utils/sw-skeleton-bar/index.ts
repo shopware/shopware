@@ -1,7 +1,5 @@
 import template from './sw-skeleton-bar.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -9,7 +7,7 @@ const { Component } = Shopware;
  * @status ready
  * @description Wrapper component for sw-skeleton-bar and mt-skeleton-bar. Autoswitches between the two components.
  */
-Component.register('sw-skeleton-bar', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     computed: {
@@ -22,8 +20,7 @@ Component.register('sw-skeleton-bar', {
             // Throw warning when deprecated component is used
             Shopware.Utils.debug.warn(
                 'sw-skeleton-bar',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-skeleton-bar" is deprecated and will be removed in v6.7.0.0. Please use "mt-skeleton-bar" instead.',
+                'The old usage of "sw-skeleton-bar" is deprecated and will be removed in v6.8.0.0. Please use "mt-skeleton-bar" instead.',
             );
 
             return false;

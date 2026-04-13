@@ -39,7 +39,9 @@ readonly class Local implements Source
     {
         return new Filesystem(
             match (true) {
-                $app instanceof AppEntity => Path::join($this->projectRoot, $app->getPath()),
+                $app instanceof AppEntity => str_starts_with($app->getPath(), $this->projectRoot)
+                        ? $app->getPath()
+                        : Path::join($this->projectRoot, $app->getPath()),
                 $app instanceof Manifest => $app->getPath(),
             }
         );

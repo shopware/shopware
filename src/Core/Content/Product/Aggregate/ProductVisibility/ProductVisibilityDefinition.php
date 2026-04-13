@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductVisibility;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -59,13 +60,13 @@ class ProductVisibilityDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey())->setDescription('Unique identity of product visibility.'),
 
-            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new Required())->setDescription('Unique identity of the product.'),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
 
-            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
-            (new IntField('visibility', 'visibility'))->addFlags(new Required()),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required())->setDescription('Unique identity of the sales channel.'),
+            (new IntField('visibility', 'visibility'))->addFlags(new Required(), new Choice([self::VISIBILITY_LINK, self::VISIBILITY_SEARCH, self::VISIBILITY_ALL], strict: true))->setDescription('An integer value to signify the product\'s visibility in any sales channel. `10` indicates `Hide in listings and search`, `20` indicates `Hide in listings` and `30` indicates `Visible` everywhere.'),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
         ]);

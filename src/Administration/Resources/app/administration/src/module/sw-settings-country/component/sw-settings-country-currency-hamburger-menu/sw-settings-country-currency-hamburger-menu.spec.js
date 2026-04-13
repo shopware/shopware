@@ -49,12 +49,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-country/component/sw-settings-country-currency-hamburger-menu', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should able to show hamburger menu', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

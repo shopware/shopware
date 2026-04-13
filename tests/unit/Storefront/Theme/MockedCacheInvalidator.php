@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 /**
  * @internal
  *
- * @phpstan-ignore-next-line
+ * @phpstan-ignore class.extendsFinalByPhpDoc
  */
 class MockedCacheInvalidator extends CacheInvalidator
 {

@@ -17,6 +17,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\Event\ServiceInstalledEvent;
+use Shopware\Core\Service\Event\ServiceUpdatedEvent;
+use Shopware\Core\Service\Requirement\RequirementsValidator;
+use Shopware\Core\Service\ServiceRegistry\Client;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -30,18 +36,20 @@ class ServiceLifecycle
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
-        private readonly ServiceRegistryClient $serviceRegistryClient,
+        private readonly Client $serviceRegistryClient,
         private readonly ServiceClientFactory $serviceClientFactory,
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly EntityRepository $appRepository,
         private readonly LoggerInterface $logger,
         private readonly ManifestFactory $manifestFactory,
         private readonly ServiceSourceResolver $sourceResolver,
-        private readonly AppStateService $appStateService
+        private readonly AppStateService $appStateService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly RequirementsValidator $requirementsValidator,
     ) {
     }
 
-    public function install(ServiceRegistryEntry $serviceEntry, Context $context): bool
+    public function install(ServiceEntry $serviceEntry, Context $context): bool
     {
         $appId = $this->getAppIdForAppWithSameNameAsService($serviceEntry, $context);
 
@@ -53,6 +61,13 @@ class ServiceLifecycle
             $appInfo = $this->serviceClientFactory->newFor($serviceEntry)->latestAppInfo();
         } catch (ServiceException $e) {
             // noop - errors will be recorded in the service
+
+            return false;
+        }
+
+        // do not install invalid releases
+        if (!$this->requirementsValidator->isValidSet($appInfo->requirements)) {
+            $this->logger->debug(\sprintf('Cannot install service "%s" because of invalid requirements: "%s"', $serviceEntry->name, implode(', ', $appInfo->requirements)));
 
             return false;
         }
@@ -76,9 +91,11 @@ class ServiceLifecycle
 
             $this->logger->debug(\sprintf('Installed service "%s"', $serviceEntry->name));
 
+            $this->eventDispatcher->dispatch(new ServiceInstalledEvent($serviceEntry->name, $context));
+
             return true;
         } catch (\Exception $e) {
-            $this->logger->debug(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
+            $this->logger->warning(\sprintf('Cannot install service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
 
             return false;
         }
@@ -107,6 +124,13 @@ class ServiceLifecycle
             return true;
         }
 
+        // do not update invalid releases
+        if (!$this->requirementsValidator->isValidSet($latestAppInfo->requirements)) {
+            $this->logger->debug(\sprintf('Cannot update service "%s" because of invalid requirements: "%s"', $serviceEntry->name, implode(', ', $latestAppInfo->requirements)));
+
+            return false;
+        }
+
         try {
             $fs = $this->sourceResolver->filesystemForVersion($latestAppInfo);
         } catch (AppException $e) {
@@ -129,6 +153,8 @@ class ServiceLifecycle
             );
             $this->logger->debug(\sprintf('Installed service "%s"', $serviceEntry->name));
 
+            $this->eventDispatcher->dispatch(new ServiceUpdatedEvent($serviceName, $context));
+
             return true;
         } catch (\Exception $e) {
             $this->logger->debug(\sprintf('Cannot update service "%s" because of error: "%s"', $serviceEntry->name, $e->getMessage()));
@@ -140,7 +166,7 @@ class ServiceLifecycle
     /**
      * If a non-service app exists with the same name as the service, return its ID.
      */
-    public function getAppIdForAppWithSameNameAsService(ServiceRegistryEntry $serviceEntry, Context $context): ?string
+    public function getAppIdForAppWithSameNameAsService(ServiceEntry $serviceEntry, Context $context): ?string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $serviceEntry->name));
@@ -170,7 +196,7 @@ class ServiceLifecycle
         return $this->appRepository->search($criteria, $context)->getEntities()->first();
     }
 
-    private function upgradeAppToService(string $appId, ServiceRegistryEntry $entry, Context $context): bool
+    private function upgradeAppToService(string $appId, ServiceEntry $entry, Context $context): bool
     {
         $this->appRepository->update(
             [

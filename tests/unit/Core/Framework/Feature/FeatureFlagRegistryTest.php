@@ -384,13 +384,13 @@ class FeatureFlagRegistryTest extends TestCase
         $beforeEventDispatched = false;
         $toggledEventDispatched = false;
 
-        $dispatcher->addListener(BeforeFeatureFlagToggleEvent::class, function (BeforeFeatureFlagToggleEvent $event) use (&$beforeEventDispatched): void {
+        $dispatcher->addListener(BeforeFeatureFlagToggleEvent::class, static function (BeforeFeatureFlagToggleEvent $event) use (&$beforeEventDispatched): void {
             static::assertSame('FEATURE_ABC', $event->feature);
             static::assertTrue($event->active);
             $beforeEventDispatched = true;
         });
 
-        $dispatcher->addListener(FeatureFlagToggledEvent::class, function (FeatureFlagToggledEvent $event) use (&$toggledEventDispatched): void {
+        $dispatcher->addListener(FeatureFlagToggledEvent::class, static function (FeatureFlagToggledEvent $event) use (&$toggledEventDispatched): void {
             static::assertSame('FEATURE_ABC', $event->feature);
             static::assertTrue($event->active);
             $toggledEventDispatched = true;
@@ -449,13 +449,13 @@ class FeatureFlagRegistryTest extends TestCase
         $beforeEventDispatched = false;
         $toggledEventDispatched = false;
 
-        $dispatcher->addListener(BeforeFeatureFlagToggleEvent::class, function (BeforeFeatureFlagToggleEvent $event) use (&$beforeEventDispatched): void {
+        $dispatcher->addListener(BeforeFeatureFlagToggleEvent::class, static function (BeforeFeatureFlagToggleEvent $event) use (&$beforeEventDispatched): void {
             static::assertSame('FEATURE_ABC', $event->feature);
             static::assertFalse($event->active);
             $beforeEventDispatched = true;
         });
 
-        $dispatcher->addListener(FeatureFlagToggledEvent::class, function (FeatureFlagToggledEvent $event) use (&$toggledEventDispatched): void {
+        $dispatcher->addListener(FeatureFlagToggledEvent::class, static function (FeatureFlagToggledEvent $event) use (&$toggledEventDispatched): void {
             static::assertSame('FEATURE_ABC', $event->feature);
             static::assertFalse($event->active);
             $toggledEventDispatched = true;
@@ -515,7 +515,7 @@ class FeatureFlagRegistryTest extends TestCase
 
         $service->register();
 
-        static::assertEquals([
+        static::assertSame([
             'FEATURE_STORED' => [
                 'active' => true,
                 'major' => false,
@@ -546,7 +546,7 @@ class FeatureFlagRegistryTest extends TestCase
 
         $service->register();
 
-        static::assertEquals($expected, Feature::getRegisteredFeatures());
+        static::assertSame($expected, Feature::getRegisteredFeatures());
     }
 
     /**

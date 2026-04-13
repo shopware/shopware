@@ -7,6 +7,7 @@ use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\CriteriaPartResolver;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\ParseResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Test\Stub\Doctrine\QueryBuilderDataExtractor;
@@ -119,6 +121,30 @@ class CriteriaQueryBuilderTest extends TestCase
         $builder->build($queryBuilder, $definition, $criteria, Context::createDefaultContext());
 
         static::assertNull(QueryBuilderDataExtractor::getWhere($queryBuilder));
+    }
+
+    public function testInvalidSortingDirectionException(): void
+    {
+        $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
+
+        $definition = $this->returnMockDefinition();
+        $definition->compile($this->createMock(DefinitionInstanceRegistry::class));
+
+        $criteria = new Criteria();
+        $criteria->addSorting(new FieldSorting('name', 'foo'));
+
+        $builder = new CriteriaQueryBuilder(
+            $this->createMock(SqlQueryParser::class),
+            $this->createMock(EntityDefinitionQueryHelper::class),
+            $this->createMock(SearchTermInterpreter::class),
+            $this->createMock(EntityScoreQueryBuilder::class),
+            $this->createMock(JoinGroupBuilder::class),
+            $this->createMock(CriteriaPartResolver::class)
+        );
+
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidSortingDirection('foo'));
+
+        $builder->build($queryBuilder, $definition, $criteria, Context::createDefaultContext());
     }
 
     private function returnMockDefinition(): EntityDefinition

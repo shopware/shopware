@@ -8,13 +8,15 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
 class LoginRoute extends AbstractLoginRoute
 {
@@ -34,16 +36,24 @@ class LoginRoute extends AbstractLoginRoute
     }
 
     #[Route(path: '/store-api/account/login', name: 'store-api.account.login', methods: ['POST'])]
-    public function login(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
+    public function login(#[\SensitiveParameter] RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {
         EmailIdnConverter::encodeDataBag($data);
         $email = (string) $data->get('email', $data->get('username'));
 
+        $combinedKey = null;
+        $clientIpKey = null;
+        $emailKey = null;
+
         if ($this->requestStack->getMainRequest() !== null) {
-            $cacheKey = strtolower($email) . '-' . $this->requestStack->getMainRequest()->getClientIp();
+            $clientIpKey = (string) $this->requestStack->getMainRequest()->getClientIp();
+            $emailKey = strtolower($email);
+            $combinedKey = $emailKey . '-' . $clientIpKey;
 
             try {
-                $this->rateLimiter->ensureAccepted(RateLimiter::LOGIN_ROUTE, $cacheKey);
+                $this->rateLimiter->ensureAccepted(RateLimiter::LOGIN_ROUTE, $combinedKey);
+                $this->rateLimiter->ensureAcceptedIfConfigured(RateLimiter::LOGIN_USER, $emailKey);
+                $this->rateLimiter->ensureAcceptedIfConfigured(RateLimiter::LOGIN_CLIENT, $clientIpKey);
             } catch (RateLimitExceededException $exception) {
                 throw CustomerException::customerAuthThrottledException($exception->getWaitTime(), $exception);
             }
@@ -55,8 +65,16 @@ class LoginRoute extends AbstractLoginRoute
             $context
         );
 
-        if (isset($cacheKey)) {
-            $this->rateLimiter->reset(RateLimiter::LOGIN_ROUTE, $cacheKey);
+        if ($combinedKey !== null) {
+            $this->rateLimiter->reset(RateLimiter::LOGIN_ROUTE, $combinedKey);
+        }
+
+        if ($clientIpKey !== null) {
+            $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_CLIENT, $clientIpKey);
+        }
+
+        if ($emailKey !== null) {
+            $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_USER, $emailKey);
         }
 
         return new ContextTokenResponse($token);

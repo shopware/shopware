@@ -28,6 +28,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[Package('framework')]
 abstract class AbstractPluginLifecycleCommand extends Command
 {
+    /**
+     * @param EntityRepository<PluginCollection> $pluginRepo
+     */
     public function __construct(
         protected PluginLifecycleService $pluginLifecycleService,
         private readonly EntityRepository $pluginRepo,
@@ -148,7 +151,6 @@ abstract class AbstractPluginLifecycleCommand extends Command
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('name', $plugins[0]));
 
-            /** @var PluginCollection $matches */
             $matches = $this->pluginRepo->search($criteria, $context)->getEntities();
             if ($matches->count() === 1) {
                 return $matches;
@@ -163,7 +165,6 @@ abstract class AbstractPluginLifecycleCommand extends Command
         $criteria->addSorting(new FieldSorting('name'));
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filter));
 
-        /** @var PluginCollection $pluginCollection */
         $pluginCollection = $this->pluginRepo->search($criteria, $context)->getEntities();
 
         if ($pluginCollection->count() <= 1) {
@@ -200,7 +201,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
                         'Which plugin do you want to %s?',
                         $lifecycleMethod
                     ),
-                    $pluginCollection->map(fn (PluginEntity $plugin) => $plugin->getName())
+                    $pluginCollection->map(static fn (PluginEntity $plugin) => $plugin->getName())
                 )
             );
 

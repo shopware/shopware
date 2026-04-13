@@ -119,12 +119,6 @@ async function createWrapper(customPropsData = {}) {
 }
 
 describe('src/module/sw-settings-country/component/sw-settings-country-new-snippet-modal', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to remove the snippet', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

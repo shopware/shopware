@@ -22,12 +22,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/component/sw-cms-visibility-config', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be visible in all devices', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

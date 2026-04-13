@@ -1,14 +1,12 @@
 import template from './sw-data-grid-skeleton.html.twig';
 import './sw-data-grid-skeleton.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  */
-Component.register('sw-data-grid-skeleton', {
+export default {
     template,
 
     props: {
@@ -27,13 +25,11 @@ Component.register('sw-data-grid-skeleton', {
         showSelection: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         showActions: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         hasResizeColumns: {
@@ -51,4 +47,4 @@ Component.register('sw-data-grid-skeleton', {
             return Math.floor(Math.random() * (max - min + 1)) + min;
         },
     },
-});
+};

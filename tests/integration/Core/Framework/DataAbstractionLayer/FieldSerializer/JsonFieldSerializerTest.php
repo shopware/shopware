@@ -53,7 +53,7 @@ class JsonFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, array<string, array<string, string>|float|int|string>|JsonField|string|null>>
+     * @return list<array{JsonField, array<string, mixed>|null, string|null}>
      */
     public static function encodeProvider(): array
     {
@@ -74,22 +74,21 @@ class JsonFieldSerializerTest extends TestCase
     }
 
     /**
-     * @param string|null $input
-     * @param array<string, string|float|int> $expected
+     * @param array<string, mixed>|null $input
      */
     #[DataProvider('encodeProvider')]
-    public function testEncode(JsonField $field, $input, $expected): void
+    public function testEncode(JsonField $field, ?array $input, ?string $expected): void
     {
         $field->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
 
         $kvPair = new KeyValuePair('password', $input, true);
         $actual = $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)->current();
 
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     /**
-     * @return array<int, array<int, array<string, array<string, string>|float|int|string>|JsonField|string|null>>
+     * @return list<array{JsonField, string|null, array<string, mixed>|null}>
      */
     public static function decodeProvider(): array
     {
@@ -111,15 +110,14 @@ class JsonFieldSerializerTest extends TestCase
     }
 
     /**
-     * @param string|null $input
-     * @param array<string, string|float|int> $expected
+     * @param array<string, mixed>|null $expected
      */
     #[DataProvider('decodeProvider')]
-    public function testDecode(JsonField $field, $input, $expected): void
+    public function testDecode(JsonField $field, ?string $input, ?array $expected): void
     {
         $field->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
         $actual = $this->serializer->decode($field, $input);
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 
     public function testEmptyValueForRequiredField(): void
@@ -131,7 +129,7 @@ class JsonFieldSerializerTest extends TestCase
 
         $result = $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)->current();
 
-        static::assertEquals('[]', $result);
+        static::assertSame('[]', $result);
     }
 
     public function testRequiredValidationThrowsError(): void
@@ -150,7 +148,7 @@ class JsonFieldSerializerTest extends TestCase
         }
 
         static::assertInstanceOf(WriteConstraintViolationException::class, $exception, 'JsonFieldSerializer does not throw violation exception for empty required field.');
-        static::assertEquals('/data', $exception->getViolations()->get(0)->getPropertyPath());
+        static::assertSame('/data', $exception->getViolations()->get(0)->getPropertyPath());
     }
 
     public function testNullValueForNotRequiredField(): void
@@ -169,6 +167,6 @@ class JsonFieldSerializerTest extends TestCase
     {
         $result = Json::encode("something\x82 another");
 
-        static::assertEquals('"something another"', $result);
+        static::assertSame('"something another"', $result);
     }
 }

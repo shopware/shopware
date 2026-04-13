@@ -4,20 +4,24 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerPasswordChangedEvent;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\Length;
@@ -26,7 +30,12 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
+#[Route(
+    defaults: [
+        PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+        PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED => true,
+    ]
+)]
 #[Package('checkout')]
 class ChangePasswordRoute extends AbstractChangePasswordRoute
 {
@@ -48,7 +57,12 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/change-password', name: 'store-api.account.change-password', methods: ['POST'], defaults: ['_loginRequired' => true])]
+    #[Route(
+        path: '/store-api/account/change-password',
+        name: 'store-api.account.change-password',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): ContextTokenResponse
     {
         $this->validatePasswordFields($requestDataBag, $context);
@@ -59,6 +73,8 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
         ];
 
         $this->customerRepository->update([$customerData], $context->getContext());
+
+        $this->eventDispatcher->dispatch(new CustomerPasswordChangedEvent($context, $customer));
 
         return new ContextTokenResponse($context->getToken());
     }
@@ -76,23 +92,25 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
     {
         $definition = new DataValidationDefinition('customer.password.update');
 
-        $minPasswordLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
-
+        $minPasswordLength = $this->systemConfigService->getInt('core.loginRegistration.passwordMinLength', $context->getSalesChannelId());
+        if ($minPasswordLength < 0) {
+            $minPasswordLength = null;
+        }
         $definition
-            ->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']))
-            ->add('password', new CustomerPasswordMatches(['salesChannelContext' => $context]));
+            ->add('newPassword', new NotBlank(), new Length(min: $minPasswordLength), new EqualTo(propertyPath: 'newPasswordConfirm'))
+            ->add('password', new CustomerPasswordMatches(salesChannelContext: $context));
 
         $this->dispatchValidationEvent($definition, $data, $context->getContext());
 
         $this->validator->validate($data->all(), $definition);
 
-        $this->tryValidateEqualtoConstraint($data->all(), 'newPassword', $definition);
+        $this->tryValidateEqualToConstraint($data->all(), 'newPassword', $definition);
     }
 
     /**
-     * @param mixed[] $data
+     * @param array<string, mixed> $data
      */
-    private function tryValidateEqualtoConstraint(array $data, string $field, DataValidationDefinition $validation): void
+    private function tryValidateEqualToConstraint(array $data, string $field, DataValidationDefinition $validation): void
     {
         $validations = $validation->getProperties();
 
@@ -102,7 +120,6 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
 
         $fieldValidations = $validations[$field];
 
-        /** @var EqualTo|null $equalityValidation */
         $equalityValidation = null;
 
         foreach ($fieldValidations as $emailValidation) {
@@ -117,12 +134,12 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
             return;
         }
 
-        $compareValue = $data[$equalityValidation->propertyPath] ?? null;
+        $compareValue = $data[$equalityValidation->propertyPath ?? ''] ?? null;
         if ($data[$field] === $compareValue) {
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue, (string) $equalityValidation->message);
+        $message = str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));

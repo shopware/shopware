@@ -78,7 +78,11 @@ export default {
             const criteria = new Criteria(1, 1)
                 .addAssociation('discounts.promotionDiscountPrices')
                 .addAssociation('discounts.discountRules')
-                .addAssociation('salesChannels');
+                .addAssociation('personaRules')
+                .addAssociation('orderRules')
+                .addAssociation('cartRules')
+                .addAssociation('salesChannels')
+                .addAssociation('setgroups.setGroupRules');
 
             criteria.getAssociation('discounts').addSorting(Criteria.sort('createdAt', 'ASC'));
 
@@ -258,7 +262,7 @@ export default {
                         params: { id: this.promotion.id },
                     });
                 }
-            } catch (e) {
+            } catch (_e) {
                 this.isLoading = false;
                 this.createNotificationError({
                     message: this.$tc(

@@ -97,7 +97,7 @@ export default {
         },
 
         getSelectedFilesCount() {
-            return `${this.$tc('sw-media.sidebar.labelHeadlineMultiple', this.items.length, { count: this.items.length })}`;
+            return `${this.$tc('sw-media.sidebar.labelHeadlineMultiple', { count: this.items.length }, this.items.length)}`;
         },
 
         firstEntity() {

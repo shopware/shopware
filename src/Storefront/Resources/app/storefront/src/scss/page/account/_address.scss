@@ -4,11 +4,6 @@
         margin-right: $spacer-sm;
     }
 
-    .row {
-        margin-left: 0;
-        margin-right: 0;
-    }
-
     .btn > .icon {
         vertical-align: top;
     }
@@ -25,4 +20,12 @@
 
 .address-manager-select-address {
     min-height: 200px;
+}
+
+.address-manager-modal-address-form .icon {
+    color: currentColor;
+
+    svg {
+        top: 0.25em;
+    }
 }

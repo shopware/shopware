@@ -1,8 +1,6 @@
 import template from './sw-context-button.html.twig';
 import './sw-context-button.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -16,7 +14,7 @@ const { Component } = Shopware;
  *     </sw-context-menu-item>
  * </sw-context-button>
  */
-Component.register('sw-context-button', {
+export default {
     template,
 
     inject: ['feature'],
@@ -87,7 +85,6 @@ Component.register('sw-context-button', {
         autoClose: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -213,4 +210,4 @@ Component.register('sw-context-button', {
             document.removeEventListener('click', this.handleClickEvent);
         },
     },
-});
+};

@@ -6,7 +6,9 @@ use OpenSearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
+use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEvent;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexCreatedEvent;
 
@@ -27,7 +29,8 @@ class IndexCreator
         private readonly Client $client,
         array $config,
         private readonly IndexMappingProvider $mappingProvider,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ElasticsearchHelper $helper
     ) {
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
@@ -60,10 +63,15 @@ class IndexCreator
         $event = new ElasticsearchIndexConfigEvent($index, $body, $definition, $context);
         $this->eventDispatcher->dispatch($event);
 
-        $this->client->indices()->create([
-            'index' => $index,
-            'body' => $event->getConfig(),
-        ]);
+        try {
+            $this->client->indices()->create([
+                'index' => $index,
+                'body' => $event->getConfig(),
+            ]);
+        } catch (\Throwable $exception) {
+            $exception = ElasticsearchException::indexCreationFailed($index, $event->getConfig(), $exception);
+            $this->helper->logAndThrowException($exception);
+        }
 
         $this->createAliasIfNotExisting($index, $alias);
 

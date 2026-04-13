@@ -35,7 +35,7 @@ class DocumentBaseConfigEntity extends Entity
      */
     protected ?array $config = null;
 
-    protected DocumentBaseConfigSalesChannelCollection $salesChannels;
+    protected ?DocumentBaseConfigSalesChannelCollection $salesChannels = null;
 
     protected ?DocumentTypeEntity $documentType = null;
 
@@ -51,7 +51,7 @@ class DocumentBaseConfigEntity extends Entity
         $this->name = $name;
     }
 
-    public function getSalesChannels(): DocumentBaseConfigSalesChannelCollection
+    public function getSalesChannels(): ?DocumentBaseConfigSalesChannelCollection
     {
         return $this->salesChannels;
     }

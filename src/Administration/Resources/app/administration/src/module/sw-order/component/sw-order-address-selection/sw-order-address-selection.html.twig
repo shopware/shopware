@@ -26,6 +26,7 @@
             <mt-button
                 size="small"
                 variant="secondary"
+                data-analytics-id="sw-order-address-selection.cancel"
                 @click="currentAddress = null"
             >
                 {{ $tc('global.default.cancel') }}
@@ -36,6 +37,7 @@
             <mt-button
                 variant="primary"
                 size="small"
+                data-analytics-id="sw-order-address-selection.save-address"
                 @click="onSaveAddress"
             >
                 {{ $tc('global.default.apply') }}
@@ -98,7 +100,10 @@
                 </div>
 
                 <div class="sw-order-address-selection__edit-action">
-                    <sw-context-menu-item @click="onEditAddress(item.id)">
+                    <sw-context-menu-item
+                        data-analytics-id="sw-order-address-selection.edit-address"
+                        @click="onEditAddress(item.id)"
+                    >
                         {{ $tc('global.default.edit') }}
                     </sw-context-menu-item>
                 </div>

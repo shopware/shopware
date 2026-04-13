@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal\Fi
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -55,6 +56,9 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
      */
     protected EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<DocumentCollection>
+     */
     protected EntityRepository $documentRepository;
 
     protected Connection $connection;
@@ -246,12 +250,12 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         );
 
         static::assertCount(1, $documents);
-        static::assertEquals(1, $documents->getTotal());
+        static::assertSame(1, $documents->getTotal());
 
         $document = $documents->getEntities()->first();
         static::assertInstanceOf(DocumentEntity::class, $document);
         static::assertNotNull($document->getOrder());
-        static::assertEquals('00000000000000000000000000000000', $document->getOrder()->getVersionId());
+        static::assertSame('00000000000000000000000000000000', $document->getOrder()->getVersionId());
     }
 
     public function testManyToOneInheritedWorks(): void

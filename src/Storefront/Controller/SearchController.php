@@ -4,10 +4,13 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Search\SearchPage;
 use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
@@ -23,7 +26,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('inventory')]
 class SearchController extends StorefrontController
 {
@@ -37,7 +40,11 @@ class SearchController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/search', name: 'frontend.search.page', methods: ['GET'])]
+    #[Route(
+        path: '/search',
+        name: 'frontend.search.page',
+        methods: [Request::METHOD_GET]
+    )]
     public function search(SalesChannelContext $context, Request $request): Response
     {
         try {
@@ -61,7 +68,12 @@ class SearchController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/search/index.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/suggest', name: 'frontend.search.suggest', defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
+    #[Route(
+        path: '/suggest',
+        name: 'frontend.search.suggest',
+        defaults: ['XmlHttpRequest' => true],
+        methods: [Request::METHOD_GET]
+    )]
     public function suggest(SalesChannelContext $context, Request $request): Response
     {
         if (!$request->request->has('no-aggregations')) {
@@ -78,7 +90,12 @@ class SearchController extends StorefrontController
     /**
      * Route to load the listing filters
      */
-    #[Route(path: '/widgets/search', name: 'widgets.search.pagelet.v2', defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront']], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/widgets/search',
+        name: 'widgets.search.pagelet.v2',
+        defaults: ['XmlHttpRequest' => true],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
+    )]
     public function ajax(Request $request, SalesChannelContext $context): Response
     {
         $request->request->set('no-aggregations', true);
@@ -96,10 +113,18 @@ class SearchController extends StorefrontController
     /**
      * Route to load the available listing filters
      */
-    #[Route(path: '/widgets/search/filter', name: 'widgets.search.filter', defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront'], '_httpCache' => true], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/widgets/search/filter',
+        name: 'widgets.search.filter',
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
+    )]
     public function filter(Request $request, SalesChannelContext $context): Response
     {
-        $term = $request->get('search');
+        $term = RequestParamHelper::get($request, 'search');
         if (!$term) {
             throw RoutingException::missingRequestParameter('search');
         }
@@ -137,7 +162,7 @@ class SearchController extends StorefrontController
             return null;
         }
 
-        if ($request->get('search') === mb_strtolower($product->getProductNumber())) {
+        if ($request->query->get('search') === mb_strtolower($product->getProductNumber())) {
             return $this->redirectToRoute('frontend.detail.page', ['productId' => $product->getId()]);
         }
 

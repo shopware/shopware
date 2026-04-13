@@ -55,10 +55,6 @@ describe('src/app/mixin/remove-api-error.mixin.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should call  removeApiError on value change', async () => {
         await wrapper.unmount();
         wrapper = await createWrapper({

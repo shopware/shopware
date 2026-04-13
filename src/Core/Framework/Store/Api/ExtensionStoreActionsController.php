@@ -8,23 +8,23 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
-use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\StoreException;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
  */
-#[Route(defaults: ['_routeScope' => ['api'], '_acl' => ['system.plugin_maintain']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID], PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain']])]
 #[Package('checkout')]
 class ExtensionStoreActionsController extends AbstractController
 {
@@ -35,21 +35,31 @@ class ExtensionStoreActionsController extends AbstractController
         private readonly PluginManagementService $pluginManagementService,
         private readonly Filesystem $fileSystem,
         private readonly bool $runtimeExtensionManagementAllowed,
-        private readonly CacheInterface $cache,
     ) {
     }
 
-    #[Route(path: '/api/_action/extension/refresh', name: 'api.extension.refresh', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/extension/refresh',
+        name: 'api.extension.refresh',
+        methods: [Request::METHOD_POST]
+    )]
     public function refreshExtensions(Context $context): Response
     {
-        $this->pluginService->refreshPlugins($context, new NullIO());
+        if (!$this->runtimeExtensionManagementAllowed) {
+            return new Response('', Response::HTTP_NO_CONTENT);
+        }
 
-        $this->cache->delete(StoreClient::EXTENSION_LIST_CACHE);
+        $this->pluginService->refreshPlugins($context, new NullIO());
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/upload', name: 'api.extension.upload', defaults: ['_acl' => ['system.plugin_upload']], methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/extension/upload',
+        name: 'api.extension.upload',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_upload']],
+        methods: [Request::METHOD_POST]
+    )]
     public function uploadExtensions(Request $request, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
@@ -72,7 +82,7 @@ class ExtensionStoreActionsController extends AbstractController
         if ($file->getMimeType() !== 'application/zip') {
             try {
                 $this->fileSystem->remove($file->getPathname());
-            } catch (\Throwable $e) {
+            } catch (\Throwable) {
                 // Do nothing because the tmp file is already deleted by os
             }
 
@@ -91,24 +101,28 @@ class ExtensionStoreActionsController extends AbstractController
             throw $e;
         }
 
-        $this->cache->delete(StoreClient::EXTENSION_LIST_CACHE);
-
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/download/{technicalName}', name: 'api.extension.download', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/extension/download/{technicalName}',
+        name: 'api.extension.download',
+        methods: [Request::METHOD_POST]
+    )]
     public function downloadExtension(string $technicalName, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
 
         $this->extensionDownloader->download($technicalName, $context);
 
-        $this->cache->delete(StoreClient::EXTENSION_LIST_CACHE);
-
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/install/{type}/{technicalName}', name: 'api.extension.install', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/extension/install/{type}/{technicalName}',
+        name: 'api.extension.install',
+        methods: [Request::METHOD_POST]
+    )]
     public function installExtension(string $type, string $technicalName, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
@@ -118,7 +132,11 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/uninstall/{type}/{technicalName}', name: 'api.extension.uninstall', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/extension/uninstall/{type}/{technicalName}',
+        name: 'api.extension.uninstall',
+        methods: [Request::METHOD_POST]
+    )]
     public function uninstallExtension(string $type, string $technicalName, Request $request, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
@@ -133,7 +151,11 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/remove/{type}/{technicalName}', name: 'api.extension.remove', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/extension/remove/{type}/{technicalName}',
+        name: 'api.extension.remove',
+        methods: [Request::METHOD_POST]
+    )]
     public function removeExtension(string $type, string $technicalName, Request $request, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
@@ -148,31 +170,39 @@ class ExtensionStoreActionsController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/activate/{type}/{technicalName}', name: 'api.extension.activate', methods: ['PUT'])]
+    #[Route(
+        path: '/api/_action/extension/activate/{type}/{technicalName}',
+        name: 'api.extension.activate',
+        methods: [Request::METHOD_PUT]
+    )]
     public function activateExtension(string $type, string $technicalName, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
 
         $this->extensionLifecycleService->activate($type, $technicalName, $context);
 
-        $this->cache->delete(StoreClient::EXTENSION_LIST_CACHE);
-
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/deactivate/{type}/{technicalName}', name: 'api.extension.deactivate', methods: ['PUT'])]
+    #[Route(
+        path: '/api/_action/extension/deactivate/{type}/{technicalName}',
+        name: 'api.extension.deactivate',
+        methods: [Request::METHOD_PUT]
+    )]
     public function deactivateExtension(string $type, string $technicalName, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();
 
         $this->extensionLifecycleService->deactivate($type, $technicalName, $context);
 
-        $this->cache->delete(StoreClient::EXTENSION_LIST_CACHE);
-
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/extension/update/{type}/{technicalName}', name: 'api.extension.update', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/extension/update/{type}/{technicalName}',
+        name: 'api.extension.update',
+        methods: [Request::METHOD_POST]
+    )]
     public function updateExtension(Request $request, string $type, string $technicalName, Context $context): Response
     {
         $this->checkExtensionManagementAllowed();

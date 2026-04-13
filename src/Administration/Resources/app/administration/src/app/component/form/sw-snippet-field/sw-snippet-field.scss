@@ -1,17 +1,29 @@
 @import "~scss/variables";
 
 .sw-snippet-field {
-    position: relative;
-
     .sw-block-field input {
         padding-right: 32px;
     }
 
+    .sw-snippet-field__input-wrapper {
+        position: relative;
+
+        // Override meteor component margin to align the translation icon correctly
+        .mt-field {
+            margin-bottom: 0 !important;
+        }
+    }
+
     .sw-snippet-field__icon {
         position: absolute;
-        bottom: 16px;
         right: 16px;
+        bottom: 16px;
         color: $color-shopware-brand-500;
         cursor: pointer;
+    }
+
+    .sw-snippet-field__text input,
+    .sw-snippet-field__textarea textarea {
+        padding-right: 40px;
     }
 }

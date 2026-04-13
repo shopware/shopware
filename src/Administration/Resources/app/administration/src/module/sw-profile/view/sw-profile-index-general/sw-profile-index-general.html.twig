@@ -112,6 +112,7 @@
 
     {% block sw_profile_index_general_password %}
     <mt-card
+        v-if="showPasswordChangeCard"
         position-identifier="sw-profile-index-general-password"
         :title="$tc('sw-profile.index.titlePasswordCard')"
         :is-loading="isUserLoading || !languageId"
@@ -124,7 +125,7 @@
             :disabled="!acl.can('user.update_profile')"
             :placeholder="$tc('sw-profile.index.placeholderNewPassword')"
             :error="userPasswordError"
-            autocomplete="off"
+            autocomplete="new-password"
         />
         {% endblock %}
 
@@ -136,7 +137,7 @@
             :disabled="!acl.can('user.update_profile')"
             :placeholder="$tc('sw-profile.index.placeholderNewPasswordConfirm')"
             :validation="computedNewPassword === computedNewPasswordConfirm"
-            autocomplete="off"
+            autocomplete="new-password"
         />
         {% endblock %}
     </mt-card>

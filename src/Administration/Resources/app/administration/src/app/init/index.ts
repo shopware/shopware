@@ -34,6 +34,8 @@ import initializeExtensionDataHandling from './extension-data-handling.init';
 import initializeInAppPurchaseCheckout from './in-app-purchase-checkout.init';
 import initializeTopBarButtons from './topbar-button.init';
 import initializeTeaserPopovers from './teaser-popover.init';
+import initializeMediaModal from './media-modal.init';
+import initializeConsent from './consent.init';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -67,4 +69,6 @@ export default {
     inAppPurchaseCheckout: initializeInAppPurchaseCheckout,
     topbarButton: initializeTopBarButtons,
     teaserPopover: initializeTeaserPopovers,
+    mediaModal: initializeMediaModal,
+    consent: initializeConsent,
 };

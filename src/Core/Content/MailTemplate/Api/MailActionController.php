@@ -9,14 +9,18 @@ use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('after-sales')]
 class MailActionController extends AbstractController
 {
@@ -32,8 +36,8 @@ class MailActionController extends AbstractController
     #[Route(
         path: '/api/_action/mail-template/send',
         name: 'api.action.mail_template.send',
-        methods: ['POST'],
-        defaults: ['_acl' => ['api_send_email']]
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_send_email']],
+        methods: [Request::METHOD_POST]
     )]
     public function send(RequestDataBag $post, Context $context): JsonResponse
     {
@@ -44,7 +48,7 @@ class MailActionController extends AbstractController
         $extension = new MailSendSubscriberConfig(
             false,
             $data['documentIds'] ?? [],
-            $data['mediaIds'] ?? [],
+            [],
         );
 
         $data['attachmentsConfig'] = new MailAttachmentsConfig(
@@ -60,9 +64,22 @@ class MailActionController extends AbstractController
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
     }
 
-    #[Route(path: '/api/_action/mail-template/validate', name: 'api.action.mail_template.validate', methods: ['POST'])]
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
+    #[Route(
+        path: '/api/_action/mail-template/validate',
+        name: 'api.action.mail_template.validate',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:update']],
+        methods: [Request::METHOD_POST],
+    )]
     public function validate(RequestDataBag $post, Context $context): JsonResponse
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The API endpoint "/api/_action/mail-template/validate" is deprecated and will be removed in v6.8.0.0 without replacement.'
+        );
+
         $this->templateRenderer->initialize();
         $this->templateRenderer->render($post->get('contentHtml', ''), [], $context);
         $this->templateRenderer->render($post->get('contentPlain', ''), [], $context);
@@ -70,7 +87,12 @@ class MailActionController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/mail-template/build', name: 'api.action.mail_template.build', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/mail-template/build',
+        name: 'api.action.mail_template.build',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function build(RequestDataBag $post, Context $context): JsonResponse
     {
         $data = $post->all();

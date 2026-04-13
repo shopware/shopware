@@ -12,7 +12,7 @@ const { debounce, get } = Shopware.Utils;
 /**
  * @private
  */
-Component.register('sw-entity-single-select', {
+export default {
     template,
 
     inject: [
@@ -34,14 +34,13 @@ Component.register('sw-entity-single-select', {
     ],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
+        // null is a common value here, e.g. passed by the inheritance system.
         value: {
-            required: true,
+            required: false,
         },
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         placeholder: {
@@ -159,10 +158,24 @@ Component.register('sw-entity-single-select', {
         disabled: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
         label: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
+        },
+        popoverClasses: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
+        autocomplete: {
             type: String,
             required: false,
             default: undefined,
@@ -636,4 +649,4 @@ Component.register('sw-entity-single-select', {
             return '#d1d9e0';
         },
     },
-});
+};

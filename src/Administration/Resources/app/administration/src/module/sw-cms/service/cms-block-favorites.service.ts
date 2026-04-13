@@ -10,7 +10,6 @@ const { Application } = Shopware;
 class CmsBlockFavoritesService extends UserConfigClass {
     static USER_CONFIG_KEY = 'cms-block-favorites';
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     private state: { favorites: string[] } = reactive({
         favorites: [],
     });

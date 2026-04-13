@@ -2,11 +2,14 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Pagelet\Captcha\AbstractBasicCaptchaPageletLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,8 +20,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
+#[Package('checkout')]
 class CaptchaController extends StorefrontController
 {
     /**
@@ -33,7 +36,7 @@ class CaptchaController extends StorefrontController
     #[Route(path: '/basic-captcha', name: 'frontend.captcha.basic-captcha.load', defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
     public function loadBasicCaptcha(Request $request, SalesChannelContext $context): Response
     {
-        $formId = $request->get('formId');
+        $formId = $request->query->get('formId');
         $page = $this->basicCaptchaPageletLoader->load($request, $context);
         $request->getSession()->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $page->getCaptcha()->getCode());
 
@@ -47,13 +50,13 @@ class CaptchaController extends StorefrontController
     public function validate(Request $request): JsonResponse
     {
         $response = [];
-        $formId = $request->get('formId');
+        $formId = RequestParamHelper::get($request, 'formId');
         if (!$formId) {
             throw RoutingException::missingRequestParameter('formId');
         }
 
         if ($this->basicCaptcha->isValid($request, [])) {
-            $fakeSession = $request->get(BasicCaptcha::CAPTCHA_REQUEST_PARAMETER);
+            $fakeSession = RequestParamHelper::get($request, BasicCaptcha::CAPTCHA_REQUEST_PARAMETER);
             $request->getSession()->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $fakeSession);
 
             return new JsonResponse(['session' => $fakeSession]);

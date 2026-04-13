@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlow;
 use Shopware\Core\Content\Flow\Dispatching\BufferedFlowQueue;
 use Shopware\Core\Content\Flow\Dispatching\FlowDispatcher;
 use Shopware\Core\Content\Flow\Dispatching\FlowExecutor;
@@ -93,7 +94,6 @@ class FlowDispatcherTest extends TestCase
 
     public function testDispatchWithoutFlows(): void
     {
-        Feature::skipTestIfActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS', $this);
         $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
 
         $flowLogEvent = new FlowLogEvent(FlowLogEvent::NAME, $event);
@@ -101,16 +101,27 @@ class FlowDispatcherTest extends TestCase
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls($event, $flowLogEvent);
 
-        $flow = new StorableFlow('state_enter.order.state.in_progress', $event->getContext(), [], []);
-        $this->flowFactory->expects($this->once())
-            ->method('create')
-            ->willReturn($flow);
+        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0')) {
+            $bufferedFlow = new BufferedFlow($event->getName(), $event->getContext(), []);
+            $this->flowFactory->expects($this->once())
+                ->method('createBuffered')
+                ->with($event)
+                ->willReturn($bufferedFlow);
+            $this->bufferedFlowQueue->expects($this->once())
+                ->method('queueFlow')
+                ->with($bufferedFlow);
+        } else {
+            $flow = new StorableFlow('state_enter.order.state.in_progress', $event->getContext(), [], []);
+            $this->flowFactory->expects($this->once())
+                ->method('create')
+                ->willReturn($flow);
 
-        $flowLoader = $this->createMock(FlowLoader::class);
-        $this->container->set(FlowLoader::class, $flowLoader);
-        $flowLoader->expects($this->once())
-            ->method('load')
-            ->willReturn([]);
+            $flowLoader = $this->createMock(FlowLoader::class);
+            $this->container->set(FlowLoader::class, $flowLoader);
+            $flowLoader->expects($this->once())
+                ->method('load')
+                ->willReturn([]);
+        }
 
         $this->flowDispatcher->dispatch($event);
     }
@@ -129,9 +140,16 @@ class FlowDispatcherTest extends TestCase
             ->method('dispatch')
             ->willReturnOnConsecutiveCalls($event, $flowLogEvent);
 
-        $this->bufferedFlowQueue->expects($this->once())
-            ->method('queueFlow')
-            ->with($event);
+        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0')) {
+            $bufferedFlow = new BufferedFlow($event->getName(), $event->getContext(), []);
+            $this->flowFactory->expects($this->once())
+                ->method('createBuffered')
+                ->with($event)
+                ->willReturn($bufferedFlow);
+            $this->bufferedFlowQueue->expects($this->once())
+                ->method('queueFlow')
+                ->with($bufferedFlow);
+        }
 
         $this->flowDispatcher->dispatch($event);
     }
@@ -139,6 +157,7 @@ class FlowDispatcherTest extends TestCase
     public function testNestedTransactionExceptionsAreRethrownWhenSavePointsAreNotEnabled(): void
     {
         Feature::skipTestIfActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS', $this);
+        Feature::skipTestIfActive('v6.8.0.0', $this);
         $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
 
         $flowLogEvent = new FlowLogEvent(FlowLogEvent::NAME, $event);
@@ -199,6 +218,7 @@ class FlowDispatcherTest extends TestCase
     public function testExceptionsAreLoggedAndExecutionContinuesWhenNestedTransactionsWithSavePointsIsEnabled(): void
     {
         Feature::skipTestIfActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS', $this);
+        Feature::skipTestIfActive('v6.8.0.0', $this);
         $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
 
         $this->dispatcher->method('dispatch')->willReturnOnConsecutiveCalls(

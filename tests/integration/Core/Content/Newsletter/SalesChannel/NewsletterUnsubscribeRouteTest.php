@@ -3,11 +3,9 @@
 namespace Shopware\Tests\Integration\Core\Content\Newsletter\SalesChannel;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
-use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -20,7 +18,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(NewsletterUnsubscribeRoute::class)]
 #[Group('store-api')]
 class NewsletterUnsubscribeRouteTest extends TestCase
 {
@@ -69,6 +66,10 @@ class NewsletterUnsubscribeRouteTest extends TestCase
                 ]
             );
 
+        $response = $this->browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
         $count = (int) static::getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de" AND status = "direct"');
         static::assertSame(0, $count);
     }
@@ -98,15 +99,15 @@ class NewsletterUnsubscribeRouteTest extends TestCase
                 ]
             );
 
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
         $response = \json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
         static::assertIsArray($error = $response['errors'][0]);
-        static::assertEquals('The email parameter is missing.', $error['detail']);
-        static::assertEquals('CONTENT__MISSING_EMAIL_PARAMETER', $error['code']);
-        static::assertEquals('Bad Request', $error['title']);
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $error['status']);
+        static::assertSame('The email parameter is missing.', $error['detail']);
+        static::assertSame('CONTENT__MISSING_EMAIL_PARAMETER', $error['code']);
+        static::assertSame('Bad Request', $error['title']);
+        static::assertSame(Response::HTTP_BAD_REQUEST, (int) $error['status']);
     }
 }

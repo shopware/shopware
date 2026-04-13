@@ -15,15 +15,17 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler]
 #[Package('discovery')]
-final class GenerateThumbnailsHandler
+final readonly class GenerateThumbnailsHandler
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(
-        private readonly ThumbnailService $thumbnailService,
-        private readonly EntityRepository $mediaRepository,
-        private readonly bool $remoteThumbnailsEnable = false
+        private ThumbnailService $thumbnailService,
+        private EntityRepository $mediaRepository,
+        private bool $remoteThumbnailsEnable = false
     ) {
     }
 
@@ -39,7 +41,6 @@ final class GenerateThumbnailsHandler
         $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
         $criteria->addFilter(new EqualsAnyFilter('media.id', $msg->getMediaIds()));
 
-        /** @var MediaCollection $entities */
         $entities = $this->mediaRepository->search($criteria, $context)->getEntities();
 
         if ($msg instanceof UpdateThumbnailsMessage) {

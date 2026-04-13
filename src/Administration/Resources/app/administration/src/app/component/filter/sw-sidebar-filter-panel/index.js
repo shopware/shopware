@@ -5,12 +5,10 @@
 import template from './sw-sidebar-filter-panel.html.twig';
 import './sw-sidebar-filter-panel.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-sidebar-filter-panel', {
+export default {
     template,
 
     props: {
@@ -27,4 +25,4 @@ Component.register('sw-sidebar-filter-panel', {
             this.$refs.filterPanel.resetAll();
         },
     },
-});
+};

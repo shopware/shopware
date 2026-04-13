@@ -35,7 +35,7 @@ class KernelFactoryTest extends TestCase
         static::assertInstanceOf(Kernel::class, $kernel);
 
         $middlewares = array_map(
-            fn (Middleware $middleware) => $middleware::class,
+            static fn (Middleware $middleware) => $middleware::class,
             $kernel::getConnection()->getConfiguration()->getMiddlewares()
         );
 

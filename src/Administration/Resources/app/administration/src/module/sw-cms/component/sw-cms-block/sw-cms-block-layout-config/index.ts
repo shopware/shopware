@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-block-layout-config.html.twig';
 import './sw-cms-block-layout-config.scss';
 

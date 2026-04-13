@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -28,6 +29,9 @@ class AvailableCombinationLoaderTest extends TestCase
 
     private AbstractAvailableCombinationLoader $loader;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private IdsCollection $ids;
@@ -106,7 +110,11 @@ class AvailableCombinationLoaderTest extends TestCase
         $result = $this->loader->loadCombinations($this->ids->get('a.0'), $salesChanelContext);
 
         foreach ($result->getCombinations() as $combination) {
-            static::assertEquals($expected, $result->isAvailable($combination));
+            static::assertSame($expected, $result->isAvailable($combination));
+        }
+
+        if ($differentChannel) {
+            static::assertCount(0, $result->getCombinations());
         }
     }
 

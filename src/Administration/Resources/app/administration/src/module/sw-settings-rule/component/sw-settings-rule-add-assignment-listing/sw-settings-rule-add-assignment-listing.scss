@@ -19,7 +19,7 @@
 
     .mt-card {
         &__toolbar {
-            padding-bottom: 20px;
+            padding-bottom: var(--scale-size-20);
         }
 
         &__content {

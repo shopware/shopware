@@ -7,6 +7,12 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 let wrapper;
 
+const mockedLoginService = {
+    verifyUserToken: jest.fn(() => Promise.resolve('verifiedToken')),
+    getBearerAuthentication: jest.fn(),
+    setBearerAuthentication: jest.fn(),
+};
+
 async function createWrapper(
     privileges = [],
     options = {
@@ -48,14 +54,16 @@ async function createWrapper(
                             return privileges.includes(identifier);
                         },
                     },
-                    loginService: {},
+                    loginService: mockedLoginService,
                     userService: {
                         getUser: () => Promise.resolve({ data: {} }),
                     },
                     mediaDefaultFolderService: {
                         getDefaultFolderId: () => Promise.resolve('1234'),
                     },
-                    userValidationService: {},
+                    userValidationService: {
+                        checkUserEmail: () => Promise.resolve({ emailIsUnique: true }),
+                    },
                     integrationService: {},
                     repositoryFactory: {
                         create: (entityName) => {
@@ -74,6 +82,7 @@ async function createWrapper(
                                             },
                                         });
                                     },
+                                    save: () => Promise.resolve(),
                                 };
                             }
 
@@ -103,6 +112,11 @@ async function createWrapper(
                     $route: {
                         params: {
                             id: '1a2b3c4d',
+                        },
+                        meta: {
+                            $module: {
+                                icon: 'regular-content',
+                            },
                         },
                     },
                     $device: {
@@ -151,7 +165,6 @@ async function createWrapper(
                     `,
                     },
                     'sw-context-menu-item': true,
-                    'sw-empty-state': true,
                     'sw-skeleton': true,
                     'sw-loader': true,
                     'sw-verify-user-modal': true,
@@ -179,11 +192,13 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         Shopware.Service().register('timezoneService', () => {
             return new TimezoneService();
         });
-
-        jest.spyOn(Shopware.ExtensionAPI, 'publishData').mockImplementation(() => {});
     });
 
     beforeEach(async () => {
+        // Setup spy before each test since restoreMocks: true in jest.config.js
+        // automatically restores mocks after each test
+        jest.spyOn(Shopware.ExtensionAPI, 'publishData').mockImplementation(() => {});
+
         Shopware.Store.get('session').languageId = '123456789';
         wrapper = await createWrapper();
     });
@@ -193,10 +208,6 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         // not work with automatic unmount
         await wrapper.unmount();
         Shopware.Store.get('session').languageId = '';
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain all fields', async () => {
@@ -537,5 +548,38 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
             path: 'user',
             scope: expect.anything(),
         });
+    });
+
+    it('should update the auth token if user password is changed', async () => {
+        Shopware.Application.$container.resetProviders();
+        Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
+        wrapper.vm.user.password = 'newPassword';
+        await wrapper.vm.saveUser();
+        await flushPromises();
+
+        expect(mockedLoginService.verifyUserToken).toHaveBeenCalledWith('newPassword');
+        expect(mockedLoginService.setBearerAuthentication).toHaveBeenCalledWith({ access: 'verifiedToken' });
+    });
+
+    it('should not update the auth token if user password is not changed', async () => {
+        Shopware.Application.$container.resetProviders();
+        Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
+        await wrapper.vm.saveUser();
+        await flushPromises();
+
+        expect(mockedLoginService.verifyUserToken).not.toHaveBeenCalled();
+        expect(mockedLoginService.setBearerAuthentication).not.toHaveBeenCalled();
+    });
+
+    it('should not update the auth token if user a different user then the currently logged in user is changed', async () => {
+        Shopware.Application.$container.resetProviders();
+        Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
+        wrapper.vm.user.password = 'newPassword';
+        wrapper.vm.user.id = 'randomId';
+        await wrapper.vm.saveUser();
+        await flushPromises();
+
+        expect(mockedLoginService.verifyUserToken).not.toHaveBeenCalled();
+        expect(mockedLoginService.setBearerAuthentication).not.toHaveBeenCalled();
     });
 });

@@ -114,7 +114,7 @@ export default {
         },
 
         propertyEntityName() {
-            return this.propertyCollection ? this.propertyCollection.entity : null;
+            return this.propertyCollection?.entity ?? null;
         },
 
         propertyNameKebabCase() {
@@ -139,6 +139,12 @@ export default {
             }
 
             return 'name';
+        },
+
+        showClearableButtonForDefault() {
+            // Hide clear button for languageId to prevent clearing a required field
+            // that gets auto-filled by the backend
+            return this.defaultPropertyName !== 'languageId';
         },
     },
 
@@ -210,7 +216,7 @@ export default {
             this.defaultId = defaultId;
 
             if (!!defaultId && !this.propertyCollection.has(defaultId)) {
-                this.propertyCollection.add(defaultEntity);
+                this.propertyCollection = this.propertyCollection.concat([defaultEntity]);
             }
         },
 

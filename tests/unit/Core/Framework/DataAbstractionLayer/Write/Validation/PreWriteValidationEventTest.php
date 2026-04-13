@@ -57,7 +57,7 @@ class PreWriteValidationEventTest extends TestCase
         $event = new PreWriteValidationEvent($this->context, $commands);
 
         foreach ($assertions as $entity => $ids) {
-            static::assertEquals($ids, $event->getPrimaryKeys($entity), \sprintf('Primary keys for entity %s not match', $entity));
+            static::assertSame($ids, $event->getPrimaryKeys($entity), \sprintf('Primary keys for entity %s not match', $entity));
         }
     }
 
@@ -73,7 +73,7 @@ class PreWriteValidationEventTest extends TestCase
         $event = new PreWriteValidationEvent($this->context, $commands);
 
         foreach ($assertions as $entity => $ids) {
-            static::assertEquals($ids, $event->getPrimaryKeys($entity), \sprintf('Primary keys for entity %s not match', $entity));
+            static::assertSame($ids, $event->getPrimaryKeys($entity), \sprintf('Primary keys for entity %s not match', $entity));
         }
     }
 
@@ -89,7 +89,7 @@ class PreWriteValidationEventTest extends TestCase
         $event = new PreWriteValidationEvent($this->context, $commands);
 
         foreach ($assertions as $entity => $ids) {
-            static::assertEquals($ids, $event->getDeletedPrimaryKeys($entity), \sprintf('Deleted primary keys for entity %s not match', $entity));
+            static::assertSame($ids, $event->getDeletedPrimaryKeys($entity), \sprintf('Deleted primary keys for entity %s not match', $entity));
         }
     }
 

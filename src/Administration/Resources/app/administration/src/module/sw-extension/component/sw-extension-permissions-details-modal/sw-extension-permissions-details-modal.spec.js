@@ -14,7 +14,6 @@ async function createWrapper({ permissions, modalTitle, selectedEntity }) {
                 stubs: {
                     'sw-modal': {
                         props: ['title'],
-                        // eslint-disable-next-line max-len
                         template:
                             '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
                     },
@@ -33,33 +32,6 @@ async function createWrapper({ permissions, modalTitle, selectedEntity }) {
  * @sw-package checkout
  */
 describe('sw-extension-permissions-details-modal', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper({
-            modalTitle: 'Sample Extension Label',
-            selectedEntity: 'product',
-            permissions: {
-                product: {
-                    product: [
-                        'create',
-                        'read',
-                    ],
-                    product_visibility: [
-                        'create',
-                        'read',
-                    ],
-                },
-                promotion: {
-                    promotion: [
-                        'create',
-                        'read',
-                    ],
-                },
-            },
-        });
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display the permissions for creating and reading', async () => {
         const wrapper = await createWrapper({
             modalTitle: 'Sample Extension Label',

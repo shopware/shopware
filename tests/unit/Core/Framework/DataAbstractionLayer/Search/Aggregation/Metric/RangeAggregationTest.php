@@ -36,8 +36,8 @@ class RangeAggregationTest extends TestCase
         $aggregation = new RangeAggregation('foo', 'bar', [['to' => 100]]);
         $clone = clone $aggregation;
 
-        static::assertEquals('foo', $clone->getName());
-        static::assertEquals('bar', $clone->getField());
-        static::assertEquals($aggregation->jsonSerialize(), $clone->jsonSerialize());
+        static::assertSame('foo', $clone->getName());
+        static::assertSame('bar', $clone->getField());
+        static::assertSame($aggregation->jsonSerialize(), $clone->jsonSerialize());
     }
 }

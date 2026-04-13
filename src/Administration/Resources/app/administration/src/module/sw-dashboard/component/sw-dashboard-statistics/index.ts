@@ -128,7 +128,6 @@ export default Shopware.Component.wrapComponentConfig({
             return {
                 xaxis: {
                     type: 'datetime',
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                     min: this.getDateAgo(this.ordersDateRange).getTime(),
                     labels: {
                         datetimeUTC: false,
@@ -150,7 +149,6 @@ export default Shopware.Component.wrapComponentConfig({
             return {
                 xaxis: {
                     type: 'datetime',
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                     min: this.getDateAgo(this.turnoverDateRange).getTime(),
                     labels: {
                         datetimeUTC: false,
@@ -277,6 +275,9 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Filter.getByName('currency');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },

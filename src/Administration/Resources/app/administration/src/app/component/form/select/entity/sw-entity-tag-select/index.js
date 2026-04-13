@@ -2,13 +2,12 @@
  * @sw-package framework
  */
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
+export default {
     data() {
         return {
             tagExists: true,
@@ -99,4 +98,4 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
             });
         },
     },
-});
+};

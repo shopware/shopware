@@ -114,7 +114,7 @@ class DateTimeFieldSerializerTest extends TestCase
         $decoded = $this->serializer->decode($this->field, $encoded);
         static::assertNotNull($decoded);
 
-        static::assertEquals($expected, $decoded->format('c'), 'Output should be ' . $expected);
+        static::assertSame($expected, $decoded->format('c'), 'Output should be ' . $expected);
     }
 
     public function testSerializerValidatesRequiredField(): void

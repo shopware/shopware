@@ -34,7 +34,7 @@ class DiscountAbsoluteCalculator implements DiscountCalculatorInterface
 
         $affectedPrices = $packages->getAffectedPrices();
 
-        $totalOriginalSum = $affectedPrices->sum()->getTotalPrice();
+        $totalOriginalSum = $affectedPrices->getTotalPriceAmount();
         $discountValue = -min(abs($definition->getPrice()), $totalOriginalSum);
 
         $price = $this->priceCalculator->calculate(

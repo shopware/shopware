@@ -127,6 +127,6 @@ class CustomSnippetFormatControllerTest extends TestCase
         static::assertNotFalse($content);
         $content = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('rendered', $content);
-        static::assertEquals('Rendered html', $content['rendered']);
+        static::assertSame('Rendered html', $content['rendered']);
     }
 }

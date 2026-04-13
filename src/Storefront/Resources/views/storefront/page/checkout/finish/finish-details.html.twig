@@ -67,18 +67,34 @@
                             {% endblock %}
 
                             {% block page_checkout_finish_order_payment_method %}
-                                <p>
-                                    <strong>{{ 'checkout.finishInfoPayment'|trans|sw_sanitize }}</strong>
-                                    {{ page.order.transactions.last.paymentMethod.translated.name }}
-                                </p>
+                                {% if feature('v6.8.0.0') %}
+                                    <p>
+                                        <strong>{{ 'checkout.finishInfoPayment'|trans|sw_sanitize }}</strong>
+                                        {{ page.order.primaryOrderTransaction.paymentMethod.translated.name }}
+                                    </p>
+                                {% else %}
+                                    <p>
+                                        <strong>{{ 'checkout.finishInfoPayment'|trans|sw_sanitize }}</strong>
+                                        {{ page.order.transactions.last.paymentMethod.translated.name }}
+                                    </p>
+                                {% endif %}
                             {% endblock %}
 
                             {% block page_checkout_finish_order_dispatch_method %}
-                                {% if page.order.deliveries.first.shippingMethod is defined %}
-                                    <p>
-                                        <strong>{{ 'checkout.finishInfoShipping'|trans|sw_sanitize }}</strong>
-                                        {{ page.order.deliveries.first.shippingMethod.translated.name }}
-                                    </p>
+                                {% if feature('v6.8.0.0') %}
+                                    {% if page.order.primaryOrderDelivery is defined %}
+                                        <p>
+                                            <strong>{{ 'checkout.finishInfoShipping'|trans|sw_sanitize }}</strong>
+                                            {{ page.order.primaryOrderDelivery.shippingMethod.translated.name }}
+                                        </p>
+                                    {% endif %}
+                                {% else %}
+                                    {% if page.order.deliveries.first.shippingMethod is defined %}
+                                        <p>
+                                            <strong>{{ 'checkout.finishInfoShipping'|trans|sw_sanitize }}</strong>
+                                            {{ page.order.deliveries.first.shippingMethod.translated.name }}
+                                        </p>
+                                    {% endif %}
                                 {% endif %}
                             {% endblock %}
                         </div>

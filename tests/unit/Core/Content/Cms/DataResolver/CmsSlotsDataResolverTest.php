@@ -140,11 +140,11 @@ class CmsSlotsDataResolverTest extends TestCase
             // 3 extensions, each dispatched as pre- and post-event
             ->expects($this->exactly(6))
             ->method('dispatch')
-            ->willReturnCallback(function (Extension $extension) use ($slots, $resolverContext, $criteriaCollection) {
+            ->willReturnCallback(static function (Extension $extension) use ($slots, $resolverContext, $criteriaCollection) {
                 switch (true) {
                     case $extension instanceof CmsSlotsDataResolveExtension:
-                        static::assertEquals($slots, $extension->slots);
-                        static::assertEquals($resolverContext, $extension->resolverContext);
+                        static::assertSame($slots, $extension->slots);
+                        static::assertSame($resolverContext, $extension->resolverContext);
 
                         if ($extension->result) {
                             static::assertInstanceOf(CmsSlotCollection::class, $extension->result);
@@ -154,17 +154,17 @@ class CmsSlotsDataResolverTest extends TestCase
                         return $extension;
                     case $extension instanceof CmsSlotsDataCollectExtension:
                         static::assertCount(1, $extension->slots);
-                        static::assertEquals($resolverContext, $extension->resolverContext);
+                        static::assertSame($resolverContext, $extension->resolverContext);
 
                         if ($extension->result) {
-                            static::assertEquals(['slot-1' => $criteriaCollection], $extension->result);
+                            static::assertSame(['slot-1' => $criteriaCollection], $extension->result);
                         }
 
                         return $extension;
                     case $extension instanceof CmsSlotsDataEnrichExtension:
-                        static::assertEquals($slots, $extension->slots);
-                        static::assertEquals(['slot-1' => $criteriaCollection], $extension->criteriaList);
-                        static::assertEquals($resolverContext, $extension->resolverContext);
+                        static::assertSame($slots, $extension->slots);
+                        static::assertSame(['slot-1' => $criteriaCollection], $extension->criteriaList);
+                        static::assertSame($resolverContext, $extension->resolverContext);
 
                         if ($extension->result) {
                             static::assertInstanceOf(CmsSlotCollection::class, $extension->result);

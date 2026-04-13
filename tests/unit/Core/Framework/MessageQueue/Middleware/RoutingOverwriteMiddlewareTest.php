@@ -142,6 +142,19 @@ class RoutingOverwriteMiddlewareTest extends MiddlewareTestCase
                 new BusNameStamp('test'),
             ],
         ];
+
+        yield 'Default config, no stamps, message in envelope, message implements interface' => [
+            'message' => (new Envelope(new LowPriorityMessage())),
+            'config' => [
+                AsyncMessageInterface::class => 'async',
+                LowPriorityMessageInterface::class => 'low_priority',
+                SendEmailMessage::class => 'async',
+            ],
+            'providedStamps' => [],
+            'expectedStamps' => [
+                new TransportNamesStamp(['low_priority']),
+            ],
+        ];
     }
 }
 
@@ -149,5 +162,12 @@ class RoutingOverwriteMiddlewareTest extends MiddlewareTestCase
  * @internal
  */
 class AsyncMessage
+{
+}
+
+/**
+ * @internal
+ */
+class LowPriorityMessage implements LowPriorityMessageInterface
 {
 }

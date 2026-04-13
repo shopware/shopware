@@ -64,7 +64,7 @@ trait SalesChannelApiTestBehaviour
             throw new \LogicException('The sales channel id can only be requested after calling `createSalesChannelApiClient`.');
         }
 
-        return end($this->salesChannelIds);
+        return array_last($this->salesChannelIds);
     }
 
     /**
@@ -118,7 +118,7 @@ trait SalesChannelApiTestBehaviour
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        if (empty($contextToken)) {
+        if ($contextToken === '') {
             throw new \RuntimeException('Cannot login with the given credential account');
         }
 
@@ -171,6 +171,7 @@ trait SalesChannelApiTestBehaviour
         /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = static::getContainer()->get('sales_channel.repository');
         $paymentMethod = $this->getAvailablePaymentMethod();
+        $shippingMethod = $this->getAvailableShippingMethod();
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('domains.url', 'http://localhost'));
@@ -190,7 +191,8 @@ trait SalesChannelApiTestBehaviour
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => $paymentMethod->getId(),
             'paymentMethods' => [['id' => $paymentMethod->getId()]],
-            'shippingMethodId' => $this->getAvailableShippingMethod()->getId(),
+            'shippingMethodId' => $shippingMethod->getId(),
+            'shippingMethods' => [['id' => $shippingMethod->getId()]],
             'navigationCategoryId' => $this->getValidCategoryId(),
             'countryId' => $this->getValidCountryId(null),
             'currencies' => [['id' => Defaults::CURRENCY]],

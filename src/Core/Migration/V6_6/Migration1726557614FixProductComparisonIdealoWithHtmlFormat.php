@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -20,8 +21,10 @@ class Migration1726557614FixProductComparisonIdealoWithHtmlFormat extends Migrat
 
     public function update(Connection $connection): void
     {
-        $old_template = file_get_contents(__DIR__ . '/../Fixtures/productComparison-export-profiles/next-37658/old-template-idealo.csv.twig');
-        $new_template = file_get_contents(__DIR__ . '/../Fixtures/productComparison-export-profiles/next-37658/new-template-idealo.csv.twig');
+        $filesystem = new Filesystem();
+
+        $old_template = $filesystem->readFile(__DIR__ . '/../Fixtures/productComparison-export-profiles/next-37658/old-template-idealo.csv.twig');
+        $new_template = $filesystem->readFile(__DIR__ . '/../Fixtures/productComparison-export-profiles/next-37658/new-template-idealo.csv.twig');
 
         $connection->update(
             'product_export',

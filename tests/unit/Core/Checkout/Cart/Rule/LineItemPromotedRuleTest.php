@@ -51,7 +51,7 @@ class LineItemPromotedRuleTest extends TestCase
      */
     public function testConstraints(): void
     {
-        $expectedType = new Type(['type' => 'bool']);
+        $expectedType = new Type(type: 'bool');
 
         $ruleConstraints = $this->rule->getConstraints();
 

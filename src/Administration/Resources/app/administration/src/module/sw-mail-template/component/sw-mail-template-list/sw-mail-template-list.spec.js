@@ -56,6 +56,7 @@ const createWrapper = async (privileges = []) => {
                 'sw-entity-listing': {
                     props: [
                         'items',
+                        'dataSource',
                         'allowEdit',
                         'allowView',
                         'allowDelete',
@@ -63,20 +64,20 @@ const createWrapper = async (privileges = []) => {
                     ],
                     template: `
                     <div id="mailTemplateGrid">
-                        <template v-for="item in items">
+                        <template v-for="item in (dataSource || items)">
                             <slot name="actions" v-bind="{ item }">
                                 <slot name="detail-action" v-bind="{ item }">
                                     <div class="sw-entity-listing__context-menu-edit-action"
-                                                               v-if="detailRoute"
-                                                               :disabled="!allowEdit && !allowView"
-                                                               :routerLink="{ name: detailRoute, params: { id: item.id } }">
+                                                          v-if="detailRoute"
+                                                          :disabled="!allowEdit && !allowView"
+                                                          :routerLink="{ name: detailRoute, params: { id: item.id } }">
                                         {{ !allowEdit && allowView ? 'global.default.view' : 'global.default.edit' }}
                                     </div>
                                 </slot>
                                 <slot name="more-actions" v-bind="{ item }"></slot>
                                 <slot name="delete-action" v-bind="{ item }">
                                     <div :disabled="!allowDelete || undefined"
-                                                               class="sw-entity-listing__context-menu-edit-delete">
+                                                          class="sw-entity-listing__context-menu-edit-delete">
                                     </div>
                                 </slot>
                             </slot>

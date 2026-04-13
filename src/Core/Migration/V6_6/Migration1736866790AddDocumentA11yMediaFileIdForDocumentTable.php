@@ -3,9 +3,9 @@
 namespace Shopware\Core\Migration\V6_6;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -27,14 +27,11 @@ class Migration1736866790AddDocumentA11yMediaFileIdForDocumentTable extends Migr
             'BINARY(16)',
         );
 
-        $manager = $connection->createSchemaManager();
-        $columns = $manager->listTableForeignKeys('document');
-
-        if (\array_filter($columns, static fn (ForeignKeyConstraint $column) => $column->getForeignTableName() === 'media' && $column->getLocalColumns() === ['document_a11y_media_file_id'] && $column->getForeignColumns() === ['id'])) {
+        if (TableHelper::foreignKeyExistsByColumns($connection, 'document', ['document_a11y_media_file_id'], 'media', ['id'])) {
             return;
         }
 
-        $connection->executeStatement(<<<SQL
+        $connection->executeStatement(<<<'SQL'
             ALTER TABLE `document`
             ADD CONSTRAINT `fk.document.document_a11y_media_file_id` FOREIGN KEY (`document_a11y_media_file_id`)
             REFERENCES `media` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE

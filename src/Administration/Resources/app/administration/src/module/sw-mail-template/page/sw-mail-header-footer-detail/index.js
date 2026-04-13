@@ -144,7 +144,7 @@ export default {
 
         async createdComponent() {
             if (this.$route.params.id) {
-                this.mailHeaderFooterId = this.$route.params.id;
+                this.mailHeaderFooterId = this.$route.params.id.toLowerCase();
                 await this.loadEntityData();
             }
 

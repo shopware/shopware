@@ -47,15 +47,16 @@ class ElasticsearchFieldMapper
         $value = [];
         $fallbackValue = [];
 
-        // make sure every languages from parent also indexed
+        // make sure every language from parent also indexed
         $items = array_merge($fallbackItems, $items);
 
         foreach ($fallbackItems as $item) {
-            if (empty($item['languageId'])) {
+            $languageId = $item['languageId'] ?? '';
+            if ($languageId === '') {
                 continue;
             }
 
-            $fallbackValue[$item['languageId']] = $item[$field] ?? null;
+            $fallbackValue[$languageId] = $item[$field] ?? null;
         }
 
         foreach ($items as $item) {
@@ -79,10 +80,10 @@ class ElasticsearchFieldMapper
      *
      * This method is commonly used to handle associations, such as product names and descriptions in different languages.
      *
-     * @param array<int, array{id: string, languageId?: string}> $items An array of items with language information.
+     * @param array<int, array<string, string|null>> $items An array of items with language information.
      * @param list<string> $translatedFields An array of fields to be translated.
      *
-     * @return array<int, array<string, array<string, string>>> An array of items with nested arrays containing translated values.
+     * @return list<array<string, string|int|array<string, string|null>|null>> An array of items with nested arrays containing translated values.
      *
      * @example
      *
@@ -116,11 +117,12 @@ class ElasticsearchFieldMapper
         $groupedItems = [];
 
         foreach ($items as $item) {
-            if (empty($item['languageId'])) {
+            $languageId = $item['languageId'] ?? '';
+            if ($languageId === '') {
                 continue;
             }
 
-            $itemId = $item['id'];
+            $itemId = $item['id'] ?? '';
             if (!isset($groupedItems[$itemId])) {
                 $groupedItems[$itemId] = [
                     'id' => $itemId,
@@ -129,23 +131,23 @@ class ElasticsearchFieldMapper
             }
 
             foreach ($translatedFields as $field) {
-                if (!empty($item[$field])) {
-                    $groupedItems[$itemId][$field][$item['languageId']] = $item[$field];
+                if (($item[$field] ?? '') !== '') {
+                    /** @phpstan-ignore offsetAccess.nonOffsetAccessible (It is hard to tell PHPStan that not `id` and `_count` are accessed, but translated fields like `name` and `description`) */
+                    $groupedItems[$itemId][$field][$languageId] = $item[$field];
                 } elseif (!isset($groupedItems[$itemId][$field])) {
-                    $groupedItems[$itemId][$field][$item['languageId']] = null;
+                    /** @phpstan-ignore offsetAccess.nonOffsetAccessible (It is hard to tell PHPStan that not `id` and `_count` are accessed, but translated fields like `name` and `description`) */
+                    $groupedItems[$itemId][$field][$languageId] = null;
                 }
             }
         }
 
-        // Convert grouped items into a numerically indexed array. Somehow PHPStan cannot resolve it
-        /** @phpstan-ignore argument.unresolvableType, function.unresolvableReturnType */
         return array_values($groupedItems);
     }
 
     /**
      * @description This method is used to format custom fields to the correct format
      *
-     * @param array<string, mixed> $customFields array of raw custom fields from database keyed by language ID
+     * @param array<string, string|array<string, mixed>> $customFields array of raw custom fields from database keyed by language ID
      *
      * @throws \JsonException
      *
@@ -156,16 +158,20 @@ class ElasticsearchFieldMapper
         $mapped = [];
 
         foreach ($customFields as $languageId => $customField) {
-            if (empty($customField)) {
-                continue;
-            }
-
             // MariaDB servers gives the result as string and not directly decoded
             if (\is_string($customField)) {
+                if ($customField === '') {
+                    continue;
+                }
+
                 $customField = json_decode($customField, true, 512, \JSON_THROW_ON_ERROR);
             }
 
-            $mapped[$languageId] = $this->formatCustomField($entity, $customField ?: [], $context);
+            if ($customField === []) {
+                continue;
+            }
+
+            $mapped[$languageId] = $this->formatCustomField($entity, $customField, $context);
         }
 
         return $mapped;

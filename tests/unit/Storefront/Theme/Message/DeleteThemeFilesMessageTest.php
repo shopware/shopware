@@ -18,8 +18,8 @@ class DeleteThemeFilesMessageTest extends TestCase
     {
         $message = new DeleteThemeFilesMessage('path', 'salesChannel', 'theme');
 
-        static::assertEquals('path', $message->getThemePath());
-        static::assertEquals('salesChannel', $message->getSalesChannelId());
-        static::assertEquals('theme', $message->getThemeId());
+        static::assertSame('path', $message->getThemePath());
+        static::assertSame('salesChannel', $message->getSalesChannelId());
+        static::assertSame('theme', $message->getThemeId());
     }
 }

@@ -67,13 +67,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-state-machine/component/sw-settings-state-machine-state-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show correct grid columns', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

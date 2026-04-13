@@ -8,6 +8,9 @@ import './sw-order-create-address-modal.scss';
 const { Mixin, Store, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @deprecated tag:v6.8.0 - will be removed, is not used anymore
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -105,7 +108,8 @@ export default {
 
             // Get the latest addresses from customer's db
             try {
-                this.addresses = await this.addressRepository.search(this.addressCriteria);
+                const addresses = await this.addressRepository.search(this.addressCriteria);
+                this.addresses = Array.isArray(addresses) ? addresses : [];
 
                 this.selectedAddressId =
                     this.activeCustomer[this.address.contextId] || this.activeCustomer[this.address.contextDataDefaultId];

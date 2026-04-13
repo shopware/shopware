@@ -72,6 +72,9 @@ export default {
             return this.repositoryFactory.create('currency');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
+         */
         ruleFilter() {
             const criteria = new Criteria(1, 25);
 
@@ -173,15 +176,24 @@ export default {
         },
 
         showAbsoluteAdvancedPricesSettings() {
-            return this.discount.type === DiscountTypes.ABSOLUTE || this.discount.type === DiscountTypes.FIXED;
+            return (
+                this.discount.type === DiscountTypes.ABSOLUTE ||
+                this.discount.type === DiscountTypes.FIXED ||
+                this.discount.type === DiscountTypes.FIXED_UNIT
+            );
         },
 
         // only show advanced max value settings if
         // at least a base max value has been set
         showMaxValueAdvancedPrices() {
-            return this.discount.type === DiscountTypes.PERCENTAGE && this.discount.maxValue !== null;
+            return (
+                this.discount.type === DiscountTypes.PERCENTAGE &&
+                this.discount.maxValue !== null &&
+                this.discount.maxValue !== undefined
+            );
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed without replacement */
         maxValueAdvancedPricesTooltip() {
             if (
                 this.discount.type === DiscountTypes.PERCENTAGE &&
@@ -296,7 +308,7 @@ export default {
         },
 
         isPickingModeVisible() {
-            if (this.discount.scope.startsWith(DiscountScopes.SETGROUP)) {
+            if (this.discount.scope?.startsWith(DiscountScopes.SETGROUP)) {
                 return true;
             }
 
@@ -446,6 +458,8 @@ export default {
 
         onDiscountValueChanged(value) {
             this.discount.value = discountHandler.getFixedValue(value, this.discount.type);
+
+            this.recalculatePrices();
         },
 
         // The number field does not allow a NULL input
@@ -458,6 +472,8 @@ export default {
                 this.discount.maxValue = null;
                 // clear any currency values if max value is gone
                 this.clearAdvancedPrices();
+            } else {
+                this.recalculatePrices();
             }
         },
 
@@ -467,37 +483,40 @@ export default {
                     // if we have a max-value setting active
                     // then our advanced prices is for this
                     // otherwise its for the promotion value itself
-                    if (this.showMaxValueAdvancedPrices) {
-                        this.prepareAdvancedPrices(currency, this.discount.maxValue);
-                    } else {
-                        this.prepareAdvancedPrices(currency, this.discount.value);
-                    }
+                    // now create the value with the calculated and translated value
+                    const newAdvancedCurrencyPrices = this.advancedPricesRepo.create(Shopware.Context.api);
+                    newAdvancedCurrencyPrices.discountId = this.discount.id;
+                    newAdvancedCurrencyPrices.price = this.calculatePrice(currency);
+                    newAdvancedCurrencyPrices.currencyId = currency.id;
+                    newAdvancedCurrencyPrices.currency = currency;
+
+                    this.discount.promotionDiscountPrices.add(newAdvancedCurrencyPrices);
                 }
             });
             this.displayAdvancedPrices = true;
         },
 
-        prepareAdvancedPrices(currency, basePrice) {
-            // first get the minimum value that is allowed
-            let setPrice = discountHandler.getMinValue();
-            // if basePrice is undefined take the minimum price
-            if (basePrice !== undefined) {
-                setPrice = basePrice;
-            }
-            // foreign currencies are translated at the exchange rate of the default currency
-            setPrice *= currency.factor;
-            // even if translated correctly the value may not be less than the allowed minimum value
-            if (setPrice < discountHandler.getMinValue()) {
-                setPrice = discountHandler.getMinValue();
-            }
-            // now create the value with the calculated and translated value
-            const newAdvancedCurrencyPrices = this.advancedPricesRepo.create(Shopware.Context.api);
-            newAdvancedCurrencyPrices.discountId = this.discount.id;
-            newAdvancedCurrencyPrices.price = setPrice;
-            newAdvancedCurrencyPrices.currencyId = currency.id;
-            newAdvancedCurrencyPrices.currency = currency;
+        recalculatePrices() {
+            this.discount.promotionDiscountPrices.forEach((price) => {
+                const currency = this.currencies.get(price.currencyId);
+                if (!currency) {
+                    return;
+                }
 
-            this.discount.promotionDiscountPrices.add(newAdvancedCurrencyPrices);
+                price.price = this.calculatePrice(currency);
+            });
+        },
+
+        calculatePrice(currency) {
+            const price = this.showMaxValueAdvancedPrices ? this.discount.maxValue : this.discount.value;
+
+            // if basePrice is undefined or lower than minimum, take the minimum price
+            if (!price || price < discountHandler.getMinValue()) {
+                return discountHandler.getMinValue();
+            }
+
+            // foreign currencies are translated at the exchange rate of the default currency
+            return price * currency.factor;
         },
 
         clearAdvancedPrices() {

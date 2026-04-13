@@ -89,6 +89,10 @@ class ExtensionRule implements Rule
                 ->build();
         }
 
+        if (!$node->getClassReflection()->hasConstructor()) {
+            return $errors;
+        }
+
         $constructor = $node->getClassReflection()->getConstructor();
         $internal = $this->isInternal($constructor->getDocComment() ?? '');
         if (!$internal) {

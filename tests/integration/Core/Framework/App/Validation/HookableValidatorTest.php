@@ -31,7 +31,8 @@ class HookableValidatorTest extends TestCase
     public function testValidateDoesNotThrowIfNoWebhooksExist(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../../App/Manifest/_fixtures/minimal/manifest.xml');
-        $this->hookableValidator->validate($manifest, Context::createDefaultContext());
+        $validations = $this->hookableValidator->validate($manifest, Context::createDefaultContext());
+        static::assertCount(0, $validations);
     }
 
     public function testValidateDoesNotThrowIfWebhooksAreValid(): void

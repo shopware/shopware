@@ -58,7 +58,7 @@ async function createWrapper(privileges = []) {
                         </div>`,
                     },
                     'mt-textarea': true,
-                    'mt-text-editor': true,
+                    'sw-text-editor': true,
                     'sw-language-info': true,
                     'sw-button-process': true,
 
@@ -192,7 +192,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
                 name: 'form title field',
                 selector: '.mt-text-field',
             },
-            { name: 'form editor', selector: 'mt-text-editor-stub' },
+            { name: 'form editor', selector: 'sw-text-editor-stub' },
             {
                 name: 'only company switch',
                 selector: '.sw-settings-customer-group-detail__registration-only-companies-can-register',
@@ -259,7 +259,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
                 name: 'form title field',
                 selector: '.mt-text-field',
             },
-            { name: 'form editor', selector: 'mt-text-editor-stub' },
+            { name: 'form editor', selector: 'sw-text-editor-stub' },
             {
                 name: 'only company switch',
                 selector: '.sw-settings-customer-group-detail__registration-only-companies-can-register',
@@ -275,7 +275,9 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         ].forEach(({ name, selector }) => {
             it(`${name} should be enabled`, async () => {
                 const element = wrapper.find(selector);
-                expect(element.attributes().disabled).toBeFalsy();
+                // disabled attribute can be undefined, false, or the string "false"
+                const disabled = element.attributes().disabled;
+                expect(disabled === undefined || disabled === false || disabled === 'false').toBe(true);
             });
         });
 

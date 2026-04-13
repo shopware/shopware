@@ -59,7 +59,7 @@ class ApiAwareTest extends TestCase
         if (!\is_string($expected)) {
             static::fail(__DIR__ . '/fixtures/api-aware-fields.json could not be read');
         }
-        $expected = \json_decode($expected, true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $expected = \json_decode($expected, true, flags: \JSON_THROW_ON_ERROR);
 
         if (static::getContainer()->has(ThemeDefinition::class)) {
             $expected = array_merge(
@@ -121,9 +121,9 @@ class ApiAwareTest extends TestCase
         This change must be carefully controlled to ensure that no sensitive data is given out via the Store API.';
 
         $diff = array_diff($mapping, $expected);
-        static::assertEquals([], $diff, $message);
+        static::assertSame([], $diff, $message);
 
         $diff = array_diff($expected, $mapping);
-        static::assertEquals([], $diff, $message);
+        static::assertSame([], $diff, $message);
     }
 }

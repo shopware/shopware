@@ -1,0 +1,9 @@
+{
+  "sw-settings-media": {
+    "general": {
+      "title": "Medien",
+      "description": "Verwaltung von Medieneinstellungen.",
+      "buttonSave": "Speichern"
+    }
+  }
+}

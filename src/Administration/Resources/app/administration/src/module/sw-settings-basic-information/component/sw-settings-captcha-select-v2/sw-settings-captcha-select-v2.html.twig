@@ -102,5 +102,16 @@
     </sw-container>
     {% endblock %}
 
+    {% block sw_settings_captcha_select_v2_basic_captcha_notice %}
+    <sw-container v-if="currentValue.basicCaptcha.isActive">
+        <mt-banner
+            variant="neutral"
+            :title="$tc('sw-settings-basic-information.captcha.basicCaptchaNoticeTitle')"
+            class="sw-settings-captcha-select-v2__basic-captcha-notice"
+        >
+            {{ $tc('sw-settings-basic-information.captcha.basicCaptchaNotice') }}
+        </mt-banner>
+    </sw-container>
+    {% endblock %}
 </sw-container>
 {% endblock %}

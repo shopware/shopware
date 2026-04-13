@@ -11,10 +11,6 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class Record implements \JsonSerializable
 {
-    protected string $id;
-
-    protected string $type;
-
     /**
      * @var array<string, mixed|null>
      */
@@ -41,11 +37,9 @@ class Record implements \JsonSerializable
     protected array $meta = [];
 
     public function __construct(
-        string $id = '',
-        string $type = ''
+        protected string $id = '',
+        protected string $type = '',
     ) {
-        $this->id = $id;
-        $this->type = $type;
     }
 
     public function getId(): string

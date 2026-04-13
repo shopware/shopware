@@ -2,6 +2,7 @@
 {# New mt-number-field component #}
 {% block sw_number_field %}
 <mt-number-field
+    v-if="!deprecated"
     v-bind="$attrs"
     v-model="currentValue"
 >
@@ -18,3 +19,22 @@
     <slot></slot>
 </mt-number-field>
 {% endblock %}
+
+{# Deprecated component #}
+<sw-number-field-deprecated
+    v-else
+    v-bind="$attrs"
+    :value="value"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data"
+    >
+        <slot
+            :name="name"
+            v-bind="data"
+        >
+        </slot>
+    </template>
+    <slot></slot>
+</sw-number-field-deprecated>

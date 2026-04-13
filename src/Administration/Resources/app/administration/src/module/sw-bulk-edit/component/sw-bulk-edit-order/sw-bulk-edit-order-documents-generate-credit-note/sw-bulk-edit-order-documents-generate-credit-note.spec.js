@@ -21,10 +21,6 @@ describe('sw-bulk-edit-order-documents-generate-credit-note', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain a generateData as a computed property', async () => {
         expect(wrapper.vm.generateData).toEqual(
             expect.objectContaining({

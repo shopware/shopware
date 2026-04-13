@@ -20,23 +20,15 @@ jobs:
           mysql-version: skip
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+          install-storefront: true
 
       - name: Cache ESLint and Stylelint
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # 4
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # 4
         with:
           path: |
             src/Storefront/Resources/app/storefront/node_modules/.eslintcache
             src/Storefront/Resources/app/storefront/node_modules/.stylelintcache
           key: storefront-lint-${{ runner.os }}-6.6
-
-      - name: Build Storefront
-        env:
-          PROJECT_ROOT: ${{ github.workspace }}
-        run: |
-          symfony console bundle:dump
-          symfony console feature:dump
-          npm --prefix src/Storefront/Resources/app/storefront ci
-          npm --prefix src/Storefront/Resources/app/storefront run production
 
       - name: Check Code
         working-directory: src/Storefront/Resources/app/storefront
@@ -50,13 +42,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
 
       - name: Install ludtwig
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download --repo MalteJanz/ludtwig  --pattern '*unknown-linux-gnu.tar.gz' && tar xf *.tar.gz
+          gh release download v0.11.0 --repo MalteJanz/ludtwig  --pattern '*unknown-linux-gnu.tar.gz' && tar xf *.tar.gz
           mv ./ludtwig /usr/local/bin
 
       - name: Run ludtwig linter
@@ -93,15 +85,14 @@ jobs:
           mysql-version: skip
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
+          install-storefront: true
 
       - name: Run Jest Storefront
         working-directory: src/Storefront/Resources/app/storefront
-        run: |
-          npm ci
-          npm run unit -- --silent
+        run: npm run unit -- --silent
 
       - name: Upload coverage
-        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # 5
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # 5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -115,10 +106,17 @@ jobs:
       WHITELISTED_JS_PACKAGES: "abab@2.0.1;administration;taffydb@2.6.2"
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
-      - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
         with:
-          node-version: 20
+          node-version: 22
+      - name: Cache npm packages
+        uses: actions/cache@v5
+        with:
+          path: src/Storefront/Resources/app/storefront/node_modules
+          key: ${{ runner.os }}-storefront-${{ hashFiles('src/Storefront/Resources/app/storefront/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-storefront-
       - name: install packages
         working-directory: src/Storefront/Resources/app/storefront
         run: |

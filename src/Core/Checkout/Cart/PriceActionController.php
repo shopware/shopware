@@ -13,13 +13,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Tax\TaxCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('checkout')]
 class PriceActionController extends AbstractController
 {
@@ -84,11 +86,10 @@ class PriceActionController extends AbstractController
         $taxId = $request->request->getAlnum('taxId');
         $productPrices = $request->request->all('prices');
 
-        if (empty($productPrices)) {
+        if ($productPrices === []) {
             throw CartException::pricesParameterIsMissing();
         }
 
-        $taxRate = null;
         if (Feature::isActive('v6.8.0.0')) {
             $criteria = (new Criteria([$taxId]))
                 ->addFields(['taxRate']);

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
+use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -31,6 +32,9 @@ class EntityTemplateLoaderTest extends TestCase
         {% endblock %}
     ';
 
+    /**
+     * @var EntityRepository<TemplateCollection>
+     */
     private EntityRepository $templateRepository;
 
     private EntityTemplateLoader $templateLoader;
@@ -51,7 +55,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals(
+        static::assertSame(
             ['app_template.written' => 'reset'],
             EntityTemplateLoader::getSubscribedEvents()
         );
@@ -68,8 +72,8 @@ class EntityTemplateLoaderTest extends TestCase
         $this->importTemplates();
         $source = $this->templateLoader->getSourceContext('@TestTheme/storefront/base.html.twig');
 
-        static::assertEquals(self::FIRST_TEMPLATE, $source->getCode());
-        static::assertEquals('@TestTheme/storefront/base.html.twig', $source->getName());
+        static::assertSame(self::FIRST_TEMPLATE, $source->getCode());
+        static::assertSame('@TestTheme/storefront/base.html.twig', $source->getName());
     }
 
     public function testGetSourceContextForDeactivatedApp(): void
@@ -82,7 +86,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function testGetCacheKey(): void
     {
-        static::assertEquals(
+        static::assertSame(
             '@TestTheme/storefront/base.html.twig',
             $this->templateLoader->getCacheKey('@TestTheme/storefront/base.html.twig')
         );

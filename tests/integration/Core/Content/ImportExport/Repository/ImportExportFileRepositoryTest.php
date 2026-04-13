@@ -5,7 +5,9 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport\Repository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -23,6 +25,9 @@ class ImportExportFileRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<EntityCollection<ImportExportFileEntity>>
+     */
     private EntityRepository $repository;
 
     private Connection $connection;
@@ -48,12 +53,12 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $expect = $data[$id];
         static::assertNotEmpty($record);
-        static::assertEquals($id, $record['id']);
-        static::assertEquals($expect['originalName'], $record['original_name']);
-        static::assertEquals($expect['path'], $record['path']);
-        static::assertEquals(strtotime((string) $expect['expireDate']), strtotime((string) $record['expire_date']));
-        static::assertEquals($expect['size'], $record['size']);
-        static::assertEquals($expect['accessToken'], $record['access_token']);
+        static::assertSame($id, $record['id']);
+        static::assertSame($expect['originalName'], $record['original_name']);
+        static::assertSame($expect['path'], $record['path']);
+        static::assertSame(strtotime((string) $expect['expireDate']), strtotime((string) $record['expire_date']));
+        static::assertSame($expect['size'], (int) $record['size']);
+        static::assertSame($expect['accessToken'], $record['access_token']);
     }
 
     public function testImportExportFileSingleCreateMissingRequired(): void
@@ -88,11 +93,11 @@ class ImportExportFileRepositoryTest extends TestCase
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
-            static::assertEquals($expect['originalName'], $record['original_name']);
-            static::assertEquals($expect['path'], $record['path']);
-            static::assertEquals(strtotime((string) $expect['expireDate']), strtotime((string) $record['expire_date']));
-            static::assertEquals($expect['size'], $record['size']);
-            static::assertEquals($expect['accessToken'], $record['access_token']);
+            static::assertSame($expect['originalName'], $record['original_name']);
+            static::assertSame($expect['path'], $record['path']);
+            static::assertSame(strtotime((string) $expect['expireDate']), strtotime((string) $record['expire_date']));
+            static::assertSame($expect['size'], (int) $record['size']);
+            static::assertSame($expect['accessToken'], $record['access_token']);
             unset($data[$record['id']]);
         }
     }
@@ -124,9 +129,9 @@ class ImportExportFileRepositoryTest extends TestCase
                 }
             }
 
-            $missingPropertyPaths = array_map(fn ($property) => '/' . $property, $requiredProperties);
+            $missingPropertyPaths = array_map(static fn ($property) => '/' . $property, $requiredProperties);
 
-            static::assertEquals($missingPropertyPaths, $foundViolations);
+            static::assertSame($missingPropertyPaths, $foundViolations);
         }
     }
 
@@ -142,12 +147,12 @@ class ImportExportFileRepositoryTest extends TestCase
             $result = $this->repository->search(new Criteria([$id]), $this->context);
             $importExportFile = $result->get($id);
             static::assertInstanceOf(ImportExportFileEntity::class, $importExportFile);
-            static::assertEquals(1, $result->count());
-            static::assertEquals($expect['originalName'], $importExportFile->getOriginalName());
-            static::assertEquals($expect['path'], $importExportFile->getPath());
-            static::assertEquals(new \DateTime($expect['expireDate']), $importExportFile->getExpireDate());
-            static::assertEquals($expect['size'], $importExportFile->getSize());
-            static::assertEquals($expect['accessToken'], $importExportFile->getAccessToken());
+            static::assertCount(1, $result);
+            static::assertSame($expect['originalName'], $importExportFile->getOriginalName());
+            static::assertSame($expect['path'], $importExportFile->getPath());
+            static::assertSame((new \DateTime($expect['expireDate']))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $importExportFile->getExpireDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+            static::assertSame($expect['size'], $importExportFile->getSize());
+            static::assertSame($expect['accessToken'], $importExportFile->getAccessToken());
         }
     }
 
@@ -159,7 +164,7 @@ class ImportExportFileRepositoryTest extends TestCase
         $this->repository->create(array_values($data), $this->context);
 
         $result = $this->repository->search(new Criteria([Uuid::randomHex()]), $this->context);
-        static::assertEquals(0, $result->count());
+        static::assertCount(0, $result);
     }
 
     public function testImportExportFileUpdateFull(): void
@@ -184,11 +189,11 @@ class ImportExportFileRepositoryTest extends TestCase
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
-            static::assertEquals($expect['originalName'], $record['original_name']);
-            static::assertEquals($expect['path'], $record['path']);
-            static::assertEquals(strtotime((string) $expect['expireDate']), strtotime((string) $record['expire_date']));
-            static::assertEquals($expect['size'], $record['size']);
-            static::assertEquals($expect['accessToken'], $record['access_token']);
+            static::assertSame($expect['originalName'], $record['original_name']);
+            static::assertSame($expect['path'], $record['path']);
+            static::assertSame(strtotime((string) $expect['expireDate']), strtotime((string) $record['expire_date']));
+            static::assertSame($expect['size'], (int) $record['size']);
+            static::assertSame($expect['accessToken'], $record['access_token']);
             unset($data[$record['id']]);
         }
     }
@@ -227,11 +232,11 @@ class ImportExportFileRepositoryTest extends TestCase
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
-            static::assertEquals($expect['originalName'], $record['original_name']);
-            static::assertEquals($expect['path'], $record['path']);
-            static::assertEquals(strtotime((string) $expect['expireDate']), strtotime((string) $record['expire_date']));
-            static::assertEquals($expect['size'], $record['size']);
-            static::assertEquals($expect['accessToken'], $record['access_token']);
+            static::assertSame($expect['originalName'], $record['original_name']);
+            static::assertSame($expect['path'], $record['path']);
+            static::assertSame(strtotime((string) $expect['expireDate']), strtotime((string) $record['expire_date']));
+            static::assertSame($expect['size'], (int) $record['size']);
+            static::assertSame($expect['accessToken'], $record['access_token']);
             unset($data[$record['id']]);
         }
     }
@@ -275,7 +280,7 @@ class ImportExportFileRepositoryTest extends TestCase
     /**
      * Prepare a defined number of test data.
      *
-     * @return array<string, mixed>
+     * @return non-empty-array<string, mixed>
      */
     protected function prepareImportExportFileTestData(int $num = 1, string $add = ''): array
     {
@@ -292,6 +297,7 @@ class ImportExportFileRepositoryTest extends TestCase
                 'accessToken' => Random::getBase64UrlString(32),
             ];
         }
+        static::assertNotSame([], $data);
 
         return $data;
     }

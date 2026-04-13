@@ -50,7 +50,7 @@ class DefaultMediaResolverTest extends TestCase
         $media = $resolver->getDefaultCmsMediaEntity('media/path/');
 
         static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertEquals([
+        static::assertSame([
             'title' => 'media-title',
             'alt' => 'media-title',
         ], $media->getTranslated());

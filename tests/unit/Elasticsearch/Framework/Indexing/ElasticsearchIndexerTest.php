@@ -77,7 +77,7 @@ class ElasticsearchIndexerTest extends TestCase
         static::assertNull($indexer->iterate(), 'Iterate should return null if es is disabled');
     }
 
-    public function testIterateNullCreatesIndices(): void
+    public function testIterateTillLastMsgCreatesIndices(): void
     {
         $indexer = $this->getIndexer();
 
@@ -90,7 +90,7 @@ class ElasticsearchIndexerTest extends TestCase
         static::assertNull($msg);
     }
 
-    public function testIterateNullCreatesIndicesAndIndexTaskInDB(): void
+    public function testIterateTillLastMsgCreatesIndicesAndIndexTaskInDB(): void
     {
         $indexer = $this->getIndexer();
         $this->connection
@@ -124,9 +124,9 @@ class ElasticsearchIndexerTest extends TestCase
             ->method('createIterator')
             ->willReturn($query);
 
-        $eventDispatcher->addListener(ElasticsearchIndexIteratorEvent::class, function (ElasticsearchIndexIteratorEvent $event) use (&$eventDispatched, $query): void {
+        $eventDispatcher->addListener(ElasticsearchIndexIteratorEvent::class, static function (ElasticsearchIndexIteratorEvent $event) use (&$eventDispatched, $query): void {
             $eventDispatched = true;
-            static::assertEquals($query, $event->iterator);
+            static::assertSame($query, $event->iterator);
         });
 
         $indexer = $this->getIndexer(eventDispatcher: $eventDispatcher);
@@ -326,9 +326,16 @@ class ElasticsearchIndexerTest extends TestCase
             ->method('error')
             ->with('failed to parse');
 
-        $indexer = $this->getIndexer($logger);
+        $this->helper->expects($this->once())->method('logAndThrowException')->with(ElasticsearchException::indexingError([
+            [
+                'index' => 'foo',
+                'id' => '1',
+                'type' => 'mapper_parsing_exception',
+                'reason' => 'failed to parse',
+            ],
+        ]));
 
-        static::expectException(ElasticsearchException::class);
+        $indexer = $this->getIndexer($logger);
 
         $indexer($message);
     }
@@ -337,7 +344,7 @@ class ElasticsearchIndexerTest extends TestCase
     {
         $eventDispatched = false;
         $eventDispatcher = new EventDispatcher();
-        $eventDispatcher->addListener(ElasticsearchIndexIteratorEvent::class, function () use (&$eventDispatched): void {
+        $eventDispatcher->addListener(ElasticsearchIndexIteratorEvent::class, static function () use (&$eventDispatched): void {
             $eventDispatched = true;
         });
 

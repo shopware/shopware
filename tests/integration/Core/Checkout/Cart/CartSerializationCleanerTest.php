@@ -59,7 +59,7 @@ class CartSerializationCleanerTest extends TestCase
         $items = $cart->getLineItems()->getFlat();
         foreach ($items as $item) {
             static::assertArrayHasKey($item->getId(), $payloads);
-            static::assertEquals($payloads[$item->getId()], $item->getPayload());
+            static::assertSame($payloads[$item->getId()], $item->getPayload());
         }
 
         $delivery = $cart->getDeliveries()->first();
@@ -67,7 +67,7 @@ class CartSerializationCleanerTest extends TestCase
 
         foreach ($deliveryItems as $item) {
             static::assertArrayHasKey($item->getId(), $payloads);
-            static::assertEquals($payloads[$item->getId()], $item->getPayload());
+            static::assertSame($payloads[$item->getId()], $item->getPayload());
         }
     }
 

@@ -6,7 +6,7 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import template from './sw-product-list.html.twig';
 import './sw-product-list.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 
@@ -28,12 +28,12 @@ export default {
     ],
 
     data() {
-        return {
+        const data = {
             products: null,
             currencies: [],
-            sortBy: 'productNumber',
+            sortBy: 'createdAt',
             sortDirection: 'DESC',
-            naturalSorting: false,
+            naturalSorting: true,
             isLoading: false,
             isBulkLoading: false,
             total: 0,
@@ -41,7 +41,19 @@ export default {
             cloning: false,
             productEntityVariantModal: false,
             filterCriteria: [],
+            // @deprecated tag:v6.8.0 - Will be removed
+            productTypeOptions: [
+                {
+                    label: this.$t('sw-product.type.physical'),
+                    value: 'physical',
+                },
+                {
+                    label: this.$t('sw-product.type.digital'),
+                    value: 'digital',
+                },
+            ],
             defaultFilters: [
+                'product-number-filter',
                 'active-filter',
                 'product-without-images-filter',
                 'release-date-filter',
@@ -53,12 +65,19 @@ export default {
                 'sales-filter',
                 'tags-filter',
                 'product-states-filter',
+                'product-type-filter',
             ],
             storeKey: 'grid.filter.product',
             activeFilterNumber: 0,
             showBulkEditModal: false,
             searchConfigEntity: 'product',
         };
+
+        if (Shopware.Feature.isActive('v6.8.0.0')) {
+            data.defaultFilters = data.defaultFilters.filter((filter) => filter !== 'product-states-filter');
+        }
+
+        return data;
     },
 
     metaInfo() {
@@ -120,12 +139,28 @@ export default {
             return new Criteria(1, 500);
         },
 
+        salesChannelCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addSorting(Criteria.sort('name'));
+
+            return criteria;
+        },
+
         showVariantModal() {
             return !!this.productEntityVariantModal;
         },
 
         listFilterOptions() {
-            return {
+            const filters = {
+                'product-number-filter': {
+                    property: 'productNumber',
+                    type: 'string-filter',
+                    label: this.$tc('sw-product.filters.productNumberFilter.label'),
+                    placeholder: this.$tc('sw-product.filters.productNumberFilter.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    criteriaFilterType: this.adminEsEnable ? 'equals' : 'contains',
+                },
                 'active-filter': {
                     property: 'active',
                     label: this.$tc('sw-product.filters.activeFilter.label'),
@@ -136,7 +171,6 @@ export default {
                     label: this.$tc('sw-product.filters.stockFilter.label'),
                     numberType: 'int',
                     step: 1,
-                    min: 0,
                     fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
                     toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
                 },
@@ -156,6 +190,7 @@ export default {
                     property: 'visibilities.salesChannel',
                     label: this.$tc('sw-product.filters.salesChannelsFilter.label'),
                     placeholder: this.$tc('sw-product.filters.salesChannelsFilter.placeholder'),
+                    criteria: this.salesChannelCriteria,
                 },
                 'categories-filter': {
                     property: 'categories',
@@ -200,6 +235,16 @@ export default {
                         },
                     ],
                 },
+                'product-type-filter': {
+                    property: 'type',
+                    label: this.$t('sw-product.filters.productTypeFilter.label'),
+                    placeholder: this.$t('sw-product.filters.productTypeFilter.placeholder'),
+                    type: 'multi-select-filter',
+                    options: this.productTypes.map((type) => ({
+                        label: this.$t(`sw-product.type.${type}`),
+                        value: type,
+                    })),
+                },
                 'release-date-filter': {
                     property: 'releaseDate',
                     label: this.$tc('sw-product.filters.releaseDateFilter.label'),
@@ -209,6 +254,12 @@ export default {
                     showTimeframe: true,
                 },
             };
+
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
+                delete filters['product-states-filter'];
+            }
+
+            return filters;
         },
 
         listFilters() {
@@ -230,6 +281,9 @@ export default {
             return Shopware.Filter.getByName('currency');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -237,14 +291,20 @@ export default {
         stockColorVariantFilter() {
             return Shopware.Filter.getByName('stockColorVariant');
         },
-    },
 
-    watch: {
-        productCriteria: {
-            handler() {
-                this.getList();
-            },
-            deep: true,
+        adminEsEnable() {
+            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
+        },
+
+        productTypes() {
+            return [
+                'physical',
+                'digital',
+            ];
         },
     },
 
@@ -268,8 +328,17 @@ export default {
                 this.storeKey,
                 this.productCriteria,
             );
+            criteria.filters = this.normalizeCategoryFilters(criteria.filters);
 
-            criteria = await this.addQueryScores(this.term, criteria);
+            if (!criteria.filters.some((filter) => filter.field === 'type')) {
+                criteria.addPostFilter(Criteria.equalsAny('type', this.productTypes));
+            }
+
+            if (this.adminEsEnable) {
+                criteria.setTerm(this.term);
+            } else {
+                criteria = await this.addQueryScores(this.term, criteria);
+            }
 
             // Clone product query to its variant
             const variantCriteria = cloneDeep(criteria);
@@ -358,9 +427,25 @@ export default {
         },
 
         updateCriteria(criteria) {
-            this.page = 1;
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, this.normalizeCategoryFilters(criteria));
+        },
 
-            this.filterCriteria = criteria;
+        normalizeCategoryFilters(filters) {
+            return filters.map((filter) => {
+                if (filter.field !== 'categories.id') {
+                    return filter;
+                }
+
+                const categoryIds = Array.isArray(filter.value) ? filter.value : filter.value.split('|');
+                if (categoryIds.length === 0) {
+                    return filter;
+                }
+
+                return Criteria.multi('OR', [
+                    filter,
+                    Criteria.equalsAny('product.streams.categories.id', categoryIds),
+                ]);
+            });
         },
 
         getCurrencyPriceByCurrencyId(currencyId, prices) {
@@ -390,7 +475,7 @@ export default {
                 },
                 {
                     property: 'productNumber',
-                    naturalSorting: true,
+                    naturalSorting: this.naturalSorting,
                     label: this.$tc('sw-product.list.columnProductNumber'),
                     align: 'right',
                     allowResize: true,
@@ -431,7 +516,6 @@ export default {
                     property: 'createdAt',
                     label: this.$tc('sw-product.list.columnCreatedAt'),
                     allowResize: true,
-                    visible: false,
                 },
                 {
                     property: 'updatedAt',
@@ -470,7 +554,7 @@ export default {
         },
 
         productIsDigital(productEntity) {
-            return productEntity.states && productEntity.states.includes('is-download');
+            return productEntity.type && productEntity.type === 'digital';
         },
 
         openVariantModal(item) {
@@ -483,7 +567,7 @@ export default {
 
         onBulkEditItems() {
             let includesDigital = '0';
-            const digital = Object.values(this.selection).filter((product) => product.states.includes('is-download'));
+            const digital = Object.values(this.selection).filter((product) => product.type === 'digital');
             if (digital.length > 0) {
                 includesDigital = digital.filter((product) => product.isCloseout).length !== digital.length ? '1' : '2';
             }

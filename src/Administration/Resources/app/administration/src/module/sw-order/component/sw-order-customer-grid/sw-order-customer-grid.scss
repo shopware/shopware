@@ -8,34 +8,12 @@ $sw-field--radio-color-border: $color-gray-300;
         margin: 0;
     }
 
-    &__empty-state {
-        .sw-empty-state__element {
-            padding: 60px 0;
-        }
+    .mt-card__toolbar {
+        display: grid;
+        grid-template-columns: 1fr auto;
     }
 
-    &__toolbar {
-        display: flex;
-        width: 100%;
-
-        .sw-card-filter {
-            flex-grow: 1;
-
-            .sw-card-filter-container .sw-simple-search-field__input input {
-                padding: 0 20px;
-            }
-        }
-    }
-
-    &__search-field {
-        width: 100%;
-    }
-
-    &__add-customer.mt-button {
-        margin-left: 22px;
-    }
-
-    &__container {
+    .mt-card__content {
         height: 500px;
     }
 

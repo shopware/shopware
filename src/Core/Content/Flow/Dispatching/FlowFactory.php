@@ -10,9 +10,11 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[Package('after-sales')]
-class FlowFactory
+readonly class FlowFactory
 {
     /**
      * @param iterable<FlowStorer> $storer
@@ -21,11 +23,21 @@ class FlowFactory
     {
     }
 
+    /**
+     * Extracts event data and immediately restores it into a {@see StorableFlow}
+     */
     public function create(FlowEventAware $event): StorableFlow
     {
         $stored = $this->getStored($event);
 
         return $this->restore($event->getName(), $event->getContext(), $stored);
+    }
+
+    public function createBuffered(FlowEventAware $event): BufferedFlow
+    {
+        $stored = $this->getStored($event);
+
+        return new BufferedFlow($event->getName(), $event->getContext(), $stored);
     }
 
     /**
@@ -54,6 +66,11 @@ class FlowFactory
         }
 
         return $flow;
+    }
+
+    public function restoreBuffered(BufferedFlow $bufferedFlow): StorableFlow
+    {
+        return $this->restore($bufferedFlow->eventName, $bufferedFlow->eventContext, $bufferedFlow->stored);
     }
 
     /**

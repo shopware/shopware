@@ -3,10 +3,12 @@
 namespace Shopware\Storefront\Page\Navigation\Error;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -34,7 +36,7 @@ class ErrorPageLoader implements ErrorPageLoaderInterface
      * @throws CategoryNotFoundException
      * @throws InconsistentCriteriaIdsException
      * @throws RoutingException
-     * @throws PageNotFoundException
+     * @throws CmsException|PageNotFoundException
      */
     public function load(string $cmsErrorLayoutId, Request $request, SalesChannelContext $context): ErrorPage
     {
@@ -45,7 +47,11 @@ class ErrorPageLoader implements ErrorPageLoaderInterface
 
         $cmsPage = $pages->first();
         if ($cmsPage === null) {
-            throw new PageNotFoundException($cmsErrorLayoutId);
+            if (!Feature::isActive('v6.8.0.0')) {
+                /** @phpstan-ignore shopware.domainException (Will be fixed with next major) */
+                throw new PageNotFoundException($cmsErrorLayoutId);
+            }
+            throw CmsException::pageNotFound($cmsErrorLayoutId);
         }
 
         $page->setCmsPage($cmsPage);

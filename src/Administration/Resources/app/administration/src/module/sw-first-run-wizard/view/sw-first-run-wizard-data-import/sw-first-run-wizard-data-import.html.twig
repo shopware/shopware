@@ -1,9 +1,21 @@
 {% block sw_first_run_wizard_data_import %}
 <div class="sw-first-run-wizard-data-import">
+    <div
+        v-if="installationError"
+        class="sw-first-run-wizard-plugin-installation__error"
+    >
+        <mt-banner
+            :title="pluginError.title"
+            variant="critical"
+        >
+            {{ pluginError.detail }}
+        </mt-banner>
+    </div>
+
     <sw-container
         v-if="!isInstallingPlugin"
         columns="1fr 1fr"
-        gap="24px 0"
+        gap="24px 14px"
     >
         <div class="sw-first-run-wizard-data-import__card">
             <img
@@ -11,9 +23,11 @@
                 :src="assetFilter('/administration/administration/static/img/first-run-wizard/plugin-demodata-set.svg')"
                 alt=""
             >
+
             <h5 class="sw-first-run-wizard-data-import__headline">
                 {{ $tc('sw-first-run-wizard.dataImport.headlineDemoData') }}
             </h5>
+
             <p
                 class="sw-first-run-wizard-data-import__message"
                 v-html="$tc('sw-first-run-wizard.dataImport.messageDemoData')"
@@ -31,6 +45,7 @@
             >
                 {{ $tc('sw-first-run-wizard.dataImport.buttonInstallDemoData') }}
             </sw-button-process>
+
             <div
                 v-else
                 class="plugin-status"
@@ -40,7 +55,8 @@
                         name="regular-check-circle-s"
                         size="16"
                     />
-                    {{ $tc('sw-first-run-wizard.general.pluginInstalled') }}
+
+                    <span>{{ $tc('sw-first-run-wizard.general.pluginInstalled') }}</span>
                 </span>
             </div>
         </div>
@@ -51,9 +67,11 @@
                 :src="assetFilter('/administration/administration/static/img/first-run-wizard/plugin-migration-assistant.svg')"
                 alt=""
             >
+
             <h5 class="sw-first-run-wizard-import-data__headline">
                 {{ $tc('sw-first-run-wizard.dataImport.headlineMigration') }}
             </h5>
+
             <p
                 class="sw-first-run-wizard-data-import__message"
                 v-html="$tc('sw-first-run-wizard.dataImport.messageMigration')"
@@ -71,6 +89,7 @@
             >
                 {{ $tc('sw-first-run-wizard.dataImport.buttonInstallMigration') }}
             </sw-button-process>
+
             <div
                 v-else
                 class="plugin-status"
@@ -80,7 +99,7 @@
                         name="regular-check-circle-s"
                         size="16"
                     />
-                    {{ $tc('sw-first-run-wizard.general.pluginInstalled') }}
+                    <span>{{ $tc('sw-first-run-wizard.general.pluginInstalled') }}</span>
                 </span>
             </div>
         </div>
@@ -91,22 +110,11 @@
         class="installing-plugin"
     >
         <sw-loader size="48px" />
+
         <p
             class="sw-loader-info-text"
             v-html="$tc('sw-first-run-wizard.dataImport.loadingMessage')"
         ></p>
-    </div>
-
-    <div
-        v-if="installationError"
-        class="sw-first-run-wizard-plugin-installation__error"
-    >
-        <mt-banner
-            :title="pluginError.title"
-            variant="critical"
-        >
-            {{ pluginError.detail }}
-        </mt-banner>
     </div>
 </div>
 {% endblock %}

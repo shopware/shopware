@@ -84,11 +84,12 @@ async function createWrapper() {
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                     'sw-radio-field': await wrapTestComponent('sw-radio-field'),
-                    'mt-text-editor': true,
+                    'sw-text-editor': true,
                     'sw-search-bar': true,
                     'sw-highlight-text': true,
                     'sw-skeleton': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'router-link': true,
                     'sw-context-menu-item': true,
                     'sw-notification-center-item': true,
@@ -156,7 +157,6 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         wrapper.vm.$router.push = jest.fn();
         wrapper.vm.createNotificationError = jest.fn();
         wrapper.vm.customerGroupRepository.save = jest.fn(() =>
-            // eslint-disable-next-line prefer-promise-reject-errors
             Promise.reject({
                 response: {
                     data: {

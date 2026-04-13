@@ -100,9 +100,11 @@ class CategoryUrlProviderTest extends TestCase
             $context
         );
         $this->dispatcher
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('dispatch')
-            ->willReturn($event);
+            ->willReturnArgument(0)
+            ->willReturn($event)
+        ;
 
         $provider = $this->getCategoryUrlProvider();
         $urlResult = $provider->getUrls($context, 100, 50);
@@ -156,7 +158,7 @@ class CategoryUrlProviderTest extends TestCase
         $this->queryBuilder
             ->method('andWhere')
             ->willReturnCallback(function ($parameter) {
-                $this->assertNotEquals(
+                $this->assertNotSame(
                     '`category`.id NOT IN (:categoryIds)',
                     $parameter,
                     'andWhere should never be called with category ID exclusion'
@@ -192,9 +194,11 @@ class CategoryUrlProviderTest extends TestCase
             [$categoryResult1['id']]
         );
         $this->dispatcher
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('dispatch')
-            ->willReturn($event);
+            ->willReturnArgument(0)
+            ->willReturn($event)
+        ;
 
         $provider = $this->getCategoryUrlProvider();
         $urlResult = $provider->getUrls($context, 100, 50);
@@ -229,9 +233,11 @@ class CategoryUrlProviderTest extends TestCase
         $categoryIds = \array_column([$categoryResult1, $categoryResult2], 'id');
         $event = $this->createSalesChannelCategoryIdsFetchedEvent($categoryIds, $context, $categoryIds);
         $this->dispatcher
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('dispatch')
-            ->willReturn($event);
+            ->willReturnArgument(0)
+            ->willReturn($event)
+        ;
 
         $provider = $this->getCategoryUrlProvider();
         $urlResult = $provider->getUrls($context, 100, 50);
@@ -330,7 +336,7 @@ class CategoryUrlProviderTest extends TestCase
             $categoryIds,
             $context
         );
-        \array_map(fn (string $categoryId) => $categoryIdsFetchedEvent->filterId($categoryId), $filterIds);
+        \array_map(static fn (string $categoryId) => $categoryIdsFetchedEvent->filterId($categoryId), $filterIds);
 
         return $categoryIdsFetchedEvent;
     }

@@ -38,6 +38,7 @@ describe('src/app/init/settings-item.init.ts', () => {
             locationId: 'settings-location-id',
             icon: 'default-object-books',
             displaySearchBar: true,
+            displaySmartBar: false,
             tab: 'system',
         });
 
@@ -45,6 +46,7 @@ describe('src/app/init/settings-item.init.ts', () => {
         expect(Shopware.Store.get('extensionSdkModules').modules[0]).toEqual({
             baseUrl: '',
             displaySearchBar: true,
+            displaySmartBar: false,
             heading: 'App Settings',
             id: expect.any(String),
             locationId: 'settings-location-id',
@@ -73,12 +75,14 @@ describe('src/app/init/settings-item.init.ts', () => {
             locationId: 'settings-location-id',
             icon: 'default-object-books',
             displaySearchBar: true,
+            displaySmartBar: false,
         });
 
         expect(Shopware.Store.get('extensionSdkModules').modules).toHaveLength(1);
         expect(Shopware.Store.get('extensionSdkModules').modules[0]).toEqual({
             baseUrl: '',
             displaySearchBar: true,
+            displaySmartBar: false,
             heading: 'App Settings',
             id: expect.any(String),
             locationId: 'settings-location-id',
@@ -107,6 +111,7 @@ describe('src/app/init/settings-item.init.ts', () => {
             locationId: 'settings-location-id',
             icon: 'default-object-books',
             displaySearchBar: true,
+            displaySmartBar: false,
             tab: 'not-allowed',
         });
 
@@ -114,6 +119,7 @@ describe('src/app/init/settings-item.init.ts', () => {
         expect(Shopware.Store.get('extensionSdkModules').modules[0]).toEqual({
             baseUrl: '',
             displaySearchBar: true,
+            displaySmartBar: false,
             heading: 'App Settings',
             id: expect.any(String),
             locationId: 'settings-location-id',

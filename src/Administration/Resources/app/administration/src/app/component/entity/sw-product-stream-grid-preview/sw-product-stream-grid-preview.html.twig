@@ -103,20 +103,11 @@
 
     {% block sw_product_stream_grid_preview_empty_state %}
     <slot name="empty-state">
-        <sw-empty-state
+        <mt-empty-state
             v-if="!total && !isLoading"
-            :title="emptyStateMessage"
-            :absolute="false"
-            auto-height
-            :show-description="false"
-        >
-            <template #icon>
-                <img
-                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                    alt=""
-                >
-            </template>
-        </sw-empty-state>
+            icon="solid-products"
+            :headline="emptyStateMessage"
+        />
     </slot>
     {% endblock %}
 </div>

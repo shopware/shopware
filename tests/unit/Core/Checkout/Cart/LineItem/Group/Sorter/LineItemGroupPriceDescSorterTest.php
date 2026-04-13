@@ -38,7 +38,7 @@ class LineItemGroupPriceDescSorterTest extends TestCase
     #[Group('lineitemgroup')]
     public function testKey(): void
     {
-        static::assertEquals('PRICE_DESC', $this->sorter->getKey());
+        static::assertSame('PRICE_DESC', $this->sorter->getKey());
     }
 
     /**
@@ -60,9 +60,9 @@ class LineItemGroupPriceDescSorterTest extends TestCase
 
         $sortedItems = $this->sorter->sort($items);
 
-        static::assertEquals($p3->getId(), $sortedItems->getElements()[0]->getId());
-        static::assertEquals($p1->getId(), $sortedItems->getElements()[1]->getId());
-        static::assertEquals($p2->getId(), $sortedItems->getElements()[2]->getId());
+        static::assertSame($p3->getId(), $sortedItems->getElements()[0]->getId());
+        static::assertSame($p1->getId(), $sortedItems->getElements()[1]->getId());
+        static::assertSame($p2->getId(), $sortedItems->getElements()[2]->getId());
     }
 
     /**

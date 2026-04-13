@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Facade;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -40,7 +42,7 @@ class SalesChannelRepositoryFacade
      * @param string $entityName The name of the Entity you want to search for, e.g. `product` or `media`.
      * @param array<string, mixed> $criteria The criteria used for your search.
      *
-     * @return EntitySearchResult A `EntitySearchResult` including all entities that matched your criteria.
+     * @return EntitySearchResult<covariant EntityCollection<covariant Entity>> A `EntitySearchResult` including all entities that matched your criteria.
      *
      * @example store-search-by-id/script.twig Load a single storefront product.
      * @example store-filter/script.twig Filter the search result.

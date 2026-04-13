@@ -13,12 +13,14 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
 class DownloadRoute extends AbstractDownloadRoute
 {
@@ -38,18 +40,26 @@ class DownloadRoute extends AbstractDownloadRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/order/download/{orderId}/{downloadId}', name: 'store-api.account.order.single.download', methods: ['GET'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(
+        path: '/store-api/order/download/{orderId}/{downloadId}',
+        name: 'store-api.account.order.single.download',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function load(Request $request, SalesChannelContext $context): Response
     {
         $customer = $context->getCustomer();
-        $downloadId = $request->get('downloadId', false);
-        $orderId = $request->get('orderId', false);
+        $downloadId = $request->attributes->get('downloadId');
+        $orderId = $request->attributes->get('orderId');
 
         if (!$customer) {
             throw CustomerException::customerNotLoggedIn();
         }
 
-        if ($downloadId === false || $orderId === false) {
+        if ($downloadId === null || $orderId === null) {
             // @deprecated tag:v6.8.0 - remove this if block
             if (!Feature::isActive('v6.8.0.0')) {
                 // @phpstan-ignore-next-line

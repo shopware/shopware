@@ -15,20 +15,20 @@ All blocks of this template are available in the template which renders this tem
             {% block document_line_item_table_head %}
                 {% block document_line_item_table_head_position %}
                     {% if config.displayLineItemPosition %}
-                        <th>{{ 'document.lineItems.header.position'|trans|sw_sanitize }}</th>
+                        <th>{{ 'document.lineItems.header.position'|trans|sw_sanitize(null, true) }}</th>
                     {% endif %}
                 {% endblock %}
 
                 {% block document_line_item_table_head_product_number %}
-                    <th class="product-number">{{ 'document.lineItems.header.productNumber'|trans|sw_sanitize  }}</th>
+                    <th class="product-number">{{ 'document.lineItems.header.productNumber'|trans|sw_sanitize(null, true)  }}</th>
                 {% endblock %}
 
                 {% block document_line_item_table_head_label %}
-                    <th class="product-label">{{ 'document.lineItems.header.label'|trans|sw_sanitize }}</th>
+                    <th class="product-label">{{ 'document.lineItems.header.label'|trans|sw_sanitize(null, true) }}</th>
                 {% endblock %}
 
                 {% block document_line_item_table_head_quantity %}
-                    <th class="numbers">{{ 'document.lineItems.header.quantity'|trans|sw_sanitize }}</th>
+                    <th class="numbers">{{ 'document.lineItems.header.quantity'|trans|sw_sanitize(null, true) }}</th>
                 {% endblock %}
 
                 {% block document_line_item_table_head_prices %}
@@ -42,28 +42,28 @@ All blocks of this template are available in the template which renders this tem
                         {% set displayVAT = not companyTaxEnabled or not (displayAdditionalNoteDelivery and isDeliveryCountry) %}
 
                         {% block document_line_item_table_head_tax_rate %}
-                            <th class="numbers">{{ 'document.lineItems.header.tax'|trans|sw_sanitize }}</th>
+                            <th class="numbers">{{ 'document.lineItems.header.tax'|trans|sw_sanitize(null, true) }}</th>
                         {% endblock %}
                         {% block document_line_item_table_head_unit_price %}
                             <th class="numbers incl-vat">
-                                {{ 'document.lineItems.header.unitPrice'|trans|sw_sanitize }}
+                                {{ 'document.lineItems.header.unitPrice'|trans|sw_sanitize(null, true) }}
                                 {% if displayVAT %}
                                     {% if taxStatusGross %}
-                                        <span>{{ 'document.lineItems.inclVAT'|trans|sw_sanitize }}</span>
+                                        <span>{{ 'document.lineItems.inclVAT'|trans|sw_sanitize(null, true) }}</span>
                                     {% elseif taxStatusNet %}
-                                        <span>{{ 'document.lineItems.exclVAT'|trans|sw_sanitize }}</span>
+                                        <span>{{ 'document.lineItems.exclVAT'|trans|sw_sanitize(null, true) }}</span>
                                     {% endif %}
                                 {% endif %}
                             </th>
                         {% endblock %}
                         {% block document_line_item_table_head_total_price %}
                             <th class="numbers incl-vat">
-                                {{ 'document.lineItems.header.total'|trans|sw_sanitize }}
+                                {{ 'document.lineItems.header.total'|trans|sw_sanitize(null, true) }}
                                 {% if displayVAT %}
                                     {% if taxStatusGross %}
-                                        <span>{{ 'document.lineItems.inclVAT'|trans|sw_sanitize }}</span>
+                                        <span>{{ 'document.lineItems.inclVAT'|trans|sw_sanitize(null, true) }}</span>
                                     {% elseif taxStatusNet %}
-                                        <span>{{ 'document.lineItems.exclVAT'|trans|sw_sanitize }}</span>
+                                        <span>{{ 'document.lineItems.exclVAT'|trans|sw_sanitize(null, true) }}</span>
                                     {% endif %}
                                 {% endif %}
                             </th>

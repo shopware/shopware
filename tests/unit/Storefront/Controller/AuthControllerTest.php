@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -33,6 +34,7 @@ use Symfony\Contracts\Service\ResetInterface;
  * @internal
  */
 #[CoversClass(AuthController::class)]
+#[Package('checkout')]
 class AuthControllerTest extends TestCase
 {
     private AuthControllerTestClass $controller;
@@ -104,7 +106,17 @@ class AuthControllerTest extends TestCase
         static::assertArrayHasKey('frontend.account.login.page', $this->controller->redirected);
         static::assertArrayHasKey('danger', $this->controller->flashBag);
         static::assertArrayHasKey(0, $this->controller->flashBag['danger']);
-        static::assertEquals('account.orderGuestLoginWrongCredentials', $this->controller->flashBag['danger'][0]);
+        static::assertSame('account.orderGuestLoginWrongCredentials', $this->controller->flashBag['danger'][0]);
+    }
+
+    public function testGuestCustomerOnLoginPageShouldBeLoggedOut(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->getCustomer()?->setGuest(true);
+
+        $this->controller->loginPage(new Request(), new RequestDataBag(), $context);
+
+        static::assertArrayHasKey('frontend.account.logout.page', $this->controller->redirected);
     }
 
     public function testGenerateAccountRecoveryThrowsConstraintException(): void

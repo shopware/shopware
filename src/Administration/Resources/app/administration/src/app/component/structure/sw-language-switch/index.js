@@ -1,7 +1,6 @@
 import template from './sw-language-switch.html.twig';
 import './sw-language-switch.scss';
 
-const { Component } = Shopware;
 const { warn } = Shopware.Utils.debug;
 const { Criteria } = Shopware.Data;
 
@@ -17,7 +16,7 @@ const { Criteria } = Shopware.Data;
  * <sw-language-switch></sw-language-switch>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-language-switch', {
+export default {
     template,
 
     emits: ['on-change'],
@@ -31,7 +30,6 @@ Component.register('sw-language-switch', {
         changeGlobalLanguage: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         abortChangeFunction: {
@@ -47,13 +45,11 @@ Component.register('sw-language-switch', {
         savePermission: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -72,6 +68,7 @@ Component.register('sw-language-switch', {
             const criteria = new Criteria(1, 25);
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addFilter(Criteria.equals('active', true));
 
             return criteria;
         },
@@ -169,4 +166,4 @@ Component.register('sw-language-switch', {
             this.emitChange();
         },
     },
-});
+};

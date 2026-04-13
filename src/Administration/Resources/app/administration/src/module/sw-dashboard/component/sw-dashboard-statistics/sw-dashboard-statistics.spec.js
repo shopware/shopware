@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import dictionary from 'src/module/sw-dashboard/snippet/en-GB.json';
+import dictionary from 'src/module/sw-dashboard/snippet/en.json';
 
 const hasOrderTodayMock = [
     {},
@@ -38,6 +38,7 @@ async function createWrapper(privileges = [], repository = {}) {
                 'sw-ai-copilot-badge': true,
                 'sw-context-button': true,
                 'sw-inheritance-switch': true,
+                'sw-time-ago': true,
             },
             mocks: {
                 $tc: (...args) => JSON.stringify([...args]),

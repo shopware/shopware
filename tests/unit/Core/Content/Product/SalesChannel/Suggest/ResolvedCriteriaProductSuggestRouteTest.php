@@ -68,7 +68,7 @@ class ResolvedCriteriaProductSuggestRouteTest extends TestCase
         static::assertInstanceOf(Criteria::class, $decorated->criteria);
         $fields = $decorated->criteria->getFilterFields();
 
-        static::assertEquals($expected, $fields);
+        static::assertSame($expected, $fields);
     }
 
     public function testEvents(): void

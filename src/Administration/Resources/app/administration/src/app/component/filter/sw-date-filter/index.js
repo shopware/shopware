@@ -5,13 +5,12 @@
 import template from './sw-date-filter.html.twig';
 import './sw-date-filter.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-date-filter', {
+export default {
     template,
 
     inject: ['feature'],
@@ -133,6 +132,12 @@ Component.register('sw-date-filter', {
                 return;
             }
 
+            if (this.dateValue.from) {
+                const from = new Date(this.dateValue.from);
+                from.setHours(0, 0, 0);
+                this.dateValue.from = from.toISOString();
+            }
+
             if (this.dateValue.to) {
                 const to = new Date(this.dateValue.to);
                 to.setHours(23, 59, 59);
@@ -195,7 +200,7 @@ Component.register('sw-date-filter', {
             const date = new Date();
             const quarter = Math.floor(date.getMonth() / 3);
 
-            const startDate = new Date(date.getFullYear(), quarter * 3 - 3, 1);
+            const startDate = new Date(date.getFullYear(), quarter * 3 - 3, 1, 0, 0, 0);
             const endDate = new Date(date.getFullYear(), startDate.getMonth() + 3, 0, 23, 59, 59);
 
             return {
@@ -204,4 +209,4 @@ Component.register('sw-date-filter', {
             };
         },
     },
-});
+};

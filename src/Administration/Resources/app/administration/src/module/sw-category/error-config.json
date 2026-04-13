@@ -1,0 +1,8 @@
+{
+  "sw.category.view": {
+    "category": [
+      "name",
+      "type"
+    ]
+  }
+}

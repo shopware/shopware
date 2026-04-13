@@ -27,7 +27,7 @@
 # -------------------------------
 # Ludtwig configuration
 # -------------------------------
-version = "0.10.0"
+version = "0.11.0"
 # -------------------------------
 [general]
 active-rules = [
@@ -45,6 +45,7 @@ active-rules = [
     "twig-hash-key-no-quotes",
     "twig-prefer-shopware-extends",
     "twig-block-duplicate",
+    "twig-json-encode-escape-js",
 # maybe activate in the future? these are okay because shopware extends the twig syntax
 #    "twig-use-is-same-as",
 #    "twig-use-is-not-same-as",

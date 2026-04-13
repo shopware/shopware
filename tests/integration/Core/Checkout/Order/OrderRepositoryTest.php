@@ -89,8 +89,8 @@ class OrderRepositoryTest extends TestCase
 
         static::assertNotNull($order);
         static::assertNotNull($order->getOrderCustomer());
-        static::assertEquals($orderId, $order->get('id'));
-        static::assertEquals('test@example.com', $order->getOrderCustomer()->getEmail());
+        static::assertSame($orderId, $order->get('id'));
+        static::assertSame('test@example.com', $order->getOrderCustomer()->getEmail());
     }
 
     /**

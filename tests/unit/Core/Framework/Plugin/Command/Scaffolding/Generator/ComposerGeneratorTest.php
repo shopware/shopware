@@ -27,7 +27,7 @@ class ComposerGeneratorTest extends TestCase
     public function testGenerateStubs(): void
     {
         $generator = new ComposerGenerator();
-        $configuration = new PluginScaffoldConfiguration('TestPlugin', 'MyNamespace', '/path/to/directory');
+        $configuration = new PluginScaffoldConfiguration('TestPlugin', 'My\\Namespace', '/path/to/directory');
         $stubCollection = new StubCollection();
 
         $generator->generateStubs($configuration, $stubCollection);
@@ -40,9 +40,10 @@ class ComposerGeneratorTest extends TestCase
         $stub = $stubCollection->get('composer.json');
 
         static::assertNotNull($stub->getContent());
+        static::assertJson($stub->getContent());
         static::assertStringContainsString('"name": "my-namespace/test-plugin"', $stub->getContent());
-        static::assertStringContainsString('"shopware-plugin-class": "MyNamespace\\\\TestPlugin"', $stub->getContent());
-        static::assertStringContainsString('"MyNamespace\\\\": "src/"', $stub->getContent());
-        static::assertStringContainsString('"MyNamespace\\\\Tests\\\\": "tests/"', $stub->getContent());
+        static::assertStringContainsString('"shopware-plugin-class": "My\\\\Namespace\\\\TestPlugin"', $stub->getContent());
+        static::assertStringContainsString('"My\\\\Namespace\\\\": "src/"', $stub->getContent());
+        static::assertStringContainsString('"My\\\\Namespace\\\\Tests\\\\": "tests/"', $stub->getContent());
     }
 }

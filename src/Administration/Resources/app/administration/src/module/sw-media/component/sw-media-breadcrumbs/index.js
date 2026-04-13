@@ -29,6 +29,12 @@ export default {
             required: false,
             default: false,
         },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -91,6 +97,10 @@ export default {
         },
 
         onBreadcrumbsItemClicked(id) {
+            if (this.disabled) {
+                return;
+            }
+
             this.$emit('update:currentFolderId', id);
         },
     },

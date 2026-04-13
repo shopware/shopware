@@ -107,15 +107,17 @@ class WriterExtensionTest extends TestCase
 
         $productExtensions = $product->getExtension('oneToMany');
         static::assertInstanceOf(EntityCollection::class, $productExtensions);
+        static::assertContainsOnlyInstancesOf(ArrayEntity::class, $productExtensions);
+        /** @var EntityCollection<ArrayEntity> $productExtensions */
         $productExtensions->sort(static fn (ArrayEntity $a, ArrayEntity $b) => $a->get('name') <=> $b->get('name'));
 
         static::assertCount(2, $productExtensions);
         $first = $productExtensions->first();
         static::assertInstanceOf(ArrayEntity::class, $first);
-        static::assertEquals('test 1', $first->get('name'));
+        static::assertSame('test 1', $first->get('name'));
         $last = $productExtensions->last();
         static::assertInstanceOf(ArrayEntity::class, $last);
-        static::assertEquals('test 2', $last->get('name'));
+        static::assertSame('test 2', $last->get('name'));
     }
 
     public function testCanWriteExtensionWithoutExtensionKey(): void
@@ -145,15 +147,17 @@ class WriterExtensionTest extends TestCase
 
         $productExtensions = $product->getExtension('oneToMany');
         static::assertInstanceOf(EntityCollection::class, $productExtensions);
+        static::assertContainsOnlyInstancesOf(ArrayEntity::class, $productExtensions);
+        /** @var EntityCollection<ArrayEntity> $productExtensions */
         $productExtensions->sort(static fn (ArrayEntity $a, ArrayEntity $b) => $a->get('name') <=> $b->get('name'));
 
         static::assertCount(2, $productExtensions);
         $first = $productExtensions->first();
         static::assertInstanceOf(ArrayEntity::class, $first);
-        static::assertEquals('test 1', $first->get('name'));
+        static::assertSame('test 1', $first->get('name'));
         $last = $productExtensions->last();
         static::assertInstanceOf(ArrayEntity::class, $last);
-        static::assertEquals('test 2', $last->get('name'));
+        static::assertSame('test 2', $last->get('name'));
     }
 
     private function createProduct(string $productId): void

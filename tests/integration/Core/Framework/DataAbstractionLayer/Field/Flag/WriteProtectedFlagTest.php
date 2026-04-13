@@ -115,12 +115,11 @@ EOF;
 
         static::assertInstanceOf(WriteException::class, $ex);
         static::assertCount(1, $ex->getExceptions());
-        static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex));
+        static::assertSame('This field is write-protected.', $this->getValidationExceptionMessage($ex));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertInstanceOf(WriteConstraintViolationException::class, $fieldException);
-        static::assertEquals('/0/protected', $fieldException->getPath());
+        static::assertSame('/0/protected', $fieldException->getPath());
     }
 
     public function testWriteWithoutProtectedField(): void
@@ -139,7 +138,7 @@ EOF;
         $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
-        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
+        static::assertSame(Uuid::fromHexToBytes($id), $data[0]['id']);
         static::assertEmpty($data[0]['protected']);
     }
 
@@ -160,8 +159,8 @@ EOF;
         $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
-        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
-        static::assertEquals('foobar', $data[0]['system_protected']);
+        static::assertSame(Uuid::fromHexToBytes($id), $data[0]['id']);
+        static::assertSame('foobar', $data[0]['system_protected']);
     }
 
     public function testWriteManyToOneWithoutPermission(): void
@@ -187,12 +186,11 @@ EOF;
 
         static::assertInstanceOf(WriteException::class, $ex);
         static::assertCount(1, $ex->getExceptions());
-        static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relation'));
+        static::assertSame('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relation'));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertInstanceOf(WriteConstraintViolationException::class, $fieldException);
-        static::assertEquals('/0/relation', $fieldException->getPath());
+        static::assertSame('/0/relation', $fieldException->getPath());
     }
 
     public function testWriteManyToOneWithPermission(): void
@@ -214,8 +212,8 @@ EOF;
         $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
-        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
-        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['system_relation_id']);
+        static::assertSame(Uuid::fromHexToBytes($id), $data[0]['id']);
+        static::assertSame(Uuid::fromHexToBytes($id), $data[0]['system_relation_id']);
     }
 
     public function testWriteOneToManyWithoutPermission(): void
@@ -243,12 +241,11 @@ EOF;
 
         static::assertInstanceOf(WriteException::class, $ex);
         static::assertCount(1, $ex->getExceptions());
-        static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'wp'));
+        static::assertSame('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'wp'));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertInstanceOf(WriteConstraintViolationException::class, $fieldException);
-        static::assertEquals('/0/wp', $fieldException->getPath());
+        static::assertSame('/0/wp', $fieldException->getPath());
     }
 
     public function testWriteOneToManyWithPermission(): void
@@ -300,12 +297,11 @@ EOF;
 
         static::assertInstanceOf(WriteException::class, $ex);
         static::assertCount(1, $ex->getExceptions());
-        static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relations'));
+        static::assertSame('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relations'));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertInstanceOf(WriteConstraintViolationException::class, $fieldException);
-        static::assertEquals('/0/relations', $fieldException->getPath());
+        static::assertSame('/0/relations', $fieldException->getPath());
     }
 
     public function testWriteManyToManyWithPermission(): void
@@ -330,8 +326,8 @@ EOF;
         $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable_reference`');
 
         static::assertCount(1, $data);
-        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['wp_id']);
-        static::assertEquals(Uuid::fromHexToBytes($id2), $data[0]['relation_id']);
+        static::assertSame(Uuid::fromHexToBytes($id), $data[0]['wp_id']);
+        static::assertSame(Uuid::fromHexToBytes($id2), $data[0]['relation_id']);
     }
 
     public function testWriteTranslationWithoutPermission(): void
@@ -355,12 +351,11 @@ EOF;
 
         static::assertInstanceOf(WriteException::class, $ex);
         static::assertCount(1, $ex->getExceptions());
-        static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex));
+        static::assertSame('This field is write-protected.', $this->getValidationExceptionMessage($ex));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertInstanceOf(WriteConstraintViolationException::class, $fieldException);
-        static::assertEquals('/0/protected', $fieldException->getPath());
+        static::assertSame('/0/protected', $fieldException->getPath());
     }
 
     public function testWriteTranslationWithPermission(): void
@@ -380,8 +375,8 @@ EOF;
         $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable_translation`');
 
         static::assertCount(1, $data);
-        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['_test_nullable_id']);
-        static::assertEquals('foobar', $data[0]['system_protected']);
+        static::assertSame(Uuid::fromHexToBytes($id), $data[0]['_test_nullable_id']);
+        static::assertSame('foobar', $data[0]['system_protected']);
     }
 
     protected function createWriteContext(): WriteContext

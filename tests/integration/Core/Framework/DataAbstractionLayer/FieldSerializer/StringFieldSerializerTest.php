@@ -88,12 +88,12 @@ class StringFieldSerializerTest extends TestCase
         // error cases
         if ($expectError) {
             static::assertInstanceOf(WriteConstraintViolationException::class, $exception, 'This value should not be blank.');
-            static::assertEquals('/' . $field->getPropertyName(), $exception->getViolations()->get(0)->getPropertyPath());
+            static::assertSame('/' . $field->getPropertyName(), $exception->getViolations()->get(0)->getPropertyPath());
 
             return;
         }
 
         static::assertNull($exception);
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
     }
 }

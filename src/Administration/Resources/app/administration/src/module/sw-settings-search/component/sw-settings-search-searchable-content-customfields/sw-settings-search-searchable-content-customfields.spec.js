@@ -96,15 +96,6 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         global.activeAclRoles = [];
     });
 
-    it('should be a Vue.JS component', async () => {
-        global.activeAclRoles = ['product_search_config.viewer'];
-
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render empty state when isEmpty variable is true', async () => {
         global.activeAclRoles = ['product_search_config.viewer'];
 
@@ -289,5 +280,35 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         });
 
         expect(wrapper.emitted('config-save')).toBeTruthy();
+    });
+
+    it('should filter custom fields by includeInSearch = true in customFieldCriteria', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const criteria = wrapper.vm.customFieldCriteria;
+
+        const filters = criteria.filters || [];
+        const includeInSearchFilter = filters.find((filter) => {
+            return filter.type === 'equals' && filter.field === 'includeInSearch' && filter.value === true;
+        });
+
+        expect(includeInSearchFilter).toBeDefined();
+        expect(includeInSearchFilter.value).toBe(true);
+    });
+
+    it('should filter custom fields by includeInSearch = true in customFieldFilteredCriteria', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const criteria = wrapper.vm.customFieldFilteredCriteria;
+
+        const filters = criteria.filters || [];
+        const includeInSearchFilter = filters.find((filter) => {
+            return filter.type === 'equals' && filter.field === 'includeInSearch' && filter.value === true;
+        });
+
+        expect(includeInSearchFilter).toBeDefined();
+        expect(includeInSearchFilter.value).toBe(true);
     });
 });

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\Struct\ThemeDependencies;
@@ -40,7 +41,7 @@ class ThemeLifecycleHandler
     ): void {
         $themeId = null;
         if ($config->getIsTheme()) {
-            $this->themeLifecycleService->refreshTheme($config, $context);
+            $this->themeLifecycleService->refreshTheme($config, $context, $configurationCollection);
             $themeData = $this->getThemeDataByTechnicalName($config->getTechnicalName());
             $themeId = $themeData->getId();
             $this->changeThemeActive($themeData, true, $context);
@@ -55,7 +56,7 @@ class ThemeLifecycleHandler
 
         $configs = $this->storefrontPluginRegistry->getConfigurations();
 
-        $configs = $configs->filter(fn (StorefrontPluginConfiguration $registeredConfig): bool => $registeredConfig->getTechnicalName() !== $config->getTechnicalName());
+        $configs = $configs->filter(static fn (StorefrontPluginConfiguration $registeredConfig): bool => $registeredConfig->getTechnicalName() !== $config->getTechnicalName());
 
         $this->recompileThemesIfNecessary($config, $context, $configs, $themeId);
     }
@@ -97,11 +98,12 @@ class ThemeLifecycleHandler
 
     /**
      * @throws ThemeAssignmentException
+     * @throws ThemeException
      * @throws InconsistentCriteriaIdsException
      */
     private function validateThemeAssignment(?string $themeId): void
     {
-        if (!$themeId) {
+        if ($themeId === null || $themeId === '') {
             return;
         }
 
@@ -164,7 +166,7 @@ class ThemeLifecycleHandler
             ['technicalName' => $technicalName]
         );
 
-        if (empty($themeData)) {
+        if ($themeData === []) {
             return new ThemeDependencies();
         }
 
@@ -185,6 +187,7 @@ class ThemeLifecycleHandler
         $themeName = $themeId;
 
         try {
+            /** @var list<array{themeName: string, dthemeName?: string, id: string, dependentId?: string, saleschannelId?: string, saleschannelName?: string, dsaleschannelName?: string, dsaleschannelId?: string}> $themeData */
             $themeData = $this->connection->fetchAllAssociative(
                 'SELECT theme.name as themeName, childTheme.name as dthemeName, LOWER(HEX(theme.id)) as id,
                 LOWER(HEX(childTheme.id)) as dependentId, LOWER(HEX(tsc.sales_channel_id)) as saleschannelId,
@@ -204,17 +207,17 @@ class ThemeLifecycleHandler
             foreach ($themeData as $data) {
                 $themeName = $data['themeName'];
                 if (isset($data['id'], $data['saleschannelId']) && $data['id'] === $themeId) {
-                    $themeSalesChannel[(string) $data['themeName']][] = (string) $data['saleschannelId'];
-                    $salesChannels[(string) $data['saleschannelId']] = (string) $data['saleschannelName'];
+                    $themeSalesChannel[$data['themeName']][] = $data['saleschannelId'];
+                    $salesChannels[$data['saleschannelId']] = $data['saleschannelName'] ?? '';
                 }
-                if (isset($data['dsaleschannelId']) && !empty($data['dsaleschannelId']) && isset($data['dthemeName'])) {
-                    $childThemeSalesChannel[(string) $data['dthemeName']][] = (string) $data['dsaleschannelId'];
-                    $salesChannels[(string) $data['dsaleschannelId']] = (string) $data['dsaleschannelName'];
+                if (isset($data['dsaleschannelId'], $data['dthemeName'])) {
+                    $childThemeSalesChannel[$data['dthemeName']][] = $data['dsaleschannelId'];
+                    $salesChannels[$data['dsaleschannelId']] = $data['dsaleschannelName'] ?? '';
                 }
             }
         } catch (\Throwable $e) {
             // on case an error occurs while fetching data for the exception we still want to have the correct exception
-            throw new ThemeAssignmentException(
+            throw ThemeException::themeAssignmentException(
                 $themeId,
                 [],
                 [],
@@ -223,7 +226,7 @@ class ThemeLifecycleHandler
             );
         }
 
-        throw new ThemeAssignmentException(
+        throw ThemeException::themeAssignmentException(
             $themeName,
             $themeSalesChannel,
             $childThemeSalesChannel,

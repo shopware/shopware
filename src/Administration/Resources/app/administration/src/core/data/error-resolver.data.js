@@ -169,7 +169,8 @@ export default class ErrorResolver {
         }
 
         return changeset[associationName].map((associationChange) => {
-            const association = entity[associationName].find((a) => {
+            const field = entity[associationName] ?? entity.extensions[associationName];
+            const association = field.find((a) => {
                 return a.id === associationChange.id;
             });
 

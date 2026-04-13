@@ -47,6 +47,10 @@
         ></div>
         <div
             v-if="page"
+            v-tooltip="{
+                message: page.translated.name,
+                position: 'bottom',
+            }"
             class="sw-cms-list-item__title"
             role="button"
             tabindex="0"

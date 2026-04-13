@@ -98,12 +98,6 @@ export default {
                     allowResize: true,
                     multiLine: true,
                 },
-                {
-                    property: 'description',
-                    label: this.$tc('sw-flow.list.labelColumnDescription'),
-                    allowResize: true,
-                    sortable: false,
-                },
             ];
         },
 
@@ -248,7 +242,7 @@ export default {
 
         bulkDeleteWarningMessage(selectionCount) {
             return `${this.$tc('sw-flow.list.warningDeleteText')}
-            ${this.$tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount })}`;
+            ${this.$tc('global.entity-components.deleteMessage', { count: selectionCount }, selectionCount)}`;
         },
     },
 };

@@ -22,12 +22,12 @@ class LineItemGroupServiceRegistry
 
     /**
      * Gets a list of all registered packagers.
+     *
+     * @return \Generator<LineItemGroupPackagerInterface>
      */
     public function getPackagers(): \Generator
     {
-        foreach ($this->packagers as $packager) {
-            yield $packager;
-        }
+        yield from $this->packagers;
     }
 
     /**
@@ -37,7 +37,6 @@ class LineItemGroupServiceRegistry
      */
     public function getPackager(string $key): LineItemGroupPackagerInterface
     {
-        /** @var LineItemGroupPackagerInterface $packager */
         foreach ($this->packagers as $packager) {
             if (mb_strtolower($packager->getKey()) === mb_strtolower($key)) {
                 return $packager;
@@ -50,11 +49,12 @@ class LineItemGroupServiceRegistry
     /**
      * Gets a list of all registered sorters.
      */
+    /**
+     * @return \Generator<LineItemGroupSorterInterface>
+     */
     public function getSorters(): \Generator
     {
-        foreach ($this->sorters as $sorter) {
-            yield $sorter;
-        }
+        yield from $this->sorters;
     }
 
     /**
@@ -64,7 +64,6 @@ class LineItemGroupServiceRegistry
      */
     public function getSorter(string $key): LineItemGroupSorterInterface
     {
-        /** @var LineItemGroupSorterInterface $sorter */
         foreach ($this->sorters as $sorter) {
             if (mb_strtolower($sorter->getKey()) === mb_strtolower($key)) {
                 return $sorter;

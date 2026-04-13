@@ -86,9 +86,9 @@ class PromotionMixedCalculationTest extends TestCase
         $cart = $this->addPromotionCode('sale', $cart, $this->cartService, $context);
         $cart = $this->addPromotionCode('100off', $cart, $this->cartService, $context);
 
-        static::assertEquals(0.0, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(0.0, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(0.0, $cart->getPrice()->getNetPrice());
+        static::assertSame(0.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(0.0, $cart->getPrice()->getPositionPrice());
+        static::assertSame(0.0, $cart->getPrice()->getNetPrice());
     }
 
     /**
@@ -122,9 +122,9 @@ class PromotionMixedCalculationTest extends TestCase
         // and remove again
         $cart = $this->removePromotionCode($code, $cart, $this->cartService, $context);
 
-        static::assertEquals(119.0, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(119.0, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(100.0, $cart->getPrice()->getNetPrice());
+        static::assertSame(119.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(119.0, $cart->getPrice()->getPositionPrice());
+        static::assertSame(100.0, $cart->getPrice()->getNetPrice());
     }
 
     /**
@@ -174,8 +174,8 @@ class PromotionMixedCalculationTest extends TestCase
         $tax2 = $discountPrice->getCalculatedTaxes()->getElements()[7]->getTax();
 
         // our correct values are based on a distribution of 2 + 3 instead of 5 + 3
-        static::assertEquals(-24.4, $tax1);
-        static::assertEquals(-13.49, $tax2);
+        static::assertSame(-24.4, $tax1);
+        static::assertSame(-13.49, $tax2);
     }
 
     /**
@@ -235,8 +235,8 @@ class PromotionMixedCalculationTest extends TestCase
 
         static::assertNotNull($group1DiscountPrice);
         static::assertNotNull($group2DiscountPrice);
-        static::assertEquals(-120.0, $group1DiscountPrice->getTotalPrice(), 'Error in calculating expected discount for setGroup1');
-        static::assertEquals(-60.0, $group2DiscountPrice->getTotalPrice(), 'Error in calculating expected discount for setGroup2');
+        static::assertSame(-120.0, $group1DiscountPrice->getTotalPrice(), 'Error in calculating expected discount for setGroup1');
+        static::assertSame(-60.0, $group2DiscountPrice->getTotalPrice(), 'Error in calculating expected discount for setGroup2');
     }
 
     /**
@@ -307,7 +307,7 @@ class PromotionMixedCalculationTest extends TestCase
         static::assertNotNull($cart->getLineItems()->get($discountId));
         $group1DiscountPrice = $cart->getLineItems()->get($discountId)->getPrice();
         static::assertNotNull($group1DiscountPrice);
-        static::assertEquals($expectedDiscount, $group1DiscountPrice->getTotalPrice());
+        static::assertSame($expectedDiscount, $group1DiscountPrice->getTotalPrice());
     }
 
     /**
@@ -686,7 +686,7 @@ class PromotionMixedCalculationTest extends TestCase
         $groupDiscountPrice = $cart->getLineItems()->get($discountId)->getPrice();
         static::assertNotNull($groupDiscountPrice);
 
-        static::assertEquals($expectedDiscount, $groupDiscountPrice->getTotalPrice());
+        static::assertSame($expectedDiscount, $groupDiscountPrice->getTotalPrice());
     }
 
     /**
@@ -770,7 +770,7 @@ class PromotionMixedCalculationTest extends TestCase
         $groupDiscountPrice = $cart->getLineItems()->get($discountId)->getPrice();
         static::assertNotNull($groupDiscountPrice);
 
-        static::assertEquals($expectedDiscount, $groupDiscountPrice->getTotalPrice());
+        static::assertSame($expectedDiscount, $groupDiscountPrice->getTotalPrice());
     }
 
     /**

@@ -9,7 +9,9 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Store\InAppPurchase;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -17,7 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('framework')]
 class AppJWTGenerateRoute
 {
@@ -47,7 +49,7 @@ class AppJWTGenerateRoute
         $expiration = new \DateTimeImmutable('+10 minutes');
 
         /** @var non-empty-string $shopId */
-        $shopId = $this->shopIdProvider->getShopId();
+        $shopId = $this->shopIdProvider->getShopId()->id;
         $builder = $configuration
             ->builder()
             ->issuedBy($shopId)

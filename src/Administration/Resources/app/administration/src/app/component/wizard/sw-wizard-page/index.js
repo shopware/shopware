@@ -5,14 +5,12 @@
 import './sw-wizard-page.scss';
 import template from './sw-wizard-page.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * See `sw-wizard` for an example.
  *
  * @private
  */
-Component.register('sw-wizard-page', {
+export default {
     template,
 
     inject: [
@@ -25,7 +23,6 @@ Component.register('sw-wizard-page', {
         isActive: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default() {
                 return false;
             },
@@ -70,4 +67,4 @@ Component.register('sw-wizard-page', {
             this.swWizardPageRemove(this);
         },
     },
-});
+};

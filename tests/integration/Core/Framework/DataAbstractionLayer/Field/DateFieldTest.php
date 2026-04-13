@@ -71,7 +71,7 @@ EOF;
         $data = $this->connection->fetchAllAssociative('SELECT * FROM `_date_field_test`');
 
         static::assertCount(1, $data);
-        static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
+        static::assertSame(Uuid::fromHexToBytes($id), $data[0]['id']);
         static::assertNull($data[0]['date_nullable']);
         static::assertSame($date->format(Defaults::STORAGE_DATE_FORMAT), $data[0]['date']);
     }

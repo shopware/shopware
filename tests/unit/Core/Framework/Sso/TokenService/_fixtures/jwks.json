@@ -1,0 +1,20 @@
+{
+  "keys": [
+    {
+      "use": "sig",
+      "kty": "RSA",
+      "kid": "b16b070d-28e4-4759-9c51-d43730dda8fa",
+      "alg": "RS256",
+      "n": "dGhpcyBpcyBhIHNpbXBsZSB0ZXN0",
+      "e": "ABCD"
+    },
+    {
+      "use": "sig",
+      "kty": "RSA",
+      "kid": "742be0d0-038a-4f1a-b70d-d1ecabc2af05",
+      "alg": "RS256",
+      "n": "YXNkYXNkYXNkYXNkYXNk",
+      "e": "ABCD"
+    }
+  ]
+}

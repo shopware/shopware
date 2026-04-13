@@ -20,6 +20,7 @@
 
         .mt-progress-bar {
             height: 4px;
+            row-gap: 0;
 
             .mt-progress-bar__fill {
                 background: #667f99;
@@ -27,6 +28,11 @@
 
             .mt-progress-bar__track {
                 background: $color-gray-200;
+            }
+
+            .mt-field-label,
+            .mt-progress-bar__progress-label {
+                display: none;
             }
         }
     }

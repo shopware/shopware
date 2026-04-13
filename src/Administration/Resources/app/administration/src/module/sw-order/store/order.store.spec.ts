@@ -39,7 +39,7 @@ describe('src/module/sw-order/store/order.store', () => {
 
     beforeAll(() => {
         // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-        Shopware.Service().register('cartStoreService', (() => {
+        Shopware.Service().register('cartStoreService', () => {
             return {
                 createCart: createCartMock,
                 getCart: getCartMock,
@@ -49,27 +49,27 @@ describe('src/module/sw-order/store/order.store', () => {
                 removeLineItems: removeLineItemsMock,
                 saveLineItem: saveLineItemMock,
                 addMultipleLineItems: addMultipleLineItemsMock,
-            };
-        }) as unknown as CartStoreService);
+            } as unknown as CartStoreService;
+        });
         // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-        Shopware.Service().register('contextStoreService', (() => {
+        Shopware.Service().register('contextStoreService', () => {
             return {
                 getSalesChannelContext: getSalesChannelContextMock,
                 updateContext: updateContextMock,
-            };
-        }) as unknown as ContextStoreService);
+            } as unknown as ContextStoreService;
+        });
         // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-        Shopware.Service().register('checkoutStoreService', (() => {
+        Shopware.Service().register('checkoutStoreService', () => {
             return {
                 checkout: checkoutMock,
-            };
-        }) as unknown as CheckoutStoreService);
+            } as unknown as CheckoutStoreService;
+        });
         // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-        Shopware.Service().register('orderStateMachineService', (() => {
+        Shopware.Service().register('orderStateMachineService', () => {
             return {
                 transitionOrderTransactionState: transitionOrderTransactionStateMock,
-            };
-        }) as unknown as OrderStateMachineApiService);
+            } as unknown as OrderStateMachineApiService;
+        });
     });
 
     beforeEach(() => {
@@ -282,9 +282,13 @@ describe('src/module/sw-order/store/order.store', () => {
     });
 
     it('cancels cart', async () => {
+        const spy = jest.spyOn(store, '$reset');
         await store.cancelCart({ salesChannelId: '1', contextToken: token });
 
         expect(cancelCartMock).toHaveBeenLastCalledWith('1', token);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(store.customer).toBeNull();
+        expect(store.cart.lineItems).toHaveLength(0);
     });
 
     it('updates order context', async () => {

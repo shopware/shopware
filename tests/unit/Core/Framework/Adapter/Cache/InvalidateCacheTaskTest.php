@@ -27,4 +27,10 @@ class InvalidateCacheTaskTest extends TestCase
     {
         static::assertSame(300, InvalidateCacheTask::getDefaultInterval());
     }
+
+    public function testDeduplicationId(): void
+    {
+        $task = new InvalidateCacheTask();
+        static::assertSame('invalidate-cache-task', $task->deduplicationId());
+    }
 }

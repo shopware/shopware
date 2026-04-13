@@ -112,4 +112,8 @@
         max-width: 64px;
         max-height: 55px;
     }
+
+    &.is--droppable.is--draggable.is--drag-element {
+        position: absolute;
+    }
 }

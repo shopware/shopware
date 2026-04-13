@@ -1,7 +1,7 @@
 import template from './sw-duplicated-media-v2.html.twig';
 import './sw-duplicated-media-v2.scss';
 
-const { Component, Context, Filter } = Shopware;
+const { Context, Filter } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -14,7 +14,7 @@ const LOCAL_STORAGE_KEY_OPTION = 'sw-duplicate-media-resolve-option';
 const LOCAL_STORAGE_SAVE_SELECTION = 'sw-duplicate-media-resolve-save-selection';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-duplicated-media-v2', {
+export default {
     template,
 
     inject: [
@@ -188,7 +188,7 @@ Component.register('sw-duplicated-media-v2', {
         },
 
         isDuplicatedNameError(error) {
-            return error.response.data.errors.some((err) => {
+            return error?.response?.data?.errors?.some((err) => {
                 return err.code === 'CONTENT__MEDIA_DUPLICATED_FILE_NAME';
             });
         },
@@ -317,6 +317,7 @@ Component.register('sw-duplicated-media-v2', {
         },
 
         async keepFile(uploadTask) {
+            const originalTargetId = uploadTask.targetId;
             const oldTarget = await this.mediaRepository.get(uploadTask.targetId, Context.api);
             if (!oldTarget.hasFile) {
                 await this.mediaRepository.delete(oldTarget.id, Context.api);
@@ -333,8 +334,9 @@ Component.register('sw-duplicated-media-v2', {
             const searchResult = await this.mediaRepository.search(criteria, Context.api);
             const newTarget = searchResult[0];
             uploadTask.targetId = newTarget.id;
+            uploadTask.originalTargetId = originalTargetId;
 
             this.mediaService.keepFile(uploadTask.uploadTag, uploadTask);
         },
     },
-});
+};

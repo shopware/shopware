@@ -49,13 +49,13 @@ class LoadProductStockSubscriberTest extends TestCase
 
         $subscriber->salesChannelLoaded($event);
 
-        static::assertEquals(10, $p1->getStock());
+        static::assertSame(10, $p1->getStock());
         static::assertFalse($p1->getAvailable());
-        static::assertEquals(5, $p1->getMinPurchase());
+        static::assertSame(5, $p1->getMinPurchase());
         static::assertTrue($p1->hasExtension('stock_data'));
         static::assertSame($stock1, $p1->getExtension('stock_data'));
 
-        static::assertEquals(12, $p2->getStock());
+        static::assertSame(12, $p2->getStock());
         static::assertTrue($p2->getAvailable());
         static::assertNull($p2->getMinPurchase());
         static::assertTrue($p2->hasExtension('stock_data'));
@@ -89,13 +89,13 @@ class LoadProductStockSubscriberTest extends TestCase
 
         $subscriber->salesChannelLoaded($event);
 
-        static::assertEquals(10, $p1->get('stock'));
+        static::assertSame(10, $p1->get('stock'));
         static::assertFalse($p1->get('available'));
-        static::assertEquals(5, $p1->get('minPurchase'));
+        static::assertSame(5, $p1->get('minPurchase'));
         static::assertTrue($p1->hasExtension('stock_data'));
         static::assertSame($stock1, $p1->getExtension('stock_data'));
 
-        static::assertEquals(12, $p2->get('stock'));
+        static::assertSame(12, $p2->get('stock'));
         static::assertTrue($p2->get('available'));
         static::assertNull($p2->get('minPurchase'));
         static::assertTrue($p2->hasExtension('stock_data'));

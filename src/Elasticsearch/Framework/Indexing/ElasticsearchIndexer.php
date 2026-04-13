@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
+use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexingFinishedEvent;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexIteratorEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -116,7 +117,7 @@ class ElasticsearchIndexer
 
         $ids = $event->iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             if (!$offset->hasNextDefinition()) {
                 return null;
             }
@@ -129,12 +130,12 @@ class ElasticsearchIndexer
             return $this->createIndexingMessage($offset);
         }
 
-        // increment last id with iterator offset
-        $offset->setLastId($iterator->getOffset());
-
         $alias = $this->helper->getIndexName($definition->getEntityDefinition());
 
         $index = $alias . '_' . $offset->getTimestamp();
+
+        // increment last id with iterator offset
+        $offset->setLastId($iterator->getOffset());
 
         // return indexing message for current offset
         return new ElasticsearchIndexingMessage(new IndexingDto(array_values($ids), $index, $entity), $offset, Context::createDefaultContext());
@@ -177,7 +178,7 @@ class ElasticsearchIndexer
             $errors[] = [
                 'index' => $item['_index'],
                 'id' => $item['_id'],
-                'type' => $item['error']['type'] ?? $item['_type'],
+                'type' => $item['error']['type'] ?? ($item['_type'] ?? 'n/a'),
                 'reason' => $item['error']['reason'] ?? $item['result'],
             ];
 
@@ -252,7 +253,7 @@ class ElasticsearchIndexer
 
         $data = $definition->fetch(Uuid::fromHexToBytesList($ids), $context);
 
-        $toRemove = array_filter($ids, fn (string $id) => !isset($data[$id]));
+        $toRemove = array_filter($ids, static fn (string $id) => !isset($data[$id]));
 
         $documents = [];
 
@@ -276,10 +277,20 @@ class ElasticsearchIndexer
 
         $result = $this->client->bulk($arguments);
 
+        $exception = null;
+
         if (\is_array($result) && isset($result['errors']) && $result['errors']) {
             $errors = $this->parseErrors($result);
+            $exception = ElasticsearchException::indexingError($errors);
+        }
 
-            throw ElasticsearchException::indexingError($errors);
+        if ($message->isLastMessage()) {
+            $event = new ElasticsearchIndexingFinishedEvent();
+            $this->eventDispatcher->dispatch($event);
+        }
+
+        if ($exception) {
+            $this->helper->logAndThrowException($exception);
         }
     }
 
@@ -290,7 +301,7 @@ class ElasticsearchIndexer
      */
     private function handleEntities(array $entities = []): iterable
     {
-        if (empty($entities)) {
+        if ($entities === []) {
             return $this->registry->getDefinitionNames();
         }
 
@@ -301,7 +312,7 @@ class ElasticsearchIndexer
         $validEntities = array_intersect($entities, $registeredEntities);
         $unregisteredEntities = array_diff($entities, $registeredEntities);
 
-        if (!empty($unregisteredEntities)) {
+        if ($unregisteredEntities !== []) {
             $unregisteredEntityList = implode(', ', $unregisteredEntities);
 
             $exception = ElasticsearchException::definitionNotFound($unregisteredEntityList);

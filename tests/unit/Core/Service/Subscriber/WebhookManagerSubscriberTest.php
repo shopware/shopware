@@ -109,14 +109,14 @@ class WebhookManagerSubscriberTest extends TestCase
         $subscriber->filterDuplicates($event);
 
         static::assertCount(4, $event->webhooks);
-        static::assertEquals(
+        static::assertSame(
             [
                 $this->ids->get('wh-3'),
                 $this->ids->get('wh-5'),
                 $this->ids->get('wh-2'),
                 $this->ids->get('wh-4'),
             ],
-            array_map(fn (Webhook $w) => Uuid::fromBytesToHex($w->id), $event->webhooks)
+            array_map(static fn (Webhook $w) => Uuid::fromBytesToHex($w->id), $event->webhooks)
         );
     }
 }

@@ -51,7 +51,7 @@ TWIG;
         sort($expected);
         sort($variables);
 
-        static::assertEquals($expected, $variables);
+        static::assertSame($expected, $variables);
     }
 
     public function testParserHandlesAssociationsInLoops(): void
@@ -88,6 +88,6 @@ TWIG;
         sort($expected);
         sort($variables);
 
-        static::assertEquals($expected, $variables);
+        static::assertSame($expected, $variables);
     }
 }

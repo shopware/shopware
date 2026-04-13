@@ -3,11 +3,14 @@
 namespace Shopware\Core\Content\Category\Subscriber;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Category\CategoryEvents;
+use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -30,49 +33,57 @@ class CategorySubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            CategoryEvents::CATEGORY_LOADED_EVENT => 'entityLoaded',
-            'sales_channel.' . CategoryEvents::CATEGORY_LOADED_EVENT => 'entityLoaded',
+            'sales_channel.category.loaded' => 'salesChannelCategoryLoaded',
+            EntityWriteEvent::class => 'beforeWriteCategory',
         ];
     }
 
     /**
-     * @param EntityLoadedEvent<CategoryEntity> $event
+     * @param SalesChannelEntityLoadedEvent<SalesChannelCategoryEntity> $event
      */
-    public function entityLoaded(EntityLoadedEvent $event): void
+    public function salesChannelCategoryLoaded(SalesChannelEntityLoadedEvent $event): void
     {
-        $salesChannelId = $event instanceof SalesChannelEntityLoadedEvent ? $event->getSalesChannelContext()->getSalesChannelId() : null;
+        $salesChannel = $event->getSalesChannelContext()->getSalesChannel();
 
         foreach ($event->getEntities() as $category) {
-            if ($event instanceof SalesChannelEntityLoadedEvent) {
-                $category->assign([
-                    'seoLink' => $this->categoryUrlGenerator->generate($category, $event->getSalesChannelContext()->getSalesChannel()),
-                ]);
-            }
+            $category->assign([
+                'seoUrl' => $this->categoryUrlGenerator->generate($category, $salesChannel),
+            ]);
+        }
+    }
 
-            $categoryCmsPageId = $category->getCmsPageId();
+    public function beforeWriteCategory(EntityWriteEvent $event): void
+    {
+        $commands = $event->getCommandsForEntity(CategoryDefinition::ENTITY_NAME);
+        if ($commands === []) {
+            return;
+        }
 
-            // continue if cms page is given and was not set in the subscriber
-            if ($categoryCmsPageId !== null && !$category->getCmsPageIdSwitched()) {
+        $defaultCmsPageId = $this->systemConfigService->getString(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY);
+        if ($defaultCmsPageId === '') {
+            return;
+        }
+
+        $defaultCmsPageIdBytes = Uuid::fromHexToBytes($defaultCmsPageId);
+
+        foreach ($commands as $command) {
+            if ($command instanceof DeleteCommand) {
                 continue;
             }
 
-            // continue if cms page is given and not the overall default
-            if ($categoryCmsPageId !== null && $categoryCmsPageId !== $this->systemConfigService->get(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY)) {
+            if ($command instanceof InsertCommand) {
+                if (!$command->hasField('cms_page_id') || $command->getPayload()['cms_page_id'] === null) {
+                    $command->addPayload('cms_page_id', $defaultCmsPageIdBytes);
+                }
+
                 continue;
             }
 
-            $userDefault = $this->systemConfigService->get(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY, $salesChannelId);
-
-            // cms page is not given in system config
-            if ($userDefault === null) {
-                continue;
+            if ($command instanceof UpdateCommand) {
+                if ($command->hasField('cms_page_id') && $command->getPayload()['cms_page_id'] === null) {
+                    $command->addPayload('cms_page_id', $defaultCmsPageIdBytes);
+                }
             }
-
-            /** @var string $userDefault */
-            $category->setCmsPageId($userDefault);
-
-            // mark cms page as set in the subscriber
-            $category->setCmsPageIdSwitched(true);
         }
     }
 }

@@ -141,12 +141,14 @@ class LanguageRouteTest extends TestCase
                 'id' => $this->ids->create('language'),
                 'name' => 'match',
                 'localeId' => $this->ids->get('locale-1'),
+                'active' => true,
                 'translationCodeId' => $this->ids->get('locale-1'),
             ],
             [
                 'id' => $this->ids->create('language2'),
                 'name' => 'match2',
                 'localeId' => $this->ids->get('locale-2'),
+                'active' => true,
                 'translationCodeId' => $this->ids->get('locale-2'),
             ],
         ];

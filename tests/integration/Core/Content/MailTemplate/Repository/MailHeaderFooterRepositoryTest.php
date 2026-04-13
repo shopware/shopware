@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -22,6 +24,9 @@ class MailHeaderFooterRepositoryTest extends TestCase
     use IntegrationTestBehaviour;
     use MediaFixtures;
 
+    /**
+     * @var EntityRepository<EntityCollection<Entity>>
+     */
     private EntityRepository $repository;
 
     private Connection $connection;
@@ -63,14 +68,14 @@ class MailHeaderFooterRepositoryTest extends TestCase
 
         $expect = $data[$id];
         static::assertIsArray($record);
-        static::assertEquals($id, $record['id']);
-        static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
-        static::assertEquals($expect['name'], $record['name']);
-        static::assertEquals($expect['description'], $record['description']);
-        static::assertEquals($expect['headerHtml'], $record['header_html']);
-        static::assertEquals($expect['headerPlain'], $record['header_plain']);
-        static::assertEquals($expect['footerHtml'], $record['footer_html']);
-        static::assertEquals($expect['footerPlain'], $record['footer_plain']);
+        static::assertSame($id, $record['id']);
+        static::assertSame($expect['systemDefault'], (bool) $record['system_default']);
+        static::assertSame($expect['name'], $record['name']);
+        static::assertSame($expect['description'], $record['description']);
+        static::assertSame($expect['headerHtml'], $record['header_html']);
+        static::assertSame($expect['headerPlain'], $record['header_plain']);
+        static::assertSame($expect['footerHtml'], $record['footer_html']);
+        static::assertSame($expect['footerPlain'], $record['footer_plain']);
     }
 
     /**
@@ -94,13 +99,13 @@ class MailHeaderFooterRepositoryTest extends TestCase
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
-            static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
-            static::assertEquals($expect['name'], $record['name']);
-            static::assertEquals($expect['description'], $record['description']);
-            static::assertEquals($expect['headerHtml'], $record['header_html']);
-            static::assertEquals($expect['headerPlain'], $record['header_plain']);
-            static::assertEquals($expect['footerHtml'], $record['footer_html']);
-            static::assertEquals($expect['footerPlain'], $record['footer_plain']);
+            static::assertSame($expect['systemDefault'], (bool) $record['system_default']);
+            static::assertSame($expect['name'], $record['name']);
+            static::assertSame($expect['description'], $record['description']);
+            static::assertSame($expect['headerHtml'], $record['header_html']);
+            static::assertSame($expect['headerPlain'], $record['header_plain']);
+            static::assertSame($expect['footerHtml'], $record['footer_html']);
+            static::assertSame($expect['footerPlain'], $record['footer_plain']);
             unset($data[$record['id']]);
         }
     }
@@ -119,13 +124,13 @@ class MailHeaderFooterRepositoryTest extends TestCase
             $id = $expect['id'];
             $mailHeaderFooter = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
             static::assertInstanceOf(MailHeaderFooterEntity::class, $mailHeaderFooter);
-            static::assertEquals($expect['systemDefault'], $mailHeaderFooter->getSystemDefault());
-            static::assertEquals($expect['name'], $mailHeaderFooter->getName());
-            static::assertEquals($expect['description'], $mailHeaderFooter->getDescription());
-            static::assertEquals($expect['headerHtml'], $mailHeaderFooter->getHeaderHtml());
-            static::assertEquals($expect['headerPlain'], $mailHeaderFooter->getHeaderPlain());
-            static::assertEquals($expect['footerHtml'], $mailHeaderFooter->getFooterHtml());
-            static::assertEquals($expect['footerPlain'], $mailHeaderFooter->getFooterPlain());
+            static::assertSame($expect['systemDefault'], $mailHeaderFooter->getSystemDefault());
+            static::assertSame($expect['name'], $mailHeaderFooter->getName());
+            static::assertSame($expect['description'], $mailHeaderFooter->getDescription());
+            static::assertSame($expect['headerHtml'], $mailHeaderFooter->getHeaderHtml());
+            static::assertSame($expect['headerPlain'], $mailHeaderFooter->getHeaderPlain());
+            static::assertSame($expect['footerHtml'], $mailHeaderFooter->getFooterHtml());
+            static::assertSame($expect['footerPlain'], $mailHeaderFooter->getFooterPlain());
         }
     }
 
@@ -158,13 +163,13 @@ class MailHeaderFooterRepositoryTest extends TestCase
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
-            static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
-            static::assertEquals($expect['name'], $record['name']);
-            static::assertEquals($expect['description'], $record['description']);
-            static::assertEquals($expect['headerHtml'], $record['header_html']);
-            static::assertEquals($expect['headerPlain'], $record['header_plain']);
-            static::assertEquals($expect['footerHtml'], $record['footer_html']);
-            static::assertEquals($expect['footerPlain'], $record['footer_plain']);
+            static::assertSame($expect['systemDefault'], (bool) $record['system_default']);
+            static::assertSame($expect['name'], $record['name']);
+            static::assertSame($expect['description'], $record['description']);
+            static::assertSame($expect['headerHtml'], $record['header_html']);
+            static::assertSame($expect['headerPlain'], $record['header_plain']);
+            static::assertSame($expect['footerHtml'], $record['footer_html']);
+            static::assertSame($expect['footerPlain'], $record['footer_plain']);
             unset($data[$record['id']]);
         }
     }
@@ -198,7 +203,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
     /**
      * Prepare a defined number of test data.
      *
-     * @return array<string, array<string, mixed>>
+     * @return non-empty-array<string, array<string, mixed>>
      */
     private function prepareHeaderFooterTestData(int $num = 1, string $add = ''): array
     {
@@ -217,6 +222,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
                 'footerHtml' => \sprintf('<h1>Test footer %d %s </h1>', $i, $add),
             ];
         }
+        static::assertNotSame([], $data);
 
         return $data;
     }

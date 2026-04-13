@@ -42,12 +42,12 @@ example:
 * Use Symfony flash bags for error reporting to the frontend user
 * Each storefront functionality has to be available inside the store-api too
 * A storefront controller should never contain business logic
-* The controller class requires the annotation: #[Route(defaults: ['_routeScope' => ['storefront']])]
+* The controller class requires the annotation: `#[Route(defaults: [\Shopware\Core\PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [\Shopware\Storefront\Framework\Routing\StorefrontRouteScope::ID]])]`
 * Depending services has to be injected over the class constructor. The only exception is the container, which can be injected with the method `setContainer`
 * Depending services has to be defined in the DI-Container service definition
 * Depending services has to be assigned to a private class property
 * Each storefront controller needs to be declared as a public service. (otherwise the routes can be removed from the container)
-* A storefront controller has to extend the \Shopware\Storefront\Controller\StorefrontController
+* A storefront controller has to extend the `\Shopware\Storefront\Controller\StorefrontController`
 * Using _loginRequired=true defaults parameter to identify whether the Customer is logged in or not.
 * Each storefront functionality needs to make use of a store-api route service. This is to make sure, this functionality is also available via API
 

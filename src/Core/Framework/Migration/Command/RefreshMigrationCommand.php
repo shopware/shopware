@@ -30,7 +30,7 @@ class RefreshMigrationCommand extends Command
 
         $output->writeln('Updating timestamp of migration: ' . $filename);
 
-        if (!file_exists($path)) {
+        if (!\is_file($path)) {
             throw MigrationException::migrationFileDoesNotExist($path);
         }
 
@@ -58,7 +58,7 @@ class RefreshMigrationCommand extends Command
 
     private function getCurrentTimestamp(string $filename): string
     {
-        if (!preg_match('/#Migration(\d+).*?\.php#i/', $filename, $matches)) {
+        if (!preg_match('/Migration(\d+).*?\.php/i', $filename, $matches)) {
             throw MigrationException::couldNotDetermineTimestamp();
         }
 

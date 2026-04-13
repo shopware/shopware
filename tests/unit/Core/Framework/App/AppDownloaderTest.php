@@ -56,7 +56,7 @@ class AppDownloaderTest extends TestCase
         $response = $this->createMock(ResponseInterface::class);
         $response->method('getStatusCode')->willReturn(200);
 
-        $generator = function () use ($response): \Generator {
+        $generator = static function () use ($response): \Generator {
             yield $response => new DataChunk(0, 'chunk1content');
             yield $response => new DataChunk(1, 'chunk2content');
         };
@@ -73,10 +73,10 @@ class AppDownloaderTest extends TestCase
             ->method('appendToFile')
             ->willReturnOnConsecutiveCalls()
             ->willReturnCallback(function (string $file, $content) use ($matcher): void {
-                $this->assertEquals('/path/to/file.zip', $file);
+                $this->assertSame('/path/to/file.zip', $file);
                 match ($matcher->numberOfInvocations()) {
-                    1 => $this->assertEquals('chunk1content', $content),
-                    2 => $this->assertEquals('chunk2content', $content),
+                    1 => $this->assertSame('chunk1content', $content),
+                    2 => $this->assertSame('chunk2content', $content),
                     default => null,
                 };
             });
@@ -91,9 +91,9 @@ class AppDownloaderTest extends TestCase
 
         $this->filesystem->expects($this->once())
             ->method('dumpFile')
-            ->willReturnCallback(function (string $path, $contentResource): void {
-                static::assertEquals('/path/to/file.zip', $path);
-                static::assertEquals('content', stream_get_contents($contentResource));
+            ->willReturnCallback(static function (string $path, $contentResource): void {
+                static::assertSame('/path/to/file.zip', $path);
+                static::assertSame('content', stream_get_contents($contentResource));
             });
 
         $this->appDownloader->downloadFromFilesystem($fs, '/some/file.zip', '/path/to/file.zip');

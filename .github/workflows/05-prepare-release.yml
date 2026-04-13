@@ -24,7 +24,7 @@ jobs:
           - "3306:3306"
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
         with:
           fetch-depth: "0"
           fetch-tags: "true"
@@ -36,15 +36,15 @@ jobs:
           coverage: none
           extensions: gd, xml, dom, curl, pdo, mysqli, mbstring, pdo_mysql, bcmath
 
-      - uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # 4
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: build shopware
         run: |
           composer setup
 
-      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # 4
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # 6.0.0
         with:
           name: context
           include-hidden-files: true
@@ -64,12 +64,12 @@ jobs:
     if: github.repository == 'shopware/shopware' && github.ref_type == 'tag'
     env:
       GH_TOKEN: ${{ github.token }}
-      CHECK_REPOSITORY: 'shopware/recipes'
-      CHECK_WORKFLOW: 'nightly.yml'
-      CHECK_STATUS: 'success'
+      CHECK_REPOSITORY: "shopware/recipes"
+      CHECK_WORKFLOW: "nightly.yml"
+      CHECK_STATUS: "success"
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
         with:
           fetch-depth: 0
       - name: Check whether the nightly workflow of the recipe repository is successful
@@ -79,10 +79,13 @@ jobs:
   split:
     needs: build
     runs-on: ubuntu-24.04
-    environment: ${{ format('manyrepos ({0})', github.ref_type) }}
+    environment: ${{ format('manyrepos_{0}', github.ref_type) }}
     # we use this image to get an older git version, which does not suffer from a performance regression
     container: node:alpine3.19
     if: github.repository == 'shopware/shopware'
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       matrix:
         package:
@@ -97,9 +100,16 @@ jobs:
       GIT_COMMITTER_NAME: "shopwareBot"
       DEBUG: ${{ github.event.act && '1' || '' }}
     steps:
-      - uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # 4
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # 4
         with:
           name: context
+
+      - uses: shopware/octo-sts-action@main
+        id: sts-shopware-split
+        with:
+          scope: shopware
+          identity: ShopwareSplit
+
       - name: Is protected
         if: github.ref_protected
         run: echo 'is protected'
@@ -154,12 +164,12 @@ jobs:
       - name: Push
         if: github.ref_type == 'tag' || github.ref_protected
         run: |
-          bash .github/bin/split.bash push "${{ matrix.package }}" https://git:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware "${{ github.ref_name }}"
+          bash .github/bin/split.bash push "${{ matrix.package }}" https://x-access-token:${{ steps.sts-shopware-split.outputs.token }}@github.com/shopware "${{ github.ref_name }}"
 
       - name: Push temporary branch
         if: github.ref_type != 'tag' && !github.ref_protected && !env.ACT
         run: |
-          bash .github/bin/split.bash push "${{ matrix.package }}" https://git:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware "tmp-${{ github.sha }}"
+          bash .github/bin/split.bash push "${{ matrix.package }}" https://x-access-token:${{ steps.sts-shopware-split.outputs.token }}@github.com/shopware "tmp-${{ github.sha }}"
 
   draft-release-notes:
     needs: split
@@ -169,7 +179,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
         with:
           fetch-depth: 0
       - name: Draft release
@@ -196,8 +206,30 @@ jobs:
     continue-on-error: true
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
       - name: Create sbp release
         run: |
           echo DRY_RUN: "${DRY_RUN}"
           bash .github/bin/sbp_release.bash create "${{ github.ref_type == 'tag' && github.ref_name || 'v6.7.9999999.9999999-dev' }}"
+
+  update-milestones:
+    needs: split
+    runs-on: ubuntu-24.04
+    if: github.repository == 'shopware/shopware' && github.ref_type == 'tag'
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+      - shell: bash
+        run: npm ci --prefix .github/bin/js/
+      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        env:
+          TAG: ${{ github.ref_name }}
+          DRY_RUN: ${{ vars.UPDATE_MILESTONES_DRY_RUN || 'true' }}
+        with:
+          script: |
+            const { updateMilestonesOnRelease } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+            await updateMilestonesOnRelease({github, core, context, fetch})

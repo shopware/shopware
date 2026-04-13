@@ -10,12 +10,16 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('fundamentals@after-sales')]
 class ImportExportExceptionImportRecordEvent extends Event
 {
+    /**
+     * @param array<string, mixed> $record
+     * @param array<string, mixed> $row
+     */
     public function __construct(
         private ?\Throwable $exception,
         private readonly array $record,
         private readonly array $row,
         private readonly Config $config,
-        private readonly Context $context
+        private readonly Context $context,
     ) {
     }
 
@@ -39,11 +43,17 @@ class ImportExportExceptionImportRecordEvent extends Event
         return $this->exception instanceof \Throwable;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getRecord(): array
     {
         return $this->record;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getRow(): array
     {
         return $this->row;

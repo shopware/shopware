@@ -238,6 +238,7 @@
                             v-model:entity-collection="customer.tags"
                             name="sw-field--customer-tags"
                             :label="editMode ? $tc('sw-customer.baseForm.labelTags') : ''"
+                            :placeholder="editMode ? $tc('sw-customer.baseForm.placeholderTags') : ''"
                             class="sw-customer-card__tag-select"
                             :disabled="!editMode"
                             :size="editMode ? 'default' : 'medium'"

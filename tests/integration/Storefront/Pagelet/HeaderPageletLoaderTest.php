@@ -168,7 +168,12 @@ class HeaderPageletLoaderTest extends TestCase
         $domains = [];
 
         foreach ($languages as $language) {
-            $domains[] = ['url' => 'http://test.com/' . $language['id'], 'currencyId' => Defaults::CURRENCY, 'languageId' => $language['id'], 'snippetSetId' => $snippetSetId];
+            $domains[] = [
+                'url' => 'http://test.com/' . $language['id'],
+                'currencyId' => Defaults::CURRENCY,
+                'languageId' => $language['id'],
+                'snippetSetId' => $snippetSetId,
+            ];
         }
 
         return $domains;
@@ -188,6 +193,7 @@ class HeaderPageletLoaderTest extends TestCase
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],
+                'active' => true,
                 'translationCodeId' => $localeId,
             ],
         ], Context::createDefaultContext());

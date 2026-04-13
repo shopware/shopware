@@ -39,7 +39,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
-        static::assertEquals(0, $idSearchResult->getTotal());
+        static::assertSame(0, $idSearchResult->getTotal());
         static::assertEmpty($idSearchResult->getIds());
     }
 
@@ -66,8 +66,8 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
-        static::assertEquals(2, $idSearchResult->getTotal());
-        static::assertEquals(['1', '2'], $idSearchResult->getIds());
+        static::assertSame(2, $idSearchResult->getTotal());
+        static::assertSame(['1', '2'], $idSearchResult->getIds());
     }
 
     public function testHydrateWithoutTotal(): void
@@ -95,7 +95,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
-        static::assertEquals(2, $idSearchResult->getTotal());
+        static::assertSame(2, $idSearchResult->getTotal());
     }
 
     public function testHydrateWithExactTotal(): void
@@ -115,7 +115,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
-        static::assertEquals(2, $idSearchResult->getTotal());
+        static::assertSame(2, $idSearchResult->getTotal());
 
         $criteria->addGroupField(new FieldGrouping('displayGroup'));
         $result = [
@@ -131,7 +131,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
-        static::assertEquals(3, $idSearchResult->getTotal());
+        static::assertSame(3, $idSearchResult->getTotal());
 
         $criteria->addPostFilter(new EqualsFilter('field', 'value'));
         $result = [
@@ -149,7 +149,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
-        static::assertEquals(3, $idSearchResult->getTotal());
+        static::assertSame(3, $idSearchResult->getTotal());
     }
 
     public function testHydrateWithNestedHits(): void
@@ -193,8 +193,8 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
-        static::assertEquals(2, $idSearchResult->getTotal());
-        static::assertEquals(['2', '3'], $idSearchResult->getIds());
+        static::assertSame(2, $idSearchResult->getTotal());
+        static::assertSame(['2', '3'], $idSearchResult->getIds());
     }
 
     public function testHydrateWithIdSorting(): void
@@ -220,7 +220,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
-        static::assertEquals(2, $idSearchResult->getTotal());
-        static::assertEquals(['2', '1'], $idSearchResult->getIds());
+        static::assertSame(2, $idSearchResult->getTotal());
+        static::assertSame(['2', '1'], $idSearchResult->getIds());
     }
 }

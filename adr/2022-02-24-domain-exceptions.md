@@ -70,14 +70,14 @@ namespace Shopware\Core\Content\Product {
     }
 }
 
-// src/Core/Content/Product/Exception/NotFoundException.php
+// src/Core/Content/Product/Exception/ProductNotFoundException.php
 namespace Shopware\Core\Content\Product\Exception {
     class ProductNotFoundException extends ProductException { }
 }
 
 try {
     throw ProductException::notFound();
-} catch (NotFoundException $e) {
+} catch (ProductNotFoundException $e) {
     throw $e;
 }
 ```

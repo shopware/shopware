@@ -23,7 +23,7 @@ class AdministrationNotFoundSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [
                 KernelEvents::EXCEPTION => 'onError',
             ],

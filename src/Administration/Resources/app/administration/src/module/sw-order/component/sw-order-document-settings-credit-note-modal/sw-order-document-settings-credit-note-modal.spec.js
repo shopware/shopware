@@ -1,13 +1,14 @@
 /**
- * @sw-package checkout
+ * @sw-package after-sales
  */
-
 import { mount } from '@vue/test-utils';
+import { DOCUMENT_TYPES } from '../../order.types';
 
 const orderFixture = {
     id: 'order1',
     documents: [
         {
+            id: 'invoice-doc-1000',
             orderId: 'order1',
             sent: true,
             documentMediaFileId: null,
@@ -24,6 +25,7 @@ const orderFixture = {
             },
         },
         {
+            id: 'invoice-doc-1001',
             orderId: 'order1',
             sent: true,
             documentMediaFileId: null,
@@ -40,6 +42,7 @@ const orderFixture = {
             },
         },
         {
+            id: 'delivery-note-doc-1001',
             orderId: 'order1',
             sent: true,
             documentMediaFileId: null,
@@ -92,6 +95,10 @@ const orderFixture = {
     ],
 };
 
+const numberRangeServiceMock = {
+    reserve: jest.fn().mockResolvedValue({ number: 1337 }),
+};
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-document-settings-credit-note-modal', { sync: true }), {
         global: {
@@ -106,7 +113,6 @@ async function createWrapper() {
                 'sw-text-field': true,
                 'sw-datepicker': true,
                 'sw-checkbox-field': true,
-
                 'sw-context-button': {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },
@@ -131,9 +137,7 @@ async function createWrapper() {
                 'sw-help-text': true,
             },
             provide: {
-                numberRangeService: {
-                    reserve: () => Promise.resolve({ number: 1337 }),
-                },
+                numberRangeService: numberRangeServiceMock,
             },
         },
         props: {
@@ -151,10 +155,6 @@ describe('sw-order-document-settings-credit-note-modal', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should compute highlightedItems correctly', async () => {
@@ -318,51 +318,54 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         expect(wrapper.emitted()['loading-document']).toBeTruthy();
     });
 
-    it('should call numberRangeService.reserve if documentNumberPreview equal documentConfig.documentNumber', async () => {
-        const number = 'RESERVE_NUMBER';
-        const spyReserve = jest.spyOn(wrapper.vm.numberRangeService, 'reserve').mockImplementation(() =>
-            Promise.resolve({
-                number,
-            }),
-        );
-
-        await wrapper.setProps({
-            order: {
-                salesChannelId: 'Headless',
-                currency: {
-                    isoCode: 'USD',
+    it.each([
+        { technicalName: DOCUMENT_TYPES.CREDIT_NOTE },
+        { technicalName: DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE },
+        { technicalName: DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE },
+    ])(
+        'should call numberRangeService if documentNumberPreview equal documentNumber: $technicalName',
+        async ({ technicalName }) => {
+            await wrapper.setProps({
+                order: {
+                    salesChannelId: 'Headless',
+                    currency: {
+                        isoCode: 'USD',
+                    },
+                    lineItems: [],
+                    documents: [],
                 },
-                lineItems: [],
-                documents: [],
-            },
-        });
+            });
 
-        await wrapper.setData({
-            documentNumberPreview: 'PREVIEW_NUM_001',
-            documentConfig: {
-                documentNumber: 'PREVIEW_NUM_001',
-            },
-        });
+            await wrapper.setData({
+                documentNumberPreview: 'PREVIEW_NUM_001',
+                documentConfig: {
+                    documentNumber: 'PREVIEW_NUM_001',
+                },
+            });
 
-        await wrapper.setProps({
-            currentDocumentType: {
-                technicalName: 'credit_note',
-            },
-        });
+            await wrapper.setProps({
+                currentDocumentType: {
+                    technicalName,
+                },
+            });
 
-        wrapper.vm.createNotificationInfo = jest.fn();
+            wrapper.vm.createNotificationInfo = jest.fn();
 
-        await wrapper.vm.onCreateDocument();
+            numberRangeServiceMock.reserve.mockClear();
+            await wrapper.vm.onCreateDocument();
 
-        expect(wrapper.vm.createNotificationInfo).toHaveBeenCalledWith({
-            message: 'sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED',
-        });
-        expect(spyReserve).toHaveBeenCalledTimes(1);
-        expect(spyReserve).toHaveBeenCalledWith('document_credit_note', 'Headless', false);
-        expect(wrapper.vm.documentConfig.custom.creditNoteNumber).toEqual(number);
-        expect(wrapper.vm.documentConfig.documentNumber).toEqual(number);
-        expect(wrapper.emitted()['document-create']).toBeTruthy();
-    });
+            expect(wrapper.vm.createNotificationInfo).toHaveBeenCalledWith({
+                message: 'sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED',
+            });
+
+            expect(numberRangeServiceMock.reserve).toHaveBeenCalledTimes(1);
+            expect(numberRangeServiceMock.reserve).toHaveBeenCalledWith('document_credit_note', 'Headless', false);
+
+            expect(wrapper.vm.documentConfig.custom.creditNoteNumber).toBe(1337);
+            expect(wrapper.vm.documentConfig.documentNumber).toBe(1337);
+            expect(wrapper.emitted()['document-create']).toBeTruthy();
+        },
+    );
 
     it('should set document creditNoteNumber if documentNumberPreview not equal config documentNumber', async () => {
         await wrapper.setData({
@@ -378,6 +381,40 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         expect(wrapper.emitted()['document-create']).toBeTruthy();
     });
 
+    it('should reference the selected invoice when creating document', async () => {
+        await wrapper.setData({
+            documentNumberPreview: 'PREVIEW_NUM_001',
+            documentConfig: {
+                documentNumber: 'PREVIEW_NUM_002',
+                custom: {
+                    invoiceNumber: 1000,
+                },
+            },
+        });
+
+        await wrapper.vm.onCreateDocument();
+
+        expect(wrapper.emitted()['document-create']).toBeTruthy();
+        expect(wrapper.emitted()['document-create'][0][2]).toBe('invoice-doc-1000');
+    });
+
+    it('should reference the second invoice when it is selected', async () => {
+        await wrapper.setData({
+            documentNumberPreview: 'PREVIEW_NUM_001',
+            documentConfig: {
+                documentNumber: 'PREVIEW_NUM_002',
+                custom: {
+                    invoiceNumber: 1001,
+                },
+            },
+        });
+
+        await wrapper.vm.onCreateDocument();
+
+        expect(wrapper.emitted()['document-create']).toBeTruthy();
+        expect(wrapper.emitted()['document-create'][0][2]).toBe('invoice-doc-1001');
+    });
+
     it('should show only invoice numbers in invoice number select field', async () => {
         const invoiceSelect = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select input');
         await invoiceSelect.trigger('click');
@@ -389,27 +426,49 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         expect(invoiceOptions.at(1).text()).toBe('1001');
     });
 
-    it('should disable create button if there is no selected invoice', async () => {
-        const createButton = wrapper.findComponent('.sw-order-document-settings-modal__create');
-        expect(createButton.attributes('disabled')).toBeDefined();
+    it('should allow any text input in the document number field', async () => {
+        const documentNumberFieldInput = wrapper.findByLabel('sw-order.documentModal.labelDocumentNumber');
+        expect(documentNumberFieldInput.exists()).toBeTruthy();
 
-        const createContextMenu = wrapper.findAllComponents('.sw-context-button').at(1);
-        expect(createContextMenu.attributes('disabled')).toBe('true');
+        await documentNumberFieldInput.setValue('Prefix-1000-Suffix');
+        expect(documentNumberFieldInput.element.value).toBe('Prefix-1000-Suffix');
     });
 
-    it('should enable create button if there is at least one selected invoice', async () => {
-        const invoiceSelect = wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select input');
-        await invoiceSelect.trigger('click');
+    it('should disable/enable create & preview buttons by selected invoice value', async () => {
+        const documentConfig = {
+            documentNumber: 'PREVIEW_NUM_001',
+            documentDate: '2024/01/01',
+        };
+
+        await wrapper.setData({
+            documentConfig,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-order-document-settings-credit-note-modal__document-number input').element.value).toBe(
+            documentConfig.documentNumber,
+        );
+        expect(wrapper.find('.sw-order-document-settings-credit-note-modal__document-date input').element.value).toBe(
+            documentConfig.documentDate,
+        );
+        expect(wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select input').element.value).toBe('');
+
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button').attributes()).toHaveProperty('disabled');
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button-arrow').attributes('disabled')).toBe('true');
+        expect(wrapper.find('.sw-order-document-settings-modal__create').attributes()).toHaveProperty('disabled');
+        expect(wrapper.find('.sw-order-document-settings-modal__create-arrow').attributes('disabled')).toBe('true');
+
+        await wrapper.find('.sw-order-document-settings-credit-note-modal__invoice-select input').trigger('click');
 
         const invoiceOptions = wrapper.find('.mt-select-result-list-popover').findAll('.mt-select-result');
-
         await invoiceOptions.at(0).trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const createButton = wrapper.find('.sw-order-document-settings-modal__create');
-        expect(createButton.attributes().disabled).toBeUndefined();
-
-        const createContextMenu = wrapper.find('.sw-context-button');
-        expect(createContextMenu.attributes().disabled).toBeUndefined();
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button').attributes()).not.toHaveProperty(
+            'disabled',
+        );
+        expect(wrapper.find('.sw-order-document-settings-modal__preview-button-arrow').attributes('disabled')).toBe('false');
+        expect(wrapper.find('.sw-order-document-settings-modal__create').attributes()).not.toHaveProperty('disabled');
+        expect(wrapper.find('.sw-order-document-settings-modal__create-arrow').attributes('disabled')).toBe('false');
     });
 });

@@ -118,11 +118,11 @@ export default {
         },
 
         addEventListeners() {
-            window.addEventListener('beforeunload', (event) => this.beforeUnloadListener(event));
+            window.addEventListener('beforeunload', this.beforeUnloadListener);
         },
 
         removeEventListeners() {
-            window.removeEventListener('beforeunload', (event) => this.beforeUnloadListener(event));
+            window.removeEventListener('beforeunload', this.beforeUnloadListener);
         },
 
         beforeUnloadListener(event) {

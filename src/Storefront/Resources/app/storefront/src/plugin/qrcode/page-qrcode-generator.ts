@@ -12,7 +12,7 @@ export default class PageQrcodeGeneratorPlugin extends Plugin {
 
     public static options = {
         errorCorrectionLevel: 'H',
-        width: 256,
+        width: 300,
     };
 
     /**

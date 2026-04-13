@@ -1,7 +1,5 @@
-import type { PropType } from 'vue';
 import type { Editor } from '@tiptap/vue-3';
-// eslint-disable-next-line max-len
-import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/components/form/mt-text-editor/_internal/mt-text-editor-toolbar';
+import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbar';
 import template from './sw-text-editor-toolbar-button-link.html.twig';
 import './sw-text-editor-toolbar-button-link.scss';
 import type EntityCollectionType from '../../../../../core/data/entity-collection.data';
@@ -19,7 +17,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
  * @status ready
  * @description Custom link button for the Meteor text editor.
  */
-Shopware.Component.register('sw-text-editor-toolbar-button-link', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: [
@@ -178,19 +176,25 @@ Shopware.Component.register('sw-text-editor-toolbar-button-link', {
     },
 
     methods: {
+        // Helper to get typed Editor. Needed because Options API doesn't infer `this` context types.
+        // Can be removed when migrating to Composition API with defineComponent().
+        getEditor(): Editor {
+            return this.editor;
+        },
         async openLinkModal() {
             this.isLoading = true;
             this.showLinkModal = true;
 
             // Get current link from selection
-            this.linkHref = (this.editor.getAttributes('link').href as string) ?? '';
-            this.linkTarget = (this.editor.getAttributes('link').target as string) ?? '';
+            const editor = this.getEditor();
+            this.linkHref = (editor.getAttributes('link').href as string) ?? '';
+            this.linkTarget = (editor.getAttributes('link').target as string) ?? '';
 
             // Parse link type
             const { linkType, linkHref } = await this.parseLink(this.linkHref);
 
             // Parse link class
-            this.displayAsButton = (this.editor.getAttributes('link').class as string)?.includes('btn');
+            this.displayAsButton = (editor.getAttributes('link').class as string)?.includes('btn');
 
             if (this.displayAsButton) {
                 this.buttonVariant = this.parseButtonClass();
@@ -252,7 +256,7 @@ Shopware.Component.register('sw-text-editor-toolbar-button-link', {
 
         parseButtonClass(): string {
             // Get the correct button type from the class
-            const fullButtonClass = (this.editor.getAttributes('link').class as string) ?? '';
+            const fullButtonClass = (this.getEditor().getAttributes('link').class as string) ?? '';
             const buttonClasses = fullButtonClass.split(' ');
 
             const buttonVariant = this.buttonVariantList.find((variant) => {
@@ -276,7 +280,7 @@ Shopware.Component.register('sw-text-editor-toolbar-button-link', {
 
             this.prepareTarget();
 
-            this.editor
+            this.getEditor()
                 .chain()
                 .focus()
                 .extendMarkRange('link')
@@ -291,13 +295,13 @@ Shopware.Component.register('sw-text-editor-toolbar-button-link', {
         },
 
         removeLink() {
-            this.editor.chain().focus().unsetLink().run();
+            this.getEditor().chain().focus().unsetLink().run();
 
             this.showLinkModal = false;
         },
 
         isLink() {
-            return this.editor.isActive('link');
+            return this.getEditor().isActive('link');
         },
 
         prepareLink() {

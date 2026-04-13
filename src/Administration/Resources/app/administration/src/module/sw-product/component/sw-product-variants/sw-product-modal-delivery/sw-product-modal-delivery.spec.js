@@ -38,14 +38,6 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery', () => {
-    it('should be a Vue.JS component', async () => {
-        global.activeAclRoles = [];
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have an disabled save button', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();

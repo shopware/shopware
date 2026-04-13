@@ -37,11 +37,6 @@ async function createWrapper({ provide, ...additionalOptions } = {}) {
 }
 
 describe('components/form/sw-url-field', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should validate the url correctly', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

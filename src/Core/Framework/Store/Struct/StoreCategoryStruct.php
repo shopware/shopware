@@ -4,9 +4,6 @@ namespace Shopware\Core\Framework\Store\Struct;
 
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class StoreCategoryStruct extends StoreStruct
 {
@@ -14,7 +11,7 @@ class StoreCategoryStruct extends StoreStruct
 
     protected string $name;
 
-    protected ?int $parent;
+    protected ?int $parent = null;
 
     /**
      * @var array<string, mixed>

@@ -317,6 +317,50 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 id: '23456787654321234567876577',
                 translations: [],
             },
+            {
+                locked: false,
+                key: 'creation-date',
+                value: 'creation-date',
+                position: 1,
+                active: true,
+                fields: [
+                    {
+                        field: 'product.createdAt',
+                        order: 'asc',
+                        position: 1,
+                        naturalSorting: 0,
+                    },
+                ],
+                label: 'Creation Date',
+                createdAt: '2020-08-10T06:19:53.126+00:00',
+                updatedAt: null,
+                translated: { label: 'Creation Date' },
+                apiAlias: null,
+                id: '23456787654321234567876566',
+                translations: [],
+            },
+            {
+                locked: false,
+                key: 'availability',
+                value: 'availability',
+                position: 1,
+                active: true,
+                fields: [
+                    {
+                        field: 'product.available',
+                        order: 'desc',
+                        position: 1,
+                        naturalSorting: 0,
+                    },
+                ],
+                label: 'Availability',
+                createdAt: '2020-08-10T06:19:53.126+00:00',
+                updatedAt: null,
+                translated: { label: 'Availability' },
+                apiAlias: null,
+                id: '23456787654321234567876555',
+                translations: [],
+            },
         ];
 
         entities.total = entities.length;
@@ -360,6 +404,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.number': 'Number',
         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.ratingAverage': 'Rating Average',
         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.clearanceSale': 'Clearance sale',
+        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.createdAt': 'Creation date',
+        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.available': 'Available',
     };
 
     async function createWrapper() {
@@ -564,10 +610,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         };
 
         await flushPromises();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have a pagination', async () => {

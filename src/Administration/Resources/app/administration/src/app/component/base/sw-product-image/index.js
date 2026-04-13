@@ -1,8 +1,6 @@
 import template from './sw-product-image.html.twig';
 import './sw-product-image.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -13,7 +11,7 @@ const { Component } = Shopware;
  * @component-example
  * <sw-image :item="item" isCover="true"></sw-image>
  */
-Component.register('sw-product-image', {
+export default {
     template,
 
     emits: [
@@ -60,7 +58,6 @@ Component.register('sw-product-image', {
         showCoverLabel: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -74,4 +71,4 @@ Component.register('sw-product-image', {
             };
         },
     },
-});
+};

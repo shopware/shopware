@@ -44,11 +44,11 @@ class DatabaseSalesChannelThemeLoaderTest extends TestCase
         $salesChannelId = Uuid::randomHex();
 
         $actualTheme = $this->themeLoader->load($salesChannelId);
-        static::assertEquals($expectedTheme, $actualTheme);
+        static::assertSame($expectedTheme, $actualTheme);
 
         $otherSalesChannelId = Uuid::randomHex();
         $secondAttempt = $this->themeLoader->load($otherSalesChannelId);
-        static::assertEquals([], $secondAttempt);
+        static::assertSame([], $secondAttempt);
     }
 
     public function testLoadMultiple(): void
@@ -84,10 +84,50 @@ class DatabaseSalesChannelThemeLoaderTest extends TestCase
         $salesChannelId = Uuid::randomHex();
 
         $actualTheme = $this->themeLoader->load($salesChannelId);
-        static::assertEquals($expectedTheme, $actualTheme);
+        static::assertSame($expectedTheme, $actualTheme);
 
         $otherSalesChannelId = Uuid::randomHex();
         $secondAttempt = $this->themeLoader->load($otherSalesChannelId);
-        static::assertEquals([], $secondAttempt);
+        static::assertSame([], $secondAttempt);
+    }
+
+    public function testLoadWithMissingThemeNameUsesParentTheme(): void
+    {
+        $expectedDB = [
+            'themeName' => null,
+            'parentThemeName' => 'SwagTheme',
+            'themeId' => Uuid::randomHex(),
+        ];
+
+        $this->connection->expects($this->once())->method('fetchAssociative')->willReturn($expectedDB);
+
+        $actualTheme = $this->themeLoader->load(Uuid::randomHex());
+        static::assertSame(['SwagTheme'], $actualTheme);
+    }
+
+    public function testGrandParentThemeWithMissingThemeNameIsReindexed(): void
+    {
+        // When the grandparent's themeName is null, array_filter leaves a gap at index 0.
+        // array_values ensures the result is contiguous so assertSame (key-strict) passes.
+        $salesChannelTheme = [
+            'themeName' => 'ChildTheme',
+            'parentThemeName' => 'ParentTheme',
+            'themeId' => Uuid::randomHex(),
+            'grandParentThemeId' => Uuid::randomHex(),
+        ];
+
+        $grandParentTheme = [
+            'themeName' => null,
+            'parentThemeName' => 'GrandParentTheme',
+            'grandParentThemeId' => null,
+        ];
+
+        $this->connection->expects($this->exactly(2))
+            ->method('fetchAssociative')
+            ->willReturnOnConsecutiveCalls($salesChannelTheme, $grandParentTheme);
+
+        $actualTheme = $this->themeLoader->load(Uuid::randomHex());
+
+        static::assertSame(['ChildTheme', 'ParentTheme', 'GrandParentTheme'], $actualTheme);
     }
 }

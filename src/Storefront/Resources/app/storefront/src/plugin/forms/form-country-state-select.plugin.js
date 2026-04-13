@@ -84,7 +84,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         const countrySelect = event.target.options[event.target.selectedIndex];
         const stateRequired = !!countrySelect.getAttribute(this.options.stateRequired);
         this.requestStateData(countryId, null, stateRequired);
-        const vatIdRequired = countrySelect.getAttribute(this.options.vatIdRequired);
+        const vatIdRequired = !!countrySelect.getAttribute(this.options.vatIdRequired);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
 
         const zipcodeInputs = this.scopeElement.querySelectorAll(this.options.zipcodeFieldInput);
@@ -98,11 +98,7 @@ export default class CountryStateSelectPlugin extends Plugin {
     }
 
     requestStateData(countryId, countryStateId = null, stateRequired = false) {
-        const payload = JSON.stringify({ countryId });
-
-        fetch(window.router['frontend.country.country-data'], {
-            method: 'POST',
-            body: payload,
+        fetch(`${window.router['frontend.country.country-data']}?countryId=${encodeURIComponent(countryId)}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 'Content-Type': 'application/json',

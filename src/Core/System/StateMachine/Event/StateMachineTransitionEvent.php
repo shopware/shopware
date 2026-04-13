@@ -10,28 +10,14 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 #[Package('checkout')]
 class StateMachineTransitionEvent extends NestedEvent
 {
-    protected string $entityName;
-
-    protected string $entityId;
-
-    protected StateMachineStateEntity $fromPlace;
-
-    protected StateMachineStateEntity $toPlace;
-
-    protected Context $context;
-
     public function __construct(
-        string $entityName,
-        string $entityId,
-        StateMachineStateEntity $fromPlace,
-        StateMachineStateEntity $toPlace,
-        Context $context
+        protected string $entityName,
+        protected string $entityId,
+        protected StateMachineStateEntity $fromPlace,
+        protected StateMachineStateEntity $toPlace,
+        protected Context $context,
+        protected ?string $internalComment = null,
     ) {
-        $this->entityName = $entityName;
-        $this->entityId = $entityId;
-        $this->fromPlace = $fromPlace;
-        $this->toPlace = $toPlace;
-        $this->context = $context;
     }
 
     public function getEntityName(): string
@@ -57,5 +43,10 @@ class StateMachineTransitionEvent extends NestedEvent
     public function getContext(): Context
     {
         return $this->context;
+    }
+
+    public function getInternalComment(): ?string
+    {
+        return $this->internalComment;
     }
 }

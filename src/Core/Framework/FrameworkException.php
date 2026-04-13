@@ -5,10 +5,8 @@ namespace Shopware\Core\Framework;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('framework')]
 class FrameworkException extends HttpException
 {
@@ -148,5 +146,10 @@ class FrameworkException extends HttpException
             'Can not find association by name {{ association }}',
             ['association' => $association]
         );
+    }
+
+    public static function unexpectedType(mixed $givenType, string $expectedType): UnexpectedTypeException
+    {
+        return new UnexpectedTypeException($givenType, $expectedType);
     }
 }

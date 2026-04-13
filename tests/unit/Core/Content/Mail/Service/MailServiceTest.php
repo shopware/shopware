@@ -14,6 +14,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -21,12 +22,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Header\HeaderInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -53,7 +56,7 @@ class MailServiceTest extends TestCase
     private MailService $mailService;
 
     /**
-     * @var MockObject&EntityRepository
+     * @var MockObject&EntityRepository<SalesChannelCollection>
      */
     private EntityRepository $salesChannelRepository;
 
@@ -67,6 +70,11 @@ class MailServiceTest extends TestCase
      */
     private AbstractMailSender $mailSender;
 
+    /**
+     * @var MockObject&LanguageLocaleCodeProvider
+     */
+    private LanguageLocaleCodeProvider $languageLocaleCodeProvider;
+
     protected function setUp(): void
     {
         $this->mailFactory = $this->createMock(AbstractMailFactory::class);
@@ -75,6 +83,7 @@ class MailServiceTest extends TestCase
         $this->salesChannelRepository = $this->createMock(EntityRepository::class);
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->mailSender = $this->createMock(AbstractMailSender::class);
+        $this->languageLocaleCodeProvider = $this->createMock(LanguageLocaleCodeProvider::class);
 
         $this->mailService = new MailService(
             $this->createMock(DataValidator::class),
@@ -86,6 +95,7 @@ class MailServiceTest extends TestCase
             $this->createMock(SystemConfigService::class),
             $this->eventDispatcher,
             $this->logger,
+            $this->languageLocaleCodeProvider,
         );
     }
 
@@ -178,7 +188,7 @@ class MailServiceTest extends TestCase
         $this->logger->expects($this->once())->method('log')->with(Level::Warning);
         $this->eventDispatcher->expects($this->exactly(2))
             ->method('dispatch')
-            ->willReturnCallback(function (Event $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
+            ->willReturnCallback(static function (Event $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
                 if ($event instanceof MailBeforeValidateEvent) {
                     $beforeValidateEvent = $event;
 
@@ -197,7 +207,7 @@ class MailServiceTest extends TestCase
         static::assertNull($email);
         static::assertNotNull($beforeValidateEvent);
         static::assertInstanceOf(MailErrorEvent::class, $mailErrorEvent);
-        static::assertEquals(Level::Warning, $mailErrorEvent->getLogLevel());
+        static::assertSame(Level::Warning, $mailErrorEvent->getLogLevel());
         static::assertNotNull($mailErrorEvent->getMessage());
 
         $message = 'Could not render Mail-Subject with error message: cannot render';
@@ -232,7 +242,7 @@ class MailServiceTest extends TestCase
         $data = [
             'recipients' => [],
             'subject' => 'Test email',
-            'senderName' => 'me@shopware.com',
+            'senderName' => null,
             'contentPlain' => 'Content plain',
             'contentHtml' => 'Content html',
             'salesChannelId' => $salesChannelId,
@@ -304,7 +314,7 @@ class MailServiceTest extends TestCase
 
         $this->eventDispatcher
             ->method('dispatch')
-            ->willReturnCallback(function (Event $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
+            ->willReturnCallback(static function (Event $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
                 if ($event instanceof MailBeforeValidateEvent) {
                     $beforeValidateEvent = $event;
 
@@ -323,10 +333,69 @@ class MailServiceTest extends TestCase
         static::assertNull($email);
         static::assertNotNull($beforeValidateEvent);
         static::assertInstanceOf(MailErrorEvent::class, $mailErrorEvent);
-        static::assertEquals(Level::Error, $mailErrorEvent->getLogLevel());
+        static::assertSame(Level::Error, $mailErrorEvent->getLogLevel());
         static::assertNotNull($mailErrorEvent->getMessage());
         static::assertSame('Could not send mail with error message: Mail sending failed', $mailErrorEvent->getMessage());
         static::assertSame('Content html', $mailErrorEvent->getTemplate());
         static::assertEmpty($mailErrorEvent->getTemplateData());
+    }
+
+    public function testMailInTestModeHasNoEmptyHeaders(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId($salesChannelId);
+        $context = Context::createDefaultContext();
+
+        $salesChannelResult = new EntitySearchResult(
+            'sales_channel',
+            1,
+            new SalesChannelCollection([$salesChannel]),
+            null,
+            new Criteria(),
+            $context
+        );
+
+        $this->salesChannelRepository->expects($this->once())->method('search')->willReturn($salesChannelResult);
+
+        $data = [
+            'testMode' => true,
+            'recipients' => [],
+            'senderName' => 'me',
+            'senderEmail' => 'me@shopware.com',
+            'subject' => 'Test email',
+            'contentPlain' => 'Content plain',
+            'contentHtml' => 'Content html',
+            'salesChannelId' => $salesChannelId,
+        ];
+
+        $email = (new Email())->subject($data['subject'])
+            ->html($data['contentHtml'])
+            ->text($data['contentPlain'])
+            ->to('me@shopware.com')
+            ->from(new Address($data['senderEmail']));
+
+        $this->mailFactory->expects($this->once())->method('create')->willReturn($email);
+        $this->templateRenderer->expects($this->exactly(4))->method('render')->willReturn('');
+        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch')->willReturnOnConsecutiveCalls(
+            static::isInstanceOf(MailBeforeValidateEvent::class),
+            static::isInstanceOf(MailBeforeSentEvent::class),
+            static::isInstanceOf(MailSentEvent::class)
+        );
+        $this->languageLocaleCodeProvider->expects($this->once())->method('getLocaleForLanguageId')->willReturn('en-GB');
+
+        $email = $this->mailService->send($data, Context::createDefaultContext());
+
+        static::assertInstanceOf(Email::class, $email);
+        $headers = $email->getHeaders();
+        static::assertSame(Defaults::LANGUAGE_SYSTEM, $headers->get('X-Shopware-Language-Id')?->getBody());
+        static::assertSame($salesChannelId, $headers->get('X-Shopware-Sales-Channel-Id')?->getBody());
+
+        // check that no header is empty (e.g. Amazon SES doesn't like that)
+        foreach ($headers->all() as $header) {
+            static::assertInstanceOf(HeaderInterface::class, $header);
+            static::assertNotEmpty($header->getBodyAsString(), 'mail header ' . $header->getName() . ' should not be empty');
+        }
     }
 }

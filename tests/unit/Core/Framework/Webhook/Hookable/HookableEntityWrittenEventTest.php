@@ -27,8 +27,8 @@ class HookableEntityWrittenEventTest extends TestCase
         $entityId = Uuid::randomHex();
         $event = HookableEntityWrittenEvent::fromWrittenEvent($this->getEntityWrittenEvent($entityId));
 
-        static::assertEquals('product.written', $event->getName());
-        static::assertEquals([
+        static::assertSame('product.written', $event->getName());
+        static::assertSame([
             [
                 'entity' => 'product',
                 'operation' => 'delete',
@@ -46,8 +46,8 @@ class HookableEntityWrittenEventTest extends TestCase
             ['versionId' => Defaults::LIVE_VERSION]
         ));
 
-        static::assertEquals('product.written', $event->getName());
-        static::assertEquals([
+        static::assertSame('product.written', $event->getName());
+        static::assertSame([
             [
                 'entity' => 'product',
                 'operation' => 'delete',

@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
@@ -53,6 +54,9 @@ class JsonApiEncoderTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     protected function setUp(): void
@@ -246,7 +250,7 @@ class JsonApiEncoderTest extends TestCase
                 continue;
             }
             static::assertNotEmpty($included['relationships']['toOne']['data'], 'The relationship data to the loaded extension association is missing');
-            static::assertEquals('extended_product', $included['relationships']['toOne']['data']['type']);
+            static::assertSame('extended_product', $included['relationships']['toOne']['data']['type']);
             static::assertNotEmpty($included['relationships']['toOne']['data']['id']);
         }
     }
@@ -295,7 +299,7 @@ class JsonApiEncoderTest extends TestCase
             }
             static::assertNotEmpty($included['relationships']['oneToMany']['data'], 'The relationship data to the loaded extension association is missing');
             static::assertCount(2, $included['relationships']['oneToMany']['data']);
-            static::assertEquals('extended_product', $included['relationships']['oneToMany']['data'][0]['type']);
+            static::assertSame('extended_product', $included['relationships']['oneToMany']['data'][0]['type']);
             static::assertNotEmpty($included['relationships']['oneToMany']['data'][0]['id']);
         }
     }
@@ -319,7 +323,7 @@ class JsonApiEncoderTest extends TestCase
 
         $actual = json_decode((string) $encoder->encode(new Criteria(), $definition, $struct, SerializationFixture::API_BASE_URL), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals($output, $actual['data']['attributes']['customFields']);
+        static::assertSame($output, $actual['data']['attributes']['customFields']);
     }
 
     public static function customFieldsProvider(): \Generator
@@ -395,7 +399,7 @@ class JsonApiEncoderTest extends TestCase
             if (\is_array($value)) {
                 $this->assertValues($value, $actual[$key]);
             } else {
-                static::assertEquals($value, $actual[$key], 'Key: ' . $key);
+                static::assertSame($value, $actual[$key], 'Key: ' . $key);
             }
         }
     }

@@ -10,7 +10,6 @@ async function createWrapper(options = {}) {
     const pages = [];
 
     for (let i = 0; i < 5; i += 1) {
-        // eslint-disable-next-line no-await-in-loop
         const page = await wrapTestComponent('sw-wizard-page');
         page.props = {
             position: i,
@@ -47,12 +46,6 @@ async function createWrapper(options = {}) {
     });
 }
 describe('src/app/component/wizard/sw-wizard', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have a pages count of 5', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -5,13 +5,13 @@
 import './sw-single-select.scss';
 import template from './sw-single-select.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 /**
  * @private
  */
-Component.register('sw-single-select', {
+export default {
     template,
 
     inject: ['feature'],
@@ -34,7 +34,6 @@ Component.register('sw-single-select', {
             required: true,
             type: Array,
         },
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },
@@ -46,7 +45,6 @@ Component.register('sw-single-select', {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         placeholder: {
@@ -96,6 +94,11 @@ Component.register('sw-single-select', {
         },
 
         label: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
+        autocomplete: {
             type: String,
             required: false,
             default: undefined,
@@ -251,4 +254,4 @@ Component.register('sw-single-select', {
             this.setValue(null);
         },
     },
-});
+};

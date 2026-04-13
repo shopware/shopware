@@ -12,11 +12,6 @@ const mockItem = {
     orderCustomer: {
         customerId: '2',
     },
-    addresses: [
-        {
-            street: '123 Random street',
-        },
-    ],
     currency: {
         isoCode: 'EUR',
     },
@@ -27,28 +22,57 @@ const mockItem = {
     salesChannel: {
         name: 'Test',
     },
-    transactions: new EntityCollection(null, null, null, new Criteria(1, 25), [
-        {
-            stateMachineState: {
-                technicalName: 'open',
-                name: 'Open',
-                translated: { name: 'Open' },
-            },
+    primaryOrderTransaction: {
+        stateMachineState: {
+            technicalName: 'open',
+            name: 'Open',
+            translated: { name: 'Open' },
         },
-    ]),
-    deliveries: [
-        {
-            stateMachineState: {
-                technicalName: 'open',
-                name: 'Open',
-                translated: { name: 'Open' },
-            },
+    },
+    primaryOrderDelivery: {
+        stateMachineState: {
+            technicalName: 'open',
+            name: 'Open',
+            translated: { name: 'Open' },
         },
-    ],
+        shippingOrderAddress: {
+            street: '123 Random street',
+            zipcode: '12345',
+            city: 'Random City',
+        },
+    },
     billingAddress: {
         street: '123 Random street',
+        zipcode: '12345',
+        city: 'Random City',
     },
 };
+
+if (!Shopware.Feature.isActive('v6.8.0.0')) {
+    mockItem.addresses = [
+        {
+            street: '123 Random street',
+        },
+    ];
+    mockItem.transactions = new EntityCollection(null, null, null, new Criteria(1, 25), [
+        {
+            stateMachineState: {
+                technicalName: 'open',
+                name: 'Open',
+                translated: { name: 'Open' },
+            },
+        },
+    ]);
+    mockItem.deliveries = [
+        {
+            stateMachineState: {
+                technicalName: 'open',
+                name: 'Open',
+                translated: { name: 'Open' },
+            },
+        },
+    ];
+}
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-list', { sync: true }), {
@@ -70,7 +94,6 @@ async function createWrapper() {
                 'sw-context-menu-item': true,
                 'sw-pagination': true,
                 'sw-data-grid-settings': true,
-                'sw-empty-state': true,
                 'router-link': {
                     template: '<a><slot></slot></a>',
                 },
@@ -109,10 +132,19 @@ async function createWrapper() {
                     buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                         return criteria;
                     },
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
                 },
             },
             mocks: {
-                $route: { query: '' },
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
+                },
             },
         },
     });
@@ -126,12 +158,6 @@ Shopware.Service().register('filterService', () => {
 
 describe('src/module/sw-order/page/sw-order-list', () => {
     let wrapper;
-
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
 
     it('should have an disabled add button', async () => {
         global.activeAclRoles = [];
@@ -162,6 +188,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                     ...mockItem,
                 },
             ],
+            total: 2,
         });
 
         const firstRow = wrapper.find('.sw-data-grid__row--0');
@@ -169,6 +196,43 @@ describe('src/module/sw-order/page/sw-order-list', () => {
 
         expect(firstRow.find('.sw-order-list__manual-order-label').exists()).toBeTruthy();
         expect(secondRow.find('.sw-order-list__manual-order-label').exists()).toBeFalsy();
+    });
+
+    it('should render comment tooltip buttons depending on available comments', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
+        await wrapper.setData({
+            orders: [
+                {
+                    ...mockItem,
+                    customerComment: 'Customer comment',
+                    internalComment: 'Internal comment',
+                },
+                {
+                    ...mockItem,
+                    customerComment: 'Customer comment',
+                    internalComment: null,
+                },
+                {
+                    ...mockItem,
+                    customerComment: null,
+                    internalComment: 'Internal comment',
+                },
+            ],
+            total: 3,
+        });
+
+        const firstRowButtons = wrapper.find('.sw-data-grid__row--0').findAll('.sw-order-list__tooltip-order-comment');
+        const secondRowButtons = wrapper.find('.sw-data-grid__row--1').findAll('.sw-order-list__tooltip-order-comment');
+        const thirdRowButtons = wrapper.find('.sw-data-grid__row--2').findAll('.sw-order-list__tooltip-order-comment');
+
+        expect(firstRowButtons).toHaveLength(2);
+        expect(firstRowButtons.at(0).classes()).toContain('mt-button--secondary');
+        expect(firstRowButtons.at(1).classes()).toContain('mt-button--primary');
+        expect(secondRowButtons).toHaveLength(1);
+        expect(secondRowButtons.at(0).classes()).toContain('mt-button--secondary');
+        expect(thirdRowButtons).toHaveLength(1);
+        expect(thirdRowButtons.at(0).classes()).toContain('mt-button--primary');
     });
 
     it('should contain empty customer', async () => {
@@ -191,6 +255,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                     orderCustomer: null,
                 },
             ],
+            total: 2,
         });
 
         const firstRow = wrapper.find('.sw-data-grid__row--0');
@@ -287,11 +352,9 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state')).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 
@@ -301,29 +364,13 @@ describe('src/module/sw-order/page/sw-order-list', () => {
     it('should show correct label for payment status', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
-        mockItem.transactions = new EntityCollection(null, null, null, new Criteria(1, 25), [
-            {
-                stateMachineState: {
-                    technicalName: 'cancelled',
-                    name: 'Cancelled',
-                    translated: { name: 'Cancelled' },
-                },
+        mockItem.primaryOrderTransaction = {
+            stateMachineState: {
+                technicalName: 'paid',
+                name: 'Paid',
+                translated: { name: 'Paid' },
             },
-            {
-                stateMachineState: {
-                    technicalName: 'paid',
-                    name: 'Paid',
-                    translated: { name: 'Paid' },
-                },
-            },
-            {
-                stateMachineState: {
-                    technicalName: 'open',
-                    name: 'Open',
-                    translated: { name: 'Open' },
-                },
-            },
-        ]);
+        };
 
         await wrapper.setData({
             orders: [
@@ -335,6 +382,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                     ...mockItem,
                 },
             ],
+            total: 2,
         });
 
         const firstRow = wrapper.findAll('.sw-data-grid__cell .sw-data-grid__cell-content');
@@ -344,6 +392,9 @@ describe('src/module/sw-order/page/sw-order-list', () => {
     it('should push to a new route when editing items', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
+        await wrapper.setData({
+            total: 2,
+        });
         wrapper.vm.$router.push = jest.fn();
         wrapper.vm.$refs.orderGrid.selection = { foo: { deliveries: [] } };
         await wrapper.vm.onBulkEditItems();
@@ -367,14 +418,14 @@ describe('src/module/sw-order/page/sw-order-list', () => {
 
         expect(criteria.getLimit()).toBe(25);
         [
-            'addresses',
             'billingAddress',
             'salesChannel',
             'orderCustomer',
             'currency',
             'documents',
-            'deliveries',
-            'transactions',
+            'stateMachineState',
+            'primaryOrderTransaction',
+            'primaryOrderDelivery',
         ].forEach((association) => expect(criteria.hasAssociation(association)).toBe(true));
     });
 
@@ -383,9 +434,9 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         wrapper = await createWrapper();
         const criteria = wrapper.vm.orderCriteria;
 
-        expect(criteria.hasAssociation('stateMachineState')).toBe(true);
-        expect(criteria.getAssociation('deliveries').hasAssociation('stateMachineState')).toBe(true);
-        expect(criteria.getAssociation('transactions').hasAssociation('stateMachineState')).toBe(true);
+        expect(criteria.getAssociation('primaryOrderDelivery').hasAssociation('stateMachineState')).toBe(true);
+        expect(criteria.getAssociation('primaryOrderDelivery').hasAssociation('shippingOrderAddress')).toBe(true);
+        expect(criteria.getAssociation('primaryOrderTransaction').hasAssociation('stateMachineState')).toBe(true);
     });
 
     it('should contain a computed property, called: listFilterOptions', async () => {
@@ -456,5 +507,16 @@ describe('src/module/sw-order/page/sw-order-list', () => {
                 limit: 1,
             }),
         );
+    });
+
+    it('should consider criteria filters via updateCriteria', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const filter = Criteria.equals('foo', 'bar');
+        wrapper.vm.updateCriteria([filter]);
+        await flushPromises();
+
+        expect(wrapper.vm.filterCriteria).toContainEqual(filter);
     });
 });

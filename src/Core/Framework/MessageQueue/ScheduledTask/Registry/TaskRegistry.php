@@ -7,8 +7,10 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
@@ -53,9 +55,47 @@ class TaskRegistry
 
         $deletionPayload = $this->getDeletionPayload($alreadyRegisteredTasks);
 
-        if (\count($deletionPayload) > 0) {
+        if ($deletionPayload !== []) {
             $this->scheduledTaskRepository->delete($deletionPayload, $context);
         }
+    }
+
+    public function scheduleTask(string $name, bool $immediately, bool $force, Context $context): string
+    {
+        $scheduledTask = $this->fetchScheduledTask($name, $context);
+
+        if (!$force && \in_array($scheduledTask->getStatus(), [ScheduledTaskDefinition::STATUS_QUEUED, ScheduledTaskDefinition::STATUS_RUNNING], true)) {
+            return $scheduledTask->getStatus();
+        }
+
+        $data = [
+            'id' => $scheduledTask->getId(),
+            'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
+        ];
+
+        if ($immediately) {
+            $data['nextExecutionTime'] = new \DateTimeImmutable();
+        }
+
+        $this->scheduledTaskRepository->update([$data], $context);
+
+        return $this->fetchScheduledTask($name, $context)->getStatus();
+    }
+
+    public function deactivateTask(string $name, bool $force, Context $context): string
+    {
+        $scheduledTask = $this->fetchScheduledTask($name, $context);
+
+        if (!$force && \in_array($scheduledTask->getStatus(), [ScheduledTaskDefinition::STATUS_QUEUED, ScheduledTaskDefinition::STATUS_RUNNING], true)) {
+            return $scheduledTask->getStatus();
+        }
+
+        $this->scheduledTaskRepository->update([[
+            'id' => $scheduledTask->getId(),
+            'status' => ScheduledTaskDefinition::STATUS_INACTIVE,
+        ]], $context);
+
+        return $this->fetchScheduledTask($name, $context)->getStatus();
     }
 
     private function upsertTasks(ScheduledTaskCollection $alreadyRegisteredTasks, Context $context): void
@@ -63,10 +103,7 @@ class TaskRegistry
         $updates = [];
         foreach ($this->tasks as $task) {
             if (!$task instanceof ScheduledTask) {
-                throw new \RuntimeException(\sprintf(
-                    'Tried to register "%s" as scheduled task, but class does not extend ScheduledTask',
-                    $task::class
-                ));
+                throw MessageQueueException::missingExtends($task::class);
             }
 
             $registeredTask = $this->getAlreadyRegisteredTask($alreadyRegisteredTasks, $task);
@@ -80,7 +117,7 @@ class TaskRegistry
         }
 
         $updates = array_values(array_filter($updates));
-        if (\count($updates) > 0) {
+        if ($updates !== []) {
             $this->scheduledTaskRepository->update($updates, $context);
         }
     }
@@ -110,7 +147,7 @@ class TaskRegistry
         ScheduledTask $task
     ): ?ScheduledTaskEntity {
         return $alreadyScheduledTasks
-                ->filter(fn (ScheduledTaskEntity $registeredTask) => $registeredTask->getScheduledTaskClass() === $task::class)
+                ->filter(static fn (ScheduledTaskEntity $registeredTask) => $registeredTask->getScheduledTaskClass() === $task::class)
                 ->first();
     }
 
@@ -190,5 +227,22 @@ class TaskRegistry
         }
 
         return $payload;
+    }
+
+    private function fetchScheduledTask(string $name, Context $context): ScheduledTaskEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $name));
+        $criteria->setLimit(1);
+
+        $scheduledTask = $this->scheduledTaskRepository
+            ->search($criteria, $context)
+            ->first();
+
+        if (!$scheduledTask instanceof ScheduledTaskEntity) {
+            throw MessageQueueException::notFound($name);
+        }
+
+        return $scheduledTask;
     }
 }

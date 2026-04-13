@@ -21,8 +21,6 @@ import '@shopware-ag/meteor-icon-kit/icons/regular/chevron-down-xs.svg';
 import '@shopware-ag/meteor-icon-kit/icons/regular/chevron-up-xs.svg';
 import '@shopware-ag/meteor-icon-kit/icons/regular/chevron-circle-left.svg';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -42,7 +40,7 @@ const { Component } = Shopware;
  *     <sw-icon name="regular-bell" color="#f1c40f"></sw-icon>
  * </div>
  */
-Component.register('sw-icon-deprecated', {
+export default {
     template,
 
     inject: [
@@ -152,7 +150,6 @@ Component.register('sw-icon-deprecated', {
          * @return Promise for possible override fallback logic
          */
         loadIconSvgData(variant, iconName, iconFullName) {
-            // eslint-disable-next-line max-len
             return import(
                 `./../../../../../node_modules/@shopware-ag/meteor-icon-kit/icons/${variant}/${iconName}.svg?raw`
             ).then((iconSvgData) => {
@@ -166,4 +163,4 @@ Component.register('sw-icon-deprecated', {
             });
         },
     },
-});
+};

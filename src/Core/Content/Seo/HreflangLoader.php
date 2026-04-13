@@ -32,6 +32,7 @@ class HreflangLoader implements HreflangLoaderInterface
 
         $domains = $this->fetchSalesChannelDomains($salesChannelContext->getSalesChannelId());
 
+        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
         if ($parameter->getRoute() === 'frontend.home.page') {
             return $this->getHreflangForHomepage($domains, $salesChannelContext->getSalesChannel()->getHreflangDefaultDomainId());
         }

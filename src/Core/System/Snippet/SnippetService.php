@@ -4,23 +4,25 @@ namespace Shopware\Core\System\Snippet;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use League\Flysystem\FilesystemOperator;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
+use Shopware\Core\System\Snippet\Event\SnippetsThemeResolveEvent;
 use Shopware\Core\System\Snippet\Extension\StorefrontSnippetsExtension;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
+use Shopware\Core\System\Snippet\Files\RemoteSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
-use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
-use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
 /**
@@ -44,13 +46,10 @@ class SnippetService
         private readonly EntityRepository $snippetRepository,
         private readonly EntityRepository $snippetSetRepository,
         private readonly SnippetFilterFactory $snippetFilterFactory,
-        /**
-         * The "kernel" service is synthetic, it needs to be set at boot time before it can be used.
-         * We need to get StorefrontPluginRegistry service from service_container lazily because it depends on kernel service.
-         */
-        private readonly ContainerInterface $container,
         private readonly ExtensionDispatcher $extensionDispatcher,
-        private readonly ?DatabaseSalesChannelThemeLoader $salesChannelThemeLoader = null
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly FilesystemOperator $privateFileSystem,
+        private readonly Filesystem $localFileSystem,
     ) {
     }
 
@@ -102,9 +101,17 @@ class SnippetService
 
         $snippetFileCollection = $this->snippetFileCollection;
 
-        $usingThemes = $this->getUsedThemes($salesChannelId);
-        $unusedThemes = $this->getUnusedThemes($usingThemes);
-        $snippetCollection = $snippetFileCollection->filter(fn (AbstractSnippetFile $snippetFile) => !\in_array($snippetFile->getTechnicalName(), $unusedThemes, true));
+        // Create and dispatch the event
+        $event = new SnippetsThemeResolveEvent($salesChannelId);
+        $this->eventDispatcher->dispatch($event);
+
+        $unusedThemes = $event->getUnusedThemes();
+        if (!Feature::isActive('v6.8.0.0')) {
+            $usingThemes = $event->getUsedThemes();
+            $unusedThemes = $this->getUnusedThemes($usingThemes, $unusedThemes);
+        }
+
+        $snippetCollection = $snippetFileCollection->filter(static fn (AbstractSnippetFile $snippetFile) => !\in_array($snippetFile->getTechnicalName(), $unusedThemes, true));
 
         $fallbackSnippets = [];
 
@@ -201,7 +208,7 @@ class SnippetService
 
         $aggregation = $this->snippetRepository->aggregate($criteria, $context)->get('distinct_author');
 
-        if (!$aggregation instanceof TermsResult || empty($aggregation->getBuckets())) {
+        if (!$aggregation instanceof TermsResult || $aggregation->getBuckets() === []) {
             $result = [];
         } else {
             $result = $aggregation->getKeys();
@@ -249,21 +256,17 @@ class SnippetService
     }
 
     /**
+     * @deprecated tag:v6.8.0 - reason:visibility-change - will be removed
+     * Keeping this method for backwards compatibility (if it's redeclared in the child classes - child method return
+     * value will be used, otherwise value of $unusedThemes received via event is returned)
+     *
      * @param list<string> $usingThemes
      *
      * @return list<string>
      */
-    protected function getUnusedThemes(array $usingThemes = []): array
+    protected function getUnusedThemes(array $usingThemes = []/* , array $unusedThemes */): array
     {
-        if (!$this->container->has(StorefrontPluginRegistry::class)) {
-            return [];
-        }
-
-        $unusedThemes = $this->container->get(StorefrontPluginRegistry::class)->getConfigurations()->getThemes()
-            ->filter(fn (StorefrontPluginConfiguration $theme) => !\in_array($theme->getTechnicalName(), $usingThemes, true))
-            ->map(fn (StorefrontPluginConfiguration $theme) => $theme->getTechnicalName());
-
-        return array_values($unusedThemes);
+        return \func_num_args() === 2 ? \func_get_arg(1) : [];
     }
 
     /**
@@ -303,27 +306,15 @@ class SnippetService
     }
 
     /**
-     * @return list<string>
-     */
-    private function getUsedThemes(?string $salesChannelId = null): array
-    {
-        if (!$this->container->has(StorefrontPluginRegistry::class)) {
-            return [];
-        }
-
-        if (!$salesChannelId || $this->salesChannelThemeLoader === null) {
-            return [StorefrontPluginRegistry::BASE_THEME_NAME];
-        }
-
-        $usedThemes = $this->salesChannelThemeLoader->load($salesChannelId);
-
-        return array_values(array_unique([
-            ...$usedThemes,
-            StorefrontPluginRegistry::BASE_THEME_NAME, // Storefront snippets should always be loaded
-        ]));
-    }
-
-    /**
+     *  Collects snippet files for each given locale.
+     *
+     *  For each locale (e.g., "es-AR"), the method first tries to load files
+     *  that match the exact locale. If that locale contains a region separator ("-"),
+     *  it will also load files for the base language (e.g., "es").
+     *
+     *  The base language snippet files are prepended, ensuring country-specific
+     *  snippets (e.g. "es-AR") override more general ones ("es").
+     *
      * @param array<string, string> $isoList
      *
      * @return array<string, list<AbstractSnippetFile>>
@@ -332,7 +323,26 @@ class SnippetService
     {
         $result = [];
         foreach ($isoList as $iso) {
-            $result[$iso] = $this->snippetFileCollection->getSnippetFilesByIso($iso);
+            // Load all snippet files that match the exact locale (e.g., "es-AR")
+            $files = $this->snippetFileCollection->getSnippetFilesByIso($iso);
+            preg_match(
+                SnippetPatterns::COMPLETE_LOCALE_PATTERN,
+                $iso,
+                $matchedPattern,
+                \PREG_UNMATCHED_AS_NULL
+            );
+
+            // If the locale has a region (e.g., "es-AR"), try to load its base language ("es")
+            $region = $matchedPattern['region'] ?? '';
+            if ($region !== '' && strtolower($region) !== $iso) {
+                $language = $matchedPattern['language'] ?? '';
+                \assert($language !== '');
+                $fallbackFiles = $this->snippetFileCollection->getSnippetFilesByIso($language);
+                // Prepend fallback files so region-specific ones override them
+                $files = [...$fallbackFiles, ...$files];
+            }
+
+            $result[$iso] = $files;
         }
 
         return $result;
@@ -542,8 +552,8 @@ class SnippetService
         unset($snippets[$sort['sortBy']]);
 
         uasort($mainSet['snippets'], static function ($a, $b) use ($sort) {
-            $a = mb_strtolower((string) $a['value']);
-            $b = mb_strtolower((string) $b['value']);
+            $a = mb_strtolower($a['value']);
+            $b = mb_strtolower($b['value']);
 
             return $sort['sortDirection'] !== 'DESC' ? $a <=> $b : $b <=> $a;
         });
@@ -568,12 +578,12 @@ class SnippetService
     {
         $result = [];
         foreach ($array as $index => $value) {
-            $newIndex = $prefix . (empty($prefix) ? '' : '.') . $index;
+            $newIndex = $prefix . ($prefix === '' ? '' : '.') . $index;
 
             if (\is_array($value)) {
                 $result = [...$result, ...$this->flatten($value, $newIndex, $additionalParameters)];
             } else {
-                if (!empty($additionalParameters)) {
+                if ($additionalParameters !== null && $additionalParameters !== []) {
                     $result[$newIndex] = array_merge([
                         'value' => $value,
                         'origin' => $value,
@@ -596,12 +606,16 @@ class SnippetService
      */
     private function decodeSnippetFileJson(AbstractSnippetFile $snippetFile): array
     {
+        if ($snippetFile instanceof RemoteSnippetFile) {
+            $content = $this->privateFileSystem->read($snippetFile->getPath());
+        } else {
+            $content = $this->localFileSystem->readFile($snippetFile->getPath());
+        }
+
         try {
-            $json = json_decode((string) file_get_contents($snippetFile->getPath()), true, 512, \JSON_THROW_ON_ERROR);
+            return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw SnippetException::invalidSnippetFile($snippetFile->getPath(), $e);
         }
-
-        return $json;
     }
 }

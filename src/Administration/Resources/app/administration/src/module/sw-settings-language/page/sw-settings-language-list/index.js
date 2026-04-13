@@ -30,7 +30,7 @@ export default {
             filterRootLanguages: false,
             filterInheritedLanguages: false,
             isLoading: true,
-            sortBy: 'name',
+            sortBy: 'active',
             sortDirection: 'DESC',
         };
     },
@@ -84,13 +84,11 @@ export default {
                     label: 'sw-settings-language.list.columnIsoCode',
                 },
                 {
-                    property: 'parent',
-                    dataIndex: 'parent.id',
-                    label: 'sw-settings-language.list.columnInherit',
-                },
-                {
-                    property: 'id',
-                    label: 'sw-settings-language.list.columnDefault',
+                    property: 'active',
+                    dataIndex: 'active',
+                    label: 'sw-settings-language.list.columnActive',
+                    inlineEdit: 'boolean',
+                    align: 'center',
                 },
             ];
         },

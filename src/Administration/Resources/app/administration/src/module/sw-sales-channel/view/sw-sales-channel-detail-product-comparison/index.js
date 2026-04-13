@@ -5,7 +5,7 @@
 import template from './sw-sales-channel-detail-product-comparison.html.twig';
 import './sw-sales-channel-detail-product-comparison.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
@@ -53,10 +53,15 @@ export default {
             isPreviewSuccessful: false,
             isLoadingValidate: false,
             isValidateSuccessful: false,
+            isLoadingReset: false,
         };
     },
 
     computed: {
+        isAgenticCommerce() {
+            return this.salesChannel?.typeId === Defaults.agenticCommerceTypeId;
+        },
+
         editorConfig() {
             return {
                 enableBasicAutocompletion: true,
@@ -175,6 +180,28 @@ export default {
             this.previewContent = null;
             this.previewErrors = null;
             this.isPreviewSuccessful = false;
+        },
+
+        resetToDefault() {
+            const provider = this.productExport.provider || 'open-ai';
+            const registry = Shopware.Service('exportTemplateService').getProductExportTemplateRegistry();
+            const template = Object.values(registry).find((entry) => entry.providerName === provider);
+
+            if (!template) {
+                this.createNotificationError({
+                    message: this.$tc('sw-sales-channel.detail.agenticCommerce.errorLoadingTemplate'),
+                });
+
+                return;
+            }
+
+            this.productExport.headerTemplate = template.headerTemplate;
+            this.productExport.bodyTemplate = template.bodyTemplate;
+            this.productExport.footerTemplate = template.footerTemplate;
+
+            this.createNotificationInfo({
+                message: this.$tc('sw-sales-channel.detail.agenticCommerce.resetTemplateSuccess'),
+            });
         },
 
         resetValid() {

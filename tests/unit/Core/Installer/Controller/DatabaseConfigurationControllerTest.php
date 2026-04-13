@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Installer\Controller\DatabaseConfigurationController;
 use Shopware\Core\Installer\Controller\InstallerController;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
@@ -30,6 +31,7 @@ use Twig\Environment;
 #[CoversClass(InstallerController::class)]
 class DatabaseConfigurationControllerTest extends TestCase
 {
+    use EnvTestBehaviour;
     use InstallerControllerTestTrait;
 
     private MockObject&Environment $twig;
@@ -66,6 +68,46 @@ class DatabaseConfigurationControllerTest extends TestCase
 
     public function testDatabaseGetConfigurationRoute(): void
     {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://shopware:secret@db.example:3307/shopware_prefill',
+        ]);
+
+        $expectedConnectionInfo = (new DatabaseConnectionInformation())->assign([
+            'hostname' => 'db.example',
+            'port' => 3307,
+            'username' => 'shopware',
+            'password' => null,
+            'databaseName' => 'shopware_prefill',
+        ]);
+
+        $this->twig->expects($this->once())->method('render')
+            ->with(
+                '@Installer/installer/database-configuration.html.twig',
+                array_merge($this->getDefaultViewParams(), [
+                    'connectionInfo' => $expectedConnectionInfo,
+                    'error' => null,
+                ])
+            )
+            ->willReturn('config');
+
+        $this->connectionFactory->expects($this->never())->method('getConnection');
+
+        $request = Request::create('/installer/database-configuration');
+        $session = new Session(new MockArraySessionStorage());
+        $request->setSession($session);
+
+        $response = $this->controller->databaseConfiguration($request);
+        static::assertSame('config', $response->getContent());
+
+        static::assertFalse($session->has(DatabaseConnectionInformation::class));
+    }
+
+    public function testDatabaseGetConfigurationRouteFallsBackOnInvalidDatabaseUrl(): void
+    {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'not-a-valid-url',
+        ]);
+
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/database-configuration.html.twig',

@@ -56,6 +56,13 @@ class SalutationDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getDefaults(): array
+    {
+        return [
+            'position' => self::DEFAULT_POSITION,
+        ];
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -75,12 +82,5 @@ class SalutationDefinition extends EntityDefinition
             (new OneToManyAssociationField('orderAddresses', OrderAddressDefinition::class, 'salutation_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('newsletterRecipients', NewsletterRecipientDefinition::class, 'salutation_id', 'id'))->addFlags(new SetNullOnDelete()),
         ]);
-    }
-
-    public function getDefaults(): array
-    {
-        return [
-            'position' => self::DEFAULT_POSITION
-        ];
     }
 }

@@ -26,7 +26,7 @@ class CustomFieldRule
     /**
      * @param array<string, string|array<string, string>> $renderedField
      *
-     * @return array<string, array<int, mixed>>
+     * @return array<string, list<Constraint>>
      */
     public static function getConstraints(array $renderedField): array
     {
@@ -194,7 +194,7 @@ class CustomFieldRule
     /**
      * @param array<string, string|array<string, string>> $renderedField
      *
-     * @return Constraint[]
+     * @return list<Constraint>
      */
     private static function getRenderedFieldValueConstraints(array $renderedField): array
     {

@@ -328,11 +328,7 @@
 
                                                                                 {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                                                                                 {% if not feature('JSON_LD_DATA') and isProduct %}
-                                                                                    {% if loop.first %}
-                                                                                        {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
-                                                                                    {% else %}
-                                                                                        {% set attributes = attributes|merge({ itemprop: 'image' }) %}
-                                                                                    {% endif %}
+                                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
                                                                                 {% endif %}
 
                                                                                 {% if loop.first and sliderConfig.useFetchPriorityOnFirstItem.value is true %}
@@ -505,11 +501,7 @@
 
                                                                 {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                                                                 {% if not feature('JSON_LD_DATA') and isProduct %}
-                                                                    {% if loop.first %}
-                                                                        {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
-                                                                    {% else %}
-                                                                        {% set attributes = attributes|merge({ itemprop: 'image' }) %}
-                                                                    {% endif %}
+                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
                                                                 {% endif %}
 
                                                                 {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
@@ -599,11 +591,7 @@
 
                                                                             {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                                                                             {% if not feature('JSON_LD_DATA') and isProduct %}
-                                                                                {% if loop.first %}
-                                                                                    {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
-                                                                                {% else %}
-                                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
-                                                                                {% endif %}
+                                                                                {% set attributes = attributes|merge({ itemprop: 'image' }) %}
                                                                             {% endif %}
 
                                                                             {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {

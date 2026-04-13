@@ -40,5 +40,4 @@ export default [
     '/static/fixtures/sw-test-image.png',
     '/static/fixtures/sw-login-background-2.png',
     '/src/module/sw-login/page/index/assets/sw-login-background.png',
-    '/src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner/assets/data-consent-background.png',
 ];

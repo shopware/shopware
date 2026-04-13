@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1775200002RecalculateProductDisplayGroupHash;
@@ -688,6 +689,11 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
     /**
      * Same product index subset as {@see Migration1775200002RecalculateProductDisplayGroupHash} schedules via
      * {@see \Shopware\Core\Framework\Migration\IndexerQueuer} (variant listing / display_group only).
+     *
+     * With major flag {@code v6.8.0.0} active, {@see ProductIndexer::handle} already skips
+     * {@see \Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater}. With the flag off, that updater is
+     * still reachable but not listed in {@see ProductIndexer::getOptions()}; add {@see ProductIndexer::STATES_UPDATER}
+     * to the skip list so we do not query {@code product.states} after destructive migrations removed the column.
      */
     private function runScheduledVariantListingIndexer(): void
     {
@@ -696,6 +702,11 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
         static::assertNotNull($productIndexer);
 
         $skipList = \array_values(\array_diff($productIndexer->getOptions(), [ProductIndexer::VARIANT_LISTING_UPDATER]));
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $skipList = \array_values(\array_unique([...$skipList, ProductIndexer::STATES_UPDATER]));
+        }
+
         $registry->index(false, $skipList, ['product.indexer']);
     }
 

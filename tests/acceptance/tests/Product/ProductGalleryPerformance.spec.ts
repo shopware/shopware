@@ -3,8 +3,8 @@ import { test, expect } from '@fixtures/AcceptanceTest';
 const IMAGE_COUNT = 10;
 const VISIBLE_THUMBNAILS = 5;
 
-const SELECTOR_MAIN_SLIDE_IMAGE = '.gallery-slider-container .gallery-slider-item-container:not(.tns-slide-cloned) .gallery-slider-image';
-const SELECTOR_THUMBNAIL_IMAGE = '.gallery-slider-thumbnails-item:not(.tns-slide-cloned) .gallery-slider-thumbnails-image';
+const SELECTOR_MAIN_SLIDE_IMAGE = '.gallery-slider-container .gallery-slider-item-container.tns-item:not(.tns-slide-cloned) .gallery-slider-image';
+const SELECTOR_THUMBNAIL_IMAGE = '.gallery-slider-thumbnails.tns-slider .gallery-slider-thumbnails-image';
 const SELECTOR_THUMBNAIL_CONTAINER = '.gallery-slider-thumbnails-col.is-left .gallery-slider-thumbnails';
 
 test('Product gallery should lazy-load non-visible images and constrain thumbnail height.', { tag: ['@Product', '@Storefront'] }, async ({

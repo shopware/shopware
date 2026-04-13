@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1775200002RecalculateProductDisplayGroupHash;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlUpdateListener;
 
 /**
  * Assumes a fully migrated test database (including {@see \Shopware\Core\Migration\V6_7\Migration1775200001IncreaseProductDisplayGroupLength}
@@ -694,6 +695,10 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
      * {@see \Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater}. With the flag off, that updater is
      * still reachable but not listed in {@see ProductIndexer::getOptions()}; add {@see ProductIndexer::STATES_UPDATER}
      * to the skip list so we do not query {@code product.states} after destructive migrations removed the column.
+     *
+     * {@see SeoUrlUpdateListener} is unrelated to display_group; skip {@see SeoUrlUpdateListener::PRODUCT_SEO_URL_UPDATER}
+     * so {@see ProductIndexerEvent} does not run SEO URL updates (they load entities such as language and are out of
+     * scope for this migration test).
      */
     private function runScheduledVariantListingIndexer(): void
     {
@@ -701,11 +706,16 @@ class Migration1775200002RecalculateProductDisplayGroupHashTest extends TestCase
         $productIndexer = $registry->getIndexer('product.indexer');
         static::assertNotNull($productIndexer);
 
-        $skipList = \array_values(\array_diff($productIndexer->getOptions(), [ProductIndexer::VARIANT_LISTING_UPDATER]));
+        $skipList = [
+            ...\array_diff($productIndexer->getOptions(), [ProductIndexer::VARIANT_LISTING_UPDATER]),
+            SeoUrlUpdateListener::PRODUCT_SEO_URL_UPDATER,
+        ];
 
         if (!Feature::isActive('v6.8.0.0')) {
-            $skipList = \array_values(\array_unique([...$skipList, ProductIndexer::STATES_UPDATER]));
+            $skipList[] = ProductIndexer::STATES_UPDATER;
         }
+
+        $skipList = \array_values(\array_unique($skipList));
 
         $registry->index(false, $skipList, ['product.indexer']);
     }
